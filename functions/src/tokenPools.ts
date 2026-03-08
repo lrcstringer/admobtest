@@ -169,7 +169,7 @@ const GIFT_CLAIM_EXPIRY_DAYS = 7;
  * 5. FCM notifications to invitees
  */
 export const createTokenPool = onCall(
-  { labels: { area: "pools" } },
+  { labels: { area: "pools" }, minInstances: 1 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "createTokenPool");
@@ -221,68 +221,58 @@ export const createTokenPool = onCall(
       throw new HttpsError("invalid-argument", "Must invite at least one other person");
     }
 
-    // Verify all invitees exist
-    const allUserIds = mode === "sasaza" && recipientId
-      ? [...filteredInviteeIds, recipientId]
-      : [...filteredInviteeIds];
-
-    for (let i = 0; i < allUserIds.length; i += 30) {
-      const batch = allUserIds.slice(i, i + 30);
-      const refs = batch.map((id: string) => db.collection("users").doc(id));
-      const docs = await db.getAll(...refs);
-      for (const doc of docs) {
-        if (!doc.exists) {
-          throw new HttpsError("not-found", `User ${doc.id} not found`);
-        }
-      }
-    }
-
-    // --- Create pool ---
+    // --- Parallel: fetch all user profiles + create group ledger account ---
+    // Combines the user-existence check with profile fetching (single batch
+    // read instead of two separate passes) and runs in parallel with ledger
+    // account creation to cut ~200-400ms off the critical path.
     const poolRef = db.collection("tokenPools").doc();
     const poolId = poolRef.id;
     const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // 1. Create group ledger account
-    const { accountId: groupAccountId } = await getOrCreateGroupAccount(poolId);
+    const allUserIds = mode === "sasaza" && recipientId
+      ? [userId, ...filteredInviteeIds, recipientId]
+      : [userId, ...filteredInviteeIds];
 
-    // 2. Get organizer profile
-    const organizerProfile = await getUserProfile(userId);
-    const organizerName = organizerProfile.displayName || "Unknown";
+    // Run the two independent operations in parallel
+    const [userProfiles, { accountId: groupAccountId }] = await Promise.all([
+      // 1. Single batch read: verify existence + extract profiles
+      (async () => {
+        const profiles: Record<string, { displayName: string; avatarUrl: string | null }> = {};
+        for (let i = 0; i < allUserIds.length; i += 30) {
+          const batch = allUserIds.slice(i, i + 30);
+          const refs = batch.map((id: string) => db.collection("users").doc(id));
+          const docs = await db.getAll(...refs);
+          for (const doc of docs) {
+            if (!doc.exists) {
+              throw new HttpsError("not-found", `User ${doc.id} not found`);
+            }
+            const data = doc.data()!;
+            profiles[doc.id] = {
+              displayName: data.displayName || "Unknown",
+              avatarUrl: data.avatarUrl || data.profilePicThumbUrl || null,
+            };
+          }
+        }
+        return profiles;
+      })(),
+      // 2. Create group ledger account
+      getOrCreateGroupAccount(poolId),
+    ]);
 
-    // Get recipient profile (sasaza mode)
+    const organizerName = userProfiles[userId].displayName;
     let recipientName: string | null = null;
     if (mode === "sasaza" && recipientId) {
-      const recipientProfile = await getUserProfile(recipientId);
-      recipientName = recipientProfile.displayName || "Unknown";
+      recipientName = userProfiles[recipientId].displayName;
     }
 
-    // 3. Create conversation (collection room)
+    // Build conversation participants + per-user maps
     const convId = `collection_${poolId}`;
     const convRef = db.collection("conversations").doc(convId);
-
     const participantIds = [userId, ...filteredInviteeIds];
 
-    // Build participants map
     const participantsMap: Record<string, unknown> = {};
-    participantsMap[userId] = {
-      displayName: organizerName,
-      avatarUrl: organizerProfile.avatarUrl || organizerProfile.profilePicThumbUrl || null,
-    };
-
-    // Fetch invitee profiles for denormalized data
-    for (let i = 0; i < filteredInviteeIds.length; i += 30) {
-      const batch = filteredInviteeIds.slice(i, i + 30);
-      const refs = batch.map((id: string) => db.collection("users").doc(id));
-      const docs = await db.getAll(...refs);
-      for (const doc of docs) {
-        if (doc.exists) {
-          const data = doc.data()!;
-          participantsMap[doc.id] = {
-            displayName: data.displayName || "Unknown",
-            avatarUrl: data.avatarUrl || data.profilePicThumbUrl || null,
-          };
-        }
-      }
+    for (const pid of participantIds) {
+      participantsMap[pid] = userProfiles[pid];
     }
 
     const unreadCounts: Record<string, number> = {};
@@ -367,7 +357,7 @@ export const createTokenPool = onCall(
 
     await writeBatch.commit();
 
-    // 4. Post system message
+    // 4. System message + FCM — fire-and-forget (don't block response)
     const purposeTrimmed = (purpose || "").trim();
     const systemText = mode === "sasaza"
       ? `${organizerName} started a Group Sasaza for ${recipientName}`
@@ -375,14 +365,13 @@ export const createTokenPool = onCall(
         ? `${organizerName} started a Group Save: ${purposeTrimmed}`
         : `${organizerName} started a Group Save`;
 
-    await postSystemMessage(convId, systemText, "pool_created", {
+    postSystemMessage(convId, systemText, "pool_created", {
       poolId,
       mode,
       organizerName,
       recipientName,
-    });
+    }).catch((e) => logger.warn("System message failed for pool creation:", e));
 
-    // 5. FCM notifications to invitees (fire-and-forget — don't block response)
     getFcmTokens(filteredInviteeIds).then((fcmTokens) => {
       const fcmTitle = mode === "sasaza"
         ? `Group Sasaza for ${recipientName}`
@@ -399,9 +388,45 @@ export const createTokenPool = onCall(
 
     logger.info(`Created token pool ${poolId} (${mode}) by ${userId}`);
 
-    // Return the pool data (read back to get server timestamps)
-    const poolDoc = await poolRef.get();
-    return { success: true, pool: { ...poolDoc.data(), id: poolId } };
+    // Return pool data directly — skip the read-back Firestore round-trip.
+    // Server timestamps are approximated with Date.now() since the client
+    // will get the authoritative value from the Firestore stream anyway.
+    const nowIso = new Date().toISOString();
+    return {
+      success: true,
+      pool: {
+        id: poolId,
+        mode,
+        status: "collecting",
+        organizerId: userId,
+        organizerName,
+        recipientId: recipientId || null,
+        recipientName: recipientName || null,
+        communityId: communityId || null,
+        conversationId: convId,
+        title: title.trim(),
+        purpose: (purpose || "").trim(),
+        message: (message || "").trim(),
+        style,
+        totalAmount: 0,
+        contributionCount: 0,
+        contributorCount: 0,
+        contributions: {},
+        payouts: [],
+        giftMessageId: null,
+        giftConversationId: null,
+        inviteeIds: filteredInviteeIds,
+        expiresAt: expiresAt ? expiresAt.toDate().toISOString() : null,
+        createdAt: nowIso,
+        updatedAt: nowIso,
+        sentAt: null,
+        openedAt: null,
+        completedAt: null,
+        cancelledAt: null,
+        groupAccountId,
+        reminderSent: false,
+      },
+    };
   }
 );
 
@@ -581,7 +606,7 @@ export const contributeToPool = onCall(
  * Creates a groupGift message in the organizer↔recipient P2P conversation.
  */
 export const sendGroupGift = onCall(
-  { labels: { area: "pools" } },
+  { labels: { area: "pools" }, minInstances: 1 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "sendGroupGift");
@@ -927,7 +952,7 @@ export const openGroupGift = onCall(
  * Recipient claims the group gift. Status update only — tokens already transferred during send.
  */
 export const claimGroupGift = onCall(
-  { labels: { area: "pools" } },
+  { labels: { area: "pools" }, minInstances: 1 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "claimGroupGift");

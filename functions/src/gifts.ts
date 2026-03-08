@@ -357,7 +357,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
  * Only the recipient can open a gift.
  * Uses a Firestore transaction to prevent TOCTOU races.
  */
-export const openGift = onCall({ labels: { area: "gifts" } }, async (request) => {
+export const openGift = onCall({ labels: { area: "gifts" }, minInstances: 1 }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "openGift");
 
@@ -438,7 +438,7 @@ export const openGift = onCall({ labels: { area: "gifts" } }, async (request) =>
  * Only the recipient can claim. Gift must be "opened" and not expired.
  * Uses a Firestore transaction to prevent TOCTOU races + double-claim.
  */
-export const claimGift = onCall({ labels: { area: "gifts" } }, async (request) => {
+export const claimGift = onCall({ labels: { area: "gifts" }, minInstances: 1 }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "claimGift");
   // Advisory mode (enforce=false): fire-and-forget — don't block the request.

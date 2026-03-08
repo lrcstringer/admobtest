@@ -414,13 +414,26 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
             return Transform.scale(scale: scale, child: child);
           },
           child: _phase == _DialogPhase.opening
-              ? const SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: CircularProgressIndicator(
-                    color: Colors.white70,
-                    strokeWidth: 3,
-                  ),
+              ? const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: CircularProgressIndicator(
+                        color: Colors.white70,
+                        strokeWidth: 3,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Opening...',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 )
               : ElevatedButton.icon(
                   onPressed: _onTapToOpen,
@@ -578,13 +591,27 @@ class _GiftOpeningDialogState extends State<_GiftOpeningDialog>
             ),
           )
         else if (_phase == _DialogPhase.claiming)
-          const SizedBox(
-            width: 48,
-            height: 48,
-            child: CircularProgressIndicator(
-              color: AppColors.success,
-              strokeWidth: 3,
-            ),
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: CircularProgressIndicator(
+                  color: AppColors.success,
+                  strokeWidth: 3,
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'Claiming Tokens...',
+                style: TextStyle(
+                  color: AppColors.success,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           )
         else
           FadeTransition(

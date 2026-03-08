@@ -230,10 +230,24 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
                         ),
                       ),
                       child: state.isCreating
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  _mode == PoolMode.sasaza
+                                      ? 'Creating Sasaza...'
+                                      : 'Creating Group Save...',
+                                ),
+                              ],
                             )
                           : Text(
                               _mode == PoolMode.sasaza
