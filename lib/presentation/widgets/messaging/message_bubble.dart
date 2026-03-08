@@ -444,6 +444,7 @@ class MessageBubble extends StatelessWidget {
               borderRadius: AppSpacing.borderRadiusSm,
               child: isEncrypted
                   ? _EncryptedImageThumbnail(
+                      key: ValueKey('thumb_${message.id}'),
                       url: media.thumbnailUrl ?? media.url,
                       mediaKeyBase64: media.thumbKey ?? media.mediaKey!,
                     )
@@ -1160,6 +1161,7 @@ class _EncryptedImageThumbnail extends StatefulWidget {
   final String mediaKeyBase64;
 
   const _EncryptedImageThumbnail({
+    super.key,
     required this.url,
     required this.mediaKeyBase64,
   });
@@ -1185,6 +1187,18 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
   void initState() {
     super.initState();
     _loadImage();
+  }
+
+  @override
+  void didUpdateWidget(covariant _EncryptedImageThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url ||
+        oldWidget.mediaKeyBase64 != widget.mediaKeyBase64) {
+      _bytes = null;
+      _isLoading = true;
+      _hasError = false;
+      _loadImage();
+    }
   }
 
   /// SHA-1 hash of URL → hex string, used as disk cache filename.

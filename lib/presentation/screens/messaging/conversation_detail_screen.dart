@@ -368,6 +368,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             .displayName;
 
         return Column(
+          key: ValueKey(message.id),
           children: [
             if (showDate) DateSeparator(date: message.createdAt),
             MessageBubble(

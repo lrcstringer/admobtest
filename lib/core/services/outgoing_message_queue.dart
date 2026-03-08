@@ -1065,14 +1065,16 @@ class OutgoingMessageQueue {
         } catch (_) {}
       }
 
-      // Replace optimistic with real
-      await _appDatabase.deleteLocalMessage(msg.id);
-      await _appDatabase.upsertLocalMessage(
-        LocalMessageMapper.toCompanion(sentMessage, msg.conversationId),
-      );
+      // Replace optimistic with real — atomic to prevent brief duplicate
       _messageSyncService.cacheSentPlaintext(
           sentMessage.id, message ?? '');
-      await _appDatabase.deletePendingMessage(msg.id);
+      await _appDatabase.transaction(() async {
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(sentMessage, msg.conversationId),
+        );
+        await _appDatabase.deleteLocalMessage(msg.id);
+        await _appDatabase.deletePendingMessage(msg.id);
+      });
     } catch (e) {
       await _markFailed(msg.id, _userFriendlyError(e));
     }
@@ -1130,13 +1132,16 @@ class OutgoingMessageQueue {
         } catch (_) {}
       }
 
-      await _appDatabase.deleteLocalMessage(msg.id);
-      await _appDatabase.upsertLocalMessage(
-        LocalMessageMapper.toCompanion(sentMessage, msg.conversationId),
-      );
+      // Replace optimistic with real — atomic to prevent brief duplicate
       _messageSyncService.cacheSentPlaintext(
           sentMessage.id, message ?? '');
-      await _appDatabase.deletePendingMessage(msg.id);
+      await _appDatabase.transaction(() async {
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(sentMessage, msg.conversationId),
+        );
+        await _appDatabase.deleteLocalMessage(msg.id);
+        await _appDatabase.deletePendingMessage(msg.id);
+      });
     } catch (e) {
       await _markFailed(msg.id, _userFriendlyError(e));
     }
@@ -1187,12 +1192,14 @@ class OutgoingMessageQueue {
         x3dhHeader: x3dhHeader,
       );
 
-      // Replace optimistic with real
+      // Replace optimistic with real — atomic to prevent brief duplicate
       if (msg.plaintext != null) {
         _messageSyncService.cacheSentPlaintext(messageId, msg.plaintext!);
       }
-      await _appDatabase.deleteLocalMessage(msg.id);
-      await _appDatabase.deletePendingMessage(msg.id);
+      await _appDatabase.transaction(() async {
+        await _appDatabase.deleteLocalMessage(msg.id);
+        await _appDatabase.deletePendingMessage(msg.id);
+      });
     } catch (e) {
       await _markFailed(msg.id, _userFriendlyError(e));
     }
@@ -1349,13 +1356,17 @@ class OutgoingMessageQueue {
       createdAt: createdAt ?? DateTime.now(),
     );
 
-    // H3: Upsert real message BEFORE deleting old, so message is never
-    // missing from local DB if app crashes mid-operation.
-    await _appDatabase.upsertLocalMessage(
-      LocalMessageMapper.toCompanion(sentMessage, conversationId),
-    );
-    await _appDatabase.deleteLocalMessage(pendingId);
-    await _appDatabase.deletePendingMessage(pendingId);
+    // H3: Atomically replace the pending message with the real one inside a
+    // transaction. Without this, the watch stream fires between the upsert
+    // and delete, briefly exposing both pending_xxx and the real message
+    // to the UI (visible as a duplicate bubble).
+    await _appDatabase.transaction(() async {
+      await _appDatabase.upsertLocalMessage(
+        LocalMessageMapper.toCompanion(sentMessage, conversationId),
+      );
+      await _appDatabase.deleteLocalMessage(pendingId);
+      await _appDatabase.deletePendingMessage(pendingId);
+    });
   }
 
   /// Mark a pending message as failed and update the optimistic UI.

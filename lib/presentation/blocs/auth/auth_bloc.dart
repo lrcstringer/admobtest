@@ -90,6 +90,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               user: user,
               isLoading: false,
             ));
+            // Clear message cache if a different user logged in (prevents
+            // data leakage). Same user gets instant conversation list from
+            // the preserved local DB cache.
+            getIt<AppDatabase>()
+                .clearMessageCacheIfUserChanged(user.id)
+                .catchError((_) => false);
             // Start conversation/community list sync immediately so the
             // Chat and Communities tabs show data before E2EE keys are ready.
             _messageSyncService.startConversationListSync();

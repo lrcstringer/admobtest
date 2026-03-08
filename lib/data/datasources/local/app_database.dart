@@ -814,6 +814,18 @@ class AppDatabase extends _$AppDatabase {
     return into(localFullConversations).insertOnConflictUpdate(conversation);
   }
 
+  /// Batch upsert multiple conversations in a single DB transaction.
+  /// Much faster than N sequential upserts for the initial sync.
+  Future<void> upsertLocalConversationsBatch(
+      List<LocalFullConversationsCompanion> conversations) {
+    return batch((b) {
+      for (final conv in conversations) {
+        b.insert(localFullConversations, conv,
+            onConflict: DoUpdate((_) => conv));
+      }
+    });
+  }
+
   Future<LocalFullConversation?> getLocalConversation(String id) {
     return (select(localFullConversations)
           ..where((c) => c.id.equals(id)))
@@ -1059,13 +1071,40 @@ class AppDatabase extends _$AppDatabase {
     await delete(localChatMessages).go();
     await delete(localContacts).go();
     await delete(localPendingChanges).go();
-    await delete(localSyncMetadata).go();
-    await clearDecryptedMessages();
-    await clearLocalFullMessages();
-    await clearLocalFullConversations();
+    // Preserve localSyncMetadata (contains messageCacheUserId for
+    // different-user detection) and conversation + message cache so the same
+    // user sees their inbox instantly on re-login. The cache is refreshed
+    // from Firestore on next sync. clearMessageCache() wipes these when
+    // a different user logs in.
     await delete(localPendingMessages).go();
     await clearLocalCommunities();
     await clearLocalCommunityMembers();
+  }
+
+  /// Clear the messaging display cache (conversations, messages, decrypted
+  /// plaintext). Called when a different user logs in to prevent data leakage.
+  Future<void> clearMessageCache() async {
+    await clearDecryptedMessages();
+    await clearLocalFullMessages();
+    await clearLocalFullConversations();
+  }
+
+  /// Check if the message cache belongs to a different user and clear it
+  /// if so. Returns true if the cache was cleared (new user detected).
+  ///
+  /// Call this on login before starting conversation sync. Preserves the
+  /// cache for the same user so conversations appear instantly on re-login.
+  Future<bool> clearMessageCacheIfUserChanged(String userId) async {
+    final cachedUserId = await getSyncMetadata('messageCacheUserId');
+    if (cachedUserId != null && cachedUserId != userId) {
+      await clearMessageCache();
+      await setSyncMetadata('messageCacheUserId', userId);
+      return true;
+    }
+    if (cachedUserId == null) {
+      await setSyncMetadata('messageCacheUserId', userId);
+    }
+    return false;
   }
 
   Future<void> clearUserData(String userId) async {
@@ -1074,9 +1113,7 @@ class AppDatabase extends _$AppDatabase {
     await deleteEarnThreads(userId);
     await deleteChatThreads(userId);
     await deleteContacts(userId);
-    await clearDecryptedMessages();
-    await clearLocalFullMessages();
-    await clearLocalFullConversations();
+    // Preserve conversation + message cache (same as clearAllData)
     await delete(localPendingMessages).go();
     await clearLocalCommunities();
     await clearLocalCommunityMembers();
