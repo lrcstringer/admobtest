@@ -80,13 +80,14 @@ LocalFullConversation _createLocalFullConversation({
   String id = _conversationId,
   String type = 'p2p',
   String? lastMessageText = 'Hello!',
+  String recipientId = _recipientId,
 }) {
   return LocalFullConversation(
     id: id,
     type: type,
-    participantIdsJson: '["$_userId","$_recipientId"]',
+    participantIdsJson: '["$_userId","$recipientId"]',
     participantsJson:
-        '{"$_userId":{"displayName":"Alice"},"$_recipientId":{"displayName":"Bob"}}',
+        '{"$_userId":{"displayName":"Alice"},"$recipientId":{"displayName":"Bob"}}',
     lastMessageId: 'msg_1',
     lastMessageText: lastMessageText,
     lastMessageSenderId: _userId,
@@ -289,7 +290,8 @@ void main() {
       when(() => mockAppDatabase.getLocalConversations())
           .thenAnswer((_) async => [
                 _createLocalFullConversation(id: 'conv_1'),
-                _createLocalFullConversation(id: 'conv_2'),
+                _createLocalFullConversation(
+                    id: 'conv_2', recipientId: 'user_3'),
               ]);
 
       final result = await repository.getConversations();

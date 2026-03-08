@@ -481,23 +481,38 @@ void main() {
   group('removed communities cleanup', () {
     test('cleans local data when a community disappears from the list',
         () async {
-      // Set up per-community streams for initial community
-      final msgController = StreamController<List<MessageModel>>.broadcast();
-      final memberController =
+      // Set up per-community streams for c1 and c2
+      final msgController1 = StreamController<List<MessageModel>>.broadcast();
+      final memberController1 =
+          StreamController<List<CommunityMemberModel>>.broadcast();
+      final msgController2 = StreamController<List<MessageModel>>.broadcast();
+      final memberController2 =
           StreamController<List<CommunityMemberModel>>.broadcast();
       when(() => mockRemoteDataSource.watchMessages(
             communityId: 'c1',
             limit: any(named: 'limit'),
-          )).thenAnswer((_) => msgController.stream);
+          )).thenAnswer((_) => msgController1.stream);
       when(() => mockRemoteDataSource.watchMembers('c1'))
-          .thenAnswer((_) => memberController.stream);
+          .thenAnswer((_) => memberController1.stream);
+      when(() => mockRemoteDataSource.watchMessages(
+            communityId: 'c2',
+            limit: any(named: 'limit'),
+          )).thenAnswer((_) => msgController2.stream);
+      when(() => mockRemoteDataSource.watchMembers('c2'))
+          .thenAnswer((_) => memberController2.stream);
       when(() => mockAppDatabase.upsertLocalCommunity(any()))
           .thenAnswer((_) async {});
-      when(() => mockAppDatabase.getLocalCommunity('c1'))
+      when(() => mockAppDatabase.getLocalCommunity(any()))
           .thenAnswer((_) async => null);
-      when(() => mockAppDatabase.deleteLocalCommunity('c1'))
+      when(() => mockAppDatabase.getLocalCommunities())
+          .thenAnswer((_) async => []);
+      when(() => mockAppDatabase.deleteLocalCommunity(any()))
           .thenAnswer((_) async {});
-      when(() => mockAppDatabase.deleteLocalCommunityMembersForCommunity('c1'))
+      when(() => mockAppDatabase.deleteLocalCommunityMembersForCommunity(any()))
+          .thenAnswer((_) async {});
+      when(() => mockAppDatabase.deleteLocalMessagesForConversation(any()))
+          .thenAnswer((_) async {});
+      when(() => mockSenderKeyService.resetAllKeysForCommunity(any()))
           .thenAnswer((_) async {});
 
       service.startSync();
@@ -509,8 +524,9 @@ void main() {
 
       verify(() => mockAppDatabase.upsertLocalCommunity(any())).called(1);
 
-      // Second emission: c1 is gone (user was removed from community)
-      communityListController.add([]);
+      // Second emission: c1 is gone (replaced by c2 — non-empty so the
+      // safety guard "currentIds.isNotEmpty" is satisfied)
+      communityListController.add([_makeCommunityModel(id: 'c2')]);
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
 
@@ -519,8 +535,10 @@ void main() {
       verify(() => mockAppDatabase
           .deleteLocalCommunityMembersForCommunity('c1')).called(1);
 
-      await msgController.close();
-      await memberController.close();
+      await msgController1.close();
+      await memberController1.close();
+      await msgController2.close();
+      await memberController2.close();
     });
   });
 

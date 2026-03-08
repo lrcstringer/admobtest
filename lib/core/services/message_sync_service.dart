@@ -117,33 +117,40 @@ class MessageSyncService {
       ..addAll(currentIds);
 
     // Store/update conversation metadata locally using batch upsert.
-    // Preserve local lastMessageText when Firestore sends null (E2EE
-    // messages have lastMessageText=null on the server — the decrypted
-    // preview is only available locally after MessageSyncService decrypts).
+    // Preserve local preview in two cases:
+    // (a) Firestore has null lastMessageText (E2EE) — keep decrypted local text
+    // (b) Firestore has OLDER lastMessageAt — stale offline cache snapshot;
+    //     keep the newer local preview so _updateConversationPreview's work
+    //     and OutgoingMessageQueue's optimistic updates aren't overwritten.
     try {
-      // Only read existing local conversations if we need to preserve
-      // lastMessageText — skip on first sync when DB is empty.
-      final needsPreview = conversations.any(
-          (c) => c.lastMessageText == null && c.lastMessageAt != null);
-      Map<String, String>? localPreviews;
-      if (needsPreview) {
-        final localRows = await _appDatabase.getLocalConversations();
-        if (localRows.isNotEmpty) {
-          localPreviews = {
-            for (final r in localRows)
-              if (r.lastMessageText != null) r.id: r.lastMessageText!,
-          };
-        }
+      Map<String, ({String? text, DateTime? at})>? localData;
+      final localRows = await _appDatabase.getLocalConversations();
+      if (localRows.isNotEmpty) {
+        localData = {
+          for (final r in localRows)
+            r.id: (text: r.lastMessageText, at: r.lastMessageAt),
+        };
       }
 
       final companions = conversations.map((conv) {
         var convToStore = conv;
-        if (conv.lastMessageText == null &&
-            conv.lastMessageAt != null &&
-            localPreviews != null) {
-          final cached = localPreviews[conv.id];
-          if (cached != null) {
-            convToStore = conv.copyWith(lastMessageText: cached);
+        final local = localData?[conv.id];
+        if (local != null) {
+          // If local DB has a newer lastMessageAt, a stale Firestore cache
+          // snapshot is trying to overwrite it — preserve all local preview
+          // fields so _updateConversationPreview's work isn't lost.
+          if (local.at != null &&
+              conv.lastMessageAt != null &&
+              local.at!.isAfter(conv.lastMessageAt!)) {
+            convToStore = conv.copyWith(
+              lastMessageText: local.text,
+              lastMessageAt: local.at,
+            );
+          } else if (conv.lastMessageText == null &&
+              conv.lastMessageAt != null &&
+              local.text != null) {
+            // E2EE: Firestore has null text — preserve local decrypted preview
+            convToStore = conv.copyWith(lastMessageText: local.text);
           }
         }
         return LocalConversationMapper.toCompanion(convToStore);
@@ -782,6 +789,21 @@ class MessageSyncService {
             '${undecryptedIds.length} undecrypted messages — '
             'will retry on next sync event');
       }
+    }
+
+    // Always refresh the conversation preview from the latest local message.
+    // This corrects stale previews that _syncConversationSnapshot may have
+    // written from the Firestore offline cache (e.g., a non-null text from an
+    // old unencrypted token gift). Since already-decrypted messages are skipped
+    // above (and don't call _updateConversationPreview), without this refresh
+    // the stale preview would persist indefinitely.
+    final latestMessages = await _appDatabase.getLocalMessages(
+      conversationId,
+      limit: 1,
+    );
+    if (latestMessages.isNotEmpty) {
+      final latestMsg = LocalMessageMapper.toEntity(latestMessages.first);
+      await _updateConversationPreview(conversationId, latestMsg);
     }
   }
 

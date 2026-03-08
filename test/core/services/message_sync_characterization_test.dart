@@ -141,6 +141,7 @@ void main() {
   late MockConversationRemoteDataSource mockDataSource;
   late MockSignalProtocolService mockSignalProtocol;
   late MockAppDatabase mockAppDatabase;
+  late MockMediaRecoveryService mockMediaRecovery;
   late MessageDecryptionService decryptionService;
   late MessageSyncService syncService;
 
@@ -171,13 +172,14 @@ void main() {
     mockDataSource = MockConversationRemoteDataSource();
     mockSignalProtocol = MockSignalProtocolService();
     mockAppDatabase = MockAppDatabase();
+    mockMediaRecovery = MockMediaRecoveryService();
 
     conversationStreamController =
         StreamController<List<ConversationModel>>.broadcast();
     messageStreamController =
         StreamController<List<MessageModel>>.broadcast();
 
-    // Standard stubs
+    // Standard stubs — remote datasource
     when(() => mockDataSource.currentUserId).thenReturn(_userId);
     when(() => mockDataSource.watchConversations())
         .thenAnswer((_) => conversationStreamController.stream);
@@ -187,20 +189,54 @@ void main() {
         )).thenAnswer((_) => messageStreamController.stream);
     when(() => mockDataSource.getUserE2eeIdentityKey(any()))
         .thenAnswer((_) async => null);
+    when(() => mockDataSource.getConversations())
+        .thenAnswer((_) async => [_createConversationModel()]);
+    when(() => mockDataSource.getMessages(
+          conversationId: any(named: 'conversationId'),
+          limit: any(named: 'limit'),
+          before: any(named: 'before'),
+        )).thenAnswer((_) async => <MessageModel>[]);
+    when(() => mockDataSource.requestSessionReset(
+          conversationId: any(named: 'conversationId'),
+          targetUserId: any(named: 'targetUserId'),
+        )).thenAnswer((_) async {});
 
     // DB stubs
     when(() => mockAppDatabase.getLocalConversation(any()))
         .thenAnswer((_) async => _createLocalConversation());
+    when(() => mockAppDatabase.getLocalConversations())
+        .thenAnswer((_) async => [_createLocalConversation()]);
     when(() => mockAppDatabase.getLocalMessageById(any()))
         .thenAnswer((_) async => null);
+    when(() => mockAppDatabase.getLocalMessages(any(),
+            limit: any(named: 'limit'),
+            before: any(named: 'before')))
+        .thenAnswer((_) async => <LocalFullMessage>[]);
     when(() => mockAppDatabase.upsertLocalMessage(any()))
         .thenAnswer((_) async {});
     when(() => mockAppDatabase.upsertLocalConversation(any()))
+        .thenAnswer((_) async {});
+    when(() => mockAppDatabase.upsertLocalConversationsBatch(any()))
         .thenAnswer((_) async {});
     when(() => mockAppDatabase.cacheDecryptedPlaintext(any(), any()))
         .thenAnswer((_) async {});
     when(() => mockAppDatabase.deleteExpiredMessages())
         .thenAnswer((_) async => 0);
+    when(() => mockAppDatabase.deleteLocalConversation(any()))
+        .thenAnswer((_) async {});
+    when(() => mockAppDatabase.getMessageCount(any()))
+        .thenAnswer((_) async => 1); // >0 skips backfill
+    when(() => mockAppDatabase.getPendingMessagesForConversation(any()))
+        .thenAnswer((_) async => []);
+    when(() => mockAppDatabase.getUndecryptedMessages(any(), any()))
+        .thenAnswer((_) async => []);
+
+    // Media recovery stubs
+    when(() => mockMediaRecovery.storePayload(any(), any()))
+        .thenAnswer((_) async {});
+    when(() => mockMediaRecovery.initialize())
+        .thenAnswer((_) async => false);
+    when(() => mockMediaRecovery.isReady).thenReturn(false);
 
     // Create real MessageDecryptionService with mocked sub-dependencies
     decryptionService = MessageDecryptionService(
@@ -213,7 +249,7 @@ void main() {
       mockDataSource,
       decryptionService,
       mockAppDatabase,
-      MockMediaRecoveryService(),
+      mockMediaRecovery,
     );
   });
 

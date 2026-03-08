@@ -209,6 +209,18 @@ void main() {
     // Media recovery
     when(() => mockMediaRecovery.storePayload(any(), any()))
         .thenAnswer((_) async {});
+
+    // Drift transaction — execute the callback directly.
+    // Drift's signature is transaction<T>(Future<T> Function() action, {bool requireNew}).
+    // Use Function cast to avoid generic type mismatch.
+    when(() => mockDb.transaction<Null>(any())).thenAnswer((invocation) async {
+      final callback = invocation.positionalArguments[0] as Function;
+      await (callback() as Future);
+    });
+    when(() => mockDb.transaction<void>(any())).thenAnswer((invocation) async {
+      final callback = invocation.positionalArguments[0] as Function;
+      await (callback() as Future);
+    });
   });
 
   // ===========================================================================
