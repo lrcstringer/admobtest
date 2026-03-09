@@ -829,6 +829,14 @@
       ]
     },
     {
+      "collectionGroup": "buyCategories",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isComingSoon", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "featuredItems",
       "queryScope": "COLLECTION",
       "fields": [
