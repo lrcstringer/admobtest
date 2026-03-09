@@ -228,6 +228,8 @@ class Message with _$Message {
   bool get isGift => type == MessageType.gift;
   bool get isGroupGift => type == MessageType.groupGift;
   bool get isSpray => type == MessageType.tokenSpray;
+  bool get isMarketplaceShare => type == MessageType.marketplaceShare;
+  bool get isGroupBuyShare => type == MessageType.groupBuyShare;
   bool get isEncrypted => ciphertext != null;
 
   bool get hasMedia => media != null || type.isMedia;

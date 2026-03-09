@@ -313,6 +313,62 @@ class LocalFullConversations extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Local buy category cache (offline-first)
+class LocalBuyCategories extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get iconEmoji => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  BoolColumn get isComingSoon => boolean().withDefault(const Constant(false))();
+  TextColumn get purchaseCategoryMapping => text().nullable()();
+  TextColumn get featureFlagKey => text().nullable()();
+  TextColumn get logoUrl => text().nullable()();
+  TextColumn get backgroundColor => text().nullable()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Local buy regulars cache (offline-first)
+class LocalBuyRegulars extends Table {
+  TextColumn get id => text()();
+  TextColumn get providerId => text()();
+  TextColumn get productId => text()();
+  TextColumn get providerName => text()();
+  TextColumn get productName => text()();
+  TextColumn get recipientNumber => text()();
+  TextColumn get recipientLabel => text().nullable()();
+  BoolColumn get isPinned => boolean().withDefault(const Constant(false))();
+  IntColumn get usageCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastUsedAt => dateTime()();
+  TextColumn get categoryEmoji => text().nullable()();
+  TextColumn get purchaseCategoryMapping => text().nullable()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Local featured items cache (offline-first)
+class LocalFeaturedItems extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get subtitle => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+  TextColumn get type => text().withDefault(const Constant('campaign'))();
+  TextColumn get deepLinkRoute => text().nullable()();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  TextColumn get bgGradientType =>
+      text().withDefault(const Constant('goldOrange'))();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ============ DATABASE CLASS ============
 
 @lazySingleton
@@ -331,6 +387,9 @@ class LocalFullConversations extends Table {
   LocalPendingMessages,
   LocalCommunities,
   LocalCommunityMembers,
+  LocalBuyCategories,
+  LocalBuyRegulars,
+  LocalFeaturedItems,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -348,7 +407,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -391,6 +450,13 @@ class AppDatabase extends _$AppDatabase {
         if (from < 9) {
           await m.addColumn(
               localFullMessages, localFullMessages.groupGiftJson);
+        }
+        if (from < 10) {
+          await m.createTable(localBuyCategories);
+        }
+        if (from < 11) {
+          await m.createTable(localBuyRegulars);
+          await m.createTable(localFeaturedItems);
         }
       },
     );
@@ -1117,6 +1183,87 @@ class AppDatabase extends _$AppDatabase {
     await delete(localPendingMessages).go();
     await clearLocalCommunities();
     await clearLocalCommunityMembers();
+    await clearBuyCategories();
+    await clearBuyRegulars();
+    await clearFeaturedItems();
+  }
+
+  // ============ BUY CATEGORY OPERATIONS ============
+
+  Future<List<LocalBuyCategory>> getBuyCategories() {
+    return (select(localBuyCategories)
+          ..where((c) => c.isActive.equals(true))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
+  }
+
+  Future<List<LocalBuyCategory>> getAllBuyCategories() {
+    return (select(localBuyCategories)
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
+  }
+
+  Future<void> upsertBuyCategory(LocalBuyCategoriesCompanion category) {
+    return into(localBuyCategories).insertOnConflictUpdate(category);
+  }
+
+  Future<void> upsertBuyCategories(
+      List<LocalBuyCategoriesCompanion> categories) async {
+    await batch((b) {
+      for (final cat in categories) {
+        b.insert(localBuyCategories, cat, onConflict: DoUpdate((_) => cat));
+      }
+    });
+  }
+
+  Future<void> clearBuyCategories() {
+    return delete(localBuyCategories).go();
+  }
+
+  // ============ BUY REGULARS OPERATIONS ============
+
+  Future<List<LocalBuyRegular>> getBuyRegulars() {
+    return (select(localBuyRegulars)
+          ..orderBy([
+            (r) => OrderingTerm.desc(r.isPinned),
+            (r) => OrderingTerm.desc(r.lastUsedAt),
+          ]))
+        .get();
+  }
+
+  Future<void> upsertBuyRegulars(
+      List<LocalBuyRegularsCompanion> regulars) async {
+    await batch((b) {
+      for (final reg in regulars) {
+        b.insert(localBuyRegulars, reg, onConflict: DoUpdate((_) => reg));
+      }
+    });
+  }
+
+  Future<void> clearBuyRegulars() {
+    return delete(localBuyRegulars).go();
+  }
+
+  // ============ FEATURED ITEMS OPERATIONS ============
+
+  Future<List<LocalFeaturedItem>> getFeaturedItems() {
+    return (select(localFeaturedItems)
+          ..where((f) => f.isActive.equals(true))
+          ..orderBy([(f) => OrderingTerm.asc(f.sortOrder)]))
+        .get();
+  }
+
+  Future<void> upsertFeaturedItems(
+      List<LocalFeaturedItemsCompanion> items) async {
+    await batch((b) {
+      for (final item in items) {
+        b.insert(localFeaturedItems, item, onConflict: DoUpdate((_) => item));
+      }
+    });
+  }
+
+  Future<void> clearFeaturedItems() {
+    return delete(localFeaturedItems).go();
   }
 }
 

@@ -32,6 +32,12 @@ enum MessageType {
 
   /// Group gift delivery message (Group Sasaza)
   groupGift,
+
+  /// Marketplace listing shared to chat
+  marketplaceShare,
+
+  /// Group buy shared to chat
+  groupBuyShare,
 }
 
 extension MessageTypeX on MessageType {
@@ -44,6 +50,8 @@ extension MessageTypeX on MessageType {
   bool get isGift => this == MessageType.gift;
   bool get isGroupGift => this == MessageType.groupGift;
   bool get isSpray => this == MessageType.tokenSpray;
+  bool get isMarketplaceShare => this == MessageType.marketplaceShare;
+  bool get isGroupBuyShare => this == MessageType.groupBuyShare;
 
   String get displayName {
     switch (this) {
@@ -69,6 +77,10 @@ extension MessageTypeX on MessageType {
         return 'System';
       case MessageType.groupGift:
         return 'Group Sasaza';
+      case MessageType.marketplaceShare:
+        return 'Marketplace Listing';
+      case MessageType.groupBuyShare:
+        return 'Group Buy';
     }
   }
 }

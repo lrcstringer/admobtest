@@ -49,6 +49,13 @@ class ConversationModel with _$ConversationModel {
     // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
     String? poolMode,
 
+    // Marketplace back-reference (for marketplace-tagged conversations)
+    String? marketplaceListingId,
+    String? marketplaceListingTitle,
+    String? marketplaceListingThumbnailUrl,
+    int? marketplaceListingPrice,
+    String? marketplaceOrderId,
+
     // Disappearing messages duration in milliseconds (null = off)
     int? disappearingMessagesDurationMs,
 
@@ -96,6 +103,11 @@ class ConversationModel with _$ConversationModel {
       tokenPoolId: json['tokenPoolId'] as String?,
       poolTitle: json['poolTitle'] as String?,
       poolMode: json['poolMode'] as String?,
+      marketplaceListingId: json['marketplaceListingId'] as String?,
+      marketplaceListingTitle: json['marketplaceListingTitle'] as String?,
+      marketplaceListingThumbnailUrl: json['marketplaceListingThumbnailUrl'] as String?,
+      marketplaceListingPrice: json['marketplaceListingPrice'] as int?,
+      marketplaceOrderId: json['marketplaceOrderId'] as String?,
       disappearingMessagesDurationMs: json['disappearingMessagesDurationMs'] as int?,
       createdAt: _parseDateTimeRequired(createdAt),
       updatedAt: _parseDateTime(updatedAt),
@@ -138,6 +150,11 @@ class ConversationModel with _$ConversationModel {
       tokenPoolId: tokenPoolId,
       poolTitle: poolTitle,
       poolMode: poolMode,
+      marketplaceListingId: marketplaceListingId,
+      marketplaceListingTitle: marketplaceListingTitle,
+      marketplaceListingThumbnailUrl: marketplaceListingThumbnailUrl,
+      marketplaceListingPrice: marketplaceListingPrice,
+      marketplaceOrderId: marketplaceOrderId,
       disappearingMessagesDuration: disappearingMessagesDurationMs != null
           ? Duration(milliseconds: disappearingMessagesDurationMs!)
           : null,
@@ -174,6 +191,11 @@ class ConversationModel with _$ConversationModel {
       tokenPoolId: entity.tokenPoolId,
       poolTitle: entity.poolTitle,
       poolMode: entity.poolMode,
+      marketplaceListingId: entity.marketplaceListingId,
+      marketplaceListingTitle: entity.marketplaceListingTitle,
+      marketplaceListingThumbnailUrl: entity.marketplaceListingThumbnailUrl,
+      marketplaceListingPrice: entity.marketplaceListingPrice,
+      marketplaceOrderId: entity.marketplaceOrderId,
       disappearingMessagesDurationMs:
           entity.disappearingMessagesDuration?.inMilliseconds,
       createdAt: entity.createdAt,

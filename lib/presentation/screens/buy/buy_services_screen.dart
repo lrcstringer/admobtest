@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
-import '../../../domain/entities/purchase.dart';
-import '../../../domain/entities/service_provider.dart';
-import '../../blocs/purchase/purchase_bloc.dart';
+import '../../../domain/entities/buy_category.dart';
+import '../../../domain/entities/featured_item.dart';
+import '../../blocs/buy_tab/buy_tab_bloc.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/buy/brand_partners_strip.dart';
+import '../../widgets/buy/buy_category_grid.dart';
+import '../../widgets/buy/buy_coming_soon_teaser.dart';
+import '../../widgets/buy/buy_layer_divider.dart';
+import '../../widgets/buy/buy_offline_banner.dart';
+import '../../widgets/buy/buy_section_header.dart';
+import '../../widgets/buy/featured_carousel.dart';
+import '../../widgets/buy/my_regulars_dock.dart';
+import '../../widgets/common/app_button.dart';
+import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
 
@@ -21,745 +31,314 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<PurchaseBloc>().add(const PurchaseEvent.loadProviders());
+    context.read<BuyTabBloc>().add(const BuyTabEvent.loadBuyTab());
   }
 
   @override
   Widget build(BuildContext context) {
-    // Placeholder: show dragons.jpg until Buy is fully implemented
     return Scaffold(
-      appBar: const IMaliAppBar(title: 'Buy'),
+      appBar: IMaliAppBar(
+        title: 'Buy',
+        extraActions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: AppColors.textPrimary),
+            onPressed: () => context.go('/buy/history'),
+            tooltip: 'Purchase history',
+          ),
+        ],
+      ),
       body: WaveBackground(
-        child: Center(
-          child: FractionallySizedBox(
-            widthFactor: 0.75,
-            child: Image.asset(
-              'assets/images/dragons.jpg',
-              fit: BoxFit.contain,
-            ),
+        child: BlocBuilder<BuyTabBloc, BuyTabState>(
+          builder: (context, state) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                context
+                    .read<BuyTabBloc>()
+                    .add(const BuyTabEvent.refreshBuyTab());
+                await context.read<BuyTabBloc>().stream.firstWhere(
+                      (s) => !s.isLoading,
+                    );
+              },
+              color: AppColors.primary,
+              child: CustomScrollView(
+                slivers: [
+                  // Offline banner
+                  if (state.isOffline)
+                    SliverToBoxAdapter(
+                      child:
+                          BuyOfflineBanner(lastSyncedAt: state.lastSyncedAt),
+                    ),
+
+                  // ── Layer 1: Featured ──
+                  _buildLayer1(state),
+
+                  const SliverToBoxAdapter(child: BuyLayerDivider()),
+
+                  // ── Layer 2: Utilities Hub ──
+                  _buildMyRegulars(state),
+
+                  const SliverToBoxAdapter(
+                    child: BuySectionHeader(title: 'Utilities'),
+                  ),
+
+                  SliverToBoxAdapter(
+                    child: _buildCategorySection(state),
+                  ),
+
+                  const SliverToBoxAdapter(child: BuyLayerDivider()),
+
+                  // ── Layer 3: Marketplace placeholder ──
+                  SliverToBoxAdapter(
+                    child: BuyComingSoonTeaser(
+                      title: 'Intengiso Marketplace',
+                      subtitle:
+                          'Buy & sell in your community \u2014 with trust',
+                      icon: Icons.storefront_rounded,
+                      gradient: BrandGradient.cyanBlue,
+                    ),
+                  ),
+
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ─── Layer 1: Featured Carousel + Brand Partners ─────────
+
+  Widget _buildLayer1(BuyTabState state) {
+    final hasFeatured = state.featuredItems.isNotEmpty;
+    final hasBrands = state.brandPartners.isNotEmpty;
+
+    // If nothing in Layer 1, show placeholder
+    if (!hasFeatured && !hasBrands && !state.isLoading) {
+      return SliverToBoxAdapter(
+        child: BuyComingSoonTeaser(
+          title: 'Featured Deals',
+          subtitle: 'Sponsored campaigns & trending items',
+          icon: Icons.star_rounded,
+          gradient: BrandGradient.goldOrange,
+        ),
+      );
+    }
+
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        // Loading shimmer for Layer 1
+        if (state.isLoading && !hasFeatured && !hasBrands)
+          _buildFeaturedShimmer(),
+
+        // Featured carousel
+        if (hasFeatured)
+          FeaturedCarousel(
+            items: state.featuredItems,
+            onItemTap: _onFeaturedItemTap,
+          ),
+
+        // Brand partners strip
+        if (hasBrands)
+          BrandPartnersStrip(
+            brands: state.brandPartners,
+            onBrandTap: (brand) => context.go('/buy/brand/${brand.id}'),
+          ),
+      ]),
+    );
+  }
+
+  void _onFeaturedItemTap(FeaturedItem item) {
+    if (item.deepLinkRoute != null && item.deepLinkRoute!.isNotEmpty) {
+      context.go(item.deepLinkRoute!);
+    }
+  }
+
+  Widget _buildFeaturedShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(
+          height: 160,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
     );
   }
 
-  // ignore: unused_element
-  Widget _buildOriginal(BuildContext context) {
-    return BlocConsumer<PurchaseBloc, PurchaseState>(
-      listener: (context, state) {
-        if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
-            ),
+  // ─── Layer 2: My Regulars ────────────────────────────────
+
+  Widget _buildMyRegulars(BuyTabState state) {
+    if (state.regulars.isEmpty) {
+      return const SliverToBoxAdapter(child: MyRegularsEmptyDock());
+    }
+
+    return SliverToBoxAdapter(
+      child: MyRegularsDock(
+        regulars: state.regulars,
+        onRegularTap: (regular) {
+          // Quick-buy: navigate to category with pre-filled data
+          final routeId =
+              regular.purchaseCategoryMapping ?? regular.providerId;
+          context.go(
+            '/buy/category/$routeId',
+            extra: {
+              'name': regular.providerName,
+              'emoji': regular.categoryEmoji ?? '📦',
+              'quickBuyRegularId': regular.id,
+            },
           );
-          context.read<PurchaseBloc>().add(const PurchaseEvent.clearError());
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: IMaliAppBar(
-            title: _getAppBarTitle(state),
-            extraActions: [
-              IconButton(
-                icon: const Icon(Icons.history, color: AppColors.textPrimary),
-                onPressed: () => _showHistorySheet(context),
-              ),
-            ],
-          ),
-          body: WaveBackground(child: _buildBody(context, state)),
-        );
-      },
-    );
-  }
-
-  String _getAppBarTitle(PurchaseState state) {
-    if (state.selectedProvider != null) {
-      return state.selectedProvider!.name;
-    }
-    return 'Buy Services';
-  }
-
-  Widget _buildBody(BuildContext context, PurchaseState state) {
-    if (state.selectedProvider != null) {
-      return _buildProductsView(context, state);
-    }
-    return _buildProvidersView(context, state);
-  }
-
-  Widget _buildProvidersView(BuildContext context, PurchaseState state) {
-    return Column(
-      children: [
-        // Category filter
-        _buildCategoryFilter(context, state),
-
-        // Providers list
-        Expanded(
-          child: state.isLoadingProviders
-              ? const Center(child: CircularProgressIndicator())
-              : state.providers.isEmpty
-                  ? _buildEmptyState()
-                  : _buildProvidersList(context, state),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoryFilter(BuildContext context, PurchaseState state) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          _buildCategoryChip(
-            context,
-            label: 'All',
-            isSelected: state.selectedCategory == null,
-            onTap: () {
-              context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.selectCategory(null));
-            },
-          ),
-          const SizedBox(width: 8),
-          _buildCategoryChip(
-            context,
-            label: 'Airtime',
-            icon: Icons.phone_android,
-            isSelected: state.selectedCategory == PurchaseCategory.airtime,
-            onTap: () {
-              context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.selectCategory(PurchaseCategory.airtime));
-            },
-          ),
-          const SizedBox(width: 8),
-          _buildCategoryChip(
-            context,
-            label: 'Data',
-            icon: Icons.wifi,
-            isSelected: state.selectedCategory == PurchaseCategory.data,
-            onTap: () {
-              context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.selectCategory(PurchaseCategory.data));
-            },
-          ),
-          const SizedBox(width: 8),
-          _buildCategoryChip(
-            context,
-            label: 'Electricity',
-            icon: Icons.bolt,
-            isSelected: state.selectedCategory == PurchaseCategory.electricity,
-            onTap: () {
-              context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.selectCategory(PurchaseCategory.electricity));
-            },
-          ),
-          const SizedBox(width: 8),
-          _buildCategoryChip(
-            context,
-            label: 'Vouchers',
-            icon: Icons.card_giftcard,
-            isSelected: state.selectedCategory == PurchaseCategory.voucher,
-            onTap: () {
-              context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.selectCategory(PurchaseCategory.voucher));
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryChip(
-    BuildContext context, {
-    required String label,
-    IconData? icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.white : AppColors.primary,
-            ),
-            const SizedBox(width: 4),
-          ],
-          Text(label),
-        ],
-      ),
-      selected: isSelected,
-      onSelected: (_) => onTap(),
-      selectedColor: AppColors.primary,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black87,
-      ),
-    );
-  }
-
-  Widget _buildProvidersList(BuildContext context, PurchaseState state) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 1.2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: state.providers.length,
-      itemBuilder: (context, index) {
-        final provider = state.providers[index];
-        return _buildProviderCard(context, provider);
-      },
-    );
-  }
-
-  Widget _buildProviderCard(BuildContext context, ServiceProvider provider) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      color: Color.alphaBlend(
-        AppColors.secondaryGradient[0].withValues(alpha: 0.04),
-        AppColors.surface,
-      ),
-      child: InkWell(
-        onTap: () {
-          context
-              .read<PurchaseBloc>()
-              .add(PurchaseEvent.selectProvider(provider));
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (provider.logoUrl != null)
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: NetworkImage(provider.logoUrl!),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
-            else
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _getCategoryColor(provider.category),
-                ),
-                child: Center(
-                  child: Text(
-                    provider.initials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 12),
-            Text(
-              provider.name,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getCategoryColor(PurchaseCategory category) {
-    switch (category) {
-      case PurchaseCategory.airtime:
-        return Colors.blue;
-      case PurchaseCategory.data:
-        return Colors.purple;
-      case PurchaseCategory.electricity:
-        return Colors.orange;
-      case PurchaseCategory.voucher:
-        return Colors.green;
-      case PurchaseCategory.other:
-        return Colors.grey;
-    }
-  }
-
-  Widget _buildProductsView(BuildContext context, PurchaseState state) {
-    return Column(
-      children: [
-        // Recipient input
-        _buildRecipientInput(context, state),
-
-        // Products list
-        Expanded(
-          child: state.isLoadingProducts
-              ? const Center(child: CircularProgressIndicator())
-              : state.products.isEmpty
-                  ? _buildEmptyState(message: 'No products available')
-                  : _buildProductsList(context, state),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecipientInput(BuildContext context, PurchaseState state) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _getRecipientLabel(state.selectedProvider?.category),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: _getRecipientHint(state.selectedProvider?.category),
-                    suffixIcon: state.isValidating
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Padding(
-                              padding: EdgeInsets.all(12),
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
-                        : state.isRecipientValid == true
-                            ? const Icon(Icons.check_circle, color: AppColors.success)
-                            : state.isRecipientValid == false
-                                ? const Icon(Icons.error, color: AppColors.error)
-                                : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  onChanged: (value) {
-                    context
-                        .read<PurchaseBloc>()
-                        .add(PurchaseEvent.setRecipientNumber(value));
-                  },
-                  onSubmitted: (_) {
-                    context
-                        .read<PurchaseBloc>()
-                        .add(const PurchaseEvent.validateRecipient());
-                  },
-                ),
-              ),
-              if (state.recentRecipients.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.history),
-                  onPressed: () => _showRecentRecipientsSheet(context, state),
-                  tooltip: 'Recent recipients',
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getRecipientLabel(PurchaseCategory? category) {
-    switch (category) {
-      case PurchaseCategory.electricity:
-        return 'Meter Number';
-      case PurchaseCategory.airtime:
-      case PurchaseCategory.data:
-        return 'Phone Number';
-      default:
-        return 'Recipient';
-    }
-  }
-
-  String _getRecipientHint(PurchaseCategory? category) {
-    switch (category) {
-      case PurchaseCategory.electricity:
-        return 'Enter meter number';
-      case PurchaseCategory.airtime:
-      case PurchaseCategory.data:
-        return 'Enter phone number (e.g. 0812345678)';
-      default:
-        return 'Enter recipient';
-    }
-  }
-
-  Widget _buildProductsList(BuildContext context, PurchaseState state) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: state.products.length,
-      itemBuilder: (context, index) {
-        final product = state.products[index];
-        final isSelected = state.selectedProduct?.id == product.id;
-        return _buildProductCard(context, product, isSelected, state);
-      },
-    );
-  }
-
-  Widget _buildProductCard(
-    BuildContext context,
-    ServiceProduct product,
-    bool isSelected,
-    PurchaseState state,
-  ) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isSelected
-            ? const BorderSide(color: AppColors.primary, width: 2)
-            : BorderSide.none,
-      ),
-      child: InkWell(
-        onTap: () {
-          context.read<PurchaseBloc>().add(PurchaseEvent.selectProduct(product));
+        onRegularLongPress: (_) {
+          // Pin/unpin regulars — future enhancement
         },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    if (product.description != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        product.description!,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                    if (product.validity != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Valid for ${product.validity}',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+        onAddTap: () {
+          // Scroll focus to utilities grid
+        },
+      ),
+    );
+  }
+
+  // ─── Category Section ────────────────────────────────────
+
+  Widget _buildCategorySection(BuyTabState state) {
+    if (state.isLoading && state.categories.isEmpty) {
+      return _buildCategoryShimmer();
+    }
+
+    if (state.errorMessage != null && state.categories.isEmpty) {
+      return _buildErrorState(state.errorMessage!);
+    }
+
+    if (state.categories.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return BuyCategoryGrid(
+      categories: state.categories,
+      onCategoryTap: _onCategoryTap,
+    );
+  }
+
+  void _onCategoryTap(BuyCategory category) {
+    if (category.isComingSoon) return;
+    final routeId = category.purchaseCategoryMapping ?? category.id;
+    context.go(
+      '/buy/category/$routeId',
+      extra: {'name': category.name, 'emoji': category.iconEmoji},
+    );
+  }
+
+  Widget _buildCategoryShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Shimmer.fromColors(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 16,
+          children: List.generate(8, (_) {
+            return SizedBox(
+              width: (MediaQuery.of(context).size.width - 24 - 36) / 4,
+              child: Column(
                 children: [
-                  Text(
-                    product.formattedPrice,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: AppColors.primary,
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  Text(
-                    '${product.priceTokens} tokens',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 56,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ],
               ),
-              if (isSelected) ...[
-                const SizedBox(width: 12),
-                const Icon(Icons.check_circle, color: AppColors.primary),
-              ],
-            ],
-          ),
+            );
+          }),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState({String message = 'No providers available'}) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.shopping_bag_outlined,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRecentRecipientsSheet(BuildContext context, PurchaseState state) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
+  Widget _buildErrorState(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: BrandCard(
+        gradient: BrandGradient.none,
+        child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Recent Recipients',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              const Icon(Icons.error_outline, color: AppColors.error, size: 40),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
-              ...state.recentRecipients.map((recipient) {
-                return ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.person),
-                  ),
-                  title: Text(recipient),
-                  onTap: () {
-                    context
-                        .read<PurchaseBloc>()
-                        .add(PurchaseEvent.selectRecentRecipient(recipient));
-                    Navigator.pop(context);
-                  },
-                );
-              }),
+              AppButton(
+                text: 'Retry',
+                onPressed: () => context
+                    .read<BuyTabBloc>()
+                    .add(const BuyTabEvent.refreshBuyTab()),
+                variant: AppButtonVariant.outline,
+                size: AppButtonSize.small,
+              ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  void _showHistorySheet(BuildContext context) {
-    context.read<PurchaseBloc>().add(const PurchaseEvent.loadHistory(limit: 20));
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.9,
-          minChildSize: 0.5,
-          expand: false,
-          builder: (context, scrollController) {
-            return BlocBuilder<PurchaseBloc, PurchaseState>(
-              builder: (context, state) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Purchase History',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: state.isLoadingHistory
-                          ? const Center(child: CircularProgressIndicator())
-                          : state.history.isEmpty
-                              ? const Center(
-                                  child: Text('No purchase history'),
-                                )
-                              : ListView.builder(
-                                  controller: scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                                  itemCount: state.history.length,
-                                  itemBuilder: (context, index) {
-                                    final purchase = state.history[index];
-                                    return _buildHistoryItem(purchase);
-                                  },
-                                ),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildHistoryItem(Purchase purchase) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getStatusColor(purchase.status).withValues(alpha: 0.1),
-          child: Icon(
-            _getCategoryIcon(purchase.category),
-            color: _getStatusColor(purchase.status),
-          ),
-        ),
-        title: Text(purchase.productName),
-        subtitle: Text(
-          '${purchase.recipientNumber ?? ''} • ${purchase.statusDisplayName}',
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              purchase.formattedZarAmount,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              _formatDate(purchase.createdAt),
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  IconData _getCategoryIcon(PurchaseCategory category) {
-    switch (category) {
-      case PurchaseCategory.airtime:
-        return Icons.phone_android;
-      case PurchaseCategory.data:
-        return Icons.wifi;
-      case PurchaseCategory.electricity:
-        return Icons.bolt;
-      case PurchaseCategory.voucher:
-        return Icons.card_giftcard;
-      case PurchaseCategory.other:
-        return Icons.shopping_bag;
-    }
-  }
-
-  Color _getStatusColor(PurchaseStatus status) {
-    switch (status) {
-      case PurchaseStatus.completed:
-        return AppColors.success;
-      case PurchaseStatus.pending:
-      case PurchaseStatus.processing:
-        return Colors.orange;
-      case PurchaseStatus.failed:
-        return AppColors.error;
-      case PurchaseStatus.refunded:
-        return Colors.blue;
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-}
-
-/// Floating purchase button
-class PurchaseFloatingButton extends StatelessWidget {
-  const PurchaseFloatingButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<PurchaseBloc, PurchaseState>(
-      builder: (context, state) {
-        if (state.selectedProduct == null ||
-            state.recipientNumber == null ||
-            state.recipientNumber!.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return FloatingActionButton.extended(
-          onPressed: state.isPurchasing
-              ? null
-              : () => context.go('/buy/wallet-selection'),
-          icon: state.isPurchasing
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : const Icon(Icons.shopping_cart),
-          label: Text(
-            state.isPurchasing
-                ? 'Processing...'
-                : 'Buy for ${state.selectedProduct!.priceTokens} tokens',
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        children: [
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 48,
+            color: AppColors.textTertiary.withValues(alpha: 0.5),
           ),
-          backgroundColor: AppColors.primary,
-        );
-      },
+          const SizedBox(height: 12),
+          const Text(
+            'No categories available',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          AppButton(
+            text: 'Retry',
+            onPressed: () => context
+                .read<BuyTabBloc>()
+                .add(const BuyTabEvent.refreshBuyTab()),
+            variant: AppButtonVariant.outline,
+            size: AppButtonSize.small,
+          ),
+        ],
+      ),
     );
   }
 }

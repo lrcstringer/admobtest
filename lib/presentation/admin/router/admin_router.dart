@@ -12,7 +12,18 @@ import '../screens/audit_log_screen.dart';
 import '../screens/cashout_approval_screen.dart';
 import '../screens/account_type_management_screen.dart';
 import '../screens/client_management_screen.dart';
+import '../screens/buy_category_management_screen.dart';
+import '../screens/buy_purchase_monitoring_screen.dart';
+import '../screens/brand_storefront_management_screen.dart';
+import '../screens/marketplace_provider_management_screen.dart';
+import '../screens/marketplace_listing_moderation_screen.dart';
+import '../screens/marketplace_order_management_screen.dart';
+import '../screens/marketplace_analytics_screen.dart';
+import '../screens/group_buy_management_screen.dart';
+import '../screens/escrow_overview_screen.dart';
 import '../screens/earn_management_screen.dart';
+import '../screens/feature_flag_management_screen.dart';
+import '../screens/featured_content_management_screen.dart';
 import '../screens/pending_actions_screen.dart';
 import '../screens/reward_activity_screen.dart';
 import '../screens/reward_campaign_screen.dart';
@@ -184,6 +195,74 @@ class AdminRouter {
             path: '/pending-actions',
             name: 'adminPendingActions',
             builder: (context, state) => const PendingActionsScreen(),
+          ),
+
+          // Buy Management
+          GoRoute(
+            path: '/buy-feature-flags',
+            name: 'adminBuyFeatureFlags',
+            builder: (context, state) =>
+                const FeatureFlagManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-categories',
+            name: 'adminBuyCategories',
+            builder: (context, state) =>
+                const BuyCategoryManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-purchases',
+            name: 'adminBuyPurchases',
+            builder: (context, state) =>
+                const BuyPurchaseMonitoringScreen(),
+          ),
+          GoRoute(
+            path: '/buy-featured',
+            name: 'adminBuyFeatured',
+            builder: (context, state) =>
+                const FeaturedContentManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-brand-storefronts',
+            name: 'adminBuyBrandStorefronts',
+            builder: (context, state) =>
+                const BrandStorefrontManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-providers',
+            name: 'adminBuyProviders',
+            builder: (context, state) =>
+                const MarketplaceProviderManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-listings',
+            name: 'adminBuyListings',
+            builder: (context, state) =>
+                const MarketplaceListingModerationScreen(),
+          ),
+          GoRoute(
+            path: '/buy-orders',
+            name: 'adminBuyOrders',
+            builder: (context, state) =>
+                const MarketplaceOrderManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-analytics',
+            name: 'adminBuyAnalytics',
+            builder: (context, state) =>
+                const MarketplaceAnalyticsScreen(),
+          ),
+          GoRoute(
+            path: '/buy-group-buys',
+            name: 'adminBuyGroupBuys',
+            builder: (context, state) =>
+                const GroupBuyManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-escrow',
+            name: 'adminBuyEscrow',
+            builder: (context, state) =>
+                const EscrowOverviewScreen(),
           ),
         ],
       ),

@@ -46,6 +46,8 @@ export const SystemAccounts = {
   SPRAY_ESCROW: "system:spray_escrow", // Token spray accumulation until claimed
   IMALICHAT_CLIENT: "client:imalichat", // iMaliChat's own client account
   POT_RESIDUAL: "system:pot_residual", // Rounding residual from pot distributions
+  MARKETPLACE_ESCROW: "system:marketplace_escrow", // Marketplace buy/sell escrow
+  GROUP_BUY_ESCROW: "system:group_buy_escrow", // Group buy contribution escrow
 } as const;
 
 /**
@@ -114,7 +116,15 @@ export type JournalType =
   | "group_payout" // Scheduled payout from group to member
   | "group_penalty" // Penalty charged to member
   | "group_transfer" // Transfer in/out of group
-  | "token_expiry"; // Sub-account token expiry refund to brand client
+  | "token_expiry" // Sub-account token expiry refund to brand client
+  // Marketplace transactions
+  | "marketplace_escrow" // Buyer → marketplace escrow on purchase
+  | "marketplace_release" // Marketplace escrow → seller on receipt confirmation
+  | "marketplace_refund" // Marketplace escrow → buyer on cancel/dispute refund
+  // Group buy transactions
+  | "group_buy_escrow" // Contributor → group buy escrow on join
+  | "group_buy_release" // Group buy escrow → organizer on completion
+  | "group_buy_refund"; // Group buy escrow → contributor on expiry/cancel
 
 /**
  * Journal status
@@ -514,6 +524,14 @@ export const IdempotencyKey = {
   poolDistribute: (poolId: string) => `pool_distribute:${poolId}`,
   poolCancel: (poolId: string) => `pool_cancel:${poolId}`,
   poolExpire: (poolId: string) => `pool_expire:${poolId}`,
+  // Marketplace escrow keys
+  marketplaceEscrow: (orderId: string) => `mkt_escrow:${orderId}`,
+  marketplaceRelease: (orderId: string) => `mkt_release:${orderId}`,
+  marketplaceRefund: (orderId: string) => `mkt_refund:${orderId}`,
+  // Group buy escrow keys
+  groupBuyEscrow: (groupBuyId: string, userId: string) => `gb_escrow:${groupBuyId}:${userId}`,
+  groupBuyRelease: (groupBuyId: string) => `gb_release:${groupBuyId}`,
+  groupBuyRefund: (groupBuyId: string, userId: string) => `gb_refund:${groupBuyId}:${userId}`,
 };
 
 // ============================================================================

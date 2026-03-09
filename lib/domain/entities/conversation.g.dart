@@ -20,63 +20,68 @@ Map<String, dynamic> _$$ParticipantInfoImplToJson(
   'avatarUrl': instance.avatarUrl,
 };
 
-_$ConversationImpl _$$ConversationImplFromJson(Map<String, dynamic> json) =>
-    _$ConversationImpl(
-      id: json['id'] as String,
-      type: $enumDecode(_$ConversationTypeEnumMap, json['type']),
-      participantIds: (json['participantIds'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      participants: (json['participants'] as Map<String, dynamic>).map(
-        (k, e) =>
-            MapEntry(k, ParticipantInfo.fromJson(e as Map<String, dynamic>)),
-      ),
-      lastMessageId: json['lastMessageId'] as String?,
-      lastMessageText: json['lastMessageText'] as String?,
-      lastMessageSenderId: json['lastMessageSenderId'] as String?,
-      lastMessageSenderName: json['lastMessageSenderName'] as String?,
-      lastMessageType: json['lastMessageType'] as String?,
-      lastMessageAt: json['lastMessageAt'] == null
-          ? null
-          : DateTime.parse(json['lastMessageAt'] as String),
-      unreadCounts: Map<String, int>.from(json['unreadCounts'] as Map),
-      archived: Map<String, bool>.from(json['archived'] as Map),
-      pinned: Map<String, bool>.from(json['pinned'] as Map),
-      muted: Map<String, bool>.from(json['muted'] as Map),
-      lastMessageEncryptedPreviews:
-          (json['lastMessageEncryptedPreviews'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as String),
-          ) ??
-          const {},
-      chatClearedAt:
-          (json['chatClearedAt'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, DateTime.parse(e as String)),
-          ) ??
-          const {},
-      accepted:
-          (json['accepted'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as bool),
-          ) ??
-          const {},
-      sessionResetRequested:
-          (json['sessionResetRequested'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as bool),
-          ) ??
-          const {},
-      tokenPoolId: json['tokenPoolId'] as String?,
-      poolTitle: json['poolTitle'] as String?,
-      poolMode: json['poolMode'] as String?,
-      disappearingMessagesDuration: json['disappearingMessagesDuration'] == null
-          ? null
-          : Duration(
-              microseconds: (json['disappearingMessagesDuration'] as num)
-                  .toInt(),
-            ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-    );
+_$ConversationImpl _$$ConversationImplFromJson(
+  Map<String, dynamic> json,
+) => _$ConversationImpl(
+  id: json['id'] as String,
+  type: $enumDecode(_$ConversationTypeEnumMap, json['type']),
+  participantIds: (json['participantIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  participants: (json['participants'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(k, ParticipantInfo.fromJson(e as Map<String, dynamic>)),
+  ),
+  lastMessageId: json['lastMessageId'] as String?,
+  lastMessageText: json['lastMessageText'] as String?,
+  lastMessageSenderId: json['lastMessageSenderId'] as String?,
+  lastMessageSenderName: json['lastMessageSenderName'] as String?,
+  lastMessageType: json['lastMessageType'] as String?,
+  lastMessageAt: json['lastMessageAt'] == null
+      ? null
+      : DateTime.parse(json['lastMessageAt'] as String),
+  unreadCounts: Map<String, int>.from(json['unreadCounts'] as Map),
+  archived: Map<String, bool>.from(json['archived'] as Map),
+  pinned: Map<String, bool>.from(json['pinned'] as Map),
+  muted: Map<String, bool>.from(json['muted'] as Map),
+  lastMessageEncryptedPreviews:
+      (json['lastMessageEncryptedPreviews'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ) ??
+      const {},
+  chatClearedAt:
+      (json['chatClearedAt'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, DateTime.parse(e as String)),
+      ) ??
+      const {},
+  accepted:
+      (json['accepted'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as bool),
+      ) ??
+      const {},
+  sessionResetRequested:
+      (json['sessionResetRequested'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as bool),
+      ) ??
+      const {},
+  tokenPoolId: json['tokenPoolId'] as String?,
+  poolTitle: json['poolTitle'] as String?,
+  poolMode: json['poolMode'] as String?,
+  marketplaceListingId: json['marketplaceListingId'] as String?,
+  marketplaceListingTitle: json['marketplaceListingTitle'] as String?,
+  marketplaceListingThumbnailUrl:
+      json['marketplaceListingThumbnailUrl'] as String?,
+  marketplaceListingPrice: (json['marketplaceListingPrice'] as num?)?.toInt(),
+  marketplaceOrderId: json['marketplaceOrderId'] as String?,
+  disappearingMessagesDuration: json['disappearingMessagesDuration'] == null
+      ? null
+      : Duration(
+          microseconds: (json['disappearingMessagesDuration'] as num).toInt(),
+        ),
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
+);
 
 Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
     <String, dynamic>{
@@ -103,6 +108,11 @@ Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
       'tokenPoolId': instance.tokenPoolId,
       'poolTitle': instance.poolTitle,
       'poolMode': instance.poolMode,
+      'marketplaceListingId': instance.marketplaceListingId,
+      'marketplaceListingTitle': instance.marketplaceListingTitle,
+      'marketplaceListingThumbnailUrl': instance.marketplaceListingThumbnailUrl,
+      'marketplaceListingPrice': instance.marketplaceListingPrice,
+      'marketplaceOrderId': instance.marketplaceOrderId,
       'disappearingMessagesDuration':
           instance.disappearingMessagesDuration?.inMicroseconds,
       'createdAt': instance.createdAt.toIso8601String(),

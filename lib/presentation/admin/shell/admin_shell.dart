@@ -31,6 +31,17 @@ const routeRoles = <String, List<String>>{
     'auditor',
   ],
   '/pending-actions': ['superAdmin', 'financeAdmin'],
+  '/buy-feature-flags': ['superAdmin', 'platformAdmin'],
+  '/buy-categories': ['superAdmin', 'platformAdmin'],
+  '/buy-purchases': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/buy-featured': ['superAdmin', 'campaignAdmin'],
+  '/buy-brand-storefronts': ['superAdmin', 'campaignAdmin'],
+  '/buy-providers': ['superAdmin', 'platformAdmin'],
+  '/buy-listings': ['superAdmin', 'platformAdmin'],
+  '/buy-orders': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/buy-analytics': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/buy-group-buys': ['superAdmin', 'financeAdmin'],
+  '/buy-escrow': ['superAdmin', 'financeAdmin', 'auditor'],
 };
 
 /// Whether a route is visible for the given roles.
@@ -271,6 +282,110 @@ class _AdminSidebar extends StatelessWidget {
                         label: 'Reward Activity',
                         path: '/reward-activity',
                         isSelected: currentPath == '/reward-activity',
+                      ),
+
+                    // ── BUY MANAGEMENT ──
+                    if (_anySectionVisible(roles, [
+                      '/buy-feature-flags',
+                      '/buy-categories',
+                      '/buy-purchases',
+                      '/buy-featured',
+                      '/buy-brand-storefronts',
+                      '/buy-providers',
+                      '/buy-listings',
+                      '/buy-orders',
+                      '/buy-analytics',
+                      '/buy-group-buys',
+                      '/buy-escrow',
+                    ]))
+                      const _SectionHeader('BUY MANAGEMENT'),
+                    if (isRouteAllowed('/buy-feature-flags', roles))
+                      _NavItem(
+                        icon: Icons.flag_outlined,
+                        selectedIcon: Icons.flag,
+                        label: 'Feature Flags',
+                        path: '/buy-feature-flags',
+                        isSelected: currentPath == '/buy-feature-flags',
+                      ),
+                    if (isRouteAllowed('/buy-categories', roles))
+                      _NavItem(
+                        icon: Icons.category_outlined,
+                        selectedIcon: Icons.category,
+                        label: 'Buy Categories',
+                        path: '/buy-categories',
+                        isSelected: currentPath == '/buy-categories',
+                      ),
+                    if (isRouteAllowed('/buy-purchases', roles))
+                      _NavItem(
+                        icon: Icons.receipt_long_outlined,
+                        selectedIcon: Icons.receipt_long,
+                        label: 'VAS Purchases',
+                        path: '/buy-purchases',
+                        isSelected: currentPath == '/buy-purchases',
+                      ),
+                    if (isRouteAllowed('/buy-featured', roles))
+                      _NavItem(
+                        icon: Icons.star_outline,
+                        selectedIcon: Icons.star,
+                        label: 'Featured Content',
+                        path: '/buy-featured',
+                        isSelected: currentPath == '/buy-featured',
+                      ),
+                    if (isRouteAllowed('/buy-brand-storefronts', roles))
+                      _NavItem(
+                        icon: Icons.storefront_outlined,
+                        selectedIcon: Icons.storefront,
+                        label: 'Brand Storefronts',
+                        path: '/buy-brand-storefronts',
+                        isSelected: currentPath == '/buy-brand-storefronts',
+                      ),
+                    if (isRouteAllowed('/buy-providers', roles))
+                      _NavItem(
+                        icon: Icons.person_search_outlined,
+                        selectedIcon: Icons.person_search,
+                        label: 'Providers',
+                        path: '/buy-providers',
+                        isSelected: currentPath == '/buy-providers',
+                      ),
+                    if (isRouteAllowed('/buy-listings', roles))
+                      _NavItem(
+                        icon: Icons.inventory_2_outlined,
+                        selectedIcon: Icons.inventory_2,
+                        label: 'Listings',
+                        path: '/buy-listings',
+                        isSelected: currentPath == '/buy-listings',
+                      ),
+                    if (isRouteAllowed('/buy-orders', roles))
+                      _NavItem(
+                        icon: Icons.gavel_outlined,
+                        selectedIcon: Icons.gavel,
+                        label: 'Orders & Disputes',
+                        path: '/buy-orders',
+                        isSelected: currentPath == '/buy-orders',
+                      ),
+                    if (isRouteAllowed('/buy-analytics', roles))
+                      _NavItem(
+                        icon: Icons.analytics_outlined,
+                        selectedIcon: Icons.analytics,
+                        label: 'Marketplace Analytics',
+                        path: '/buy-analytics',
+                        isSelected: currentPath == '/buy-analytics',
+                      ),
+                    if (isRouteAllowed('/buy-group-buys', roles))
+                      _NavItem(
+                        icon: Icons.group_work_outlined,
+                        selectedIcon: Icons.group_work,
+                        label: 'Group Buys',
+                        path: '/buy-group-buys',
+                        isSelected: currentPath == '/buy-group-buys',
+                      ),
+                    if (isRouteAllowed('/buy-escrow', roles))
+                      _NavItem(
+                        icon: Icons.account_balance_outlined,
+                        selectedIcon: Icons.account_balance,
+                        label: 'Escrow Overview',
+                        path: '/buy-escrow',
+                        isSelected: currentPath == '/buy-escrow',
                       ),
 
                     // ── PLATFORM MANAGEMENT ──

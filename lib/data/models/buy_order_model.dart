@@ -1,0 +1,186 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../../domain/entities/buy_order.dart';
+import '../../domain/enums/order_status.dart';
+
+part 'buy_order_model.freezed.dart';
+
+@freezed
+class BuyOrderModel with _$BuyOrderModel {
+  const factory BuyOrderModel({
+    required String id,
+    required String buyerId,
+    required String buyerName,
+    required String sellerId,
+    required String sellerName,
+    required String listingId,
+    required String listingTitle,
+    required int amount,
+    required double amountZar,
+    required OrderStatus status,
+    String? escrowJournalId,
+    String? releaseJournalId,
+    String? refundJournalId,
+    String? disputeReason,
+    String? disputeResolution,
+    String? chatConversationId,
+    String? thumbnailUrl,
+    required DateTime createdAt,
+    DateTime? escrowedAt,
+    DateTime? fulfilledAt,
+    DateTime? completedAt,
+    DateTime? disputedAt,
+    DateTime? resolvedAt,
+    DateTime? cancelledAt,
+  }) = _BuyOrderModel;
+
+  const BuyOrderModel._();
+
+  factory BuyOrderModel.fromJson(Map<String, dynamic> json) {
+    return BuyOrderModel(
+      id: json['id'] as String? ?? '',
+      buyerId: json['buyerId'] as String? ?? '',
+      buyerName: json['buyerName'] as String? ?? '',
+      sellerId: json['sellerId'] as String? ?? '',
+      sellerName: json['sellerName'] as String? ?? '',
+      listingId: json['listingId'] as String? ?? '',
+      listingTitle: json['listingTitle'] as String? ?? '',
+      amount: (json['amount'] as num?)?.toInt() ?? 0,
+      amountZar: (json['amountZar'] as num?)?.toDouble() ?? 0.0,
+      status: _parseOrderStatus(json['status'] as String?),
+      escrowJournalId: json['escrowJournalId'] as String?,
+      releaseJournalId: json['releaseJournalId'] as String?,
+      refundJournalId: json['refundJournalId'] as String?,
+      disputeReason: json['disputeReason'] as String?,
+      disputeResolution: json['disputeResolution'] as String?,
+      chatConversationId: json['chatConversationId'] as String?,
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+      createdAt: _parseDateTime(json['createdAt']),
+      escrowedAt: _parseDateTimeNullable(json['escrowedAt']),
+      fulfilledAt: _parseDateTimeNullable(json['fulfilledAt']),
+      completedAt: _parseDateTimeNullable(json['completedAt']),
+      disputedAt: _parseDateTimeNullable(json['disputedAt']),
+      resolvedAt: _parseDateTimeNullable(json['resolvedAt']),
+      cancelledAt: _parseDateTimeNullable(json['cancelledAt']),
+    );
+  }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'buyerId': buyerId,
+      'buyerName': buyerName,
+      'sellerId': sellerId,
+      'sellerName': sellerName,
+      'listingId': listingId,
+      'listingTitle': listingTitle,
+      'amount': amount,
+      'amountZar': amountZar,
+      'status': status.name,
+      if (escrowJournalId != null) 'escrowJournalId': escrowJournalId,
+      if (releaseJournalId != null) 'releaseJournalId': releaseJournalId,
+      if (refundJournalId != null) 'refundJournalId': refundJournalId,
+      if (disputeReason != null) 'disputeReason': disputeReason,
+      if (disputeResolution != null) 'disputeResolution': disputeResolution,
+      if (chatConversationId != null) 'chatConversationId': chatConversationId,
+      if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
+      'createdAt': Timestamp.fromDate(createdAt),
+      if (escrowedAt != null) 'escrowedAt': Timestamp.fromDate(escrowedAt!),
+      if (fulfilledAt != null) 'fulfilledAt': Timestamp.fromDate(fulfilledAt!),
+      if (completedAt != null) 'completedAt': Timestamp.fromDate(completedAt!),
+      if (disputedAt != null) 'disputedAt': Timestamp.fromDate(disputedAt!),
+      if (resolvedAt != null) 'resolvedAt': Timestamp.fromDate(resolvedAt!),
+      if (cancelledAt != null) 'cancelledAt': Timestamp.fromDate(cancelledAt!),
+    };
+  }
+
+  BuyOrder toEntity() {
+    return BuyOrder(
+      id: id,
+      buyerId: buyerId,
+      buyerName: buyerName,
+      sellerId: sellerId,
+      sellerName: sellerName,
+      listingId: listingId,
+      listingTitle: listingTitle,
+      amount: amount,
+      amountZar: amountZar,
+      status: status,
+      escrowJournalId: escrowJournalId,
+      releaseJournalId: releaseJournalId,
+      refundJournalId: refundJournalId,
+      disputeReason: disputeReason,
+      disputeResolution: disputeResolution,
+      chatConversationId: chatConversationId,
+      thumbnailUrl: thumbnailUrl,
+      createdAt: createdAt,
+      escrowedAt: escrowedAt,
+      fulfilledAt: fulfilledAt,
+      completedAt: completedAt,
+      disputedAt: disputedAt,
+      resolvedAt: resolvedAt,
+      cancelledAt: cancelledAt,
+    );
+  }
+
+  factory BuyOrderModel.fromEntity(BuyOrder entity) {
+    return BuyOrderModel(
+      id: entity.id,
+      buyerId: entity.buyerId,
+      buyerName: entity.buyerName,
+      sellerId: entity.sellerId,
+      sellerName: entity.sellerName,
+      listingId: entity.listingId,
+      listingTitle: entity.listingTitle,
+      amount: entity.amount,
+      amountZar: entity.amountZar,
+      status: entity.status,
+      escrowJournalId: entity.escrowJournalId,
+      releaseJournalId: entity.releaseJournalId,
+      refundJournalId: entity.refundJournalId,
+      disputeReason: entity.disputeReason,
+      disputeResolution: entity.disputeResolution,
+      chatConversationId: entity.chatConversationId,
+      thumbnailUrl: entity.thumbnailUrl,
+      createdAt: entity.createdAt,
+      escrowedAt: entity.escrowedAt,
+      fulfilledAt: entity.fulfilledAt,
+      completedAt: entity.completedAt,
+      disputedAt: entity.disputedAt,
+      resolvedAt: entity.resolvedAt,
+      cancelledAt: entity.cancelledAt,
+    );
+  }
+}
+
+OrderStatus _parseOrderStatus(String? value) {
+  switch (value) {
+    case 'escrowed':
+      return OrderStatus.escrowed;
+    case 'fulfilled':
+      return OrderStatus.fulfilled;
+    case 'completed':
+      return OrderStatus.completed;
+    case 'disputed':
+      return OrderStatus.disputed;
+    case 'refunded':
+      return OrderStatus.refunded;
+    case 'cancelled':
+      return OrderStatus.cancelled;
+    default:
+      return OrderStatus.pending;
+  }
+}
+
+DateTime _parseDateTime(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.parse(value);
+  return DateTime.now();
+}
+
+DateTime? _parseDateTimeNullable(dynamic value) {
+  if (value == null) return null;
+  if (value is Timestamp) return value.toDate();
+  if (value is String) return DateTime.parse(value);
+  return null;
+}

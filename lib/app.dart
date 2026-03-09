@@ -26,6 +26,11 @@ import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
 import 'presentation/blocs/gift/gift_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
 import 'presentation/blocs/token_pool/token_pool_bloc.dart';
+import 'presentation/blocs/buy_tab/buy_tab_bloc.dart';
+import 'presentation/blocs/feature_flag/feature_flag_bloc.dart';
+import 'presentation/blocs/marketplace/marketplace_bloc.dart';
+import 'presentation/blocs/order/order_bloc.dart';
+import 'presentation/blocs/group_buy/group_buy_bloc.dart';
 import 'presentation/blocs/purchase/purchase_bloc.dart';
 import 'presentation/blocs/referral/referral_bloc.dart';
 import 'presentation/blocs/reward/reward_bloc.dart';
@@ -62,6 +67,11 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final CallBloc _callBloc;
   late final GiftBloc _giftBloc;
   late final TokenPoolBloc _tokenPoolBloc;
+  late final BuyTabBloc _buyTabBloc;
+  late final FeatureFlagBloc _featureFlagBloc;
+  late final MarketplaceBloc _marketplaceBloc;
+  late final OrderBloc _orderBloc;
+  late final GroupBuyBloc _groupBuyBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -90,6 +100,11 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _callBloc = getIt<CallBloc>();
     _giftBloc = getIt<GiftBloc>();
     _tokenPoolBloc = getIt<TokenPoolBloc>();
+    _buyTabBloc = getIt<BuyTabBloc>();
+    _featureFlagBloc = getIt<FeatureFlagBloc>();
+    _marketplaceBloc = getIt<MarketplaceBloc>();
+    _orderBloc = getIt<OrderBloc>();
+    _groupBuyBloc = getIt<GroupBuyBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _appRouter = AppRouter(authBloc: _authBloc);
@@ -251,6 +266,11 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<CallBloc>.value(value: _callBloc),
         BlocProvider<GiftBloc>.value(value: _giftBloc),
         BlocProvider<TokenPoolBloc>.value(value: _tokenPoolBloc),
+        BlocProvider<BuyTabBloc>.value(value: _buyTabBloc),
+        BlocProvider<FeatureFlagBloc>.value(value: _featureFlagBloc),
+        BlocProvider<MarketplaceBloc>.value(value: _marketplaceBloc),
+        BlocProvider<OrderBloc>.value(value: _orderBloc),
+        BlocProvider<GroupBuyBloc>.value(value: _groupBuyBloc),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (prev, curr) =>

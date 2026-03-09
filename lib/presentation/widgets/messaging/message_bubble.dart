@@ -18,6 +18,7 @@ import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/message_type.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../buy/shareable_buy_card.dart';
 import '../gift/gift_bubble.dart';
 import '../gift/gift_opening_dialog.dart';
 import '../pool/group_gift_bubble.dart';
@@ -86,6 +87,7 @@ class MessageBubble extends StatelessWidget {
     if (message.isGift && message.gift != null) return _buildGiftBubble(context);
     if (message.isGroupGift && message.groupGift != null) return _buildGroupGiftBubble(context);
     if (message.isSpray && message.tokenSpray != null) return _buildSprayBubble(context);
+    if (message.isMarketplaceShare || message.isGroupBuyShare) return _buildShareableBuyCard(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
     final bubbleColor =
@@ -678,6 +680,64 @@ class MessageBubble extends StatelessWidget {
                 expiresAt: spray.expiresAt,
                 currentUserId: currentUserId,
                 recipientId: spray.recipientId,
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 4),
+                _buildSquareAvatar(),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareableBuyCard(BuildContext context) {
+    // Parse structured data from textContent (JSON-encoded)
+    Map<String, dynamic> data = {};
+    if (message.textContent != null) {
+      try {
+        data = Map<String, dynamic>.from(
+          json.decode(message.textContent!) as Map,
+        );
+      } catch (_) {
+        // Fallback: treat textContent as title
+        data = {'title': message.textContent};
+      }
+    }
+
+    final isGroupBuy = message.isGroupBuyShare;
+    final deepLink = data['deepLink'] as String?;
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isMe) ...[
+                _buildSquareAvatar(),
+                const SizedBox(width: 4),
+              ],
+              ShareableBuyCard(
+                title: data['title'] as String? ?? 'Listing',
+                thumbnailUrl: data['thumbnailUrl'] as String?,
+                priceLabel: data['price'] != null
+                    ? '${data['price']} tokens'
+                    : '',
+                subtitle: isGroupBuy
+                    ? data['spotsLeft'] as String?
+                    : null,
+                isGroupBuy: isGroupBuy,
+                onTap: deepLink != null
+                    ? () {
+                        // Deep link navigation handled by parent screen
+                      }
+                    : null,
               ),
               if (isMe) ...[
                 const SizedBox(width: 4),

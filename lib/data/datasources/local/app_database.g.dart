@@ -11212,6 +11212,2125 @@ class LocalCommunityMembersCompanion
   }
 }
 
+class $LocalBuyCategoriesTable extends LocalBuyCategories
+    with TableInfo<$LocalBuyCategoriesTable, LocalBuyCategory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalBuyCategoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconEmojiMeta = const VerificationMeta(
+    'iconEmoji',
+  );
+  @override
+  late final GeneratedColumn<String> iconEmoji = GeneratedColumn<String>(
+    'icon_emoji',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isComingSoonMeta = const VerificationMeta(
+    'isComingSoon',
+  );
+  @override
+  late final GeneratedColumn<bool> isComingSoon = GeneratedColumn<bool>(
+    'is_coming_soon',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_coming_soon" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _purchaseCategoryMappingMeta =
+      const VerificationMeta('purchaseCategoryMapping');
+  @override
+  late final GeneratedColumn<String> purchaseCategoryMapping =
+      GeneratedColumn<String>(
+        'purchase_category_mapping',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _featureFlagKeyMeta = const VerificationMeta(
+    'featureFlagKey',
+  );
+  @override
+  late final GeneratedColumn<String> featureFlagKey = GeneratedColumn<String>(
+    'feature_flag_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _logoUrlMeta = const VerificationMeta(
+    'logoUrl',
+  );
+  @override
+  late final GeneratedColumn<String> logoUrl = GeneratedColumn<String>(
+    'logo_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _backgroundColorMeta = const VerificationMeta(
+    'backgroundColor',
+  );
+  @override
+  late final GeneratedColumn<String> backgroundColor = GeneratedColumn<String>(
+    'background_color',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    iconEmoji,
+    sortOrder,
+    isActive,
+    isComingSoon,
+    purchaseCategoryMapping,
+    featureFlagKey,
+    logoUrl,
+    backgroundColor,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_buy_categories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalBuyCategory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon_emoji')) {
+      context.handle(
+        _iconEmojiMeta,
+        iconEmoji.isAcceptableOrUnknown(data['icon_emoji']!, _iconEmojiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_iconEmojiMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('is_coming_soon')) {
+      context.handle(
+        _isComingSoonMeta,
+        isComingSoon.isAcceptableOrUnknown(
+          data['is_coming_soon']!,
+          _isComingSoonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('purchase_category_mapping')) {
+      context.handle(
+        _purchaseCategoryMappingMeta,
+        purchaseCategoryMapping.isAcceptableOrUnknown(
+          data['purchase_category_mapping']!,
+          _purchaseCategoryMappingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('feature_flag_key')) {
+      context.handle(
+        _featureFlagKeyMeta,
+        featureFlagKey.isAcceptableOrUnknown(
+          data['feature_flag_key']!,
+          _featureFlagKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('logo_url')) {
+      context.handle(
+        _logoUrlMeta,
+        logoUrl.isAcceptableOrUnknown(data['logo_url']!, _logoUrlMeta),
+      );
+    }
+    if (data.containsKey('background_color')) {
+      context.handle(
+        _backgroundColorMeta,
+        backgroundColor.isAcceptableOrUnknown(
+          data['background_color']!,
+          _backgroundColorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalBuyCategory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalBuyCategory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      iconEmoji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_emoji'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      isComingSoon: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_coming_soon'],
+      )!,
+      purchaseCategoryMapping: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}purchase_category_mapping'],
+      ),
+      featureFlagKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feature_flag_key'],
+      ),
+      logoUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}logo_url'],
+      ),
+      backgroundColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}background_color'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalBuyCategoriesTable createAlias(String alias) {
+    return $LocalBuyCategoriesTable(attachedDatabase, alias);
+  }
+}
+
+class LocalBuyCategory extends DataClass
+    implements Insertable<LocalBuyCategory> {
+  final String id;
+  final String name;
+  final String iconEmoji;
+  final int sortOrder;
+  final bool isActive;
+  final bool isComingSoon;
+  final String? purchaseCategoryMapping;
+  final String? featureFlagKey;
+  final String? logoUrl;
+  final String? backgroundColor;
+  final DateTime syncedAt;
+  const LocalBuyCategory({
+    required this.id,
+    required this.name,
+    required this.iconEmoji,
+    required this.sortOrder,
+    required this.isActive,
+    required this.isComingSoon,
+    this.purchaseCategoryMapping,
+    this.featureFlagKey,
+    this.logoUrl,
+    this.backgroundColor,
+    required this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['icon_emoji'] = Variable<String>(iconEmoji);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['is_active'] = Variable<bool>(isActive);
+    map['is_coming_soon'] = Variable<bool>(isComingSoon);
+    if (!nullToAbsent || purchaseCategoryMapping != null) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping,
+      );
+    }
+    if (!nullToAbsent || featureFlagKey != null) {
+      map['feature_flag_key'] = Variable<String>(featureFlagKey);
+    }
+    if (!nullToAbsent || logoUrl != null) {
+      map['logo_url'] = Variable<String>(logoUrl);
+    }
+    if (!nullToAbsent || backgroundColor != null) {
+      map['background_color'] = Variable<String>(backgroundColor);
+    }
+    map['synced_at'] = Variable<DateTime>(syncedAt);
+    return map;
+  }
+
+  LocalBuyCategoriesCompanion toCompanion(bool nullToAbsent) {
+    return LocalBuyCategoriesCompanion(
+      id: Value(id),
+      name: Value(name),
+      iconEmoji: Value(iconEmoji),
+      sortOrder: Value(sortOrder),
+      isActive: Value(isActive),
+      isComingSoon: Value(isComingSoon),
+      purchaseCategoryMapping: purchaseCategoryMapping == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseCategoryMapping),
+      featureFlagKey: featureFlagKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(featureFlagKey),
+      logoUrl: logoUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(logoUrl),
+      backgroundColor: backgroundColor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backgroundColor),
+      syncedAt: Value(syncedAt),
+    );
+  }
+
+  factory LocalBuyCategory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalBuyCategory(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      iconEmoji: serializer.fromJson<String>(json['iconEmoji']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      isComingSoon: serializer.fromJson<bool>(json['isComingSoon']),
+      purchaseCategoryMapping: serializer.fromJson<String?>(
+        json['purchaseCategoryMapping'],
+      ),
+      featureFlagKey: serializer.fromJson<String?>(json['featureFlagKey']),
+      logoUrl: serializer.fromJson<String?>(json['logoUrl']),
+      backgroundColor: serializer.fromJson<String?>(json['backgroundColor']),
+      syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'iconEmoji': serializer.toJson<String>(iconEmoji),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'isActive': serializer.toJson<bool>(isActive),
+      'isComingSoon': serializer.toJson<bool>(isComingSoon),
+      'purchaseCategoryMapping': serializer.toJson<String?>(
+        purchaseCategoryMapping,
+      ),
+      'featureFlagKey': serializer.toJson<String?>(featureFlagKey),
+      'logoUrl': serializer.toJson<String?>(logoUrl),
+      'backgroundColor': serializer.toJson<String?>(backgroundColor),
+      'syncedAt': serializer.toJson<DateTime>(syncedAt),
+    };
+  }
+
+  LocalBuyCategory copyWith({
+    String? id,
+    String? name,
+    String? iconEmoji,
+    int? sortOrder,
+    bool? isActive,
+    bool? isComingSoon,
+    Value<String?> purchaseCategoryMapping = const Value.absent(),
+    Value<String?> featureFlagKey = const Value.absent(),
+    Value<String?> logoUrl = const Value.absent(),
+    Value<String?> backgroundColor = const Value.absent(),
+    DateTime? syncedAt,
+  }) => LocalBuyCategory(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    iconEmoji: iconEmoji ?? this.iconEmoji,
+    sortOrder: sortOrder ?? this.sortOrder,
+    isActive: isActive ?? this.isActive,
+    isComingSoon: isComingSoon ?? this.isComingSoon,
+    purchaseCategoryMapping: purchaseCategoryMapping.present
+        ? purchaseCategoryMapping.value
+        : this.purchaseCategoryMapping,
+    featureFlagKey: featureFlagKey.present
+        ? featureFlagKey.value
+        : this.featureFlagKey,
+    logoUrl: logoUrl.present ? logoUrl.value : this.logoUrl,
+    backgroundColor: backgroundColor.present
+        ? backgroundColor.value
+        : this.backgroundColor,
+    syncedAt: syncedAt ?? this.syncedAt,
+  );
+  LocalBuyCategory copyWithCompanion(LocalBuyCategoriesCompanion data) {
+    return LocalBuyCategory(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      iconEmoji: data.iconEmoji.present ? data.iconEmoji.value : this.iconEmoji,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      isComingSoon: data.isComingSoon.present
+          ? data.isComingSoon.value
+          : this.isComingSoon,
+      purchaseCategoryMapping: data.purchaseCategoryMapping.present
+          ? data.purchaseCategoryMapping.value
+          : this.purchaseCategoryMapping,
+      featureFlagKey: data.featureFlagKey.present
+          ? data.featureFlagKey.value
+          : this.featureFlagKey,
+      logoUrl: data.logoUrl.present ? data.logoUrl.value : this.logoUrl,
+      backgroundColor: data.backgroundColor.present
+          ? data.backgroundColor.value
+          : this.backgroundColor,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyCategory(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconEmoji: $iconEmoji, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isActive: $isActive, ')
+          ..write('isComingSoon: $isComingSoon, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('featureFlagKey: $featureFlagKey, ')
+          ..write('logoUrl: $logoUrl, ')
+          ..write('backgroundColor: $backgroundColor, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    iconEmoji,
+    sortOrder,
+    isActive,
+    isComingSoon,
+    purchaseCategoryMapping,
+    featureFlagKey,
+    logoUrl,
+    backgroundColor,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalBuyCategory &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.iconEmoji == this.iconEmoji &&
+          other.sortOrder == this.sortOrder &&
+          other.isActive == this.isActive &&
+          other.isComingSoon == this.isComingSoon &&
+          other.purchaseCategoryMapping == this.purchaseCategoryMapping &&
+          other.featureFlagKey == this.featureFlagKey &&
+          other.logoUrl == this.logoUrl &&
+          other.backgroundColor == this.backgroundColor &&
+          other.syncedAt == this.syncedAt);
+}
+
+class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> iconEmoji;
+  final Value<int> sortOrder;
+  final Value<bool> isActive;
+  final Value<bool> isComingSoon;
+  final Value<String?> purchaseCategoryMapping;
+  final Value<String?> featureFlagKey;
+  final Value<String?> logoUrl;
+  final Value<String?> backgroundColor;
+  final Value<DateTime> syncedAt;
+  final Value<int> rowid;
+  const LocalBuyCategoriesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.iconEmoji = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.isComingSoon = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    this.featureFlagKey = const Value.absent(),
+    this.logoUrl = const Value.absent(),
+    this.backgroundColor = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalBuyCategoriesCompanion.insert({
+    required String id,
+    required String name,
+    required String iconEmoji,
+    this.sortOrder = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.isComingSoon = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    this.featureFlagKey = const Value.absent(),
+    this.logoUrl = const Value.absent(),
+    this.backgroundColor = const Value.absent(),
+    required DateTime syncedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       iconEmoji = Value(iconEmoji),
+       syncedAt = Value(syncedAt);
+  static Insertable<LocalBuyCategory> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? iconEmoji,
+    Expression<int>? sortOrder,
+    Expression<bool>? isActive,
+    Expression<bool>? isComingSoon,
+    Expression<String>? purchaseCategoryMapping,
+    Expression<String>? featureFlagKey,
+    Expression<String>? logoUrl,
+    Expression<String>? backgroundColor,
+    Expression<DateTime>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (iconEmoji != null) 'icon_emoji': iconEmoji,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (isActive != null) 'is_active': isActive,
+      if (isComingSoon != null) 'is_coming_soon': isComingSoon,
+      if (purchaseCategoryMapping != null)
+        'purchase_category_mapping': purchaseCategoryMapping,
+      if (featureFlagKey != null) 'feature_flag_key': featureFlagKey,
+      if (logoUrl != null) 'logo_url': logoUrl,
+      if (backgroundColor != null) 'background_color': backgroundColor,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalBuyCategoriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? iconEmoji,
+    Value<int>? sortOrder,
+    Value<bool>? isActive,
+    Value<bool>? isComingSoon,
+    Value<String?>? purchaseCategoryMapping,
+    Value<String?>? featureFlagKey,
+    Value<String?>? logoUrl,
+    Value<String?>? backgroundColor,
+    Value<DateTime>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalBuyCategoriesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      iconEmoji: iconEmoji ?? this.iconEmoji,
+      sortOrder: sortOrder ?? this.sortOrder,
+      isActive: isActive ?? this.isActive,
+      isComingSoon: isComingSoon ?? this.isComingSoon,
+      purchaseCategoryMapping:
+          purchaseCategoryMapping ?? this.purchaseCategoryMapping,
+      featureFlagKey: featureFlagKey ?? this.featureFlagKey,
+      logoUrl: logoUrl ?? this.logoUrl,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (iconEmoji.present) {
+      map['icon_emoji'] = Variable<String>(iconEmoji.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (isComingSoon.present) {
+      map['is_coming_soon'] = Variable<bool>(isComingSoon.value);
+    }
+    if (purchaseCategoryMapping.present) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping.value,
+      );
+    }
+    if (featureFlagKey.present) {
+      map['feature_flag_key'] = Variable<String>(featureFlagKey.value);
+    }
+    if (logoUrl.present) {
+      map['logo_url'] = Variable<String>(logoUrl.value);
+    }
+    if (backgroundColor.present) {
+      map['background_color'] = Variable<String>(backgroundColor.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyCategoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconEmoji: $iconEmoji, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isActive: $isActive, ')
+          ..write('isComingSoon: $isComingSoon, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('featureFlagKey: $featureFlagKey, ')
+          ..write('logoUrl: $logoUrl, ')
+          ..write('backgroundColor: $backgroundColor, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalBuyRegularsTable extends LocalBuyRegulars
+    with TableInfo<$LocalBuyRegularsTable, LocalBuyRegular> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalBuyRegularsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerIdMeta = const VerificationMeta(
+    'providerId',
+  );
+  @override
+  late final GeneratedColumn<String> providerId = GeneratedColumn<String>(
+    'provider_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerNameMeta = const VerificationMeta(
+    'providerName',
+  );
+  @override
+  late final GeneratedColumn<String> providerName = GeneratedColumn<String>(
+    'provider_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recipientNumberMeta = const VerificationMeta(
+    'recipientNumber',
+  );
+  @override
+  late final GeneratedColumn<String> recipientNumber = GeneratedColumn<String>(
+    'recipient_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recipientLabelMeta = const VerificationMeta(
+    'recipientLabel',
+  );
+  @override
+  late final GeneratedColumn<String> recipientLabel = GeneratedColumn<String>(
+    'recipient_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isPinnedMeta = const VerificationMeta(
+    'isPinned',
+  );
+  @override
+  late final GeneratedColumn<bool> isPinned = GeneratedColumn<bool>(
+    'is_pinned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_pinned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _usageCountMeta = const VerificationMeta(
+    'usageCount',
+  );
+  @override
+  late final GeneratedColumn<int> usageCount = GeneratedColumn<int>(
+    'usage_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUsedAt = GeneratedColumn<DateTime>(
+    'last_used_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryEmojiMeta = const VerificationMeta(
+    'categoryEmoji',
+  );
+  @override
+  late final GeneratedColumn<String> categoryEmoji = GeneratedColumn<String>(
+    'category_emoji',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _purchaseCategoryMappingMeta =
+      const VerificationMeta('purchaseCategoryMapping');
+  @override
+  late final GeneratedColumn<String> purchaseCategoryMapping =
+      GeneratedColumn<String>(
+        'purchase_category_mapping',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    providerId,
+    productId,
+    providerName,
+    productName,
+    recipientNumber,
+    recipientLabel,
+    isPinned,
+    usageCount,
+    lastUsedAt,
+    categoryEmoji,
+    purchaseCategoryMapping,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_buy_regulars';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalBuyRegular> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('provider_id')) {
+      context.handle(
+        _providerIdMeta,
+        providerId.isAcceptableOrUnknown(data['provider_id']!, _providerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_providerIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('provider_name')) {
+      context.handle(
+        _providerNameMeta,
+        providerName.isAcceptableOrUnknown(
+          data['provider_name']!,
+          _providerNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerNameMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('recipient_number')) {
+      context.handle(
+        _recipientNumberMeta,
+        recipientNumber.isAcceptableOrUnknown(
+          data['recipient_number']!,
+          _recipientNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recipientNumberMeta);
+    }
+    if (data.containsKey('recipient_label')) {
+      context.handle(
+        _recipientLabelMeta,
+        recipientLabel.isAcceptableOrUnknown(
+          data['recipient_label']!,
+          _recipientLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_pinned')) {
+      context.handle(
+        _isPinnedMeta,
+        isPinned.isAcceptableOrUnknown(data['is_pinned']!, _isPinnedMeta),
+      );
+    }
+    if (data.containsKey('usage_count')) {
+      context.handle(
+        _usageCountMeta,
+        usageCount.isAcceptableOrUnknown(data['usage_count']!, _usageCountMeta),
+      );
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastUsedAtMeta);
+    }
+    if (data.containsKey('category_emoji')) {
+      context.handle(
+        _categoryEmojiMeta,
+        categoryEmoji.isAcceptableOrUnknown(
+          data['category_emoji']!,
+          _categoryEmojiMeta,
+        ),
+      );
+    }
+    if (data.containsKey('purchase_category_mapping')) {
+      context.handle(
+        _purchaseCategoryMappingMeta,
+        purchaseCategoryMapping.isAcceptableOrUnknown(
+          data['purchase_category_mapping']!,
+          _purchaseCategoryMappingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalBuyRegular map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalBuyRegular(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      providerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_id'],
+      )!,
+      providerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_name'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      )!,
+      recipientNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_number'],
+      )!,
+      recipientLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_label'],
+      ),
+      isPinned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_pinned'],
+      )!,
+      usageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}usage_count'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_used_at'],
+      )!,
+      categoryEmoji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_emoji'],
+      ),
+      purchaseCategoryMapping: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}purchase_category_mapping'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalBuyRegularsTable createAlias(String alias) {
+    return $LocalBuyRegularsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalBuyRegular extends DataClass implements Insertable<LocalBuyRegular> {
+  final String id;
+  final String providerId;
+  final String productId;
+  final String providerName;
+  final String productName;
+  final String recipientNumber;
+  final String? recipientLabel;
+  final bool isPinned;
+  final int usageCount;
+  final DateTime lastUsedAt;
+  final String? categoryEmoji;
+  final String? purchaseCategoryMapping;
+  final DateTime syncedAt;
+  const LocalBuyRegular({
+    required this.id,
+    required this.providerId,
+    required this.productId,
+    required this.providerName,
+    required this.productName,
+    required this.recipientNumber,
+    this.recipientLabel,
+    required this.isPinned,
+    required this.usageCount,
+    required this.lastUsedAt,
+    this.categoryEmoji,
+    this.purchaseCategoryMapping,
+    required this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['provider_id'] = Variable<String>(providerId);
+    map['product_id'] = Variable<String>(productId);
+    map['provider_name'] = Variable<String>(providerName);
+    map['product_name'] = Variable<String>(productName);
+    map['recipient_number'] = Variable<String>(recipientNumber);
+    if (!nullToAbsent || recipientLabel != null) {
+      map['recipient_label'] = Variable<String>(recipientLabel);
+    }
+    map['is_pinned'] = Variable<bool>(isPinned);
+    map['usage_count'] = Variable<int>(usageCount);
+    map['last_used_at'] = Variable<DateTime>(lastUsedAt);
+    if (!nullToAbsent || categoryEmoji != null) {
+      map['category_emoji'] = Variable<String>(categoryEmoji);
+    }
+    if (!nullToAbsent || purchaseCategoryMapping != null) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping,
+      );
+    }
+    map['synced_at'] = Variable<DateTime>(syncedAt);
+    return map;
+  }
+
+  LocalBuyRegularsCompanion toCompanion(bool nullToAbsent) {
+    return LocalBuyRegularsCompanion(
+      id: Value(id),
+      providerId: Value(providerId),
+      productId: Value(productId),
+      providerName: Value(providerName),
+      productName: Value(productName),
+      recipientNumber: Value(recipientNumber),
+      recipientLabel: recipientLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recipientLabel),
+      isPinned: Value(isPinned),
+      usageCount: Value(usageCount),
+      lastUsedAt: Value(lastUsedAt),
+      categoryEmoji: categoryEmoji == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryEmoji),
+      purchaseCategoryMapping: purchaseCategoryMapping == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseCategoryMapping),
+      syncedAt: Value(syncedAt),
+    );
+  }
+
+  factory LocalBuyRegular.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalBuyRegular(
+      id: serializer.fromJson<String>(json['id']),
+      providerId: serializer.fromJson<String>(json['providerId']),
+      productId: serializer.fromJson<String>(json['productId']),
+      providerName: serializer.fromJson<String>(json['providerName']),
+      productName: serializer.fromJson<String>(json['productName']),
+      recipientNumber: serializer.fromJson<String>(json['recipientNumber']),
+      recipientLabel: serializer.fromJson<String?>(json['recipientLabel']),
+      isPinned: serializer.fromJson<bool>(json['isPinned']),
+      usageCount: serializer.fromJson<int>(json['usageCount']),
+      lastUsedAt: serializer.fromJson<DateTime>(json['lastUsedAt']),
+      categoryEmoji: serializer.fromJson<String?>(json['categoryEmoji']),
+      purchaseCategoryMapping: serializer.fromJson<String?>(
+        json['purchaseCategoryMapping'],
+      ),
+      syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'providerId': serializer.toJson<String>(providerId),
+      'productId': serializer.toJson<String>(productId),
+      'providerName': serializer.toJson<String>(providerName),
+      'productName': serializer.toJson<String>(productName),
+      'recipientNumber': serializer.toJson<String>(recipientNumber),
+      'recipientLabel': serializer.toJson<String?>(recipientLabel),
+      'isPinned': serializer.toJson<bool>(isPinned),
+      'usageCount': serializer.toJson<int>(usageCount),
+      'lastUsedAt': serializer.toJson<DateTime>(lastUsedAt),
+      'categoryEmoji': serializer.toJson<String?>(categoryEmoji),
+      'purchaseCategoryMapping': serializer.toJson<String?>(
+        purchaseCategoryMapping,
+      ),
+      'syncedAt': serializer.toJson<DateTime>(syncedAt),
+    };
+  }
+
+  LocalBuyRegular copyWith({
+    String? id,
+    String? providerId,
+    String? productId,
+    String? providerName,
+    String? productName,
+    String? recipientNumber,
+    Value<String?> recipientLabel = const Value.absent(),
+    bool? isPinned,
+    int? usageCount,
+    DateTime? lastUsedAt,
+    Value<String?> categoryEmoji = const Value.absent(),
+    Value<String?> purchaseCategoryMapping = const Value.absent(),
+    DateTime? syncedAt,
+  }) => LocalBuyRegular(
+    id: id ?? this.id,
+    providerId: providerId ?? this.providerId,
+    productId: productId ?? this.productId,
+    providerName: providerName ?? this.providerName,
+    productName: productName ?? this.productName,
+    recipientNumber: recipientNumber ?? this.recipientNumber,
+    recipientLabel: recipientLabel.present
+        ? recipientLabel.value
+        : this.recipientLabel,
+    isPinned: isPinned ?? this.isPinned,
+    usageCount: usageCount ?? this.usageCount,
+    lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+    categoryEmoji: categoryEmoji.present
+        ? categoryEmoji.value
+        : this.categoryEmoji,
+    purchaseCategoryMapping: purchaseCategoryMapping.present
+        ? purchaseCategoryMapping.value
+        : this.purchaseCategoryMapping,
+    syncedAt: syncedAt ?? this.syncedAt,
+  );
+  LocalBuyRegular copyWithCompanion(LocalBuyRegularsCompanion data) {
+    return LocalBuyRegular(
+      id: data.id.present ? data.id.value : this.id,
+      providerId: data.providerId.present
+          ? data.providerId.value
+          : this.providerId,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      providerName: data.providerName.present
+          ? data.providerName.value
+          : this.providerName,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      recipientNumber: data.recipientNumber.present
+          ? data.recipientNumber.value
+          : this.recipientNumber,
+      recipientLabel: data.recipientLabel.present
+          ? data.recipientLabel.value
+          : this.recipientLabel,
+      isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
+      usageCount: data.usageCount.present
+          ? data.usageCount.value
+          : this.usageCount,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
+      categoryEmoji: data.categoryEmoji.present
+          ? data.categoryEmoji.value
+          : this.categoryEmoji,
+      purchaseCategoryMapping: data.purchaseCategoryMapping.present
+          ? data.purchaseCategoryMapping.value
+          : this.purchaseCategoryMapping,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyRegular(')
+          ..write('id: $id, ')
+          ..write('providerId: $providerId, ')
+          ..write('productId: $productId, ')
+          ..write('providerName: $providerName, ')
+          ..write('productName: $productName, ')
+          ..write('recipientNumber: $recipientNumber, ')
+          ..write('recipientLabel: $recipientLabel, ')
+          ..write('isPinned: $isPinned, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('categoryEmoji: $categoryEmoji, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    providerId,
+    productId,
+    providerName,
+    productName,
+    recipientNumber,
+    recipientLabel,
+    isPinned,
+    usageCount,
+    lastUsedAt,
+    categoryEmoji,
+    purchaseCategoryMapping,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalBuyRegular &&
+          other.id == this.id &&
+          other.providerId == this.providerId &&
+          other.productId == this.productId &&
+          other.providerName == this.providerName &&
+          other.productName == this.productName &&
+          other.recipientNumber == this.recipientNumber &&
+          other.recipientLabel == this.recipientLabel &&
+          other.isPinned == this.isPinned &&
+          other.usageCount == this.usageCount &&
+          other.lastUsedAt == this.lastUsedAt &&
+          other.categoryEmoji == this.categoryEmoji &&
+          other.purchaseCategoryMapping == this.purchaseCategoryMapping &&
+          other.syncedAt == this.syncedAt);
+}
+
+class LocalBuyRegularsCompanion extends UpdateCompanion<LocalBuyRegular> {
+  final Value<String> id;
+  final Value<String> providerId;
+  final Value<String> productId;
+  final Value<String> providerName;
+  final Value<String> productName;
+  final Value<String> recipientNumber;
+  final Value<String?> recipientLabel;
+  final Value<bool> isPinned;
+  final Value<int> usageCount;
+  final Value<DateTime> lastUsedAt;
+  final Value<String?> categoryEmoji;
+  final Value<String?> purchaseCategoryMapping;
+  final Value<DateTime> syncedAt;
+  final Value<int> rowid;
+  const LocalBuyRegularsCompanion({
+    this.id = const Value.absent(),
+    this.providerId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.providerName = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.recipientNumber = const Value.absent(),
+    this.recipientLabel = const Value.absent(),
+    this.isPinned = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.categoryEmoji = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalBuyRegularsCompanion.insert({
+    required String id,
+    required String providerId,
+    required String productId,
+    required String providerName,
+    required String productName,
+    required String recipientNumber,
+    this.recipientLabel = const Value.absent(),
+    this.isPinned = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    required DateTime lastUsedAt,
+    this.categoryEmoji = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    required DateTime syncedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       providerId = Value(providerId),
+       productId = Value(productId),
+       providerName = Value(providerName),
+       productName = Value(productName),
+       recipientNumber = Value(recipientNumber),
+       lastUsedAt = Value(lastUsedAt),
+       syncedAt = Value(syncedAt);
+  static Insertable<LocalBuyRegular> custom({
+    Expression<String>? id,
+    Expression<String>? providerId,
+    Expression<String>? productId,
+    Expression<String>? providerName,
+    Expression<String>? productName,
+    Expression<String>? recipientNumber,
+    Expression<String>? recipientLabel,
+    Expression<bool>? isPinned,
+    Expression<int>? usageCount,
+    Expression<DateTime>? lastUsedAt,
+    Expression<String>? categoryEmoji,
+    Expression<String>? purchaseCategoryMapping,
+    Expression<DateTime>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (providerId != null) 'provider_id': providerId,
+      if (productId != null) 'product_id': productId,
+      if (providerName != null) 'provider_name': providerName,
+      if (productName != null) 'product_name': productName,
+      if (recipientNumber != null) 'recipient_number': recipientNumber,
+      if (recipientLabel != null) 'recipient_label': recipientLabel,
+      if (isPinned != null) 'is_pinned': isPinned,
+      if (usageCount != null) 'usage_count': usageCount,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
+      if (categoryEmoji != null) 'category_emoji': categoryEmoji,
+      if (purchaseCategoryMapping != null)
+        'purchase_category_mapping': purchaseCategoryMapping,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalBuyRegularsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? providerId,
+    Value<String>? productId,
+    Value<String>? providerName,
+    Value<String>? productName,
+    Value<String>? recipientNumber,
+    Value<String?>? recipientLabel,
+    Value<bool>? isPinned,
+    Value<int>? usageCount,
+    Value<DateTime>? lastUsedAt,
+    Value<String?>? categoryEmoji,
+    Value<String?>? purchaseCategoryMapping,
+    Value<DateTime>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalBuyRegularsCompanion(
+      id: id ?? this.id,
+      providerId: providerId ?? this.providerId,
+      productId: productId ?? this.productId,
+      providerName: providerName ?? this.providerName,
+      productName: productName ?? this.productName,
+      recipientNumber: recipientNumber ?? this.recipientNumber,
+      recipientLabel: recipientLabel ?? this.recipientLabel,
+      isPinned: isPinned ?? this.isPinned,
+      usageCount: usageCount ?? this.usageCount,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      categoryEmoji: categoryEmoji ?? this.categoryEmoji,
+      purchaseCategoryMapping:
+          purchaseCategoryMapping ?? this.purchaseCategoryMapping,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (providerId.present) {
+      map['provider_id'] = Variable<String>(providerId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<String>(productId.value);
+    }
+    if (providerName.present) {
+      map['provider_name'] = Variable<String>(providerName.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (recipientNumber.present) {
+      map['recipient_number'] = Variable<String>(recipientNumber.value);
+    }
+    if (recipientLabel.present) {
+      map['recipient_label'] = Variable<String>(recipientLabel.value);
+    }
+    if (isPinned.present) {
+      map['is_pinned'] = Variable<bool>(isPinned.value);
+    }
+    if (usageCount.present) {
+      map['usage_count'] = Variable<int>(usageCount.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt.value);
+    }
+    if (categoryEmoji.present) {
+      map['category_emoji'] = Variable<String>(categoryEmoji.value);
+    }
+    if (purchaseCategoryMapping.present) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping.value,
+      );
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyRegularsCompanion(')
+          ..write('id: $id, ')
+          ..write('providerId: $providerId, ')
+          ..write('productId: $productId, ')
+          ..write('providerName: $providerName, ')
+          ..write('productName: $productName, ')
+          ..write('recipientNumber: $recipientNumber, ')
+          ..write('recipientLabel: $recipientLabel, ')
+          ..write('isPinned: $isPinned, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('categoryEmoji: $categoryEmoji, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalFeaturedItemsTable extends LocalFeaturedItems
+    with TableInfo<$LocalFeaturedItemsTable, LocalFeaturedItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalFeaturedItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subtitleMeta = const VerificationMeta(
+    'subtitle',
+  );
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+    'subtitle',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('campaign'),
+  );
+  static const VerificationMeta _deepLinkRouteMeta = const VerificationMeta(
+    'deepLinkRoute',
+  );
+  @override
+  late final GeneratedColumn<String> deepLinkRoute = GeneratedColumn<String>(
+    'deep_link_route',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bgGradientTypeMeta = const VerificationMeta(
+    'bgGradientType',
+  );
+  @override
+  late final GeneratedColumn<String> bgGradientType = GeneratedColumn<String>(
+    'bg_gradient_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('goldOrange'),
+  );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    subtitle,
+    imageUrl,
+    type,
+    deepLinkRoute,
+    isActive,
+    sortOrder,
+    bgGradientType,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_featured_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalFeaturedItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(
+        _subtitleMeta,
+        subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    }
+    if (data.containsKey('deep_link_route')) {
+      context.handle(
+        _deepLinkRouteMeta,
+        deepLinkRoute.isAcceptableOrUnknown(
+          data['deep_link_route']!,
+          _deepLinkRouteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('bg_gradient_type')) {
+      context.handle(
+        _bgGradientTypeMeta,
+        bgGradientType.isAcceptableOrUnknown(
+          data['bg_gradient_type']!,
+          _bgGradientTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalFeaturedItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalFeaturedItem(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      subtitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subtitle'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      deepLinkRoute: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deep_link_route'],
+      ),
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      bgGradientType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bg_gradient_type'],
+      )!,
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalFeaturedItemsTable createAlias(String alias) {
+    return $LocalFeaturedItemsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalFeaturedItem extends DataClass
+    implements Insertable<LocalFeaturedItem> {
+  final String id;
+  final String title;
+  final String? subtitle;
+  final String? imageUrl;
+  final String type;
+  final String? deepLinkRoute;
+  final bool isActive;
+  final int sortOrder;
+  final String bgGradientType;
+  final DateTime syncedAt;
+  const LocalFeaturedItem({
+    required this.id,
+    required this.title,
+    this.subtitle,
+    this.imageUrl,
+    required this.type,
+    this.deepLinkRoute,
+    required this.isActive,
+    required this.sortOrder,
+    required this.bgGradientType,
+    required this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || deepLinkRoute != null) {
+      map['deep_link_route'] = Variable<String>(deepLinkRoute);
+    }
+    map['is_active'] = Variable<bool>(isActive);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['bg_gradient_type'] = Variable<String>(bgGradientType);
+    map['synced_at'] = Variable<DateTime>(syncedAt);
+    return map;
+  }
+
+  LocalFeaturedItemsCompanion toCompanion(bool nullToAbsent) {
+    return LocalFeaturedItemsCompanion(
+      id: Value(id),
+      title: Value(title),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+      type: Value(type),
+      deepLinkRoute: deepLinkRoute == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deepLinkRoute),
+      isActive: Value(isActive),
+      sortOrder: Value(sortOrder),
+      bgGradientType: Value(bgGradientType),
+      syncedAt: Value(syncedAt),
+    );
+  }
+
+  factory LocalFeaturedItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalFeaturedItem(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      type: serializer.fromJson<String>(json['type']),
+      deepLinkRoute: serializer.fromJson<String?>(json['deepLinkRoute']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      bgGradientType: serializer.fromJson<String>(json['bgGradientType']),
+      syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+      'type': serializer.toJson<String>(type),
+      'deepLinkRoute': serializer.toJson<String?>(deepLinkRoute),
+      'isActive': serializer.toJson<bool>(isActive),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'bgGradientType': serializer.toJson<String>(bgGradientType),
+      'syncedAt': serializer.toJson<DateTime>(syncedAt),
+    };
+  }
+
+  LocalFeaturedItem copyWith({
+    String? id,
+    String? title,
+    Value<String?> subtitle = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
+    String? type,
+    Value<String?> deepLinkRoute = const Value.absent(),
+    bool? isActive,
+    int? sortOrder,
+    String? bgGradientType,
+    DateTime? syncedAt,
+  }) => LocalFeaturedItem(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    subtitle: subtitle.present ? subtitle.value : this.subtitle,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    type: type ?? this.type,
+    deepLinkRoute: deepLinkRoute.present
+        ? deepLinkRoute.value
+        : this.deepLinkRoute,
+    isActive: isActive ?? this.isActive,
+    sortOrder: sortOrder ?? this.sortOrder,
+    bgGradientType: bgGradientType ?? this.bgGradientType,
+    syncedAt: syncedAt ?? this.syncedAt,
+  );
+  LocalFeaturedItem copyWithCompanion(LocalFeaturedItemsCompanion data) {
+    return LocalFeaturedItem(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      type: data.type.present ? data.type.value : this.type,
+      deepLinkRoute: data.deepLinkRoute.present
+          ? data.deepLinkRoute.value
+          : this.deepLinkRoute,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      bgGradientType: data.bgGradientType.present
+          ? data.bgGradientType.value
+          : this.bgGradientType,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFeaturedItem(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('type: $type, ')
+          ..write('deepLinkRoute: $deepLinkRoute, ')
+          ..write('isActive: $isActive, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('bgGradientType: $bgGradientType, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    subtitle,
+    imageUrl,
+    type,
+    deepLinkRoute,
+    isActive,
+    sortOrder,
+    bgGradientType,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalFeaturedItem &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.subtitle == this.subtitle &&
+          other.imageUrl == this.imageUrl &&
+          other.type == this.type &&
+          other.deepLinkRoute == this.deepLinkRoute &&
+          other.isActive == this.isActive &&
+          other.sortOrder == this.sortOrder &&
+          other.bgGradientType == this.bgGradientType &&
+          other.syncedAt == this.syncedAt);
+}
+
+class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> subtitle;
+  final Value<String?> imageUrl;
+  final Value<String> type;
+  final Value<String?> deepLinkRoute;
+  final Value<bool> isActive;
+  final Value<int> sortOrder;
+  final Value<String> bgGradientType;
+  final Value<DateTime> syncedAt;
+  final Value<int> rowid;
+  const LocalFeaturedItemsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.type = const Value.absent(),
+    this.deepLinkRoute = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.bgGradientType = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalFeaturedItemsCompanion.insert({
+    required String id,
+    required String title,
+    this.subtitle = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.type = const Value.absent(),
+    this.deepLinkRoute = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.bgGradientType = const Value.absent(),
+    required DateTime syncedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       syncedAt = Value(syncedAt);
+  static Insertable<LocalFeaturedItem> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? subtitle,
+    Expression<String>? imageUrl,
+    Expression<String>? type,
+    Expression<String>? deepLinkRoute,
+    Expression<bool>? isActive,
+    Expression<int>? sortOrder,
+    Expression<String>? bgGradientType,
+    Expression<DateTime>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (type != null) 'type': type,
+      if (deepLinkRoute != null) 'deep_link_route': deepLinkRoute,
+      if (isActive != null) 'is_active': isActive,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (bgGradientType != null) 'bg_gradient_type': bgGradientType,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalFeaturedItemsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String?>? subtitle,
+    Value<String?>? imageUrl,
+    Value<String>? type,
+    Value<String?>? deepLinkRoute,
+    Value<bool>? isActive,
+    Value<int>? sortOrder,
+    Value<String>? bgGradientType,
+    Value<DateTime>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalFeaturedItemsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      imageUrl: imageUrl ?? this.imageUrl,
+      type: type ?? this.type,
+      deepLinkRoute: deepLinkRoute ?? this.deepLinkRoute,
+      isActive: isActive ?? this.isActive,
+      sortOrder: sortOrder ?? this.sortOrder,
+      bgGradientType: bgGradientType ?? this.bgGradientType,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (deepLinkRoute.present) {
+      map['deep_link_route'] = Variable<String>(deepLinkRoute.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (bgGradientType.present) {
+      map['bg_gradient_type'] = Variable<String>(bgGradientType.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFeaturedItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('type: $type, ')
+          ..write('deepLinkRoute: $deepLinkRoute, ')
+          ..write('isActive: $isActive, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('bgGradientType: $bgGradientType, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11244,6 +13363,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $LocalCommunityMembersTable localCommunityMembers =
       $LocalCommunityMembersTable(this);
+  late final $LocalBuyCategoriesTable localBuyCategories =
+      $LocalBuyCategoriesTable(this);
+  late final $LocalBuyRegularsTable localBuyRegulars = $LocalBuyRegularsTable(
+    this,
+  );
+  late final $LocalFeaturedItemsTable localFeaturedItems =
+      $LocalFeaturedItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11263,6 +13389,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localPendingMessages,
     localCommunities,
     localCommunityMembers,
+    localBuyCategories,
+    localBuyRegulars,
+    localFeaturedItems,
   ];
 }
 
@@ -16588,6 +18717,1029 @@ typedef $$LocalCommunityMembersTableProcessedTableManager =
       LocalCommunityMember,
       PrefetchHooks Function()
     >;
+typedef $$LocalBuyCategoriesTableCreateCompanionBuilder =
+    LocalBuyCategoriesCompanion Function({
+      required String id,
+      required String name,
+      required String iconEmoji,
+      Value<int> sortOrder,
+      Value<bool> isActive,
+      Value<bool> isComingSoon,
+      Value<String?> purchaseCategoryMapping,
+      Value<String?> featureFlagKey,
+      Value<String?> logoUrl,
+      Value<String?> backgroundColor,
+      required DateTime syncedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalBuyCategoriesTableUpdateCompanionBuilder =
+    LocalBuyCategoriesCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> iconEmoji,
+      Value<int> sortOrder,
+      Value<bool> isActive,
+      Value<bool> isComingSoon,
+      Value<String?> purchaseCategoryMapping,
+      Value<String?> featureFlagKey,
+      Value<String?> logoUrl,
+      Value<String?> backgroundColor,
+      Value<DateTime> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalBuyCategoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalBuyCategoriesTable> {
+  $$LocalBuyCategoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconEmoji => $composableBuilder(
+    column: $table.iconEmoji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isComingSoon => $composableBuilder(
+    column: $table.isComingSoon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get featureFlagKey => $composableBuilder(
+    column: $table.featureFlagKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get logoUrl => $composableBuilder(
+    column: $table.logoUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get backgroundColor => $composableBuilder(
+    column: $table.backgroundColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalBuyCategoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalBuyCategoriesTable> {
+  $$LocalBuyCategoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconEmoji => $composableBuilder(
+    column: $table.iconEmoji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isComingSoon => $composableBuilder(
+    column: $table.isComingSoon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get featureFlagKey => $composableBuilder(
+    column: $table.featureFlagKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get logoUrl => $composableBuilder(
+    column: $table.logoUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get backgroundColor => $composableBuilder(
+    column: $table.backgroundColor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalBuyCategoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalBuyCategoriesTable> {
+  $$LocalBuyCategoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get iconEmoji =>
+      $composableBuilder(column: $table.iconEmoji, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<bool> get isComingSoon => $composableBuilder(
+    column: $table.isComingSoon,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get featureFlagKey => $composableBuilder(
+    column: $table.featureFlagKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get logoUrl =>
+      $composableBuilder(column: $table.logoUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get backgroundColor => $composableBuilder(
+    column: $table.backgroundColor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$LocalBuyCategoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalBuyCategoriesTable,
+          LocalBuyCategory,
+          $$LocalBuyCategoriesTableFilterComposer,
+          $$LocalBuyCategoriesTableOrderingComposer,
+          $$LocalBuyCategoriesTableAnnotationComposer,
+          $$LocalBuyCategoriesTableCreateCompanionBuilder,
+          $$LocalBuyCategoriesTableUpdateCompanionBuilder,
+          (
+            LocalBuyCategory,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalBuyCategoriesTable,
+              LocalBuyCategory
+            >,
+          ),
+          LocalBuyCategory,
+          PrefetchHooks Function()
+        > {
+  $$LocalBuyCategoriesTableTableManager(
+    _$AppDatabase db,
+    $LocalBuyCategoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalBuyCategoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalBuyCategoriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalBuyCategoriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> iconEmoji = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<bool> isComingSoon = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                Value<String?> featureFlagKey = const Value.absent(),
+                Value<String?> logoUrl = const Value.absent(),
+                Value<String?> backgroundColor = const Value.absent(),
+                Value<DateTime> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyCategoriesCompanion(
+                id: id,
+                name: name,
+                iconEmoji: iconEmoji,
+                sortOrder: sortOrder,
+                isActive: isActive,
+                isComingSoon: isComingSoon,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                featureFlagKey: featureFlagKey,
+                logoUrl: logoUrl,
+                backgroundColor: backgroundColor,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String iconEmoji,
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<bool> isComingSoon = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                Value<String?> featureFlagKey = const Value.absent(),
+                Value<String?> logoUrl = const Value.absent(),
+                Value<String?> backgroundColor = const Value.absent(),
+                required DateTime syncedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyCategoriesCompanion.insert(
+                id: id,
+                name: name,
+                iconEmoji: iconEmoji,
+                sortOrder: sortOrder,
+                isActive: isActive,
+                isComingSoon: isComingSoon,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                featureFlagKey: featureFlagKey,
+                logoUrl: logoUrl,
+                backgroundColor: backgroundColor,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalBuyCategoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalBuyCategoriesTable,
+      LocalBuyCategory,
+      $$LocalBuyCategoriesTableFilterComposer,
+      $$LocalBuyCategoriesTableOrderingComposer,
+      $$LocalBuyCategoriesTableAnnotationComposer,
+      $$LocalBuyCategoriesTableCreateCompanionBuilder,
+      $$LocalBuyCategoriesTableUpdateCompanionBuilder,
+      (
+        LocalBuyCategory,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalBuyCategoriesTable,
+          LocalBuyCategory
+        >,
+      ),
+      LocalBuyCategory,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalBuyRegularsTableCreateCompanionBuilder =
+    LocalBuyRegularsCompanion Function({
+      required String id,
+      required String providerId,
+      required String productId,
+      required String providerName,
+      required String productName,
+      required String recipientNumber,
+      Value<String?> recipientLabel,
+      Value<bool> isPinned,
+      Value<int> usageCount,
+      required DateTime lastUsedAt,
+      Value<String?> categoryEmoji,
+      Value<String?> purchaseCategoryMapping,
+      required DateTime syncedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalBuyRegularsTableUpdateCompanionBuilder =
+    LocalBuyRegularsCompanion Function({
+      Value<String> id,
+      Value<String> providerId,
+      Value<String> productId,
+      Value<String> providerName,
+      Value<String> productName,
+      Value<String> recipientNumber,
+      Value<String?> recipientLabel,
+      Value<bool> isPinned,
+      Value<int> usageCount,
+      Value<DateTime> lastUsedAt,
+      Value<String?> categoryEmoji,
+      Value<String?> purchaseCategoryMapping,
+      Value<DateTime> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalBuyRegularsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPinned => $composableBuilder(
+    column: $table.isPinned,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalBuyRegularsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPinned => $composableBuilder(
+    column: $table.isPinned,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalBuyRegularsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPinned =>
+      $composableBuilder(column: $table.isPinned, builder: (column) => column);
+
+  GeneratedColumn<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$LocalBuyRegularsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalBuyRegularsTable,
+          LocalBuyRegular,
+          $$LocalBuyRegularsTableFilterComposer,
+          $$LocalBuyRegularsTableOrderingComposer,
+          $$LocalBuyRegularsTableAnnotationComposer,
+          $$LocalBuyRegularsTableCreateCompanionBuilder,
+          $$LocalBuyRegularsTableUpdateCompanionBuilder,
+          (
+            LocalBuyRegular,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalBuyRegularsTable,
+              LocalBuyRegular
+            >,
+          ),
+          LocalBuyRegular,
+          PrefetchHooks Function()
+        > {
+  $$LocalBuyRegularsTableTableManager(
+    _$AppDatabase db,
+    $LocalBuyRegularsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalBuyRegularsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalBuyRegularsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalBuyRegularsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> providerId = const Value.absent(),
+                Value<String> productId = const Value.absent(),
+                Value<String> providerName = const Value.absent(),
+                Value<String> productName = const Value.absent(),
+                Value<String> recipientNumber = const Value.absent(),
+                Value<String?> recipientLabel = const Value.absent(),
+                Value<bool> isPinned = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                Value<DateTime> lastUsedAt = const Value.absent(),
+                Value<String?> categoryEmoji = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                Value<DateTime> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyRegularsCompanion(
+                id: id,
+                providerId: providerId,
+                productId: productId,
+                providerName: providerName,
+                productName: productName,
+                recipientNumber: recipientNumber,
+                recipientLabel: recipientLabel,
+                isPinned: isPinned,
+                usageCount: usageCount,
+                lastUsedAt: lastUsedAt,
+                categoryEmoji: categoryEmoji,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String providerId,
+                required String productId,
+                required String providerName,
+                required String productName,
+                required String recipientNumber,
+                Value<String?> recipientLabel = const Value.absent(),
+                Value<bool> isPinned = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                required DateTime lastUsedAt,
+                Value<String?> categoryEmoji = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                required DateTime syncedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyRegularsCompanion.insert(
+                id: id,
+                providerId: providerId,
+                productId: productId,
+                providerName: providerName,
+                productName: productName,
+                recipientNumber: recipientNumber,
+                recipientLabel: recipientLabel,
+                isPinned: isPinned,
+                usageCount: usageCount,
+                lastUsedAt: lastUsedAt,
+                categoryEmoji: categoryEmoji,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalBuyRegularsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalBuyRegularsTable,
+      LocalBuyRegular,
+      $$LocalBuyRegularsTableFilterComposer,
+      $$LocalBuyRegularsTableOrderingComposer,
+      $$LocalBuyRegularsTableAnnotationComposer,
+      $$LocalBuyRegularsTableCreateCompanionBuilder,
+      $$LocalBuyRegularsTableUpdateCompanionBuilder,
+      (
+        LocalBuyRegular,
+        BaseReferences<_$AppDatabase, $LocalBuyRegularsTable, LocalBuyRegular>,
+      ),
+      LocalBuyRegular,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalFeaturedItemsTableCreateCompanionBuilder =
+    LocalFeaturedItemsCompanion Function({
+      required String id,
+      required String title,
+      Value<String?> subtitle,
+      Value<String?> imageUrl,
+      Value<String> type,
+      Value<String?> deepLinkRoute,
+      Value<bool> isActive,
+      Value<int> sortOrder,
+      Value<String> bgGradientType,
+      required DateTime syncedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalFeaturedItemsTableUpdateCompanionBuilder =
+    LocalFeaturedItemsCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String?> subtitle,
+      Value<String?> imageUrl,
+      Value<String> type,
+      Value<String?> deepLinkRoute,
+      Value<bool> isActive,
+      Value<int> sortOrder,
+      Value<String> bgGradientType,
+      Value<DateTime> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalFeaturedItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalFeaturedItemsTable> {
+  $$LocalFeaturedItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deepLinkRoute => $composableBuilder(
+    column: $table.deepLinkRoute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bgGradientType => $composableBuilder(
+    column: $table.bgGradientType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalFeaturedItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalFeaturedItemsTable> {
+  $$LocalFeaturedItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deepLinkRoute => $composableBuilder(
+    column: $table.deepLinkRoute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bgGradientType => $composableBuilder(
+    column: $table.bgGradientType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalFeaturedItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalFeaturedItemsTable> {
+  $$LocalFeaturedItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get deepLinkRoute => $composableBuilder(
+    column: $table.deepLinkRoute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get bgGradientType => $composableBuilder(
+    column: $table.bgGradientType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$LocalFeaturedItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalFeaturedItemsTable,
+          LocalFeaturedItem,
+          $$LocalFeaturedItemsTableFilterComposer,
+          $$LocalFeaturedItemsTableOrderingComposer,
+          $$LocalFeaturedItemsTableAnnotationComposer,
+          $$LocalFeaturedItemsTableCreateCompanionBuilder,
+          $$LocalFeaturedItemsTableUpdateCompanionBuilder,
+          (
+            LocalFeaturedItem,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalFeaturedItemsTable,
+              LocalFeaturedItem
+            >,
+          ),
+          LocalFeaturedItem,
+          PrefetchHooks Function()
+        > {
+  $$LocalFeaturedItemsTableTableManager(
+    _$AppDatabase db,
+    $LocalFeaturedItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalFeaturedItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalFeaturedItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalFeaturedItemsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> subtitle = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> deepLinkRoute = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String> bgGradientType = const Value.absent(),
+                Value<DateTime> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFeaturedItemsCompanion(
+                id: id,
+                title: title,
+                subtitle: subtitle,
+                imageUrl: imageUrl,
+                type: type,
+                deepLinkRoute: deepLinkRoute,
+                isActive: isActive,
+                sortOrder: sortOrder,
+                bgGradientType: bgGradientType,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                Value<String?> subtitle = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> deepLinkRoute = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String> bgGradientType = const Value.absent(),
+                required DateTime syncedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFeaturedItemsCompanion.insert(
+                id: id,
+                title: title,
+                subtitle: subtitle,
+                imageUrl: imageUrl,
+                type: type,
+                deepLinkRoute: deepLinkRoute,
+                isActive: isActive,
+                sortOrder: sortOrder,
+                bgGradientType: bgGradientType,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalFeaturedItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalFeaturedItemsTable,
+      LocalFeaturedItem,
+      $$LocalFeaturedItemsTableFilterComposer,
+      $$LocalFeaturedItemsTableOrderingComposer,
+      $$LocalFeaturedItemsTableAnnotationComposer,
+      $$LocalFeaturedItemsTableCreateCompanionBuilder,
+      $$LocalFeaturedItemsTableUpdateCompanionBuilder,
+      (
+        LocalFeaturedItem,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalFeaturedItemsTable,
+          LocalFeaturedItem
+        >,
+      ),
+      LocalFeaturedItem,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16623,4 +19775,10 @@ class $AppDatabaseManager {
       $$LocalCommunitiesTableTableManager(_db, _db.localCommunities);
   $$LocalCommunityMembersTableTableManager get localCommunityMembers =>
       $$LocalCommunityMembersTableTableManager(_db, _db.localCommunityMembers);
+  $$LocalBuyCategoriesTableTableManager get localBuyCategories =>
+      $$LocalBuyCategoriesTableTableManager(_db, _db.localBuyCategories);
+  $$LocalBuyRegularsTableTableManager get localBuyRegulars =>
+      $$LocalBuyRegularsTableTableManager(_db, _db.localBuyRegulars);
+  $$LocalFeaturedItemsTableTableManager get localFeaturedItems =>
+      $$LocalFeaturedItemsTableTableManager(_db, _db.localFeaturedItems);
 }

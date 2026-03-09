@@ -102,6 +102,48 @@ export type AdminPermission =
   | "admin:revokeSession"
   // Audit
   | "audit:viewLogs"
+  // Buy management
+  | "buy:listFeatureFlags"
+  | "buy:updateFeatureFlag"
+  | "buy:createCategory"
+  | "buy:updateCategory"
+  | "buy:toggleCategory"
+  | "buy:getPurchaseStats"
+  // Buy featured content
+  | "buy:listFeaturedItems"
+  | "buy:createFeaturedItem"
+  | "buy:updateFeaturedItem"
+  | "buy:deleteFeaturedItem"
+  // Buy brand storefronts
+  | "buy:listBrandStorefronts"
+  | "buy:createBrandStorefront"
+  | "buy:updateBrandStorefront"
+  | "buy:deleteBrandStorefront"
+  // Buy marketplace providers
+  | "buy:approveProvider"
+  | "buy:rejectProvider"
+  | "buy:suspendProvider"
+  | "buy:unsuspendProvider"
+  // Buy marketplace listings
+  | "buy:approveListing"
+  | "buy:flagListing"
+  | "buy:removeListing"
+  | "buy:reinstateListing"
+  // Buy marketplace orders & disputes
+  | "buy:forceCancelOrder"
+  | "buy:resolveDispute"
+  // Buy marketplace analytics
+  | "buy:getMarketplaceAnalytics"
+  // Buy group buys
+  | "buy:listGroupBuys"
+  | "buy:getGroupBuyDetails"
+  | "buy:extendGroupBuyDeadline"
+  | "buy:forceCompleteGroupBuy"
+  | "buy:forceCancelGroupBuy"
+  | "buy:retryGroupBuyRefunds"
+  | "buy:createBrandGroupBuy"
+  // Buy escrow overview
+  | "buy:getEscrowOverview"
   // Pending actions (maker-checker)
   | "pending:list"
   | "pending:approve"
@@ -112,6 +154,10 @@ export const MAKER_CHECKER_ACTIONS: ReadonlySet<AdminPermission> = new Set([
   "accounts:fundClient",
   "accounts:refundClient",
   "cashout:complete",
+  "buy:forceCancelOrder",
+  "buy:resolveDispute",
+  "buy:forceCompleteGroupBuy",
+  "buy:forceCancelGroupBuy",
 ]);
 
 export interface AdminContext {
@@ -154,6 +200,31 @@ const platformAdminPerms: AdminPermission[] = [
   "platform:setup",
   "platform:runMigration",
   "audit:viewLogs",
+  "buy:listFeatureFlags",
+  "buy:updateFeatureFlag",
+  "buy:createCategory",
+  "buy:updateCategory",
+  "buy:toggleCategory",
+  "buy:listFeaturedItems",
+  "buy:createFeaturedItem",
+  "buy:updateFeaturedItem",
+  "buy:deleteFeaturedItem",
+  "buy:listBrandStorefronts",
+  "buy:createBrandStorefront",
+  "buy:updateBrandStorefront",
+  "buy:deleteBrandStorefront",
+  "buy:approveProvider",
+  "buy:rejectProvider",
+  "buy:suspendProvider",
+  "buy:unsuspendProvider",
+  "buy:approveListing",
+  "buy:flagListing",
+  "buy:removeListing",
+  "buy:reinstateListing",
+  "buy:listGroupBuys",
+  "buy:getGroupBuyDetails",
+  "buy:extendGroupBuyDeadline",
+  "buy:createBrandGroupBuy",
 ];
 
 const financeAdminPerms: AdminPermission[] = [
@@ -186,6 +257,16 @@ const financeAdminPerms: AdminPermission[] = [
   "pending:list",
   "pending:approve",
   "pending:reject",
+  "buy:getPurchaseStats",
+  "buy:forceCancelOrder",
+  "buy:resolveDispute",
+  "buy:getMarketplaceAnalytics",
+  "buy:listGroupBuys",
+  "buy:getGroupBuyDetails",
+  "buy:forceCompleteGroupBuy",
+  "buy:forceCancelGroupBuy",
+  "buy:retryGroupBuyRefunds",
+  "buy:getEscrowOverview",
 ];
 
 const campaignAdminPerms: AdminPermission[] = [
@@ -245,6 +326,14 @@ const auditorPerms: AdminPermission[] = [
   "rewards:getAbResults",
   "rewards:getItems",
   "audit:viewLogs",
+  "buy:listFeatureFlags",
+  "buy:getPurchaseStats",
+  "buy:listFeaturedItems",
+  "buy:listBrandStorefronts",
+  "buy:getMarketplaceAnalytics",
+  "buy:listGroupBuys",
+  "buy:getGroupBuyDetails",
+  "buy:getEscrowOverview",
 ];
 
 export const AdminRolePermissions: Record<AdminRole, Set<AdminPermission>> = {
@@ -1154,6 +1243,24 @@ async function executePendingAction(
     case "completeCashoutRequest": {
       const { executeCompleteCashout } = await import("./adminAccountsExecutors");
       return executeCompleteCashout(action.payload);
+    }
+    // Buy marketplace force operations
+    case "adminForceCancelOrder": {
+      const { executeForceCancelOrder } = await import("./buyAdminExecutors");
+      return executeForceCancelOrder(action.payload);
+    }
+    case "adminResolveDispute": {
+      const { executeResolveDispute } = await import("./buyAdminExecutors");
+      return executeResolveDispute(action.payload);
+    }
+    // Buy group buy force operations
+    case "adminForceCompleteGroupBuy": {
+      const { executeForceCompleteGroupBuy } = await import("./buyAdminExecutors");
+      return executeForceCompleteGroupBuy(action.payload);
+    }
+    case "adminForceCancelGroupBuy": {
+      const { executeForceCancelGroupBuy } = await import("./buyAdminExecutors");
+      return executeForceCancelGroupBuy(action.payload);
     }
     default:
       throw new Error(`Unknown pending action: ${action.functionName}`);

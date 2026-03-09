@@ -1,0 +1,63 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../enums/order_status.dart';
+
+part 'buy_order.freezed.dart';
+part 'buy_order.g.dart';
+
+@freezed
+class BuyOrder with _$BuyOrder {
+  const factory BuyOrder({
+    required String id,
+    required String buyerId,
+    required String buyerName,
+    required String sellerId,
+    required String sellerName,
+    required String listingId,
+    required String listingTitle,
+    required int amount,
+    required double amountZar,
+    required OrderStatus status,
+    String? escrowJournalId,
+    String? releaseJournalId,
+    String? refundJournalId,
+    String? disputeReason,
+    String? disputeResolution,
+    String? chatConversationId,
+    String? thumbnailUrl,
+    required DateTime createdAt,
+    DateTime? escrowedAt,
+    DateTime? fulfilledAt,
+    DateTime? completedAt,
+    DateTime? disputedAt,
+    DateTime? resolvedAt,
+    DateTime? cancelledAt,
+  }) = _BuyOrder;
+
+  const BuyOrder._();
+
+  factory BuyOrder.fromJson(Map<String, dynamic> json) =>
+      _$BuyOrderFromJson(json);
+
+  /// Whether the order is active (not in a terminal state)
+  bool get isActive => status.isActive;
+
+  /// Whether the order is in a terminal state
+  bool get isTerminal => status.isTerminal;
+
+  /// Whether buyer can confirm receipt
+  bool get canConfirmReceipt => status == OrderStatus.fulfilled;
+
+  /// Whether seller can mark as fulfilled
+  bool get canMarkFulfilled => status == OrderStatus.escrowed;
+
+  /// Whether either party can dispute
+  bool get canDispute =>
+      status == OrderStatus.escrowed || status == OrderStatus.fulfilled;
+
+  /// Formatted amount
+  String get formattedAmount => '$amount tokens';
+
+  /// Formatted ZAR amount
+  String get formattedZarAmount => 'R${amountZar.toStringAsFixed(2)}';
+}

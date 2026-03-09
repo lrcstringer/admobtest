@@ -1,0 +1,263 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:injectable/injectable.dart';
+
+import '../../../core/error/failures.dart';
+import '../../../domain/entities/buy_order.dart';
+import '../../../domain/repositories/marketplace_repository.dart';
+
+part 'order_bloc.freezed.dart';
+part 'order_event.dart';
+part 'order_state.dart';
+
+@injectable
+class OrderBloc extends Bloc<OrderEvent, OrderState> {
+  final MarketplaceRepository _repository;
+
+  OrderBloc(this._repository) : super(const OrderState()) {
+    on<_LoadBuyerOrders>(_onLoadBuyerOrders);
+    on<_LoadSellerOrders>(_onLoadSellerOrders);
+    on<_SelectOrder>(_onSelectOrder);
+    on<_BuyItem>(_onBuyItem);
+    on<_ConfirmFulfilment>(_onConfirmFulfilment);
+    on<_ConfirmReceipt>(_onConfirmReceipt);
+    on<_CancelOrder>(_onCancelOrder);
+    on<_DisputeOrder>(_onDisputeOrder);
+    on<_VouchForProvider>(_onVouchForProvider);
+    on<_ClearMessages>(_onClearMessages);
+  }
+
+  Future<void> _onLoadBuyerOrders(
+    _LoadBuyerOrders event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    final result = await _repository.getBuyerOrders();
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (orders) => emit(state.copyWith(
+        isLoading: false,
+        buyerOrders: orders,
+      )),
+    );
+  }
+
+  Future<void> _onLoadSellerOrders(
+    _LoadSellerOrders event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    final result = await _repository.getSellerOrders();
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (orders) => emit(state.copyWith(
+        isLoading: false,
+        sellerOrders: orders,
+      )),
+    );
+  }
+
+  Future<void> _onSelectOrder(
+    _SelectOrder event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingDetail: true, selectedOrder: null));
+
+    final result = await _repository.getOrder(event.orderId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingDetail: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (order) => emit(state.copyWith(
+        isLoadingDetail: false,
+        selectedOrder: order,
+      )),
+    );
+  }
+
+  Future<void> _onBuyItem(
+    _BuyItem event,
+    Emitter<OrderState> emit,
+  ) async {
+    // Double-submit guard
+    if (state.isProcessing) return;
+
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.buyItem(
+      listingId: event.listingId,
+      walletId: event.walletId,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (orderId) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Order placed successfully',
+      )),
+    );
+  }
+
+  Future<void> _onConfirmFulfilment(
+    _ConfirmFulfilment event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.confirmFulfilment(event.orderId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) async {
+        emit(state.copyWith(
+          isProcessing: false,
+          successMessage: 'Marked as fulfilled',
+        ));
+        await _refreshSelectedOrder(event.orderId, emit);
+      },
+    );
+  }
+
+  Future<void> _onConfirmReceipt(
+    _ConfirmReceipt event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.confirmReceipt(event.orderId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) async {
+        emit(state.copyWith(
+          isProcessing: false,
+          successMessage: 'Receipt confirmed — payment released to seller',
+        ));
+        await _refreshSelectedOrder(event.orderId, emit);
+      },
+    );
+  }
+
+  Future<void> _onCancelOrder(
+    _CancelOrder event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.cancelOrder(event.orderId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) async {
+        emit(state.copyWith(
+          isProcessing: false,
+          successMessage: 'Order cancelled — tokens refunded',
+        ));
+        await _refreshSelectedOrder(event.orderId, emit);
+      },
+    );
+  }
+
+  Future<void> _onDisputeOrder(
+    _DisputeOrder event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.disputeOrder(
+      event.orderId,
+      event.reason,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) async {
+        emit(state.copyWith(
+          isProcessing: false,
+          successMessage: 'Dispute raised — an admin will review',
+        ));
+        await _refreshSelectedOrder(event.orderId, emit);
+      },
+    );
+  }
+
+  Future<void> _onVouchForProvider(
+    _VouchForProvider event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.vouchForProvider(
+      providerId: event.providerId,
+      orderId: event.orderId,
+      rating: event.rating,
+      comment: event.comment,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Vouch submitted — thank you!',
+      )),
+    );
+  }
+
+  Future<void> _onClearMessages(
+    _ClearMessages event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(state.copyWith(
+      errorMessage: null,
+      successMessage: null,
+    ));
+  }
+
+  /// Refresh the selected order from the server after a successful mutation
+  /// to ensure the UI shows authoritative data (not stale optimistic state).
+  Future<void> _refreshSelectedOrder(
+    String orderId,
+    Emitter<OrderState> emit,
+  ) async {
+    final result = await _repository.getOrder(orderId);
+    result.fold(
+      (_) {}, // Non-critical — keep existing optimistic update
+      (order) => emit(state.copyWith(selectedOrder: order)),
+    );
+  }
+}

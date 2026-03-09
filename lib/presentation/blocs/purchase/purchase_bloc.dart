@@ -175,6 +175,9 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     _MakePurchase event,
     Emitter<PurchaseState> emit,
   ) async {
+    // Double-submit guard — prevent double-charging
+    if (state.isPurchasing) return;
+
     if (state.selectedProduct == null || state.recipientNumber == null) {
       emit(state.copyWith(
         errorMessage: 'Please select a product and enter a recipient number',

@@ -1,0 +1,160 @@
+import 'package:dartz/dartz.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:injectable/injectable.dart';
+
+import '../../../core/error/failures.dart';
+import '../../../domain/entities/group_buy.dart';
+import '../../../domain/entities/group_buy_contribution.dart';
+import '../../../domain/repositories/group_buy_repository.dart';
+
+part 'group_buy_event.dart';
+part 'group_buy_state.dart';
+part 'group_buy_bloc.freezed.dart';
+
+@injectable
+class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
+  final GroupBuyRepository _repository;
+
+  GroupBuyBloc(this._repository) : super(const GroupBuyState()) {
+    on<_LoadActiveGroupBuys>(_onLoadActiveGroupBuys);
+    on<_LoadGroupBuy>(_onLoadGroupBuy);
+    on<_LoadMyGroupBuys>(_onLoadMyGroupBuys);
+    on<_CreateGroupBuy>(_onCreateGroupBuy);
+    on<_JoinGroupBuy>(_onJoinGroupBuy);
+    on<_ClearMessages>(_onClearMessages);
+  }
+
+  Future<void> _onLoadActiveGroupBuys(
+    _LoadActiveGroupBuys event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+    final result = await _repository.getActiveGroupBuys(
+      communityId: event.communityId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (groupBuys) => emit(state.copyWith(
+        isLoading: false,
+        activeGroupBuys: groupBuys,
+      )),
+    );
+  }
+
+  Future<void> _onLoadGroupBuy(
+    _LoadGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Fetch in parallel with proper typing (no unsafe dynamic casts)
+    final groupBuyFuture = _repository.getGroupBuy(event.id);
+    final contribsFuture = _repository.getContributions(event.id);
+
+    final Either<Failure, GroupBuy> groupBuyResult = await groupBuyFuture;
+    final Either<Failure, List<GroupBuyContribution>> contribsResult =
+        await contribsFuture;
+
+    groupBuyResult.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (groupBuy) {
+        final contributions = contribsResult.getOrElse(() => []);
+        emit(state.copyWith(
+          isLoading: false,
+          selectedGroupBuy: groupBuy,
+          contributions: contributions,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onLoadMyGroupBuys(
+    _LoadMyGroupBuys event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+    final result = await _repository.getMyGroupBuys();
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (groupBuys) => emit(state.copyWith(
+        isLoading: false,
+        myGroupBuys: groupBuys,
+      )),
+    );
+  }
+
+  Future<void> _onCreateGroupBuy(
+    _CreateGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    // Double-submit guard
+    if (state.isCreating) return;
+
+    emit(state.copyWith(isCreating: true, errorMessage: null));
+    final result = await _repository.createGroupBuy(
+      title: event.title,
+      description: event.description,
+      targetAmount: event.targetAmount,
+      deadline: event.deadline,
+      linkedListingId: event.linkedListingId,
+      minParticipants: event.minParticipants,
+      maxParticipants: event.maxParticipants,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isCreating: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (id) => emit(state.copyWith(
+        isCreating: false,
+        createSuccessId: id,
+      )),
+    );
+  }
+
+  Future<void> _onJoinGroupBuy(
+    _JoinGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    // Double-submit guard
+    if (state.isJoining) return;
+
+    emit(state.copyWith(isJoining: true, errorMessage: null));
+    final result = await _repository.joinGroupBuy(
+      groupBuyId: event.groupBuyId,
+      amount: event.amount,
+      walletId: event.walletId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isJoining: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isJoining: false,
+        joinSuccessMessage: 'Successfully joined the group buy!',
+      )),
+    );
+  }
+
+  void _onClearMessages(
+    _ClearMessages event,
+    Emitter<GroupBuyState> emit,
+  ) {
+    emit(state.copyWith(
+      errorMessage: null,
+      createSuccessId: null,
+      joinSuccessMessage: null,
+    ));
+  }
+}

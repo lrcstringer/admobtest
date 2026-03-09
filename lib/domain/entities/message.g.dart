@@ -344,6 +344,8 @@ const _$MessageTypeEnumMap = {
   MessageType.tokenSpray: 'tokenSpray',
   MessageType.system: 'system',
   MessageType.groupGift: 'groupGift',
+  MessageType.marketplaceShare: 'marketplaceShare',
+  MessageType.groupBuyShare: 'groupBuyShare',
 };
 
 const _$MessageStatusEnumMap = {

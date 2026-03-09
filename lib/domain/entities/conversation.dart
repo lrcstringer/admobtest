@@ -63,6 +63,21 @@ class Conversation with _$Conversation {
     /// Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
     String? poolMode,
 
+    /// Marketplace listing ID (for marketplace-tagged conversations)
+    String? marketplaceListingId,
+
+    /// Marketplace listing title (denormalized for display)
+    String? marketplaceListingTitle,
+
+    /// Marketplace listing thumbnail URL (denormalized for display)
+    String? marketplaceListingThumbnailUrl,
+
+    /// Marketplace listing price in tokens (denormalized for display)
+    int? marketplaceListingPrice,
+
+    /// Marketplace order ID (linked after order is placed)
+    String? marketplaceOrderId,
+
     /// Disappearing messages duration. Null means off.
     Duration? disappearingMessagesDuration,
 
@@ -107,6 +122,9 @@ class Conversation with _$Conversation {
 
   /// Whether this is a collection room (Group Sasaza / Group Save)
   bool get isCollectionRoom => type == ConversationType.collection;
+
+  /// Whether this conversation is tagged to a marketplace listing
+  bool get isMarketplaceConversation => marketplaceListingId != null;
 
   /// Whether disappearing messages are enabled for this conversation
   bool get hasDisappearingMessages => disappearingMessagesDuration != null;

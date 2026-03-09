@@ -47,6 +47,13 @@ mixin _$ConversationModel {
   String? get poolTitle =>
       throw _privateConstructorUsedError; // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
   String? get poolMode =>
+      throw _privateConstructorUsedError; // Marketplace back-reference (for marketplace-tagged conversations)
+  String? get marketplaceListingId => throw _privateConstructorUsedError;
+  String? get marketplaceListingTitle => throw _privateConstructorUsedError;
+  String? get marketplaceListingThumbnailUrl =>
+      throw _privateConstructorUsedError;
+  int? get marketplaceListingPrice => throw _privateConstructorUsedError;
+  String? get marketplaceOrderId =>
       throw _privateConstructorUsedError; // Disappearing messages duration in milliseconds (null = off)
   int? get disappearingMessagesDurationMs =>
       throw _privateConstructorUsedError; // Timestamps
@@ -89,6 +96,11 @@ abstract class $ConversationModelCopyWith<$Res> {
     String? tokenPoolId,
     String? poolTitle,
     String? poolMode,
+    String? marketplaceListingId,
+    String? marketplaceListingTitle,
+    String? marketplaceListingThumbnailUrl,
+    int? marketplaceListingPrice,
+    String? marketplaceOrderId,
     int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -131,6 +143,11 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
     Object? tokenPoolId = freezed,
     Object? poolTitle = freezed,
     Object? poolMode = freezed,
+    Object? marketplaceListingId = freezed,
+    Object? marketplaceListingTitle = freezed,
+    Object? marketplaceListingThumbnailUrl = freezed,
+    Object? marketplaceListingPrice = freezed,
+    Object? marketplaceOrderId = freezed,
     Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -221,6 +238,27 @@ class _$ConversationModelCopyWithImpl<$Res, $Val extends ConversationModel>
                 ? _value.poolMode
                 : poolMode // ignore: cast_nullable_to_non_nullable
                       as String?,
+            marketplaceListingId: freezed == marketplaceListingId
+                ? _value.marketplaceListingId
+                : marketplaceListingId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            marketplaceListingTitle: freezed == marketplaceListingTitle
+                ? _value.marketplaceListingTitle
+                : marketplaceListingTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            marketplaceListingThumbnailUrl:
+                freezed == marketplaceListingThumbnailUrl
+                ? _value.marketplaceListingThumbnailUrl
+                : marketplaceListingThumbnailUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            marketplaceListingPrice: freezed == marketplaceListingPrice
+                ? _value.marketplaceListingPrice
+                : marketplaceListingPrice // ignore: cast_nullable_to_non_nullable
+                      as int?,
+            marketplaceOrderId: freezed == marketplaceOrderId
+                ? _value.marketplaceOrderId
+                : marketplaceOrderId // ignore: cast_nullable_to_non_nullable
+                      as String?,
             disappearingMessagesDurationMs:
                 freezed == disappearingMessagesDurationMs
                 ? _value.disappearingMessagesDurationMs
@@ -271,6 +309,11 @@ abstract class _$$ConversationModelImplCopyWith<$Res>
     String? tokenPoolId,
     String? poolTitle,
     String? poolMode,
+    String? marketplaceListingId,
+    String? marketplaceListingTitle,
+    String? marketplaceListingThumbnailUrl,
+    int? marketplaceListingPrice,
+    String? marketplaceOrderId,
     int? disappearingMessagesDurationMs,
     DateTime createdAt,
     DateTime? updatedAt,
@@ -312,6 +355,11 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
     Object? tokenPoolId = freezed,
     Object? poolTitle = freezed,
     Object? poolMode = freezed,
+    Object? marketplaceListingId = freezed,
+    Object? marketplaceListingTitle = freezed,
+    Object? marketplaceListingThumbnailUrl = freezed,
+    Object? marketplaceListingPrice = freezed,
+    Object? marketplaceOrderId = freezed,
     Object? disappearingMessagesDurationMs = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
@@ -402,6 +450,27 @@ class __$$ConversationModelImplCopyWithImpl<$Res>
             ? _value.poolMode
             : poolMode // ignore: cast_nullable_to_non_nullable
                   as String?,
+        marketplaceListingId: freezed == marketplaceListingId
+            ? _value.marketplaceListingId
+            : marketplaceListingId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        marketplaceListingTitle: freezed == marketplaceListingTitle
+            ? _value.marketplaceListingTitle
+            : marketplaceListingTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        marketplaceListingThumbnailUrl:
+            freezed == marketplaceListingThumbnailUrl
+            ? _value.marketplaceListingThumbnailUrl
+            : marketplaceListingThumbnailUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        marketplaceListingPrice: freezed == marketplaceListingPrice
+            ? _value.marketplaceListingPrice
+            : marketplaceListingPrice // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        marketplaceOrderId: freezed == marketplaceOrderId
+            ? _value.marketplaceOrderId
+            : marketplaceOrderId // ignore: cast_nullable_to_non_nullable
+                  as String?,
         disappearingMessagesDurationMs:
             freezed == disappearingMessagesDurationMs
             ? _value.disappearingMessagesDurationMs
@@ -445,6 +514,11 @@ class _$ConversationModelImpl extends _ConversationModel {
     this.tokenPoolId,
     this.poolTitle,
     this.poolMode,
+    this.marketplaceListingId,
+    this.marketplaceListingTitle,
+    this.marketplaceListingThumbnailUrl,
+    this.marketplaceListingPrice,
+    this.marketplaceOrderId,
     this.disappearingMessagesDurationMs,
     required this.createdAt,
     this.updatedAt,
@@ -582,6 +656,17 @@ class _$ConversationModelImpl extends _ConversationModel {
   // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
   @override
   final String? poolMode;
+  // Marketplace back-reference (for marketplace-tagged conversations)
+  @override
+  final String? marketplaceListingId;
+  @override
+  final String? marketplaceListingTitle;
+  @override
+  final String? marketplaceListingThumbnailUrl;
+  @override
+  final int? marketplaceListingPrice;
+  @override
+  final String? marketplaceOrderId;
   // Disappearing messages duration in milliseconds (null = off)
   @override
   final int? disappearingMessagesDurationMs;
@@ -593,7 +678,7 @@ class _$ConversationModelImpl extends _ConversationModel {
 
   @override
   String toString() {
-    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, sessionResetRequested: $sessionResetRequested, tokenPoolId: $tokenPoolId, poolTitle: $poolTitle, poolMode: $poolMode, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ConversationModel(id: $id, type: $type, participantIds: $participantIds, participants: $participants, lastMessageId: $lastMessageId, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, archived: $archived, pinned: $pinned, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, chatClearedAt: $chatClearedAt, accepted: $accepted, sessionResetRequested: $sessionResetRequested, tokenPoolId: $tokenPoolId, poolTitle: $poolTitle, poolMode: $poolMode, marketplaceListingId: $marketplaceListingId, marketplaceListingTitle: $marketplaceListingTitle, marketplaceListingThumbnailUrl: $marketplaceListingThumbnailUrl, marketplaceListingPrice: $marketplaceListingPrice, marketplaceOrderId: $marketplaceOrderId, disappearingMessagesDurationMs: $disappearingMessagesDurationMs, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -649,6 +734,26 @@ class _$ConversationModelImpl extends _ConversationModel {
                 other.poolTitle == poolTitle) &&
             (identical(other.poolMode, poolMode) ||
                 other.poolMode == poolMode) &&
+            (identical(other.marketplaceListingId, marketplaceListingId) ||
+                other.marketplaceListingId == marketplaceListingId) &&
+            (identical(
+                  other.marketplaceListingTitle,
+                  marketplaceListingTitle,
+                ) ||
+                other.marketplaceListingTitle == marketplaceListingTitle) &&
+            (identical(
+                  other.marketplaceListingThumbnailUrl,
+                  marketplaceListingThumbnailUrl,
+                ) ||
+                other.marketplaceListingThumbnailUrl ==
+                    marketplaceListingThumbnailUrl) &&
+            (identical(
+                  other.marketplaceListingPrice,
+                  marketplaceListingPrice,
+                ) ||
+                other.marketplaceListingPrice == marketplaceListingPrice) &&
+            (identical(other.marketplaceOrderId, marketplaceOrderId) ||
+                other.marketplaceOrderId == marketplaceOrderId) &&
             (identical(
                   other.disappearingMessagesDurationMs,
                   disappearingMessagesDurationMs,
@@ -685,6 +790,11 @@ class _$ConversationModelImpl extends _ConversationModel {
     tokenPoolId,
     poolTitle,
     poolMode,
+    marketplaceListingId,
+    marketplaceListingTitle,
+    marketplaceListingThumbnailUrl,
+    marketplaceListingPrice,
+    marketplaceOrderId,
     disappearingMessagesDurationMs,
     createdAt,
     updatedAt,
@@ -725,6 +835,11 @@ abstract class _ConversationModel extends ConversationModel {
     final String? tokenPoolId,
     final String? poolTitle,
     final String? poolMode,
+    final String? marketplaceListingId,
+    final String? marketplaceListingTitle,
+    final String? marketplaceListingThumbnailUrl,
+    final int? marketplaceListingPrice,
+    final String? marketplaceOrderId,
     final int? disappearingMessagesDurationMs,
     required final DateTime createdAt,
     final DateTime? updatedAt,
@@ -772,7 +887,17 @@ abstract class _ConversationModel extends ConversationModel {
   @override
   String? get poolTitle; // Pool mode: 'sasaza' or 'save' (denormalized for collection-type conversations)
   @override
-  String? get poolMode; // Disappearing messages duration in milliseconds (null = off)
+  String? get poolMode; // Marketplace back-reference (for marketplace-tagged conversations)
+  @override
+  String? get marketplaceListingId;
+  @override
+  String? get marketplaceListingTitle;
+  @override
+  String? get marketplaceListingThumbnailUrl;
+  @override
+  int? get marketplaceListingPrice;
+  @override
+  String? get marketplaceOrderId; // Disappearing messages duration in milliseconds (null = off)
   @override
   int? get disappearingMessagesDurationMs; // Timestamps
   @override

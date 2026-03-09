@@ -227,6 +227,113 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Feature flags collection
+    match /featureFlags/{flagId} {
+      // Authenticated users can read flags (needed for client-side feature gating)
+      allow read: if isAuthenticated();
+
+      // Flags are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Buy categories collection
+    match /buyCategories/{categoryId} {
+      // Authenticated users can read categories
+      allow read: if isAuthenticated();
+
+      // Categories are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Featured items collection
+    match /featuredItems/{itemId} {
+      // Authenticated users can read featured items
+      allow read: if isAuthenticated();
+
+      // Featured items are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Brand storefronts collection
+    match /brandStorefronts/{storefrontId} {
+      // Authenticated users can read brand storefronts
+      allow read: if isAuthenticated();
+
+      // Brand storefronts are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Marketplace providers collection
+    match /providers/{providerId} {
+      // Authenticated users can read providers (browse marketplace)
+      allow read: if isAuthenticated();
+
+      // Providers are managed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Marketplace listings collection
+    match /marketplaceListings/{listingId} {
+      // Authenticated users can read listings
+      allow read: if isAuthenticated();
+
+      // Listings are managed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Marketplace orders collection
+    match /buyOrders/{orderId} {
+      // Users can read their own orders (buyer or seller)
+      allow read: if isAuthenticated()
+        && (resource.data.buyerId == request.auth.uid
+            || resource.data.sellerId == request.auth.uid);
+
+      // Orders are managed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Vouches collection
+    match /vouches/{vouchId} {
+      // Authenticated users can read vouches
+      allow read: if isAuthenticated();
+
+      // Vouches are managed by Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Marketplace reports collection
+    match /marketplaceReports/{reportId} {
+      // Reports are admin-only (users submit via Cloud Functions)
+      allow read, write: if false;
+    }
+
+    // Group buys (Hlangana)
+    match /groupBuys/{groupBuyId} {
+      // Authenticated users can read group buys (browse deals)
+      allow read: if isAuthenticated();
+
+      // Group buys are managed by Cloud Functions only
+      allow create, update, delete: if false;
+
+      // Contributions subcollection
+      match /contributions/{contributionId} {
+        // Authenticated users can read contributions
+        allow read: if isAuthenticated();
+
+        // Contributions are managed by Cloud Functions only
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Buy regulars subcollection (user's quick-buy shortcuts)
+    match /users/{userId}/buyRegulars/{regularId} {
+      // Users can read their own regulars
+      allow read: if isOwner(userId);
+
+      // Regulars are managed by Cloud Functions only (auto-created on purchase)
+      allow create, update, delete: if false;
+    }
+
     // Platform stats collection (admin only)
     match /platformStats/{statId} {
       // Stats are admin-only

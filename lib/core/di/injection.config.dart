@@ -29,6 +29,7 @@ import '../../data/datasources/local/app_database.dart' as _i483;
 import '../../data/datasources/remote/admin_earn_remote_datasource.dart'
     as _i48;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
+import '../../data/datasources/remote/buy_remote_datasource.dart' as _i574;
 import '../../data/datasources/remote/call_remote_datasource.dart' as _i340;
 import '../../data/datasources/remote/chat_remote_datasource.dart' as _i224;
 import '../../data/datasources/remote/community_remote_datasource.dart'
@@ -37,10 +38,16 @@ import '../../data/datasources/remote/conversation_remote_datasource.dart'
     as _i425;
 import '../../data/datasources/remote/device_remote_datasource.dart' as _i433;
 import '../../data/datasources/remote/earn_remote_datasource.dart' as _i520;
+import '../../data/datasources/remote/feature_flag_remote_datasource.dart'
+    as _i42;
 import '../../data/datasources/remote/gamification_remote_datasource.dart'
     as _i749;
 import '../../data/datasources/remote/gift_remote_datasource.dart' as _i108;
+import '../../data/datasources/remote/group_buy_remote_datasource.dart'
+    as _i590;
 import '../../data/datasources/remote/group_remote_datasource.dart' as _i42;
+import '../../data/datasources/remote/marketplace_remote_datasource.dart'
+    as _i399;
 import '../../data/datasources/remote/media_upload_datasource.dart' as _i654;
 import '../../data/datasources/remote/moderation_remote_datasource.dart'
     as _i313;
@@ -55,6 +62,7 @@ import '../../data/datasources/remote/token_spray_remote_datasource.dart'
 import '../../data/datasources/remote/user_remote_datasource.dart' as _i50;
 import '../../data/datasources/remote/wallet_remote_datasource.dart' as _i389;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
+import '../../data/repositories/buy_repository_impl.dart' as _i193;
 import '../../data/repositories/call_repository_impl.dart' as _i294;
 import '../../data/repositories/chat_repository_impl.dart' as _i838;
 import '../../data/repositories/community_repository_impl.dart' as _i462;
@@ -62,9 +70,12 @@ import '../../data/repositories/contact_repository_impl.dart' as _i133;
 import '../../data/repositories/conversation_repository_impl.dart' as _i161;
 import '../../data/repositories/device_repository_impl.dart' as _i34;
 import '../../data/repositories/earn_repository_impl.dart' as _i965;
+import '../../data/repositories/feature_flag_repository_impl.dart' as _i821;
 import '../../data/repositories/gamification_repository_impl.dart' as _i500;
 import '../../data/repositories/gift_repository_impl.dart' as _i350;
+import '../../data/repositories/group_buy_repository_impl.dart' as _i923;
 import '../../data/repositories/group_repository_impl.dart' as _i654;
+import '../../data/repositories/marketplace_repository_impl.dart' as _i199;
 import '../../data/repositories/moderation_repository_impl.dart' as _i527;
 import '../../data/repositories/poll_repository_impl.dart' as _i570;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
@@ -77,6 +88,7 @@ import '../../data/repositories/wallet_repository_impl.dart' as _i520;
 import '../../data/services/admob_service.dart' as _i284;
 import '../../data/services/upload_service.dart' as _i434;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
+import '../../domain/repositories/buy_repository.dart' as _i637;
 import '../../domain/repositories/call_repository.dart' as _i658;
 import '../../domain/repositories/chat_repository.dart' as _i1072;
 import '../../domain/repositories/community_repository.dart' as _i936;
@@ -84,9 +96,12 @@ import '../../domain/repositories/contact_repository.dart' as _i482;
 import '../../domain/repositories/conversation_repository.dart' as _i973;
 import '../../domain/repositories/device_repository.dart' as _i454;
 import '../../domain/repositories/earn_repository.dart' as _i805;
+import '../../domain/repositories/feature_flag_repository.dart' as _i993;
 import '../../domain/repositories/gamification_repository.dart' as _i1010;
 import '../../domain/repositories/gift_repository.dart' as _i533;
+import '../../domain/repositories/group_buy_repository.dart' as _i525;
 import '../../domain/repositories/group_repository.dart' as _i708;
+import '../../domain/repositories/marketplace_repository.dart' as _i631;
 import '../../domain/repositories/moderation_repository.dart' as _i862;
 import '../../domain/repositories/poll_repository.dart' as _i731;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
@@ -99,6 +114,9 @@ import '../../domain/repositories/wallet_repository.dart' as _i851;
 import '../../presentation/admin/blocs/admin_earn/admin_earn_bloc.dart'
     as _i1026;
 import '../../presentation/blocs/auth/auth_bloc.dart' as _i141;
+import '../../presentation/blocs/brand_storefront/brand_storefront_bloc.dart'
+    as _i604;
+import '../../presentation/blocs/buy_tab/buy_tab_bloc.dart' as _i809;
 import '../../presentation/blocs/call/call_bloc.dart' as _i807;
 import '../../presentation/blocs/cashout/cashout_bloc.dart' as _i772;
 import '../../presentation/blocs/chat/chat_bloc.dart' as _i142;
@@ -111,11 +129,17 @@ import '../../presentation/blocs/conversation_actions/conversation_actions_bloc.
     as _i531;
 import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
 import '../../presentation/blocs/earn_inbox/earn_inbox_bloc.dart' as _i480;
+import '../../presentation/blocs/feature_flag/feature_flag_bloc.dart' as _i394;
 import '../../presentation/blocs/gift/gift_bloc.dart' as _i66;
 import '../../presentation/blocs/group/group_bloc.dart' as _i275;
+import '../../presentation/blocs/group_buy/group_buy_bloc.dart' as _i399;
 import '../../presentation/blocs/home/home_bloc.dart' as _i973;
+import '../../presentation/blocs/marketplace/marketplace_bloc.dart' as _i46;
+import '../../presentation/blocs/order/order_bloc.dart' as _i25;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
 import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
+import '../../presentation/blocs/provider_registration/provider_registration_bloc.dart'
+    as _i682;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
@@ -262,6 +286,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
       ),
     );
+    gh.lazySingleton<_i399.MarketplaceRemoteDataSource>(
+      () => _i399.MarketplaceRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
     gh.lazySingleton<_i161.SignalProtocolService>(
       () => _i161.SignalProtocolService(
         gh<_i418.KeyManagementService>(),
@@ -274,6 +305,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i50.UserRemoteDataSource>(),
         gh<_i1057.AuthRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
+      ),
+    );
+    gh.lazySingleton<_i590.GroupBuyRemoteDataSource>(
+      () => _i590.GroupBuyRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i59.FirebaseAuth>(),
       ),
     );
     gh.lazySingleton<_i752.PinManager>(
@@ -313,6 +351,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i474.ShareService>(
       () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
     );
+    gh.lazySingleton<_i525.GroupBuyRepository>(
+      () => _i923.GroupBuyRepositoryImpl(gh<_i590.GroupBuyRemoteDataSource>()),
+    );
     gh.lazySingleton<_i988.AuditLogger>(
       () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
     );
@@ -346,6 +387,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i483.AppDatabase>(),
       ),
     );
+    gh.lazySingleton<_i631.MarketplaceRepository>(
+      () => _i199.MarketplaceRepositoryImpl(
+        gh<_i399.MarketplaceRemoteDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i108.CallAnalyticsService>(
       () => _i108.CallAnalyticsService(gh<_i398.FirebaseAnalytics>()),
     );
@@ -358,6 +404,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
         gh<_i988.AuditLogger>(),
         gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i574.BuyRemoteDataSource>(
+      () => _i574.BuyRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
       ),
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(
@@ -384,6 +436,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
         gh<_i809.FirebaseFunctions>(),
       ),
+    );
+    gh.lazySingleton<_i42.FeatureFlagRemoteDataSource>(
+      () => _i42.FeatureFlagRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
     );
     gh.lazySingleton<_i482.ContactRepository>(
       () => _i133.ContactRepositoryImpl(
@@ -415,6 +470,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
+    );
+    gh.lazySingleton<_i637.BuyRepository>(
+      () => _i193.BuyRepositoryImpl(
+        gh<_i574.BuyRemoteDataSource>(),
+        gh<_i483.AppDatabase>(),
+      ),
+    );
+    gh.factory<_i46.MarketplaceBloc>(
+      () => _i46.MarketplaceBloc(gh<_i631.MarketplaceRepository>()),
+    );
+    gh.factory<_i25.OrderBloc>(
+      () => _i25.OrderBloc(gh<_i631.MarketplaceRepository>()),
+    );
+    gh.factory<_i682.ProviderRegistrationBloc>(
+      () => _i682.ProviderRegistrationBloc(gh<_i631.MarketplaceRepository>()),
     );
     gh.lazySingleton<_i267.PurchaseRemoteDataSource>(
       () => _i267.PurchaseRemoteDataSourceImpl(
@@ -448,12 +518,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i124.MediaRecoveryService>(),
       ),
     );
+    gh.factory<_i399.GroupBuyBloc>(
+      () => _i399.GroupBuyBloc(gh<_i525.GroupBuyRepository>()),
+    );
     gh.factory<_i1026.AdminEarnBloc>(
       () => _i1026.AdminEarnBloc(gh<_i48.AdminEarnRemoteDataSource>()),
     );
     gh.lazySingleton<_i1010.GamificationRepository>(
       () => _i500.GamificationRepositoryImpl(
         gh<_i749.GamificationRemoteDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i993.FeatureFlagRepository>(
+      () => _i821.FeatureFlagRepositoryImpl(
+        gh<_i42.FeatureFlagRemoteDataSource>(),
       ),
     );
     gh.lazySingleton<_i224.ChatRemoteDataSource>(
@@ -479,6 +557,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
+    );
+    gh.factory<_i604.BrandStorefrontBloc>(
+      () => _i604.BrandStorefrontBloc(gh<_i637.BuyRepository>()),
     );
     gh.factory<_i58.PotBloc>(
       () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
@@ -511,6 +592,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i846.CallSignalingService>(),
         gh<_i108.CallAnalyticsService>(),
       ),
+    );
+    gh.factory<_i394.FeatureFlagBloc>(
+      () => _i394.FeatureFlagBloc(gh<_i993.FeatureFlagRepository>()),
     );
     gh.lazySingleton<_i42.GroupRemoteDataSource>(
       () => _i42.GroupRemoteDataSourceImpl(
@@ -553,6 +637,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i942.SessionLockService>(),
         gh<_i988.AuditLogger>(),
       ),
+    );
+    gh.factory<_i809.BuyTabBloc>(
+      () =>
+          _i809.BuyTabBloc(gh<_i637.BuyRepository>(), gh<_i932.NetworkInfo>()),
     );
     gh.lazySingleton<_i520.EarnRemoteDataSource>(
       () => _i520.EarnRemoteDataSourceImpl(

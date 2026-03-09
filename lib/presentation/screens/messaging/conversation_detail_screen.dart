@@ -39,6 +39,7 @@ import '../../widgets/messaging/token_actions_sheet.dart';
 import '../../widgets/messaging/typing_indicator.dart';
 import '../../widgets/messaging/video_message_recorder.dart';
 import '../../widgets/messaging/voice_recorder_widget.dart';
+import '../../widgets/buy/listing_context_header.dart';
 import '../../widgets/moderation/report_sheet.dart';
 
 /// P2P conversation detail screen showing messages and input bar.
@@ -187,6 +188,22 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                     // Message request banner
                     if (conv != null && conv.isMessageRequestFor(currentUserId))
                       _buildMessageRequestBanner(context, conv, currentUserId),
+                    // Marketplace listing context header
+                    if (conv != null && conv.isMarketplaceConversation)
+                      ListingContextHeader(
+                        title: conv.marketplaceListingTitle ?? 'Listing',
+                        thumbnailUrl: conv.marketplaceListingThumbnailUrl,
+                        formattedPrice: conv.marketplaceListingPrice != null
+                            ? '${conv.marketplaceListingPrice} tokens'
+                            : '',
+                        onTap: () {
+                          if (conv.marketplaceListingId != null) {
+                            context.go(
+                              '/buy/marketplace/listing/${conv.marketplaceListingId}',
+                            );
+                          }
+                        },
+                      ),
                     Expanded(
                       child: _buildMessageList(context, state, currentUserId),
                     ),

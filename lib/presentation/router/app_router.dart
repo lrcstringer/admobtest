@@ -18,11 +18,25 @@ import '../screens/auth/terms_of_service_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 
 // Buy screens
+import '../screens/buy/brand_storefront_screen.dart';
+import '../screens/buy/buy_category_screen.dart';
 import '../screens/buy/buy_failure_screen.dart';
+import '../screens/buy/buy_purchase_history_screen.dart';
 import '../screens/buy/buy_services_screen.dart';
 import '../screens/buy/buy_success_screen.dart';
 import '../screens/buy/buy_transactions_screen.dart';
 import '../screens/buy/buy_wallet_selection_screen.dart';
+import '../screens/buy/create_listing_screen.dart';
+import '../screens/buy/marketplace_hub_screen.dart';
+import '../screens/buy/marketplace_listing_detail_screen.dart';
+import '../screens/buy/marketplace_provider_profile_screen.dart';
+import '../screens/buy/marketplace_report_screen.dart';
+import '../screens/buy/my_orders_screen.dart';
+import '../screens/buy/order_detail_screen.dart';
+import '../screens/buy/provider_registration_screen.dart';
+import '../screens/buy/group_buy_list_screen.dart';
+import '../screens/buy/group_buy_detail_screen.dart';
+import '../screens/buy/create_group_buy_screen.dart';
 
 // Chat screens (legacy — kept for backward compat until cleanup)
 import '../screens/chat/chat_bonus_network_invite_screen.dart';
@@ -1101,6 +1115,148 @@ class AppRouter {
                     name: 'buyTransactions',
                     builder: (context, state) =>
                         const BuyTransactionsScreen(),
+                  ),
+                  // 10.3) Buy Category drill-down
+                  GoRoute(
+                    path: 'category/:categoryId',
+                    name: 'buyCategory',
+                    builder: (context, state) {
+                      final categoryId = state.pathParameters['categoryId']!;
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return BuyCategoryScreen(
+                        categoryId: categoryId,
+                        categoryName: extra?['name'] as String?,
+                        categoryEmoji: extra?['emoji'] as String?,
+                      );
+                    },
+                  ),
+                  // 10.4) Purchase History
+                  GoRoute(
+                    path: 'history',
+                    name: 'buyHistory',
+                    builder: (context, state) =>
+                        const BuyPurchaseHistoryScreen(),
+                  ),
+                  // 10.5) Brand Storefront
+                  GoRoute(
+                    path: 'brand/:storefrontId',
+                    name: 'brandStorefront',
+                    builder: (context, state) {
+                      final storefrontId =
+                          state.pathParameters['storefrontId']!;
+                      return BrandStorefrontScreen(
+                          storefrontId: storefrontId);
+                    },
+                  ),
+                  // 10.6) Marketplace hub
+                  GoRoute(
+                    path: 'marketplace',
+                    name: 'marketplace',
+                    builder: (context, state) =>
+                        const MarketplaceHubScreen(),
+                    routes: [
+                      // 10.6.1) Listing detail
+                      GoRoute(
+                        path: 'listing/:listingId',
+                        name: 'marketplaceListing',
+                        builder: (context, state) {
+                          final listingId =
+                              state.pathParameters['listingId']!;
+                          return MarketplaceListingDetailScreen(
+                            listingId: listingId,
+                          );
+                        },
+                      ),
+                      // 10.6.2) Provider profile
+                      GoRoute(
+                        path: 'provider/:providerId',
+                        name: 'marketplaceProvider',
+                        builder: (context, state) {
+                          final providerId =
+                              state.pathParameters['providerId']!;
+                          return MarketplaceProviderProfileScreen(
+                            providerId: providerId,
+                          );
+                        },
+                      ),
+                      // 10.6.3) Provider registration
+                      GoRoute(
+                        path: 'register',
+                        name: 'providerRegistration',
+                        builder: (context, state) =>
+                            const ProviderRegistrationScreen(),
+                      ),
+                      // 10.6.4) Create listing
+                      GoRoute(
+                        path: 'create-listing',
+                        name: 'createListing',
+                        builder: (context, state) =>
+                            const CreateListingScreen(),
+                      ),
+                      // 10.6.5) My orders
+                      GoRoute(
+                        path: 'orders',
+                        name: 'myOrders',
+                        builder: (context, state) =>
+                            const MyOrdersScreen(),
+                        routes: [
+                          // 10.6.5.1) Order detail
+                          GoRoute(
+                            path: ':orderId',
+                            name: 'orderDetail',
+                            builder: (context, state) {
+                              final orderId =
+                                  state.pathParameters['orderId']!;
+                              return OrderDetailScreen(
+                                  orderId: orderId);
+                            },
+                          ),
+                        ],
+                      ),
+                      // 10.6.6) Report listing or provider
+                      GoRoute(
+                        path: 'report/:targetType/:targetId',
+                        name: 'marketplaceReport',
+                        builder: (context, state) {
+                          final targetType =
+                              state.pathParameters['targetType']!;
+                          final targetId =
+                              state.pathParameters['targetId']!;
+                          return MarketplaceReportScreen(
+                            targetType: targetType,
+                            targetId: targetId,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  // 10.7) Group buys (Hlangana)
+                  GoRoute(
+                    path: 'group-buys',
+                    name: 'groupBuys',
+                    builder: (context, state) =>
+                        const GroupBuyListScreen(),
+                    routes: [
+                      // 10.7.1) Create group buy
+                      GoRoute(
+                        path: 'create',
+                        name: 'createGroupBuy',
+                        builder: (context, state) =>
+                            const CreateGroupBuyScreen(),
+                      ),
+                      // 10.7.2) Group buy detail
+                      GoRoute(
+                        path: ':groupBuyId',
+                        name: 'groupBuyDetail',
+                        builder: (context, state) {
+                          final groupBuyId =
+                              state.pathParameters['groupBuyId']!;
+                          return GroupBuyDetailScreen(
+                            groupBuyId: groupBuyId,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
