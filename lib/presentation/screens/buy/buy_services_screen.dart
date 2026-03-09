@@ -9,7 +9,6 @@ import '../../blocs/buy_tab/buy_tab_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/buy/brand_partners_strip.dart';
 import '../../widgets/buy/buy_category_grid.dart';
-import '../../widgets/buy/buy_coming_soon_teaser.dart';
 import '../../widgets/buy/buy_layer_divider.dart';
 import '../../widgets/buy/buy_offline_banner.dart';
 import '../../widgets/buy/buy_section_header.dart';
@@ -87,15 +86,9 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
 
                   const SliverToBoxAdapter(child: BuyLayerDivider()),
 
-                  // ── Layer 3: Marketplace placeholder ──
+                  // ── Layer 3: Intengiso Marketplace ──
                   SliverToBoxAdapter(
-                    child: BuyComingSoonTeaser(
-                      title: 'Intengiso Marketplace',
-                      subtitle:
-                          'Buy & sell in your community \u2014 with trust',
-                      icon: Icons.storefront_rounded,
-                      gradient: BrandGradient.cyanBlue,
-                    ),
+                    child: _buildMarketplaceEntry(),
                   ),
 
                   const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
@@ -114,16 +107,9 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     final hasFeatured = state.featuredItems.isNotEmpty;
     final hasBrands = state.brandPartners.isNotEmpty;
 
-    // If nothing in Layer 1, show placeholder
+    // If nothing in Layer 1, hide it entirely (no empty carousel)
     if (!hasFeatured && !hasBrands && !state.isLoading) {
-      return SliverToBoxAdapter(
-        child: BuyComingSoonTeaser(
-          title: 'Featured Deals',
-          subtitle: 'Sponsored campaigns & trending items',
-          icon: Icons.star_rounded,
-          gradient: BrandGradient.goldOrange,
-        ),
-      );
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
 
     return SliverList(
@@ -304,6 +290,69 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                 size: AppButtonSize.small,
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Layer 3: Marketplace Entry ─────────────────────────
+
+  Widget _buildMarketplaceEntry() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: GestureDetector(
+        onTap: () => context.go('/buy/marketplace'),
+        child: BrandCard(
+          gradient: BrandGradient.cyanBlue,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.storefront_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Intengiso Marketplace',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Buy & sell in your community \u2014 with trust',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white70,
+                  size: 18,
+                ),
+              ],
+            ),
           ),
         ),
       ),
