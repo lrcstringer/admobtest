@@ -96,10 +96,32 @@ class _FeatureFlagManagementScreenState
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: _loadFlags,
-                        tooltip: 'Refresh',
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: _loadFlags,
+                            tooltip: 'Refresh',
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: _showSeedDataDialog,
+                            icon: const Icon(Icons.download, size: 18),
+                            label: const Text('Seed Defaults'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.warning,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: _showCreateFlagDialog,
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Add Flag'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -403,6 +425,145 @@ class _FeatureFlagManagementScreenState
         },
       ),
     );
+  }
+
+  void _showCreateFlagDialog() {
+    final keyCtrl = TextEditingController();
+    var isEnabled = false;
+    var isGlobal = false;
+    var saving = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setInnerState) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardDark,
+            title: const Text('Create Feature Flag'),
+            content: SizedBox(
+              width: 400,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: keyCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Feature Key',
+                      hintText: 'e.g. buy_new_feature',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('Enabled'),
+                    value: isEnabled,
+                    onChanged: (v) => setInnerState(() => isEnabled = v),
+                  ),
+                  SwitchListTile(
+                    title: const Text('Global'),
+                    subtitle: const Text('Enable for all communities'),
+                    value: isGlobal,
+                    onChanged: (v) => setInnerState(() => isGlobal = v),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final key = keyCtrl.text.trim();
+                        if (key.isEmpty) return;
+                        setInnerState(() => saving = true);
+                        try {
+                          await FirebaseFunctions.instanceFor(
+                                  region: 'africa-south1')
+                              .httpsCallable('adminCreateFeatureFlag')
+                              .call({
+                            'featureKey': key,
+                            'isEnabled': isEnabled,
+                            'isGlobal': isGlobal,
+                          });
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          _loadFlags();
+                        } catch (e) {
+                          setInnerState(() => saving = false);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Create'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showSeedDataDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: const Text('Seed Default Buy Data'),
+        content: const Text(
+          'This will create default feature flags and buy categories if they don\'t already exist.\n\n'
+          'Existing data will NOT be overwritten.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.warning,
+            ),
+            child: const Text('Seed Data'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final result =
+          await FirebaseFunctions.instanceFor(region: 'africa-south1')
+              .httpsCallable('adminSeedBuyInitialData')
+              .call();
+      final created = result.data['created'] ?? 0;
+      final skipped = result.data['skipped'] ?? 0;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Seeded: $created created, $skipped already existed'),
+          ),
+        );
+      }
+      _loadFlags();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 }
 

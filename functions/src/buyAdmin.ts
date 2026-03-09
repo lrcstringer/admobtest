@@ -41,6 +41,57 @@ export const adminListFeatureFlags = onCall(
 );
 
 /**
+ * Create a new feature flag.
+ */
+export const adminCreateFeatureFlag = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateFeatureFlag");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:createFeatureFlag",
+      "adminCreateFeatureFlag"
+    );
+
+    const { featureKey, isEnabled, isGlobal, enabledCommunityIds } =
+      request.data as {
+        featureKey: string;
+        isEnabled?: boolean;
+        isGlobal?: boolean;
+        enabledCommunityIds?: string[];
+      };
+
+    if (!featureKey || featureKey.trim().length === 0) {
+      throw new HttpsError("invalid-argument", "featureKey is required");
+    }
+
+    // Check for duplicate
+    const existing = await db.collection("featureFlags").doc(featureKey.trim()).get();
+    if (existing.exists) {
+      throw new HttpsError("already-exists", `Feature flag '${featureKey}' already exists`);
+    }
+
+    const data = {
+      featureKey: featureKey.trim(),
+      isEnabled: isEnabled ?? false,
+      isGlobal: isGlobal ?? false,
+      enabledCommunityIds: enabledCommunityIds ?? [],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await db.collection("featureFlags").doc(featureKey.trim()).set(data);
+
+    logAdminAction(adminCtx.uid, "adminCreateFeatureFlag", "success", {
+      featureKey,
+    }).catch(() => {});
+
+    logger.info(`Feature flag '${featureKey}' created by ${adminCtx.email}`);
+    return { success: true, featureKey };
+  }
+);
+
+/**
  * Update a feature flag (toggle, scope, community targeting).
  */
 export const adminUpdateFeatureFlag = onCall(
@@ -1871,5 +1922,111 @@ export const adminGetEscrowOverview = onCall(
       marketplaceEscrows,
       groupBuyEscrows,
     };
+  }
+);
+
+// ============================================================================
+// SEED INITIAL BUY DATA
+// ============================================================================
+
+/**
+ * Seed initial Buy Tab data: feature flags + buy categories.
+ * Idempotent — skips docs that already exist.
+ */
+export const adminSeedBuyInitialData = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminSeedBuyInitialData");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:seedBuyData",
+      "adminSeedBuyInitialData"
+    );
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const batch = db.batch();
+    let created = 0;
+    let skipped = 0;
+
+    // ── Feature Flags ──
+    const featureFlags: Array<{ key: string; enabled: boolean; global: boolean }> = [
+      { key: "buy_vas_utilities", enabled: true, global: true },
+      { key: "buy_my_regulars", enabled: true, global: true },
+      { key: "buy_featured_carousel", enabled: true, global: true },
+      { key: "buy_marketplace", enabled: true, global: true },
+      { key: "buy_group_buys", enabled: false, global: false },
+    ];
+
+    for (const flag of featureFlags) {
+      const ref = db.collection("featureFlags").doc(flag.key);
+      const doc = await ref.get();
+      if (!doc.exists) {
+        batch.set(ref, {
+          featureKey: flag.key,
+          isEnabled: flag.enabled,
+          isGlobal: flag.global,
+          enabledCommunityIds: [],
+          createdAt: now,
+          updatedAt: now,
+        });
+        created++;
+      } else {
+        skipped++;
+      }
+    }
+
+    // ── Buy Categories ──
+    const categories: Array<{
+      id: string;
+      name: string;
+      emoji: string;
+      sort: number;
+      active: boolean;
+      comingSoon: boolean;
+      mapping?: string;
+    }> = [
+      { id: "airtime", name: "Airtime", emoji: "📱", sort: 1, active: true, comingSoon: false, mapping: "airtime" },
+      { id: "data", name: "Data", emoji: "📶", sort: 2, active: true, comingSoon: false, mapping: "data" },
+      { id: "electricity", name: "Electricity", emoji: "⚡", sort: 3, active: true, comingSoon: false, mapping: "electricity" },
+      { id: "dstv", name: "DStv", emoji: "📺", sort: 4, active: true, comingSoon: false, mapping: "voucher" },
+      { id: "water", name: "Water", emoji: "💧", sort: 5, active: true, comingSoon: false, mapping: "other" },
+      { id: "school_fees", name: "School Fees", emoji: "🎓", sort: 6, active: false, comingSoon: true },
+      { id: "funeral_policy", name: "Funeral Policy", emoji: "⚱️", sort: 7, active: false, comingSoon: true },
+      { id: "stokvel", name: "Stokvel", emoji: "🤝", sort: 8, active: false, comingSoon: true },
+      { id: "municipal", name: "Municipal", emoji: "🏛️", sort: 9, active: false, comingSoon: true },
+    ];
+
+    for (const cat of categories) {
+      const ref = db.collection("buyCategories").doc(cat.id);
+      const doc = await ref.get();
+      if (!doc.exists) {
+        batch.set(ref, {
+          name: cat.name,
+          iconEmoji: cat.emoji,
+          sortOrder: cat.sort,
+          isActive: cat.active,
+          isComingSoon: cat.comingSoon,
+          purchaseCategoryMapping: cat.mapping || null,
+          featureFlagKey: null,
+          logoUrl: null,
+          backgroundColor: null,
+          createdAt: now,
+          updatedAt: now,
+        });
+        created++;
+      } else {
+        skipped++;
+      }
+    }
+
+    await batch.commit();
+
+    logAdminAction(adminCtx.uid, "adminSeedBuyInitialData", "success", {
+      created,
+      skipped,
+    }).catch(() => {});
+
+    logger.info(`Buy data seeded by ${adminCtx.email}: ${created} created, ${skipped} skipped`);
+    return { success: true, created, skipped };
   }
 );

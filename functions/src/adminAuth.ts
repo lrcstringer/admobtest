@@ -104,7 +104,9 @@ export type AdminPermission =
   | "audit:viewLogs"
   // Buy management
   | "buy:listFeatureFlags"
+  | "buy:createFeatureFlag"
   | "buy:updateFeatureFlag"
+  | "buy:seedBuyData"
   | "buy:createCategory"
   | "buy:updateCategory"
   | "buy:toggleCategory"
@@ -201,7 +203,9 @@ const platformAdminPerms: AdminPermission[] = [
   "platform:runMigration",
   "audit:viewLogs",
   "buy:listFeatureFlags",
+  "buy:createFeatureFlag",
   "buy:updateFeatureFlag",
+  "buy:seedBuyData",
   "buy:createCategory",
   "buy:updateCategory",
   "buy:toggleCategory",
