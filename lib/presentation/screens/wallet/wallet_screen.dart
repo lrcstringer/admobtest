@@ -16,11 +16,7 @@ import '../../widgets/common/wave_background.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 
 class WalletScreen extends StatefulWidget {
-  /// When true, omits the Scaffold + AppBar wrapper (used when embedded
-  /// inside HomeScreen's TabBarView to avoid a double AppBar).
-  final bool embedded;
-
-  const WalletScreen({super.key, this.embedded = false});
+  const WalletScreen({super.key});
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
@@ -38,7 +34,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   void _navigateToRewards(BuildContext context) {
-    context.go('/home/wallet-rewards');
+    context.go('/wallet/rewards');
   }
 
   Future<void> _loadRewardFlag() async {
@@ -112,12 +108,9 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final body = _buildBody(context);
-    if (widget.embedded) return body;
-
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Wallet'),
-      body: body,
+      body: _buildBody(context),
     );
   }
 
@@ -641,7 +634,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => context.go('/home/wallet-rewards/${item.id}'),
+        onTap: () => context.go('/wallet/rewards/${item.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -771,7 +764,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => context.go('/home/wallet-detail/${subAccount.id}'),
+        onTap: () => context.go('/wallet/detail/${subAccount.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           decoration: BoxDecoration(

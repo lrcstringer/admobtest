@@ -101,8 +101,6 @@ import '../screens/home/how_to_earn_screen.dart';
 import '../screens/home/upgrade_status_screen.dart';
 import '../screens/home/what_is_emalichat_screen.dart';
 
-// Save screen
-import '../screens/save/save_screen.dart';
 
 // Main shell
 import '../screens/main/main_shell.dart';
@@ -151,6 +149,7 @@ import '../screens/splash/splash_screen.dart';
 import '../screens/wallet/cashout_screen.dart';
 import '../screens/wallet/transaction_history_screen.dart';
 import '../screens/wallet/wallet_detail_screen.dart';
+import '../screens/wallet/wallet_screen.dart';
 import '../screens/wallet/wallet_send_amount_screen.dart';
 import '../screens/wallet/wallet_send_failure_screen.dart';
 import '../screens/wallet/wallet_send_screen.dart';
@@ -179,10 +178,10 @@ class AppRouter {
       GlobalKey<NavigatorState>(debugLabel: 'earnTab');
   static final _chatNavKey =
       GlobalKey<NavigatorState>(debugLabel: 'chatTab');
-  static final _saveNavKey =
-      GlobalKey<NavigatorState>(debugLabel: 'saveTab');
   static final _buyNavKey =
       GlobalKey<NavigatorState>(debugLabel: 'buyTab');
+  static final _walletNavKey =
+      GlobalKey<NavigatorState>(debugLabel: 'walletTab');
 
   late final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -543,111 +542,6 @@ class AppRouter {
                                 'My QR Code',
                             subtitle: 'Scan to start a conversation',
                           );
-                        },
-                      ),
-                    ],
-                  ),
-                  // 6.6) Wallet sub-routes (Wallet is now a tab inside Home)
-                  GoRoute(
-                    path: 'wallet-detail/:subAccountId',
-                    name: 'walletDetail',
-                    builder: (context, state) {
-                      final subAccountId =
-                          state.pathParameters['subAccountId'] ?? '';
-                      return WalletDetailScreen(
-                          subAccountId: subAccountId);
-                    },
-                  ),
-                  GoRoute(
-                    path: 'wallet-send',
-                    name: 'walletSend',
-                    builder: (context, state) {
-                      final extra =
-                          state.extra as Map<String, dynamic>?;
-                      return WalletSendScreen(
-                        subAccountId:
-                            extra?['subAccountId'] as String?,
-                      );
-                    },
-                    routes: [
-                      GoRoute(
-                        path: 'amount',
-                        name: 'walletSendAmount',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>?;
-                          return WalletSendAmountScreen(
-                            recipientUserId:
-                                extra?['recipientUserId']
-                                    as String? ??
-                                    '',
-                            recipientName:
-                                extra?['recipientName']
-                                    as String? ??
-                                    'Unknown',
-                            subAccountId:
-                                extra?['subAccountId'] as String?,
-                          );
-                        },
-                      ),
-                      GoRoute(
-                        path: 'success',
-                        name: 'walletSendSuccess',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>?;
-                          return WalletSendSuccessScreen(
-                            amount: extra?['amount'] as int?,
-                            recipientName:
-                                extra?['recipientName'] as String?,
-                          );
-                        },
-                      ),
-                      GoRoute(
-                        path: 'failure',
-                        name: 'walletSendFailure',
-                        builder: (context, state) {
-                          final extra =
-                              state.extra as Map<String, dynamic>?;
-                          return WalletSendFailureScreen(
-                            error: extra?['error'] as String?,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  GoRoute(
-                    path: 'wallet-withdraw',
-                    name: 'walletWithdraw',
-                    builder: (context, state) =>
-                        const CashoutScreen(),
-                  ),
-                  GoRoute(
-                    path: 'wallet-transactions',
-                    name: 'transactions',
-                    builder: (context, state) =>
-                        const TransactionHistoryScreen(),
-                  ),
-                  GoRoute(
-                    path: 'wallet-cashout',
-                    name: 'cashout',
-                    builder: (context, state) =>
-                        const CashoutScreen(),
-                  ),
-                  GoRoute(
-                    path: 'wallet-rewards',
-                    name: 'walletRewards',
-                    builder: (context, state) =>
-                        const RewardsListScreen(),
-                    routes: [
-                      GoRoute(
-                        path: ':rewardId',
-                        name: 'rewardDetail',
-                        builder: (context, state) {
-                          final rewardId =
-                              state.pathParameters['rewardId'] ?? '';
-                          return RewardItemDetailScreen(
-                              rewardId: rewardId);
                         },
                       ),
                     ],
@@ -1067,19 +961,7 @@ class AppRouter {
             ],
           ),
 
-          // ---- Tab 3: Save ----
-          StatefulShellBranch(
-            navigatorKey: _saveNavKey,
-            routes: [
-              GoRoute(
-                path: '/save',
-                name: 'save',
-                builder: (context, state) => const SaveScreen(),
-              ),
-            ],
-          ),
-
-          // ---- Tab 4: Buy ----
+          // ---- Tab 3: Buy ----
           StatefulShellBranch(
             navigatorKey: _buyNavKey,
             routes: [
@@ -1278,6 +1160,124 @@ class AppRouter {
                           return GroupBuyDetailScreen(
                             groupBuyId: groupBuyId,
                           );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // ---- Tab 5: Wallet ----
+          StatefulShellBranch(
+            navigatorKey: _walletNavKey,
+            routes: [
+              GoRoute(
+                path: '/wallet',
+                name: 'wallet',
+                builder: (context, state) => const WalletScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:subAccountId',
+                    name: 'walletDetail',
+                    builder: (context, state) {
+                      final subAccountId =
+                          state.pathParameters['subAccountId'] ?? '';
+                      return WalletDetailScreen(
+                          subAccountId: subAccountId);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'send',
+                    name: 'walletSend',
+                    builder: (context, state) {
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      return WalletSendScreen(
+                        subAccountId:
+                            extra?['subAccountId'] as String?,
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'amount',
+                        name: 'walletSendAmount',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendAmountScreen(
+                            recipientUserId:
+                                extra?['recipientUserId']
+                                    as String? ??
+                                    '',
+                            recipientName:
+                                extra?['recipientName']
+                                    as String? ??
+                                    'Unknown',
+                            subAccountId:
+                                extra?['subAccountId'] as String?,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'success',
+                        name: 'walletSendSuccess',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendSuccessScreen(
+                            amount: extra?['amount'] as int?,
+                            recipientName:
+                                extra?['recipientName'] as String?,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'failure',
+                        name: 'walletSendFailure',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>?;
+                          return WalletSendFailureScreen(
+                            error: extra?['error'] as String?,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'withdraw',
+                    name: 'walletWithdraw',
+                    builder: (context, state) =>
+                        const CashoutScreen(),
+                  ),
+                  GoRoute(
+                    path: 'transactions',
+                    name: 'transactions',
+                    builder: (context, state) =>
+                        const TransactionHistoryScreen(),
+                  ),
+                  GoRoute(
+                    path: 'cashout',
+                    name: 'cashout',
+                    builder: (context, state) =>
+                        const CashoutScreen(),
+                  ),
+                  GoRoute(
+                    path: 'rewards',
+                    name: 'walletRewards',
+                    builder: (context, state) =>
+                        const RewardsListScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':rewardId',
+                        name: 'rewardDetail',
+                        builder: (context, state) {
+                          final rewardId =
+                              state.pathParameters['rewardId'] ?? '';
+                          return RewardItemDetailScreen(
+                              rewardId: rewardId);
                         },
                       ),
                     ],

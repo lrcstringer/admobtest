@@ -86,14 +86,14 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
       listener: (context, state) {
         if (state.successMessage != null && _isSending) {
           context.read<WalletBloc>().add(const WalletEvent.clearMessages());
-          context.go('/home/wallet-send/success', extra: {
+          context.go('/wallet/send/success', extra: {
             'amount': _amount,
             'recipientName': widget.recipientName,
           });
         } else if (state.errorMessage != null && _isSending) {
           final error = state.errorMessage ?? 'Transfer failed';
           context.read<WalletBloc>().add(const WalletEvent.clearMessages());
-          context.go('/home/wallet-send/failure', extra: {
+          context.go('/wallet/send/failure', extra: {
             'error': error,
           });
         }

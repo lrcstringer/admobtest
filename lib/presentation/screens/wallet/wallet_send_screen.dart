@@ -190,7 +190,7 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
       ),
       onTap: () {
         context.go(
-          '/home/wallet-send/amount',
+          '/wallet/send/amount',
           extra: {
             'recipientUserId': contact.userId,
             'recipientName': contact.displayName,

@@ -129,7 +129,7 @@ class WalletDetailScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () =>
-                                context.go('/home/wallet-transactions'),
+                                context.go('/wallet/transactions'),
                             child: const Text('View All'),
                           ),
                         ],
@@ -295,7 +295,7 @@ class WalletDetailScreen extends StatelessWidget {
                       );
                     } else {
                       context.go(
-                        '/home/wallet-send',
+                        '/wallet/send',
                         extra: {'subAccountId': subAccount.id},
                       );
                     }
@@ -336,7 +336,7 @@ class WalletDetailScreen extends StatelessWidget {
                   icon: Icons.arrow_upward,
                   label: 'Cash Out',
                   color: AppColors.success,
-                  onTap: () => context.go('/home/wallet-withdraw'),
+                  onTap: () => context.go('/wallet/withdraw'),
                 ),
               ),
               if (subAccount.isRestricted) AppSpacing.horizontalMd,
@@ -351,7 +351,7 @@ class WalletDetailScreen extends StatelessWidget {
                         icon: Icons.card_giftcard,
                         label: 'Rewards (${brandRewards.length})',
                         color: accentColor,
-                        onTap: () => context.go('/home/wallet-rewards'),
+                        onTap: () => context.go('/wallet/rewards'),
                       )
                     : _buildActionButton(
                         context,
@@ -442,7 +442,7 @@ class WalletDetailScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 GestureDetector(
-                  onTap: () => context.go('/home/wallet-rewards'),
+                  onTap: () => context.go('/wallet/rewards'),
                   child: Text(
                     'View All',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -489,7 +489,7 @@ class WalletDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
-        onTap: () => context.go('/home/wallet-rewards/${item.id}'),
+        onTap: () => context.go('/wallet/rewards/${item.id}'),
         borderRadius: AppSpacing.borderRadiusMd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
