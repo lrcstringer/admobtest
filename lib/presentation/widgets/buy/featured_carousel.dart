@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../domain/entities/featured_item.dart';
 import '../../theme/app_colors.dart';
@@ -229,8 +230,23 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                 ),
               ],
 
-              // Optional background image
-              if (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+              // Optional background video or image
+              if (item.videoUrl != null && item.videoUrl!.isNotEmpty)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  left: isFullImage ? 0 : null,
+                  width: isFullImage ? null : 160,
+                  child: _FeaturedVideoPlayer(
+                    videoUrl: item.videoUrl!,
+                    posterUrl: item.imageUrl,
+                    isFullImage: isFullImage,
+                    isCustom: item.bgGradientType == 'custom',
+                    opacity: imgOpacity,
+                  ),
+                )
+              else if (item.imageUrl != null && item.imageUrl!.isNotEmpty)
                 Positioned(
                   right: 0,
                   top: 0,
@@ -457,6 +473,109 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
           ),
         );
       }),
+    );
+  }
+}
+
+/// Inline looping video player for featured carousel cards.
+/// Muted, auto-plays, shows poster image while loading.
+class _FeaturedVideoPlayer extends StatefulWidget {
+  final String videoUrl;
+  final String? posterUrl;
+  final bool isFullImage;
+  final bool isCustom;
+  final double opacity;
+
+  const _FeaturedVideoPlayer({
+    required this.videoUrl,
+    this.posterUrl,
+    required this.isFullImage,
+    required this.isCustom,
+    required this.opacity,
+  });
+
+  @override
+  State<_FeaturedVideoPlayer> createState() => _FeaturedVideoPlayerState();
+}
+
+class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
+  late VideoPlayerController _controller;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _controller.initialize().then((_) {
+      if (!mounted) return;
+      _controller.setLooping(true);
+      _controller.setVolume(0);
+      _controller.play();
+      setState(() => _initialized = true);
+    }).catchError((_) {
+      // Silently fall back to poster image on error
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final content = _initialized
+        ? FittedBox(
+            fit: widget.isCustom ? BoxFit.contain : BoxFit.cover,
+            alignment: widget.isFullImage
+                ? Alignment.center
+                : Alignment.centerRight,
+            clipBehavior: Clip.hardEdge,
+            child: SizedBox(
+              width: _controller.value.size.width,
+              height: _controller.value.size.height,
+              child: VideoPlayer(_controller),
+            ),
+          )
+        : _buildPoster();
+
+    if (widget.isCustom) {
+      return Opacity(opacity: widget.opacity, child: content);
+    }
+
+    return ShaderMask(
+      shaderCallback: (bounds) => LinearGradient(
+        begin: widget.isFullImage
+            ? Alignment.bottomCenter
+            : Alignment.centerRight,
+        end: widget.isFullImage
+            ? Alignment.topCenter
+            : Alignment.centerLeft,
+        colors: [
+          Colors.white.withValues(alpha: widget.opacity),
+          Colors.transparent,
+        ],
+      ).createShader(bounds),
+      blendMode: BlendMode.dstIn,
+      child: content,
+    );
+  }
+
+  Widget _buildPoster() {
+    if (widget.posterUrl == null || widget.posterUrl!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return CachedNetworkImage(
+      imageUrl: widget.posterUrl!,
+      fit: widget.isCustom ? BoxFit.contain : BoxFit.cover,
+      alignment:
+          widget.isFullImage ? Alignment.center : Alignment.centerRight,
+      width: double.infinity,
+      height: double.infinity,
+      placeholder: (_, __) => const SizedBox.shrink(),
+      errorWidget: (_, __, ___) => const SizedBox.shrink(),
     );
   }
 }

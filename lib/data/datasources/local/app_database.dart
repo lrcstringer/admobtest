@@ -359,6 +359,7 @@ class LocalFeaturedItems extends Table {
   TextColumn get title => text()();
   TextColumn get subtitle => text().nullable()();
   TextColumn get imageUrl => text().nullable()();
+  TextColumn get videoUrl => text().nullable()();
   TextColumn get type => text().withDefault(const Constant('campaign'))();
   TextColumn get deepLinkRoute => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
@@ -423,7 +424,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -500,6 +501,10 @@ class AppDatabase extends _$AppDatabase {
         if (from < 13) {
           await m.addColumn(
               localBuyCategories, localBuyCategories.subcategoriesJson);
+        }
+        if (from < 14) {
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.videoUrl);
         }
       },
     );

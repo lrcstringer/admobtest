@@ -367,6 +367,7 @@ export const adminCreateFeaturedItem = onCall(
       title,
       subtitle,
       imageUrl,
+      videoUrl,
       type,
       deepLinkRoute,
       brandId,
@@ -384,6 +385,7 @@ export const adminCreateFeaturedItem = onCall(
       title: string;
       subtitle?: string;
       imageUrl?: string;
+      videoUrl?: string;
       type?: string;
       deepLinkRoute?: string;
       brandId?: string;
@@ -407,6 +409,7 @@ export const adminCreateFeaturedItem = onCall(
       title: title.trim(),
       subtitle: subtitle || null,
       imageUrl: imageUrl || null,
+      videoUrl: videoUrl || null,
       type: type || "campaign",
       deepLinkRoute: deepLinkRoute || null,
       brandId: brandId || null,
@@ -454,6 +457,7 @@ export const adminUpdateFeaturedItem = onCall(
       title?: string;
       subtitle?: string;
       imageUrl?: string;
+      videoUrl?: string;
       type?: string;
       deepLinkRoute?: string;
       brandId?: string;

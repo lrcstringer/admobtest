@@ -21,6 +21,7 @@ mixin _$FeaturedItemModel {
   String get title => throw _privateConstructorUsedError;
   String? get subtitle => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
+  String? get videoUrl => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
   String? get deepLinkRoute => throw _privateConstructorUsedError;
   String? get brandId => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $FeaturedItemModelCopyWith<$Res> {
     String title,
     String? subtitle,
     String? imageUrl,
+    String? videoUrl,
     String type,
     String? deepLinkRoute,
     String? brandId,
@@ -93,6 +95,7 @@ class _$FeaturedItemModelCopyWithImpl<$Res, $Val extends FeaturedItemModel>
     Object? title = null,
     Object? subtitle = freezed,
     Object? imageUrl = freezed,
+    Object? videoUrl = freezed,
     Object? type = null,
     Object? deepLinkRoute = freezed,
     Object? brandId = freezed,
@@ -126,6 +129,10 @@ class _$FeaturedItemModelCopyWithImpl<$Res, $Val extends FeaturedItemModel>
             imageUrl: freezed == imageUrl
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            videoUrl: freezed == videoUrl
+                ? _value.videoUrl
+                : videoUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             type: null == type
                 ? _value.type
@@ -207,6 +214,7 @@ abstract class _$$FeaturedItemModelImplCopyWith<$Res>
     String title,
     String? subtitle,
     String? imageUrl,
+    String? videoUrl,
     String type,
     String? deepLinkRoute,
     String? brandId,
@@ -243,6 +251,7 @@ class __$$FeaturedItemModelImplCopyWithImpl<$Res>
     Object? title = null,
     Object? subtitle = freezed,
     Object? imageUrl = freezed,
+    Object? videoUrl = freezed,
     Object? type = null,
     Object? deepLinkRoute = freezed,
     Object? brandId = freezed,
@@ -276,6 +285,10 @@ class __$$FeaturedItemModelImplCopyWithImpl<$Res>
         imageUrl: freezed == imageUrl
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        videoUrl: freezed == videoUrl
+            ? _value.videoUrl
+            : videoUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         type: null == type
             ? _value.type
@@ -350,6 +363,7 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
     required this.title,
     this.subtitle,
     this.imageUrl,
+    this.videoUrl,
     this.type = 'campaign',
     this.deepLinkRoute,
     this.brandId,
@@ -376,6 +390,8 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
   final String? subtitle;
   @override
   final String? imageUrl;
+  @override
+  final String? videoUrl;
   @override
   @JsonKey()
   final String type;
@@ -423,7 +439,7 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
 
   @override
   String toString() {
-    return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
+    return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
   }
 
   @override
@@ -437,6 +453,8 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
                 other.subtitle == subtitle) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
+            (identical(other.videoUrl, videoUrl) ||
+                other.videoUrl == videoUrl) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.deepLinkRoute, deepLinkRoute) ||
                 other.deepLinkRoute == deepLinkRoute) &&
@@ -475,6 +493,7 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
     title,
     subtitle,
     imageUrl,
+    videoUrl,
     type,
     deepLinkRoute,
     brandId,
@@ -510,6 +529,7 @@ abstract class _FeaturedItemModel extends FeaturedItemModel {
     required final String title,
     final String? subtitle,
     final String? imageUrl,
+    final String? videoUrl,
     final String type,
     final String? deepLinkRoute,
     final String? brandId,
@@ -536,6 +556,8 @@ abstract class _FeaturedItemModel extends FeaturedItemModel {
   String? get subtitle;
   @override
   String? get imageUrl;
+  @override
+  String? get videoUrl;
   @override
   String get type;
   @override

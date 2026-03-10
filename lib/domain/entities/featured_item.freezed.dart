@@ -26,6 +26,10 @@ mixin _$FeaturedItem {
   String? get subtitle => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
 
+  /// Optional short looping video URL. When set, replaces the image on the card.
+  /// imageUrl still serves as poster/thumbnail while video loads.
+  String? get videoUrl => throw _privateConstructorUsedError;
+
   /// Type: campaign, collectible, trending, promotion
   String get type => throw _privateConstructorUsedError;
 
@@ -84,6 +88,7 @@ abstract class $FeaturedItemCopyWith<$Res> {
     String title,
     String? subtitle,
     String? imageUrl,
+    String? videoUrl,
     String type,
     String? deepLinkRoute,
     String? brandId,
@@ -121,6 +126,7 @@ class _$FeaturedItemCopyWithImpl<$Res, $Val extends FeaturedItem>
     Object? title = null,
     Object? subtitle = freezed,
     Object? imageUrl = freezed,
+    Object? videoUrl = freezed,
     Object? type = null,
     Object? deepLinkRoute = freezed,
     Object? brandId = freezed,
@@ -154,6 +160,10 @@ class _$FeaturedItemCopyWithImpl<$Res, $Val extends FeaturedItem>
             imageUrl: freezed == imageUrl
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            videoUrl: freezed == videoUrl
+                ? _value.videoUrl
+                : videoUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
             type: null == type
                 ? _value.type
@@ -235,6 +245,7 @@ abstract class _$$FeaturedItemImplCopyWith<$Res>
     String title,
     String? subtitle,
     String? imageUrl,
+    String? videoUrl,
     String type,
     String? deepLinkRoute,
     String? brandId,
@@ -271,6 +282,7 @@ class __$$FeaturedItemImplCopyWithImpl<$Res>
     Object? title = null,
     Object? subtitle = freezed,
     Object? imageUrl = freezed,
+    Object? videoUrl = freezed,
     Object? type = null,
     Object? deepLinkRoute = freezed,
     Object? brandId = freezed,
@@ -304,6 +316,10 @@ class __$$FeaturedItemImplCopyWithImpl<$Res>
         imageUrl: freezed == imageUrl
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        videoUrl: freezed == videoUrl
+            ? _value.videoUrl
+            : videoUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
         type: null == type
             ? _value.type
@@ -378,6 +394,7 @@ class _$FeaturedItemImpl extends _FeaturedItem {
     required this.title,
     this.subtitle,
     this.imageUrl,
+    this.videoUrl,
     this.type = 'campaign',
     this.deepLinkRoute,
     this.brandId,
@@ -407,6 +424,11 @@ class _$FeaturedItemImpl extends _FeaturedItem {
   final String? subtitle;
   @override
   final String? imageUrl;
+
+  /// Optional short looping video URL. When set, replaces the image on the card.
+  /// imageUrl still serves as poster/thumbnail while video loads.
+  @override
+  final String? videoUrl;
 
   /// Type: campaign, collectible, trending, promotion
   @override
@@ -477,7 +499,7 @@ class _$FeaturedItemImpl extends _FeaturedItem {
 
   @override
   String toString() {
-    return 'FeaturedItem(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
+    return 'FeaturedItem(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
   }
 
   @override
@@ -491,6 +513,8 @@ class _$FeaturedItemImpl extends _FeaturedItem {
                 other.subtitle == subtitle) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
+            (identical(other.videoUrl, videoUrl) ||
+                other.videoUrl == videoUrl) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.deepLinkRoute, deepLinkRoute) ||
                 other.deepLinkRoute == deepLinkRoute) &&
@@ -530,6 +554,7 @@ class _$FeaturedItemImpl extends _FeaturedItem {
     title,
     subtitle,
     imageUrl,
+    videoUrl,
     type,
     deepLinkRoute,
     brandId,
@@ -567,6 +592,7 @@ abstract class _FeaturedItem extends FeaturedItem {
     required final String title,
     final String? subtitle,
     final String? imageUrl,
+    final String? videoUrl,
     final String type,
     final String? deepLinkRoute,
     final String? brandId,
@@ -596,6 +622,11 @@ abstract class _FeaturedItem extends FeaturedItem {
   String? get subtitle;
   @override
   String? get imageUrl;
+
+  /// Optional short looping video URL. When set, replaces the image on the card.
+  /// imageUrl still serves as poster/thumbnail while video loads.
+  @override
+  String? get videoUrl;
 
   /// Type: campaign, collectible, trending, promotion
   @override

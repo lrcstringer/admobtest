@@ -13,7 +13,6 @@ import '../../domain/entities/buy_category.dart';
 import '../../domain/entities/buy_regular.dart';
 import '../../domain/entities/featured_item.dart';
 import '../../domain/repositories/buy_repository.dart';
-import '../models/brand_review_model.dart';
 import '../datasources/local/app_database.dart';
 import '../datasources/remote/buy_remote_datasource.dart';
 
@@ -45,26 +44,34 @@ class BuyRepositoryImpl implements BuyRepository {
       // Cache to local DB
       final now = DateTime.now();
       final companions = models
-          .map((m) => LocalBuyCategoriesCompanion(
-                id: Value(m.id),
-                name: Value(m.name),
-                iconEmoji: Value(m.iconEmoji),
-                sortOrder: Value(m.sortOrder),
-                isActive: Value(m.isActive),
-                isComingSoon: Value(m.isComingSoon),
-                purchaseCategoryMapping: Value(m.purchaseCategoryMapping),
-                featureFlagKey: Value(m.featureFlagKey),
-                logoUrl: Value(m.logoUrl),
-                backgroundColor: Value(m.backgroundColor),
-                subcategoriesJson: Value(jsonEncode(m.subcategories
-                    .map((s) => {
+          .map(
+            (m) => LocalBuyCategoriesCompanion(
+              id: Value(m.id),
+              name: Value(m.name),
+              iconEmoji: Value(m.iconEmoji),
+              sortOrder: Value(m.sortOrder),
+              isActive: Value(m.isActive),
+              isComingSoon: Value(m.isComingSoon),
+              purchaseCategoryMapping: Value(m.purchaseCategoryMapping),
+              featureFlagKey: Value(m.featureFlagKey),
+              logoUrl: Value(m.logoUrl),
+              backgroundColor: Value(m.backgroundColor),
+              subcategoriesJson: Value(
+                jsonEncode(
+                  m.subcategories
+                      .map(
+                        (s) => {
                           'id': s.id,
                           'name': s.name,
                           'iconEmoji': s.iconEmoji,
-                        })
-                    .toList())),
-                syncedAt: Value(now),
-              ))
+                        },
+                      )
+                      .toList(),
+                ),
+              ),
+              syncedAt: Value(now),
+            ),
+          )
           .toList();
       await _database.upsertBuyCategories(companions);
 
@@ -78,28 +85,28 @@ class BuyRepositoryImpl implements BuyRepository {
   Future<Either<Failure, List<BuyCategory>>> getCachedCategories() async {
     try {
       final localRows = await _database.getAllBuyCategories();
-      final entities = localRows
-          .map((row) {
-            final subsJson = jsonDecode(row.subcategoriesJson) as List;
-            final subs = subsJson
-                .map((s) => BuySubcategory.fromJson(
-                    Map<String, dynamic>.from(s as Map)))
-                .toList();
-            return BuyCategory(
-              id: row.id,
-              name: row.name,
-              iconEmoji: row.iconEmoji,
-              sortOrder: row.sortOrder,
-              isActive: row.isActive,
-              isComingSoon: row.isComingSoon,
-              purchaseCategoryMapping: row.purchaseCategoryMapping,
-              featureFlagKey: row.featureFlagKey,
-              logoUrl: row.logoUrl,
-              backgroundColor: row.backgroundColor,
-              subcategories: subs,
-            );
-          })
-          .toList();
+      final entities = localRows.map((row) {
+        final subsJson = jsonDecode(row.subcategoriesJson) as List;
+        final subs = subsJson
+            .map(
+              (s) =>
+                  BuySubcategory.fromJson(Map<String, dynamic>.from(s as Map)),
+            )
+            .toList();
+        return BuyCategory(
+          id: row.id,
+          name: row.name,
+          iconEmoji: row.iconEmoji,
+          sortOrder: row.sortOrder,
+          isActive: row.isActive,
+          isComingSoon: row.isComingSoon,
+          purchaseCategoryMapping: row.purchaseCategoryMapping,
+          featureFlagKey: row.featureFlagKey,
+          logoUrl: row.logoUrl,
+          backgroundColor: row.backgroundColor,
+          subcategories: subs,
+        );
+      }).toList();
       return Right(entities);
     } catch (e) {
       return Left(Failure.cacheError(message: e.toString()));
@@ -117,21 +124,23 @@ class BuyRepositoryImpl implements BuyRepository {
       // Cache to local DB
       final now = DateTime.now();
       final companions = models
-          .map((m) => LocalBuyRegularsCompanion(
-                id: Value(m.id),
-                providerId: Value(m.providerId),
-                productId: Value(m.productId),
-                providerName: Value(m.providerName),
-                productName: Value(m.productName),
-                recipientNumber: Value(m.recipientNumber),
-                recipientLabel: Value(m.recipientLabel),
-                isPinned: Value(m.isPinned),
-                usageCount: Value(m.usageCount),
-                lastUsedAt: Value(m.lastUsedAt),
-                categoryEmoji: Value(m.categoryEmoji),
-                purchaseCategoryMapping: Value(m.purchaseCategoryMapping),
-                syncedAt: Value(now),
-              ))
+          .map(
+            (m) => LocalBuyRegularsCompanion(
+              id: Value(m.id),
+              providerId: Value(m.providerId),
+              productId: Value(m.productId),
+              providerName: Value(m.providerName),
+              productName: Value(m.productName),
+              recipientNumber: Value(m.recipientNumber),
+              recipientLabel: Value(m.recipientLabel),
+              isPinned: Value(m.isPinned),
+              usageCount: Value(m.usageCount),
+              lastUsedAt: Value(m.lastUsedAt),
+              categoryEmoji: Value(m.categoryEmoji),
+              purchaseCategoryMapping: Value(m.purchaseCategoryMapping),
+              syncedAt: Value(now),
+            ),
+          )
           .toList();
       await _database.upsertBuyRegulars(companions);
 
@@ -146,20 +155,22 @@ class BuyRepositoryImpl implements BuyRepository {
     try {
       final localRows = await _database.getBuyRegulars();
       final entities = localRows
-          .map((row) => BuyRegular(
-                id: row.id,
-                providerId: row.providerId,
-                productId: row.productId,
-                providerName: row.providerName,
-                productName: row.productName,
-                recipientNumber: row.recipientNumber,
-                recipientLabel: row.recipientLabel,
-                isPinned: row.isPinned,
-                usageCount: row.usageCount,
-                lastUsedAt: row.lastUsedAt,
-                categoryEmoji: row.categoryEmoji,
-                purchaseCategoryMapping: row.purchaseCategoryMapping,
-              ))
+          .map(
+            (row) => BuyRegular(
+              id: row.id,
+              providerId: row.providerId,
+              productId: row.productId,
+              providerName: row.providerName,
+              productName: row.productName,
+              recipientNumber: row.recipientNumber,
+              recipientLabel: row.recipientLabel,
+              isPinned: row.isPinned,
+              usageCount: row.usageCount,
+              lastUsedAt: row.lastUsedAt,
+              categoryEmoji: row.categoryEmoji,
+              purchaseCategoryMapping: row.purchaseCategoryMapping,
+            ),
+          )
           .toList();
       return Right(entities);
     } catch (e) {
@@ -178,28 +189,31 @@ class BuyRepositoryImpl implements BuyRepository {
       // Cache to local DB (all entity fields for offline parity)
       final now = DateTime.now();
       final companions = models
-          .map((m) => LocalFeaturedItemsCompanion(
-                id: Value(m.id),
-                title: Value(m.title),
-                subtitle: Value(m.subtitle),
-                imageUrl: Value(m.imageUrl),
-                type: Value(m.type),
-                deepLinkRoute: Value(m.deepLinkRoute),
-                isActive: Value(m.isActive),
-                sortOrder: Value(m.sortOrder),
-                bgGradientType: Value(m.bgGradientType),
-                brandId: Value(m.brandId),
-                communityIdsJson: Value(jsonEncode(m.communityIds)),
-                scheduledStart: Value(m.scheduledStart),
-                scheduledEnd: Value(m.scheduledEnd),
-                brandName: Value(m.brandName),
-                ctaText: Value(m.ctaText),
-                bgColorHex: Value(m.bgColorHex),
-                colorIntensity: Value(m.colorIntensity),
-                imageOpacity: Value(m.imageOpacity),
-                imageLayout: Value(m.imageLayout),
-                syncedAt: Value(now),
-              ))
+          .map(
+            (m) => LocalFeaturedItemsCompanion(
+              id: Value(m.id),
+              title: Value(m.title),
+              subtitle: Value(m.subtitle),
+              imageUrl: Value(m.imageUrl),
+              videoUrl: Value(m.videoUrl),
+              type: Value(m.type),
+              deepLinkRoute: Value(m.deepLinkRoute),
+              isActive: Value(m.isActive),
+              sortOrder: Value(m.sortOrder),
+              bgGradientType: Value(m.bgGradientType),
+              brandId: Value(m.brandId),
+              communityIdsJson: Value(jsonEncode(m.communityIds)),
+              scheduledStart: Value(m.scheduledStart),
+              scheduledEnd: Value(m.scheduledEnd),
+              brandName: Value(m.brandName),
+              ctaText: Value(m.ctaText),
+              bgColorHex: Value(m.bgColorHex),
+              colorIntensity: Value(m.colorIntensity),
+              imageOpacity: Value(m.imageOpacity),
+              imageLayout: Value(m.imageLayout),
+              syncedAt: Value(now),
+            ),
+          )
           .toList();
       await _database.upsertFeaturedItems(companions);
 
@@ -214,27 +228,30 @@ class BuyRepositoryImpl implements BuyRepository {
     try {
       final localRows = await _database.getFeaturedItems();
       final entities = localRows
-          .map((row) => FeaturedItem(
-                id: row.id,
-                title: row.title,
-                subtitle: row.subtitle,
-                imageUrl: row.imageUrl,
-                type: row.type,
-                deepLinkRoute: row.deepLinkRoute,
-                isActive: row.isActive,
-                sortOrder: row.sortOrder,
-                bgGradientType: row.bgGradientType,
-                brandId: row.brandId,
-                communityIds: _decodeCommunityIds(row.communityIdsJson),
-                scheduledStart: row.scheduledStart,
-                scheduledEnd: row.scheduledEnd,
-                brandName: row.brandName,
-                ctaText: row.ctaText,
-                bgColorHex: row.bgColorHex,
-                colorIntensity: row.colorIntensity,
-                imageOpacity: row.imageOpacity,
-                imageLayout: row.imageLayout,
-              ))
+          .map(
+            (row) => FeaturedItem(
+              id: row.id,
+              title: row.title,
+              subtitle: row.subtitle,
+              imageUrl: row.imageUrl,
+              videoUrl: row.videoUrl,
+              type: row.type,
+              deepLinkRoute: row.deepLinkRoute,
+              isActive: row.isActive,
+              sortOrder: row.sortOrder,
+              bgGradientType: row.bgGradientType,
+              brandId: row.brandId,
+              communityIds: _decodeCommunityIds(row.communityIdsJson),
+              scheduledStart: row.scheduledStart,
+              scheduledEnd: row.scheduledEnd,
+              brandName: row.brandName,
+              ctaText: row.ctaText,
+              bgColorHex: row.bgColorHex,
+              colorIntensity: row.colorIntensity,
+              imageOpacity: row.imageOpacity,
+              imageLayout: row.imageLayout,
+            ),
+          )
           .toList();
       return Right(entities);
     } catch (e) {
@@ -256,13 +273,13 @@ class BuyRepositoryImpl implements BuyRepository {
   }
 
   @override
-  Future<Either<Failure, BrandStorefront>> getBrandStorefront(
-      String id) async {
+  Future<Either<Failure, BrandStorefront>> getBrandStorefront(String id) async {
     try {
       final model = await _remoteDataSource.getBrandStorefront(id);
       if (model == null) {
         return const Left(
-            Failure.serverError(message: 'Brand storefront not found'));
+          Failure.serverError(message: 'Brand storefront not found'),
+        );
       }
       return Right(model.toEntity());
     } catch (e) {
@@ -274,7 +291,8 @@ class BuyRepositoryImpl implements BuyRepository {
 
   @override
   Future<Either<Failure, List<BrandProduct>>> getBrandProducts(
-      String brandId) async {
+    String brandId,
+  ) async {
     try {
       final models = await _remoteDataSource.getBrandProducts(brandId);
       final entities = models.map((m) => m.toEntity()).toList();
@@ -288,7 +306,8 @@ class BuyRepositoryImpl implements BuyRepository {
 
   @override
   Future<Either<Failure, List<BrandReview>>> getBrandReviews(
-      String brandId) async {
+    String brandId,
+  ) async {
     try {
       final models = await _remoteDataSource.getBrandReviews(brandId);
       final entities = models.map((m) => m.toEntity()).toList();
@@ -307,8 +326,9 @@ class BuyRepositoryImpl implements BuyRepository {
     String? comment,
   }) async {
     try {
-      final callable = FirebaseFunctions.instanceFor(region: 'africa-south1')
-          .httpsCallable('submitBrandReview');
+      final callable = FirebaseFunctions.instanceFor(
+        region: 'africa-south1',
+      ).httpsCallable('submitBrandReview');
 
       await callable.call<dynamic>({
         'brandId': brandId,
@@ -321,7 +341,8 @@ class BuyRepositoryImpl implements BuyRepository {
       return const Right(null);
     } on FirebaseFunctionsException catch (e) {
       return Left(
-          Failure.serverError(message: e.message ?? 'Failed to submit review'));
+        Failure.serverError(message: e.message ?? 'Failed to submit review'),
+      );
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -330,8 +351,13 @@ class BuyRepositoryImpl implements BuyRepository {
   // ============ MARKETPLACE STATS ============
 
   @override
-  Future<Either<Failure, ({int listingCount, int sellerCount, List<String> thumbnails})>>
-      getMarketplaceStats() async {
+  Future<
+    Either<
+      Failure,
+      ({int listingCount, int sellerCount, List<String> thumbnails})
+    >
+  >
+  getMarketplaceStats() async {
     try {
       final stats = await _remoteDataSource.getMarketplaceStats();
       return Right(stats);

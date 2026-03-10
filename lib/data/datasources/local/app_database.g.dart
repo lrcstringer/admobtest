@@ -12816,6 +12816,17 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _videoUrlMeta = const VerificationMeta(
+    'videoUrl',
+  );
+  @override
+  late final GeneratedColumn<String> videoUrl = GeneratedColumn<String>(
+    'video_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
@@ -13008,6 +13019,7 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
     title,
     subtitle,
     imageUrl,
+    videoUrl,
     type,
     deepLinkRoute,
     isActive,
@@ -13060,6 +13072,12 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
       context.handle(
         _imageUrlMeta,
         imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('video_url')) {
+      context.handle(
+        _videoUrlMeta,
+        videoUrl.isAcceptableOrUnknown(data['video_url']!, _videoUrlMeta),
       );
     }
     if (data.containsKey('type')) {
@@ -13212,6 +13230,10 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
         DriftSqlType.string,
         data['${effectivePrefix}image_url'],
       ),
+      videoUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}video_url'],
+      ),
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}type'],
@@ -13291,6 +13313,7 @@ class LocalFeaturedItem extends DataClass
   final String title;
   final String? subtitle;
   final String? imageUrl;
+  final String? videoUrl;
   final String type;
   final String? deepLinkRoute;
   final bool isActive;
@@ -13312,6 +13335,7 @@ class LocalFeaturedItem extends DataClass
     required this.title,
     this.subtitle,
     this.imageUrl,
+    this.videoUrl,
     required this.type,
     this.deepLinkRoute,
     required this.isActive,
@@ -13339,6 +13363,9 @@ class LocalFeaturedItem extends DataClass
     }
     if (!nullToAbsent || imageUrl != null) {
       map['image_url'] = Variable<String>(imageUrl);
+    }
+    if (!nullToAbsent || videoUrl != null) {
+      map['video_url'] = Variable<String>(videoUrl);
     }
     map['type'] = Variable<String>(type);
     if (!nullToAbsent || deepLinkRoute != null) {
@@ -13383,6 +13410,9 @@ class LocalFeaturedItem extends DataClass
       imageUrl: imageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(imageUrl),
+      videoUrl: videoUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(videoUrl),
       type: Value(type),
       deepLinkRoute: deepLinkRoute == null && nullToAbsent
           ? const Value.absent()
@@ -13426,6 +13456,7 @@ class LocalFeaturedItem extends DataClass
       title: serializer.fromJson<String>(json['title']),
       subtitle: serializer.fromJson<String?>(json['subtitle']),
       imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      videoUrl: serializer.fromJson<String?>(json['videoUrl']),
       type: serializer.fromJson<String>(json['type']),
       deepLinkRoute: serializer.fromJson<String?>(json['deepLinkRoute']),
       isActive: serializer.fromJson<bool>(json['isActive']),
@@ -13452,6 +13483,7 @@ class LocalFeaturedItem extends DataClass
       'title': serializer.toJson<String>(title),
       'subtitle': serializer.toJson<String?>(subtitle),
       'imageUrl': serializer.toJson<String?>(imageUrl),
+      'videoUrl': serializer.toJson<String?>(videoUrl),
       'type': serializer.toJson<String>(type),
       'deepLinkRoute': serializer.toJson<String?>(deepLinkRoute),
       'isActive': serializer.toJson<bool>(isActive),
@@ -13476,6 +13508,7 @@ class LocalFeaturedItem extends DataClass
     String? title,
     Value<String?> subtitle = const Value.absent(),
     Value<String?> imageUrl = const Value.absent(),
+    Value<String?> videoUrl = const Value.absent(),
     String? type,
     Value<String?> deepLinkRoute = const Value.absent(),
     bool? isActive,
@@ -13497,6 +13530,7 @@ class LocalFeaturedItem extends DataClass
     title: title ?? this.title,
     subtitle: subtitle.present ? subtitle.value : this.subtitle,
     imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    videoUrl: videoUrl.present ? videoUrl.value : this.videoUrl,
     type: type ?? this.type,
     deepLinkRoute: deepLinkRoute.present
         ? deepLinkRoute.value
@@ -13524,6 +13558,7 @@ class LocalFeaturedItem extends DataClass
       title: data.title.present ? data.title.value : this.title,
       subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
       imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      videoUrl: data.videoUrl.present ? data.videoUrl.value : this.videoUrl,
       type: data.type.present ? data.type.value : this.type,
       deepLinkRoute: data.deepLinkRoute.present
           ? data.deepLinkRoute.value
@@ -13568,6 +13603,7 @@ class LocalFeaturedItem extends DataClass
           ..write('title: $title, ')
           ..write('subtitle: $subtitle, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('videoUrl: $videoUrl, ')
           ..write('type: $type, ')
           ..write('deepLinkRoute: $deepLinkRoute, ')
           ..write('isActive: $isActive, ')
@@ -13589,11 +13625,12 @@ class LocalFeaturedItem extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     title,
     subtitle,
     imageUrl,
+    videoUrl,
     type,
     deepLinkRoute,
     isActive,
@@ -13610,7 +13647,7 @@ class LocalFeaturedItem extends DataClass
     imageOpacity,
     imageLayout,
     syncedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -13619,6 +13656,7 @@ class LocalFeaturedItem extends DataClass
           other.title == this.title &&
           other.subtitle == this.subtitle &&
           other.imageUrl == this.imageUrl &&
+          other.videoUrl == this.videoUrl &&
           other.type == this.type &&
           other.deepLinkRoute == this.deepLinkRoute &&
           other.isActive == this.isActive &&
@@ -13642,6 +13680,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
   final Value<String> title;
   final Value<String?> subtitle;
   final Value<String?> imageUrl;
+  final Value<String?> videoUrl;
   final Value<String> type;
   final Value<String?> deepLinkRoute;
   final Value<bool> isActive;
@@ -13664,6 +13703,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     this.title = const Value.absent(),
     this.subtitle = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.videoUrl = const Value.absent(),
     this.type = const Value.absent(),
     this.deepLinkRoute = const Value.absent(),
     this.isActive = const Value.absent(),
@@ -13687,6 +13727,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     required String title,
     this.subtitle = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.videoUrl = const Value.absent(),
     this.type = const Value.absent(),
     this.deepLinkRoute = const Value.absent(),
     this.isActive = const Value.absent(),
@@ -13712,6 +13753,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     Expression<String>? title,
     Expression<String>? subtitle,
     Expression<String>? imageUrl,
+    Expression<String>? videoUrl,
     Expression<String>? type,
     Expression<String>? deepLinkRoute,
     Expression<bool>? isActive,
@@ -13735,6 +13777,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
       if (title != null) 'title': title,
       if (subtitle != null) 'subtitle': subtitle,
       if (imageUrl != null) 'image_url': imageUrl,
+      if (videoUrl != null) 'video_url': videoUrl,
       if (type != null) 'type': type,
       if (deepLinkRoute != null) 'deep_link_route': deepLinkRoute,
       if (isActive != null) 'is_active': isActive,
@@ -13760,6 +13803,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     Value<String>? title,
     Value<String?>? subtitle,
     Value<String?>? imageUrl,
+    Value<String?>? videoUrl,
     Value<String>? type,
     Value<String?>? deepLinkRoute,
     Value<bool>? isActive,
@@ -13783,6 +13827,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
       title: title ?? this.title,
       subtitle: subtitle ?? this.subtitle,
       imageUrl: imageUrl ?? this.imageUrl,
+      videoUrl: videoUrl ?? this.videoUrl,
       type: type ?? this.type,
       deepLinkRoute: deepLinkRoute ?? this.deepLinkRoute,
       isActive: isActive ?? this.isActive,
@@ -13817,6 +13862,9 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     }
     if (imageUrl.present) {
       map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (videoUrl.present) {
+      map['video_url'] = Variable<String>(videoUrl.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -13879,6 +13927,7 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
           ..write('title: $title, ')
           ..write('subtitle: $subtitle, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('videoUrl: $videoUrl, ')
           ..write('type: $type, ')
           ..write('deepLinkRoute: $deepLinkRoute, ')
           ..write('isActive: $isActive, ')
@@ -20025,6 +20074,7 @@ typedef $$LocalFeaturedItemsTableCreateCompanionBuilder =
       required String title,
       Value<String?> subtitle,
       Value<String?> imageUrl,
+      Value<String?> videoUrl,
       Value<String> type,
       Value<String?> deepLinkRoute,
       Value<bool> isActive,
@@ -20049,6 +20099,7 @@ typedef $$LocalFeaturedItemsTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String?> subtitle,
       Value<String?> imageUrl,
+      Value<String?> videoUrl,
       Value<String> type,
       Value<String?> deepLinkRoute,
       Value<bool> isActive,
@@ -20094,6 +20145,11 @@ class $$LocalFeaturedItemsTableFilterComposer
 
   ColumnFilters<String> get imageUrl => $composableBuilder(
     column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get videoUrl => $composableBuilder(
+    column: $table.videoUrl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -20207,6 +20263,11 @@ class $$LocalFeaturedItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get videoUrl => $composableBuilder(
+    column: $table.videoUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -20308,6 +20369,9 @@ class $$LocalFeaturedItemsTableAnnotationComposer
 
   GeneratedColumn<String> get imageUrl =>
       $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get videoUrl =>
+      $composableBuilder(column: $table.videoUrl, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -20420,6 +20484,7 @@ class $$LocalFeaturedItemsTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String?> subtitle = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> videoUrl = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> deepLinkRoute = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
@@ -20442,6 +20507,7 @@ class $$LocalFeaturedItemsTableTableManager
                 title: title,
                 subtitle: subtitle,
                 imageUrl: imageUrl,
+                videoUrl: videoUrl,
                 type: type,
                 deepLinkRoute: deepLinkRoute,
                 isActive: isActive,
@@ -20466,6 +20532,7 @@ class $$LocalFeaturedItemsTableTableManager
                 required String title,
                 Value<String?> subtitle = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> videoUrl = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> deepLinkRoute = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
@@ -20488,6 +20555,7 @@ class $$LocalFeaturedItemsTableTableManager
                 title: title,
                 subtitle: subtitle,
                 imageUrl: imageUrl,
+                videoUrl: videoUrl,
                 type: type,
                 deepLinkRoute: deepLinkRoute,
                 isActive: isActive,

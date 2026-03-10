@@ -11,6 +11,9 @@ class FeaturedItem with _$FeaturedItem {
     required String title,
     String? subtitle,
     String? imageUrl,
+    /// Optional short looping video URL. When set, replaces the image on the card.
+    /// imageUrl still serves as poster/thumbnail while video loads.
+    String? videoUrl,
     /// Type: campaign, collectible, trending, promotion
     @Default('campaign') String type,
     /// GoRouter deep link path (e.g. /buy/category/airtime)

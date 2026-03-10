@@ -434,6 +434,65 @@ class _FeaturedContentManagementScreenState
     };
   }
 
+  VoidCallback _pickVideoFile(
+    BuildContext ctx,
+    StateSetter setInnerState,
+    void Function(Uint8List bytes, String name) onPicked,
+  ) {
+    return () async {
+      try {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['mp4', 'mov', 'webm'],
+          withData: true,
+        );
+        if (result != null && result.files.single.bytes != null) {
+          final bytes = result.files.single.bytes!;
+          if (bytes.lengthInBytes > 10 * 1024 * 1024) {
+            if (ctx.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Video must be under 10 MB')),
+              );
+            }
+            return;
+          }
+          setInnerState(() {
+            onPicked(bytes, result.files.single.name);
+          });
+        }
+      } catch (e) {
+        if (ctx.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to pick video: $e')),
+          );
+        }
+      }
+    };
+  }
+
+  Future<String?> _uploadFeaturedVideo(
+      String itemId, Uint8List videoBytes, String fileName) async {
+    final ext = fileName.split('.').last.toLowerCase();
+    final contentType = switch (ext) {
+      'mov' => 'video/quicktime',
+      'webm' => 'video/webm',
+      _ => 'video/mp4',
+    };
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('featured_videos')
+        .child('$itemId.$ext');
+
+    await ref.putData(
+      videoBytes,
+      SettableMetadata(contentType: contentType),
+    );
+
+    return ref.getDownloadURL();
+  }
+
   Future<String?> _uploadFeaturedImage(
       String itemId, Uint8List imageBytes) async {
     final resized =
@@ -479,6 +538,12 @@ class _FeaturedContentManagementScreenState
     Uint8List? pickedImageBytes;
     String? pickedImageName;
     var showManualUrl = false;
+
+    // Video upload state
+    Uint8List? pickedVideoBytes;
+    String? pickedVideoName;
+    final videoUrlCtrl = TextEditingController(
+        text: existing?['videoUrl'] as String? ?? '');
 
     // Custom background state
     var customColorHex = existing?['bgColorHex'] as String?;
@@ -738,6 +803,105 @@ class _FeaturedContentManagementScreenState
                       ),
                       const SizedBox(height: 12),
 
+                      // ── Video upload section ──
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceElevated,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.borderDark),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('Video (optional)',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary)),
+                                const SizedBox(width: 8),
+                                if (pickedVideoBytes != null ||
+                                    videoUrlCtrl.text.trim().isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.success
+                                          .withValues(alpha: 0.15),
+                                      borderRadius:
+                                          BorderRadius.circular(6),
+                                    ),
+                                    child: Text('Video set',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.success)),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Short looping video, no audio. Replaces the image on the card.',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textTertiary),
+                            ),
+                            const SizedBox(height: 8),
+                            if (pickedVideoName != null ||
+                                videoUrlCtrl.text.trim().isNotEmpty) ...[
+                              Row(
+                                children: [
+                                  const Icon(Icons.videocam,
+                                      size: 18,
+                                      color: AppColors.textSecondary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      pickedVideoName ??
+                                          videoUrlCtrl.text.trim(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline,
+                                        size: 18,
+                                        color: AppColors.error),
+                                    tooltip: 'Remove video',
+                                    onPressed: () => setInnerState(() {
+                                      pickedVideoBytes = null;
+                                      pickedVideoName = null;
+                                      videoUrlCtrl.clear();
+                                    }),
+                                  ),
+                                ],
+                              ),
+                            ] else
+                              OutlinedButton.icon(
+                                onPressed: _pickVideoFile(
+                                    ctx, setInnerState,
+                                    (bytes, name) {
+                                  pickedVideoBytes = bytes;
+                                  pickedVideoName = name;
+                                }),
+                                icon: const Icon(Icons.videocam_outlined,
+                                    size: 16),
+                                label:
+                                    const Text('Upload video (MP4, max 10 MB)'),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(0, 36),
+                                  side: const BorderSide(
+                                      color: AppColors.border),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       DropdownButtonFormField<String>(
                         initialValue: type,
                         decoration:
@@ -867,12 +1031,19 @@ class _FeaturedContentManagementScreenState
                               ? 'adminUpdateFeaturedItem'
                               : 'adminCreateFeaturedItem';
 
-                          // For edits with a picked image, upload first
+                          // For edits with picked media, upload first
                           String? uploadedImageUrl;
+                          String? uploadedVideoUrl;
                           if (pickedImageBytes != null && isEdit) {
                             uploadedImageUrl = await _uploadFeaturedImage(
                                 existing['id'] as String,
                                 pickedImageBytes!);
+                          }
+                          if (pickedVideoBytes != null && isEdit) {
+                            uploadedVideoUrl = await _uploadFeaturedVideo(
+                                existing['id'] as String,
+                                pickedVideoBytes!,
+                                pickedVideoName ?? 'video.mp4');
                           }
 
                           final data = <String, dynamic>{
@@ -885,6 +1056,10 @@ class _FeaturedContentManagementScreenState
                                 (imageUrlCtrl.text.trim().isEmpty
                                     ? null
                                     : imageUrlCtrl.text.trim()),
+                            'videoUrl': uploadedVideoUrl ??
+                                (videoUrlCtrl.text.trim().isEmpty
+                                    ? null
+                                    : videoUrlCtrl.text.trim()),
                             'type': type,
                             'bgGradientType': bgGradient,
                             'bgColorHex':
@@ -915,25 +1090,35 @@ class _FeaturedContentManagementScreenState
                                   .httpsCallable(fn)
                                   .call<dynamic>(data);
 
-                          // For creates with a picked image, upload after
-                          if (pickedImageBytes != null && !isEdit) {
+                          // For creates with picked media, upload after
+                          if ((!isEdit) &&
+                              (pickedImageBytes != null ||
+                                  pickedVideoBytes != null)) {
                             final resultData =
                                 result.data as Map<String, dynamic>?;
                             final newItemId =
                                 resultData?['itemId'] as String?;
                             if (newItemId != null) {
-                              uploadedImageUrl =
-                                  await _uploadFeaturedImage(
-                                      newItemId, pickedImageBytes!);
-                              // Update the item with the image URL
+                              final updates = <String, dynamic>{
+                                'itemId': newItemId,
+                              };
+                              if (pickedImageBytes != null) {
+                                updates['imageUrl'] =
+                                    await _uploadFeaturedImage(
+                                        newItemId, pickedImageBytes!);
+                              }
+                              if (pickedVideoBytes != null) {
+                                updates['videoUrl'] =
+                                    await _uploadFeaturedVideo(
+                                        newItemId,
+                                        pickedVideoBytes!,
+                                        pickedVideoName ?? 'video.mp4');
+                              }
                               await FirebaseFunctions.instanceFor(
                                       region: 'africa-south1')
                                   .httpsCallable(
                                       'adminUpdateFeaturedItem')
-                                  .call<dynamic>({
-                                'itemId': newItemId,
-                                'imageUrl': uploadedImageUrl,
-                              });
+                                  .call<dynamic>(updates);
                             }
                           }
 
