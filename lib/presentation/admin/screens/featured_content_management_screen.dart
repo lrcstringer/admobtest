@@ -1,7 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
 
 class FeaturedContentManagementScreen extends StatefulWidget {
@@ -42,7 +48,9 @@ class _FeaturedContentManagementScreenState
       final list = (data?['items'] as List<dynamic>?) ?? [];
       if (mounted) {
         setState(() {
-          _items = list.cast<Map<String, dynamic>>();
+          _items = list
+              .map((e) => Map<String, dynamic>.from(e as Map))
+              .toList();
           _isLoading = false;
         });
       }
@@ -135,6 +143,7 @@ class _FeaturedContentManagementScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 40),
                       ),
                       onPressed: () => _showItemDialog(null),
                     ),
@@ -244,7 +253,20 @@ class _FeaturedContentManagementScreenState
               color: AppColors.surfaceElevated,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(Icons.image, color: AppColors.textTertiary, size: 20),
+            clipBehavior: Clip.antiAlias,
+            child: (item['imageUrl'] as String?)?.isNotEmpty == true
+                ? Image.network(
+                    item['imageUrl'] as String,
+                    width: 60,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(
+                        Icons.broken_image,
+                        color: AppColors.textTertiary,
+                        size: 20),
+                  )
+                : const Icon(Icons.image,
+                    color: AppColors.textTertiary, size: 20),
           ),
           const SizedBox(width: 12),
           // Title + type
@@ -385,13 +407,67 @@ class _FeaturedContentManagementScreenState
     }
   }
 
+  VoidCallback _pickImageFile(
+    BuildContext ctx,
+    StateSetter setInnerState,
+    void Function(Uint8List bytes, String name) onPicked,
+  ) {
+    return () async {
+      try {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+          withData: true,
+        );
+        if (result != null && result.files.single.bytes != null) {
+          setInnerState(() {
+            onPicked(result.files.single.bytes!, result.files.single.name);
+          });
+        }
+      } catch (e) {
+        if (ctx.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to pick image: $e')),
+          );
+        }
+      }
+    };
+  }
+
+  Future<String?> _uploadFeaturedImage(
+      String itemId, Uint8List imageBytes) async {
+    final resized =
+        resizeImageForUpload(imageBytes, ImageResizeTarget.featuredImage);
+    if (resized == null) throw Exception('Failed to process image');
+
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('featured_images')
+        .child('$itemId.${resized.extension}');
+
+    await ref.putData(
+      resized.bytes,
+      SettableMetadata(contentType: resized.contentType),
+    );
+
+    return ref.getDownloadURL();
+  }
+
   void _showItemDialog(Map<String, dynamic>? existing) {
     final isEdit = existing != null;
     final formKey = GlobalKey<FormState>();
-    final titleCtrl = TextEditingController(text: existing?['title'] as String? ?? '');
-    final subtitleCtrl = TextEditingController(text: existing?['subtitle'] as String? ?? '');
-    final imageUrlCtrl = TextEditingController(text: existing?['imageUrl'] as String? ?? '');
-    final deepLinkCtrl = TextEditingController(text: existing?['deepLinkRoute'] as String? ?? '');
+    final titleCtrl =
+        TextEditingController(text: existing?['title'] as String? ?? '');
+    final subtitleCtrl =
+        TextEditingController(text: existing?['subtitle'] as String? ?? '');
+    final imageUrlCtrl =
+        TextEditingController(text: existing?['imageUrl'] as String? ?? '');
+    final brandNameCtrl = TextEditingController(
+        text: existing?['brandName'] as String? ?? '');
+    final ctaTextCtrl = TextEditingController(
+        text: existing?['ctaText'] as String? ?? '');
+    final deepLinkCtrl = TextEditingController(
+        text: existing?['deepLinkRoute'] as String? ?? '');
     final sortOrderCtrl = TextEditingController(
         text: (existing?['sortOrder'] ?? 0).toString());
     var type = existing?['type'] as String? ?? 'campaign';
@@ -399,13 +475,31 @@ class _FeaturedContentManagementScreenState
     var isActive = existing?['isActive'] as bool? ?? true;
     var saving = false;
 
+    // Image upload state
+    Uint8List? pickedImageBytes;
+    String? pickedImageName;
+    var showManualUrl = false;
+
+    // Custom background state
+    var customColorHex = existing?['bgColorHex'] as String?;
+    var colorIntensity =
+        (existing?['colorIntensity'] as num?)?.toDouble() ?? 0.4;
+    var imageOpacity =
+        (existing?['imageOpacity'] as num?)?.toDouble() ?? 0.3;
+    var imageLayout =
+        existing?['imageLayout'] as String? ?? 'right';
+
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
+          final hasImage = pickedImageBytes != null ||
+              imageUrlCtrl.text.trim().isNotEmpty;
+
           return AlertDialog(
             backgroundColor: AppColors.cardDark,
-            title: Text(isEdit ? 'Edit Featured Item' : 'Create Featured Item'),
+            title:
+                Text(isEdit ? 'Edit Featured Item' : 'Create Featured Item'),
             content: SizedBox(
               width: 480,
               child: Form(
@@ -416,52 +510,327 @@ class _FeaturedContentManagementScreenState
                     children: [
                       TextFormField(
                         controller: titleCtrl,
-                        decoration: const InputDecoration(labelText: 'Title *'),
+                        decoration:
+                            const InputDecoration(labelText: 'Title *'),
                         validator: (v) =>
                             v == null || v.isEmpty ? 'Required' : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: subtitleCtrl,
-                        decoration: const InputDecoration(labelText: 'Subtitle'),
+                        decoration:
+                            const InputDecoration(labelText: 'Subtitle'),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
-                        controller: imageUrlCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Image URL'),
+                        controller: brandNameCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Brand Name',
+                          hintText: 'e.g. VODACOM',
+                        ),
                       ),
                       const SizedBox(height: 12),
+                      TextFormField(
+                        controller: ctaTextCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'CTA Button Text',
+                          hintText: 'e.g. Claim with Sasaza',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // ── Image upload section ──
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceElevated,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.borderDark),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Image',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary)),
+                            const SizedBox(height: 8),
+                            if (hasImage) ...[
+                              // Image preview
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: pickedImageBytes != null
+                                    ? Image.memory(pickedImageBytes!,
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover)
+                                    : Image.network(
+                                        imageUrlCtrl.text.trim(),
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            Container(
+                                          height: 120,
+                                          color: AppColors.surface,
+                                          child: const Center(
+                                            child: Icon(Icons.broken_image,
+                                                color:
+                                                    AppColors.textTertiary),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                              if (pickedImageName != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(pickedImageName!,
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.textTertiary)),
+                                ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  OutlinedButton.icon(
+                                    onPressed: _pickImageFile(
+                                        ctx, setInnerState,
+                                        (bytes, name) {
+                                      pickedImageBytes = bytes;
+                                      pickedImageName = name;
+                                    }),
+                                    icon: const Icon(Icons.swap_horiz,
+                                        size: 16),
+                                    label: const Text('Change Image'),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(0, 36),
+                                      side: const BorderSide(
+                                          color: AppColors.border),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline,
+                                        size: 18, color: AppColors.error),
+                                    tooltip: 'Remove image',
+                                    onPressed: () => setInnerState(() {
+                                      pickedImageBytes = null;
+                                      pickedImageName = null;
+                                      imageUrlCtrl.clear();
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              // Image layout toggle
+                              Row(
+                                children: [
+                                  Text('Image Layout',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color:
+                                              AppColors.textSecondary)),
+                                  const Spacer(),
+                                  SegmentedButton<String>(
+                                    segments: const [
+                                      ButtonSegment(
+                                          value: 'right',
+                                          label: Text('Right Half',
+                                              style: TextStyle(
+                                                  fontSize: 11))),
+                                      ButtonSegment(
+                                          value: 'full',
+                                          label: Text('Full Card',
+                                              style: TextStyle(
+                                                  fontSize: 11))),
+                                    ],
+                                    selected: {imageLayout},
+                                    onSelectionChanged: (v) =>
+                                        setInnerState(() =>
+                                            imageLayout = v.first),
+                                    style: const ButtonStyle(
+                                      visualDensity:
+                                          VisualDensity.compact,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else ...[
+                              // Empty state — prominent upload area
+                              GestureDetector(
+                                onTap: _pickImageFile(ctx, setInnerState,
+                                    (bytes, name) {
+                                  pickedImageBytes = bytes;
+                                  pickedImageName = name;
+                                }),
+                                child: Container(
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColors.border,
+                                      style: BorderStyle.solid,
+                                    ),
+                                    color: AppColors.surface,
+                                  ),
+                                  child: const Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.cloud_upload_outlined,
+                                            size: 32,
+                                            color: AppColors.textSecondary),
+                                        SizedBox(height: 6),
+                                        Text('Click to upload image',
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: AppColors
+                                                    .textSecondary)),
+                                        SizedBox(height: 2),
+                                        Text(
+                                            'JPG, PNG, GIF, WebP — max 5 MB',
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors
+                                                    .textTertiary)),
+                                        SizedBox(height: 4),
+                                        Text(
+                                            'Full card: 700×360 · Right half: 320×360',
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors
+                                                    .textTertiary)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Center(
+                                child: TextButton.icon(
+                                  onPressed: () => setInnerState(
+                                      () => showManualUrl = !showManualUrl),
+                                  icon: Icon(
+                                      showManualUrl
+                                          ? Icons.expand_less
+                                          : Icons.link,
+                                      size: 16),
+                                  label: Text(showManualUrl
+                                      ? 'Hide URL field'
+                                      : 'Or paste an image URL'),
+                                ),
+                              ),
+                            ],
+                            if (showManualUrl) ...[
+                              const SizedBox(height: 8),
+                              TextFormField(
+                                controller: imageUrlCtrl,
+                                decoration: const InputDecoration(
+                                  labelText: 'Image URL',
+                                  hintText: 'https://...',
+                                ),
+                                onChanged: (_) => setInnerState(() {}),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       DropdownButtonFormField<String>(
                         initialValue: type,
-                        decoration: const InputDecoration(labelText: 'Type'),
-                        items: const [
-                          DropdownMenuItem(value: 'campaign', child: Text('Campaign')),
-                          DropdownMenuItem(value: 'collectible', child: Text('Collectible')),
-                          DropdownMenuItem(value: 'trending', child: Text('Trending')),
-                          DropdownMenuItem(value: 'promotion', child: Text('Promotion')),
-                        ],
-                        onChanged: (v) => setInnerState(() => type = v ?? type),
-                      ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        initialValue: bgGradient,
                         decoration:
-                            const InputDecoration(labelText: 'Background Gradient'),
+                            const InputDecoration(labelText: 'Type'),
                         items: const [
-                          DropdownMenuItem(value: 'goldOrange', child: Text('Gold Orange')),
-                          DropdownMenuItem(value: 'cyanBlue', child: Text('Cyan Blue')),
-                          DropdownMenuItem(value: 'pinkPurple', child: Text('Pink Purple')),
-                          DropdownMenuItem(value: 'logo', child: Text('Logo')),
+                          DropdownMenuItem(
+                              value: 'campaign',
+                              child: Text('Campaign')),
+                          DropdownMenuItem(
+                              value: 'collectible',
+                              child: Text('Collectible')),
+                          DropdownMenuItem(
+                              value: 'trending',
+                              child: Text('Trending')),
+                          DropdownMenuItem(
+                              value: 'promotion',
+                              child: Text('Promotion')),
                         ],
                         onChanged: (v) =>
-                            setInnerState(() => bgGradient = v ?? bgGradient),
+                            setInnerState(() => type = v ?? type),
                       ),
+                      const SizedBox(height: 16),
+
+                      // ── Background Style ──
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Background Style',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary)),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: SegmentedButton<bool>(
+                          segments: const [
+                            ButtonSegment(
+                                value: false,
+                                label: Text('Preset Gradient')),
+                            ButtonSegment(
+                                value: true, label: Text('Custom')),
+                          ],
+                          selected: {bgGradient == 'custom'},
+                          onSelectionChanged: (v) =>
+                              setInnerState(() {
+                            if (v.first) {
+                              bgGradient = 'custom';
+                            } else {
+                              bgGradient = 'goldOrange';
+                              customColorHex = null;
+                            }
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (bgGradient != 'custom')
+                        _buildPresetGradientPicker(
+                          bgGradient,
+                          (v) => setInnerState(() => bgGradient = v),
+                        )
+                      else
+                        _buildCustomBgControls(
+                          setInnerState: setInnerState,
+                          selectedColorHex: customColorHex,
+                          onColorSelected: (hex) =>
+                              setInnerState(
+                                  () => customColorHex = hex),
+                          colorIntensity: colorIntensity,
+                          onIntensityChanged: (v) =>
+                              setInnerState(
+                                  () => colorIntensity = v),
+                          imageOpacity: imageOpacity,
+                          onOpacityChanged: (v) =>
+                              setInnerState(
+                                  () => imageOpacity = v),
+                          hasImage: hasImage,
+                          imageLayout: imageLayout,
+                          title: titleCtrl.text,
+                          type: type,
+                          brandName: brandNameCtrl.text,
+                          ctaText: ctaTextCtrl.text,
+                          imageBytes: pickedImageBytes,
+                          imageUrl: imageUrlCtrl.text.trim(),
+                        ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: deepLinkCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Deep Link Route'),
+                        decoration: const InputDecoration(
+                          labelText: 'Link (route or URL)',
+                          helperText:
+                              'Internal: /buy/category/airtime  ·  External: https://example.com',
+                          helperMaxLines: 2,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -474,7 +843,8 @@ class _FeaturedContentManagementScreenState
                       SwitchListTile(
                         value: isActive,
                         title: const Text('Active'),
-                        onChanged: (v) => setInnerState(() => isActive = v),
+                        onChanged: (v) =>
+                            setInnerState(() => isActive = v),
                       ),
                     ],
                   ),
@@ -496,28 +866,77 @@ class _FeaturedContentManagementScreenState
                           final fn = isEdit
                               ? 'adminUpdateFeaturedItem'
                               : 'adminCreateFeaturedItem';
+
+                          // For edits with a picked image, upload first
+                          String? uploadedImageUrl;
+                          if (pickedImageBytes != null && isEdit) {
+                            uploadedImageUrl = await _uploadFeaturedImage(
+                                existing['id'] as String,
+                                pickedImageBytes!);
+                          }
+
                           final data = <String, dynamic>{
                             if (isEdit) 'itemId': existing['id'],
                             'title': titleCtrl.text.trim(),
                             'subtitle': subtitleCtrl.text.trim().isEmpty
                                 ? null
                                 : subtitleCtrl.text.trim(),
-                            'imageUrl': imageUrlCtrl.text.trim().isEmpty
-                                ? null
-                                : imageUrlCtrl.text.trim(),
+                            'imageUrl': uploadedImageUrl ??
+                                (imageUrlCtrl.text.trim().isEmpty
+                                    ? null
+                                    : imageUrlCtrl.text.trim()),
                             'type': type,
                             'bgGradientType': bgGradient,
-                            'deepLinkRoute': deepLinkCtrl.text.trim().isEmpty
+                            'bgColorHex':
+                                bgGradient == 'custom' ? customColorHex : null,
+                            'colorIntensity':
+                                bgGradient == 'custom' ? colorIntensity : 0.4,
+                            'imageOpacity':
+                                bgGradient == 'custom' ? imageOpacity : 0.3,
+                            'imageLayout': imageLayout,
+                            'brandName': brandNameCtrl.text.trim().isEmpty
                                 ? null
-                                : deepLinkCtrl.text.trim(),
+                                : brandNameCtrl.text.trim(),
+                            'ctaText': ctaTextCtrl.text.trim().isEmpty
+                                ? null
+                                : ctaTextCtrl.text.trim(),
+                            'deepLinkRoute':
+                                deepLinkCtrl.text.trim().isEmpty
+                                    ? null
+                                    : deepLinkCtrl.text.trim(),
                             'sortOrder':
                                 int.tryParse(sortOrderCtrl.text) ?? 0,
                             'isActive': isActive,
                           };
-                          await FirebaseFunctions.instanceFor(
-                                  region: 'africa-south1')
-                              .httpsCallable(fn)
-                              .call<dynamic>(data);
+
+                          final result =
+                              await FirebaseFunctions.instanceFor(
+                                      region: 'africa-south1')
+                                  .httpsCallable(fn)
+                                  .call<dynamic>(data);
+
+                          // For creates with a picked image, upload after
+                          if (pickedImageBytes != null && !isEdit) {
+                            final resultData =
+                                result.data as Map<String, dynamic>?;
+                            final newItemId =
+                                resultData?['itemId'] as String?;
+                            if (newItemId != null) {
+                              uploadedImageUrl =
+                                  await _uploadFeaturedImage(
+                                      newItemId, pickedImageBytes!);
+                              // Update the item with the image URL
+                              await FirebaseFunctions.instanceFor(
+                                      region: 'africa-south1')
+                                  .httpsCallable(
+                                      'adminUpdateFeaturedItem')
+                                  .call<dynamic>({
+                                'itemId': newItemId,
+                                'imageUrl': uploadedImageUrl,
+                              });
+                            }
+                          }
+
                           if (ctx.mounted) Navigator.of(ctx).pop();
                           _loadItems();
                         } catch (e) {
@@ -536,7 +955,8 @@ class _FeaturedContentManagementScreenState
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child:
+                            CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(isEdit ? 'Save' : 'Create'),
               ),
@@ -545,6 +965,509 @@ class _FeaturedContentManagementScreenState
         },
       ),
     );
+  }
+
+  // ── Preset gradient picker ──
+
+  Widget _buildPresetGradientPicker(
+    String selected,
+    ValueChanged<String> onChanged,
+  ) {
+    const presets = <(String, String, Color, Color)>[
+      ('Gold Orange', 'goldOrange', Color(0xFFFFB82C), Color(0xFFFF6429)),
+      ('Cyan Blue', 'cyanBlue', Color(0xFF08C2F4), Color(0xFF0974FF)),
+      ('Pink Purple', 'pinkPurple', Color(0xFFFF328C), Color(0xFFA011FF)),
+    ];
+
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: presets.map((p) {
+        final isSelected = selected == p.$2;
+        return Tooltip(
+          message: p.$1,
+          child: GestureDetector(
+            onTap: () => onChanged(p.$2),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [p.$3, p.$4],
+                ),
+                border: isSelected
+                    ? Border.all(color: Colors.white, width: 3)
+                    : null,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                            color: p.$3.withValues(alpha: 0.5),
+                            blurRadius: 8)
+                      ]
+                    : null,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ── Custom background controls ──
+
+  static String _colorToHex(Color c) =>
+      '#${c.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+
+  /// Parse a single color from the selectedColorHex string.
+  Color _parseColor(String? hex, [Color fallback = const Color(0xFFFFB82C)]) {
+    if (hex == null || hex.isEmpty) return fallback;
+    final single = hex.contains(',') ? hex.split(',').first.trim() : hex;
+    try {
+      return Color(int.parse(single.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  /// Parse the end color for gradients.
+  Color _parseEndColor(String? hex,
+      [Color fallback = const Color(0xFFFF6429)]) {
+    if (hex == null || !hex.contains(',')) return fallback;
+    final second = hex.split(',').last.trim();
+    try {
+      return Color(int.parse(second.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  Widget _buildColorButton(
+    BuildContext context, {
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Center(
+              child: Icon(Icons.edit, size: 16, color: Colors.white70),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11, color: AppColors.textSecondary)),
+        ],
+      ),
+    );
+  }
+
+  void _showColorPickerDialog(
+    BuildContext context,
+    Color initial,
+    ValueChanged<Color> onPicked,
+  ) {
+    var pickedColor = initial;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: const Text('Pick a Color'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: initial,
+            onColorChanged: (c) => pickedColor = c,
+            enableAlpha: false,
+            hexInputBar: true,
+            labelTypes: const [],
+            pickerAreaBorderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onPicked(pickedColor);
+              Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary),
+            child: const Text('Select'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomBgControls({
+    required void Function(VoidCallback) setInnerState,
+    required String? selectedColorHex,
+    required ValueChanged<String?> onColorSelected,
+    required double colorIntensity,
+    required ValueChanged<double> onIntensityChanged,
+    required double imageOpacity,
+    required ValueChanged<double> onOpacityChanged,
+    required bool hasImage,
+    required String imageLayout,
+    required String title,
+    required String type,
+    required String brandName,
+    required String ctaText,
+    required Uint8List? imageBytes,
+    required String imageUrl,
+  }) {
+    final isGradient = selectedColorHex?.contains(',') ?? false;
+    final startColor = _parseColor(selectedColorHex);
+    final endColor = _parseEndColor(selectedColorHex);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Live Preview ──
+          Text('Preview',
+              style:
+                  TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          const SizedBox(height: 8),
+          _buildPreviewCard(
+            colorHex: selectedColorHex,
+            intensity: colorIntensity,
+            imgOpacity: imageOpacity,
+            imgLayout: imageLayout,
+            title: title.isEmpty ? 'Card Title' : title,
+            type: type,
+            brandName: brandName,
+            ctaText: ctaText,
+            imageBytes: imageBytes,
+            imageUrl: imageUrl,
+          ),
+          const SizedBox(height: 16),
+
+          // ── Solid / Gradient toggle ──
+          Row(
+            children: [
+              Text('Color Type',
+                  style: TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary)),
+              const Spacer(),
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(
+                      value: false, label: Text('Solid')),
+                  ButtonSegment(
+                      value: true, label: Text('Gradient')),
+                ],
+                selected: {isGradient},
+                onSelectionChanged: (v) {
+                  if (v.first) {
+                    // Switch to gradient: duplicate current color
+                    final hex = _colorToHex(startColor);
+                    onColorSelected('$hex,$hex');
+                  } else {
+                    // Switch to solid: keep first color
+                    onColorSelected(_colorToHex(startColor));
+                  }
+                },
+                style: const ButtonStyle(
+                    visualDensity: VisualDensity.compact),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ── Color picker button(s) ──
+          Row(
+            children: [
+              _buildColorButton(
+                context,
+                label: isGradient ? 'Start' : 'Color',
+                color: startColor,
+                onTap: () => _showColorPickerDialog(
+                  context,
+                  startColor,
+                  (c) {
+                    final hex = _colorToHex(c);
+                    if (isGradient) {
+                      onColorSelected(
+                          '$hex,${_colorToHex(endColor)}');
+                    } else {
+                      onColorSelected(hex);
+                    }
+                  },
+                ),
+              ),
+              if (isGradient) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(Icons.arrow_forward,
+                      size: 16, color: AppColors.textTertiary),
+                ),
+                _buildColorButton(
+                  context,
+                  label: 'End',
+                  color: endColor,
+                  onTap: () => _showColorPickerDialog(
+                    context,
+                    endColor,
+                    (c) {
+                      onColorSelected(
+                          '${_colorToHex(startColor)},${_colorToHex(c)}');
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // ── Color Intensity slider ──
+          Row(
+            children: [
+              Text('Color Intensity',
+                  style: TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary)),
+              const Spacer(),
+              Text('${(colorIntensity * 100).round()}%',
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary)),
+            ],
+          ),
+          Slider(
+            value: colorIntensity,
+            min: 0.05,
+            max: 0.8,
+            divisions: 15,
+            activeColor: AppColors.primary,
+            onChanged: onIntensityChanged,
+          ),
+
+          // ── Image controls (only when image present) ──
+          if (hasImage) ...[
+            const SizedBox(height: 8),
+
+            // Image opacity slider
+            Row(
+              children: [
+                Text('Image Opacity',
+                    style: TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
+                const Spacer(),
+                Text('${(imageOpacity * 100).round()}%',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary)),
+              ],
+            ),
+            Slider(
+              value: imageOpacity,
+              min: 0.0,
+              max: 1.0,
+              divisions: 20,
+              activeColor: AppColors.primary,
+              onChanged: onOpacityChanged,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _hexToColor(String hex) {
+    return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+  }
+
+  Widget _buildPreviewCard({
+    required String? colorHex,
+    required double intensity,
+    required double imgOpacity,
+    required String imgLayout,
+    required String title,
+    required String type,
+    required String brandName,
+    required String ctaText,
+    required Uint8List? imageBytes,
+    required String imageUrl,
+  }) {
+    // Resolve colors
+    final List<Color> bgColors;
+    if (colorHex != null && colorHex.isNotEmpty) {
+      if (colorHex.contains(',')) {
+        final parts = colorHex.split(',');
+        bgColors =
+            parts.map((h) => _hexToColor(h.trim())).toList();
+      } else {
+        final c = _hexToColor(colorHex);
+        bgColors = [c, c];
+      }
+    } else {
+      bgColors = [const Color(0xFFFFB82C), const Color(0xFFFFB82C)];
+    }
+
+    final darkBg = [
+      Color.alphaBlend(
+          bgColors[0].withValues(alpha: intensity), const Color(0xFF0D0D0D)),
+      Color.alphaBlend(
+          bgColors[bgColors.length > 1 ? 1 : 0]
+              .withValues(alpha: intensity * 0.75),
+          const Color(0xFF0D0D0D)),
+    ];
+
+    final isFullImage = imgLayout == 'full';
+    final hasImg =
+        imageBytes != null || (imageUrl.isNotEmpty);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 160,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: darkBg,
+          ),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Image layer
+            if (hasImg)
+              Opacity(
+                opacity: imgOpacity,
+                child: isFullImage
+                    ? (imageBytes != null
+                        ? Image.memory(imageBytes,
+                            fit: BoxFit.contain)
+                        : Image.network(imageUrl,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) =>
+                                const SizedBox.shrink()))
+                    : Align(
+                        alignment: Alignment.centerRight,
+                        child: FractionallySizedBox(
+                          widthFactor: 0.4,
+                          child: imageBytes != null
+                              ? Image.memory(imageBytes,
+                                  fit: BoxFit.contain)
+                              : Image.network(imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) =>
+                                      const SizedBox.shrink()),
+                        ),
+                      ),
+              ),
+
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: _previewBadgeColor(type),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      type.toUpperCase(),
+                      style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  if (brandName.isNotEmpty)
+                    Text(
+                      brandName.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: bgColors[0],
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  const Spacer(),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                  ),
+                  if (ctaText.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFB82C),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        ctaText,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Color _previewBadgeColor(String type) {
+    switch (type) {
+      case 'promotion':
+        return const Color(0xFFFF6429);
+      case 'trending':
+        return const Color(0xFF08C2F4);
+      case 'collectible':
+        return const Color(0xFFA011FF);
+      default:
+        return const Color(0xFFFFB82C);
+    }
   }
 }
 

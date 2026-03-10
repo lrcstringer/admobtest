@@ -110,6 +110,13 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
 
+    // Featured content images (admin managed)
+    match /featured_images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
     // Earn videos (admin managed)
     match /earn_videos/{threadId}/{fileName} {
       allow read: if isAuthenticated();
@@ -130,6 +137,22 @@ service firebase.storage {
 
       // No deletion of engagement uploads
       allow delete: if false;
+    }
+
+    // Marketplace listing images (user-uploaded)
+    match /marketplace/listings/{listingId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && isValidImage();
+      allow delete: if false;
+    }
+
+    // Brand storefront assets (admin managed)
+    match /brand_assets/{storefrontId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin()
+        && isValidImage();
+      allow delete: if isAdmin();
     }
 
     // Deny all other paths

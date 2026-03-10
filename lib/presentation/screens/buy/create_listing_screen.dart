@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../domain/enums/marketplace_category.dart';
+import '../../../domain/repositories/marketplace_repository.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -25,6 +30,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   final _priceController = TextEditingController();
   final _locationController = TextEditingController();
   MarketplaceCategory? _selectedCategory;
+  final List<File> _selectedImages = [];
+  final _imagePicker = ImagePicker();
+  bool _isUploadingImages = false;
+
+  static const int _maxImages = 5;
 
   @override
   void dispose() {
@@ -242,7 +252,10 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                   child: AppButton(
                     text: 'Publish Listing',
                     variant: AppButtonVariant.primary,
-                    isLoading: state.isCreating,
+                    isLoading: state.isCreating || _isUploadingImages,
+                    loadingText: _isUploadingImages
+                        ? 'Uploading photos...'
+                        : 'Publishing...',
                     onPressed: _onSubmit,
                   ),
                 ),
@@ -255,33 +268,122 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   }
 
   Widget _buildImagePicker() {
-    return Container(
-      height: 100,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.add_photo_alternate_outlined,
-              color: AppColors.textHint,
-              size: 32,
-            ),
-            SizedBox(height: 4),
-            Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 110,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              // Selected images
+              ..._selectedImages.asMap().entries.map((entry) {
+                final index = entry.key;
+                final file = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.radiusSm),
+                        child: Image.file(
+                          file,
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() => _selectedImages.removeAt(index));
+                          },
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: const BoxDecoration(
+                              color: AppColors.error,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              // Add button
+              if (_selectedImages.length < _maxImages)
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.radiusSm),
+                      color: AppColors.surfaceElevated,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.add_photo_alternate_outlined,
+                          color: AppColors.textHint,
+                          size: 28,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${_selectedImages.length}/$_maxImages',
+                          style: const TextStyle(
+                            color: AppColors.textHint,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (_selectedImages.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Text(
               'Add up to 5 photos',
               style: TextStyle(color: AppColors.textHint, fontSize: 12),
             ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 
-  void _onSubmit() {
+  Future<void> _pickImage() async {
+    final picked = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+
+    final file = File(picked.path);
+    if (_selectedImages.length >= _maxImages) return;
+
+    setState(() => _selectedImages.add(file));
+  }
+
+  Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -293,13 +395,66 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       return;
     }
 
+    List<String> imageUrls = const [];
+
+    // Upload selected images first
+    if (_selectedImages.isNotEmpty) {
+      setState(() => _isUploadingImages = true);
+
+      try {
+        final repo = GetIt.I<MarketplaceRepository>();
+        // Generate a temporary listing ID for the storage path.
+        // The Cloud Function may assign a final ID, but these URLs remain valid.
+        final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+
+        final result = await repo.uploadListingImages(
+          imageFiles: _selectedImages,
+          listingId: tempId,
+        );
+
+        final uploadFailed = result.fold<bool>(
+          (_) {
+            if (!mounted) return true;
+            setState(() => _isUploadingImages = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to upload images'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            return true;
+          },
+          (urls) {
+            imageUrls = urls;
+            return false;
+          },
+        );
+        if (uploadFailed) return;
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isUploadingImages = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload images: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() => _isUploadingImages = false);
+    }
+
+    if (!mounted) return;
+
     context.read<MarketplaceBloc>().add(
           MarketplaceEvent.createListing(
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
             category: _selectedCategory!.name,
             priceTokens: int.parse(_priceController.text.trim()),
-            imageUrls: const [], // TODO: Image upload integration
+            imageUrls: imageUrls,
             location: _locationController.text.trim().isEmpty
                 ? null
                 : _locationController.text.trim(),

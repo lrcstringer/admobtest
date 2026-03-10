@@ -1,13 +1,19 @@
+import 'dart:convert';
+
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../core/error/failures.dart';
+import '../../domain/entities/brand_product.dart';
+import '../../domain/entities/brand_review.dart';
 import '../../domain/entities/brand_storefront.dart';
 import '../../domain/entities/buy_category.dart';
 import '../../domain/entities/buy_regular.dart';
 import '../../domain/entities/featured_item.dart';
 import '../../domain/repositories/buy_repository.dart';
+import '../models/brand_review_model.dart';
 import '../datasources/local/app_database.dart';
 import '../datasources/remote/buy_remote_datasource.dart';
 
@@ -17,6 +23,16 @@ class BuyRepositoryImpl implements BuyRepository {
   final AppDatabase _database;
 
   BuyRepositoryImpl(this._remoteDataSource, this._database);
+
+  /// Decode JSON-encoded community IDs list from Drift cache.
+  List<String> _decodeCommunityIds(String jsonStr) {
+    try {
+      final decoded = jsonDecode(jsonStr) as List<dynamic>;
+      return decoded.cast<String>();
+    } catch (_) {
+      return [];
+    }
+  }
 
   // ============ CATEGORIES ============
 
@@ -40,6 +56,13 @@ class BuyRepositoryImpl implements BuyRepository {
                 featureFlagKey: Value(m.featureFlagKey),
                 logoUrl: Value(m.logoUrl),
                 backgroundColor: Value(m.backgroundColor),
+                subcategoriesJson: Value(jsonEncode(m.subcategories
+                    .map((s) => {
+                          'id': s.id,
+                          'name': s.name,
+                          'iconEmoji': s.iconEmoji,
+                        })
+                    .toList())),
                 syncedAt: Value(now),
               ))
           .toList();
@@ -56,18 +79,26 @@ class BuyRepositoryImpl implements BuyRepository {
     try {
       final localRows = await _database.getAllBuyCategories();
       final entities = localRows
-          .map((row) => BuyCategory(
-                id: row.id,
-                name: row.name,
-                iconEmoji: row.iconEmoji,
-                sortOrder: row.sortOrder,
-                isActive: row.isActive,
-                isComingSoon: row.isComingSoon,
-                purchaseCategoryMapping: row.purchaseCategoryMapping,
-                featureFlagKey: row.featureFlagKey,
-                logoUrl: row.logoUrl,
-                backgroundColor: row.backgroundColor,
-              ))
+          .map((row) {
+            final subsJson = jsonDecode(row.subcategoriesJson) as List;
+            final subs = subsJson
+                .map((s) => BuySubcategory.fromJson(
+                    Map<String, dynamic>.from(s as Map)))
+                .toList();
+            return BuyCategory(
+              id: row.id,
+              name: row.name,
+              iconEmoji: row.iconEmoji,
+              sortOrder: row.sortOrder,
+              isActive: row.isActive,
+              isComingSoon: row.isComingSoon,
+              purchaseCategoryMapping: row.purchaseCategoryMapping,
+              featureFlagKey: row.featureFlagKey,
+              logoUrl: row.logoUrl,
+              backgroundColor: row.backgroundColor,
+              subcategories: subs,
+            );
+          })
           .toList();
       return Right(entities);
     } catch (e) {
@@ -144,7 +175,7 @@ class BuyRepositoryImpl implements BuyRepository {
       final models = await _remoteDataSource.getFeaturedItems();
       final entities = models.map((m) => m.toEntity()).toList();
 
-      // Cache to local DB
+      // Cache to local DB (all entity fields for offline parity)
       final now = DateTime.now();
       final companions = models
           .map((m) => LocalFeaturedItemsCompanion(
@@ -157,6 +188,16 @@ class BuyRepositoryImpl implements BuyRepository {
                 isActive: Value(m.isActive),
                 sortOrder: Value(m.sortOrder),
                 bgGradientType: Value(m.bgGradientType),
+                brandId: Value(m.brandId),
+                communityIdsJson: Value(jsonEncode(m.communityIds)),
+                scheduledStart: Value(m.scheduledStart),
+                scheduledEnd: Value(m.scheduledEnd),
+                brandName: Value(m.brandName),
+                ctaText: Value(m.ctaText),
+                bgColorHex: Value(m.bgColorHex),
+                colorIntensity: Value(m.colorIntensity),
+                imageOpacity: Value(m.imageOpacity),
+                imageLayout: Value(m.imageLayout),
                 syncedAt: Value(now),
               ))
           .toList();
@@ -183,6 +224,16 @@ class BuyRepositoryImpl implements BuyRepository {
                 isActive: row.isActive,
                 sortOrder: row.sortOrder,
                 bgGradientType: row.bgGradientType,
+                brandId: row.brandId,
+                communityIds: _decodeCommunityIds(row.communityIdsJson),
+                scheduledStart: row.scheduledStart,
+                scheduledEnd: row.scheduledEnd,
+                brandName: row.brandName,
+                ctaText: row.ctaText,
+                bgColorHex: row.bgColorHex,
+                colorIntensity: row.colorIntensity,
+                imageOpacity: row.imageOpacity,
+                imageLayout: row.imageLayout,
               ))
           .toList();
       return Right(entities);
@@ -214,6 +265,76 @@ class BuyRepositoryImpl implements BuyRepository {
             Failure.serverError(message: 'Brand storefront not found'));
       }
       return Right(model.toEntity());
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // ============ BRAND PRODUCTS ============
+
+  @override
+  Future<Either<Failure, List<BrandProduct>>> getBrandProducts(
+      String brandId) async {
+    try {
+      final models = await _remoteDataSource.getBrandProducts(brandId);
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Right(entities);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // ============ BRAND REVIEWS ============
+
+  @override
+  Future<Either<Failure, List<BrandReview>>> getBrandReviews(
+      String brandId) async {
+    try {
+      final models = await _remoteDataSource.getBrandReviews(brandId);
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Right(entities);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> submitBrandReview({
+    required String brandId,
+    required int qualityRating,
+    required int valueRating,
+    required int serviceRating,
+    String? comment,
+  }) async {
+    try {
+      final callable = FirebaseFunctions.instanceFor(region: 'africa-south1')
+          .httpsCallable('submitBrandReview');
+
+      await callable.call<dynamic>({
+        'brandId': brandId,
+        'qualityRating': qualityRating,
+        'valueRating': valueRating,
+        'serviceRating': serviceRating,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      });
+
+      return const Right(null);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(
+          Failure.serverError(message: e.message ?? 'Failed to submit review'));
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  // ============ MARKETPLACE STATS ============
+
+  @override
+  Future<Either<Failure, ({int listingCount, int sellerCount, List<String> thumbnails})>>
+      getMarketplaceStats() async {
+    try {
+      final stats = await _remoteDataSource.getMarketplaceStats();
+      return Right(stats);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

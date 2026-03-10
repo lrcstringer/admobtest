@@ -22,6 +22,9 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     on<_LoadMyGroupBuys>(_onLoadMyGroupBuys);
     on<_CreateGroupBuy>(_onCreateGroupBuy);
     on<_JoinGroupBuy>(_onJoinGroupBuy);
+    on<_LoadHubGroupBuys>(_onLoadHubGroupBuys);
+    on<_LeaveGroupBuy>(_onLeaveGroupBuy);
+    on<_SuggestDeal>(_onSuggestDeal);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -147,6 +150,75 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     );
   }
 
+  Future<void> _onLoadHubGroupBuys(
+    _LoadHubGroupBuys event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+    final result = await _repository.getHubGroupBuys(
+      userClusters: event.userClusters,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoading: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (groupBuys) => emit(state.copyWith(
+        isLoading: false,
+        hubGroupBuys: groupBuys,
+      )),
+    );
+  }
+
+  Future<void> _onLeaveGroupBuy(
+    _LeaveGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isLeaving) return;
+
+    emit(state.copyWith(isLeaving: true, errorMessage: null));
+    final result = await _repository.leaveGroupBuy(
+      groupBuyId: event.groupBuyId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLeaving: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isLeaving: false,
+        leaveSuccessMessage: 'You have left the group buy. Your contribution has been refunded.',
+      )),
+    );
+  }
+
+  Future<void> _onSuggestDeal(
+    _SuggestDeal event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isSuggestingDeal) return;
+
+    emit(state.copyWith(isSuggestingDeal: true, errorMessage: null));
+    final result = await _repository.suggestGroupBuyDeal(
+      description: event.description,
+      brandOrStore: event.brandOrStore,
+      estimatedPrice: event.estimatedPrice,
+      sourceUrl: event.sourceUrl,
+      imageUrl: event.imageUrl,
+      wantsToJoin: event.wantsToJoin,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isSuggestingDeal: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (id) => emit(state.copyWith(
+        isSuggestingDeal: false,
+        suggestSuccessId: id,
+      )),
+    );
+  }
+
   void _onClearMessages(
     _ClearMessages event,
     Emitter<GroupBuyState> emit,
@@ -155,6 +227,8 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       errorMessage: null,
       createSuccessId: null,
       joinSuccessMessage: null,
+      leaveSuccessMessage: null,
+      suggestSuccessId: null,
     ));
   }
 }

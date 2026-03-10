@@ -325,6 +325,8 @@ class LocalBuyCategories extends Table {
   TextColumn get featureFlagKey => text().nullable()();
   TextColumn get logoUrl => text().nullable()();
   TextColumn get backgroundColor => text().nullable()();
+  /// JSON-encoded list of subcategory objects: [{"id":"...","name":"...","iconEmoji":"..."}]
+  TextColumn get subcategoriesJson => text().withDefault(const Constant('[]'))();
   DateTimeColumn get syncedAt => dateTime()();
 
   @override
@@ -363,6 +365,20 @@ class LocalFeaturedItems extends Table {
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   TextColumn get bgGradientType =>
       text().withDefault(const Constant('goldOrange'))();
+  // Fields added in schema v12 for full entity parity
+  TextColumn get brandId => text().nullable()();
+  TextColumn get communityIdsJson => text().withDefault(const Constant('[]'))();
+  DateTimeColumn get scheduledStart => dateTime().nullable()();
+  DateTimeColumn get scheduledEnd => dateTime().nullable()();
+  TextColumn get brandName => text().nullable()();
+  TextColumn get ctaText => text().nullable()();
+  TextColumn get bgColorHex => text().nullable()();
+  RealColumn get colorIntensity =>
+      real().withDefault(const Constant(0.4))();
+  RealColumn get imageOpacity =>
+      real().withDefault(const Constant(0.3))();
+  TextColumn get imageLayout =>
+      text().withDefault(const Constant('right'))();
   DateTimeColumn get syncedAt => dateTime()();
 
   @override
@@ -407,7 +423,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {
@@ -457,6 +473,33 @@ class AppDatabase extends _$AppDatabase {
         if (from < 11) {
           await m.createTable(localBuyRegulars);
           await m.createTable(localFeaturedItems);
+        }
+        if (from < 12) {
+          // Add missing featured item fields for full entity parity
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.brandId);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.communityIdsJson);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.scheduledStart);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.scheduledEnd);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.brandName);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.ctaText);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.bgColorHex);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.colorIntensity);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.imageOpacity);
+          await m.addColumn(
+              localFeaturedItems, localFeaturedItems.imageLayout);
+        }
+        if (from < 13) {
+          await m.addColumn(
+              localBuyCategories, localBuyCategories.subcategoriesJson);
         }
       },
     );
@@ -800,18 +843,17 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
-  /// Delete all messages with permanent decryption failure sentinels.
+  /// Delete messages with temporary decryption failure sentinels so the sync
+  /// service will re-fetch them from Firestore and retry with restored keys.
   ///
-  /// Returns the number of deleted rows. After calling this, the message
-  /// sync service will re-fetch these messages from Firestore and retry
-  /// decryption (including vault recovery).
+  /// Only purges `[Cannot decrypt]` (temporary, retryable). Does NOT purge:
+  /// - `[Sent by you]` — permanent fallback for own messages after reinstall;
+  ///   purging these removes them permanently (backfill won't re-fetch).
+  /// - `[Session expired …]` — permanent; re-fetching won't help because the
+  ///   E2EE session keys are gone.
   Future<int> purgeUndecryptableMessages() {
     return (delete(localFullMessages)
-          ..where((m) =>
-              m.textContent.equals(
-                      '[Session expired — message cannot be recovered]') |
-                  m.textContent.equals('[Cannot decrypt]') |
-                  m.textContent.equals('[Sent by you]')))
+          ..where((m) => m.textContent.equals('[Cannot decrypt]')))
         .go();
   }
 

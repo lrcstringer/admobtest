@@ -15,10 +15,12 @@ class ResizedImage {
 enum ImageResizeTarget {
   clientLogo(200, 200),
   threadImage(400, 400),
-  opportunityImage(600, 400);
+  opportunityImage(600, 400),
+  featuredImage(800, 400, crop: false);
 
   final int width, height;
-  const ImageResizeTarget(this.width, this.height);
+  final bool crop;
+  const ImageResizeTarget(this.width, this.height, {this.crop = true});
 
   bool get isSquare => width == height;
 }
@@ -36,8 +38,24 @@ ResizedImage? resizeImageForUpload(Uint8List rawBytes, ImageResizeTarget target)
   if (target.isSquare) {
     // Square crop: scale so the shorter side matches, then center-crop
     resized = img.copyResizeCropSquare(decoded, size: target.width);
+  } else if (!target.crop) {
+    // Fit within bounds — scale down preserving aspect ratio, no cropping.
+    // Only downscale; if already smaller, keep original dimensions.
+    if (decoded.width <= target.width && decoded.height <= target.height) {
+      resized = decoded;
+    } else {
+      final scaleX = target.width / decoded.width;
+      final scaleY = target.height / decoded.height;
+      final scale = scaleX < scaleY ? scaleX : scaleY;
+      resized = img.copyResize(
+        decoded,
+        width: (decoded.width * scale).round(),
+        height: (decoded.height * scale).round(),
+        interpolation: img.Interpolation.linear,
+      );
+    }
   } else {
-    // Non-square: scale-to-cover then center-crop
+    // Non-square with crop: scale-to-cover then center-crop
     final srcAspect = decoded.width / decoded.height;
     final targetAspect = target.width / target.height;
 

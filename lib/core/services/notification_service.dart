@@ -20,6 +20,14 @@ const _communityChannelId = 'community_messages';
 const _communityChannelName = 'Community Messages';
 const _communityChannelDesc = 'Notifications for new community messages';
 
+const _marketplaceChannelId = 'marketplace';
+const _marketplaceChannelName = 'Marketplace';
+const _marketplaceChannelDesc = 'Notifications for marketplace orders and updates';
+
+const _groupBuyChannelId = 'group_buy';
+const _groupBuyChannelName = 'Group Buys';
+const _groupBuyChannelDesc = 'Notifications for group buy milestones';
+
 const _defaultChannelId = 'high_importance_channel';
 const _defaultChannelName = 'General';
 const _defaultChannelDesc = 'General notifications';
@@ -109,6 +117,22 @@ class NotificationService {
           _communityChannelId,
           _communityChannelName,
           description: _communityChannelDesc,
+          importance: Importance.high,
+        ),
+      );
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          _marketplaceChannelId,
+          _marketplaceChannelName,
+          description: _marketplaceChannelDesc,
+          importance: Importance.high,
+        ),
+      );
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          _groupBuyChannelId,
+          _groupBuyChannelName,
+          description: _groupBuyChannelDesc,
           importance: Importance.high,
         ),
       );
@@ -262,6 +286,14 @@ class NotificationService {
       case 'stokvel_payout':
         channelId = _communityChannelId;
         channelName = _communityChannelName;
+      case 'marketplace_order':
+      case 'marketplace_dispute':
+      case 'provider_status':
+        channelId = _marketplaceChannelId;
+        channelName = _marketplaceChannelName;
+      case 'group_buy_milestone':
+        channelId = _groupBuyChannelId;
+        channelName = _groupBuyChannelName;
       default:
         channelId = _defaultChannelId;
         channelName = _defaultChannelName;
@@ -346,6 +378,23 @@ class NotificationService {
         final communityId = data['communityId'] as String?;
         if (communityId != null) {
           router.go('/chat/community/$communityId');
+        }
+      case 'marketplace_order':
+      case 'marketplace_dispute':
+        final orderId = data['orderId'] as String?;
+        if (orderId != null) {
+          router.go('/buy/marketplace/orders/$orderId');
+        } else {
+          router.go('/buy/marketplace/orders');
+        }
+      case 'provider_status':
+        router.go('/buy/marketplace');
+      case 'group_buy_milestone':
+        final groupBuyId = data['groupBuyId'] as String?;
+        if (groupBuyId != null) {
+          router.go('/buy/group-buys/$groupBuyId');
+        } else {
+          router.go('/buy/group-buys');
         }
       default:
         router.go('/chat');

@@ -261,6 +261,40 @@ service cloud.firestore {
 
       // Brand storefronts are managed by admin Cloud Functions only
       allow create, update, delete: if false;
+
+      // Brand products subcollection (admin-configured per brand)
+      match /products/{productId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Brand products collection
+    match /brandProducts/{productId} {
+      // Authenticated users can read brand products
+      allow read: if isAuthenticated();
+
+      // Products are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Brand reviews collection
+    match /brandReviews/{reviewId} {
+      // Authenticated users can read non-removed reviews
+      allow read: if isAuthenticated();
+
+      // Reviews are submitted/edited via Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Group buy deal suggestions
+    match /groupBuyRequests/{requestId} {
+      // Users can read their own suggestions
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+
+      // Suggestions are submitted via Cloud Functions only
+      allow create, update, delete: if false;
     }
 
     // Marketplace providers collection
@@ -374,7 +408,7 @@ service cloud.firestore {
       allow update: if isAuthenticated()
         && resource.data.userId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['recoveryKeyBlob', 'recoveryKeyIv']);
+             .hasOnly(['recoveryKeyBlob', 'recoveryKeyIv', 'recoveryKeyDirect']);
       allow create, delete: if false;
     }
 
@@ -926,6 +960,17 @@ service cloud.firestore {
     // =========================================================================
 
     match /{path=**}/members/{memberId} {
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // =========================================================================
+    // COLLECTION GROUP: contributions
+    // Allows collectionGroup('contributions') queries for getMyGroupBuys().
+    // A user can read any contribution doc where they are the contributor.
+    // =========================================================================
+
+    match /{path=**}/contributions/{contributionId} {
       allow read: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
     }

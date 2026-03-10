@@ -112,6 +112,7 @@ class UserRepositoryImpl implements UserRepository {
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? selectedClusters,
   }) async {
     if (!await _networkInfo.isConnected) {
       return const Left(Failure.network());
@@ -138,6 +139,7 @@ class UserRepositoryImpl implements UserRepository {
         city: city ?? currentUserModel.city,
         firstName: firstName ?? currentUserModel.firstName,
         lastName: lastName ?? currentUserModel.lastName,
+        selectedClusters: selectedClusters ?? currentUserModel.selectedClusters,
         updatedAt: DateTime.now(),
       );
 

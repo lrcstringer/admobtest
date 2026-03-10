@@ -30,6 +30,26 @@ class GroupBuyEvent with _$GroupBuyEvent {
     required String walletId,
   }) = _JoinGroupBuy;
 
+  /// Load admin-curated group buys for the hub (Buy tab)
+  const factory GroupBuyEvent.loadHubGroupBuys({
+    @Default([]) List<String> userClusters,
+  }) = _LoadHubGroupBuys;
+
+  /// Leave a group buy (refund contribution)
+  const factory GroupBuyEvent.leaveGroupBuy({
+    required String groupBuyId,
+  }) = _LeaveGroupBuy;
+
+  /// Submit a deal suggestion for admin review
+  const factory GroupBuyEvent.suggestDeal({
+    required String description,
+    required String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    @Default(true) bool wantsToJoin,
+  }) = _SuggestDeal;
+
   /// Clear success/error messages
   const factory GroupBuyEvent.clearMessages() = _ClearMessages;
 }

@@ -12,6 +12,7 @@ import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/buy/cluster_picker_sheet.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/wave_background.dart';
@@ -32,6 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedGender;
   String? _selectedProvince;
   DateTime? _dateOfBirth;
+  List<String> _selectedClusters = [];
   bool _isLoading = false;
   bool _isUploadingAvatar = false;
   String? _pendingAvatarUrl;
@@ -60,6 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _selectedGender = user?.profile?.gender;
     _selectedProvince = user?.profile?.province;
     _dateOfBirth = user?.profile?.dateOfBirth;
+    _selectedClusters = user?.profile?.selectedClusters ?? [];
   }
 
   @override
@@ -261,6 +264,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 textCapitalization: TextCapitalization.words,
               ),
+              AppSpacing.verticalMd,
+
+              // My Areas (for Group Buy matching)
+              InkWell(
+                onTap: () async {
+                  final result = await ClusterPickerSheet.show(
+                    context,
+                    initialSelection: _selectedClusters,
+                  );
+                  if (result != null) {
+                    setState(() => _selectedClusters = result);
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'My Areas (Group Buys)',
+                    prefixIcon: Icon(Icons.location_on),
+                    suffixIcon: Icon(Icons.chevron_right),
+                  ),
+                  child: Text(
+                    _selectedClusters.isEmpty
+                        ? 'Select areas for group buy deals'
+                        : '${_selectedClusters.length} area${_selectedClusters.length != 1 ? 's' : ''} selected',
+                    style: TextStyle(
+                      color: _selectedClusters.isEmpty
+                          ? AppColors.textSecondary
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
               AppSpacing.verticalXl,
 
               // Save Button
@@ -379,6 +413,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         city: _cityController.text.isNotEmpty ? _cityController.text : null,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
+        selectedClusters: _selectedClusters.isNotEmpty ? _selectedClusters : null,
       );
 
       result.fold(

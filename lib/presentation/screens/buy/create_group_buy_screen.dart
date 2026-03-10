@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../blocs/group_buy/group_buy_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 
-/// Form screen to create a new community-organized group buy (Hlangana deal).
+/// Form screen for users to suggest a group buy deal for admin review.
+///
+/// Previously "Create Hlangana Deal" — repurposed because group buys
+/// are now admin-curated. Users suggest deals, admins create them.
 class CreateGroupBuyScreen extends StatefulWidget {
   const CreateGroupBuyScreen({super.key});
 
@@ -18,21 +20,18 @@ class CreateGroupBuyScreen extends StatefulWidget {
 
 class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _targetAmountController = TextEditingController();
-  final _minParticipantsController = TextEditingController(text: '2');
-  final _maxParticipantsController = TextEditingController();
-
-  DateTime? _deadline;
+  final _brandOrStoreController = TextEditingController();
+  final _estimatedPriceController = TextEditingController();
+  final _sourceUrlController = TextEditingController();
+  bool _wantsToJoin = true;
 
   @override
   void dispose() {
-    _titleController.dispose();
     _descriptionController.dispose();
-    _targetAmountController.dispose();
-    _minParticipantsController.dispose();
-    _maxParticipantsController.dispose();
+    _brandOrStoreController.dispose();
+    _estimatedPriceController.dispose();
+    _sourceUrlController.dispose();
     super.dispose();
   }
 
@@ -40,13 +39,13 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<GroupBuyBloc, GroupBuyState>(
       listenWhen: (prev, curr) =>
-          prev.createSuccessId != curr.createSuccessId ||
+          prev.suggestSuccessId != curr.suggestSuccessId ||
           prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
-        if (state.createSuccessId != null) {
+        if (state.suggestSuccessId != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Hlangana deal created!'),
+              content: Text('Deal suggestion submitted! We\'ll review it shortly.'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -70,7 +69,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Create Hlangana Deal'),
+            title: const Text('Suggest a Deal'),
             backgroundColor: AppColors.surface,
           ),
           body: SingleChildScrollView(
@@ -93,12 +92,13 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.groups,
+                        const Icon(Icons.lightbulb_outline,
                             color: AppColors.secondary, size: 20),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
-                            'Pool funds together with your community to unlock bulk deals!',
+                            'Suggest a product or deal you\'d like to buy together. '
+                            'Our team will review it and set up a group buy if there\'s enough interest!',
                             style: TextStyle(
                               color: AppColors.secondary,
                               fontSize: 12,
@@ -110,48 +110,44 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Title
-                  _buildLabel('Deal Title'),
+                  // Brand / Store
+                  _buildLabel('Brand or Store'),
                   const SizedBox(height: AppSpacing.xs),
                   _buildTextField(
-                    controller: _titleController,
-                    hint: 'e.g. Bulk Rice 25kg - Khayelitsha',
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Title is required' : null,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Description
-                  _buildLabel('Description'),
-                  const SizedBox(height: AppSpacing.xs),
-                  _buildTextField(
-                    controller: _descriptionController,
-                    hint: 'What are we buying together?',
-                    maxLines: 3,
-                    validator: (v) => v == null || v.isEmpty
-                        ? 'Description is required'
+                    controller: _brandOrStoreController,
+                    hint: 'e.g. Makro, PnP, Shoprite',
+                    validator: (v) => v == null || v.trim().length < 2
+                        ? 'Brand or store name is required'
                         : null,
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Target amount
-                  _buildLabel('Target Amount (tokens)'),
+                  // Description
+                  _buildLabel('What do you want to buy?'),
                   const SizedBox(height: AppSpacing.xs),
                   _buildTextField(
-                    controller: _targetAmountController,
+                    controller: _descriptionController,
+                    hint: 'e.g. 25kg rice bags at bulk price, '
+                        'or 12-pack cooking oil at wholesale rate',
+                    maxLines: 3,
+                    validator: (v) => v == null || v.trim().length < 10
+                        ? 'Please describe the deal (at least 10 characters)'
+                        : null,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Estimated price
+                  _buildLabel('Estimated Price (tokens, optional)'),
+                  const SizedBox(height: AppSpacing.xs),
+                  _buildTextField(
+                    controller: _estimatedPriceController,
                     hint: 'e.g. 5000',
                     keyboardType: TextInputType.number,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Amount is required';
-                      final n = int.tryParse(v);
-                      if (n == null || n <= 0) return 'Enter a valid amount';
-                      return null;
-                    },
                   ),
-                  if (_targetAmountController.text.isNotEmpty) ...[
+                  if (_estimatedPriceController.text.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      '= R${((int.tryParse(_targetAmountController.text) ?? 0) / 100).toStringAsFixed(2)}',
+                      '= R${((int.tryParse(_estimatedPriceController.text) ?? 0) / 100).toStringAsFixed(2)}',
                       style: const TextStyle(
                         color: AppColors.textHint,
                         fontSize: 11,
@@ -160,80 +156,45 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                   ],
                   const SizedBox(height: AppSpacing.md),
 
-                  // Deadline
-                  _buildLabel('Deadline'),
+                  // Source URL
+                  _buildLabel('Link to product (optional)'),
                   const SizedBox(height: AppSpacing.xs),
-                  GestureDetector(
-                    onTap: _pickDeadline,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius:
-                            BorderRadius.circular(AppSpacing.radiusSm),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Text(
-                        _deadline != null
-                            ? DateFormat('dd MMM yyyy, HH:mm')
-                                .format(_deadline!)
-                            : 'Tap to pick deadline',
-                        style: TextStyle(
-                          color: _deadline != null
-                              ? AppColors.textPrimary
-                              : AppColors.textHint,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
+                  _buildTextField(
+                    controller: _sourceUrlController,
+                    hint: 'https://...',
+                    keyboardType: TextInputType.url,
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Participant limits
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLabel('Min Participants'),
-                            const SizedBox(height: AppSpacing.xs),
-                            _buildTextField(
-                              controller: _minParticipantsController,
-                              hint: '2',
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                        ),
+                  // Wants to join toggle
+                  SwitchListTile.adaptive(
+                    value: _wantsToJoin,
+                    onChanged: (v) => setState(() => _wantsToJoin = v),
+                    title: const Text(
+                      'I want to be first to join',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildLabel('Max Participants'),
-                            const SizedBox(height: AppSpacing.xs),
-                            _buildTextField(
-                              controller: _maxParticipantsController,
-                              hint: 'Unlimited',
-                              keyboardType: TextInputType.number,
-                            ),
-                          ],
-                        ),
+                    ),
+                    subtitle: const Text(
+                      'We\'ll notify you when the deal goes live',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
                       ),
-                    ],
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: AppColors.primary,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
-                  // Create button
+                  // Submit button
                   AppButton(
-                    text: 'Create Deal',
-                    isLoading: state.isCreating,
-                    loadingText: 'Creating...',
+                    text: 'Submit Suggestion',
+                    isLoading: state.isSuggestingDeal,
+                    loadingText: 'Submitting...',
                     onPressed: _onSubmit,
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -297,65 +258,24 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
         ),
       ),
       onChanged: (_) {
-        if (controller == _targetAmountController) setState(() {});
+        if (controller == _estimatedPriceController) setState(() {});
       },
     );
-  }
-
-  Future<void> _pickDeadline() async {
-    final now = DateTime.now();
-    final date = await showDatePicker(
-      context: context,
-      initialDate: now.add(const Duration(days: 7)),
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 90)),
-    );
-    if (date == null || !mounted) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: const TimeOfDay(hour: 18, minute: 0),
-    );
-    if (time == null || !mounted) return;
-
-    setState(() {
-      _deadline = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
   }
 
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_deadline == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please pick a deadline'),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      return;
-    }
-
-    final targetAmount = int.parse(_targetAmountController.text);
-    final minParticipants =
-        int.tryParse(_minParticipantsController.text) ?? 2;
-    final maxParticipants =
-        int.tryParse(_maxParticipantsController.text);
+    final estimatedPrice = int.tryParse(_estimatedPriceController.text);
+    final sourceUrl = _sourceUrlController.text.trim();
 
     context.read<GroupBuyBloc>().add(
-          GroupBuyEvent.createGroupBuy(
-            title: _titleController.text.trim(),
+          GroupBuyEvent.suggestDeal(
             description: _descriptionController.text.trim(),
-            targetAmount: targetAmount,
-            deadline: _deadline!,
-            minParticipants: minParticipants,
-            maxParticipants: maxParticipants,
+            brandOrStore: _brandOrStoreController.text.trim(),
+            estimatedPrice: estimatedPrice,
+            sourceUrl: sourceUrl.isNotEmpty ? sourceUrl : null,
+            wantsToJoin: _wantsToJoin,
           ),
         );
   }

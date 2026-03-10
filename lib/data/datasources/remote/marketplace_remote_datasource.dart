@@ -159,7 +159,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
   @override
   Future<MarketplaceProviderModel?> getProvider(String id) async {
     final doc =
-        await _firestore.collection('marketplaceProviders').doc(id).get();
+        await _firestore.collection('providers').doc(id).get();
     if (!doc.exists) return null;
     final data = doc.data()!;
     data['id'] = doc.id;

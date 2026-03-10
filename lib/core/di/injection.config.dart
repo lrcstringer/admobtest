@@ -333,6 +333,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i191.RewardRepository>(
       () => _i905.RewardRepositoryImpl(gh<_i366.RewardRemoteDataSource>()),
     );
+    gh.lazySingleton<_i631.MarketplaceRepository>(
+      () => _i199.MarketplaceRepositoryImpl(
+        gh<_i399.MarketplaceRemoteDataSource>(),
+        gh<_i654.MediaUploadDatasource>(),
+      ),
+    );
     gh.lazySingleton<_i749.GamificationRemoteDataSource>(
       () => _i749.GamificationRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -385,11 +391,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i50.UserRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
         gh<_i483.AppDatabase>(),
-      ),
-    );
-    gh.lazySingleton<_i631.MarketplaceRepository>(
-      () => _i199.MarketplaceRepositoryImpl(
-        gh<_i399.MarketplaceRemoteDataSource>(),
       ),
     );
     gh.lazySingleton<_i108.CallAnalyticsService>(

@@ -37,4 +37,25 @@ abstract class GroupBuyRepository {
     required int amount,
     required String walletId,
   });
+
+  /// Get admin-curated group buys for the hub
+  /// Digital deals shown to all, physical deals filtered by user clusters
+  Future<Either<Failure, List<GroupBuy>>> getHubGroupBuys({
+    List<String> userClusters = const [],
+  });
+
+  /// Leave a group buy (refunds contribution)
+  Future<Either<Failure, void>> leaveGroupBuy({
+    required String groupBuyId,
+  });
+
+  /// Submit a deal suggestion for admin review
+  Future<Either<Failure, String>> suggestGroupBuyDeal({
+    required String description,
+    required String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    bool wantsToJoin = true,
+  });
 }

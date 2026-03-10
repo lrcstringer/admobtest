@@ -146,6 +146,7 @@ dependencies:
   flutter_callkit_incoming: ^3.0.0
   wakelock_plus: ^1.4.0
   app_settings: ^7.0.0
+  flutter_colorpicker: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -174,6 +175,23 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/buy/
+    - assets/icons/buy/personal-care-beauty/
+    - assets/icons/buy/home-maintenance-trades/
+    - assets/icons/buy/outdoor-services/
+    - assets/icons/buy/cleaning-household/
+    - assets/icons/buy/moving-transport/
+    - assets/icons/buy/childcare-caregiving/
+    - assets/icons/buy/pet-services/
+    - assets/icons/buy/education-tutoring/
+    - assets/icons/buy/creative-media/
+    - assets/icons/buy/fitness-health/
+    - assets/icons/buy/professional-services/
+    - assets/icons/buy/medical/
+    - assets/icons/buy/repairs-technical/
+    - assets/icons/buy/clothing/
+    - assets/icons/buy/events/
+    - assets/icons/buy/labour/
     - assets/animations/
     - assets/botton_nav_bar_icons/
     - assets/video/

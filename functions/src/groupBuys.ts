@@ -141,11 +141,17 @@ export const joinGroupBuy = onCall(
     }
 
     // Pre-validate wallet balance before entering transaction
-    const subAccount = await getSubAccount(userId, walletId);
-    if (!subAccount) {
-      throw new HttpsError("not-found", "Wallet not found");
+    if (walletId) {
+      const subAccount = await getSubAccount(userId, walletId);
+      if (!subAccount || subAccount.balance < amount) {
+        throw new HttpsError("failed-precondition", "Insufficient balance in selected wallet");
+      }
+    } else {
+      const balanceCheck = await validateMainWalletBalance(userId, amount);
+      if (!balanceCheck.sufficient) {
+        throw new HttpsError("failed-precondition", "Insufficient balance");
+      }
     }
-    await validateMainWalletBalance(userId, amount);
 
     // Get user name upfront
     const userDoc = await db.collection("users").doc(userId).get();
@@ -213,13 +219,31 @@ export const joinGroupBuy = onCall(
       return { newAmount, targetMet, title: groupBuy.title };
     });
 
-    // Process escrow AFTER transaction succeeds (ledger has its own idempotency)
-    const journalId = await processGroupBuyEscrow(
-      userId,
-      amount,
-      groupBuyId,
-      `Group buy contribution: ${result.title}`
-    );
+    // Process escrow AFTER transaction succeeds (ledger has its own idempotency).
+    // If escrow fails, run a compensating transaction to revert the contribution.
+    let journalId: string;
+    try {
+      journalId = await processGroupBuyEscrow(
+        userId,
+        amount,
+        groupBuyId,
+        `Group buy contribution: ${result.title}`
+      );
+    } catch (escrowError) {
+      // Compensating transaction: delete contribution, decrement counts
+      logger.error(`Escrow failed for group buy ${groupBuyId}, reverting contribution`, escrowError);
+      await db.runTransaction(async (tx) => {
+        tx.delete(contribRef);
+        tx.update(groupBuyRef, {
+          currentAmount: admin.firestore.FieldValue.increment(-amount),
+          participantCount: admin.firestore.FieldValue.increment(-1),
+          // If we had flipped to targetMet, revert to open
+          ...(result.targetMet ? { status: "open" } : {}),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+      throw new HttpsError("internal", "Payment processing failed. Please try again.");
+    }
 
     // Update the contribution with the real journal ID
     await contribRef.update({ journalId });
@@ -297,13 +321,24 @@ export const completeGroupBuy = onCall(
       };
     });
 
-    // Release escrow outside transaction (ledger has its own idempotency)
-    const releaseJournalId = await releaseGroupBuyEscrow(
-      txResult.organizerId,
-      txResult.currentAmount,
-      groupBuyId,
-      `Group buy completed: ${txResult.title}`
-    );
+    // Release escrow outside transaction (ledger has its own idempotency).
+    // If release fails, revert status to "targetMet" so it can be retried.
+    let releaseJournalId: string;
+    try {
+      releaseJournalId = await releaseGroupBuyEscrow(
+        txResult.organizerId,
+        txResult.currentAmount,
+        groupBuyId,
+        `Group buy completed: ${txResult.title}`
+      );
+    } catch (releaseError) {
+      logger.error(`Escrow release failed for group buy ${groupBuyId}, reverting to targetMet`, releaseError);
+      await groupBuyRef.update({
+        status: "targetMet",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      throw new HttpsError("internal", "Payment release failed. Please try again.");
+    }
 
     logger.info(
       `Group buy ${groupBuyId} completed. ${txResult.currentAmount} tokens ` +
@@ -321,6 +356,158 @@ export const completeGroupBuy = onCall(
 /**
  * Runs every 30 minutes. Finds expired group buys and refunds all contributions.
  */
+// ============================================================================
+// LEAVE GROUP BUY
+// ============================================================================
+
+/**
+ * Leave a group buy before target is met. Refunds the user's contribution.
+ * Only allowed when status is still "open" (not "targetMet" or terminal).
+ */
+export const leaveGroupBuy = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "leaveGroupBuy");
+
+    const userId = request.auth.uid;
+    const { groupBuyId } = request.data;
+
+    if (!groupBuyId || typeof groupBuyId !== "string") {
+      throw new HttpsError("invalid-argument", "groupBuyId is required");
+    }
+
+    const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
+
+    // Use transaction to atomically check status, find contribution, update counts
+    const result = await db.runTransaction(async (tx) => {
+      const groupBuyDoc = await tx.get(groupBuyRef);
+      if (!groupBuyDoc.exists) {
+        throw new HttpsError("not-found", "Group buy not found");
+      }
+
+      const groupBuy = groupBuyDoc.data()!;
+
+      // Only allow leaving when status is "open"
+      if (groupBuy.status !== "open") {
+        throw new HttpsError(
+          "failed-precondition",
+          "Cannot leave a group buy that is no longer open"
+        );
+      }
+
+      // Find user's contribution within transaction
+      const contribSnapshot = await tx.get(
+        groupBuyRef
+          .collection("contributions")
+          .where("userId", "==", userId)
+          .limit(1)
+      );
+
+      if (contribSnapshot.empty) {
+        throw new HttpsError("not-found", "You have not joined this group buy");
+      }
+
+      const contribDoc = contribSnapshot.docs[0];
+      const contrib = contribDoc.data();
+
+      // Delete contribution and update group buy atomically
+      tx.delete(contribDoc.ref);
+      tx.update(groupBuyRef, {
+        currentAmount: admin.firestore.FieldValue.increment(-contrib.amount),
+        participantCount: admin.firestore.FieldValue.increment(-1),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return { amount: contrib.amount, title: groupBuy.title };
+    });
+
+    // Refund escrow AFTER transaction succeeds (ledger has its own idempotency)
+    await refundGroupBuyContribution(
+      userId,
+      result.amount,
+      groupBuyId,
+      `User left group buy: ${result.title}`
+    );
+
+    logger.info(
+      `User ${userId} left group buy ${groupBuyId}. ` +
+      `Refunded ${result.amount} tokens.`
+    );
+
+    return { success: true, refundedAmount: result.amount };
+  }
+);
+
+// ============================================================================
+// SUGGEST A DEAL
+// ============================================================================
+
+/**
+ * Submit a group buy deal suggestion from a user.
+ * Goes into groupBuyRequests collection for admin review.
+ */
+export const suggestGroupBuyDeal = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "suggestGroupBuyDeal");
+
+    const userId = request.auth.uid;
+    const {
+      description,
+      brandOrStore,
+      estimatedPrice,
+      sourceUrl,
+      imageUrl,
+      wantsToJoin,
+    } = request.data;
+
+    if (!description || typeof description !== "string" || description.trim().length < 10) {
+      throw new HttpsError("invalid-argument", "Description must be at least 10 characters");
+    }
+    if (!brandOrStore || typeof brandOrStore !== "string" || brandOrStore.trim().length < 2) {
+      throw new HttpsError("invalid-argument", "Brand or store name is required");
+    }
+
+    // Get user profile for display name
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userName = userDoc.data()?.displayName || "Unknown";
+
+    const requestRef = db.collection("groupBuyRequests").doc();
+    const now = admin.firestore.FieldValue.serverTimestamp();
+
+    await requestRef.set({
+      id: requestRef.id,
+      userId,
+      userName,
+      description: description.trim(),
+      brandOrStore: brandOrStore.trim(),
+      estimatedPrice: estimatedPrice?.toString().trim() || null,
+      sourceUrl: sourceUrl?.toString().trim() || null,
+      imageUrl: imageUrl?.toString().trim() || null,
+      wantsToJoin: wantsToJoin === true,
+      status: "pending", // pending | approved | rejected
+      adminNotes: null,
+      convertedGroupBuyId: null,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    logger.info(`Group buy suggestion ${requestRef.id} submitted by ${userId}`);
+
+    return { success: true, requestId: requestRef.id };
+  }
+);
+
+// ============================================================================
+// SCHEDULED: CHECK EXPIRED GROUP BUYS
+// ============================================================================
+
 export const checkExpiredGroupBuys = onSchedule(
   {
     schedule: "every 30 minutes",

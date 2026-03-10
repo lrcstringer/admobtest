@@ -79,8 +79,8 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
         onPressed: () => context.push('/buy/group-buys/create'),
         backgroundColor: AppColors.secondary,
         foregroundColor: AppColors.textOnSecondary,
-        icon: const Icon(Icons.add),
-        label: const Text('Create Deal'),
+        icon: const Icon(Icons.lightbulb_outline),
+        label: const Text('Suggest a Deal'),
       ),
     );
   }

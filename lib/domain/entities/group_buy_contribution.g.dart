@@ -14,6 +14,7 @@ _$GroupBuyContributionImpl _$$GroupBuyContributionImplFromJson(
   userName: json['userName'] as String,
   amount: (json['amount'] as num).toInt(),
   journalId: json['journalId'] as String?,
+  deliveryAddress: json['deliveryAddress'] as String?,
   contributedAt: DateTime.parse(json['contributedAt'] as String),
 );
 
@@ -25,5 +26,6 @@ Map<String, dynamic> _$$GroupBuyContributionImplToJson(
   'userName': instance.userName,
   'amount': instance.amount,
   'journalId': instance.journalId,
+  'deliveryAddress': instance.deliveryAddress,
   'contributedAt': instance.contributedAt.toIso8601String(),
 };

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 
 import '../../core/error/failures.dart';
@@ -89,5 +91,11 @@ abstract class MarketplaceRepository {
     required String targetType,
     required String reason,
     String? description,
+  });
+
+  /// Upload listing images and return their download URLs
+  Future<Either<Failure, List<String>>> uploadListingImages({
+    required List<File> imageFiles,
+    required String listingId,
   });
 }

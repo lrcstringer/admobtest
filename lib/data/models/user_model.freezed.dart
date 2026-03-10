@@ -38,6 +38,7 @@ mixin _$UserModel {
       throw _privateConstructorUsedError; // Targeting fields
   List<String>? get languages => throw _privateConstructorUsedError;
   List<String>? get interests => throw _privateConstructorUsedError;
+  List<String>? get selectedClusters => throw _privateConstructorUsedError;
   UserStatus get status => throw _privateConstructorUsedError;
   String? get referralCode => throw _privateConstructorUsedError;
   String? get referredBy => throw _privateConstructorUsedError;
@@ -89,6 +90,7 @@ abstract class $UserModelCopyWith<$Res> {
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    List<String>? selectedClusters,
     UserStatus status,
     String? referralCode,
     String? referredBy,
@@ -142,6 +144,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? selectedClusters = freezed,
     Object? status = null,
     Object? referralCode = freezed,
     Object? referredBy = freezed,
@@ -225,6 +228,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
             interests: freezed == interests
                 ? _value.interests
                 : interests // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            selectedClusters: freezed == selectedClusters
+                ? _value.selectedClusters
+                : selectedClusters // ignore: cast_nullable_to_non_nullable
                       as List<String>?,
             status: null == status
                 ? _value.status
@@ -340,6 +347,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    List<String>? selectedClusters,
     UserStatus status,
     String? referralCode,
     String? referredBy,
@@ -393,6 +401,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? selectedClusters = freezed,
     Object? status = null,
     Object? referralCode = freezed,
     Object? referredBy = freezed,
@@ -476,6 +485,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
         interests: freezed == interests
             ? _value._interests
             : interests // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        selectedClusters: freezed == selectedClusters
+            ? _value._selectedClusters
+            : selectedClusters // ignore: cast_nullable_to_non_nullable
                   as List<String>?,
         status: null == status
             ? _value.status
@@ -570,6 +583,7 @@ class _$UserModelImpl extends _UserModel {
     this.lastName,
     final List<String>? languages,
     final List<String>? interests,
+    final List<String>? selectedClusters,
     required this.status,
     this.referralCode,
     this.referredBy,
@@ -589,6 +603,7 @@ class _$UserModelImpl extends _UserModel {
     this.lastActiveAt,
   }) : _languages = languages,
        _interests = interests,
+       _selectedClusters = selectedClusters,
        super._();
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -644,6 +659,17 @@ class _$UserModelImpl extends _UserModel {
     return EqualUnmodifiableListView(value);
   }
 
+  final List<String>? _selectedClusters;
+  @override
+  List<String>? get selectedClusters {
+    final value = _selectedClusters;
+    if (value == null) return null;
+    if (_selectedClusters is EqualUnmodifiableListView)
+      return _selectedClusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   final UserStatus status;
   @override
@@ -683,7 +709,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, displayNameLower: $displayNameLower, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, privacy: $privacy, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
+    return 'UserModel(userId: $userId, phoneNumber: $phoneNumber, displayName: $displayName, displayNameLower: $displayNameLower, username: $username, usernameLower: $usernameLower, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, selectedClusters: $selectedClusters, status: $status, referralCode: $referralCode, referredBy: $referredBy, hasAcceptedTerms: $hasAcceptedTerms, hasCompletedOnboarding: $hasCompletedOnboarding, isPotEligible: $isPotEligible, potEligibleAt: $potEligibleAt, fcmToken: $fcmToken, riskScore: $riskScore, primaryDeviceId: $primaryDeviceId, riskLevel: $riskLevel, lastLoginAt: $lastLoginAt, kycTier: $kycTier, privacy: $privacy, createdAt: $createdAt, updatedAt: $updatedAt, lastActiveAt: $lastActiveAt)';
   }
 
   @override
@@ -723,6 +749,10 @@ class _$UserModelImpl extends _UserModel {
             const DeepCollectionEquality().equals(
               other._interests,
               _interests,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._selectedClusters,
+              _selectedClusters,
             ) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.referralCode, referralCode) ||
@@ -777,6 +807,7 @@ class _$UserModelImpl extends _UserModel {
     lastName,
     const DeepCollectionEquality().hash(_languages),
     const DeepCollectionEquality().hash(_interests),
+    const DeepCollectionEquality().hash(_selectedClusters),
     status,
     referralCode,
     referredBy,
@@ -828,6 +859,7 @@ abstract class _UserModel extends UserModel {
     final String? lastName,
     final List<String>? languages,
     final List<String>? interests,
+    final List<String>? selectedClusters,
     required final UserStatus status,
     final String? referralCode,
     final String? referredBy,
@@ -883,6 +915,8 @@ abstract class _UserModel extends UserModel {
   List<String>? get languages;
   @override
   List<String>? get interests;
+  @override
+  List<String>? get selectedClusters;
   @override
   UserStatus get status;
   @override

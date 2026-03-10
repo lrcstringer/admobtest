@@ -26,6 +26,9 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       interests: (json['interests'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      selectedClusters: (json['selectedClusters'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       rewardConsent: json['rewardConsent'] as bool? ?? false,
       privacySettings: json['privacySettings'] == null
           ? null
@@ -48,6 +51,7 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'lastName': instance.lastName,
       'languages': instance.languages,
       'interests': instance.interests,
+      'selectedClusters': instance.selectedClusters,
       'rewardConsent': instance.rewardConsent,
       'privacySettings': instance.privacySettings,
     };

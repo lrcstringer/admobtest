@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
@@ -6,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../domain/entities/group_buy.dart';
 import '../../../domain/entities/group_buy_contribution.dart';
 import '../../../domain/enums/group_buy_status.dart';
+import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/group_buy/group_buy_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -44,6 +46,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
     return BlocConsumer<GroupBuyBloc, GroupBuyState>(
       listenWhen: (prev, curr) =>
           prev.joinSuccessMessage != curr.joinSuccessMessage ||
+          prev.leaveSuccessMessage != curr.leaveSuccessMessage ||
           prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
         if (state.joinSuccessMessage != null) {
@@ -60,6 +63,18 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           context
               .read<GroupBuyBloc>()
               .add(GroupBuyEvent.loadGroupBuy(widget.groupBuyId));
+        }
+        if (state.leaveSuccessMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.leaveSuccessMessage!),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context
+              .read<GroupBuyBloc>()
+              .add(const GroupBuyEvent.clearMessages());
+          context.pop();
         }
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -88,8 +103,8 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
             ],
           ),
           body: _buildBody(state, groupBuy),
-          bottomNavigationBar: groupBuy != null && groupBuy.canJoin
-              ? _buildJoinBar(context, state, groupBuy)
+          bottomNavigationBar: groupBuy != null
+              ? _buildBottomBar(context, state, groupBuy)
               : null,
         );
       },
@@ -118,6 +133,21 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Product image (admin-curated deals)
+          if (groupBuy.imageUrl != null && groupBuy.imageUrl!.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              child: Image.network(
+                groupBuy.imageUrl!,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
           // Status badge
           _buildStatusBadge(groupBuy, accentColor),
           const SizedBox(height: AppSpacing.md),
@@ -482,11 +512,20 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
     );
   }
 
-  Widget _buildJoinBar(
+  Widget _buildBottomBar(
     BuildContext context,
     GroupBuyState state,
     GroupBuy groupBuy,
   ) {
+    // Determine if the current user has already contributed
+    final uid = _currentUserId;
+    final hasContributed = uid != null &&
+        state.contributions.any((c) => c.userId == uid);
+    final isOpen = groupBuy.status == GroupBuyStatus.open;
+
+    // Nothing to show if not open and user can't join
+    if (!groupBuy.canJoin && !hasContributed) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: const BoxDecoration(
@@ -496,15 +535,74 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
         ),
       ),
       child: SafeArea(
-        child: AppButton(
-          text: 'Join · ${groupBuy.formattedTarget}',
-          isLoading: state.isJoining,
-          loadingText: 'Joining...',
-          onPressed: () => _showJoinDialog(groupBuy),
-          variant: groupBuy.isBrandSponsored
-              ? AppButtonVariant.secondary
-              : AppButtonVariant.primary,
+        child: Row(
+          children: [
+            // Leave button (if user has contributed and deal is still open)
+            if (hasContributed && isOpen) ...[
+              Expanded(
+                child: AppButton(
+                  text: 'Leave',
+                  isLoading: state.isLeaving,
+                  loadingText: 'Leaving...',
+                  onPressed: () => _showLeaveDialog(groupBuy),
+                  variant: AppButtonVariant.outline,
+                ),
+              ),
+              if (groupBuy.canJoin) const SizedBox(width: AppSpacing.sm),
+            ],
+            // Join button
+            if (groupBuy.canJoin)
+              Expanded(
+                child: AppButton(
+                  text: 'Join · ${groupBuy.formattedTarget}',
+                  isLoading: state.isJoining,
+                  loadingText: 'Joining...',
+                  onPressed: () => _showJoinDialog(groupBuy),
+                  variant: groupBuy.isBrandSponsored
+                      ? AppButtonVariant.secondary
+                      : AppButtonVariant.primary,
+                ),
+              ),
+          ],
         ),
+      ),
+    );
+  }
+
+  String? get _currentUserId => context.read<AuthBloc>().state.user?.id;
+
+  void _showLeaveDialog(GroupBuy groupBuy) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text(
+          'Leave this deal?',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: const Text(
+          'Your contribution will be refunded to your wallet. '
+          'You can rejoin later if spots are still available.',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.read<GroupBuyBloc>().add(
+                    GroupBuyEvent.leaveGroupBuy(
+                      groupBuyId: groupBuy.id,
+                    ),
+                  );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Leave & Refund'),
+          ),
+        ],
       ),
     );
   }
@@ -581,12 +679,70 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
   }
 
   void _onShare(GroupBuy groupBuy) {
-    // TODO: Wire up ForwardConversationPicker for share-to-chat
-    // Share data: groupBuyId, title, targetAmount, progress, spotsLeft, deepLink
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Share-to-chat coming soon'),
-        backgroundColor: AppColors.info,
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              leading: const Icon(
+                Icons.chat_bubble_outline,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Share to Chat',
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                context.push(
+                  '/share/group-buy/${groupBuy.id}',
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.copy,
+                color: AppColors.textSecondary,
+              ),
+              title: const Text(
+                'Copy Link',
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                Clipboard.setData(
+                  ClipboardData(
+                    text:
+                        'https://imalichat.app/buy/group-buys/${groupBuy.id}',
+                  ),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Link copied!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
       ),
     );
   }

@@ -71,11 +71,13 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     final regularsFuture = _buyRepository.getBuyRegulars();
     final featuredFuture = _buyRepository.getFeaturedItems();
     final brandsFuture = _buyRepository.getBrandStorefronts();
+    final statsFuture = _buyRepository.getMarketplaceStats();
 
     final categoriesResult = await categoriesFuture;
     final regularsResult = await regularsFuture;
     final featuredResult = await featuredFuture;
     final brandsResult = await brandsFuture;
+    final statsResult = await statsFuture;
 
     final now = DateTime.now();
     var newState = state.copyWith(isLoading: false, lastSyncedAt: now);
@@ -97,6 +99,14 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (_) {},
       (data) => newState = newState.copyWith(brandPartners: data),
     );
+    statsResult.fold(
+      (_) {},
+      (stats) => newState = newState.copyWith(
+        marketplaceListingCount: stats.listingCount,
+        marketplaceSellerCount: stats.sellerCount,
+        trendingThumbnails: stats.thumbnails,
+      ),
+    );
 
     emit(newState);
   }
@@ -105,26 +115,29 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     _RefreshBuyTab event,
     Emitter<BuyTabState> emit,
   ) async {
-    // Don't show loading spinner on refresh — pull-to-refresh uses indicator
+    emit(state.copyWith(isRefreshing: true));
+
     final isConnected = await _networkInfo.isConnected;
     if (!isConnected) {
-      emit(state.copyWith(isOffline: true));
+      emit(state.copyWith(isRefreshing: false, isOffline: true));
       return;
     }
 
-    // Typed futures to avoid dynamic casts
     final categoriesFuture = _buyRepository.getBuyCategories();
     final regularsFuture = _buyRepository.getBuyRegulars();
     final featuredFuture = _buyRepository.getFeaturedItems();
     final brandsFuture = _buyRepository.getBrandStorefronts();
+    final statsFuture = _buyRepository.getMarketplaceStats();
 
     final categoriesResult = await categoriesFuture;
     final regularsResult = await regularsFuture;
     final featuredResult = await featuredFuture;
     final brandsResult = await brandsFuture;
+    final statsResult = await statsFuture;
 
     final now = DateTime.now();
     var newState = state.copyWith(
+      isRefreshing: false,
       isOffline: false,
       lastSyncedAt: now,
       errorMessage: null,
@@ -146,6 +159,14 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     brandsResult.fold(
       (_) {},
       (data) => newState = newState.copyWith(brandPartners: data),
+    );
+    statsResult.fold(
+      (_) {},
+      (stats) => newState = newState.copyWith(
+        marketplaceListingCount: stats.listingCount,
+        marketplaceSellerCount: stats.sellerCount,
+        trendingThumbnails: stats.thumbnails,
+      ),
     );
 
     emit(newState);

@@ -24,6 +24,8 @@ class UserProfile with _$UserProfile {
     List<String>? languages,
     /// Interest categories (e.g. ['sports', 'tech'])
     List<String>? interests,
+    /// Regional clusters the user has opted into (for group buy matching)
+    List<String>? selectedClusters,
     // POPIA consent
     /// Whether user has consented to receiving reward items
     @Default(false) bool rewardConsent,

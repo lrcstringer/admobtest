@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/cluster_constants.dart';
 import '../../theme/app_colors.dart';
 
 /// Admin screen for managing group buys (Hlangana).
-/// Tabs: Active, Completed, Expired/Cancelled.
+/// Tabs: Active, Completed, Expired/Cancelled, Suggestions.
 class GroupBuyManagementScreen extends StatefulWidget {
   const GroupBuyManagementScreen({super.key});
 
@@ -19,11 +20,12 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   late final TabController _tabController;
   bool _isLoading = false;
   List<Map<String, dynamic>> _groupBuys = [];
+  List<Map<String, dynamic>> _suggestions = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadData();
   }
 
@@ -36,12 +38,30 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('groupBuys')
-          .orderBy('createdAt', descending: true)
-          .limit(200)
-          .get();
-      final items = snapshot.docs.map((doc) {
+      // Load group buys and suggestions in parallel
+      final results = await Future.wait([
+        FirebaseFirestore.instance
+            .collection('groupBuys')
+            .orderBy('createdAt', descending: true)
+            .limit(200)
+            .get(),
+        FirebaseFirestore.instance
+            .collection('groupBuyRequests')
+            .orderBy('createdAt', descending: true)
+            .limit(100)
+            .get(),
+      ]);
+
+      final groupBuySnapshot = results[0];
+      final suggestionsSnapshot = results[1];
+
+      final items = groupBuySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+
+      final suggestionItems = suggestionsSnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return data;
@@ -50,6 +70,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
       if (mounted) {
         setState(() {
           _groupBuys = items;
+          _suggestions = suggestionItems;
           _isLoading = false;
         });
       }
@@ -68,22 +89,33 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   }
 
   int get _activeCount =>
-      _groupBuys.where((g) => ['open', 'targetMet'].contains(g['status'])).length;
+      _groupBuys
+          .where((g) => ['open', 'targetMet'].contains(g['status']))
+          .length;
   int get _completedCount =>
       _groupBuys.where((g) => g['status'] == 'completed').length;
   int get _expiredCancelledCount =>
-      _groupBuys.where((g) => ['expired', 'cancelled'].contains(g['status'])).length;
+      _groupBuys
+          .where((g) => ['expired', 'cancelled'].contains(g['status']))
+          .length;
+  int get _suggestionsCount => _suggestions.length;
 
   int get _totalParticipants {
     return _groupBuys
         .where((g) => ['open', 'targetMet'].contains(g['status']))
-        .fold<int>(0, (total, g) => total + ((g['participantCount'] as num?) ?? 0).toInt());
+        .fold<int>(
+            0,
+            (total, g) =>
+                total + ((g['participantCount'] as num?) ?? 0).toInt());
   }
 
   int get _totalEscrowTokens {
     return _groupBuys
         .where((g) => ['open', 'targetMet'].contains(g['status']))
-        .fold<int>(0, (total, g) => total + ((g['currentAmount'] as num?) ?? 0).toInt());
+        .fold<int>(
+            0,
+            (total, g) =>
+                total + ((g['currentAmount'] as num?) ?? 0).toInt());
   }
 
   int get _expiringWithin24h {
@@ -93,7 +125,9 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
       if (g['status'] != 'open') return false;
       final deadline = g['deadline'];
       if (deadline == null) return false;
-      final dt = deadline is Timestamp ? deadline.toDate() : DateTime.tryParse(deadline.toString());
+      final dt = deadline is Timestamp
+          ? deadline.toDate()
+          : DateTime.tryParse(deadline.toString());
       return dt != null && dt.isAfter(now) && dt.isBefore(cutoff);
     }).length;
   }
@@ -126,9 +160,24 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                                   color: AppColors.textSecondary)),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: _loadData,
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: _loadData,
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Create Brand Group Buy'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(0, 40),
+                            ),
+                            onPressed: _showCreateBrandGroupBuyDialog,
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -180,7 +229,10 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                     tabs: [
                       Tab(text: 'Active ($_activeCount)'),
                       Tab(text: 'Completed ($_completedCount)'),
-                      Tab(text: 'Expired/Cancelled ($_expiredCancelledCount)'),
+                      Tab(
+                          text:
+                              'Expired/Cancelled ($_expiredCancelledCount)'),
+                      Tab(text: 'Suggestions ($_suggestionsCount)'),
                     ],
                     indicatorColor: AppColors.primary,
                     labelColor: AppColors.primary,
@@ -204,6 +256,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                         _filterByStatuses(['expired', 'cancelled']),
                         showRetryRefunds: true,
                       ),
+                      _buildSuggestionsTable(),
                     ],
                   ),
                 ),
@@ -211,6 +264,10 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
             ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Group Buy Table
+  // ---------------------------------------------------------------------------
 
   Widget _buildTable(
     List<Map<String, dynamic>> items, {
@@ -281,7 +338,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     final status = item['status'] as String? ?? 'unknown';
 
     final deadline = item['deadline'];
-    String deadlineStr = '—';
+    String deadlineStr = '---';
     bool isExpiringSoon = false;
     if (deadline != null) {
       final dt = deadline is Timestamp
@@ -291,8 +348,8 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         deadlineStr =
             '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
         final now = DateTime.now();
-        isExpiringSoon =
-            dt.isAfter(now) && dt.isBefore(now.add(const Duration(hours: 24)));
+        isExpiringSoon = dt.isAfter(now) &&
+            dt.isBefore(now.add(const Duration(hours: 24)));
       }
     }
 
@@ -355,8 +412,11 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
               deadlineStr,
               style: TextStyle(
                 fontSize: 12,
-                color: isExpiringSoon ? AppColors.error : AppColors.textSecondary,
-                fontWeight: isExpiringSoon ? FontWeight.w600 : FontWeight.normal,
+                color: isExpiringSoon
+                    ? AppColors.error
+                    : AppColors.textSecondary,
+                fontWeight:
+                    isExpiringSoon ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ),
@@ -381,15 +441,15 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                   ),
                 if (showActions && status == 'targetMet')
                   IconButton(
-                    icon: Icon(Icons.check_circle, size: 18,
-                        color: AppColors.success),
+                    icon: Icon(Icons.check_circle,
+                        size: 18, color: AppColors.success),
                     tooltip: 'Force complete',
                     onPressed: () => _confirmForceComplete(id, title),
                   ),
                 if (showActions)
                   IconButton(
-                    icon: Icon(Icons.cancel, size: 18,
-                        color: AppColors.error),
+                    icon: Icon(Icons.cancel,
+                        size: 18, color: AppColors.error),
                     tooltip: 'Force cancel',
                     onPressed: () => _confirmForceCancel(id, title),
                   ),
@@ -407,6 +467,627 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Suggestions Table (4th tab)
+  // ---------------------------------------------------------------------------
+
+  Widget _buildSuggestionsTable() {
+    if (_suggestions.isEmpty) {
+      return const Center(
+        child: Text('No suggestions yet',
+            style: TextStyle(color: AppColors.textSecondary)),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            children: [
+              _headerCell('User', flex: 2),
+              _headerCell('Description', flex: 3),
+              _headerCell('Brand/Store', flex: 2),
+              _headerCell('Est. Price', flex: 1),
+              _headerCell('Status', flex: 1),
+              _headerCell('Date', flex: 2),
+              _headerCell('Actions', flex: 2),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: _suggestions.length,
+            itemBuilder: (_, i) => _buildSuggestionRow(_suggestions[i]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuggestionRow(Map<String, dynamic> item) {
+    final userName = item['userName'] as String? ?? 'Unknown';
+    final description = item['description'] as String? ?? '';
+    final brandOrStore = item['brandOrStore'] as String? ?? '';
+    final estimatedPrice = item['estimatedPrice'];
+    final priceStr = estimatedPrice != null ? 'R$estimatedPrice' : '---';
+    final sourceUrl = item['sourceUrl'] as String? ?? '';
+    final status = item['status'] as String? ?? 'pending';
+    final createdAtStr = _formatTimestamp(item['createdAt']);
+    final id = item['id'] as String;
+
+    final (Color statusColor, String statusLabel) = switch (status) {
+      'approved' => (AppColors.success, 'Approved'),
+      'declined' => (AppColors.error, 'Declined'),
+      'pending' => (AppColors.warning, 'Pending'),
+      _ => (AppColors.textSecondary, status),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              userName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w500, fontSize: 13),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13),
+                ),
+                if (sourceUrl.isNotEmpty)
+                  Text(
+                    sourceUrl,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 10, color: AppColors.secondary),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              brandOrStore,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(priceStr,
+                style: const TextStyle(fontSize: 13)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusColor.withAlpha(30),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                statusLabel,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 11,
+                    color: statusColor,
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(createdAtStr,
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary)),
+          ),
+          Expanded(
+            flex: 2,
+            child: status == 'pending'
+                ? Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.check_circle,
+                            size: 18, color: AppColors.success),
+                        tooltip: 'Approve',
+                        onPressed: () =>
+                            _updateSuggestionStatus(id, 'approved'),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.cancel,
+                            size: 18, color: AppColors.error),
+                        tooltip: 'Decline',
+                        onPressed: () =>
+                            _updateSuggestionStatus(id, 'declined'),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateSuggestionStatus(
+      String suggestionId, String newStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('groupBuyRequests')
+          .doc(suggestionId)
+          .update({
+        'status': newStatus,
+        'reviewedAt': FieldValue.serverTimestamp(),
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Suggestion ${newStatus == 'approved' ? 'approved' : 'declined'}'),
+          ),
+        );
+        _loadData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Create Brand Group Buy Dialog
+  // ---------------------------------------------------------------------------
+
+  void _showCreateBrandGroupBuyDialog() {
+    final formKey = GlobalKey<FormState>();
+    final titleCtrl = TextEditingController();
+    final descriptionCtrl = TextEditingController();
+    final targetAmountCtrl = TextEditingController();
+    final imageUrlCtrl = TextEditingController();
+    final originalPriceCtrl = TextEditingController();
+    final discountPercentCtrl = TextEditingController();
+    final brandIdCtrl = TextEditingController();
+    DateTime? deadline;
+    String type = 'digital';
+    Set<String> selectedClusters = {};
+    List<TextEditingController> addressControllers = [];
+    bool saving = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return AlertDialog(
+            backgroundColor: AppColors.surfaceElevated,
+            title: const Text('Create Brand Group Buy'),
+            content: SizedBox(
+              width: 540,
+              child: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: titleCtrl,
+                        decoration:
+                            const InputDecoration(labelText: 'Title *'),
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty
+                                ? 'Required'
+                                : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: descriptionCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Description *'),
+                        maxLines: 3,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty
+                                ? 'Required'
+                                : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: targetAmountCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Target Amount (tokens) *'),
+                        keyboardType: TextInputType.number,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Required';
+                          }
+                          final n = int.tryParse(v.trim());
+                          if (n == null || n <= 0) {
+                            return 'Must be a positive number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Deadline picker
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          deadline != null
+                              ? 'Deadline: ${deadline!.day}/${deadline!.month}/${deadline!.year} '
+                                  '${deadline!.hour.toString().padLeft(2, '0')}:${deadline!.minute.toString().padLeft(2, '0')}'
+                              : 'Pick deadline',
+                          style: TextStyle(
+                            color: deadline != null
+                                ? AppColors.textPrimary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.calendar_today),
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: ctx,
+                            initialDate:
+                                DateTime.now().add(const Duration(days: 7)),
+                            firstDate: DateTime.now(),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 90)),
+                          );
+                          if (date != null && ctx.mounted) {
+                            final time = await showTimePicker(
+                              context: ctx,
+                              initialTime:
+                                  const TimeOfDay(hour: 18, minute: 0),
+                            );
+                            if (time != null) {
+                              setDialogState(() {
+                                deadline = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    time.hour,
+                                    time.minute);
+                              });
+                            }
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Type dropdown
+                      DropdownButtonFormField<String>(
+                        initialValue: type,
+                        decoration:
+                            const InputDecoration(labelText: 'Type'),
+                        dropdownColor: AppColors.cardDark,
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'digital', child: Text('Digital')),
+                          DropdownMenuItem(
+                              value: 'physical', child: Text('Physical')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) {
+                            setDialogState(() => type = v);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Physical-only fields
+                      if (type == 'physical') ...[
+                        // Cluster picker
+                        const Text(
+                          'Delivery Clusters',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          constraints:
+                              const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            border:
+                                Border.all(color: AppColors.borderDark),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: ClusterConstants
+                                  .clustersByProvince.entries
+                                  .expand((entry) {
+                                final province = entry.key;
+                                final clusters = entry.value;
+                                return [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 12, top: 8),
+                                    child: Text(
+                                      province,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                  ...clusters.map((cluster) {
+                                    final isSelected = selectedClusters
+                                        .contains(cluster);
+                                    return CheckboxListTile(
+                                      dense: true,
+                                      value: isSelected,
+                                      activeColor: AppColors.primary,
+                                      controlAffinity:
+                                          ListTileControlAffinity
+                                              .leading,
+                                      title: Text(
+                                        cluster,
+                                        style: const TextStyle(
+                                            fontSize: 13),
+                                      ),
+                                      onChanged: (v) {
+                                        setDialogState(() {
+                                          if (v == true) {
+                                            selectedClusters
+                                                .add(cluster);
+                                          } else {
+                                            selectedClusters
+                                                .remove(cluster);
+                                          }
+                                        });
+                                      },
+                                    );
+                                  }),
+                                ];
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Addresses
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Addresses',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline,
+                                  size: 20),
+                              tooltip: 'Add address',
+                              onPressed: () {
+                                setDialogState(() {
+                                  addressControllers
+                                      .add(TextEditingController());
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        ...List.generate(addressControllers.length,
+                            (i) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: addressControllers[i],
+                                    decoration: InputDecoration(
+                                      labelText: 'Address ${i + 1}',
+                                      isDense: true,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.remove_circle,
+                                      size: 18,
+                                      color: AppColors.error),
+                                  tooltip: 'Remove',
+                                  onPressed: () {
+                                    setDialogState(() {
+                                      addressControllers[i].dispose();
+                                      addressControllers.removeAt(i);
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 12),
+                      ],
+
+                      // Optional fields
+                      TextFormField(
+                        controller: imageUrlCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Image URL (optional)'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: originalPriceCtrl,
+                        decoration: const InputDecoration(
+                            labelText:
+                                'Original Price in ZAR (optional)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: discountPercentCtrl,
+                        decoration: const InputDecoration(
+                            labelText:
+                                'Discount Percent (optional)'),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: brandIdCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Brand ID (optional)'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  for (final c in addressControllers) {
+                    c.dispose();
+                  }
+                  Navigator.of(ctx).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setDialogState(() => saving = true);
+                        try {
+                          final data = <String, dynamic>{
+                            'title': titleCtrl.text.trim(),
+                            'description':
+                                descriptionCtrl.text.trim(),
+                            'targetAmount': int.parse(
+                                targetAmountCtrl.text.trim()),
+                            'type': type,
+                          };
+                          if (deadline != null) {
+                            data['deadline'] =
+                                deadline!.toIso8601String();
+                          }
+                          if (type == 'physical') {
+                            if (selectedClusters.isNotEmpty) {
+                              data['clusters'] =
+                                  selectedClusters.toList();
+                            }
+                            final addresses = addressControllers
+                                .map((c) => c.text.trim())
+                                .where((a) => a.isNotEmpty)
+                                .toList();
+                            if (addresses.isNotEmpty) {
+                              data['addresses'] = addresses;
+                            }
+                          }
+                          if (imageUrlCtrl.text.trim().isNotEmpty) {
+                            data['imageUrl'] =
+                                imageUrlCtrl.text.trim();
+                          }
+                          if (originalPriceCtrl
+                              .text.trim().isNotEmpty) {
+                            final price = double.tryParse(
+                                originalPriceCtrl.text.trim());
+                            if (price != null) {
+                              data['originalPriceZar'] = price;
+                            }
+                          }
+                          if (discountPercentCtrl
+                              .text.trim().isNotEmpty) {
+                            final disc = double.tryParse(
+                                discountPercentCtrl.text.trim());
+                            if (disc != null) {
+                              data['discountPercent'] = disc;
+                            }
+                          }
+                          if (brandIdCtrl.text.trim().isNotEmpty) {
+                            data['brandId'] =
+                                brandIdCtrl.text.trim();
+                          }
+
+                          await FirebaseFunctions.instanceFor(
+                                  region: 'africa-south1')
+                              .httpsCallable(
+                                  'adminCreateBrandGroupBuy')
+                              .call<dynamic>(data);
+
+                          for (final c in addressControllers) {
+                            c.dispose();
+                          }
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Brand group buy created')),
+                            );
+                          }
+                          _loadData();
+                        } catch (e) {
+                          setDialogState(() => saving = false);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(
+                              SnackBar(
+                                  content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                ),
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2),
+                      )
+                    : const Text('Create'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Detail / Extend / Force Complete / Force Cancel / Retry Refunds
+  // ---------------------------------------------------------------------------
+
   void _showDetailDialog(Map<String, dynamic> item) {
     showDialog(
       context: context,
@@ -422,20 +1103,31 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
               children: [
                 _detailRow('ID', item['id'] ?? ''),
                 _detailRow('Status', item['status'] ?? ''),
-                _detailRow('Description', item['description'] ?? '—'),
-                _detailRow('Organizer', item['organizerName'] ?? item['organizerId'] ?? '—'),
-                _detailRow('Community', item['communityId'] ?? '—'),
+                _detailRow(
+                    'Description', item['description'] ?? '---'),
+                _detailRow(
+                    'Organizer',
+                    item['organizerName'] ??
+                        item['organizerId'] ??
+                        '---'),
+                _detailRow(
+                    'Community', item['communityId'] ?? '---'),
                 _detailRow('Progress',
                     '${item['currentAmount'] ?? 0} / ${item['targetAmount'] ?? 0} tokens'),
                 _detailRow('Participants',
                     '${item['participantCount'] ?? 0}${(item['maxParticipants'] != null && (item['maxParticipants'] as num) > 0) ? ' / ${item['maxParticipants']}' : ''}'),
-                _detailRow('Min Participants', '${item['minParticipants'] ?? '—'}'),
-                _detailRow('Linked Listing', item['linkedListingId'] ?? '—'),
-                _detailRow('Sponsor Type', item['sponsorType'] ?? 'community'),
+                _detailRow('Min Participants',
+                    '${item['minParticipants'] ?? '---'}'),
+                _detailRow('Linked Listing',
+                    item['linkedListingId'] ?? '---'),
+                _detailRow('Sponsor Type',
+                    item['sponsorType'] ?? 'community'),
                 if (item['brandId'] != null)
                   _detailRow('Brand', item['brandId']),
-                _detailRow('Created', _formatTimestamp(item['createdAt'])),
-                _detailRow('Deadline', _formatTimestamp(item['deadline'])),
+                _detailRow(
+                    'Created', _formatTimestamp(item['createdAt'])),
+                _detailRow(
+                    'Deadline', _formatTimestamp(item['deadline'])),
                 const SizedBox(height: 16),
                 const Text('Contributions',
                     style: TextStyle(fontWeight: FontWeight.w600)),
@@ -448,24 +1140,33 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                       .orderBy('contributedAt', descending: true)
                       .get(),
                   builder: (ctx, snap) {
-                    if (snap.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                    if (snap.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                          child: CircularProgressIndicator());
                     }
                     if (!snap.hasData || snap.data!.docs.isEmpty) {
                       return const Text('No contributions yet',
-                          style: TextStyle(color: AppColors.textSecondary));
+                          style: TextStyle(
+                              color: AppColors.textSecondary));
                     }
                     return Column(
                       children: snap.data!.docs.map((doc) {
-                        final d = doc.data() as Map<String, dynamic>;
+                        final d =
+                            doc.data() as Map<String, dynamic>;
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: Text(d['userName'] ?? d['userId'] ?? '—',
-                                    style: const TextStyle(fontSize: 13)),
+                                child: Text(
+                                    d['userName'] ??
+                                        d['userId'] ??
+                                        '---',
+                                    style: const TextStyle(
+                                        fontSize: 13)),
                               ),
                               Text('${d['amount'] ?? 0} tokens',
                                   style: const TextStyle(
@@ -515,11 +1216,11 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   }
 
   String _formatTimestamp(dynamic value) {
-    if (value == null) return '—';
+    if (value == null) return '---';
     final dt = value is Timestamp
         ? value.toDate()
         : DateTime.tryParse(value.toString());
-    if (dt == null) return '—';
+    if (dt == null) return '---';
     return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
@@ -551,20 +1252,22 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                 onTap: () async {
                   final date = await showDatePicker(
                     context: ctx,
-                    initialDate: DateTime.now().add(const Duration(days: 7)),
+                    initialDate:
+                        DateTime.now().add(const Duration(days: 7)),
                     firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 90)),
+                    lastDate:
+                        DateTime.now().add(const Duration(days: 90)),
                   );
                   if (date != null && ctx.mounted) {
                     final time = await showTimePicker(
                       context: ctx,
-                      initialTime: const TimeOfDay(hour: 18, minute: 0),
+                      initialTime:
+                          const TimeOfDay(hour: 18, minute: 0),
                     );
                     if (time != null) {
                       setDialogState(() {
-                        newDeadline = DateTime(
-                            date.year, date.month, date.day,
-                            time.hour, time.minute);
+                        newDeadline = DateTime(date.year, date.month,
+                            date.day, time.hour, time.minute);
                       });
                     }
                   }
@@ -589,7 +1292,8 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
               onPressed: newDeadline != null
                   ? () {
                       Navigator.pop(ctx);
-                      _extendDeadline(groupBuyId, newDeadline!, reason ?? '');
+                      _extendDeadline(
+                          groupBuyId, newDeadline!, reason ?? '');
                     }
                   : null,
               child: const Text('Extend'),
@@ -661,7 +1365,9 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
           .call({'groupBuyId': groupBuyId});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Force complete submitted (pending approval)')),
+          const SnackBar(
+              content:
+                  Text('Force complete submitted (pending approval)')),
         );
         _loadData();
       }
@@ -710,7 +1416,9 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
           .call({'groupBuyId': groupBuyId});
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Force cancel submitted (pending approval)')),
+          const SnackBar(
+              content: Text(
+                  'Force cancel submitted (pending approval)')),
         );
         _loadData();
       }
@@ -744,6 +1452,10 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   }
 }
 
+// =============================================================================
+// Status Chip
+// =============================================================================
+
 class _StatusChip extends StatelessWidget {
   final String status;
   const _StatusChip({required this.status});
@@ -760,18 +1472,26 @@ class _StatusChip extends StatelessWidget {
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withAlpha(30),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+        style: TextStyle(
+            fontSize: 11,
+            color: color,
+            fontWeight: FontWeight.w600),
       ),
     );
   }
 }
+
+// =============================================================================
+// Stat Card
+// =============================================================================
 
 class _StatCard extends StatelessWidget {
   final String title;
@@ -805,11 +1525,13 @@ class _StatCard extends StatelessWidget {
               children: [
                 Text(title,
                     style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary)),
+                        fontSize: 12,
+                        color: AppColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text(value,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
           ),

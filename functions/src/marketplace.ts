@@ -45,17 +45,15 @@ export const registerMarketplaceProvider = onCall(
       throw new HttpsError("invalid-argument", "Display name must be at least 2 characters");
     }
 
-    // Check if user is already a provider
-    const existing = await db
-      .collection("providers")
-      .where("userId", "==", userId)
-      .limit(1)
-      .get();
-    if (!existing.empty) {
+    // Use userId as doc ID — deterministic, prevents duplicate registrations
+    // even under concurrent requests (Firestore set will simply overwrite,
+    // but we check existence first within a transaction-like pattern).
+    const providerRef = db.collection("providers").doc(userId);
+    const existingDoc = await providerRef.get();
+    if (existingDoc.exists) {
       throw new HttpsError("already-exists", "You are already registered as a provider");
     }
 
-    const providerRef = db.collection("providers").doc();
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     await providerRef.set({
@@ -233,7 +231,8 @@ export const buyMarketplaceItem = onCall(
     const buyerDoc = await db.collection("users").doc(userId).get();
     const buyerName = buyerDoc.data()?.displayName || "Unknown";
 
-    // Create order
+    // Create order with "pending" status — only set to "escrowed" after
+    // escrow succeeds, preventing orphaned orders if escrow processing fails.
     const orderRef = db.collection("buyOrders").doc();
     const now = admin.firestore.FieldValue.serverTimestamp();
 
@@ -247,8 +246,8 @@ export const buyMarketplaceItem = onCall(
       listingTitle: listing.title,
       amount: listing.priceTokens,
       amountZar: listing.priceZar,
-      status: "escrowed",
-      escrowJournalId: null, // Updated below
+      status: "pending",
+      escrowJournalId: null,
       releaseJournalId: null,
       refundJournalId: null,
       disputeReason: null,
@@ -256,7 +255,7 @@ export const buyMarketplaceItem = onCall(
       chatConversationId: null,
       thumbnailUrl: listing.thumbnailUrl || null,
       createdAt: now,
-      escrowedAt: now,
+      escrowedAt: null,
       fulfilledAt: null,
       completedAt: null,
       disputedAt: null,
@@ -264,16 +263,31 @@ export const buyMarketplaceItem = onCall(
       cancelledAt: null,
     });
 
-    // Process escrow
-    const journalId = await processMarketplaceEscrow(
-      userId,
-      listing.priceTokens,
-      orderRef.id,
-      `Marketplace purchase: ${listing.title}`
-    );
+    // Process escrow — if this fails, order stays "pending" (safe state)
+    let journalId: string;
+    try {
+      journalId = await processMarketplaceEscrow(
+        userId,
+        listing.priceTokens,
+        orderRef.id,
+        `Marketplace purchase: ${listing.title}`
+      );
+    } catch (escrowError) {
+      // Clean up the pending order so it doesn't linger
+      await orderRef.update({
+        status: "failed",
+        cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      logger.error(`Escrow failed for order ${orderRef.id}`, escrowError);
+      throw new HttpsError("internal", "Payment processing failed. Please try again.");
+    }
 
-    // Update order with journal ID
-    await orderRef.update({ escrowJournalId: journalId });
+    // Escrow succeeded — atomically mark order as escrowed
+    await orderRef.update({
+      status: "escrowed",
+      escrowJournalId: journalId,
+      escrowedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     logger.info(`Order ${orderRef.id} created, escrow journal ${journalId}`);
 
@@ -375,13 +389,24 @@ export const confirmMarketplaceReceipt = onCall(
       };
     });
 
-    // Release escrow outside transaction (ledger has its own idempotency)
-    const releaseJournalId = await releaseMarketplaceEscrow(
-      txResult.sellerId,
-      txResult.amount,
-      orderId,
-      `Marketplace payment released: ${txResult.listingTitle}`
-    );
+    // Release escrow outside transaction (ledger has its own idempotency).
+    // If release fails, revert order status to "fulfilled" so it can be retried.
+    let releaseJournalId: string;
+    try {
+      releaseJournalId = await releaseMarketplaceEscrow(
+        txResult.sellerId,
+        txResult.amount,
+        orderId,
+        `Marketplace payment released: ${txResult.listingTitle}`
+      );
+    } catch (releaseError) {
+      logger.error(`Escrow release failed for order ${orderId}, reverting to fulfilled`, releaseError);
+      await orderRef.update({
+        status: "fulfilled",
+        completedAt: null,
+      });
+      throw new HttpsError("internal", "Payment release failed. Please try again.");
+    }
 
     // Update journal ID + increment provider completedOrders
     await orderRef.update({ releaseJournalId });
@@ -449,23 +474,29 @@ export const cancelMarketplaceOrder = onCall(
       });
 
       return {
+        previousStatus: order.status as string,
         buyerId: order.buyerId,
         amount: order.amount,
         listingTitle: order.listingTitle,
       };
     });
 
-    // Refund escrow outside transaction (ledger has its own idempotency)
-    const refundJournalId = await refundMarketplaceEscrow(
-      txResult.buyerId,
-      txResult.amount,
-      orderId,
-      `Marketplace order cancelled: ${txResult.listingTitle}`
-    );
+    // Only refund escrow if tokens were actually escrowed.
+    // "pending" orders never had escrow processed, so refunding would corrupt the ledger.
+    if (txResult.previousStatus === "escrowed") {
+      const refundJournalId = await refundMarketplaceEscrow(
+        txResult.buyerId,
+        txResult.amount,
+        orderId,
+        `Marketplace order cancelled: ${txResult.listingTitle}`
+      );
 
-    await orderRef.update({ refundJournalId });
+      await orderRef.update({ refundJournalId });
 
-    logger.info(`Order ${orderId} cancelled, refund journal ${refundJournalId}`);
+      logger.info(`Order ${orderId} cancelled, refund journal ${refundJournalId}`);
+    } else {
+      logger.info(`Order ${orderId} cancelled (was pending, no escrow to refund)`);
+    }
 
     return { success: true };
   }
@@ -564,21 +595,19 @@ export const vouchForProvider = onCall(
       if (order.buyerId !== userId) {
         throw new HttpsError("permission-denied", "Only the buyer can vouch for this order");
       }
-
-      // Check for duplicate vouch on same order
-      const existingVouch = await db
-        .collection("vouches")
-        .where("orderId", "==", orderId)
-        .where("voucherId", "==", userId)
-        .limit(1)
-        .get();
-      if (!existingVouch.empty) {
-        throw new HttpsError("already-exists", "You already vouched for this order");
-      }
     }
 
-    // Create vouch
-    const vouchRef = db.collection("vouches").doc();
+    // Use deterministic doc ID to prevent duplicate vouches at the Firestore level.
+    // If orderId is provided, key on userId_orderId; otherwise userId_providerId.
+    const vouchDocId = orderId ? `${userId}_${orderId}` : `${userId}_${providerId}`;
+    const vouchRef = db.collection("vouches").doc(vouchDocId);
+
+    // Check for existing vouch (deterministic ID makes this a simple get)
+    const existingVouch = await vouchRef.get();
+    if (existingVouch.exists) {
+      throw new HttpsError("already-exists", "You already vouched for this order");
+    }
+
     await vouchRef.set({
       id: vouchRef.id,
       voucherId: userId,

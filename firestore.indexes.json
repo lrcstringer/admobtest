@@ -967,6 +967,65 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "deadline", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "groupBuys",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdByAdmin", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "deadline", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "brandReviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "brandId", "order": "ASCENDING" },
+        { "fieldPath": "isRemovedByAdmin", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "brandReviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "orderId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "brandProducts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "brandId", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "groupBuyRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "groupBuyRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contributions",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "contributedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

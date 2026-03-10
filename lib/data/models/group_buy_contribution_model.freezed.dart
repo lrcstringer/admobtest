@@ -22,6 +22,7 @@ mixin _$GroupBuyContributionModel {
   String get userName => throw _privateConstructorUsedError;
   int get amount => throw _privateConstructorUsedError;
   String? get journalId => throw _privateConstructorUsedError;
+  String? get deliveryAddress => throw _privateConstructorUsedError;
   DateTime get contributedAt => throw _privateConstructorUsedError;
 
   /// Create a copy of GroupBuyContributionModel
@@ -44,6 +45,7 @@ abstract class $GroupBuyContributionModelCopyWith<$Res> {
     String userName,
     int amount,
     String? journalId,
+    String? deliveryAddress,
     DateTime contributedAt,
   });
 }
@@ -71,6 +73,7 @@ class _$GroupBuyContributionModelCopyWithImpl<
     Object? userName = null,
     Object? amount = null,
     Object? journalId = freezed,
+    Object? deliveryAddress = freezed,
     Object? contributedAt = null,
   }) {
     return _then(
@@ -94,6 +97,10 @@ class _$GroupBuyContributionModelCopyWithImpl<
             journalId: freezed == journalId
                 ? _value.journalId
                 : journalId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            deliveryAddress: freezed == deliveryAddress
+                ? _value.deliveryAddress
+                : deliveryAddress // ignore: cast_nullable_to_non_nullable
                       as String?,
             contributedAt: null == contributedAt
                 ? _value.contributedAt
@@ -120,6 +127,7 @@ abstract class _$$GroupBuyContributionModelImplCopyWith<$Res>
     String userName,
     int amount,
     String? journalId,
+    String? deliveryAddress,
     DateTime contributedAt,
   });
 }
@@ -147,6 +155,7 @@ class __$$GroupBuyContributionModelImplCopyWithImpl<$Res>
     Object? userName = null,
     Object? amount = null,
     Object? journalId = freezed,
+    Object? deliveryAddress = freezed,
     Object? contributedAt = null,
   }) {
     return _then(
@@ -171,6 +180,10 @@ class __$$GroupBuyContributionModelImplCopyWithImpl<$Res>
             ? _value.journalId
             : journalId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        deliveryAddress: freezed == deliveryAddress
+            ? _value.deliveryAddress
+            : deliveryAddress // ignore: cast_nullable_to_non_nullable
+                  as String?,
         contributedAt: null == contributedAt
             ? _value.contributedAt
             : contributedAt // ignore: cast_nullable_to_non_nullable
@@ -189,6 +202,7 @@ class _$GroupBuyContributionModelImpl extends _GroupBuyContributionModel {
     required this.userName,
     required this.amount,
     this.journalId,
+    this.deliveryAddress,
     required this.contributedAt,
   }) : super._();
 
@@ -203,11 +217,13 @@ class _$GroupBuyContributionModelImpl extends _GroupBuyContributionModel {
   @override
   final String? journalId;
   @override
+  final String? deliveryAddress;
+  @override
   final DateTime contributedAt;
 
   @override
   String toString() {
-    return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, contributedAt: $contributedAt)';
+    return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
   }
 
   @override
@@ -222,6 +238,8 @@ class _$GroupBuyContributionModelImpl extends _GroupBuyContributionModel {
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.journalId, journalId) ||
                 other.journalId == journalId) &&
+            (identical(other.deliveryAddress, deliveryAddress) ||
+                other.deliveryAddress == deliveryAddress) &&
             (identical(other.contributedAt, contributedAt) ||
                 other.contributedAt == contributedAt));
   }
@@ -234,6 +252,7 @@ class _$GroupBuyContributionModelImpl extends _GroupBuyContributionModel {
     userName,
     amount,
     journalId,
+    deliveryAddress,
     contributedAt,
   );
 
@@ -256,6 +275,7 @@ abstract class _GroupBuyContributionModel extends GroupBuyContributionModel {
     required final String userName,
     required final int amount,
     final String? journalId,
+    final String? deliveryAddress,
     required final DateTime contributedAt,
   }) = _$GroupBuyContributionModelImpl;
   const _GroupBuyContributionModel._() : super._();
@@ -270,6 +290,8 @@ abstract class _GroupBuyContributionModel extends GroupBuyContributionModel {
   int get amount;
   @override
   String? get journalId;
+  @override
+  String? get deliveryAddress;
   @override
   DateTime get contributedAt;
 

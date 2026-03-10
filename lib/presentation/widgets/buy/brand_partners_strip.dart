@@ -5,17 +5,17 @@ import '../../../domain/entities/brand_storefront.dart';
 import '../../theme/app_colors.dart';
 import 'buy_section_header.dart';
 
-/// Horizontal scroll of brand partner mini storefront cards.
+/// Horizontal scroll of brand partner mini storefront hero cards.
+/// Each card renders a miniature of the brand's storefront hero section,
+/// respecting the brand's own visual identity (color, logo, tagline).
 class BrandPartnersStrip extends StatelessWidget {
   final List<BrandStorefront> brands;
   final ValueChanged<BrandStorefront> onBrandTap;
-  final VoidCallback? onSeeAllTap;
 
   const BrandPartnersStrip({
     super.key,
     required this.brands,
     required this.onBrandTap,
-    this.onSeeAllTap,
   });
 
   @override
@@ -23,45 +23,46 @@ class BrandPartnersStrip extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        BuySectionHeader(
-          title: '🏪 Brand Partners',
-          actionText: 'See All',
-          onActionTap: onSeeAllTap,
-        ),
+        const BuySectionHeader(title: 'Brand Partners'),
         SizedBox(
-          height: 96,
+          height: 100,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: brands.length,
             separatorBuilder: (_, __) => const SizedBox(width: 10),
             itemBuilder: (context, index) =>
-                _buildBrandCard(brands[index]),
+                _BrandHeroCard(brand: brands[index], onTap: onBrandTap),
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildBrandCard(BrandStorefront brand) {
+class _BrandHeroCard extends StatelessWidget {
+  final BrandStorefront brand;
+  final ValueChanged<BrandStorefront> onTap;
+
+  const _BrandHeroCard({required this.brand, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     final brandColor = brand.brandColor != null
         ? AppColors.parseHex(brand.brandColor!)
         : AppColors.primary;
 
+    // Determine hero style — use accentColor/heroStyle if available,
+    // otherwise fall back to brandColor gradient
+    final heroStyle = brand.heroStyle;
+    final hasHeroImage =
+        heroStyle == HeroStyle.fullBleedImage && brand.heroImageUrl != null;
+
     return GestureDetector(
-      onTap: () => onBrandTap(brand),
+      onTap: () => onTap(brand),
       child: Container(
         width: 140,
-        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              brandColor.withValues(alpha: 0.15),
-              AppColors.surfaceElevated,
-            ],
-          ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: brand.isPremium
@@ -70,45 +71,68 @@ class BrandPartnersStrip extends StatelessWidget {
             width: brand.isPremium ? 1.5 : 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Row(
-              children: [
-                _buildBrandLogo(brand),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
+            // Background: hero image or gradient
+            if (hasHeroImage)
+              CachedNetworkImage(
+                imageUrl: brand.heroImageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => _gradientBg(brandColor),
+                errorWidget: (_, __, ___) => _gradientBg(brandColor),
+              )
+            else
+              _gradientBg(brandColor),
+
+            // Dark overlay for text readability
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.1),
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
+                ),
+              ),
+            ),
+
+            // Content: logo + brand name
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: brand.logoPlacement == LogoPlacement.centered
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
+                children: [
+                  _buildLogo(brandColor),
+                  const Spacer(),
+                  Text(
                     brand.brandName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            if (brand.tagline != null)
-              Text(
-                brand.tagline!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            const Spacer(),
-            const Text(
-              'Visit →',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: AppColors.secondary,
+                  if (brand.tagline != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      brand.tagline!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
@@ -117,38 +141,54 @@ class BrandPartnersStrip extends StatelessWidget {
     );
   }
 
-  Widget _buildBrandLogo(BrandStorefront brand) {
+  Widget _gradientBg(Color brandColor) {
+    final secondColor = brand.secondaryColor != null
+        ? AppColors.parseHex(brand.secondaryColor!)
+        : brandColor.withValues(alpha: 0.6);
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [brandColor, secondColor],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo(Color brandColor) {
     if (brand.brandLogoUrl != null && brand.brandLogoUrl!.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         child: CachedNetworkImage(
           imageUrl: brand.brandLogoUrl!,
-          width: 32,
-          height: 32,
+          width: 28,
+          height: 28,
           fit: BoxFit.contain,
-          placeholder: (_, __) => _buildLogoFallback(brand),
-          errorWidget: (_, __, ___) => _buildLogoFallback(brand),
+          placeholder: (_, __) => _logoFallback(brandColor),
+          errorWidget: (_, __, ___) => _logoFallback(brandColor),
         ),
       );
     }
-    return _buildLogoFallback(brand);
+    return _logoFallback(brandColor);
   }
 
-  Widget _buildLogoFallback(BrandStorefront brand) {
+  Widget _logoFallback(Color brandColor) {
     return Container(
-      width: 32,
-      height: 32,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.white.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Center(
         child: Text(
           brand.brandName.isNotEmpty ? brand.brandName[0].toUpperCase() : '?',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: Colors.white,
           ),
         ),
       ),

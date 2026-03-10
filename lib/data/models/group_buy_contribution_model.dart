@@ -13,6 +13,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
     required String userName,
     required int amount,
     String? journalId,
+    String? deliveryAddress,
     required DateTime contributedAt,
   }) = _GroupBuyContributionModel;
 
@@ -25,6 +26,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       userName: json['userName'] as String? ?? '',
       amount: (json['amount'] as num?)?.toInt() ?? 0,
       journalId: json['journalId'] as String?,
+      deliveryAddress: json['deliveryAddress'] as String?,
       contributedAt: json['contributedAt'] is Timestamp
           ? (json['contributedAt'] as Timestamp).toDate()
           : json['contributedAt'] is String
@@ -45,6 +47,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       userName: userName,
       amount: amount,
       journalId: journalId,
+      deliveryAddress: deliveryAddress,
       contributedAt: contributedAt,
     );
   }
@@ -56,6 +59,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       userName: entity.userName,
       amount: entity.amount,
       journalId: entity.journalId,
+      deliveryAddress: entity.deliveryAddress,
       contributedAt: entity.contributedAt,
     );
   }

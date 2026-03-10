@@ -26,6 +26,9 @@ mixin _$GroupBuyContribution {
   String get userName => throw _privateConstructorUsedError;
   int get amount => throw _privateConstructorUsedError;
   String? get journalId => throw _privateConstructorUsedError;
+
+  /// Delivery address for physical fulfilment group buys
+  String? get deliveryAddress => throw _privateConstructorUsedError;
   DateTime get contributedAt => throw _privateConstructorUsedError;
 
   /// Serializes this GroupBuyContribution to a JSON map.
@@ -51,6 +54,7 @@ abstract class $GroupBuyContributionCopyWith<$Res> {
     String userName,
     int amount,
     String? journalId,
+    String? deliveryAddress,
     DateTime contributedAt,
   });
 }
@@ -78,6 +82,7 @@ class _$GroupBuyContributionCopyWithImpl<
     Object? userName = null,
     Object? amount = null,
     Object? journalId = freezed,
+    Object? deliveryAddress = freezed,
     Object? contributedAt = null,
   }) {
     return _then(
@@ -101,6 +106,10 @@ class _$GroupBuyContributionCopyWithImpl<
             journalId: freezed == journalId
                 ? _value.journalId
                 : journalId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            deliveryAddress: freezed == deliveryAddress
+                ? _value.deliveryAddress
+                : deliveryAddress // ignore: cast_nullable_to_non_nullable
                       as String?,
             contributedAt: null == contributedAt
                 ? _value.contributedAt
@@ -127,6 +136,7 @@ abstract class _$$GroupBuyContributionImplCopyWith<$Res>
     String userName,
     int amount,
     String? journalId,
+    String? deliveryAddress,
     DateTime contributedAt,
   });
 }
@@ -150,6 +160,7 @@ class __$$GroupBuyContributionImplCopyWithImpl<$Res>
     Object? userName = null,
     Object? amount = null,
     Object? journalId = freezed,
+    Object? deliveryAddress = freezed,
     Object? contributedAt = null,
   }) {
     return _then(
@@ -174,6 +185,10 @@ class __$$GroupBuyContributionImplCopyWithImpl<$Res>
             ? _value.journalId
             : journalId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        deliveryAddress: freezed == deliveryAddress
+            ? _value.deliveryAddress
+            : deliveryAddress // ignore: cast_nullable_to_non_nullable
+                  as String?,
         contributedAt: null == contributedAt
             ? _value.contributedAt
             : contributedAt // ignore: cast_nullable_to_non_nullable
@@ -192,6 +207,7 @@ class _$GroupBuyContributionImpl implements _GroupBuyContribution {
     required this.userName,
     required this.amount,
     this.journalId,
+    this.deliveryAddress,
     required this.contributedAt,
   });
 
@@ -208,12 +224,16 @@ class _$GroupBuyContributionImpl implements _GroupBuyContribution {
   final int amount;
   @override
   final String? journalId;
+
+  /// Delivery address for physical fulfilment group buys
+  @override
+  final String? deliveryAddress;
   @override
   final DateTime contributedAt;
 
   @override
   String toString() {
-    return 'GroupBuyContribution(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, contributedAt: $contributedAt)';
+    return 'GroupBuyContribution(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
   }
 
   @override
@@ -228,6 +248,8 @@ class _$GroupBuyContributionImpl implements _GroupBuyContribution {
             (identical(other.amount, amount) || other.amount == amount) &&
             (identical(other.journalId, journalId) ||
                 other.journalId == journalId) &&
+            (identical(other.deliveryAddress, deliveryAddress) ||
+                other.deliveryAddress == deliveryAddress) &&
             (identical(other.contributedAt, contributedAt) ||
                 other.contributedAt == contributedAt));
   }
@@ -241,6 +263,7 @@ class _$GroupBuyContributionImpl implements _GroupBuyContribution {
     userName,
     amount,
     journalId,
+    deliveryAddress,
     contributedAt,
   );
 
@@ -269,6 +292,7 @@ abstract class _GroupBuyContribution implements GroupBuyContribution {
     required final String userName,
     required final int amount,
     final String? journalId,
+    final String? deliveryAddress,
     required final DateTime contributedAt,
   }) = _$GroupBuyContributionImpl;
 
@@ -285,6 +309,10 @@ abstract class _GroupBuyContribution implements GroupBuyContribution {
   int get amount;
   @override
   String? get journalId;
+
+  /// Delivery address for physical fulfilment group buys
+  @override
+  String? get deliveryAddress;
   @override
   DateTime get contributedAt;
 

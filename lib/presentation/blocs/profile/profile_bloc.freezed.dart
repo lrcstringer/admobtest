@@ -30,6 +30,7 @@ mixin _$ProfileEvent {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -50,6 +51,7 @@ mixin _$ProfileEvent {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -70,6 +72,7 @@ mixin _$ProfileEvent {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -190,6 +193,7 @@ class _$LoadProfileImpl implements _LoadProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -214,6 +218,7 @@ class _$LoadProfileImpl implements _LoadProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -238,6 +243,7 @@ class _$LoadProfileImpl implements _LoadProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -360,6 +366,7 @@ class _$WatchProfileImpl implements _WatchProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -384,6 +391,7 @@ class _$WatchProfileImpl implements _WatchProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -408,6 +416,7 @@ class _$WatchProfileImpl implements _WatchProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -569,6 +578,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -593,6 +603,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -617,6 +628,7 @@ class _$UserUpdatedImpl implements _UserUpdated {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -708,6 +720,7 @@ abstract class _$$UpdateProfileImplCopyWith<$Res> {
     DateTime? dateOfBirth,
     String? province,
     String? avatarUrl,
+    List<String>? selectedClusters,
   });
 }
 
@@ -732,6 +745,7 @@ class __$$UpdateProfileImplCopyWithImpl<$Res>
     Object? dateOfBirth = freezed,
     Object? province = freezed,
     Object? avatarUrl = freezed,
+    Object? selectedClusters = freezed,
   }) {
     return _then(
       _$UpdateProfileImpl(
@@ -763,6 +777,10 @@ class __$$UpdateProfileImplCopyWithImpl<$Res>
             ? _value.avatarUrl
             : avatarUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
+        selectedClusters: freezed == selectedClusters
+            ? _value._selectedClusters
+            : selectedClusters // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
       ),
     );
   }
@@ -779,7 +797,8 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     this.dateOfBirth,
     this.province,
     this.avatarUrl,
-  });
+    final List<String>? selectedClusters,
+  }) : _selectedClusters = selectedClusters;
 
   @override
   final String? displayName;
@@ -795,10 +814,20 @@ class _$UpdateProfileImpl implements _UpdateProfile {
   final String? province;
   @override
   final String? avatarUrl;
+  final List<String>? _selectedClusters;
+  @override
+  List<String>? get selectedClusters {
+    final value = _selectedClusters;
+    if (value == null) return null;
+    if (_selectedClusters is EqualUnmodifiableListView)
+      return _selectedClusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'ProfileEvent.updateProfile(displayName: $displayName, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, avatarUrl: $avatarUrl)';
+    return 'ProfileEvent.updateProfile(displayName: $displayName, firstName: $firstName, lastName: $lastName, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, avatarUrl: $avatarUrl, selectedClusters: $selectedClusters)';
   }
 
   @override
@@ -818,7 +847,11 @@ class _$UpdateProfileImpl implements _UpdateProfile {
             (identical(other.province, province) ||
                 other.province == province) &&
             (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl));
+                other.avatarUrl == avatarUrl) &&
+            const DeepCollectionEquality().equals(
+              other._selectedClusters,
+              _selectedClusters,
+            ));
   }
 
   @override
@@ -831,6 +864,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
     dateOfBirth,
     province,
     avatarUrl,
+    const DeepCollectionEquality().hash(_selectedClusters),
   );
 
   /// Create a copy of ProfileEvent
@@ -855,6 +889,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -870,6 +905,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
       dateOfBirth,
       province,
       avatarUrl,
+      selectedClusters,
     );
   }
 
@@ -887,6 +923,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -902,6 +939,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
       dateOfBirth,
       province,
       avatarUrl,
+      selectedClusters,
     );
   }
 
@@ -919,6 +957,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -936,6 +975,7 @@ class _$UpdateProfileImpl implements _UpdateProfile {
         dateOfBirth,
         province,
         avatarUrl,
+        selectedClusters,
       );
     }
     return orElse();
@@ -1000,6 +1040,7 @@ abstract class _UpdateProfile implements ProfileEvent {
     final DateTime? dateOfBirth,
     final String? province,
     final String? avatarUrl,
+    final List<String>? selectedClusters,
   }) = _$UpdateProfileImpl;
 
   String? get displayName;
@@ -1009,6 +1050,7 @@ abstract class _UpdateProfile implements ProfileEvent {
   DateTime? get dateOfBirth;
   String? get province;
   String? get avatarUrl;
+  List<String>? get selectedClusters;
 
   /// Create a copy of ProfileEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -1102,6 +1144,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -1126,6 +1169,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -1150,6 +1194,7 @@ class _$UpdateUsernameImpl implements _UpdateUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -1308,6 +1353,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -1332,6 +1378,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -1356,6 +1403,7 @@ class _$CheckUsernameImpl implements _CheckUsername {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -1486,6 +1534,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -1510,6 +1559,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -1534,6 +1584,7 @@ class _$AcceptTermsImpl implements _AcceptTerms {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,
@@ -1695,6 +1746,7 @@ class _$UpdatePrivacySettingImpl implements _UpdatePrivacySetting {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )
     updateProfile,
     required TResult Function(String username) updateUsername,
@@ -1719,6 +1771,7 @@ class _$UpdatePrivacySettingImpl implements _UpdatePrivacySetting {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult? Function(String username)? updateUsername,
@@ -1743,6 +1796,7 @@ class _$UpdatePrivacySettingImpl implements _UpdatePrivacySetting {
       DateTime? dateOfBirth,
       String? province,
       String? avatarUrl,
+      List<String>? selectedClusters,
     )?
     updateProfile,
     TResult Function(String username)? updateUsername,

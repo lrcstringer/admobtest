@@ -6,6 +6,21 @@ part of 'buy_category.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$BuySubcategoryImpl _$$BuySubcategoryImplFromJson(Map<String, dynamic> json) =>
+    _$BuySubcategoryImpl(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      iconEmoji: json['iconEmoji'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$$BuySubcategoryImplToJson(
+  _$BuySubcategoryImpl instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'iconEmoji': instance.iconEmoji,
+};
+
 _$BuyCategoryImpl _$$BuyCategoryImplFromJson(Map<String, dynamic> json) =>
     _$BuyCategoryImpl(
       id: json['id'] as String,
@@ -18,6 +33,11 @@ _$BuyCategoryImpl _$$BuyCategoryImplFromJson(Map<String, dynamic> json) =>
       featureFlagKey: json['featureFlagKey'] as String?,
       logoUrl: json['logoUrl'] as String?,
       backgroundColor: json['backgroundColor'] as String?,
+      subcategories:
+          (json['subcategories'] as List<dynamic>?)
+              ?.map((e) => BuySubcategory.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$BuyCategoryImplToJson(_$BuyCategoryImpl instance) =>
@@ -32,4 +52,5 @@ Map<String, dynamic> _$$BuyCategoryImplToJson(_$BuyCategoryImpl instance) =>
       'featureFlagKey': instance.featureFlagKey,
       'logoUrl': instance.logoUrl,
       'backgroundColor': instance.backgroundColor,
+      'subcategories': instance.subcategories,
     };

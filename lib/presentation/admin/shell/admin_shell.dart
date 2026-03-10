@@ -286,26 +286,34 @@ class _AdminSidebar extends StatelessWidget {
 
                     // ── BUY MANAGEMENT ──
                     if (_anySectionVisible(roles, [
-                      '/buy-feature-flags',
-                      '/buy-categories',
-                      '/buy-purchases',
                       '/buy-featured',
                       '/buy-brand-storefronts',
+                      '/buy-categories',
+                      '/buy-purchases',
                       '/buy-providers',
                       '/buy-listings',
+                      '/buy-group-buys',
                       '/buy-orders',
                       '/buy-analytics',
-                      '/buy-group-buys',
                       '/buy-escrow',
+                      '/buy-feature-flags',
                     ]))
                       const _SectionHeader('BUY MANAGEMENT'),
-                    if (isRouteAllowed('/buy-feature-flags', roles))
+                    if (isRouteAllowed('/buy-featured', roles))
                       _NavItem(
-                        icon: Icons.flag_outlined,
-                        selectedIcon: Icons.flag,
-                        label: 'Feature Flags',
-                        path: '/buy-feature-flags',
-                        isSelected: currentPath == '/buy-feature-flags',
+                        icon: Icons.star_outline,
+                        selectedIcon: Icons.star,
+                        label: 'Featured Content',
+                        path: '/buy-featured',
+                        isSelected: currentPath == '/buy-featured',
+                      ),
+                    if (isRouteAllowed('/buy-brand-storefronts', roles))
+                      _NavItem(
+                        icon: Icons.storefront_outlined,
+                        selectedIcon: Icons.storefront,
+                        label: 'Brand Storefronts',
+                        path: '/buy-brand-storefronts',
+                        isSelected: currentPath == '/buy-brand-storefronts',
                       ),
                     if (isRouteAllowed('/buy-categories', roles))
                       _NavItem(
@@ -323,22 +331,6 @@ class _AdminSidebar extends StatelessWidget {
                         path: '/buy-purchases',
                         isSelected: currentPath == '/buy-purchases',
                       ),
-                    if (isRouteAllowed('/buy-featured', roles))
-                      _NavItem(
-                        icon: Icons.star_outline,
-                        selectedIcon: Icons.star,
-                        label: 'Featured Content',
-                        path: '/buy-featured',
-                        isSelected: currentPath == '/buy-featured',
-                      ),
-                    if (isRouteAllowed('/buy-brand-storefronts', roles))
-                      _NavItem(
-                        icon: Icons.storefront_outlined,
-                        selectedIcon: Icons.storefront,
-                        label: 'Brand Storefronts',
-                        path: '/buy-brand-storefronts',
-                        isSelected: currentPath == '/buy-brand-storefronts',
-                      ),
                     if (isRouteAllowed('/buy-providers', roles))
                       _NavItem(
                         icon: Icons.person_search_outlined,
@@ -354,6 +346,14 @@ class _AdminSidebar extends StatelessWidget {
                         label: 'Listings',
                         path: '/buy-listings',
                         isSelected: currentPath == '/buy-listings',
+                      ),
+                    if (isRouteAllowed('/buy-group-buys', roles))
+                      _NavItem(
+                        icon: Icons.group_work_outlined,
+                        selectedIcon: Icons.group_work,
+                        label: 'Group Buys',
+                        path: '/buy-group-buys',
+                        isSelected: currentPath == '/buy-group-buys',
                       ),
                     if (isRouteAllowed('/buy-orders', roles))
                       _NavItem(
@@ -371,14 +371,6 @@ class _AdminSidebar extends StatelessWidget {
                         path: '/buy-analytics',
                         isSelected: currentPath == '/buy-analytics',
                       ),
-                    if (isRouteAllowed('/buy-group-buys', roles))
-                      _NavItem(
-                        icon: Icons.group_work_outlined,
-                        selectedIcon: Icons.group_work,
-                        label: 'Group Buys',
-                        path: '/buy-group-buys',
-                        isSelected: currentPath == '/buy-group-buys',
-                      ),
                     if (isRouteAllowed('/buy-escrow', roles))
                       _NavItem(
                         icon: Icons.account_balance_outlined,
@@ -386,6 +378,14 @@ class _AdminSidebar extends StatelessWidget {
                         label: 'Escrow Overview',
                         path: '/buy-escrow',
                         isSelected: currentPath == '/buy-escrow',
+                      ),
+                    if (isRouteAllowed('/buy-feature-flags', roles))
+                      _NavItem(
+                        icon: Icons.flag_outlined,
+                        selectedIcon: Icons.flag,
+                        label: 'Feature Flags',
+                        path: '/buy-feature-flags',
+                        isSelected: currentPath == '/buy-feature-flags',
                       ),
 
                     // ── PLATFORM MANAGEMENT ──

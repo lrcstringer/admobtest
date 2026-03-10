@@ -104,4 +104,54 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<GroupBuy>>> getHubGroupBuys({
+    List<String> userClusters = const [],
+  }) async {
+    try {
+      final models = await _remoteDataSource.getHubGroupBuys(
+        userClusters: userClusters,
+      );
+      return Right(models.map((m) => m.toEntity()).toList());
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> leaveGroupBuy({
+    required String groupBuyId,
+  }) async {
+    try {
+      await _remoteDataSource.leaveGroupBuy(groupBuyId: groupBuyId);
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> suggestGroupBuyDeal({
+    required String description,
+    required String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    bool wantsToJoin = true,
+  }) async {
+    try {
+      final id = await _remoteDataSource.suggestGroupBuyDeal(
+        description: description,
+        brandOrStore: brandOrStore,
+        estimatedPrice: estimatedPrice,
+        sourceUrl: sourceUrl,
+        imageUrl: imageUrl,
+        wantsToJoin: wantsToJoin,
+      );
+      return Right(id);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

@@ -157,7 +157,7 @@ class MediaRecoveryService {
         final iv = data['recoveryKeyIv'] as String?;
 
         if (blob != null && iv != null) {
-          // Unwrap using TEE
+          // Step 3a: Try TEE unwrap
           final unwrapResult = await _keystoreService.unwrapData(
             wrappingAlias,
             blob,
@@ -176,6 +176,15 @@ class MediaRecoveryService {
             _initialized = true;
             debugPrint(
                 'MediaRecoveryService: Recovery key unwrapped from Firestore blob');
+            // Backfill recoveryKeyDirect if missing (pre-existing install)
+            if (data['recoveryKeyDirect'] == null) {
+              _firestore.collection('devices').doc(deviceId).update({
+                'recoveryKeyDirect': recoveryKey,
+              }).catchError((e) {
+                debugPrint(
+                    'MediaRecoveryService: backfill recoveryKeyDirect failed: $e');
+              });
+            }
             _flushPendingPayloads();
             return true;
           }
@@ -183,6 +192,21 @@ class MediaRecoveryService {
           debugPrint(
               'MediaRecoveryService: Device doc missing blob/iv — '
               'blob=${blob != null}, iv=${iv != null}');
+        }
+
+        // Step 3b: TEE unwrap failed or blob missing — try direct key
+        // (survives reinstall even when Android Keystore keys are wiped)
+        final directKey = data['recoveryKeyDirect'] as String?;
+        if (directKey != null && directKey.isNotEmpty) {
+          _cachedRecoveryKey = directKey;
+          _blobStoredOnFirestore = true;
+          await _secureStorage.write(
+              key: _recoveryKeyCache, value: directKey);
+          _initialized = true;
+          debugPrint(
+              'MediaRecoveryService: Recovery key loaded from Firestore (direct)');
+          _flushPendingPayloads();
+          return true;
         }
       } else {
         debugPrint(
@@ -208,11 +232,12 @@ class MediaRecoveryService {
       return false;
     }
 
-    // Store wrapped blob on Firestore device doc
+    // Store wrapped blob + direct key on Firestore device doc
     if (deviceId != null) {
       await _firestore.collection('devices').doc(deviceId).update({
         'recoveryKeyBlob': wrappedData['ciphertext'],
         'recoveryKeyIv': wrappedData['iv'],
+        'recoveryKeyDirect': recoveryKeyB64,
       });
       _blobStoredOnFirestore = true;
     } else {
@@ -260,10 +285,26 @@ class MediaRecoveryService {
           await _firestore.collection('devices').doc(deviceId).get();
       if (deviceDoc.exists) {
         final data = deviceDoc.data()!;
-        if (data['recoveryKeyBlob'] != null && data['recoveryKeyIv'] != null) {
+        final hasBlob =
+            data['recoveryKeyBlob'] != null && data['recoveryKeyIv'] != null;
+        final hasDirect = data['recoveryKeyDirect'] != null;
+
+        if (hasBlob && hasDirect) {
           _blobStoredOnFirestore = true;
           debugPrint(
               'MediaRecoveryService: ensureBlobStored — blob already exists');
+          return;
+        }
+
+        // Backfill recoveryKeyDirect if blob exists but direct key is missing
+        if (hasBlob && !hasDirect) {
+          await _firestore.collection('devices').doc(deviceId).update({
+            'recoveryKeyDirect': _cachedRecoveryKey!,
+          });
+          _blobStoredOnFirestore = true;
+          debugPrint(
+              'MediaRecoveryService: ensureBlobStored — backfilled '
+              'recoveryKeyDirect on device $deviceId');
           return;
         }
       }
@@ -277,11 +318,22 @@ class MediaRecoveryService {
             'MediaRecoveryService: ensureBlobStored TEE wrap failed: $err');
         return null;
       }, (v) => v);
-      if (wrappedData == null) return;
+      if (wrappedData == null) {
+        // TEE wrap failed — still store direct key as fallback
+        await _firestore.collection('devices').doc(deviceId).update({
+          'recoveryKeyDirect': _cachedRecoveryKey!,
+        });
+        _blobStoredOnFirestore = true;
+        debugPrint(
+            'MediaRecoveryService: ensureBlobStored — TEE wrap failed, '
+            'stored recoveryKeyDirect only on device $deviceId');
+        return;
+      }
 
       await _firestore.collection('devices').doc(deviceId).update({
         'recoveryKeyBlob': wrappedData['ciphertext'],
         'recoveryKeyIv': wrappedData['iv'],
+        'recoveryKeyDirect': _cachedRecoveryKey!,
       });
       _blobStoredOnFirestore = true;
       debugPrint(

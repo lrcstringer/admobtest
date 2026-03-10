@@ -36,7 +36,10 @@ mixin _$UserProfile {
   List<String>? get languages => throw _privateConstructorUsedError;
 
   /// Interest categories (e.g. ['sports', 'tech'])
-  List<String>? get interests =>
+  List<String>? get interests => throw _privateConstructorUsedError;
+
+  /// Regional clusters the user has opted into (for group buy matching)
+  List<String>? get selectedClusters =>
       throw _privateConstructorUsedError; // POPIA consent
   /// Whether user has consented to receiving reward items
   bool get rewardConsent =>
@@ -74,6 +77,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    List<String>? selectedClusters,
     bool rewardConsent,
     PrivacySettings? privacySettings,
   });
@@ -108,6 +112,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? selectedClusters = freezed,
     Object? rewardConsent = null,
     Object? privacySettings = freezed,
   }) {
@@ -161,6 +166,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.interests
                 : interests // ignore: cast_nullable_to_non_nullable
                       as List<String>?,
+            selectedClusters: freezed == selectedClusters
+                ? _value.selectedClusters
+                : selectedClusters // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
             rewardConsent: null == rewardConsent
                 ? _value.rewardConsent
                 : rewardConsent // ignore: cast_nullable_to_non_nullable
@@ -211,6 +220,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? lastName,
     List<String>? languages,
     List<String>? interests,
+    List<String>? selectedClusters,
     bool rewardConsent,
     PrivacySettings? privacySettings,
   });
@@ -245,6 +255,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? lastName = freezed,
     Object? languages = freezed,
     Object? interests = freezed,
+    Object? selectedClusters = freezed,
     Object? rewardConsent = null,
     Object? privacySettings = freezed,
   }) {
@@ -298,6 +309,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value._interests
             : interests // ignore: cast_nullable_to_non_nullable
                   as List<String>?,
+        selectedClusters: freezed == selectedClusters
+            ? _value._selectedClusters
+            : selectedClusters // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
         rewardConsent: null == rewardConsent
             ? _value.rewardConsent
             : rewardConsent // ignore: cast_nullable_to_non_nullable
@@ -327,10 +342,12 @@ class _$UserProfileImpl extends _UserProfile {
     this.lastName,
     final List<String>? languages,
     final List<String>? interests,
+    final List<String>? selectedClusters,
     this.rewardConsent = false,
     this.privacySettings,
   }) : _languages = languages,
        _interests = interests,
+       _selectedClusters = selectedClusters,
        super._();
 
   factory _$UserProfileImpl.fromJson(Map<String, dynamic> json) =>
@@ -383,6 +400,20 @@ class _$UserProfileImpl extends _UserProfile {
     return EqualUnmodifiableListView(value);
   }
 
+  /// Regional clusters the user has opted into (for group buy matching)
+  final List<String>? _selectedClusters;
+
+  /// Regional clusters the user has opted into (for group buy matching)
+  @override
+  List<String>? get selectedClusters {
+    final value = _selectedClusters;
+    if (value == null) return null;
+    if (_selectedClusters is EqualUnmodifiableListView)
+      return _selectedClusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   // POPIA consent
   /// Whether user has consented to receiving reward items
   @override
@@ -395,7 +426,7 @@ class _$UserProfileImpl extends _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, rewardConsent: $rewardConsent, privacySettings: $privacySettings)';
+    return 'UserProfile(displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, gender: $gender, dateOfBirth: $dateOfBirth, province: $province, city: $city, firstName: $firstName, lastName: $lastName, languages: $languages, interests: $interests, selectedClusters: $selectedClusters, rewardConsent: $rewardConsent, privacySettings: $privacySettings)';
   }
 
   @override
@@ -429,6 +460,10 @@ class _$UserProfileImpl extends _UserProfile {
               other._interests,
               _interests,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._selectedClusters,
+              _selectedClusters,
+            ) &&
             (identical(other.rewardConsent, rewardConsent) ||
                 other.rewardConsent == rewardConsent) &&
             (identical(other.privacySettings, privacySettings) ||
@@ -451,6 +486,7 @@ class _$UserProfileImpl extends _UserProfile {
     lastName,
     const DeepCollectionEquality().hash(_languages),
     const DeepCollectionEquality().hash(_interests),
+    const DeepCollectionEquality().hash(_selectedClusters),
     rewardConsent,
     privacySettings,
   );
@@ -483,6 +519,7 @@ abstract class _UserProfile extends UserProfile {
     final String? lastName,
     final List<String>? languages,
     final List<String>? interests,
+    final List<String>? selectedClusters,
     final bool rewardConsent,
     final PrivacySettings? privacySettings,
   }) = _$UserProfileImpl;
@@ -517,7 +554,11 @@ abstract class _UserProfile extends UserProfile {
 
   /// Interest categories (e.g. ['sports', 'tech'])
   @override
-  List<String>? get interests; // POPIA consent
+  List<String>? get interests;
+
+  /// Regional clusters the user has opted into (for group buy matching)
+  @override
+  List<String>? get selectedClusters; // POPIA consent
   /// Whether user has consented to receiving reward items
   @override
   bool get rewardConsent; // Privacy settings

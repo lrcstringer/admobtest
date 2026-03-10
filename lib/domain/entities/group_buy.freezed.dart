@@ -25,9 +25,13 @@ mixin _$GroupBuy {
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   String? get linkedListingId => throw _privateConstructorUsedError;
-  String get organizerId => throw _privateConstructorUsedError;
-  String get organizerName => throw _privateConstructorUsedError;
-  String get communityId => throw _privateConstructorUsedError;
+
+  /// Made optional — admin-curated group buys have no user organizer.
+  String? get organizerId => throw _privateConstructorUsedError;
+  String? get organizerName => throw _privateConstructorUsedError;
+
+  /// Made optional — admin-curated group buys are not community-bound.
+  String? get communityId => throw _privateConstructorUsedError;
   int get targetAmount => throw _privateConstructorUsedError;
   int get currentAmount => throw _privateConstructorUsedError;
   int get minParticipants => throw _privateConstructorUsedError;
@@ -41,7 +45,32 @@ mixin _$GroupBuy {
   String? get brandId => throw _privateConstructorUsedError;
   String? get brandName => throw _privateConstructorUsedError;
   String? get brandLogoUrl => throw _privateConstructorUsedError;
-  int? get discountPercent => throw _privateConstructorUsedError;
+  int? get discountPercent =>
+      throw _privateConstructorUsedError; // ── New fields for admin-curated group buys ──
+  /// Whether this group buy was created by admin
+  bool get createdByAdmin => throw _privateConstructorUsedError;
+
+  /// digital = shown to all, physical = cluster-matched
+  GroupBuyType get type => throw _privateConstructorUsedError;
+
+  /// How the deal is fulfilled after target is met
+  GroupBuyFulfilmentType get fulfilmentType =>
+      throw _privateConstructorUsedError;
+
+  /// Regional clusters this deal targets (physical only)
+  List<String> get clusters => throw _privateConstructorUsedError;
+
+  /// Freetext pickup/collection addresses for display (physical only)
+  List<String> get addresses => throw _privateConstructorUsedError;
+
+  /// Voucher codes uploaded by admin at completion (digital fulfilment)
+  List<String> get voucherCodes => throw _privateConstructorUsedError;
+
+  /// Product image URL
+  String? get imageUrl => throw _privateConstructorUsedError;
+
+  /// Original price before group buy discount (for strikethrough display)
+  int? get originalPrice => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
@@ -65,9 +94,9 @@ abstract class $GroupBuyCopyWith<$Res> {
     String title,
     String description,
     String? linkedListingId,
-    String organizerId,
-    String organizerName,
-    String communityId,
+    String? organizerId,
+    String? organizerName,
+    String? communityId,
     int targetAmount,
     int currentAmount,
     int minParticipants,
@@ -80,6 +109,14 @@ abstract class $GroupBuyCopyWith<$Res> {
     String? brandName,
     String? brandLogoUrl,
     int? discountPercent,
+    bool createdByAdmin,
+    GroupBuyType type,
+    GroupBuyFulfilmentType fulfilmentType,
+    List<String> clusters,
+    List<String> addresses,
+    List<String> voucherCodes,
+    String? imageUrl,
+    int? originalPrice,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -104,9 +141,9 @@ class _$GroupBuyCopyWithImpl<$Res, $Val extends GroupBuy>
     Object? title = null,
     Object? description = null,
     Object? linkedListingId = freezed,
-    Object? organizerId = null,
-    Object? organizerName = null,
-    Object? communityId = null,
+    Object? organizerId = freezed,
+    Object? organizerName = freezed,
+    Object? communityId = freezed,
     Object? targetAmount = null,
     Object? currentAmount = null,
     Object? minParticipants = null,
@@ -119,6 +156,14 @@ class _$GroupBuyCopyWithImpl<$Res, $Val extends GroupBuy>
     Object? brandName = freezed,
     Object? brandLogoUrl = freezed,
     Object? discountPercent = freezed,
+    Object? createdByAdmin = null,
+    Object? type = null,
+    Object? fulfilmentType = null,
+    Object? clusters = null,
+    Object? addresses = null,
+    Object? voucherCodes = null,
+    Object? imageUrl = freezed,
+    Object? originalPrice = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -140,18 +185,18 @@ class _$GroupBuyCopyWithImpl<$Res, $Val extends GroupBuy>
                 ? _value.linkedListingId
                 : linkedListingId // ignore: cast_nullable_to_non_nullable
                       as String?,
-            organizerId: null == organizerId
+            organizerId: freezed == organizerId
                 ? _value.organizerId
                 : organizerId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            organizerName: null == organizerName
+                      as String?,
+            organizerName: freezed == organizerName
                 ? _value.organizerName
                 : organizerName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            communityId: null == communityId
+                      as String?,
+            communityId: freezed == communityId
                 ? _value.communityId
                 : communityId // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as String?,
             targetAmount: null == targetAmount
                 ? _value.targetAmount
                 : targetAmount // ignore: cast_nullable_to_non_nullable
@@ -200,6 +245,38 @@ class _$GroupBuyCopyWithImpl<$Res, $Val extends GroupBuy>
                 ? _value.discountPercent
                 : discountPercent // ignore: cast_nullable_to_non_nullable
                       as int?,
+            createdByAdmin: null == createdByAdmin
+                ? _value.createdByAdmin
+                : createdByAdmin // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            type: null == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                      as GroupBuyType,
+            fulfilmentType: null == fulfilmentType
+                ? _value.fulfilmentType
+                : fulfilmentType // ignore: cast_nullable_to_non_nullable
+                      as GroupBuyFulfilmentType,
+            clusters: null == clusters
+                ? _value.clusters
+                : clusters // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            addresses: null == addresses
+                ? _value.addresses
+                : addresses // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            voucherCodes: null == voucherCodes
+                ? _value.voucherCodes
+                : voucherCodes // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            imageUrl: freezed == imageUrl
+                ? _value.imageUrl
+                : imageUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            originalPrice: freezed == originalPrice
+                ? _value.originalPrice
+                : originalPrice // ignore: cast_nullable_to_non_nullable
+                      as int?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -228,9 +305,9 @@ abstract class _$$GroupBuyImplCopyWith<$Res>
     String title,
     String description,
     String? linkedListingId,
-    String organizerId,
-    String organizerName,
-    String communityId,
+    String? organizerId,
+    String? organizerName,
+    String? communityId,
     int targetAmount,
     int currentAmount,
     int minParticipants,
@@ -243,6 +320,14 @@ abstract class _$$GroupBuyImplCopyWith<$Res>
     String? brandName,
     String? brandLogoUrl,
     int? discountPercent,
+    bool createdByAdmin,
+    GroupBuyType type,
+    GroupBuyFulfilmentType fulfilmentType,
+    List<String> clusters,
+    List<String> addresses,
+    List<String> voucherCodes,
+    String? imageUrl,
+    int? originalPrice,
     DateTime createdAt,
     DateTime? updatedAt,
   });
@@ -266,9 +351,9 @@ class __$$GroupBuyImplCopyWithImpl<$Res>
     Object? title = null,
     Object? description = null,
     Object? linkedListingId = freezed,
-    Object? organizerId = null,
-    Object? organizerName = null,
-    Object? communityId = null,
+    Object? organizerId = freezed,
+    Object? organizerName = freezed,
+    Object? communityId = freezed,
     Object? targetAmount = null,
     Object? currentAmount = null,
     Object? minParticipants = null,
@@ -281,6 +366,14 @@ class __$$GroupBuyImplCopyWithImpl<$Res>
     Object? brandName = freezed,
     Object? brandLogoUrl = freezed,
     Object? discountPercent = freezed,
+    Object? createdByAdmin = null,
+    Object? type = null,
+    Object? fulfilmentType = null,
+    Object? clusters = null,
+    Object? addresses = null,
+    Object? voucherCodes = null,
+    Object? imageUrl = freezed,
+    Object? originalPrice = freezed,
     Object? createdAt = null,
     Object? updatedAt = freezed,
   }) {
@@ -302,18 +395,18 @@ class __$$GroupBuyImplCopyWithImpl<$Res>
             ? _value.linkedListingId
             : linkedListingId // ignore: cast_nullable_to_non_nullable
                   as String?,
-        organizerId: null == organizerId
+        organizerId: freezed == organizerId
             ? _value.organizerId
             : organizerId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        organizerName: null == organizerName
+                  as String?,
+        organizerName: freezed == organizerName
             ? _value.organizerName
             : organizerName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        communityId: null == communityId
+                  as String?,
+        communityId: freezed == communityId
             ? _value.communityId
             : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as String?,
         targetAmount: null == targetAmount
             ? _value.targetAmount
             : targetAmount // ignore: cast_nullable_to_non_nullable
@@ -362,6 +455,38 @@ class __$$GroupBuyImplCopyWithImpl<$Res>
             ? _value.discountPercent
             : discountPercent // ignore: cast_nullable_to_non_nullable
                   as int?,
+        createdByAdmin: null == createdByAdmin
+            ? _value.createdByAdmin
+            : createdByAdmin // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        type: null == type
+            ? _value.type
+            : type // ignore: cast_nullable_to_non_nullable
+                  as GroupBuyType,
+        fulfilmentType: null == fulfilmentType
+            ? _value.fulfilmentType
+            : fulfilmentType // ignore: cast_nullable_to_non_nullable
+                  as GroupBuyFulfilmentType,
+        clusters: null == clusters
+            ? _value._clusters
+            : clusters // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        addresses: null == addresses
+            ? _value._addresses
+            : addresses // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        voucherCodes: null == voucherCodes
+            ? _value._voucherCodes
+            : voucherCodes // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        originalPrice: freezed == originalPrice
+            ? _value.originalPrice
+            : originalPrice // ignore: cast_nullable_to_non_nullable
+                  as int?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -383,9 +508,9 @@ class _$GroupBuyImpl extends _GroupBuy {
     required this.title,
     required this.description,
     this.linkedListingId,
-    required this.organizerId,
-    required this.organizerName,
-    required this.communityId,
+    this.organizerId,
+    this.organizerName,
+    this.communityId,
     required this.targetAmount,
     this.currentAmount = 0,
     this.minParticipants = 1,
@@ -398,9 +523,20 @@ class _$GroupBuyImpl extends _GroupBuy {
     this.brandName,
     this.brandLogoUrl,
     this.discountPercent,
+    this.createdByAdmin = false,
+    this.type = GroupBuyType.digital,
+    this.fulfilmentType = GroupBuyFulfilmentType.digital,
+    final List<String> clusters = const [],
+    final List<String> addresses = const [],
+    final List<String> voucherCodes = const [],
+    this.imageUrl,
+    this.originalPrice,
     required this.createdAt,
     this.updatedAt,
-  }) : super._();
+  }) : _clusters = clusters,
+       _addresses = addresses,
+       _voucherCodes = voucherCodes,
+       super._();
 
   factory _$GroupBuyImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupBuyImplFromJson(json);
@@ -413,12 +549,16 @@ class _$GroupBuyImpl extends _GroupBuy {
   final String description;
   @override
   final String? linkedListingId;
+
+  /// Made optional — admin-curated group buys have no user organizer.
   @override
-  final String organizerId;
+  final String? organizerId;
   @override
-  final String organizerName;
+  final String? organizerName;
+
+  /// Made optional — admin-curated group buys are not community-bound.
   @override
-  final String communityId;
+  final String? communityId;
   @override
   final int targetAmount;
   @override
@@ -449,6 +589,65 @@ class _$GroupBuyImpl extends _GroupBuy {
   final String? brandLogoUrl;
   @override
   final int? discountPercent;
+  // ── New fields for admin-curated group buys ──
+  /// Whether this group buy was created by admin
+  @override
+  @JsonKey()
+  final bool createdByAdmin;
+
+  /// digital = shown to all, physical = cluster-matched
+  @override
+  @JsonKey()
+  final GroupBuyType type;
+
+  /// How the deal is fulfilled after target is met
+  @override
+  @JsonKey()
+  final GroupBuyFulfilmentType fulfilmentType;
+
+  /// Regional clusters this deal targets (physical only)
+  final List<String> _clusters;
+
+  /// Regional clusters this deal targets (physical only)
+  @override
+  @JsonKey()
+  List<String> get clusters {
+    if (_clusters is EqualUnmodifiableListView) return _clusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_clusters);
+  }
+
+  /// Freetext pickup/collection addresses for display (physical only)
+  final List<String> _addresses;
+
+  /// Freetext pickup/collection addresses for display (physical only)
+  @override
+  @JsonKey()
+  List<String> get addresses {
+    if (_addresses is EqualUnmodifiableListView) return _addresses;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_addresses);
+  }
+
+  /// Voucher codes uploaded by admin at completion (digital fulfilment)
+  final List<String> _voucherCodes;
+
+  /// Voucher codes uploaded by admin at completion (digital fulfilment)
+  @override
+  @JsonKey()
+  List<String> get voucherCodes {
+    if (_voucherCodes is EqualUnmodifiableListView) return _voucherCodes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_voucherCodes);
+  }
+
+  /// Product image URL
+  @override
+  final String? imageUrl;
+
+  /// Original price before group buy discount (for strikethrough display)
+  @override
+  final int? originalPrice;
   @override
   final DateTime createdAt;
   @override
@@ -456,7 +655,7 @@ class _$GroupBuyImpl extends _GroupBuy {
 
   @override
   String toString() {
-    return 'GroupBuy(id: $id, title: $title, description: $description, linkedListingId: $linkedListingId, organizerId: $organizerId, organizerName: $organizerName, communityId: $communityId, targetAmount: $targetAmount, currentAmount: $currentAmount, minParticipants: $minParticipants, maxParticipants: $maxParticipants, deadline: $deadline, status: $status, participantCount: $participantCount, sponsorType: $sponsorType, brandId: $brandId, brandName: $brandName, brandLogoUrl: $brandLogoUrl, discountPercent: $discountPercent, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'GroupBuy(id: $id, title: $title, description: $description, linkedListingId: $linkedListingId, organizerId: $organizerId, organizerName: $organizerName, communityId: $communityId, targetAmount: $targetAmount, currentAmount: $currentAmount, minParticipants: $minParticipants, maxParticipants: $maxParticipants, deadline: $deadline, status: $status, participantCount: $participantCount, sponsorType: $sponsorType, brandId: $brandId, brandName: $brandName, brandLogoUrl: $brandLogoUrl, discountPercent: $discountPercent, createdByAdmin: $createdByAdmin, type: $type, fulfilmentType: $fulfilmentType, clusters: $clusters, addresses: $addresses, voucherCodes: $voucherCodes, imageUrl: $imageUrl, originalPrice: $originalPrice, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -498,6 +697,24 @@ class _$GroupBuyImpl extends _GroupBuy {
                 other.brandLogoUrl == brandLogoUrl) &&
             (identical(other.discountPercent, discountPercent) ||
                 other.discountPercent == discountPercent) &&
+            (identical(other.createdByAdmin, createdByAdmin) ||
+                other.createdByAdmin == createdByAdmin) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.fulfilmentType, fulfilmentType) ||
+                other.fulfilmentType == fulfilmentType) &&
+            const DeepCollectionEquality().equals(other._clusters, _clusters) &&
+            const DeepCollectionEquality().equals(
+              other._addresses,
+              _addresses,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._voucherCodes,
+              _voucherCodes,
+            ) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.originalPrice, originalPrice) ||
+                other.originalPrice == originalPrice) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -527,6 +744,14 @@ class _$GroupBuyImpl extends _GroupBuy {
     brandName,
     brandLogoUrl,
     discountPercent,
+    createdByAdmin,
+    type,
+    fulfilmentType,
+    const DeepCollectionEquality().hash(_clusters),
+    const DeepCollectionEquality().hash(_addresses),
+    const DeepCollectionEquality().hash(_voucherCodes),
+    imageUrl,
+    originalPrice,
     createdAt,
     updatedAt,
   ]);
@@ -551,9 +776,9 @@ abstract class _GroupBuy extends GroupBuy {
     required final String title,
     required final String description,
     final String? linkedListingId,
-    required final String organizerId,
-    required final String organizerName,
-    required final String communityId,
+    final String? organizerId,
+    final String? organizerName,
+    final String? communityId,
     required final int targetAmount,
     final int currentAmount,
     final int minParticipants,
@@ -566,6 +791,14 @@ abstract class _GroupBuy extends GroupBuy {
     final String? brandName,
     final String? brandLogoUrl,
     final int? discountPercent,
+    final bool createdByAdmin,
+    final GroupBuyType type,
+    final GroupBuyFulfilmentType fulfilmentType,
+    final List<String> clusters,
+    final List<String> addresses,
+    final List<String> voucherCodes,
+    final String? imageUrl,
+    final int? originalPrice,
     required final DateTime createdAt,
     final DateTime? updatedAt,
   }) = _$GroupBuyImpl;
@@ -582,12 +815,16 @@ abstract class _GroupBuy extends GroupBuy {
   String get description;
   @override
   String? get linkedListingId;
+
+  /// Made optional — admin-curated group buys have no user organizer.
   @override
-  String get organizerId;
+  String? get organizerId;
   @override
-  String get organizerName;
+  String? get organizerName;
+
+  /// Made optional — admin-curated group buys are not community-bound.
   @override
-  String get communityId;
+  String? get communityId;
   @override
   int get targetAmount;
   @override
@@ -613,7 +850,38 @@ abstract class _GroupBuy extends GroupBuy {
   @override
   String? get brandLogoUrl;
   @override
-  int? get discountPercent;
+  int? get discountPercent; // ── New fields for admin-curated group buys ──
+  /// Whether this group buy was created by admin
+  @override
+  bool get createdByAdmin;
+
+  /// digital = shown to all, physical = cluster-matched
+  @override
+  GroupBuyType get type;
+
+  /// How the deal is fulfilled after target is met
+  @override
+  GroupBuyFulfilmentType get fulfilmentType;
+
+  /// Regional clusters this deal targets (physical only)
+  @override
+  List<String> get clusters;
+
+  /// Freetext pickup/collection addresses for display (physical only)
+  @override
+  List<String> get addresses;
+
+  /// Voucher codes uploaded by admin at completion (digital fulfilment)
+  @override
+  List<String> get voucherCodes;
+
+  /// Product image URL
+  @override
+  String? get imageUrl;
+
+  /// Original price before group buy discount (for strikethrough display)
+  @override
+  int? get originalPrice;
   @override
   DateTime get createdAt;
   @override

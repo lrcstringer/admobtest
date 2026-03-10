@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,12 +10,14 @@ import '../../domain/entities/marketplace_provider.dart';
 import '../../domain/entities/vouch.dart';
 import '../../domain/repositories/marketplace_repository.dart';
 import '../datasources/remote/marketplace_remote_datasource.dart';
+import '../datasources/remote/media_upload_datasource.dart';
 
 @LazySingleton(as: MarketplaceRepository)
 class MarketplaceRepositoryImpl implements MarketplaceRepository {
   final MarketplaceRemoteDataSource _remoteDataSource;
+  final MediaUploadDatasource _mediaUploadDatasource;
 
-  MarketplaceRepositoryImpl(this._remoteDataSource);
+  MarketplaceRepositoryImpl(this._remoteDataSource, this._mediaUploadDatasource);
 
   @override
   Future<Either<Failure, List<MarketplaceListing>>> getListings({
@@ -256,6 +260,26 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
         description: description,
       );
       return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<String>>> uploadListingImages({
+    required List<File> imageFiles,
+    required String listingId,
+  }) async {
+    try {
+      final futures = imageFiles.asMap().entries.map(
+            (entry) => _mediaUploadDatasource.uploadListingImage(
+              imageFile: entry.value,
+              listingId: listingId,
+              index: entry.key,
+            ),
+          );
+      final urls = await Future.wait(futures);
+      return Right(urls);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

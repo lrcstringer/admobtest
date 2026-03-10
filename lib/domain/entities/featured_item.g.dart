@@ -29,6 +29,12 @@ _$FeaturedItemImpl _$$FeaturedItemImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['scheduledEnd'] as String),
       bgGradientType: json['bgGradientType'] as String? ?? 'goldOrange',
+      brandName: json['brandName'] as String?,
+      ctaText: json['ctaText'] as String?,
+      bgColorHex: json['bgColorHex'] as String?,
+      colorIntensity: (json['colorIntensity'] as num?)?.toDouble() ?? 0.4,
+      imageOpacity: (json['imageOpacity'] as num?)?.toDouble() ?? 0.3,
+      imageLayout: json['imageLayout'] as String? ?? 'right',
     );
 
 Map<String, dynamic> _$$FeaturedItemImplToJson(_$FeaturedItemImpl instance) =>
@@ -46,4 +52,10 @@ Map<String, dynamic> _$$FeaturedItemImplToJson(_$FeaturedItemImpl instance) =>
       'scheduledStart': instance.scheduledStart?.toIso8601String(),
       'scheduledEnd': instance.scheduledEnd?.toIso8601String(),
       'bgGradientType': instance.bgGradientType,
+      'brandName': instance.brandName,
+      'ctaText': instance.ctaText,
+      'bgColorHex': instance.bgColorHex,
+      'colorIntensity': instance.colorIntensity,
+      'imageOpacity': instance.imageOpacity,
+      'imageLayout': instance.imageLayout,
     };

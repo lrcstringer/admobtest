@@ -30,6 +30,12 @@ mixin _$FeaturedItemModel {
   DateTime? get scheduledStart => throw _privateConstructorUsedError;
   DateTime? get scheduledEnd => throw _privateConstructorUsedError;
   String get bgGradientType => throw _privateConstructorUsedError;
+  String? get brandName => throw _privateConstructorUsedError;
+  String? get ctaText => throw _privateConstructorUsedError;
+  String? get bgColorHex => throw _privateConstructorUsedError;
+  double get colorIntensity => throw _privateConstructorUsedError;
+  double get imageOpacity => throw _privateConstructorUsedError;
+  String get imageLayout => throw _privateConstructorUsedError;
 
   /// Create a copy of FeaturedItemModel
   /// with the given fields replaced by the non-null parameter values.
@@ -59,6 +65,12 @@ abstract class $FeaturedItemModelCopyWith<$Res> {
     DateTime? scheduledStart,
     DateTime? scheduledEnd,
     String bgGradientType,
+    String? brandName,
+    String? ctaText,
+    String? bgColorHex,
+    double colorIntensity,
+    double imageOpacity,
+    String imageLayout,
   });
 }
 
@@ -90,6 +102,12 @@ class _$FeaturedItemModelCopyWithImpl<$Res, $Val extends FeaturedItemModel>
     Object? scheduledStart = freezed,
     Object? scheduledEnd = freezed,
     Object? bgGradientType = null,
+    Object? brandName = freezed,
+    Object? ctaText = freezed,
+    Object? bgColorHex = freezed,
+    Object? colorIntensity = null,
+    Object? imageOpacity = null,
+    Object? imageLayout = null,
   }) {
     return _then(
       _value.copyWith(
@@ -145,6 +163,30 @@ class _$FeaturedItemModelCopyWithImpl<$Res, $Val extends FeaturedItemModel>
                 ? _value.bgGradientType
                 : bgGradientType // ignore: cast_nullable_to_non_nullable
                       as String,
+            brandName: freezed == brandName
+                ? _value.brandName
+                : brandName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ctaText: freezed == ctaText
+                ? _value.ctaText
+                : ctaText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            bgColorHex: freezed == bgColorHex
+                ? _value.bgColorHex
+                : bgColorHex // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            colorIntensity: null == colorIntensity
+                ? _value.colorIntensity
+                : colorIntensity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            imageOpacity: null == imageOpacity
+                ? _value.imageOpacity
+                : imageOpacity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            imageLayout: null == imageLayout
+                ? _value.imageLayout
+                : imageLayout // ignore: cast_nullable_to_non_nullable
+                      as String,
           )
           as $Val,
     );
@@ -174,6 +216,12 @@ abstract class _$$FeaturedItemModelImplCopyWith<$Res>
     DateTime? scheduledStart,
     DateTime? scheduledEnd,
     String bgGradientType,
+    String? brandName,
+    String? ctaText,
+    String? bgColorHex,
+    double colorIntensity,
+    double imageOpacity,
+    String imageLayout,
   });
 }
 
@@ -204,6 +252,12 @@ class __$$FeaturedItemModelImplCopyWithImpl<$Res>
     Object? scheduledStart = freezed,
     Object? scheduledEnd = freezed,
     Object? bgGradientType = null,
+    Object? brandName = freezed,
+    Object? ctaText = freezed,
+    Object? bgColorHex = freezed,
+    Object? colorIntensity = null,
+    Object? imageOpacity = null,
+    Object? imageLayout = null,
   }) {
     return _then(
       _$FeaturedItemModelImpl(
@@ -259,6 +313,30 @@ class __$$FeaturedItemModelImplCopyWithImpl<$Res>
             ? _value.bgGradientType
             : bgGradientType // ignore: cast_nullable_to_non_nullable
                   as String,
+        brandName: freezed == brandName
+            ? _value.brandName
+            : brandName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ctaText: freezed == ctaText
+            ? _value.ctaText
+            : ctaText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        bgColorHex: freezed == bgColorHex
+            ? _value.bgColorHex
+            : bgColorHex // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        colorIntensity: null == colorIntensity
+            ? _value.colorIntensity
+            : colorIntensity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        imageOpacity: null == imageOpacity
+            ? _value.imageOpacity
+            : imageOpacity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        imageLayout: null == imageLayout
+            ? _value.imageLayout
+            : imageLayout // ignore: cast_nullable_to_non_nullable
+                  as String,
       ),
     );
   }
@@ -281,6 +359,12 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
     this.scheduledStart,
     this.scheduledEnd,
     this.bgGradientType = 'goldOrange',
+    this.brandName,
+    this.ctaText,
+    this.bgColorHex,
+    this.colorIntensity = 0.4,
+    this.imageOpacity = 0.3,
+    this.imageLayout = 'right',
   }) : _communityIds = communityIds,
        super._();
 
@@ -321,10 +405,25 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
   @override
   @JsonKey()
   final String bgGradientType;
+  @override
+  final String? brandName;
+  @override
+  final String? ctaText;
+  @override
+  final String? bgColorHex;
+  @override
+  @JsonKey()
+  final double colorIntensity;
+  @override
+  @JsonKey()
+  final double imageOpacity;
+  @override
+  @JsonKey()
+  final String imageLayout;
 
   @override
   String toString() {
-    return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType)';
+    return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
   }
 
   @override
@@ -355,11 +454,22 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
             (identical(other.scheduledEnd, scheduledEnd) ||
                 other.scheduledEnd == scheduledEnd) &&
             (identical(other.bgGradientType, bgGradientType) ||
-                other.bgGradientType == bgGradientType));
+                other.bgGradientType == bgGradientType) &&
+            (identical(other.brandName, brandName) ||
+                other.brandName == brandName) &&
+            (identical(other.ctaText, ctaText) || other.ctaText == ctaText) &&
+            (identical(other.bgColorHex, bgColorHex) ||
+                other.bgColorHex == bgColorHex) &&
+            (identical(other.colorIntensity, colorIntensity) ||
+                other.colorIntensity == colorIntensity) &&
+            (identical(other.imageOpacity, imageOpacity) ||
+                other.imageOpacity == imageOpacity) &&
+            (identical(other.imageLayout, imageLayout) ||
+                other.imageLayout == imageLayout));
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     title,
@@ -374,7 +484,13 @@ class _$FeaturedItemModelImpl extends _FeaturedItemModel {
     scheduledStart,
     scheduledEnd,
     bgGradientType,
-  );
+    brandName,
+    ctaText,
+    bgColorHex,
+    colorIntensity,
+    imageOpacity,
+    imageLayout,
+  ]);
 
   /// Create a copy of FeaturedItemModel
   /// with the given fields replaced by the non-null parameter values.
@@ -403,6 +519,12 @@ abstract class _FeaturedItemModel extends FeaturedItemModel {
     final DateTime? scheduledStart,
     final DateTime? scheduledEnd,
     final String bgGradientType,
+    final String? brandName,
+    final String? ctaText,
+    final String? bgColorHex,
+    final double colorIntensity,
+    final double imageOpacity,
+    final String imageLayout,
   }) = _$FeaturedItemModelImpl;
   const _FeaturedItemModel._() : super._();
 
@@ -432,6 +554,18 @@ abstract class _FeaturedItemModel extends FeaturedItemModel {
   DateTime? get scheduledEnd;
   @override
   String get bgGradientType;
+  @override
+  String? get brandName;
+  @override
+  String? get ctaText;
+  @override
+  String? get bgColorHex;
+  @override
+  double get colorIntensity;
+  @override
+  double get imageOpacity;
+  @override
+  String get imageLayout;
 
   /// Create a copy of FeaturedItemModel
   /// with the given fields replaced by the non-null parameter values.

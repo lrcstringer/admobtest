@@ -169,6 +169,7 @@ export const adminCreateBuyCategory = onCall(
       featureFlagKey,
       logoUrl,
       backgroundColor,
+      subcategories,
     } = request.data as {
       name: string;
       iconEmoji?: string;
@@ -179,6 +180,7 @@ export const adminCreateBuyCategory = onCall(
       featureFlagKey?: string;
       logoUrl?: string;
       backgroundColor?: string;
+      subcategories?: Array<{ id: string; name: string; emoji: string }>;
     };
 
     if (!name || name.trim().length === 0) {
@@ -195,6 +197,7 @@ export const adminCreateBuyCategory = onCall(
       featureFlagKey: featureFlagKey || null,
       logoUrl: logoUrl || null,
       backgroundColor: backgroundColor || null,
+      subcategories: subcategories || [],
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -235,6 +238,7 @@ export const adminUpdateBuyCategory = onCall(
       featureFlagKey?: string;
       logoUrl?: string;
       backgroundColor?: string;
+      subcategories?: Array<{ id: string; name: string; emoji: string }>;
     };
 
     if (!categoryId) {
@@ -370,6 +374,12 @@ export const adminCreateFeaturedItem = onCall(
       isActive,
       sortOrder,
       bgGradientType,
+      brandName,
+      ctaText,
+      bgColorHex,
+      colorIntensity,
+      imageOpacity,
+      imageLayout,
     } = request.data as {
       title: string;
       subtitle?: string;
@@ -381,6 +391,12 @@ export const adminCreateFeaturedItem = onCall(
       isActive?: boolean;
       sortOrder?: number;
       bgGradientType?: string;
+      brandName?: string;
+      ctaText?: string;
+      bgColorHex?: string;
+      colorIntensity?: number;
+      imageOpacity?: number;
+      imageLayout?: string;
     };
 
     if (!title || title.trim().length === 0) {
@@ -398,6 +414,12 @@ export const adminCreateFeaturedItem = onCall(
       isActive: isActive ?? true,
       sortOrder: sortOrder ?? 0,
       bgGradientType: bgGradientType || "goldOrange",
+      brandName: brandName || null,
+      ctaText: ctaText || null,
+      bgColorHex: bgColorHex || null,
+      colorIntensity: colorIntensity ?? 0.4,
+      imageOpacity: imageOpacity ?? 0.3,
+      imageLayout: imageLayout || "right",
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -439,6 +461,12 @@ export const adminUpdateFeaturedItem = onCall(
       isActive?: boolean;
       sortOrder?: number;
       bgGradientType?: string;
+      brandName?: string;
+      ctaText?: string;
+      bgColorHex?: string;
+      colorIntensity?: number;
+      imageOpacity?: number;
+      imageLayout?: string;
     };
 
     if (!itemId) {
@@ -1926,6 +1954,264 @@ export const adminGetEscrowOverview = onCall(
 );
 
 // ============================================================================
+// BRAND REVIEWS
+// ============================================================================
+
+/**
+ * Submit a brand review (consumer-facing, but in buyAdmin for admin moderation hooks).
+ * One review per order — orderId is the uniqueness key.
+ */
+export const submitBrandReview = onCall(
+  { labels: { area: "buy" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "submitBrandReview");
+
+    const userId = request.auth.uid;
+    const {
+      brandId,
+      orderId,
+      qualityRating,
+      valueRating,
+      serviceRating,
+      comment,
+    } = request.data as {
+      brandId: string;
+      orderId: string;
+      qualityRating: number;
+      valueRating: number;
+      serviceRating: number;
+      comment?: string;
+    };
+
+    if (!brandId || !orderId) {
+      throw new HttpsError("invalid-argument", "brandId and orderId are required");
+    }
+
+    // Validate ratings are 1-5
+    for (const [name, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
+      if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
+        throw new HttpsError("invalid-argument", `${name} must be an integer between 1 and 5`);
+      }
+    }
+
+    // One review per order
+    const existingSnap = await db
+      .collection("brandReviews")
+      .where("orderId", "==", orderId)
+      .where("userId", "==", userId)
+      .limit(1)
+      .get();
+
+    if (!existingSnap.empty) {
+      throw new HttpsError("already-exists", "You have already reviewed this order");
+    }
+
+    // Get user display name
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userName = userDoc.data()?.displayName || "iMali User";
+
+    const overallRating = Math.round(((qualityRating + valueRating + serviceRating) / 3) * 10) / 10;
+
+    // Simple auto-filter: flag if comment contains obvious profanity placeholder
+    const isFiltered = comment
+      ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
+      : false;
+
+    const reviewData = {
+      brandId,
+      userId,
+      userName,
+      orderId,
+      qualityRating,
+      valueRating,
+      serviceRating,
+      overallRating,
+      comment: comment?.trim() || null,
+      isFiltered,
+      isRemovedByAdmin: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: null,
+    };
+
+    const reviewRef = await db.collection("brandReviews").add(reviewData);
+
+    // Update brand storefront aggregate rating
+    try {
+      const allReviews = await db
+        .collection("brandReviews")
+        .where("brandId", "==", brandId)
+        .where("isRemovedByAdmin", "==", false)
+        .get();
+
+      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
+      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
+
+      await db.collection("brandStorefronts").doc(brandId).update({
+        averageRating: avgRating,
+        totalReviews: allReviews.size,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (err) {
+      logger.warn("Failed to update brand aggregate rating:", err);
+    }
+
+    logger.info(`Brand review submitted by ${userId} for brand ${brandId}`);
+    return { success: true, reviewId: reviewRef.id, isFiltered };
+  }
+);
+
+/**
+ * Edit an existing brand review (by the original author only).
+ */
+export const editBrandReview = onCall(
+  { labels: { area: "buy" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "editBrandReview");
+
+    const userId = request.auth.uid;
+    const {
+      reviewId,
+      qualityRating,
+      valueRating,
+      serviceRating,
+      comment,
+    } = request.data as {
+      reviewId: string;
+      qualityRating?: number;
+      valueRating?: number;
+      serviceRating?: number;
+      comment?: string;
+    };
+
+    if (!reviewId) {
+      throw new HttpsError("invalid-argument", "reviewId is required");
+    }
+
+    const reviewRef = db.collection("brandReviews").doc(reviewId);
+    const reviewDoc = await reviewRef.get();
+
+    if (!reviewDoc.exists) {
+      throw new HttpsError("not-found", "Review not found");
+    }
+
+    const reviewData = reviewDoc.data()!;
+    if (reviewData.userId !== userId) {
+      throw new HttpsError("permission-denied", "You can only edit your own reviews");
+    }
+
+    const updates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // Validate and apply optional rating updates
+    for (const [key, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
+      if (val !== undefined) {
+        if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
+          throw new HttpsError("invalid-argument", `${key} must be an integer between 1 and 5`);
+        }
+        updates[key] = val;
+      }
+    }
+
+    if (comment !== undefined) {
+      updates.comment = comment?.trim() || null;
+      updates.isFiltered = comment
+        ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
+        : false;
+    }
+
+    // Recompute overall if any rating changed
+    const q = (updates.qualityRating ?? reviewData.qualityRating) as number;
+    const v = (updates.valueRating ?? reviewData.valueRating) as number;
+    const s = (updates.serviceRating ?? reviewData.serviceRating) as number;
+    updates.overallRating = Math.round(((q + v + s) / 3) * 10) / 10;
+
+    await reviewRef.update(updates);
+
+    logger.info(`Brand review ${reviewId} updated by ${userId}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Admin: flag/unflag a brand review (hide from carousel or restore).
+ */
+export const adminFlagBrandReview = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminFlagBrandReview");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:flagBrandReview",
+      "adminFlagBrandReview"
+    );
+
+    const { reviewId, isRemovedByAdmin } = request.data as {
+      reviewId: string;
+      isRemovedByAdmin: boolean;
+    };
+
+    if (!reviewId || typeof isRemovedByAdmin !== "boolean") {
+      throw new HttpsError(
+        "invalid-argument",
+        "reviewId (string) and isRemovedByAdmin (boolean) are required"
+      );
+    }
+
+    const reviewRef = db.collection("brandReviews").doc(reviewId);
+    const reviewDoc = await reviewRef.get();
+
+    if (!reviewDoc.exists) {
+      throw new HttpsError("not-found", "Review not found");
+    }
+
+    await reviewRef.update({
+      isRemovedByAdmin,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    const brandId = reviewDoc.data()!.brandId;
+
+    // Recalculate aggregate rating after flagging
+    try {
+      const allReviews = await db
+        .collection("brandReviews")
+        .where("brandId", "==", brandId)
+        .where("isRemovedByAdmin", "==", false)
+        .get();
+
+      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
+      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
+
+      await db.collection("brandStorefronts").doc(brandId).update({
+        averageRating: avgRating,
+        totalReviews: allReviews.size,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (err) {
+      logger.warn("Failed to update brand aggregate rating after flag:", err);
+    }
+
+    await logAdminAction(adminCtx.uid, "buy:flagBrandReview", "adminFlagBrandReview", {
+      reviewId,
+      isRemovedByAdmin,
+      brandId,
+    });
+
+    logger.info(
+      `Brand review ${reviewId} ${isRemovedByAdmin ? "removed" : "restored"} by ${adminCtx.email}`
+    );
+    return { success: true };
+  }
+);
+
+// ============================================================================
 // SEED INITIAL BUY DATA
 // ============================================================================
 
@@ -1975,7 +2261,7 @@ export const adminSeedBuyInitialData = onCall(
       }
     }
 
-    // ── Buy Categories ──
+    // ── Buy Categories (16 marketplace service categories) ──
     const categories: Array<{
       id: string;
       name: string;
@@ -1984,16 +2270,174 @@ export const adminSeedBuyInitialData = onCall(
       active: boolean;
       comingSoon: boolean;
       mapping?: string;
+      subcategories: Array<{ id: string; name: string; emoji: string }>;
     }> = [
-      { id: "airtime", name: "Airtime", emoji: "📱", sort: 1, active: true, comingSoon: false, mapping: "airtime" },
-      { id: "data", name: "Data", emoji: "📶", sort: 2, active: true, comingSoon: false, mapping: "data" },
-      { id: "electricity", name: "Electricity", emoji: "⚡", sort: 3, active: true, comingSoon: false, mapping: "electricity" },
-      { id: "dstv", name: "DStv", emoji: "📺", sort: 4, active: true, comingSoon: false, mapping: "voucher" },
-      { id: "water", name: "Water", emoji: "💧", sort: 5, active: true, comingSoon: false, mapping: "other" },
-      { id: "school_fees", name: "School Fees", emoji: "🎓", sort: 6, active: false, comingSoon: true },
-      { id: "funeral_policy", name: "Funeral Policy", emoji: "⚱️", sort: 7, active: false, comingSoon: true },
-      { id: "stokvel", name: "Stokvel", emoji: "🤝", sort: 8, active: false, comingSoon: true },
-      { id: "municipal", name: "Municipal", emoji: "🏛️", sort: 9, active: false, comingSoon: true },
+      {
+        id: "personal-care-beauty", name: "Personal Care & Beauty", emoji: "✨", sort: 1, active: true, comingSoon: false,
+        subcategories: [
+          { id: "hairdresser", name: "Hairdresser", emoji: "✂️" },
+          { id: "barber", name: "Barber", emoji: "✂️" },
+          { id: "nail-technician", name: "Nail Technician", emoji: "🖌️" },
+          { id: "body-facial-therapist", name: "Body & Facial Therapist", emoji: "✨" },
+          { id: "makeup-artist", name: "Makeup Artist", emoji: "🖌️" },
+          { id: "massage-therapist", name: "Massage Therapist", emoji: "🤚" },
+          { id: "beauty-therapist", name: "Beauty Therapist", emoji: "🪞" },
+          { id: "wellness-practitioner", name: "Wellness Practitioner", emoji: "🌸" },
+          { id: "tattoo-artist", name: "Tattoo Artist", emoji: "🖊️" },
+          { id: "piercing-artist", name: "Piercing Artist", emoji: "⊙" },
+        ],
+      },
+      {
+        id: "home-maintenance-trades", name: "Home Maintenance & Trades", emoji: "🔧", sort: 2, active: true, comingSoon: false,
+        subcategories: [
+          { id: "electrician", name: "Electrician", emoji: "⚡" },
+          { id: "plumber", name: "Plumber", emoji: "🔧" },
+          { id: "carpenter", name: "Carpenter", emoji: "🔨" },
+          { id: "painter", name: "Painter", emoji: "🖌️" },
+          { id: "builder", name: "Builder", emoji: "🧱" },
+          { id: "handyman", name: "Handyman", emoji: "🧰" },
+          { id: "paving", name: "Paving", emoji: "▦" },
+          { id: "roofing", name: "Roofing", emoji: "🏠" },
+          { id: "tiling", name: "Tiling", emoji: "⊞" },
+          { id: "plastering", name: "Plastering", emoji: "🪣" },
+        ],
+      },
+      {
+        id: "outdoor-services", name: "Outdoor Services", emoji: "🍃", sort: 3, active: true, comingSoon: false,
+        subcategories: [
+          { id: "gardening", name: "Gardening", emoji: "🍃" },
+          { id: "landscaping", name: "Landscaping", emoji: "🌳" },
+          { id: "pool-maintenance", name: "Pool Maintenance", emoji: "🌊" },
+          { id: "tree-care", name: "Tree Care", emoji: "🌲" },
+          { id: "irrigation", name: "Irrigation", emoji: "💧" },
+          { id: "fence-installation", name: "Fence Installation", emoji: "⬜" },
+          { id: "pest-control", name: "Pest Control", emoji: "🐛" },
+        ],
+      },
+      {
+        id: "cleaning-household", name: "Cleaning & Household", emoji: "🧹", sort: 4, active: true, comingSoon: false,
+        subcategories: [
+          { id: "domestic-cleaning", name: "Domestic Cleaning", emoji: "🧹" },
+          { id: "housekeeping", name: "Housekeeping", emoji: "✨" },
+          { id: "laundry", name: "Laundry", emoji: "🫧" },
+          { id: "ironing", name: "Ironing", emoji: "👔" },
+          { id: "window-cleaning", name: "Window Cleaning", emoji: "🪟" },
+        ],
+      },
+      {
+        id: "moving-transport", name: "Moving & Transport", emoji: "🚚", sort: 5, active: true, comingSoon: false,
+        subcategories: [
+          { id: "removals", name: "Removals", emoji: "🚚" },
+          { id: "furniture-moving", name: "Furniture Moving", emoji: "🛋️" },
+          { id: "delivery", name: "Delivery", emoji: "📦" },
+          { id: "courier", name: "Courier", emoji: "🚲" },
+          { id: "errand-running", name: "Errand Running", emoji: "☑️" },
+        ],
+      },
+      {
+        id: "childcare-caregiving", name: "Childcare & Caregiving", emoji: "👶", sort: 6, active: true, comingSoon: false,
+        subcategories: [
+          { id: "babysitting", name: "Babysitting", emoji: "👶" },
+          { id: "nanny", name: "Nanny", emoji: "🤝" },
+          { id: "elderly-care", name: "Elderly Care", emoji: "👤" },
+          { id: "caregiver", name: "Caregiver", emoji: "🤲" },
+        ],
+      },
+      {
+        id: "pet-services", name: "Pet Services", emoji: "🐾", sort: 7, active: true, comingSoon: false,
+        subcategories: [
+          { id: "pet-sitting", name: "Pet Sitting", emoji: "🐾" },
+          { id: "pet-grooming", name: "Pet Grooming", emoji: "✂️" },
+          { id: "dog-walking", name: "Dog Walking", emoji: "🐕" },
+          { id: "pet-boarding", name: "Pet Boarding", emoji: "🏠" },
+          { id: "pet-training", name: "Pet Training", emoji: "📣" },
+        ],
+      },
+      {
+        id: "education-tutoring", name: "Education & Tutoring", emoji: "📖", sort: 8, active: true, comingSoon: false,
+        subcategories: [
+          { id: "tutor", name: "Tutor", emoji: "📖" },
+          { id: "language-tutor", name: "Language Tutor", emoji: "🌐" },
+          { id: "music-teacher", name: "Music Teacher", emoji: "🎵" },
+          { id: "art-teacher", name: "Art Teacher", emoji: "🎨" },
+          { id: "exam-preparation", name: "Exam Preparation", emoji: "📋" },
+        ],
+      },
+      {
+        id: "creative-media", name: "Creative & Media", emoji: "🎨", sort: 9, active: true, comingSoon: false,
+        subcategories: [
+          { id: "artist", name: "Artist", emoji: "🎨" },
+          { id: "photographer", name: "Photographer", emoji: "📷" },
+          { id: "videographer", name: "Videographer", emoji: "📹" },
+          { id: "graphic-designer", name: "Graphic Designer", emoji: "🖊️" },
+          { id: "interior-decorator", name: "Interior Decorator", emoji: "🛋️" },
+        ],
+      },
+      {
+        id: "fitness-health", name: "Fitness & Health", emoji: "🏋️", sort: 10, active: true, comingSoon: false,
+        subcategories: [
+          { id: "personal-trainer", name: "Personal Trainer", emoji: "🏋️" },
+          { id: "yoga-instructor", name: "Yoga Instructor", emoji: "🌸" },
+          { id: "fitness-coach", name: "Fitness Coach", emoji: "⏱️" },
+          { id: "nutrition-coach", name: "Nutrition Coach", emoji: "🍎" },
+        ],
+      },
+      {
+        id: "professional-services", name: "Professional Services", emoji: "🧮", sort: 11, active: true, comingSoon: false,
+        subcategories: [
+          { id: "bookkeeping", name: "Bookkeeping", emoji: "🧮" },
+          { id: "tax-services", name: "Tax Services", emoji: "🧾" },
+          { id: "legal-advice", name: "Legal Advice", emoji: "⚖️" },
+          { id: "translator", name: "Translator", emoji: "🌐" },
+          { id: "business-consulting", name: "Business Consulting", emoji: "📈" },
+        ],
+      },
+      {
+        id: "medical", name: "Medical", emoji: "🩺", sort: 12, active: true, comingSoon: false,
+        subcategories: [
+          { id: "doctor", name: "Doctor", emoji: "🩺" },
+          { id: "dentist", name: "Dentist", emoji: "😊" },
+          { id: "psychologist", name: "Psychologist", emoji: "🧠" },
+          { id: "psychiatrist", name: "Psychiatrist", emoji: "🧠" },
+          { id: "herbalist", name: "Herbalist", emoji: "🍃" },
+        ],
+      },
+      {
+        id: "repairs-technical", name: "Repairs & Technical", emoji: "💻", sort: 13, active: true, comingSoon: false,
+        subcategories: [
+          { id: "it-services", name: "IT Services", emoji: "💻" },
+          { id: "computer-repair", name: "Computer Repair", emoji: "🖥️" },
+          { id: "mobile-repair", name: "Mobile Repair", emoji: "📱" },
+          { id: "appliance-repair", name: "Appliance Repair", emoji: "🫧" },
+          { id: "electronics-repair", name: "Electronics Repair", emoji: "🔌" },
+        ],
+      },
+      {
+        id: "clothing", name: "Clothing", emoji: "✂️", sort: 14, active: true, comingSoon: false,
+        subcategories: [
+          { id: "seamstress", name: "Seamstress", emoji: "📌" },
+          { id: "tailor", name: "Tailor", emoji: "📏" },
+          { id: "clothing-alterations", name: "Clothing Alterations", emoji: "✂️" },
+        ],
+      },
+      {
+        id: "events", name: "Events", emoji: "📅", sort: 15, active: true, comingSoon: false,
+        subcategories: [
+          { id: "catering", name: "Catering", emoji: "🍴" },
+          { id: "event-planner", name: "Event Planner", emoji: "📅" },
+          { id: "dj", name: "DJ", emoji: "💿" },
+          { id: "decor", name: "Decor", emoji: "🎉" },
+        ],
+      },
+      {
+        id: "labour", name: "Labour", emoji: "⛑️", sort: 16, active: true, comingSoon: false,
+        subcategories: [
+          { id: "domestic-worker", name: "Domestic Worker", emoji: "🧹" },
+          { id: "day-laborer", name: "Day Laborer", emoji: "⛑️" },
+          { id: "general-helper", name: "General Helper", emoji: "🧰" },
+          { id: "construction-worker", name: "Construction Worker", emoji: "⛑️" },
+        ],
+      },
     ];
 
     for (const cat of categories) {
@@ -2010,6 +2454,7 @@ export const adminSeedBuyInitialData = onCall(
           featureFlagKey: null,
           logoUrl: null,
           backgroundColor: null,
+          subcategories: cat.subcategories,
           createdAt: now,
           updatedAt: now,
         });

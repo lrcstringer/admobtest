@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../domain/entities/buy_category.dart';
 import '../../theme/app_colors.dart';
 
-/// Single category tile: rounded square with brand logo or emoji + label.
+/// Compact pill-shaped chip: inline SVG icon + text.
 class BuyCategoryTile extends StatelessWidget {
   final BuyCategory category;
   final VoidCallback onTap;
@@ -17,104 +18,106 @@ class BuyCategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = category.backgroundColor != null
-        ? AppColors.parseHex(category.backgroundColor!).withValues(alpha: 0.15)
-        : AppColors.surfaceElevated;
+    final isDisabled = category.isComingSoon;
 
     return GestureDetector(
-      onTap: category.isComingSoon ? null : onTap,
-      child: AnimatedScale(
-        scale: 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppColors.border.withValues(alpha: 0.5),
-                      width: 1,
-                    ),
-                  ),
-                  child: Center(child: _buildIcon()),
-                ),
-                if (category.isComingSoon) _buildComingSoonBadge(),
-              ],
+      onTap: isDisabled ? null : onTap,
+      child: Opacity(
+        opacity: isDisabled ? 0.55 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: _bgColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.border.withValues(alpha: 0.6),
             ),
-            const SizedBox(height: 6),
-            SizedBox(
-              width: 76,
-              child: Text(
-                category.name,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: category.isComingSoon
-                      ? AppColors.textTertiary
-                      : AppColors.textPrimary,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildIcon(context),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  category.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isDisabled
+                        ? AppColors.textTertiary
+                        : AppColors.textPrimary,
+                  ),
                 ),
               ),
-            ),
-          ],
+              if (category.isComingSoon) ...[
+                const SizedBox(width: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'SOON',
+                    style: TextStyle(
+                      fontSize: 7,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textOnPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildIcon() {
+  Color get _bgColor {
+    if (category.backgroundColor != null) {
+      return AppColors.parseHex(category.backgroundColor!)
+          .withValues(alpha: 0.12);
+    }
+    return AppColors.surfaceElevated;
+  }
+
+  Widget _buildIcon(BuildContext context) {
+    // Priority: logoUrl (network) > SVG asset > emoji fallback
     if (category.logoUrl != null && category.logoUrl!.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(4),
         child: CachedNetworkImage(
           imageUrl: category.logoUrl!,
-          width: 40,
-          height: 40,
+          width: 20,
+          height: 20,
           fit: BoxFit.contain,
-          placeholder: (_, __) => Text(
-            category.iconEmoji,
-            style: const TextStyle(fontSize: 28),
-          ),
-          errorWidget: (_, __, ___) => Text(
-            category.iconEmoji,
-            style: const TextStyle(fontSize: 28),
-          ),
+          placeholder: (_, __) => _svgOrEmojiIcon(context),
+          errorWidget: (_, __, ___) => _svgOrEmojiIcon(context),
         ),
       );
     }
-    return Text(
-      category.iconEmoji,
-      style: const TextStyle(fontSize: 28),
+    return _svgOrEmojiIcon(context);
+  }
+
+  Widget _svgOrEmojiIcon(BuildContext context) {
+    final iconColor =
+        category.isComingSoon ? AppColors.textTertiary : AppColors.textPrimary;
+    return SvgPicture.asset(
+      category.iconSvgPath,
+      width: 18,
+      height: 18,
+      colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+      placeholderBuilder: (_) => _emojiIcon,
     );
   }
 
-  Widget _buildComingSoonBadge() {
-    return Positioned(
-      top: -2,
-      right: -2,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: AppColors.warning,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Text(
-          'SOON',
-          style: TextStyle(
-            fontSize: 8,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textOnPrimary,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget get _emojiIcon => Text(
+        category.iconEmoji,
+        style: const TextStyle(fontSize: 16),
+      );
 }

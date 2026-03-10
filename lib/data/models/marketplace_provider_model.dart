@@ -50,7 +50,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : json['createdAt'] is String
-              ? DateTime.parse(json['createdAt'] as String)
+              ? (DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now())
               : DateTime.now(),
     );
   }

@@ -34,6 +34,17 @@ mixin _$GroupBuyEvent {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -53,6 +64,17 @@ mixin _$GroupBuyEvent {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -72,6 +94,17 @@ mixin _$GroupBuyEvent {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -82,6 +115,9 @@ mixin _$GroupBuyEvent {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -91,6 +127,9 @@ mixin _$GroupBuyEvent {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
@@ -100,6 +139,9 @@ mixin _$GroupBuyEvent {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -216,6 +258,17 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return loadActiveGroupBuys(communityId);
@@ -239,6 +292,17 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return loadActiveGroupBuys?.call(communityId);
@@ -262,6 +326,17 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -279,6 +354,9 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadActiveGroupBuys(this);
@@ -292,6 +370,9 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadActiveGroupBuys?.call(this);
@@ -305,6 +386,9 @@ class _$LoadActiveGroupBuysImpl implements _LoadActiveGroupBuys {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -413,6 +497,17 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return loadGroupBuy(id);
@@ -436,6 +531,17 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return loadGroupBuy?.call(id);
@@ -459,6 +565,17 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -476,6 +593,9 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadGroupBuy(this);
@@ -489,6 +609,9 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadGroupBuy?.call(this);
@@ -502,6 +625,9 @@ class _$LoadGroupBuyImpl implements _LoadGroupBuy {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -582,6 +708,17 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return loadMyGroupBuys();
@@ -605,6 +742,17 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return loadMyGroupBuys?.call();
@@ -628,6 +776,17 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -645,6 +804,9 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return loadMyGroupBuys(this);
@@ -658,6 +820,9 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return loadMyGroupBuys?.call(this);
@@ -671,6 +836,9 @@ class _$LoadMyGroupBuysImpl implements _LoadMyGroupBuys {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -855,6 +1023,17 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return createGroupBuy(
@@ -886,6 +1065,17 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return createGroupBuy?.call(
@@ -917,6 +1107,17 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -942,6 +1143,9 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return createGroupBuy(this);
@@ -955,6 +1159,9 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return createGroupBuy?.call(this);
@@ -968,6 +1175,9 @@ class _$CreateGroupBuyImpl implements _CreateGroupBuy {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -1113,6 +1323,17 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return joinGroupBuy(groupBuyId, amount, walletId);
@@ -1136,6 +1357,17 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return joinGroupBuy?.call(groupBuyId, amount, walletId);
@@ -1159,6 +1391,17 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -1176,6 +1419,9 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return joinGroupBuy(this);
@@ -1189,6 +1435,9 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return joinGroupBuy?.call(this);
@@ -1202,6 +1451,9 @@ class _$JoinGroupBuyImpl implements _JoinGroupBuy {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -1227,6 +1479,843 @@ abstract class _JoinGroupBuy implements GroupBuyEvent {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$JoinGroupBuyImplCopyWith<_$JoinGroupBuyImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$LoadHubGroupBuysImplCopyWith<$Res> {
+  factory _$$LoadHubGroupBuysImplCopyWith(
+    _$LoadHubGroupBuysImpl value,
+    $Res Function(_$LoadHubGroupBuysImpl) then,
+  ) = __$$LoadHubGroupBuysImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<String> userClusters});
+}
+
+/// @nodoc
+class __$$LoadHubGroupBuysImplCopyWithImpl<$Res>
+    extends _$GroupBuyEventCopyWithImpl<$Res, _$LoadHubGroupBuysImpl>
+    implements _$$LoadHubGroupBuysImplCopyWith<$Res> {
+  __$$LoadHubGroupBuysImplCopyWithImpl(
+    _$LoadHubGroupBuysImpl _value,
+    $Res Function(_$LoadHubGroupBuysImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? userClusters = null}) {
+    return _then(
+      _$LoadHubGroupBuysImpl(
+        userClusters: null == userClusters
+            ? _value._userClusters
+            : userClusters // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LoadHubGroupBuysImpl implements _LoadHubGroupBuys {
+  const _$LoadHubGroupBuysImpl({final List<String> userClusters = const []})
+    : _userClusters = userClusters;
+
+  final List<String> _userClusters;
+  @override
+  @JsonKey()
+  List<String> get userClusters {
+    if (_userClusters is EqualUnmodifiableListView) return _userClusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_userClusters);
+  }
+
+  @override
+  String toString() {
+    return 'GroupBuyEvent.loadHubGroupBuys(userClusters: $userClusters)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LoadHubGroupBuysImpl &&
+            const DeepCollectionEquality().equals(
+              other._userClusters,
+              _userClusters,
+            ));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_userClusters),
+  );
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LoadHubGroupBuysImplCopyWith<_$LoadHubGroupBuysImpl> get copyWith =>
+      __$$LoadHubGroupBuysImplCopyWithImpl<_$LoadHubGroupBuysImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String? communityId) loadActiveGroupBuys,
+    required TResult Function(String id) loadGroupBuy,
+    required TResult Function() loadMyGroupBuys,
+    required TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )
+    createGroupBuy,
+    required TResult Function(String groupBuyId, int amount, String walletId)
+    joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
+    required TResult Function() clearMessages,
+  }) {
+    return loadHubGroupBuys(userClusters);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String? communityId)? loadActiveGroupBuys,
+    TResult? Function(String id)? loadGroupBuy,
+    TResult? Function()? loadMyGroupBuys,
+    TResult? Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult? Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult? Function()? clearMessages,
+  }) {
+    return loadHubGroupBuys?.call(userClusters);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String? communityId)? loadActiveGroupBuys,
+    TResult Function(String id)? loadGroupBuy,
+    TResult Function()? loadMyGroupBuys,
+    TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (loadHubGroupBuys != null) {
+      return loadHubGroupBuys(userClusters);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadActiveGroupBuys value) loadActiveGroupBuys,
+    required TResult Function(_LoadGroupBuy value) loadGroupBuy,
+    required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
+    required TResult Function(_CreateGroupBuy value) createGroupBuy,
+    required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return loadHubGroupBuys(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult? Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult? Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return loadHubGroupBuys?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (loadHubGroupBuys != null) {
+      return loadHubGroupBuys(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LoadHubGroupBuys implements GroupBuyEvent {
+  const factory _LoadHubGroupBuys({final List<String> userClusters}) =
+      _$LoadHubGroupBuysImpl;
+
+  List<String> get userClusters;
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LoadHubGroupBuysImplCopyWith<_$LoadHubGroupBuysImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$LeaveGroupBuyImplCopyWith<$Res> {
+  factory _$$LeaveGroupBuyImplCopyWith(
+    _$LeaveGroupBuyImpl value,
+    $Res Function(_$LeaveGroupBuyImpl) then,
+  ) = __$$LeaveGroupBuyImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({String groupBuyId});
+}
+
+/// @nodoc
+class __$$LeaveGroupBuyImplCopyWithImpl<$Res>
+    extends _$GroupBuyEventCopyWithImpl<$Res, _$LeaveGroupBuyImpl>
+    implements _$$LeaveGroupBuyImplCopyWith<$Res> {
+  __$$LeaveGroupBuyImplCopyWithImpl(
+    _$LeaveGroupBuyImpl _value,
+    $Res Function(_$LeaveGroupBuyImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? groupBuyId = null}) {
+    return _then(
+      _$LeaveGroupBuyImpl(
+        groupBuyId: null == groupBuyId
+            ? _value.groupBuyId
+            : groupBuyId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$LeaveGroupBuyImpl implements _LeaveGroupBuy {
+  const _$LeaveGroupBuyImpl({required this.groupBuyId});
+
+  @override
+  final String groupBuyId;
+
+  @override
+  String toString() {
+    return 'GroupBuyEvent.leaveGroupBuy(groupBuyId: $groupBuyId)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$LeaveGroupBuyImpl &&
+            (identical(other.groupBuyId, groupBuyId) ||
+                other.groupBuyId == groupBuyId));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, groupBuyId);
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LeaveGroupBuyImplCopyWith<_$LeaveGroupBuyImpl> get copyWith =>
+      __$$LeaveGroupBuyImplCopyWithImpl<_$LeaveGroupBuyImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String? communityId) loadActiveGroupBuys,
+    required TResult Function(String id) loadGroupBuy,
+    required TResult Function() loadMyGroupBuys,
+    required TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )
+    createGroupBuy,
+    required TResult Function(String groupBuyId, int amount, String walletId)
+    joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
+    required TResult Function() clearMessages,
+  }) {
+    return leaveGroupBuy(groupBuyId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String? communityId)? loadActiveGroupBuys,
+    TResult? Function(String id)? loadGroupBuy,
+    TResult? Function()? loadMyGroupBuys,
+    TResult? Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult? Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult? Function()? clearMessages,
+  }) {
+    return leaveGroupBuy?.call(groupBuyId);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String? communityId)? loadActiveGroupBuys,
+    TResult Function(String id)? loadGroupBuy,
+    TResult Function()? loadMyGroupBuys,
+    TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (leaveGroupBuy != null) {
+      return leaveGroupBuy(groupBuyId);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadActiveGroupBuys value) loadActiveGroupBuys,
+    required TResult Function(_LoadGroupBuy value) loadGroupBuy,
+    required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
+    required TResult Function(_CreateGroupBuy value) createGroupBuy,
+    required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return leaveGroupBuy(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult? Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult? Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return leaveGroupBuy?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (leaveGroupBuy != null) {
+      return leaveGroupBuy(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _LeaveGroupBuy implements GroupBuyEvent {
+  const factory _LeaveGroupBuy({required final String groupBuyId}) =
+      _$LeaveGroupBuyImpl;
+
+  String get groupBuyId;
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LeaveGroupBuyImplCopyWith<_$LeaveGroupBuyImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$SuggestDealImplCopyWith<$Res> {
+  factory _$$SuggestDealImplCopyWith(
+    _$SuggestDealImpl value,
+    $Res Function(_$SuggestDealImpl) then,
+  ) = __$$SuggestDealImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({
+    String description,
+    String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    bool wantsToJoin,
+  });
+}
+
+/// @nodoc
+class __$$SuggestDealImplCopyWithImpl<$Res>
+    extends _$GroupBuyEventCopyWithImpl<$Res, _$SuggestDealImpl>
+    implements _$$SuggestDealImplCopyWith<$Res> {
+  __$$SuggestDealImplCopyWithImpl(
+    _$SuggestDealImpl _value,
+    $Res Function(_$SuggestDealImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? description = null,
+    Object? brandOrStore = null,
+    Object? estimatedPrice = freezed,
+    Object? sourceUrl = freezed,
+    Object? imageUrl = freezed,
+    Object? wantsToJoin = null,
+  }) {
+    return _then(
+      _$SuggestDealImpl(
+        description: null == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String,
+        brandOrStore: null == brandOrStore
+            ? _value.brandOrStore
+            : brandOrStore // ignore: cast_nullable_to_non_nullable
+                  as String,
+        estimatedPrice: freezed == estimatedPrice
+            ? _value.estimatedPrice
+            : estimatedPrice // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        sourceUrl: freezed == sourceUrl
+            ? _value.sourceUrl
+            : sourceUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        imageUrl: freezed == imageUrl
+            ? _value.imageUrl
+            : imageUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        wantsToJoin: null == wantsToJoin
+            ? _value.wantsToJoin
+            : wantsToJoin // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _$SuggestDealImpl implements _SuggestDeal {
+  const _$SuggestDealImpl({
+    required this.description,
+    required this.brandOrStore,
+    this.estimatedPrice,
+    this.sourceUrl,
+    this.imageUrl,
+    this.wantsToJoin = true,
+  });
+
+  @override
+  final String description;
+  @override
+  final String brandOrStore;
+  @override
+  final int? estimatedPrice;
+  @override
+  final String? sourceUrl;
+  @override
+  final String? imageUrl;
+  @override
+  @JsonKey()
+  final bool wantsToJoin;
+
+  @override
+  String toString() {
+    return 'GroupBuyEvent.suggestDeal(description: $description, brandOrStore: $brandOrStore, estimatedPrice: $estimatedPrice, sourceUrl: $sourceUrl, imageUrl: $imageUrl, wantsToJoin: $wantsToJoin)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SuggestDealImpl &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.brandOrStore, brandOrStore) ||
+                other.brandOrStore == brandOrStore) &&
+            (identical(other.estimatedPrice, estimatedPrice) ||
+                other.estimatedPrice == estimatedPrice) &&
+            (identical(other.sourceUrl, sourceUrl) ||
+                other.sourceUrl == sourceUrl) &&
+            (identical(other.imageUrl, imageUrl) ||
+                other.imageUrl == imageUrl) &&
+            (identical(other.wantsToJoin, wantsToJoin) ||
+                other.wantsToJoin == wantsToJoin));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    description,
+    brandOrStore,
+    estimatedPrice,
+    sourceUrl,
+    imageUrl,
+    wantsToJoin,
+  );
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SuggestDealImplCopyWith<_$SuggestDealImpl> get copyWith =>
+      __$$SuggestDealImplCopyWithImpl<_$SuggestDealImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String? communityId) loadActiveGroupBuys,
+    required TResult Function(String id) loadGroupBuy,
+    required TResult Function() loadMyGroupBuys,
+    required TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )
+    createGroupBuy,
+    required TResult Function(String groupBuyId, int amount, String walletId)
+    joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
+    required TResult Function() clearMessages,
+  }) {
+    return suggestDeal(
+      description,
+      brandOrStore,
+      estimatedPrice,
+      sourceUrl,
+      imageUrl,
+      wantsToJoin,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String? communityId)? loadActiveGroupBuys,
+    TResult? Function(String id)? loadGroupBuy,
+    TResult? Function()? loadMyGroupBuys,
+    TResult? Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult? Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult? Function()? clearMessages,
+  }) {
+    return suggestDeal?.call(
+      description,
+      brandOrStore,
+      estimatedPrice,
+      sourceUrl,
+      imageUrl,
+      wantsToJoin,
+    );
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String? communityId)? loadActiveGroupBuys,
+    TResult Function(String id)? loadGroupBuy,
+    TResult Function()? loadMyGroupBuys,
+    TResult Function(
+      String title,
+      String description,
+      int targetAmount,
+      DateTime deadline,
+      String? linkedListingId,
+      int minParticipants,
+      int? maxParticipants,
+    )?
+    createGroupBuy,
+    TResult Function(String groupBuyId, int amount, String walletId)?
+    joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
+    TResult Function()? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (suggestDeal != null) {
+      return suggestDeal(
+        description,
+        brandOrStore,
+        estimatedPrice,
+        sourceUrl,
+        imageUrl,
+        wantsToJoin,
+      );
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_LoadActiveGroupBuys value) loadActiveGroupBuys,
+    required TResult Function(_LoadGroupBuy value) loadGroupBuy,
+    required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
+    required TResult Function(_CreateGroupBuy value) createGroupBuy,
+    required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
+    required TResult Function(_ClearMessages value) clearMessages,
+  }) {
+    return suggestDeal(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult? Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult? Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
+    TResult? Function(_ClearMessages value)? clearMessages,
+  }) {
+    return suggestDeal?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_LoadActiveGroupBuys value)? loadActiveGroupBuys,
+    TResult Function(_LoadGroupBuy value)? loadGroupBuy,
+    TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
+    TResult Function(_CreateGroupBuy value)? createGroupBuy,
+    TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
+    TResult Function(_ClearMessages value)? clearMessages,
+    required TResult orElse(),
+  }) {
+    if (suggestDeal != null) {
+      return suggestDeal(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _SuggestDeal implements GroupBuyEvent {
+  const factory _SuggestDeal({
+    required final String description,
+    required final String brandOrStore,
+    final int? estimatedPrice,
+    final String? sourceUrl,
+    final String? imageUrl,
+    final bool wantsToJoin,
+  }) = _$SuggestDealImpl;
+
+  String get description;
+  String get brandOrStore;
+  int? get estimatedPrice;
+  String? get sourceUrl;
+  String? get imageUrl;
+  bool get wantsToJoin;
+
+  /// Create a copy of GroupBuyEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SuggestDealImplCopyWith<_$SuggestDealImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -1288,6 +2377,17 @@ class _$ClearMessagesImpl implements _ClearMessages {
     createGroupBuy,
     required TResult Function(String groupBuyId, int amount, String walletId)
     joinGroupBuy,
+    required TResult Function(List<String> userClusters) loadHubGroupBuys,
+    required TResult Function(String groupBuyId) leaveGroupBuy,
+    required TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )
+    suggestDeal,
     required TResult Function() clearMessages,
   }) {
     return clearMessages();
@@ -1311,6 +2411,17 @@ class _$ClearMessagesImpl implements _ClearMessages {
     createGroupBuy,
     TResult? Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult? Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult? Function(String groupBuyId)? leaveGroupBuy,
+    TResult? Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult? Function()? clearMessages,
   }) {
     return clearMessages?.call();
@@ -1334,6 +2445,17 @@ class _$ClearMessagesImpl implements _ClearMessages {
     createGroupBuy,
     TResult Function(String groupBuyId, int amount, String walletId)?
     joinGroupBuy,
+    TResult Function(List<String> userClusters)? loadHubGroupBuys,
+    TResult Function(String groupBuyId)? leaveGroupBuy,
+    TResult Function(
+      String description,
+      String brandOrStore,
+      int? estimatedPrice,
+      String? sourceUrl,
+      String? imageUrl,
+      bool wantsToJoin,
+    )?
+    suggestDeal,
     TResult Function()? clearMessages,
     required TResult orElse(),
   }) {
@@ -1351,6 +2473,9 @@ class _$ClearMessagesImpl implements _ClearMessages {
     required TResult Function(_LoadMyGroupBuys value) loadMyGroupBuys,
     required TResult Function(_CreateGroupBuy value) createGroupBuy,
     required TResult Function(_JoinGroupBuy value) joinGroupBuy,
+    required TResult Function(_LoadHubGroupBuys value) loadHubGroupBuys,
+    required TResult Function(_LeaveGroupBuy value) leaveGroupBuy,
+    required TResult Function(_SuggestDeal value) suggestDeal,
     required TResult Function(_ClearMessages value) clearMessages,
   }) {
     return clearMessages(this);
@@ -1364,6 +2489,9 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult? Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult? Function(_CreateGroupBuy value)? createGroupBuy,
     TResult? Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult? Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult? Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult? Function(_SuggestDeal value)? suggestDeal,
     TResult? Function(_ClearMessages value)? clearMessages,
   }) {
     return clearMessages?.call(this);
@@ -1377,6 +2505,9 @@ class _$ClearMessagesImpl implements _ClearMessages {
     TResult Function(_LoadMyGroupBuys value)? loadMyGroupBuys,
     TResult Function(_CreateGroupBuy value)? createGroupBuy,
     TResult Function(_JoinGroupBuy value)? joinGroupBuy,
+    TResult Function(_LoadHubGroupBuys value)? loadHubGroupBuys,
+    TResult Function(_LeaveGroupBuy value)? leaveGroupBuy,
+    TResult Function(_SuggestDeal value)? suggestDeal,
     TResult Function(_ClearMessages value)? clearMessages,
     required TResult orElse(),
   }) {
@@ -1396,13 +2527,18 @@ mixin _$GroupBuyState {
   bool get isLoading => throw _privateConstructorUsedError;
   List<GroupBuy> get activeGroupBuys => throw _privateConstructorUsedError;
   List<GroupBuy> get myGroupBuys => throw _privateConstructorUsedError;
+  List<GroupBuy> get hubGroupBuys => throw _privateConstructorUsedError;
   GroupBuy? get selectedGroupBuy => throw _privateConstructorUsedError;
   List<GroupBuyContribution> get contributions =>
       throw _privateConstructorUsedError;
   bool get isCreating => throw _privateConstructorUsedError;
   bool get isJoining => throw _privateConstructorUsedError;
+  bool get isLeaving => throw _privateConstructorUsedError;
+  bool get isSuggestingDeal => throw _privateConstructorUsedError;
   String? get createSuccessId => throw _privateConstructorUsedError;
   String? get joinSuccessMessage => throw _privateConstructorUsedError;
+  String? get leaveSuccessMessage => throw _privateConstructorUsedError;
+  String? get suggestSuccessId => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of GroupBuyState
@@ -1423,12 +2559,17 @@ abstract class $GroupBuyStateCopyWith<$Res> {
     bool isLoading,
     List<GroupBuy> activeGroupBuys,
     List<GroupBuy> myGroupBuys,
+    List<GroupBuy> hubGroupBuys,
     GroupBuy? selectedGroupBuy,
     List<GroupBuyContribution> contributions,
     bool isCreating,
     bool isJoining,
+    bool isLeaving,
+    bool isSuggestingDeal,
     String? createSuccessId,
     String? joinSuccessMessage,
+    String? leaveSuccessMessage,
+    String? suggestSuccessId,
     String? errorMessage,
   });
 
@@ -1453,12 +2594,17 @@ class _$GroupBuyStateCopyWithImpl<$Res, $Val extends GroupBuyState>
     Object? isLoading = null,
     Object? activeGroupBuys = null,
     Object? myGroupBuys = null,
+    Object? hubGroupBuys = null,
     Object? selectedGroupBuy = freezed,
     Object? contributions = null,
     Object? isCreating = null,
     Object? isJoining = null,
+    Object? isLeaving = null,
+    Object? isSuggestingDeal = null,
     Object? createSuccessId = freezed,
     Object? joinSuccessMessage = freezed,
+    Object? leaveSuccessMessage = freezed,
+    Object? suggestSuccessId = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -1474,6 +2620,10 @@ class _$GroupBuyStateCopyWithImpl<$Res, $Val extends GroupBuyState>
             myGroupBuys: null == myGroupBuys
                 ? _value.myGroupBuys
                 : myGroupBuys // ignore: cast_nullable_to_non_nullable
+                      as List<GroupBuy>,
+            hubGroupBuys: null == hubGroupBuys
+                ? _value.hubGroupBuys
+                : hubGroupBuys // ignore: cast_nullable_to_non_nullable
                       as List<GroupBuy>,
             selectedGroupBuy: freezed == selectedGroupBuy
                 ? _value.selectedGroupBuy
@@ -1491,6 +2641,14 @@ class _$GroupBuyStateCopyWithImpl<$Res, $Val extends GroupBuyState>
                 ? _value.isJoining
                 : isJoining // ignore: cast_nullable_to_non_nullable
                       as bool,
+            isLeaving: null == isLeaving
+                ? _value.isLeaving
+                : isLeaving // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isSuggestingDeal: null == isSuggestingDeal
+                ? _value.isSuggestingDeal
+                : isSuggestingDeal // ignore: cast_nullable_to_non_nullable
+                      as bool,
             createSuccessId: freezed == createSuccessId
                 ? _value.createSuccessId
                 : createSuccessId // ignore: cast_nullable_to_non_nullable
@@ -1498,6 +2656,14 @@ class _$GroupBuyStateCopyWithImpl<$Res, $Val extends GroupBuyState>
             joinSuccessMessage: freezed == joinSuccessMessage
                 ? _value.joinSuccessMessage
                 : joinSuccessMessage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            leaveSuccessMessage: freezed == leaveSuccessMessage
+                ? _value.leaveSuccessMessage
+                : leaveSuccessMessage // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            suggestSuccessId: freezed == suggestSuccessId
+                ? _value.suggestSuccessId
+                : suggestSuccessId // ignore: cast_nullable_to_non_nullable
                       as String?,
             errorMessage: freezed == errorMessage
                 ? _value.errorMessage
@@ -1536,12 +2702,17 @@ abstract class _$$GroupBuyStateImplCopyWith<$Res>
     bool isLoading,
     List<GroupBuy> activeGroupBuys,
     List<GroupBuy> myGroupBuys,
+    List<GroupBuy> hubGroupBuys,
     GroupBuy? selectedGroupBuy,
     List<GroupBuyContribution> contributions,
     bool isCreating,
     bool isJoining,
+    bool isLeaving,
+    bool isSuggestingDeal,
     String? createSuccessId,
     String? joinSuccessMessage,
+    String? leaveSuccessMessage,
+    String? suggestSuccessId,
     String? errorMessage,
   });
 
@@ -1566,12 +2737,17 @@ class __$$GroupBuyStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? activeGroupBuys = null,
     Object? myGroupBuys = null,
+    Object? hubGroupBuys = null,
     Object? selectedGroupBuy = freezed,
     Object? contributions = null,
     Object? isCreating = null,
     Object? isJoining = null,
+    Object? isLeaving = null,
+    Object? isSuggestingDeal = null,
     Object? createSuccessId = freezed,
     Object? joinSuccessMessage = freezed,
+    Object? leaveSuccessMessage = freezed,
+    Object? suggestSuccessId = freezed,
     Object? errorMessage = freezed,
   }) {
     return _then(
@@ -1587,6 +2763,10 @@ class __$$GroupBuyStateImplCopyWithImpl<$Res>
         myGroupBuys: null == myGroupBuys
             ? _value._myGroupBuys
             : myGroupBuys // ignore: cast_nullable_to_non_nullable
+                  as List<GroupBuy>,
+        hubGroupBuys: null == hubGroupBuys
+            ? _value._hubGroupBuys
+            : hubGroupBuys // ignore: cast_nullable_to_non_nullable
                   as List<GroupBuy>,
         selectedGroupBuy: freezed == selectedGroupBuy
             ? _value.selectedGroupBuy
@@ -1604,6 +2784,14 @@ class __$$GroupBuyStateImplCopyWithImpl<$Res>
             ? _value.isJoining
             : isJoining // ignore: cast_nullable_to_non_nullable
                   as bool,
+        isLeaving: null == isLeaving
+            ? _value.isLeaving
+            : isLeaving // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isSuggestingDeal: null == isSuggestingDeal
+            ? _value.isSuggestingDeal
+            : isSuggestingDeal // ignore: cast_nullable_to_non_nullable
+                  as bool,
         createSuccessId: freezed == createSuccessId
             ? _value.createSuccessId
             : createSuccessId // ignore: cast_nullable_to_non_nullable
@@ -1611,6 +2799,14 @@ class __$$GroupBuyStateImplCopyWithImpl<$Res>
         joinSuccessMessage: freezed == joinSuccessMessage
             ? _value.joinSuccessMessage
             : joinSuccessMessage // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        leaveSuccessMessage: freezed == leaveSuccessMessage
+            ? _value.leaveSuccessMessage
+            : leaveSuccessMessage // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        suggestSuccessId: freezed == suggestSuccessId
+            ? _value.suggestSuccessId
+            : suggestSuccessId // ignore: cast_nullable_to_non_nullable
                   as String?,
         errorMessage: freezed == errorMessage
             ? _value.errorMessage
@@ -1628,15 +2824,21 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
     this.isLoading = false,
     final List<GroupBuy> activeGroupBuys = const [],
     final List<GroupBuy> myGroupBuys = const [],
+    final List<GroupBuy> hubGroupBuys = const [],
     this.selectedGroupBuy,
     final List<GroupBuyContribution> contributions = const [],
     this.isCreating = false,
     this.isJoining = false,
+    this.isLeaving = false,
+    this.isSuggestingDeal = false,
     this.createSuccessId,
     this.joinSuccessMessage,
+    this.leaveSuccessMessage,
+    this.suggestSuccessId,
     this.errorMessage,
   }) : _activeGroupBuys = activeGroupBuys,
        _myGroupBuys = myGroupBuys,
+       _hubGroupBuys = hubGroupBuys,
        _contributions = contributions;
 
   @override
@@ -1660,6 +2862,15 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
     return EqualUnmodifiableListView(_myGroupBuys);
   }
 
+  final List<GroupBuy> _hubGroupBuys;
+  @override
+  @JsonKey()
+  List<GroupBuy> get hubGroupBuys {
+    if (_hubGroupBuys is EqualUnmodifiableListView) return _hubGroupBuys;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_hubGroupBuys);
+  }
+
   @override
   final GroupBuy? selectedGroupBuy;
   final List<GroupBuyContribution> _contributions;
@@ -1678,15 +2889,25 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
   @JsonKey()
   final bool isJoining;
   @override
+  @JsonKey()
+  final bool isLeaving;
+  @override
+  @JsonKey()
+  final bool isSuggestingDeal;
+  @override
   final String? createSuccessId;
   @override
   final String? joinSuccessMessage;
+  @override
+  final String? leaveSuccessMessage;
+  @override
+  final String? suggestSuccessId;
   @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, createSuccessId: $createSuccessId, joinSuccessMessage: $joinSuccessMessage, errorMessage: $errorMessage)';
+    return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, hubGroupBuys: $hubGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, isLeaving: $isLeaving, isSuggestingDeal: $isSuggestingDeal, createSuccessId: $createSuccessId, joinSuccessMessage: $joinSuccessMessage, leaveSuccessMessage: $leaveSuccessMessage, suggestSuccessId: $suggestSuccessId, errorMessage: $errorMessage)';
   }
 
   @override
@@ -1704,6 +2925,10 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
               other._myGroupBuys,
               _myGroupBuys,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._hubGroupBuys,
+              _hubGroupBuys,
+            ) &&
             (identical(other.selectedGroupBuy, selectedGroupBuy) ||
                 other.selectedGroupBuy == selectedGroupBuy) &&
             const DeepCollectionEquality().equals(
@@ -1714,10 +2939,18 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
                 other.isCreating == isCreating) &&
             (identical(other.isJoining, isJoining) ||
                 other.isJoining == isJoining) &&
+            (identical(other.isLeaving, isLeaving) ||
+                other.isLeaving == isLeaving) &&
+            (identical(other.isSuggestingDeal, isSuggestingDeal) ||
+                other.isSuggestingDeal == isSuggestingDeal) &&
             (identical(other.createSuccessId, createSuccessId) ||
                 other.createSuccessId == createSuccessId) &&
             (identical(other.joinSuccessMessage, joinSuccessMessage) ||
                 other.joinSuccessMessage == joinSuccessMessage) &&
+            (identical(other.leaveSuccessMessage, leaveSuccessMessage) ||
+                other.leaveSuccessMessage == leaveSuccessMessage) &&
+            (identical(other.suggestSuccessId, suggestSuccessId) ||
+                other.suggestSuccessId == suggestSuccessId) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -1728,12 +2961,17 @@ class _$GroupBuyStateImpl implements _GroupBuyState {
     isLoading,
     const DeepCollectionEquality().hash(_activeGroupBuys),
     const DeepCollectionEquality().hash(_myGroupBuys),
+    const DeepCollectionEquality().hash(_hubGroupBuys),
     selectedGroupBuy,
     const DeepCollectionEquality().hash(_contributions),
     isCreating,
     isJoining,
+    isLeaving,
+    isSuggestingDeal,
     createSuccessId,
     joinSuccessMessage,
+    leaveSuccessMessage,
+    suggestSuccessId,
     errorMessage,
   );
 
@@ -1751,12 +2989,17 @@ abstract class _GroupBuyState implements GroupBuyState {
     final bool isLoading,
     final List<GroupBuy> activeGroupBuys,
     final List<GroupBuy> myGroupBuys,
+    final List<GroupBuy> hubGroupBuys,
     final GroupBuy? selectedGroupBuy,
     final List<GroupBuyContribution> contributions,
     final bool isCreating,
     final bool isJoining,
+    final bool isLeaving,
+    final bool isSuggestingDeal,
     final String? createSuccessId,
     final String? joinSuccessMessage,
+    final String? leaveSuccessMessage,
+    final String? suggestSuccessId,
     final String? errorMessage,
   }) = _$GroupBuyStateImpl;
 
@@ -1767,6 +3010,8 @@ abstract class _GroupBuyState implements GroupBuyState {
   @override
   List<GroupBuy> get myGroupBuys;
   @override
+  List<GroupBuy> get hubGroupBuys;
+  @override
   GroupBuy? get selectedGroupBuy;
   @override
   List<GroupBuyContribution> get contributions;
@@ -1775,9 +3020,17 @@ abstract class _GroupBuyState implements GroupBuyState {
   @override
   bool get isJoining;
   @override
+  bool get isLeaving;
+  @override
+  bool get isSuggestingDeal;
+  @override
   String? get createSuccessId;
   @override
   String? get joinSuccessMessage;
+  @override
+  String? get leaveSuccessMessage;
+  @override
+  String? get suggestSuccessId;
   @override
   String? get errorMessage;
 

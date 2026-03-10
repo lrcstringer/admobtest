@@ -6,12 +6,17 @@ class GroupBuyState with _$GroupBuyState {
     @Default(false) bool isLoading,
     @Default([]) List<GroupBuy> activeGroupBuys,
     @Default([]) List<GroupBuy> myGroupBuys,
+    @Default([]) List<GroupBuy> hubGroupBuys,
     GroupBuy? selectedGroupBuy,
     @Default([]) List<GroupBuyContribution> contributions,
     @Default(false) bool isCreating,
     @Default(false) bool isJoining,
+    @Default(false) bool isLeaving,
+    @Default(false) bool isSuggestingDeal,
     String? createSuccessId,
     String? joinSuccessMessage,
+    String? leaveSuccessMessage,
+    String? suggestSuccessId,
     String? errorMessage,
   }) = _GroupBuyState;
 }

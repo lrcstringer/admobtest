@@ -33,6 +33,7 @@ abstract class UserRepository {
     String? city,
     String? firstName,
     String? lastName,
+    List<String>? selectedClusters,
   });
 
   /// Check if username is available

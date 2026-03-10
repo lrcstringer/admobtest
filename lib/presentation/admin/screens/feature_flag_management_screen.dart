@@ -110,6 +110,7 @@ class _FeatureFlagManagementScreenState
                             label: const Text('Seed Defaults'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.warning,
+                              minimumSize: const Size(0, 40),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -119,6 +120,7 @@ class _FeatureFlagManagementScreenState
                             label: const Text('Add Flag'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
+                              minimumSize: const Size(0, 40),
                             ),
                           ),
                         ],

@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../domain/entities/group_buy.dart';
 import '../../models/group_buy_contribution_model.dart';
 import '../../models/group_buy_model.dart';
 
@@ -24,6 +25,18 @@ abstract class GroupBuyRemoteDataSource {
     required String groupBuyId,
     required int amount,
     required String walletId,
+  });
+  Future<List<GroupBuyModel>> getHubGroupBuys({
+    List<String> userClusters = const [],
+  });
+  Future<void> leaveGroupBuy({required String groupBuyId});
+  Future<String> suggestGroupBuyDeal({
+    required String description,
+    required String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    bool wantsToJoin,
   });
 }
 
@@ -155,5 +168,60 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       'amount': amount,
       'walletId': walletId,
     });
+  }
+
+  @override
+  Future<void> leaveGroupBuy({required String groupBuyId}) async {
+    await _functions
+        .httpsCallable('leaveGroupBuy')
+        .call({'groupBuyId': groupBuyId});
+  }
+
+  @override
+  Future<String> suggestGroupBuyDeal({
+    required String description,
+    required String brandOrStore,
+    int? estimatedPrice,
+    String? sourceUrl,
+    String? imageUrl,
+    bool wantsToJoin = true,
+  }) async {
+    final result = await _functions
+        .httpsCallable('suggestGroupBuyDeal')
+        .call({
+      'description': description,
+      'brandOrStore': brandOrStore,
+      if (estimatedPrice != null) 'estimatedPrice': estimatedPrice,
+      if (sourceUrl != null) 'sourceUrl': sourceUrl,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      'wantsToJoin': wantsToJoin,
+    });
+    return result.data['requestId'] as String;
+  }
+
+  @override
+  Future<List<GroupBuyModel>> getHubGroupBuys({
+    List<String> userClusters = const [],
+  }) async {
+    // Get all admin-curated open group buys
+    final snap = await _firestore
+        .collection('groupBuys')
+        .where('createdByAdmin', isEqualTo: true)
+        .where('status', isEqualTo: 'open')
+        .orderBy('deadline', descending: false)
+        .limit(20)
+        .get();
+
+    final allDeals =
+        snap.docs.map((d) => GroupBuyModel.fromFirestore(d)).toList();
+
+    // Filter: digital deals shown to all, physical deals only if user
+    // is in a matching cluster
+    return allDeals.where((deal) {
+      if (deal.type == GroupBuyType.digital) return true;
+      if (deal.clusters.isEmpty) return true;
+      if (userClusters.isEmpty) return false;
+      return deal.clusters.any((c) => userClusters.contains(c));
+    }).toList();
   }
 }

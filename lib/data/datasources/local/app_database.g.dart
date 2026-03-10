@@ -11333,6 +11333,19 @@ class $LocalBuyCategoriesTable extends LocalBuyCategories
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _subcategoriesJsonMeta = const VerificationMeta(
+    'subcategoriesJson',
+  );
+  @override
+  late final GeneratedColumn<String> subcategoriesJson =
+      GeneratedColumn<String>(
+        'subcategories_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
   static const VerificationMeta _syncedAtMeta = const VerificationMeta(
     'syncedAt',
   );
@@ -11356,6 +11369,7 @@ class $LocalBuyCategoriesTable extends LocalBuyCategories
     featureFlagKey,
     logoUrl,
     backgroundColor,
+    subcategoriesJson,
     syncedAt,
   ];
   @override
@@ -11445,6 +11459,15 @@ class $LocalBuyCategoriesTable extends LocalBuyCategories
         ),
       );
     }
+    if (data.containsKey('subcategories_json')) {
+      context.handle(
+        _subcategoriesJsonMeta,
+        subcategoriesJson.isAcceptableOrUnknown(
+          data['subcategories_json']!,
+          _subcategoriesJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('synced_at')) {
       context.handle(
         _syncedAtMeta,
@@ -11502,6 +11525,10 @@ class $LocalBuyCategoriesTable extends LocalBuyCategories
         DriftSqlType.string,
         data['${effectivePrefix}background_color'],
       ),
+      subcategoriesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subcategories_json'],
+      )!,
       syncedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}synced_at'],
@@ -11527,6 +11554,9 @@ class LocalBuyCategory extends DataClass
   final String? featureFlagKey;
   final String? logoUrl;
   final String? backgroundColor;
+
+  /// JSON-encoded list of subcategory objects: [{"id":"...","name":"...","iconEmoji":"..."}]
+  final String subcategoriesJson;
   final DateTime syncedAt;
   const LocalBuyCategory({
     required this.id,
@@ -11539,6 +11569,7 @@ class LocalBuyCategory extends DataClass
     this.featureFlagKey,
     this.logoUrl,
     this.backgroundColor,
+    required this.subcategoriesJson,
     required this.syncedAt,
   });
   @override
@@ -11564,6 +11595,7 @@ class LocalBuyCategory extends DataClass
     if (!nullToAbsent || backgroundColor != null) {
       map['background_color'] = Variable<String>(backgroundColor);
     }
+    map['subcategories_json'] = Variable<String>(subcategoriesJson);
     map['synced_at'] = Variable<DateTime>(syncedAt);
     return map;
   }
@@ -11588,6 +11620,7 @@ class LocalBuyCategory extends DataClass
       backgroundColor: backgroundColor == null && nullToAbsent
           ? const Value.absent()
           : Value(backgroundColor),
+      subcategoriesJson: Value(subcategoriesJson),
       syncedAt: Value(syncedAt),
     );
   }
@@ -11610,6 +11643,7 @@ class LocalBuyCategory extends DataClass
       featureFlagKey: serializer.fromJson<String?>(json['featureFlagKey']),
       logoUrl: serializer.fromJson<String?>(json['logoUrl']),
       backgroundColor: serializer.fromJson<String?>(json['backgroundColor']),
+      subcategoriesJson: serializer.fromJson<String>(json['subcategoriesJson']),
       syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
     );
   }
@@ -11629,6 +11663,7 @@ class LocalBuyCategory extends DataClass
       'featureFlagKey': serializer.toJson<String?>(featureFlagKey),
       'logoUrl': serializer.toJson<String?>(logoUrl),
       'backgroundColor': serializer.toJson<String?>(backgroundColor),
+      'subcategoriesJson': serializer.toJson<String>(subcategoriesJson),
       'syncedAt': serializer.toJson<DateTime>(syncedAt),
     };
   }
@@ -11644,6 +11679,7 @@ class LocalBuyCategory extends DataClass
     Value<String?> featureFlagKey = const Value.absent(),
     Value<String?> logoUrl = const Value.absent(),
     Value<String?> backgroundColor = const Value.absent(),
+    String? subcategoriesJson,
     DateTime? syncedAt,
   }) => LocalBuyCategory(
     id: id ?? this.id,
@@ -11662,6 +11698,7 @@ class LocalBuyCategory extends DataClass
     backgroundColor: backgroundColor.present
         ? backgroundColor.value
         : this.backgroundColor,
+    subcategoriesJson: subcategoriesJson ?? this.subcategoriesJson,
     syncedAt: syncedAt ?? this.syncedAt,
   );
   LocalBuyCategory copyWithCompanion(LocalBuyCategoriesCompanion data) {
@@ -11684,6 +11721,9 @@ class LocalBuyCategory extends DataClass
       backgroundColor: data.backgroundColor.present
           ? data.backgroundColor.value
           : this.backgroundColor,
+      subcategoriesJson: data.subcategoriesJson.present
+          ? data.subcategoriesJson.value
+          : this.subcategoriesJson,
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
     );
   }
@@ -11701,6 +11741,7 @@ class LocalBuyCategory extends DataClass
           ..write('featureFlagKey: $featureFlagKey, ')
           ..write('logoUrl: $logoUrl, ')
           ..write('backgroundColor: $backgroundColor, ')
+          ..write('subcategoriesJson: $subcategoriesJson, ')
           ..write('syncedAt: $syncedAt')
           ..write(')'))
         .toString();
@@ -11718,6 +11759,7 @@ class LocalBuyCategory extends DataClass
     featureFlagKey,
     logoUrl,
     backgroundColor,
+    subcategoriesJson,
     syncedAt,
   );
   @override
@@ -11734,6 +11776,7 @@ class LocalBuyCategory extends DataClass
           other.featureFlagKey == this.featureFlagKey &&
           other.logoUrl == this.logoUrl &&
           other.backgroundColor == this.backgroundColor &&
+          other.subcategoriesJson == this.subcategoriesJson &&
           other.syncedAt == this.syncedAt);
 }
 
@@ -11748,6 +11791,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
   final Value<String?> featureFlagKey;
   final Value<String?> logoUrl;
   final Value<String?> backgroundColor;
+  final Value<String> subcategoriesJson;
   final Value<DateTime> syncedAt;
   final Value<int> rowid;
   const LocalBuyCategoriesCompanion({
@@ -11761,6 +11805,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
     this.featureFlagKey = const Value.absent(),
     this.logoUrl = const Value.absent(),
     this.backgroundColor = const Value.absent(),
+    this.subcategoriesJson = const Value.absent(),
     this.syncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -11775,6 +11820,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
     this.featureFlagKey = const Value.absent(),
     this.logoUrl = const Value.absent(),
     this.backgroundColor = const Value.absent(),
+    this.subcategoriesJson = const Value.absent(),
     required DateTime syncedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -11792,6 +11838,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
     Expression<String>? featureFlagKey,
     Expression<String>? logoUrl,
     Expression<String>? backgroundColor,
+    Expression<String>? subcategoriesJson,
     Expression<DateTime>? syncedAt,
     Expression<int>? rowid,
   }) {
@@ -11807,6 +11854,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
       if (featureFlagKey != null) 'feature_flag_key': featureFlagKey,
       if (logoUrl != null) 'logo_url': logoUrl,
       if (backgroundColor != null) 'background_color': backgroundColor,
+      if (subcategoriesJson != null) 'subcategories_json': subcategoriesJson,
       if (syncedAt != null) 'synced_at': syncedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -11823,6 +11871,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
     Value<String?>? featureFlagKey,
     Value<String?>? logoUrl,
     Value<String?>? backgroundColor,
+    Value<String>? subcategoriesJson,
     Value<DateTime>? syncedAt,
     Value<int>? rowid,
   }) {
@@ -11838,6 +11887,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
       featureFlagKey: featureFlagKey ?? this.featureFlagKey,
       logoUrl: logoUrl ?? this.logoUrl,
       backgroundColor: backgroundColor ?? this.backgroundColor,
+      subcategoriesJson: subcategoriesJson ?? this.subcategoriesJson,
       syncedAt: syncedAt ?? this.syncedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -11878,6 +11928,9 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
     if (backgroundColor.present) {
       map['background_color'] = Variable<String>(backgroundColor.value);
     }
+    if (subcategoriesJson.present) {
+      map['subcategories_json'] = Variable<String>(subcategoriesJson.value);
+    }
     if (syncedAt.present) {
       map['synced_at'] = Variable<DateTime>(syncedAt.value);
     }
@@ -11900,6 +11953,7 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
           ..write('featureFlagKey: $featureFlagKey, ')
           ..write('logoUrl: $logoUrl, ')
           ..write('backgroundColor: $backgroundColor, ')
+          ..write('subcategoriesJson: $subcategoriesJson, ')
           ..write('syncedAt: $syncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -12822,6 +12876,121 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
     requiredDuringInsert: false,
     defaultValue: const Constant('goldOrange'),
   );
+  static const VerificationMeta _brandIdMeta = const VerificationMeta(
+    'brandId',
+  );
+  @override
+  late final GeneratedColumn<String> brandId = GeneratedColumn<String>(
+    'brand_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _communityIdsJsonMeta = const VerificationMeta(
+    'communityIdsJson',
+  );
+  @override
+  late final GeneratedColumn<String> communityIdsJson = GeneratedColumn<String>(
+    'community_ids_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _scheduledStartMeta = const VerificationMeta(
+    'scheduledStart',
+  );
+  @override
+  late final GeneratedColumn<DateTime> scheduledStart =
+      GeneratedColumn<DateTime>(
+        'scheduled_start',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _scheduledEndMeta = const VerificationMeta(
+    'scheduledEnd',
+  );
+  @override
+  late final GeneratedColumn<DateTime> scheduledEnd = GeneratedColumn<DateTime>(
+    'scheduled_end',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _brandNameMeta = const VerificationMeta(
+    'brandName',
+  );
+  @override
+  late final GeneratedColumn<String> brandName = GeneratedColumn<String>(
+    'brand_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ctaTextMeta = const VerificationMeta(
+    'ctaText',
+  );
+  @override
+  late final GeneratedColumn<String> ctaText = GeneratedColumn<String>(
+    'cta_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bgColorHexMeta = const VerificationMeta(
+    'bgColorHex',
+  );
+  @override
+  late final GeneratedColumn<String> bgColorHex = GeneratedColumn<String>(
+    'bg_color_hex',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _colorIntensityMeta = const VerificationMeta(
+    'colorIntensity',
+  );
+  @override
+  late final GeneratedColumn<double> colorIntensity = GeneratedColumn<double>(
+    'color_intensity',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.4),
+  );
+  static const VerificationMeta _imageOpacityMeta = const VerificationMeta(
+    'imageOpacity',
+  );
+  @override
+  late final GeneratedColumn<double> imageOpacity = GeneratedColumn<double>(
+    'image_opacity',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.3),
+  );
+  static const VerificationMeta _imageLayoutMeta = const VerificationMeta(
+    'imageLayout',
+  );
+  @override
+  late final GeneratedColumn<String> imageLayout = GeneratedColumn<String>(
+    'image_layout',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('right'),
+  );
   static const VerificationMeta _syncedAtMeta = const VerificationMeta(
     'syncedAt',
   );
@@ -12844,6 +13013,16 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
     isActive,
     sortOrder,
     bgGradientType,
+    brandId,
+    communityIdsJson,
+    scheduledStart,
+    scheduledEnd,
+    brandName,
+    ctaText,
+    bgColorHex,
+    colorIntensity,
+    imageOpacity,
+    imageLayout,
     syncedAt,
   ];
   @override
@@ -12919,6 +13098,87 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
         ),
       );
     }
+    if (data.containsKey('brand_id')) {
+      context.handle(
+        _brandIdMeta,
+        brandId.isAcceptableOrUnknown(data['brand_id']!, _brandIdMeta),
+      );
+    }
+    if (data.containsKey('community_ids_json')) {
+      context.handle(
+        _communityIdsJsonMeta,
+        communityIdsJson.isAcceptableOrUnknown(
+          data['community_ids_json']!,
+          _communityIdsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('scheduled_start')) {
+      context.handle(
+        _scheduledStartMeta,
+        scheduledStart.isAcceptableOrUnknown(
+          data['scheduled_start']!,
+          _scheduledStartMeta,
+        ),
+      );
+    }
+    if (data.containsKey('scheduled_end')) {
+      context.handle(
+        _scheduledEndMeta,
+        scheduledEnd.isAcceptableOrUnknown(
+          data['scheduled_end']!,
+          _scheduledEndMeta,
+        ),
+      );
+    }
+    if (data.containsKey('brand_name')) {
+      context.handle(
+        _brandNameMeta,
+        brandName.isAcceptableOrUnknown(data['brand_name']!, _brandNameMeta),
+      );
+    }
+    if (data.containsKey('cta_text')) {
+      context.handle(
+        _ctaTextMeta,
+        ctaText.isAcceptableOrUnknown(data['cta_text']!, _ctaTextMeta),
+      );
+    }
+    if (data.containsKey('bg_color_hex')) {
+      context.handle(
+        _bgColorHexMeta,
+        bgColorHex.isAcceptableOrUnknown(
+          data['bg_color_hex']!,
+          _bgColorHexMeta,
+        ),
+      );
+    }
+    if (data.containsKey('color_intensity')) {
+      context.handle(
+        _colorIntensityMeta,
+        colorIntensity.isAcceptableOrUnknown(
+          data['color_intensity']!,
+          _colorIntensityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_opacity')) {
+      context.handle(
+        _imageOpacityMeta,
+        imageOpacity.isAcceptableOrUnknown(
+          data['image_opacity']!,
+          _imageOpacityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_layout')) {
+      context.handle(
+        _imageLayoutMeta,
+        imageLayout.isAcceptableOrUnknown(
+          data['image_layout']!,
+          _imageLayoutMeta,
+        ),
+      );
+    }
     if (data.containsKey('synced_at')) {
       context.handle(
         _syncedAtMeta,
@@ -12972,6 +13232,46 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
         DriftSqlType.string,
         data['${effectivePrefix}bg_gradient_type'],
       )!,
+      brandId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand_id'],
+      ),
+      communityIdsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}community_ids_json'],
+      )!,
+      scheduledStart: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}scheduled_start'],
+      ),
+      scheduledEnd: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}scheduled_end'],
+      ),
+      brandName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand_name'],
+      ),
+      ctaText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cta_text'],
+      ),
+      bgColorHex: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bg_color_hex'],
+      ),
+      colorIntensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}color_intensity'],
+      )!,
+      imageOpacity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}image_opacity'],
+      )!,
+      imageLayout: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_layout'],
+      )!,
       syncedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}synced_at'],
@@ -12996,6 +13296,16 @@ class LocalFeaturedItem extends DataClass
   final bool isActive;
   final int sortOrder;
   final String bgGradientType;
+  final String? brandId;
+  final String communityIdsJson;
+  final DateTime? scheduledStart;
+  final DateTime? scheduledEnd;
+  final String? brandName;
+  final String? ctaText;
+  final String? bgColorHex;
+  final double colorIntensity;
+  final double imageOpacity;
+  final String imageLayout;
   final DateTime syncedAt;
   const LocalFeaturedItem({
     required this.id,
@@ -13007,6 +13317,16 @@ class LocalFeaturedItem extends DataClass
     required this.isActive,
     required this.sortOrder,
     required this.bgGradientType,
+    this.brandId,
+    required this.communityIdsJson,
+    this.scheduledStart,
+    this.scheduledEnd,
+    this.brandName,
+    this.ctaText,
+    this.bgColorHex,
+    required this.colorIntensity,
+    required this.imageOpacity,
+    required this.imageLayout,
     required this.syncedAt,
   });
   @override
@@ -13027,6 +13347,28 @@ class LocalFeaturedItem extends DataClass
     map['is_active'] = Variable<bool>(isActive);
     map['sort_order'] = Variable<int>(sortOrder);
     map['bg_gradient_type'] = Variable<String>(bgGradientType);
+    if (!nullToAbsent || brandId != null) {
+      map['brand_id'] = Variable<String>(brandId);
+    }
+    map['community_ids_json'] = Variable<String>(communityIdsJson);
+    if (!nullToAbsent || scheduledStart != null) {
+      map['scheduled_start'] = Variable<DateTime>(scheduledStart);
+    }
+    if (!nullToAbsent || scheduledEnd != null) {
+      map['scheduled_end'] = Variable<DateTime>(scheduledEnd);
+    }
+    if (!nullToAbsent || brandName != null) {
+      map['brand_name'] = Variable<String>(brandName);
+    }
+    if (!nullToAbsent || ctaText != null) {
+      map['cta_text'] = Variable<String>(ctaText);
+    }
+    if (!nullToAbsent || bgColorHex != null) {
+      map['bg_color_hex'] = Variable<String>(bgColorHex);
+    }
+    map['color_intensity'] = Variable<double>(colorIntensity);
+    map['image_opacity'] = Variable<double>(imageOpacity);
+    map['image_layout'] = Variable<String>(imageLayout);
     map['synced_at'] = Variable<DateTime>(syncedAt);
     return map;
   }
@@ -13048,6 +13390,28 @@ class LocalFeaturedItem extends DataClass
       isActive: Value(isActive),
       sortOrder: Value(sortOrder),
       bgGradientType: Value(bgGradientType),
+      brandId: brandId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brandId),
+      communityIdsJson: Value(communityIdsJson),
+      scheduledStart: scheduledStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scheduledStart),
+      scheduledEnd: scheduledEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scheduledEnd),
+      brandName: brandName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brandName),
+      ctaText: ctaText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ctaText),
+      bgColorHex: bgColorHex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bgColorHex),
+      colorIntensity: Value(colorIntensity),
+      imageOpacity: Value(imageOpacity),
+      imageLayout: Value(imageLayout),
       syncedAt: Value(syncedAt),
     );
   }
@@ -13067,6 +13431,16 @@ class LocalFeaturedItem extends DataClass
       isActive: serializer.fromJson<bool>(json['isActive']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       bgGradientType: serializer.fromJson<String>(json['bgGradientType']),
+      brandId: serializer.fromJson<String?>(json['brandId']),
+      communityIdsJson: serializer.fromJson<String>(json['communityIdsJson']),
+      scheduledStart: serializer.fromJson<DateTime?>(json['scheduledStart']),
+      scheduledEnd: serializer.fromJson<DateTime?>(json['scheduledEnd']),
+      brandName: serializer.fromJson<String?>(json['brandName']),
+      ctaText: serializer.fromJson<String?>(json['ctaText']),
+      bgColorHex: serializer.fromJson<String?>(json['bgColorHex']),
+      colorIntensity: serializer.fromJson<double>(json['colorIntensity']),
+      imageOpacity: serializer.fromJson<double>(json['imageOpacity']),
+      imageLayout: serializer.fromJson<String>(json['imageLayout']),
       syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
     );
   }
@@ -13083,6 +13457,16 @@ class LocalFeaturedItem extends DataClass
       'isActive': serializer.toJson<bool>(isActive),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'bgGradientType': serializer.toJson<String>(bgGradientType),
+      'brandId': serializer.toJson<String?>(brandId),
+      'communityIdsJson': serializer.toJson<String>(communityIdsJson),
+      'scheduledStart': serializer.toJson<DateTime?>(scheduledStart),
+      'scheduledEnd': serializer.toJson<DateTime?>(scheduledEnd),
+      'brandName': serializer.toJson<String?>(brandName),
+      'ctaText': serializer.toJson<String?>(ctaText),
+      'bgColorHex': serializer.toJson<String?>(bgColorHex),
+      'colorIntensity': serializer.toJson<double>(colorIntensity),
+      'imageOpacity': serializer.toJson<double>(imageOpacity),
+      'imageLayout': serializer.toJson<String>(imageLayout),
       'syncedAt': serializer.toJson<DateTime>(syncedAt),
     };
   }
@@ -13097,6 +13481,16 @@ class LocalFeaturedItem extends DataClass
     bool? isActive,
     int? sortOrder,
     String? bgGradientType,
+    Value<String?> brandId = const Value.absent(),
+    String? communityIdsJson,
+    Value<DateTime?> scheduledStart = const Value.absent(),
+    Value<DateTime?> scheduledEnd = const Value.absent(),
+    Value<String?> brandName = const Value.absent(),
+    Value<String?> ctaText = const Value.absent(),
+    Value<String?> bgColorHex = const Value.absent(),
+    double? colorIntensity,
+    double? imageOpacity,
+    String? imageLayout,
     DateTime? syncedAt,
   }) => LocalFeaturedItem(
     id: id ?? this.id,
@@ -13110,6 +13504,18 @@ class LocalFeaturedItem extends DataClass
     isActive: isActive ?? this.isActive,
     sortOrder: sortOrder ?? this.sortOrder,
     bgGradientType: bgGradientType ?? this.bgGradientType,
+    brandId: brandId.present ? brandId.value : this.brandId,
+    communityIdsJson: communityIdsJson ?? this.communityIdsJson,
+    scheduledStart: scheduledStart.present
+        ? scheduledStart.value
+        : this.scheduledStart,
+    scheduledEnd: scheduledEnd.present ? scheduledEnd.value : this.scheduledEnd,
+    brandName: brandName.present ? brandName.value : this.brandName,
+    ctaText: ctaText.present ? ctaText.value : this.ctaText,
+    bgColorHex: bgColorHex.present ? bgColorHex.value : this.bgColorHex,
+    colorIntensity: colorIntensity ?? this.colorIntensity,
+    imageOpacity: imageOpacity ?? this.imageOpacity,
+    imageLayout: imageLayout ?? this.imageLayout,
     syncedAt: syncedAt ?? this.syncedAt,
   );
   LocalFeaturedItem copyWithCompanion(LocalFeaturedItemsCompanion data) {
@@ -13127,6 +13533,30 @@ class LocalFeaturedItem extends DataClass
       bgGradientType: data.bgGradientType.present
           ? data.bgGradientType.value
           : this.bgGradientType,
+      brandId: data.brandId.present ? data.brandId.value : this.brandId,
+      communityIdsJson: data.communityIdsJson.present
+          ? data.communityIdsJson.value
+          : this.communityIdsJson,
+      scheduledStart: data.scheduledStart.present
+          ? data.scheduledStart.value
+          : this.scheduledStart,
+      scheduledEnd: data.scheduledEnd.present
+          ? data.scheduledEnd.value
+          : this.scheduledEnd,
+      brandName: data.brandName.present ? data.brandName.value : this.brandName,
+      ctaText: data.ctaText.present ? data.ctaText.value : this.ctaText,
+      bgColorHex: data.bgColorHex.present
+          ? data.bgColorHex.value
+          : this.bgColorHex,
+      colorIntensity: data.colorIntensity.present
+          ? data.colorIntensity.value
+          : this.colorIntensity,
+      imageOpacity: data.imageOpacity.present
+          ? data.imageOpacity.value
+          : this.imageOpacity,
+      imageLayout: data.imageLayout.present
+          ? data.imageLayout.value
+          : this.imageLayout,
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
     );
   }
@@ -13143,6 +13573,16 @@ class LocalFeaturedItem extends DataClass
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('bgGradientType: $bgGradientType, ')
+          ..write('brandId: $brandId, ')
+          ..write('communityIdsJson: $communityIdsJson, ')
+          ..write('scheduledStart: $scheduledStart, ')
+          ..write('scheduledEnd: $scheduledEnd, ')
+          ..write('brandName: $brandName, ')
+          ..write('ctaText: $ctaText, ')
+          ..write('bgColorHex: $bgColorHex, ')
+          ..write('colorIntensity: $colorIntensity, ')
+          ..write('imageOpacity: $imageOpacity, ')
+          ..write('imageLayout: $imageLayout, ')
           ..write('syncedAt: $syncedAt')
           ..write(')'))
         .toString();
@@ -13159,6 +13599,16 @@ class LocalFeaturedItem extends DataClass
     isActive,
     sortOrder,
     bgGradientType,
+    brandId,
+    communityIdsJson,
+    scheduledStart,
+    scheduledEnd,
+    brandName,
+    ctaText,
+    bgColorHex,
+    colorIntensity,
+    imageOpacity,
+    imageLayout,
     syncedAt,
   );
   @override
@@ -13174,6 +13624,16 @@ class LocalFeaturedItem extends DataClass
           other.isActive == this.isActive &&
           other.sortOrder == this.sortOrder &&
           other.bgGradientType == this.bgGradientType &&
+          other.brandId == this.brandId &&
+          other.communityIdsJson == this.communityIdsJson &&
+          other.scheduledStart == this.scheduledStart &&
+          other.scheduledEnd == this.scheduledEnd &&
+          other.brandName == this.brandName &&
+          other.ctaText == this.ctaText &&
+          other.bgColorHex == this.bgColorHex &&
+          other.colorIntensity == this.colorIntensity &&
+          other.imageOpacity == this.imageOpacity &&
+          other.imageLayout == this.imageLayout &&
           other.syncedAt == this.syncedAt);
 }
 
@@ -13187,6 +13647,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
   final Value<bool> isActive;
   final Value<int> sortOrder;
   final Value<String> bgGradientType;
+  final Value<String?> brandId;
+  final Value<String> communityIdsJson;
+  final Value<DateTime?> scheduledStart;
+  final Value<DateTime?> scheduledEnd;
+  final Value<String?> brandName;
+  final Value<String?> ctaText;
+  final Value<String?> bgColorHex;
+  final Value<double> colorIntensity;
+  final Value<double> imageOpacity;
+  final Value<String> imageLayout;
   final Value<DateTime> syncedAt;
   final Value<int> rowid;
   const LocalFeaturedItemsCompanion({
@@ -13199,6 +13669,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.bgGradientType = const Value.absent(),
+    this.brandId = const Value.absent(),
+    this.communityIdsJson = const Value.absent(),
+    this.scheduledStart = const Value.absent(),
+    this.scheduledEnd = const Value.absent(),
+    this.brandName = const Value.absent(),
+    this.ctaText = const Value.absent(),
+    this.bgColorHex = const Value.absent(),
+    this.colorIntensity = const Value.absent(),
+    this.imageOpacity = const Value.absent(),
+    this.imageLayout = const Value.absent(),
     this.syncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -13212,6 +13692,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.bgGradientType = const Value.absent(),
+    this.brandId = const Value.absent(),
+    this.communityIdsJson = const Value.absent(),
+    this.scheduledStart = const Value.absent(),
+    this.scheduledEnd = const Value.absent(),
+    this.brandName = const Value.absent(),
+    this.ctaText = const Value.absent(),
+    this.bgColorHex = const Value.absent(),
+    this.colorIntensity = const Value.absent(),
+    this.imageOpacity = const Value.absent(),
+    this.imageLayout = const Value.absent(),
     required DateTime syncedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -13227,6 +13717,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     Expression<bool>? isActive,
     Expression<int>? sortOrder,
     Expression<String>? bgGradientType,
+    Expression<String>? brandId,
+    Expression<String>? communityIdsJson,
+    Expression<DateTime>? scheduledStart,
+    Expression<DateTime>? scheduledEnd,
+    Expression<String>? brandName,
+    Expression<String>? ctaText,
+    Expression<String>? bgColorHex,
+    Expression<double>? colorIntensity,
+    Expression<double>? imageOpacity,
+    Expression<String>? imageLayout,
     Expression<DateTime>? syncedAt,
     Expression<int>? rowid,
   }) {
@@ -13240,6 +13740,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
       if (isActive != null) 'is_active': isActive,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (bgGradientType != null) 'bg_gradient_type': bgGradientType,
+      if (brandId != null) 'brand_id': brandId,
+      if (communityIdsJson != null) 'community_ids_json': communityIdsJson,
+      if (scheduledStart != null) 'scheduled_start': scheduledStart,
+      if (scheduledEnd != null) 'scheduled_end': scheduledEnd,
+      if (brandName != null) 'brand_name': brandName,
+      if (ctaText != null) 'cta_text': ctaText,
+      if (bgColorHex != null) 'bg_color_hex': bgColorHex,
+      if (colorIntensity != null) 'color_intensity': colorIntensity,
+      if (imageOpacity != null) 'image_opacity': imageOpacity,
+      if (imageLayout != null) 'image_layout': imageLayout,
       if (syncedAt != null) 'synced_at': syncedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -13255,6 +13765,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     Value<bool>? isActive,
     Value<int>? sortOrder,
     Value<String>? bgGradientType,
+    Value<String?>? brandId,
+    Value<String>? communityIdsJson,
+    Value<DateTime?>? scheduledStart,
+    Value<DateTime?>? scheduledEnd,
+    Value<String?>? brandName,
+    Value<String?>? ctaText,
+    Value<String?>? bgColorHex,
+    Value<double>? colorIntensity,
+    Value<double>? imageOpacity,
+    Value<String>? imageLayout,
     Value<DateTime>? syncedAt,
     Value<int>? rowid,
   }) {
@@ -13268,6 +13788,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
       isActive: isActive ?? this.isActive,
       sortOrder: sortOrder ?? this.sortOrder,
       bgGradientType: bgGradientType ?? this.bgGradientType,
+      brandId: brandId ?? this.brandId,
+      communityIdsJson: communityIdsJson ?? this.communityIdsJson,
+      scheduledStart: scheduledStart ?? this.scheduledStart,
+      scheduledEnd: scheduledEnd ?? this.scheduledEnd,
+      brandName: brandName ?? this.brandName,
+      ctaText: ctaText ?? this.ctaText,
+      bgColorHex: bgColorHex ?? this.bgColorHex,
+      colorIntensity: colorIntensity ?? this.colorIntensity,
+      imageOpacity: imageOpacity ?? this.imageOpacity,
+      imageLayout: imageLayout ?? this.imageLayout,
       syncedAt: syncedAt ?? this.syncedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -13303,6 +13833,36 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
     if (bgGradientType.present) {
       map['bg_gradient_type'] = Variable<String>(bgGradientType.value);
     }
+    if (brandId.present) {
+      map['brand_id'] = Variable<String>(brandId.value);
+    }
+    if (communityIdsJson.present) {
+      map['community_ids_json'] = Variable<String>(communityIdsJson.value);
+    }
+    if (scheduledStart.present) {
+      map['scheduled_start'] = Variable<DateTime>(scheduledStart.value);
+    }
+    if (scheduledEnd.present) {
+      map['scheduled_end'] = Variable<DateTime>(scheduledEnd.value);
+    }
+    if (brandName.present) {
+      map['brand_name'] = Variable<String>(brandName.value);
+    }
+    if (ctaText.present) {
+      map['cta_text'] = Variable<String>(ctaText.value);
+    }
+    if (bgColorHex.present) {
+      map['bg_color_hex'] = Variable<String>(bgColorHex.value);
+    }
+    if (colorIntensity.present) {
+      map['color_intensity'] = Variable<double>(colorIntensity.value);
+    }
+    if (imageOpacity.present) {
+      map['image_opacity'] = Variable<double>(imageOpacity.value);
+    }
+    if (imageLayout.present) {
+      map['image_layout'] = Variable<String>(imageLayout.value);
+    }
     if (syncedAt.present) {
       map['synced_at'] = Variable<DateTime>(syncedAt.value);
     }
@@ -13324,6 +13884,16 @@ class LocalFeaturedItemsCompanion extends UpdateCompanion<LocalFeaturedItem> {
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('bgGradientType: $bgGradientType, ')
+          ..write('brandId: $brandId, ')
+          ..write('communityIdsJson: $communityIdsJson, ')
+          ..write('scheduledStart: $scheduledStart, ')
+          ..write('scheduledEnd: $scheduledEnd, ')
+          ..write('brandName: $brandName, ')
+          ..write('ctaText: $ctaText, ')
+          ..write('bgColorHex: $bgColorHex, ')
+          ..write('colorIntensity: $colorIntensity, ')
+          ..write('imageOpacity: $imageOpacity, ')
+          ..write('imageLayout: $imageLayout, ')
           ..write('syncedAt: $syncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -18729,6 +19299,7 @@ typedef $$LocalBuyCategoriesTableCreateCompanionBuilder =
       Value<String?> featureFlagKey,
       Value<String?> logoUrl,
       Value<String?> backgroundColor,
+      Value<String> subcategoriesJson,
       required DateTime syncedAt,
       Value<int> rowid,
     });
@@ -18744,6 +19315,7 @@ typedef $$LocalBuyCategoriesTableUpdateCompanionBuilder =
       Value<String?> featureFlagKey,
       Value<String?> logoUrl,
       Value<String?> backgroundColor,
+      Value<String> subcategoriesJson,
       Value<DateTime> syncedAt,
       Value<int> rowid,
     });
@@ -18804,6 +19376,11 @@ class $$LocalBuyCategoriesTableFilterComposer
 
   ColumnFilters<String> get backgroundColor => $composableBuilder(
     column: $table.backgroundColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subcategoriesJson => $composableBuilder(
+    column: $table.subcategoriesJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18872,6 +19449,11 @@ class $$LocalBuyCategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get subcategoriesJson => $composableBuilder(
+    column: $table.subcategoriesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
     column: $table.syncedAt,
     builder: (column) => ColumnOrderings(column),
@@ -18922,6 +19504,11 @@ class $$LocalBuyCategoriesTableAnnotationComposer
 
   GeneratedColumn<String> get backgroundColor => $composableBuilder(
     column: $table.backgroundColor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get subcategoriesJson => $composableBuilder(
+    column: $table.subcategoriesJson,
     builder: (column) => column,
   );
 
@@ -18979,6 +19566,7 @@ class $$LocalBuyCategoriesTableTableManager
                 Value<String?> featureFlagKey = const Value.absent(),
                 Value<String?> logoUrl = const Value.absent(),
                 Value<String?> backgroundColor = const Value.absent(),
+                Value<String> subcategoriesJson = const Value.absent(),
                 Value<DateTime> syncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalBuyCategoriesCompanion(
@@ -18992,6 +19580,7 @@ class $$LocalBuyCategoriesTableTableManager
                 featureFlagKey: featureFlagKey,
                 logoUrl: logoUrl,
                 backgroundColor: backgroundColor,
+                subcategoriesJson: subcategoriesJson,
                 syncedAt: syncedAt,
                 rowid: rowid,
               ),
@@ -19007,6 +19596,7 @@ class $$LocalBuyCategoriesTableTableManager
                 Value<String?> featureFlagKey = const Value.absent(),
                 Value<String?> logoUrl = const Value.absent(),
                 Value<String?> backgroundColor = const Value.absent(),
+                Value<String> subcategoriesJson = const Value.absent(),
                 required DateTime syncedAt,
                 Value<int> rowid = const Value.absent(),
               }) => LocalBuyCategoriesCompanion.insert(
@@ -19020,6 +19610,7 @@ class $$LocalBuyCategoriesTableTableManager
                 featureFlagKey: featureFlagKey,
                 logoUrl: logoUrl,
                 backgroundColor: backgroundColor,
+                subcategoriesJson: subcategoriesJson,
                 syncedAt: syncedAt,
                 rowid: rowid,
               ),
@@ -19439,6 +20030,16 @@ typedef $$LocalFeaturedItemsTableCreateCompanionBuilder =
       Value<bool> isActive,
       Value<int> sortOrder,
       Value<String> bgGradientType,
+      Value<String?> brandId,
+      Value<String> communityIdsJson,
+      Value<DateTime?> scheduledStart,
+      Value<DateTime?> scheduledEnd,
+      Value<String?> brandName,
+      Value<String?> ctaText,
+      Value<String?> bgColorHex,
+      Value<double> colorIntensity,
+      Value<double> imageOpacity,
+      Value<String> imageLayout,
       required DateTime syncedAt,
       Value<int> rowid,
     });
@@ -19453,6 +20054,16 @@ typedef $$LocalFeaturedItemsTableUpdateCompanionBuilder =
       Value<bool> isActive,
       Value<int> sortOrder,
       Value<String> bgGradientType,
+      Value<String?> brandId,
+      Value<String> communityIdsJson,
+      Value<DateTime?> scheduledStart,
+      Value<DateTime?> scheduledEnd,
+      Value<String?> brandName,
+      Value<String?> ctaText,
+      Value<String?> bgColorHex,
+      Value<double> colorIntensity,
+      Value<double> imageOpacity,
+      Value<String> imageLayout,
       Value<DateTime> syncedAt,
       Value<int> rowid,
     });
@@ -19508,6 +20119,56 @@ class $$LocalFeaturedItemsTableFilterComposer
 
   ColumnFilters<String> get bgGradientType => $composableBuilder(
     column: $table.bgGradientType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brandId => $composableBuilder(
+    column: $table.brandId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get communityIdsJson => $composableBuilder(
+    column: $table.communityIdsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get scheduledStart => $composableBuilder(
+    column: $table.scheduledStart,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get scheduledEnd => $composableBuilder(
+    column: $table.scheduledEnd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brandName => $composableBuilder(
+    column: $table.brandName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ctaText => $composableBuilder(
+    column: $table.ctaText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bgColorHex => $composableBuilder(
+    column: $table.bgColorHex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get colorIntensity => $composableBuilder(
+    column: $table.colorIntensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get imageOpacity => $composableBuilder(
+    column: $table.imageOpacity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageLayout => $composableBuilder(
+    column: $table.imageLayout,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19571,6 +20232,56 @@ class $$LocalFeaturedItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get brandId => $composableBuilder(
+    column: $table.brandId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get communityIdsJson => $composableBuilder(
+    column: $table.communityIdsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get scheduledStart => $composableBuilder(
+    column: $table.scheduledStart,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get scheduledEnd => $composableBuilder(
+    column: $table.scheduledEnd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brandName => $composableBuilder(
+    column: $table.brandName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ctaText => $composableBuilder(
+    column: $table.ctaText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bgColorHex => $composableBuilder(
+    column: $table.bgColorHex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get colorIntensity => $composableBuilder(
+    column: $table.colorIntensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get imageOpacity => $composableBuilder(
+    column: $table.imageOpacity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageLayout => $composableBuilder(
+    column: $table.imageLayout,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
     column: $table.syncedAt,
     builder: (column) => ColumnOrderings(column),
@@ -19614,6 +20325,50 @@ class $$LocalFeaturedItemsTableAnnotationComposer
 
   GeneratedColumn<String> get bgGradientType => $composableBuilder(
     column: $table.bgGradientType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get brandId =>
+      $composableBuilder(column: $table.brandId, builder: (column) => column);
+
+  GeneratedColumn<String> get communityIdsJson => $composableBuilder(
+    column: $table.communityIdsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get scheduledStart => $composableBuilder(
+    column: $table.scheduledStart,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get scheduledEnd => $composableBuilder(
+    column: $table.scheduledEnd,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get brandName =>
+      $composableBuilder(column: $table.brandName, builder: (column) => column);
+
+  GeneratedColumn<String> get ctaText =>
+      $composableBuilder(column: $table.ctaText, builder: (column) => column);
+
+  GeneratedColumn<String> get bgColorHex => $composableBuilder(
+    column: $table.bgColorHex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get colorIntensity => $composableBuilder(
+    column: $table.colorIntensity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get imageOpacity => $composableBuilder(
+    column: $table.imageOpacity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get imageLayout => $composableBuilder(
+    column: $table.imageLayout,
     builder: (column) => column,
   );
 
@@ -19670,6 +20425,16 @@ class $$LocalFeaturedItemsTableTableManager
                 Value<bool> isActive = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> bgGradientType = const Value.absent(),
+                Value<String?> brandId = const Value.absent(),
+                Value<String> communityIdsJson = const Value.absent(),
+                Value<DateTime?> scheduledStart = const Value.absent(),
+                Value<DateTime?> scheduledEnd = const Value.absent(),
+                Value<String?> brandName = const Value.absent(),
+                Value<String?> ctaText = const Value.absent(),
+                Value<String?> bgColorHex = const Value.absent(),
+                Value<double> colorIntensity = const Value.absent(),
+                Value<double> imageOpacity = const Value.absent(),
+                Value<String> imageLayout = const Value.absent(),
                 Value<DateTime> syncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalFeaturedItemsCompanion(
@@ -19682,6 +20447,16 @@ class $$LocalFeaturedItemsTableTableManager
                 isActive: isActive,
                 sortOrder: sortOrder,
                 bgGradientType: bgGradientType,
+                brandId: brandId,
+                communityIdsJson: communityIdsJson,
+                scheduledStart: scheduledStart,
+                scheduledEnd: scheduledEnd,
+                brandName: brandName,
+                ctaText: ctaText,
+                bgColorHex: bgColorHex,
+                colorIntensity: colorIntensity,
+                imageOpacity: imageOpacity,
+                imageLayout: imageLayout,
                 syncedAt: syncedAt,
                 rowid: rowid,
               ),
@@ -19696,6 +20471,16 @@ class $$LocalFeaturedItemsTableTableManager
                 Value<bool> isActive = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> bgGradientType = const Value.absent(),
+                Value<String?> brandId = const Value.absent(),
+                Value<String> communityIdsJson = const Value.absent(),
+                Value<DateTime?> scheduledStart = const Value.absent(),
+                Value<DateTime?> scheduledEnd = const Value.absent(),
+                Value<String?> brandName = const Value.absent(),
+                Value<String?> ctaText = const Value.absent(),
+                Value<String?> bgColorHex = const Value.absent(),
+                Value<double> colorIntensity = const Value.absent(),
+                Value<double> imageOpacity = const Value.absent(),
+                Value<String> imageLayout = const Value.absent(),
                 required DateTime syncedAt,
                 Value<int> rowid = const Value.absent(),
               }) => LocalFeaturedItemsCompanion.insert(
@@ -19708,6 +20493,16 @@ class $$LocalFeaturedItemsTableTableManager
                 isActive: isActive,
                 sortOrder: sortOrder,
                 bgGradientType: bgGradientType,
+                brandId: brandId,
+                communityIdsJson: communityIdsJson,
+                scheduledStart: scheduledStart,
+                scheduledEnd: scheduledEnd,
+                brandName: brandName,
+                ctaText: ctaText,
+                bgColorHex: bgColorHex,
+                colorIntensity: colorIntensity,
+                imageOpacity: imageOpacity,
+                imageLayout: imageLayout,
                 syncedAt: syncedAt,
                 rowid: rowid,
               ),

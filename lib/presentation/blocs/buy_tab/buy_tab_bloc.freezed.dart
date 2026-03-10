@@ -290,10 +290,15 @@ abstract class _RefreshBuyTab implements BuyTabEvent {
 /// @nodoc
 mixin _$BuyTabState {
   bool get isLoading => throw _privateConstructorUsedError;
+  bool get isRefreshing => throw _privateConstructorUsedError;
   List<BuyCategory> get categories => throw _privateConstructorUsedError;
   List<BuyRegular> get regulars => throw _privateConstructorUsedError;
   List<FeaturedItem> get featuredItems => throw _privateConstructorUsedError;
   List<BrandStorefront> get brandPartners => throw _privateConstructorUsedError;
+  int get marketplaceListingCount => throw _privateConstructorUsedError;
+  int get marketplaceSellerCount => throw _privateConstructorUsedError;
+  List<String> get trendingThumbnails => throw _privateConstructorUsedError;
+  List<String> get userClusters => throw _privateConstructorUsedError;
   bool get isOffline => throw _privateConstructorUsedError;
   DateTime? get lastSyncedAt => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
@@ -314,10 +319,15 @@ abstract class $BuyTabStateCopyWith<$Res> {
   @useResult
   $Res call({
     bool isLoading,
+    bool isRefreshing,
     List<BuyCategory> categories,
     List<BuyRegular> regulars,
     List<FeaturedItem> featuredItems,
     List<BrandStorefront> brandPartners,
+    int marketplaceListingCount,
+    int marketplaceSellerCount,
+    List<String> trendingThumbnails,
+    List<String> userClusters,
     bool isOffline,
     DateTime? lastSyncedAt,
     String? errorMessage,
@@ -340,10 +350,15 @@ class _$BuyTabStateCopyWithImpl<$Res, $Val extends BuyTabState>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? isRefreshing = null,
     Object? categories = null,
     Object? regulars = null,
     Object? featuredItems = null,
     Object? brandPartners = null,
+    Object? marketplaceListingCount = null,
+    Object? marketplaceSellerCount = null,
+    Object? trendingThumbnails = null,
+    Object? userClusters = null,
     Object? isOffline = null,
     Object? lastSyncedAt = freezed,
     Object? errorMessage = freezed,
@@ -353,6 +368,10 @@ class _$BuyTabStateCopyWithImpl<$Res, $Val extends BuyTabState>
             isLoading: null == isLoading
                 ? _value.isLoading
                 : isLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            isRefreshing: null == isRefreshing
+                ? _value.isRefreshing
+                : isRefreshing // ignore: cast_nullable_to_non_nullable
                       as bool,
             categories: null == categories
                 ? _value.categories
@@ -370,6 +389,22 @@ class _$BuyTabStateCopyWithImpl<$Res, $Val extends BuyTabState>
                 ? _value.brandPartners
                 : brandPartners // ignore: cast_nullable_to_non_nullable
                       as List<BrandStorefront>,
+            marketplaceListingCount: null == marketplaceListingCount
+                ? _value.marketplaceListingCount
+                : marketplaceListingCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            marketplaceSellerCount: null == marketplaceSellerCount
+                ? _value.marketplaceSellerCount
+                : marketplaceSellerCount // ignore: cast_nullable_to_non_nullable
+                      as int,
+            trendingThumbnails: null == trendingThumbnails
+                ? _value.trendingThumbnails
+                : trendingThumbnails // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            userClusters: null == userClusters
+                ? _value.userClusters
+                : userClusters // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
             isOffline: null == isOffline
                 ? _value.isOffline
                 : isOffline // ignore: cast_nullable_to_non_nullable
@@ -399,10 +434,15 @@ abstract class _$$BuyTabStateImplCopyWith<$Res>
   @useResult
   $Res call({
     bool isLoading,
+    bool isRefreshing,
     List<BuyCategory> categories,
     List<BuyRegular> regulars,
     List<FeaturedItem> featuredItems,
     List<BrandStorefront> brandPartners,
+    int marketplaceListingCount,
+    int marketplaceSellerCount,
+    List<String> trendingThumbnails,
+    List<String> userClusters,
     bool isOffline,
     DateTime? lastSyncedAt,
     String? errorMessage,
@@ -424,10 +464,15 @@ class __$$BuyTabStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isLoading = null,
+    Object? isRefreshing = null,
     Object? categories = null,
     Object? regulars = null,
     Object? featuredItems = null,
     Object? brandPartners = null,
+    Object? marketplaceListingCount = null,
+    Object? marketplaceSellerCount = null,
+    Object? trendingThumbnails = null,
+    Object? userClusters = null,
     Object? isOffline = null,
     Object? lastSyncedAt = freezed,
     Object? errorMessage = freezed,
@@ -437,6 +482,10 @@ class __$$BuyTabStateImplCopyWithImpl<$Res>
         isLoading: null == isLoading
             ? _value.isLoading
             : isLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        isRefreshing: null == isRefreshing
+            ? _value.isRefreshing
+            : isRefreshing // ignore: cast_nullable_to_non_nullable
                   as bool,
         categories: null == categories
             ? _value._categories
@@ -454,6 +503,22 @@ class __$$BuyTabStateImplCopyWithImpl<$Res>
             ? _value._brandPartners
             : brandPartners // ignore: cast_nullable_to_non_nullable
                   as List<BrandStorefront>,
+        marketplaceListingCount: null == marketplaceListingCount
+            ? _value.marketplaceListingCount
+            : marketplaceListingCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        marketplaceSellerCount: null == marketplaceSellerCount
+            ? _value.marketplaceSellerCount
+            : marketplaceSellerCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        trendingThumbnails: null == trendingThumbnails
+            ? _value._trendingThumbnails
+            : trendingThumbnails // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        userClusters: null == userClusters
+            ? _value._userClusters
+            : userClusters // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
         isOffline: null == isOffline
             ? _value.isOffline
             : isOffline // ignore: cast_nullable_to_non_nullable
@@ -476,21 +541,31 @@ class __$$BuyTabStateImplCopyWithImpl<$Res>
 class _$BuyTabStateImpl implements _BuyTabState {
   const _$BuyTabStateImpl({
     this.isLoading = false,
+    this.isRefreshing = false,
     final List<BuyCategory> categories = const [],
     final List<BuyRegular> regulars = const [],
     final List<FeaturedItem> featuredItems = const [],
     final List<BrandStorefront> brandPartners = const [],
+    this.marketplaceListingCount = 0,
+    this.marketplaceSellerCount = 0,
+    final List<String> trendingThumbnails = const [],
+    final List<String> userClusters = const [],
     this.isOffline = false,
     this.lastSyncedAt,
     this.errorMessage,
   }) : _categories = categories,
        _regulars = regulars,
        _featuredItems = featuredItems,
-       _brandPartners = brandPartners;
+       _brandPartners = brandPartners,
+       _trendingThumbnails = trendingThumbnails,
+       _userClusters = userClusters;
 
   @override
   @JsonKey()
   final bool isLoading;
+  @override
+  @JsonKey()
+  final bool isRefreshing;
   final List<BuyCategory> _categories;
   @override
   @JsonKey()
@@ -529,6 +604,31 @@ class _$BuyTabStateImpl implements _BuyTabState {
 
   @override
   @JsonKey()
+  final int marketplaceListingCount;
+  @override
+  @JsonKey()
+  final int marketplaceSellerCount;
+  final List<String> _trendingThumbnails;
+  @override
+  @JsonKey()
+  List<String> get trendingThumbnails {
+    if (_trendingThumbnails is EqualUnmodifiableListView)
+      return _trendingThumbnails;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_trendingThumbnails);
+  }
+
+  final List<String> _userClusters;
+  @override
+  @JsonKey()
+  List<String> get userClusters {
+    if (_userClusters is EqualUnmodifiableListView) return _userClusters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_userClusters);
+  }
+
+  @override
+  @JsonKey()
   final bool isOffline;
   @override
   final DateTime? lastSyncedAt;
@@ -537,7 +637,7 @@ class _$BuyTabStateImpl implements _BuyTabState {
 
   @override
   String toString() {
-    return 'BuyTabState(isLoading: $isLoading, categories: $categories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
+    return 'BuyTabState(isLoading: $isLoading, isRefreshing: $isRefreshing, categories: $categories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, marketplaceListingCount: $marketplaceListingCount, marketplaceSellerCount: $marketplaceSellerCount, trendingThumbnails: $trendingThumbnails, userClusters: $userClusters, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
   }
 
   @override
@@ -547,6 +647,8 @@ class _$BuyTabStateImpl implements _BuyTabState {
             other is _$BuyTabStateImpl &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.isRefreshing, isRefreshing) ||
+                other.isRefreshing == isRefreshing) &&
             const DeepCollectionEquality().equals(
               other._categories,
               _categories,
@@ -560,6 +662,21 @@ class _$BuyTabStateImpl implements _BuyTabState {
               other._brandPartners,
               _brandPartners,
             ) &&
+            (identical(
+                  other.marketplaceListingCount,
+                  marketplaceListingCount,
+                ) ||
+                other.marketplaceListingCount == marketplaceListingCount) &&
+            (identical(other.marketplaceSellerCount, marketplaceSellerCount) ||
+                other.marketplaceSellerCount == marketplaceSellerCount) &&
+            const DeepCollectionEquality().equals(
+              other._trendingThumbnails,
+              _trendingThumbnails,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._userClusters,
+              _userClusters,
+            ) &&
             (identical(other.isOffline, isOffline) ||
                 other.isOffline == isOffline) &&
             (identical(other.lastSyncedAt, lastSyncedAt) ||
@@ -572,10 +689,15 @@ class _$BuyTabStateImpl implements _BuyTabState {
   int get hashCode => Object.hash(
     runtimeType,
     isLoading,
+    isRefreshing,
     const DeepCollectionEquality().hash(_categories),
     const DeepCollectionEquality().hash(_regulars),
     const DeepCollectionEquality().hash(_featuredItems),
     const DeepCollectionEquality().hash(_brandPartners),
+    marketplaceListingCount,
+    marketplaceSellerCount,
+    const DeepCollectionEquality().hash(_trendingThumbnails),
+    const DeepCollectionEquality().hash(_userClusters),
     isOffline,
     lastSyncedAt,
     errorMessage,
@@ -593,10 +715,15 @@ class _$BuyTabStateImpl implements _BuyTabState {
 abstract class _BuyTabState implements BuyTabState {
   const factory _BuyTabState({
     final bool isLoading,
+    final bool isRefreshing,
     final List<BuyCategory> categories,
     final List<BuyRegular> regulars,
     final List<FeaturedItem> featuredItems,
     final List<BrandStorefront> brandPartners,
+    final int marketplaceListingCount,
+    final int marketplaceSellerCount,
+    final List<String> trendingThumbnails,
+    final List<String> userClusters,
     final bool isOffline,
     final DateTime? lastSyncedAt,
     final String? errorMessage,
@@ -605,6 +732,8 @@ abstract class _BuyTabState implements BuyTabState {
   @override
   bool get isLoading;
   @override
+  bool get isRefreshing;
+  @override
   List<BuyCategory> get categories;
   @override
   List<BuyRegular> get regulars;
@@ -612,6 +741,14 @@ abstract class _BuyTabState implements BuyTabState {
   List<FeaturedItem> get featuredItems;
   @override
   List<BrandStorefront> get brandPartners;
+  @override
+  int get marketplaceListingCount;
+  @override
+  int get marketplaceSellerCount;
+  @override
+  List<String> get trendingThumbnails;
+  @override
+  List<String> get userClusters;
   @override
   bool get isOffline;
   @override

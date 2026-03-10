@@ -94,6 +94,7 @@ class _BuyCategoryManagementScreenState
                             label: const Text('Add Category'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
+                              minimumSize: const Size(0, 40),
                             ),
                           ),
                         ],
@@ -188,9 +189,36 @@ class _BuyCategoryManagementScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(cat['name'] ?? '',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500, fontSize: 14)),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(cat['name'] ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 14)),
+                    ),
+                    if ((cat['subcategories'] as List?)?.isNotEmpty ==
+                        true) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color:
+                              AppColors.secondary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${(cat['subcategories'] as List).length} subs',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
                 if (cat['id'] != null)
                   Text(cat['id'],
                       style: TextStyle(
@@ -298,6 +326,98 @@ class _BuyCategoryManagementScreenState
     }
   }
 
+  void _showSubcategoryDialog({
+    required BuildContext context,
+    required List<Map<String, String>> subcategories,
+    required StateSetter setParentState,
+    int? editIndex,
+  }) {
+    final isSubEdit = editIndex != null;
+    final existing = isSubEdit ? subcategories[editIndex] : null;
+    final idCtrl = TextEditingController(text: existing?['id'] ?? '');
+    final nameCtrl = TextEditingController(text: existing?['name'] ?? '');
+    final emojiCtrl =
+        TextEditingController(text: existing?['iconEmoji'] ?? '');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: Text(isSubEdit ? 'Edit Subcategory' : 'Add Subcategory'),
+        content: SizedBox(
+          width: 350,
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: idCtrl,
+                  enabled: !isSubEdit,
+                  decoration: const InputDecoration(
+                    labelText: 'ID (kebab-case slug)',
+                    hintText: 'e.g. hair-styling',
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Required';
+                    if (RegExp(r'[^a-z0-9\-]').hasMatch(v.trim())) {
+                      return 'Use lowercase letters, numbers, hyphens only';
+                    }
+                    if (!isSubEdit &&
+                        subcategories.any((s) => s['id'] == v.trim())) {
+                      return 'ID already exists';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: nameCtrl,
+                  decoration:
+                      const InputDecoration(labelText: 'Display Name'),
+                  validator: (v) =>
+                      v?.trim().isEmpty == true ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: emojiCtrl,
+                  decoration:
+                      const InputDecoration(labelText: 'Emoji (optional)'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+              final entry = {
+                'id': idCtrl.text.trim(),
+                'name': nameCtrl.text.trim(),
+                'iconEmoji': emojiCtrl.text.trim(),
+              };
+              setParentState(() {
+                if (isSubEdit) {
+                  subcategories[editIndex] = entry;
+                } else {
+                  subcategories.add(entry);
+                }
+              });
+              Navigator.of(ctx).pop();
+            },
+            child: Text(isSubEdit ? 'Save' : 'Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showCreateDialog() {
     _showCategoryDialog(null);
   }
@@ -324,6 +444,17 @@ class _BuyCategoryManagementScreenState
     var featureFlagKey = existing?['featureFlagKey'] ?? '';
     final formKey = GlobalKey<FormState>();
     var saving = false;
+    var subcategories = List<Map<String, String>>.from(
+      (existing?['subcategories'] as List<dynamic>?)?.map((s) {
+            final m = Map<String, dynamic>.from(s as Map);
+            return {
+              'id': (m['id'] ?? '') as String,
+              'name': (m['name'] ?? '') as String,
+              'iconEmoji': (m['iconEmoji'] ?? m['emoji'] ?? '') as String,
+            };
+          }).toList() ??
+          [],
+    );
 
     showDialog(
       context: context,
@@ -414,6 +545,88 @@ class _BuyCategoryManagementScreenState
                         onChanged: (v) =>
                             setInnerState(() => isComingSoon = v),
                       ),
+                      const Divider(height: 32),
+                      // ── Subcategories section ──
+                      Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Subcategories (${subcategories.length})',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline,
+                                size: 20),
+                            onPressed: () => _showSubcategoryDialog(
+                              context: ctx,
+                              subcategories: subcategories,
+                              setParentState: setInnerState,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (subcategories.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            'No subcategories',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                        )
+                      else
+                        ...subcategories.asMap().entries.map((entry) {
+                          final i = entry.key;
+                          final sub = entry.value;
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: Text(
+                              sub['iconEmoji']?.isNotEmpty == true
+                                  ? sub['iconEmoji']!
+                                  : '•',
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            title: Text(sub['name'] ?? '',
+                                style: const TextStyle(fontSize: 13)),
+                            subtitle: Text(sub['id'] ?? '',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textTertiary)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      size: 16),
+                                  onPressed: () =>
+                                      _showSubcategoryDialog(
+                                    context: ctx,
+                                    subcategories: subcategories,
+                                    setParentState: setInnerState,
+                                    editIndex: i,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete,
+                                      size: 16,
+                                      color: AppColors.error),
+                                  onPressed: () {
+                                    setInnerState(() {
+                                      subcategories.removeAt(i);
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ),
@@ -446,6 +659,7 @@ class _BuyCategoryManagementScreenState
                             'featureFlagKey': featureFlagKey,
                             'logoUrl': logoUrlCtrl.text.trim(),
                             'backgroundColor': bgColorCtrl.text.trim(),
+                            'subcategories': subcategories,
                           };
                           await FirebaseFunctions.instanceFor(
                                   region: 'africa-south1')

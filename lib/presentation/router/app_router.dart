@@ -20,6 +20,7 @@ import '../screens/auth/welcome_screen.dart';
 // Buy screens
 import '../screens/buy/brand_storefront_screen.dart';
 import '../screens/buy/buy_category_screen.dart';
+import '../screens/buy/buy_subcategory_list_screen.dart';
 import '../screens/buy/buy_failure_screen.dart';
 import '../screens/buy/buy_purchase_history_screen.dart';
 import '../screens/buy/buy_services_screen.dart';
@@ -70,6 +71,7 @@ import '../screens/community/community_transaction_screen.dart';
 import '../screens/community/pending_approvals_screen.dart';
 
 // Domain entities (for route extras)
+import '../../domain/entities/buy_category.dart';
 import '../../domain/entities/gift.dart';
 import '../../domain/enums/community_type.dart';
 
@@ -1127,6 +1129,28 @@ class AppRouter {
                         categoryId: categoryId,
                         categoryName: extra?['name'] as String?,
                         categoryEmoji: extra?['emoji'] as String?,
+                      );
+                    },
+                  ),
+                  // 10.3b) Marketplace Subcategory drill-down
+                  GoRoute(
+                    path: 'subcategories/:categoryId',
+                    name: 'buySubcategories',
+                    builder: (context, state) {
+                      final categoryId =
+                          state.pathParameters['categoryId']!;
+                      final extra =
+                          state.extra as Map<String, dynamic>?;
+                      final subcategories =
+                          extra?['subcategories'] as List<BuySubcategory>? ??
+                              [];
+                      return BuySubcategoryListScreen(
+                        categoryId: categoryId,
+                        categoryName:
+                            extra?['name'] as String? ?? '',
+                        categoryEmoji:
+                            extra?['emoji'] as String? ?? '',
+                        subcategories: subcategories,
                       );
                     },
                   ),

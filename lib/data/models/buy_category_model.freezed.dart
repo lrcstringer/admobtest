@@ -27,6 +27,7 @@ mixin _$BuyCategoryModel {
   String? get featureFlagKey => throw _privateConstructorUsedError;
   String? get logoUrl => throw _privateConstructorUsedError;
   String? get backgroundColor => throw _privateConstructorUsedError;
+  List<BuySubcategory> get subcategories => throw _privateConstructorUsedError;
 
   /// Create a copy of BuyCategoryModel
   /// with the given fields replaced by the non-null parameter values.
@@ -53,6 +54,7 @@ abstract class $BuyCategoryModelCopyWith<$Res> {
     String? featureFlagKey,
     String? logoUrl,
     String? backgroundColor,
+    List<BuySubcategory> subcategories,
   });
 }
 
@@ -81,6 +83,7 @@ class _$BuyCategoryModelCopyWithImpl<$Res, $Val extends BuyCategoryModel>
     Object? featureFlagKey = freezed,
     Object? logoUrl = freezed,
     Object? backgroundColor = freezed,
+    Object? subcategories = null,
   }) {
     return _then(
       _value.copyWith(
@@ -124,6 +127,10 @@ class _$BuyCategoryModelCopyWithImpl<$Res, $Val extends BuyCategoryModel>
                 ? _value.backgroundColor
                 : backgroundColor // ignore: cast_nullable_to_non_nullable
                       as String?,
+            subcategories: null == subcategories
+                ? _value.subcategories
+                : subcategories // ignore: cast_nullable_to_non_nullable
+                      as List<BuySubcategory>,
           )
           as $Val,
     );
@@ -150,6 +157,7 @@ abstract class _$$BuyCategoryModelImplCopyWith<$Res>
     String? featureFlagKey,
     String? logoUrl,
     String? backgroundColor,
+    List<BuySubcategory> subcategories,
   });
 }
 
@@ -177,6 +185,7 @@ class __$$BuyCategoryModelImplCopyWithImpl<$Res>
     Object? featureFlagKey = freezed,
     Object? logoUrl = freezed,
     Object? backgroundColor = freezed,
+    Object? subcategories = null,
   }) {
     return _then(
       _$BuyCategoryModelImpl(
@@ -220,6 +229,10 @@ class __$$BuyCategoryModelImplCopyWithImpl<$Res>
             ? _value.backgroundColor
             : backgroundColor // ignore: cast_nullable_to_non_nullable
                   as String?,
+        subcategories: null == subcategories
+            ? _value._subcategories
+            : subcategories // ignore: cast_nullable_to_non_nullable
+                  as List<BuySubcategory>,
       ),
     );
   }
@@ -239,7 +252,9 @@ class _$BuyCategoryModelImpl extends _BuyCategoryModel {
     this.featureFlagKey,
     this.logoUrl,
     this.backgroundColor,
-  }) : super._();
+    final List<BuySubcategory> subcategories = const [],
+  }) : _subcategories = subcategories,
+       super._();
 
   @override
   final String id;
@@ -262,10 +277,18 @@ class _$BuyCategoryModelImpl extends _BuyCategoryModel {
   final String? logoUrl;
   @override
   final String? backgroundColor;
+  final List<BuySubcategory> _subcategories;
+  @override
+  @JsonKey()
+  List<BuySubcategory> get subcategories {
+    if (_subcategories is EqualUnmodifiableListView) return _subcategories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_subcategories);
+  }
 
   @override
   String toString() {
-    return 'BuyCategoryModel(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor)';
+    return 'BuyCategoryModel(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor, subcategories: $subcategories)';
   }
 
   @override
@@ -292,7 +315,11 @@ class _$BuyCategoryModelImpl extends _BuyCategoryModel {
                 other.featureFlagKey == featureFlagKey) &&
             (identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl) &&
             (identical(other.backgroundColor, backgroundColor) ||
-                other.backgroundColor == backgroundColor));
+                other.backgroundColor == backgroundColor) &&
+            const DeepCollectionEquality().equals(
+              other._subcategories,
+              _subcategories,
+            ));
   }
 
   @override
@@ -308,6 +335,7 @@ class _$BuyCategoryModelImpl extends _BuyCategoryModel {
     featureFlagKey,
     logoUrl,
     backgroundColor,
+    const DeepCollectionEquality().hash(_subcategories),
   );
 
   /// Create a copy of BuyCategoryModel
@@ -334,6 +362,7 @@ abstract class _BuyCategoryModel extends BuyCategoryModel {
     final String? featureFlagKey,
     final String? logoUrl,
     final String? backgroundColor,
+    final List<BuySubcategory> subcategories,
   }) = _$BuyCategoryModelImpl;
   const _BuyCategoryModel._() : super._();
 
@@ -357,6 +386,8 @@ abstract class _BuyCategoryModel extends BuyCategoryModel {
   String? get logoUrl;
   @override
   String? get backgroundColor;
+  @override
+  List<BuySubcategory> get subcategories;
 
   /// Create a copy of BuyCategoryModel
   /// with the given fields replaced by the non-null parameter values.

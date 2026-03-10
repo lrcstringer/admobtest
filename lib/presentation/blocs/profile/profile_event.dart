@@ -20,6 +20,7 @@ class ProfileEvent with _$ProfileEvent {
     DateTime? dateOfBirth,
     String? province,
     String? avatarUrl,
+    List<String>? selectedClusters,
   }) = _UpdateProfile;
 
   /// Update username

@@ -11,6 +11,9 @@ class GroupBuyContribution with _$GroupBuyContribution {
     required String userName,
     required int amount,
     String? journalId,
+
+    /// Delivery address for physical fulfilment group buys
+    String? deliveryAddress,
     required DateTime contributedAt,
   }) = _GroupBuyContribution;
 

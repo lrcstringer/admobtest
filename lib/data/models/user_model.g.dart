@@ -30,6 +30,9 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       interests: (json['interests'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      selectedClusters: (json['selectedClusters'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       status: $enumDecode(_$UserStatusEnumMap, json['status']),
       referralCode: json['referralCode'] as String?,
       referredBy: json['referredBy'] as String?,
@@ -77,6 +80,7 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'lastName': instance.lastName,
       'languages': instance.languages,
       'interests': instance.interests,
+      'selectedClusters': instance.selectedClusters,
       'status': _$UserStatusEnumMap[instance.status]!,
       'referralCode': instance.referralCode,
       'referredBy': instance.referredBy,

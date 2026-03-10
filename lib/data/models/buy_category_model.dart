@@ -17,11 +17,19 @@ class BuyCategoryModel with _$BuyCategoryModel {
     String? featureFlagKey,
     String? logoUrl,
     String? backgroundColor,
+    @Default([]) List<BuySubcategory> subcategories,
   }) = _BuyCategoryModel;
 
   const BuyCategoryModel._();
 
   factory BuyCategoryModel.fromJson(Map<String, dynamic> json) {
+    final rawSubs = json['subcategories'] as List<dynamic>?;
+    final subcategories = rawSubs
+            ?.map((s) =>
+                BuySubcategory.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList() ??
+        [];
+
     return BuyCategoryModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -33,6 +41,7 @@ class BuyCategoryModel with _$BuyCategoryModel {
       featureFlagKey: json['featureFlagKey'] as String?,
       logoUrl: json['logoUrl'] as String?,
       backgroundColor: json['backgroundColor'] as String?,
+      subcategories: subcategories,
     );
   }
 
@@ -48,6 +57,10 @@ class BuyCategoryModel with _$BuyCategoryModel {
       if (featureFlagKey != null) 'featureFlagKey': featureFlagKey,
       if (logoUrl != null) 'logoUrl': logoUrl,
       if (backgroundColor != null) 'backgroundColor': backgroundColor,
+      if (subcategories.isNotEmpty)
+        'subcategories': subcategories
+            .map((s) => {'id': s.id, 'name': s.name, 'iconEmoji': s.iconEmoji})
+            .toList(),
     };
   }
 
@@ -63,6 +76,7 @@ class BuyCategoryModel with _$BuyCategoryModel {
       featureFlagKey: featureFlagKey,
       logoUrl: logoUrl,
       backgroundColor: backgroundColor,
+      subcategories: subcategories,
     );
   }
 
@@ -78,6 +92,7 @@ class BuyCategoryModel with _$BuyCategoryModel {
       featureFlagKey: entity.featureFlagKey,
       logoUrl: entity.logoUrl,
       backgroundColor: entity.backgroundColor,
+      subcategories: entity.subcategories,
     );
   }
 }

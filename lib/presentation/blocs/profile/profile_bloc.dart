@@ -123,6 +123,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       dateOfBirth: event.dateOfBirth,
       province: event.province,
       avatarUrl: event.avatarUrl,
+      selectedClusters: event.selectedClusters,
     );
 
     result.fold(

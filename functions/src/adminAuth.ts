@@ -144,6 +144,8 @@ export type AdminPermission =
   | "buy:forceCancelGroupBuy"
   | "buy:retryGroupBuyRefunds"
   | "buy:createBrandGroupBuy"
+  // Buy brand reviews
+  | "buy:flagBrandReview"
   // Buy escrow overview
   | "buy:getEscrowOverview"
   // Pending actions (maker-checker)

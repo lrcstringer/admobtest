@@ -127,14 +127,15 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         isProcessing: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) async {
-        emit(state.copyWith(
-          isProcessing: false,
-          successMessage: 'Marked as fulfilled',
-        ));
-        await _refreshSelectedOrder(event.orderId, emit);
-      },
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Marked as fulfilled',
+      )),
     );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
   }
 
   Future<void> _onConfirmReceipt(
@@ -151,14 +152,15 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         isProcessing: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) async {
-        emit(state.copyWith(
-          isProcessing: false,
-          successMessage: 'Receipt confirmed — payment released to seller',
-        ));
-        await _refreshSelectedOrder(event.orderId, emit);
-      },
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Receipt confirmed — payment released to seller',
+      )),
     );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
   }
 
   Future<void> _onCancelOrder(
@@ -175,14 +177,15 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         isProcessing: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) async {
-        emit(state.copyWith(
-          isProcessing: false,
-          successMessage: 'Order cancelled — tokens refunded',
-        ));
-        await _refreshSelectedOrder(event.orderId, emit);
-      },
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Order cancelled — tokens refunded',
+      )),
     );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
   }
 
   Future<void> _onDisputeOrder(
@@ -202,14 +205,15 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         isProcessing: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) async {
-        emit(state.copyWith(
-          isProcessing: false,
-          successMessage: 'Dispute raised — an admin will review',
-        ));
-        await _refreshSelectedOrder(event.orderId, emit);
-      },
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Dispute raised — an admin will review',
+      )),
     );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
   }
 
   Future<void> _onVouchForProvider(

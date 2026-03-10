@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/buy_category.dart';
 import 'buy_category_tile.dart';
 
-/// 4-column adaptive grid of buy category tiles.
+/// Flat wrap of pill-shaped category chips — no sub-category grouping.
 class BuyCategoryGrid extends StatelessWidget {
   final List<BuyCategory> categories;
   final void Function(BuyCategory category) onCategoryTap;
@@ -17,18 +17,14 @@ class BuyCategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
-        spacing: 12,
-        runSpacing: 16,
-        alignment: WrapAlignment.start,
+        spacing: 8,
+        runSpacing: 8,
         children: categories.map((category) {
-          return SizedBox(
-            width: (MediaQuery.of(context).size.width - 24 - 36) / 4,
-            child: BuyCategoryTile(
-              category: category,
-              onTap: () => onCategoryTap(category),
-            ),
+          return BuyCategoryTile(
+            category: category,
+            onTap: () => onCategoryTap(category),
           );
         }).toList(),
       ),

@@ -193,6 +193,41 @@ class MediaUploadDatasource {
   }
 
   // =========================================================================
+  // MARKETPLACE LISTING IMAGES
+  // =========================================================================
+
+  /// Upload a marketplace listing image.
+  ///
+  /// Compresses to max 1920px and uploads to
+  /// `marketplace/listings/{listingId}/{index}.jpg`.
+  /// Returns the download URL.
+  Future<String> uploadListingImage({
+    required File imageFile,
+    required String listingId,
+    required int index,
+  }) async {
+    final fileSize = await imageFile.length();
+    if (fileSize > _maxImageBytes) {
+      throw Exception(
+          'Image exceeds ${_maxImageBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final rawBytes = await imageFile.readAsBytes();
+    final decoded = img.decodeImage(rawBytes);
+    if (decoded == null) {
+      throw Exception('Unable to decode image');
+    }
+
+    final resized = _resizeToMax(decoded, _fullImageMaxDimension);
+    final jpeg = Uint8List.fromList(
+      img.encodeJpg(resized, quality: _jpegQuality),
+    );
+
+    final storagePath = 'marketplace/listings/$listingId/$index.jpg';
+    return _uploadBytes(jpeg, storagePath, 'image/jpeg');
+  }
+
+  // =========================================================================
   // ENCRYPTED UPLOADS (E2EE)
   // =========================================================================
 

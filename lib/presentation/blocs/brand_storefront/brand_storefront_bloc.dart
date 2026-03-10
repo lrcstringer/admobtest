@@ -3,6 +3,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../domain/entities/brand_product.dart';
+import '../../../domain/entities/brand_review.dart';
 import '../../../domain/entities/brand_storefront.dart';
 import '../../../domain/repositories/buy_repository.dart';
 
@@ -18,6 +20,9 @@ class BrandStorefrontBloc
   BrandStorefrontBloc(this._buyRepository)
       : super(const BrandStorefrontState()) {
     on<_LoadStorefront>(_onLoadStorefront);
+    on<_LoadProducts>(_onLoadProducts);
+    on<_LoadReviews>(_onLoadReviews);
+    on<_SubmitReview>(_onSubmitReview);
   }
 
   Future<void> _onLoadStorefront(
@@ -32,10 +37,81 @@ class BrandStorefrontBloc
         isLoading: false,
         errorMessage: failure.displayMessage,
       )),
-      (storefront) => emit(state.copyWith(
-        isLoading: false,
-        storefront: storefront,
+      (storefront) {
+        emit(state.copyWith(
+          isLoading: false,
+          storefront: storefront,
+        ));
+        // Auto-load products and reviews
+        add(BrandStorefrontEvent.loadProducts(storefront.brandId));
+        add(BrandStorefrontEvent.loadReviews(storefront.brandId));
+      },
+    );
+  }
+
+  Future<void> _onLoadProducts(
+    _LoadProducts event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingProducts: true));
+
+    final result = await _buyRepository.getBrandProducts(event.brandId);
+    result.fold(
+      (_) => emit(state.copyWith(isLoadingProducts: false)),
+      (products) => emit(state.copyWith(
+        isLoadingProducts: false,
+        products: products,
       )),
+    );
+  }
+
+  Future<void> _onLoadReviews(
+    _LoadReviews event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingReviews: true));
+
+    final result = await _buyRepository.getBrandReviews(event.brandId);
+    result.fold(
+      (_) => emit(state.copyWith(isLoadingReviews: false)),
+      (reviews) => emit(state.copyWith(
+        isLoadingReviews: false,
+        reviews: reviews,
+      )),
+    );
+  }
+
+  Future<void> _onSubmitReview(
+    _SubmitReview event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    emit(state.copyWith(
+      isSubmittingReview: true,
+      reviewSubmitSuccess: false,
+      errorMessage: null,
+    ));
+
+    final result = await _buyRepository.submitBrandReview(
+      brandId: event.brandId,
+      qualityRating: event.qualityRating,
+      valueRating: event.valueRating,
+      serviceRating: event.serviceRating,
+      comment: event.comment,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isSubmittingReview: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isSubmittingReview: false,
+          reviewSubmitSuccess: true,
+        ));
+        // Reload reviews to reflect the new submission
+        add(BrandStorefrontEvent.loadReviews(event.brandId));
+      },
     );
   }
 }

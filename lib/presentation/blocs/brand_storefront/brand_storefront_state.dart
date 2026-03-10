@@ -5,6 +5,12 @@ class BrandStorefrontState with _$BrandStorefrontState {
   const factory BrandStorefrontState({
     @Default(false) bool isLoading,
     BrandStorefront? storefront,
+    @Default([]) List<BrandProduct> products,
+    @Default([]) List<BrandReview> reviews,
+    @Default(false) bool isLoadingProducts,
+    @Default(false) bool isLoadingReviews,
+    @Default(false) bool isSubmittingReview,
+    @Default(false) bool reviewSubmitSuccess,
     String? errorMessage,
   }) = _BrandStorefrontState;
 }

@@ -5,6 +5,10 @@ import '../enums/group_buy_status.dart';
 part 'group_buy.freezed.dart';
 part 'group_buy.g.dart';
 
+enum GroupBuyType { digital, physical }
+
+enum GroupBuyFulfilmentType { digital, physical }
+
 @freezed
 class GroupBuy with _$GroupBuy {
   const factory GroupBuy({
@@ -12,9 +16,14 @@ class GroupBuy with _$GroupBuy {
     required String title,
     required String description,
     String? linkedListingId,
-    required String organizerId,
-    required String organizerName,
-    required String communityId,
+
+    /// Made optional — admin-curated group buys have no user organizer.
+    String? organizerId,
+    String? organizerName,
+
+    /// Made optional — admin-curated group buys are not community-bound.
+    String? communityId,
+
     required int targetAmount,
     @Default(0) int currentAmount,
     @Default(1) int minParticipants,
@@ -29,6 +38,33 @@ class GroupBuy with _$GroupBuy {
     String? brandName,
     String? brandLogoUrl,
     int? discountPercent,
+
+    // ── New fields for admin-curated group buys ──
+
+    /// Whether this group buy was created by admin
+    @Default(false) bool createdByAdmin,
+
+    /// digital = shown to all, physical = cluster-matched
+    @Default(GroupBuyType.digital) GroupBuyType type,
+
+    /// How the deal is fulfilled after target is met
+    @Default(GroupBuyFulfilmentType.digital)
+    GroupBuyFulfilmentType fulfilmentType,
+
+    /// Regional clusters this deal targets (physical only)
+    @Default([]) List<String> clusters,
+
+    /// Freetext pickup/collection addresses for display (physical only)
+    @Default([]) List<String> addresses,
+
+    /// Voucher codes uploaded by admin at completion (digital fulfilment)
+    @Default([]) List<String> voucherCodes,
+
+    /// Product image URL
+    String? imageUrl,
+
+    /// Original price before group buy discount (for strikethrough display)
+    int? originalPrice,
 
     required DateTime createdAt,
     DateTime? updatedAt,
@@ -51,9 +87,10 @@ class GroupBuy with _$GroupBuy {
       status.isJoinable &&
       (maxParticipants == null || participantCount < maxParticipants!);
 
-  /// Remaining spots (null if unlimited)
-  int? get spotsLeft =>
-      maxParticipants != null ? maxParticipants! - participantCount : null;
+  /// Remaining spots (null if unlimited, clamped to 0 minimum)
+  int? get spotsLeft => maxParticipants != null
+      ? (maxParticipants! - participantCount).clamp(0, maxParticipants!)
+      : null;
 
   /// Whether sponsored by a brand
   bool get isBrandSponsored => sponsorType == 'brand' && brandId != null;

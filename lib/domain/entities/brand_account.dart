@@ -24,11 +24,12 @@ class BrandAccount with _$BrandAccount {
 
   /// Get initials for avatar
   String get initials {
-    if (name.isEmpty) return '??';
-    final words = name.split(' ');
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '??';
+    final words = trimmed.split(' ').where((w) => w.isNotEmpty).toList();
     if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
     }
-    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
+    return trimmed.substring(0, trimmed.length.clamp(0, 2)).toUpperCase();
   }
 }

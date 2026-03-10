@@ -24,6 +24,23 @@ class FeaturedItem with _$FeaturedItem {
     DateTime? scheduledEnd,
     /// BrandGradient type name (e.g. goldOrange, cyanBlue)
     @Default('goldOrange') String bgGradientType,
+    /// Display name for the brand (e.g. "VODACOM")
+    String? brandName,
+    /// CTA button label (e.g. "Claim with Sasaza")
+    String? ctaText,
+
+    /// Custom bg color hex. Solid: '#FF6429'. Gradient: '#FFB82C,#FF6429'.
+    /// Only used when bgGradientType == 'custom'.
+    String? bgColorHex,
+
+    /// Custom color intensity (0.0–1.0). Only when bgGradientType == 'custom'.
+    @Default(0.4) double colorIntensity,
+
+    /// Image overlay opacity (0.0–1.0). Only when bgGradientType == 'custom'.
+    @Default(0.3) double imageOpacity,
+
+    /// Image layout: 'full' (entire card) or 'right' (right half only).
+    @Default('right') String imageLayout,
   }) = _FeaturedItem;
 
   const FeaturedItem._();

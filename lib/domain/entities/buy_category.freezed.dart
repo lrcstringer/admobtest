@@ -15,6 +15,206 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+BuySubcategory _$BuySubcategoryFromJson(Map<String, dynamic> json) {
+  return _BuySubcategory.fromJson(json);
+}
+
+/// @nodoc
+mixin _$BuySubcategory {
+  String get id => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  String get iconEmoji => throw _privateConstructorUsedError;
+
+  /// Serializes this BuySubcategory to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of BuySubcategory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $BuySubcategoryCopyWith<BuySubcategory> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $BuySubcategoryCopyWith<$Res> {
+  factory $BuySubcategoryCopyWith(
+    BuySubcategory value,
+    $Res Function(BuySubcategory) then,
+  ) = _$BuySubcategoryCopyWithImpl<$Res, BuySubcategory>;
+  @useResult
+  $Res call({String id, String name, String iconEmoji});
+}
+
+/// @nodoc
+class _$BuySubcategoryCopyWithImpl<$Res, $Val extends BuySubcategory>
+    implements $BuySubcategoryCopyWith<$Res> {
+  _$BuySubcategoryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of BuySubcategory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? iconEmoji = null,
+  }) {
+    return _then(
+      _value.copyWith(
+            id: null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                      as String,
+            name: null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                      as String,
+            iconEmoji: null == iconEmoji
+                ? _value.iconEmoji
+                : iconEmoji // ignore: cast_nullable_to_non_nullable
+                      as String,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$BuySubcategoryImplCopyWith<$Res>
+    implements $BuySubcategoryCopyWith<$Res> {
+  factory _$$BuySubcategoryImplCopyWith(
+    _$BuySubcategoryImpl value,
+    $Res Function(_$BuySubcategoryImpl) then,
+  ) = __$$BuySubcategoryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String id, String name, String iconEmoji});
+}
+
+/// @nodoc
+class __$$BuySubcategoryImplCopyWithImpl<$Res>
+    extends _$BuySubcategoryCopyWithImpl<$Res, _$BuySubcategoryImpl>
+    implements _$$BuySubcategoryImplCopyWith<$Res> {
+  __$$BuySubcategoryImplCopyWithImpl(
+    _$BuySubcategoryImpl _value,
+    $Res Function(_$BuySubcategoryImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of BuySubcategory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? iconEmoji = null,
+  }) {
+    return _then(
+      _$BuySubcategoryImpl(
+        id: null == id
+            ? _value.id
+            : id // ignore: cast_nullable_to_non_nullable
+                  as String,
+        name: null == name
+            ? _value.name
+            : name // ignore: cast_nullable_to_non_nullable
+                  as String,
+        iconEmoji: null == iconEmoji
+            ? _value.iconEmoji
+            : iconEmoji // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$BuySubcategoryImpl implements _BuySubcategory {
+  const _$BuySubcategoryImpl({
+    required this.id,
+    required this.name,
+    this.iconEmoji = '',
+  });
+
+  factory _$BuySubcategoryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$BuySubcategoryImplFromJson(json);
+
+  @override
+  final String id;
+  @override
+  final String name;
+  @override
+  @JsonKey()
+  final String iconEmoji;
+
+  @override
+  String toString() {
+    return 'BuySubcategory(id: $id, name: $name, iconEmoji: $iconEmoji)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$BuySubcategoryImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.iconEmoji, iconEmoji) ||
+                other.iconEmoji == iconEmoji));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, name, iconEmoji);
+
+  /// Create a copy of BuySubcategory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$BuySubcategoryImplCopyWith<_$BuySubcategoryImpl> get copyWith =>
+      __$$BuySubcategoryImplCopyWithImpl<_$BuySubcategoryImpl>(
+        this,
+        _$identity,
+      );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$BuySubcategoryImplToJson(this);
+  }
+}
+
+abstract class _BuySubcategory implements BuySubcategory {
+  const factory _BuySubcategory({
+    required final String id,
+    required final String name,
+    final String iconEmoji,
+  }) = _$BuySubcategoryImpl;
+
+  factory _BuySubcategory.fromJson(Map<String, dynamic> json) =
+      _$BuySubcategoryImpl.fromJson;
+
+  @override
+  String get id;
+  @override
+  String get name;
+  @override
+  String get iconEmoji;
+
+  /// Create a copy of BuySubcategory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$BuySubcategoryImplCopyWith<_$BuySubcategoryImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 BuyCategory _$BuyCategoryFromJson(Map<String, dynamic> json) {
   return _BuyCategory.fromJson(json);
 }
@@ -31,6 +231,7 @@ mixin _$BuyCategory {
   String? get featureFlagKey => throw _privateConstructorUsedError;
   String? get logoUrl => throw _privateConstructorUsedError;
   String? get backgroundColor => throw _privateConstructorUsedError;
+  List<BuySubcategory> get subcategories => throw _privateConstructorUsedError;
 
   /// Serializes this BuyCategory to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -60,6 +261,7 @@ abstract class $BuyCategoryCopyWith<$Res> {
     String? featureFlagKey,
     String? logoUrl,
     String? backgroundColor,
+    List<BuySubcategory> subcategories,
   });
 }
 
@@ -88,6 +290,7 @@ class _$BuyCategoryCopyWithImpl<$Res, $Val extends BuyCategory>
     Object? featureFlagKey = freezed,
     Object? logoUrl = freezed,
     Object? backgroundColor = freezed,
+    Object? subcategories = null,
   }) {
     return _then(
       _value.copyWith(
@@ -131,6 +334,10 @@ class _$BuyCategoryCopyWithImpl<$Res, $Val extends BuyCategory>
                 ? _value.backgroundColor
                 : backgroundColor // ignore: cast_nullable_to_non_nullable
                       as String?,
+            subcategories: null == subcategories
+                ? _value.subcategories
+                : subcategories // ignore: cast_nullable_to_non_nullable
+                      as List<BuySubcategory>,
           )
           as $Val,
     );
@@ -157,6 +364,7 @@ abstract class _$$BuyCategoryImplCopyWith<$Res>
     String? featureFlagKey,
     String? logoUrl,
     String? backgroundColor,
+    List<BuySubcategory> subcategories,
   });
 }
 
@@ -184,6 +392,7 @@ class __$$BuyCategoryImplCopyWithImpl<$Res>
     Object? featureFlagKey = freezed,
     Object? logoUrl = freezed,
     Object? backgroundColor = freezed,
+    Object? subcategories = null,
   }) {
     return _then(
       _$BuyCategoryImpl(
@@ -227,6 +436,10 @@ class __$$BuyCategoryImplCopyWithImpl<$Res>
             ? _value.backgroundColor
             : backgroundColor // ignore: cast_nullable_to_non_nullable
                   as String?,
+        subcategories: null == subcategories
+            ? _value._subcategories
+            : subcategories // ignore: cast_nullable_to_non_nullable
+                  as List<BuySubcategory>,
       ),
     );
   }
@@ -246,7 +459,9 @@ class _$BuyCategoryImpl extends _BuyCategory {
     this.featureFlagKey,
     this.logoUrl,
     this.backgroundColor,
-  }) : super._();
+    final List<BuySubcategory> subcategories = const [],
+  }) : _subcategories = subcategories,
+       super._();
 
   factory _$BuyCategoryImpl.fromJson(Map<String, dynamic> json) =>
       _$$BuyCategoryImplFromJson(json);
@@ -272,10 +487,18 @@ class _$BuyCategoryImpl extends _BuyCategory {
   final String? logoUrl;
   @override
   final String? backgroundColor;
+  final List<BuySubcategory> _subcategories;
+  @override
+  @JsonKey()
+  List<BuySubcategory> get subcategories {
+    if (_subcategories is EqualUnmodifiableListView) return _subcategories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_subcategories);
+  }
 
   @override
   String toString() {
-    return 'BuyCategory(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor)';
+    return 'BuyCategory(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor, subcategories: $subcategories)';
   }
 
   @override
@@ -302,7 +525,11 @@ class _$BuyCategoryImpl extends _BuyCategory {
                 other.featureFlagKey == featureFlagKey) &&
             (identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl) &&
             (identical(other.backgroundColor, backgroundColor) ||
-                other.backgroundColor == backgroundColor));
+                other.backgroundColor == backgroundColor) &&
+            const DeepCollectionEquality().equals(
+              other._subcategories,
+              _subcategories,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -319,6 +546,7 @@ class _$BuyCategoryImpl extends _BuyCategory {
     featureFlagKey,
     logoUrl,
     backgroundColor,
+    const DeepCollectionEquality().hash(_subcategories),
   );
 
   /// Create a copy of BuyCategory
@@ -347,6 +575,7 @@ abstract class _BuyCategory extends BuyCategory {
     final String? featureFlagKey,
     final String? logoUrl,
     final String? backgroundColor,
+    final List<BuySubcategory> subcategories,
   }) = _$BuyCategoryImpl;
   const _BuyCategory._() : super._();
 
@@ -373,6 +602,8 @@ abstract class _BuyCategory extends BuyCategory {
   String? get logoUrl;
   @override
   String? get backgroundColor;
+  @override
+  List<BuySubcategory> get subcategories;
 
   /// Create a copy of BuyCategory
   /// with the given fields replaced by the non-null parameter values.

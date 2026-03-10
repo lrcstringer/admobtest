@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
@@ -338,7 +339,75 @@ class _MarketplaceListingDetailScreenState
   }
 
   void _onShare() {
-    // TODO: Share-to-chat integration (Phase 3.8)
+    final listing = context.read<MarketplaceBloc>().state.selectedListing;
+    if (listing == null) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              leading: const Icon(
+                Icons.chat_bubble_outline,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Share to Chat',
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                context.push(
+                  '/share/marketplace/${listing.id}',
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.copy,
+                color: AppColors.textSecondary,
+              ),
+              title: const Text(
+                'Copy Link',
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                Clipboard.setData(
+                  ClipboardData(
+                    text:
+                        'https://imalichat.app/buy/marketplace/${listing.id}',
+                  ),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Link copied!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
   }
 
   void _onContactSeller() {

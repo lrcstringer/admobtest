@@ -43,6 +43,25 @@ mixin _$FeaturedItem {
   /// BrandGradient type name (e.g. goldOrange, cyanBlue)
   String get bgGradientType => throw _privateConstructorUsedError;
 
+  /// Display name for the brand (e.g. "VODACOM")
+  String? get brandName => throw _privateConstructorUsedError;
+
+  /// CTA button label (e.g. "Claim with Sasaza")
+  String? get ctaText => throw _privateConstructorUsedError;
+
+  /// Custom bg color hex. Solid: '#FF6429'. Gradient: '#FFB82C,#FF6429'.
+  /// Only used when bgGradientType == 'custom'.
+  String? get bgColorHex => throw _privateConstructorUsedError;
+
+  /// Custom color intensity (0.0–1.0). Only when bgGradientType == 'custom'.
+  double get colorIntensity => throw _privateConstructorUsedError;
+
+  /// Image overlay opacity (0.0–1.0). Only when bgGradientType == 'custom'.
+  double get imageOpacity => throw _privateConstructorUsedError;
+
+  /// Image layout: 'full' (entire card) or 'right' (right half only).
+  String get imageLayout => throw _privateConstructorUsedError;
+
   /// Serializes this FeaturedItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
@@ -74,6 +93,12 @@ abstract class $FeaturedItemCopyWith<$Res> {
     DateTime? scheduledStart,
     DateTime? scheduledEnd,
     String bgGradientType,
+    String? brandName,
+    String? ctaText,
+    String? bgColorHex,
+    double colorIntensity,
+    double imageOpacity,
+    String imageLayout,
   });
 }
 
@@ -105,6 +130,12 @@ class _$FeaturedItemCopyWithImpl<$Res, $Val extends FeaturedItem>
     Object? scheduledStart = freezed,
     Object? scheduledEnd = freezed,
     Object? bgGradientType = null,
+    Object? brandName = freezed,
+    Object? ctaText = freezed,
+    Object? bgColorHex = freezed,
+    Object? colorIntensity = null,
+    Object? imageOpacity = null,
+    Object? imageLayout = null,
   }) {
     return _then(
       _value.copyWith(
@@ -160,6 +191,30 @@ class _$FeaturedItemCopyWithImpl<$Res, $Val extends FeaturedItem>
                 ? _value.bgGradientType
                 : bgGradientType // ignore: cast_nullable_to_non_nullable
                       as String,
+            brandName: freezed == brandName
+                ? _value.brandName
+                : brandName // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            ctaText: freezed == ctaText
+                ? _value.ctaText
+                : ctaText // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            bgColorHex: freezed == bgColorHex
+                ? _value.bgColorHex
+                : bgColorHex // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            colorIntensity: null == colorIntensity
+                ? _value.colorIntensity
+                : colorIntensity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            imageOpacity: null == imageOpacity
+                ? _value.imageOpacity
+                : imageOpacity // ignore: cast_nullable_to_non_nullable
+                      as double,
+            imageLayout: null == imageLayout
+                ? _value.imageLayout
+                : imageLayout // ignore: cast_nullable_to_non_nullable
+                      as String,
           )
           as $Val,
     );
@@ -189,6 +244,12 @@ abstract class _$$FeaturedItemImplCopyWith<$Res>
     DateTime? scheduledStart,
     DateTime? scheduledEnd,
     String bgGradientType,
+    String? brandName,
+    String? ctaText,
+    String? bgColorHex,
+    double colorIntensity,
+    double imageOpacity,
+    String imageLayout,
   });
 }
 
@@ -219,6 +280,12 @@ class __$$FeaturedItemImplCopyWithImpl<$Res>
     Object? scheduledStart = freezed,
     Object? scheduledEnd = freezed,
     Object? bgGradientType = null,
+    Object? brandName = freezed,
+    Object? ctaText = freezed,
+    Object? bgColorHex = freezed,
+    Object? colorIntensity = null,
+    Object? imageOpacity = null,
+    Object? imageLayout = null,
   }) {
     return _then(
       _$FeaturedItemImpl(
@@ -274,6 +341,30 @@ class __$$FeaturedItemImplCopyWithImpl<$Res>
             ? _value.bgGradientType
             : bgGradientType // ignore: cast_nullable_to_non_nullable
                   as String,
+        brandName: freezed == brandName
+            ? _value.brandName
+            : brandName // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        ctaText: freezed == ctaText
+            ? _value.ctaText
+            : ctaText // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        bgColorHex: freezed == bgColorHex
+            ? _value.bgColorHex
+            : bgColorHex // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        colorIntensity: null == colorIntensity
+            ? _value.colorIntensity
+            : colorIntensity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        imageOpacity: null == imageOpacity
+            ? _value.imageOpacity
+            : imageOpacity // ignore: cast_nullable_to_non_nullable
+                  as double,
+        imageLayout: null == imageLayout
+            ? _value.imageLayout
+            : imageLayout // ignore: cast_nullable_to_non_nullable
+                  as String,
       ),
     );
   }
@@ -296,6 +387,12 @@ class _$FeaturedItemImpl extends _FeaturedItem {
     this.scheduledStart,
     this.scheduledEnd,
     this.bgGradientType = 'goldOrange',
+    this.brandName,
+    this.ctaText,
+    this.bgColorHex,
+    this.colorIntensity = 0.4,
+    this.imageOpacity = 0.3,
+    this.imageLayout = 'right',
   }) : _communityIds = communityIds,
        super._();
 
@@ -350,9 +447,37 @@ class _$FeaturedItemImpl extends _FeaturedItem {
   @JsonKey()
   final String bgGradientType;
 
+  /// Display name for the brand (e.g. "VODACOM")
+  @override
+  final String? brandName;
+
+  /// CTA button label (e.g. "Claim with Sasaza")
+  @override
+  final String? ctaText;
+
+  /// Custom bg color hex. Solid: '#FF6429'. Gradient: '#FFB82C,#FF6429'.
+  /// Only used when bgGradientType == 'custom'.
+  @override
+  final String? bgColorHex;
+
+  /// Custom color intensity (0.0–1.0). Only when bgGradientType == 'custom'.
+  @override
+  @JsonKey()
+  final double colorIntensity;
+
+  /// Image overlay opacity (0.0–1.0). Only when bgGradientType == 'custom'.
+  @override
+  @JsonKey()
+  final double imageOpacity;
+
+  /// Image layout: 'full' (entire card) or 'right' (right half only).
+  @override
+  @JsonKey()
+  final String imageLayout;
+
   @override
   String toString() {
-    return 'FeaturedItem(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType)';
+    return 'FeaturedItem(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
   }
 
   @override
@@ -383,12 +508,23 @@ class _$FeaturedItemImpl extends _FeaturedItem {
             (identical(other.scheduledEnd, scheduledEnd) ||
                 other.scheduledEnd == scheduledEnd) &&
             (identical(other.bgGradientType, bgGradientType) ||
-                other.bgGradientType == bgGradientType));
+                other.bgGradientType == bgGradientType) &&
+            (identical(other.brandName, brandName) ||
+                other.brandName == brandName) &&
+            (identical(other.ctaText, ctaText) || other.ctaText == ctaText) &&
+            (identical(other.bgColorHex, bgColorHex) ||
+                other.bgColorHex == bgColorHex) &&
+            (identical(other.colorIntensity, colorIntensity) ||
+                other.colorIntensity == colorIntensity) &&
+            (identical(other.imageOpacity, imageOpacity) ||
+                other.imageOpacity == imageOpacity) &&
+            (identical(other.imageLayout, imageLayout) ||
+                other.imageLayout == imageLayout));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     title,
@@ -403,7 +539,13 @@ class _$FeaturedItemImpl extends _FeaturedItem {
     scheduledStart,
     scheduledEnd,
     bgGradientType,
-  );
+    brandName,
+    ctaText,
+    bgColorHex,
+    colorIntensity,
+    imageOpacity,
+    imageLayout,
+  ]);
 
   /// Create a copy of FeaturedItem
   /// with the given fields replaced by the non-null parameter values.
@@ -434,6 +576,12 @@ abstract class _FeaturedItem extends FeaturedItem {
     final DateTime? scheduledStart,
     final DateTime? scheduledEnd,
     final String bgGradientType,
+    final String? brandName,
+    final String? ctaText,
+    final String? bgColorHex,
+    final double colorIntensity,
+    final double imageOpacity,
+    final String imageLayout,
   }) = _$FeaturedItemImpl;
   const _FeaturedItem._() : super._();
 
@@ -474,6 +622,31 @@ abstract class _FeaturedItem extends FeaturedItem {
   /// BrandGradient type name (e.g. goldOrange, cyanBlue)
   @override
   String get bgGradientType;
+
+  /// Display name for the brand (e.g. "VODACOM")
+  @override
+  String? get brandName;
+
+  /// CTA button label (e.g. "Claim with Sasaza")
+  @override
+  String? get ctaText;
+
+  /// Custom bg color hex. Solid: '#FF6429'. Gradient: '#FFB82C,#FF6429'.
+  /// Only used when bgGradientType == 'custom'.
+  @override
+  String? get bgColorHex;
+
+  /// Custom color intensity (0.0–1.0). Only when bgGradientType == 'custom'.
+  @override
+  double get colorIntensity;
+
+  /// Image overlay opacity (0.0–1.0). Only when bgGradientType == 'custom'.
+  @override
+  double get imageOpacity;
+
+  /// Image layout: 'full' (entire card) or 'right' (right half only).
+  @override
+  String get imageLayout;
 
   /// Create a copy of FeaturedItem
   /// with the given fields replaced by the non-null parameter values.

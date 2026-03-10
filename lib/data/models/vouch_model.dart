@@ -33,7 +33,10 @@ class VouchModel with _$VouchModel {
       comment: json['comment'] as String?,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
-          : DateTime.parse(json['createdAt'] as String),
+          : json['createdAt'] is String
+              ? (DateTime.tryParse(json['createdAt'] as String) ??
+                  DateTime.now())
+              : DateTime.now(),
     );
   }
 

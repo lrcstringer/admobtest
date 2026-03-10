@@ -21,6 +21,12 @@ class FeaturedItemModel with _$FeaturedItemModel {
     DateTime? scheduledStart,
     DateTime? scheduledEnd,
     @Default('goldOrange') String bgGradientType,
+    String? brandName,
+    String? ctaText,
+    String? bgColorHex,
+    @Default(0.4) double colorIntensity,
+    @Default(0.3) double imageOpacity,
+    @Default('right') String imageLayout,
   }) = _FeaturedItemModel;
 
   const FeaturedItemModel._();
@@ -51,6 +57,12 @@ class FeaturedItemModel with _$FeaturedItemModel {
               ? DateTime.tryParse(json['scheduledEnd'] as String)
               : null,
       bgGradientType: json['bgGradientType'] as String? ?? 'goldOrange',
+      brandName: json['brandName'] as String?,
+      ctaText: json['ctaText'] as String?,
+      bgColorHex: json['bgColorHex'] as String?,
+      colorIntensity: (json['colorIntensity'] as num?)?.toDouble() ?? 0.4,
+      imageOpacity: (json['imageOpacity'] as num?)?.toDouble() ?? 0.3,
+      imageLayout: json['imageLayout'] as String? ?? 'right',
     );
   }
 
@@ -70,6 +82,12 @@ class FeaturedItemModel with _$FeaturedItemModel {
       if (scheduledEnd != null)
         'scheduledEnd': Timestamp.fromDate(scheduledEnd!),
       'bgGradientType': bgGradientType,
+      'brandName': brandName,
+      'ctaText': ctaText,
+      'bgColorHex': bgColorHex,
+      'colorIntensity': colorIntensity,
+      'imageOpacity': imageOpacity,
+      'imageLayout': imageLayout,
     };
   }
 
@@ -88,6 +106,12 @@ class FeaturedItemModel with _$FeaturedItemModel {
       scheduledStart: scheduledStart,
       scheduledEnd: scheduledEnd,
       bgGradientType: bgGradientType,
+      brandName: brandName,
+      ctaText: ctaText,
+      bgColorHex: bgColorHex,
+      colorIntensity: colorIntensity,
+      imageOpacity: imageOpacity,
+      imageLayout: imageLayout,
     );
   }
 
@@ -106,6 +130,12 @@ class FeaturedItemModel with _$FeaturedItemModel {
       scheduledStart: entity.scheduledStart,
       scheduledEnd: entity.scheduledEnd,
       bgGradientType: entity.bgGradientType,
+      brandName: entity.brandName,
+      ctaText: entity.ctaText,
+      bgColorHex: entity.bgColorHex,
+      colorIntensity: entity.colorIntensity,
+      imageOpacity: entity.imageOpacity,
+      imageLayout: entity.imageLayout,
     );
   }
 }
