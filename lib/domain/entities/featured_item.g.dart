@@ -6,8 +6,8 @@ part of 'featured_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$FeaturedItemImpl _$$FeaturedItemImplFromJson(Map<String, dynamic> json) =>
-    _$FeaturedItemImpl(
+_FeaturedItem _$FeaturedItemFromJson(Map<String, dynamic> json) =>
+    _FeaturedItem(
       id: json['id'] as String,
       title: json['title'] as String,
       subtitle: json['subtitle'] as String?,
@@ -38,7 +38,7 @@ _$FeaturedItemImpl _$$FeaturedItemImplFromJson(Map<String, dynamic> json) =>
       imageLayout: json['imageLayout'] as String? ?? 'right',
     );
 
-Map<String, dynamic> _$$FeaturedItemImplToJson(_$FeaturedItemImpl instance) =>
+Map<String, dynamic> _$FeaturedItemToJson(_FeaturedItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,

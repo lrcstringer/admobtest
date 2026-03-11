@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,11730 +9,2694 @@ part of 'community_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$CommunityEvent implements DiagnosticableTreeMixin {
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent()';
+}
+
+
+}
+
+/// @nodoc
+class $CommunityEventCopyWith<$Res>  {
+$CommunityEventCopyWith(CommunityEvent _, $Res Function(CommunityEvent) __);
+}
+
+
+/// Adds pattern-matching-related methods to [CommunityEvent].
+extension CommunityEventPatterns on CommunityEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadUserCommunities value)?  loadUserCommunities,TResult Function( _WatchUserCommunities value)?  watchUserCommunities,TResult Function( _UserCommunitiesUpdated value)?  userCommunitiesUpdated,TResult Function( _LoadCommunityDetails value)?  loadCommunityDetails,TResult Function( _WatchMembers value)?  watchMembers,TResult Function( _MembersUpdated value)?  membersUpdated,TResult Function( _WatchTransactions value)?  watchTransactions,TResult Function( _TransactionsUpdated value)?  transactionsUpdated,TResult Function( _WatchPendingApprovals value)?  watchPendingApprovals,TResult Function( _PendingApprovalsUpdated value)?  pendingApprovalsUpdated,TResult Function( _CreateCommunity value)?  createCommunity,TResult Function( _UpdateCommunity value)?  updateCommunity,TResult Function( _DeleteCommunity value)?  deleteCommunity,TResult Function( _InviteMember value)?  inviteMember,TResult Function( _AcceptInvitation value)?  acceptInvitation,TResult Function( _DeclineInvitation value)?  declineInvitation,TResult Function( _RemoveMember value)?  removeMember,TResult Function( _UpdateMemberRole value)?  updateMemberRole,TResult Function( _LeaveCommunity value)?  leaveCommunity,TResult Function( _LoadPendingInvitations value)?  loadPendingInvitations,TResult Function( _Contribute value)?  contribute,TResult Function( _Withdraw value)?  withdraw,TResult Function( _ApproveTransaction value)?  approveTransaction,TResult Function( _RejectTransaction value)?  rejectTransaction,TResult Function( _TriggerPayout value)?  triggerPayout,TResult Function( _LoadAnalytics value)?  loadAnalytics,TResult Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult Function( _ClearSelectedCommunity value)?  clearSelectedCommunity,TResult Function( _ClearError value)?  clearError,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _LoadUserCommunities() when loadUserCommunities != null:
+return loadUserCommunities(_that);case _WatchUserCommunities() when watchUserCommunities != null:
+return watchUserCommunities(_that);case _UserCommunitiesUpdated() when userCommunitiesUpdated != null:
+return userCommunitiesUpdated(_that);case _LoadCommunityDetails() when loadCommunityDetails != null:
+return loadCommunityDetails(_that);case _WatchMembers() when watchMembers != null:
+return watchMembers(_that);case _MembersUpdated() when membersUpdated != null:
+return membersUpdated(_that);case _WatchTransactions() when watchTransactions != null:
+return watchTransactions(_that);case _TransactionsUpdated() when transactionsUpdated != null:
+return transactionsUpdated(_that);case _WatchPendingApprovals() when watchPendingApprovals != null:
+return watchPendingApprovals(_that);case _PendingApprovalsUpdated() when pendingApprovalsUpdated != null:
+return pendingApprovalsUpdated(_that);case _CreateCommunity() when createCommunity != null:
+return createCommunity(_that);case _UpdateCommunity() when updateCommunity != null:
+return updateCommunity(_that);case _DeleteCommunity() when deleteCommunity != null:
+return deleteCommunity(_that);case _InviteMember() when inviteMember != null:
+return inviteMember(_that);case _AcceptInvitation() when acceptInvitation != null:
+return acceptInvitation(_that);case _DeclineInvitation() when declineInvitation != null:
+return declineInvitation(_that);case _RemoveMember() when removeMember != null:
+return removeMember(_that);case _UpdateMemberRole() when updateMemberRole != null:
+return updateMemberRole(_that);case _LeaveCommunity() when leaveCommunity != null:
+return leaveCommunity(_that);case _LoadPendingInvitations() when loadPendingInvitations != null:
+return loadPendingInvitations(_that);case _Contribute() when contribute != null:
+return contribute(_that);case _Withdraw() when withdraw != null:
+return withdraw(_that);case _ApproveTransaction() when approveTransaction != null:
+return approveTransaction(_that);case _RejectTransaction() when rejectTransaction != null:
+return rejectTransaction(_that);case _TriggerPayout() when triggerPayout != null:
+return triggerPayout(_that);case _LoadAnalytics() when loadAnalytics != null:
+return loadAnalytics(_that);case _UnreadCountUpdated() when unreadCountUpdated != null:
+return unreadCountUpdated(_that);case _ClearSelectedCommunity() when clearSelectedCommunity != null:
+return clearSelectedCommunity(_that);case _ClearError() when clearError != null:
+return clearError(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadUserCommunities value)  loadUserCommunities,required TResult Function( _WatchUserCommunities value)  watchUserCommunities,required TResult Function( _UserCommunitiesUpdated value)  userCommunitiesUpdated,required TResult Function( _LoadCommunityDetails value)  loadCommunityDetails,required TResult Function( _WatchMembers value)  watchMembers,required TResult Function( _MembersUpdated value)  membersUpdated,required TResult Function( _WatchTransactions value)  watchTransactions,required TResult Function( _TransactionsUpdated value)  transactionsUpdated,required TResult Function( _WatchPendingApprovals value)  watchPendingApprovals,required TResult Function( _PendingApprovalsUpdated value)  pendingApprovalsUpdated,required TResult Function( _CreateCommunity value)  createCommunity,required TResult Function( _UpdateCommunity value)  updateCommunity,required TResult Function( _DeleteCommunity value)  deleteCommunity,required TResult Function( _InviteMember value)  inviteMember,required TResult Function( _AcceptInvitation value)  acceptInvitation,required TResult Function( _DeclineInvitation value)  declineInvitation,required TResult Function( _RemoveMember value)  removeMember,required TResult Function( _UpdateMemberRole value)  updateMemberRole,required TResult Function( _LeaveCommunity value)  leaveCommunity,required TResult Function( _LoadPendingInvitations value)  loadPendingInvitations,required TResult Function( _Contribute value)  contribute,required TResult Function( _Withdraw value)  withdraw,required TResult Function( _ApproveTransaction value)  approveTransaction,required TResult Function( _RejectTransaction value)  rejectTransaction,required TResult Function( _TriggerPayout value)  triggerPayout,required TResult Function( _LoadAnalytics value)  loadAnalytics,required TResult Function( _UnreadCountUpdated value)  unreadCountUpdated,required TResult Function( _ClearSelectedCommunity value)  clearSelectedCommunity,required TResult Function( _ClearError value)  clearError,}){
+final _that = this;
+switch (_that) {
+case _LoadUserCommunities():
+return loadUserCommunities(_that);case _WatchUserCommunities():
+return watchUserCommunities(_that);case _UserCommunitiesUpdated():
+return userCommunitiesUpdated(_that);case _LoadCommunityDetails():
+return loadCommunityDetails(_that);case _WatchMembers():
+return watchMembers(_that);case _MembersUpdated():
+return membersUpdated(_that);case _WatchTransactions():
+return watchTransactions(_that);case _TransactionsUpdated():
+return transactionsUpdated(_that);case _WatchPendingApprovals():
+return watchPendingApprovals(_that);case _PendingApprovalsUpdated():
+return pendingApprovalsUpdated(_that);case _CreateCommunity():
+return createCommunity(_that);case _UpdateCommunity():
+return updateCommunity(_that);case _DeleteCommunity():
+return deleteCommunity(_that);case _InviteMember():
+return inviteMember(_that);case _AcceptInvitation():
+return acceptInvitation(_that);case _DeclineInvitation():
+return declineInvitation(_that);case _RemoveMember():
+return removeMember(_that);case _UpdateMemberRole():
+return updateMemberRole(_that);case _LeaveCommunity():
+return leaveCommunity(_that);case _LoadPendingInvitations():
+return loadPendingInvitations(_that);case _Contribute():
+return contribute(_that);case _Withdraw():
+return withdraw(_that);case _ApproveTransaction():
+return approveTransaction(_that);case _RejectTransaction():
+return rejectTransaction(_that);case _TriggerPayout():
+return triggerPayout(_that);case _LoadAnalytics():
+return loadAnalytics(_that);case _UnreadCountUpdated():
+return unreadCountUpdated(_that);case _ClearSelectedCommunity():
+return clearSelectedCommunity(_that);case _ClearError():
+return clearError(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadUserCommunities value)?  loadUserCommunities,TResult? Function( _WatchUserCommunities value)?  watchUserCommunities,TResult? Function( _UserCommunitiesUpdated value)?  userCommunitiesUpdated,TResult? Function( _LoadCommunityDetails value)?  loadCommunityDetails,TResult? Function( _WatchMembers value)?  watchMembers,TResult? Function( _MembersUpdated value)?  membersUpdated,TResult? Function( _WatchTransactions value)?  watchTransactions,TResult? Function( _TransactionsUpdated value)?  transactionsUpdated,TResult? Function( _WatchPendingApprovals value)?  watchPendingApprovals,TResult? Function( _PendingApprovalsUpdated value)?  pendingApprovalsUpdated,TResult? Function( _CreateCommunity value)?  createCommunity,TResult? Function( _UpdateCommunity value)?  updateCommunity,TResult? Function( _DeleteCommunity value)?  deleteCommunity,TResult? Function( _InviteMember value)?  inviteMember,TResult? Function( _AcceptInvitation value)?  acceptInvitation,TResult? Function( _DeclineInvitation value)?  declineInvitation,TResult? Function( _RemoveMember value)?  removeMember,TResult? Function( _UpdateMemberRole value)?  updateMemberRole,TResult? Function( _LeaveCommunity value)?  leaveCommunity,TResult? Function( _LoadPendingInvitations value)?  loadPendingInvitations,TResult? Function( _Contribute value)?  contribute,TResult? Function( _Withdraw value)?  withdraw,TResult? Function( _ApproveTransaction value)?  approveTransaction,TResult? Function( _RejectTransaction value)?  rejectTransaction,TResult? Function( _TriggerPayout value)?  triggerPayout,TResult? Function( _LoadAnalytics value)?  loadAnalytics,TResult? Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult? Function( _ClearSelectedCommunity value)?  clearSelectedCommunity,TResult? Function( _ClearError value)?  clearError,}){
+final _that = this;
+switch (_that) {
+case _LoadUserCommunities() when loadUserCommunities != null:
+return loadUserCommunities(_that);case _WatchUserCommunities() when watchUserCommunities != null:
+return watchUserCommunities(_that);case _UserCommunitiesUpdated() when userCommunitiesUpdated != null:
+return userCommunitiesUpdated(_that);case _LoadCommunityDetails() when loadCommunityDetails != null:
+return loadCommunityDetails(_that);case _WatchMembers() when watchMembers != null:
+return watchMembers(_that);case _MembersUpdated() when membersUpdated != null:
+return membersUpdated(_that);case _WatchTransactions() when watchTransactions != null:
+return watchTransactions(_that);case _TransactionsUpdated() when transactionsUpdated != null:
+return transactionsUpdated(_that);case _WatchPendingApprovals() when watchPendingApprovals != null:
+return watchPendingApprovals(_that);case _PendingApprovalsUpdated() when pendingApprovalsUpdated != null:
+return pendingApprovalsUpdated(_that);case _CreateCommunity() when createCommunity != null:
+return createCommunity(_that);case _UpdateCommunity() when updateCommunity != null:
+return updateCommunity(_that);case _DeleteCommunity() when deleteCommunity != null:
+return deleteCommunity(_that);case _InviteMember() when inviteMember != null:
+return inviteMember(_that);case _AcceptInvitation() when acceptInvitation != null:
+return acceptInvitation(_that);case _DeclineInvitation() when declineInvitation != null:
+return declineInvitation(_that);case _RemoveMember() when removeMember != null:
+return removeMember(_that);case _UpdateMemberRole() when updateMemberRole != null:
+return updateMemberRole(_that);case _LeaveCommunity() when leaveCommunity != null:
+return leaveCommunity(_that);case _LoadPendingInvitations() when loadPendingInvitations != null:
+return loadPendingInvitations(_that);case _Contribute() when contribute != null:
+return contribute(_that);case _Withdraw() when withdraw != null:
+return withdraw(_that);case _ApproveTransaction() when approveTransaction != null:
+return approveTransaction(_that);case _RejectTransaction() when rejectTransaction != null:
+return rejectTransaction(_that);case _TriggerPayout() when triggerPayout != null:
+return triggerPayout(_that);case _LoadAnalytics() when loadAnalytics != null:
+return loadAnalytics(_that);case _UnreadCountUpdated() when unreadCountUpdated != null:
+return unreadCountUpdated(_that);case _ClearSelectedCommunity() when clearSelectedCommunity != null:
+return clearSelectedCommunity(_that);case _ClearError() when clearError != null:
+return clearError(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadUserCommunities,TResult Function()?  watchUserCommunities,TResult Function( List<Community> communities)?  userCommunitiesUpdated,TResult Function( String communityId)?  loadCommunityDetails,TResult Function( String communityId)?  watchMembers,TResult Function( List<CommunityMember> members)?  membersUpdated,TResult Function( String communityId,  int? limit)?  watchTransactions,TResult Function( List<CommunityTransaction> transactions)?  transactionsUpdated,TResult Function( String communityId)?  watchPendingApprovals,TResult Function( List<CommunityApproval> approvals)?  pendingApprovalsUpdated,TResult Function( CreateCommunityParams params)?  createCommunity,TResult Function( String communityId,  UpdateCommunityParams params)?  updateCommunity,TResult Function( String communityId)?  deleteCommunity,TResult Function( String communityId,  String userId,  MemberRole role)?  inviteMember,TResult Function( String communityId)?  acceptInvitation,TResult Function( String communityId)?  declineInvitation,TResult Function( String communityId,  String memberId)?  removeMember,TResult Function( String communityId,  String memberId,  MemberRole role)?  updateMemberRole,TResult Function( String communityId)?  leaveCommunity,TResult Function()?  loadPendingInvitations,TResult Function( String communityId,  int amount,  String? description)?  contribute,TResult Function( String communityId,  int amount,  String? description)?  withdraw,TResult Function( String communityId,  String transactionId)?  approveTransaction,TResult Function( String communityId,  String transactionId,  String? reason)?  rejectTransaction,TResult Function( String communityId,  String? recipientId)?  triggerPayout,TResult Function( String communityId,  int? months)?  loadAnalytics,TResult Function( int count)?  unreadCountUpdated,TResult Function()?  clearSelectedCommunity,TResult Function()?  clearError,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _LoadUserCommunities() when loadUserCommunities != null:
+return loadUserCommunities();case _WatchUserCommunities() when watchUserCommunities != null:
+return watchUserCommunities();case _UserCommunitiesUpdated() when userCommunitiesUpdated != null:
+return userCommunitiesUpdated(_that.communities);case _LoadCommunityDetails() when loadCommunityDetails != null:
+return loadCommunityDetails(_that.communityId);case _WatchMembers() when watchMembers != null:
+return watchMembers(_that.communityId);case _MembersUpdated() when membersUpdated != null:
+return membersUpdated(_that.members);case _WatchTransactions() when watchTransactions != null:
+return watchTransactions(_that.communityId,_that.limit);case _TransactionsUpdated() when transactionsUpdated != null:
+return transactionsUpdated(_that.transactions);case _WatchPendingApprovals() when watchPendingApprovals != null:
+return watchPendingApprovals(_that.communityId);case _PendingApprovalsUpdated() when pendingApprovalsUpdated != null:
+return pendingApprovalsUpdated(_that.approvals);case _CreateCommunity() when createCommunity != null:
+return createCommunity(_that.params);case _UpdateCommunity() when updateCommunity != null:
+return updateCommunity(_that.communityId,_that.params);case _DeleteCommunity() when deleteCommunity != null:
+return deleteCommunity(_that.communityId);case _InviteMember() when inviteMember != null:
+return inviteMember(_that.communityId,_that.userId,_that.role);case _AcceptInvitation() when acceptInvitation != null:
+return acceptInvitation(_that.communityId);case _DeclineInvitation() when declineInvitation != null:
+return declineInvitation(_that.communityId);case _RemoveMember() when removeMember != null:
+return removeMember(_that.communityId,_that.memberId);case _UpdateMemberRole() when updateMemberRole != null:
+return updateMemberRole(_that.communityId,_that.memberId,_that.role);case _LeaveCommunity() when leaveCommunity != null:
+return leaveCommunity(_that.communityId);case _LoadPendingInvitations() when loadPendingInvitations != null:
+return loadPendingInvitations();case _Contribute() when contribute != null:
+return contribute(_that.communityId,_that.amount,_that.description);case _Withdraw() when withdraw != null:
+return withdraw(_that.communityId,_that.amount,_that.description);case _ApproveTransaction() when approveTransaction != null:
+return approveTransaction(_that.communityId,_that.transactionId);case _RejectTransaction() when rejectTransaction != null:
+return rejectTransaction(_that.communityId,_that.transactionId,_that.reason);case _TriggerPayout() when triggerPayout != null:
+return triggerPayout(_that.communityId,_that.recipientId);case _LoadAnalytics() when loadAnalytics != null:
+return loadAnalytics(_that.communityId,_that.months);case _UnreadCountUpdated() when unreadCountUpdated != null:
+return unreadCountUpdated(_that.count);case _ClearSelectedCommunity() when clearSelectedCommunity != null:
+return clearSelectedCommunity();case _ClearError() when clearError != null:
+return clearError();case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadUserCommunities,required TResult Function()  watchUserCommunities,required TResult Function( List<Community> communities)  userCommunitiesUpdated,required TResult Function( String communityId)  loadCommunityDetails,required TResult Function( String communityId)  watchMembers,required TResult Function( List<CommunityMember> members)  membersUpdated,required TResult Function( String communityId,  int? limit)  watchTransactions,required TResult Function( List<CommunityTransaction> transactions)  transactionsUpdated,required TResult Function( String communityId)  watchPendingApprovals,required TResult Function( List<CommunityApproval> approvals)  pendingApprovalsUpdated,required TResult Function( CreateCommunityParams params)  createCommunity,required TResult Function( String communityId,  UpdateCommunityParams params)  updateCommunity,required TResult Function( String communityId)  deleteCommunity,required TResult Function( String communityId,  String userId,  MemberRole role)  inviteMember,required TResult Function( String communityId)  acceptInvitation,required TResult Function( String communityId)  declineInvitation,required TResult Function( String communityId,  String memberId)  removeMember,required TResult Function( String communityId,  String memberId,  MemberRole role)  updateMemberRole,required TResult Function( String communityId)  leaveCommunity,required TResult Function()  loadPendingInvitations,required TResult Function( String communityId,  int amount,  String? description)  contribute,required TResult Function( String communityId,  int amount,  String? description)  withdraw,required TResult Function( String communityId,  String transactionId)  approveTransaction,required TResult Function( String communityId,  String transactionId,  String? reason)  rejectTransaction,required TResult Function( String communityId,  String? recipientId)  triggerPayout,required TResult Function( String communityId,  int? months)  loadAnalytics,required TResult Function( int count)  unreadCountUpdated,required TResult Function()  clearSelectedCommunity,required TResult Function()  clearError,}) {final _that = this;
+switch (_that) {
+case _LoadUserCommunities():
+return loadUserCommunities();case _WatchUserCommunities():
+return watchUserCommunities();case _UserCommunitiesUpdated():
+return userCommunitiesUpdated(_that.communities);case _LoadCommunityDetails():
+return loadCommunityDetails(_that.communityId);case _WatchMembers():
+return watchMembers(_that.communityId);case _MembersUpdated():
+return membersUpdated(_that.members);case _WatchTransactions():
+return watchTransactions(_that.communityId,_that.limit);case _TransactionsUpdated():
+return transactionsUpdated(_that.transactions);case _WatchPendingApprovals():
+return watchPendingApprovals(_that.communityId);case _PendingApprovalsUpdated():
+return pendingApprovalsUpdated(_that.approvals);case _CreateCommunity():
+return createCommunity(_that.params);case _UpdateCommunity():
+return updateCommunity(_that.communityId,_that.params);case _DeleteCommunity():
+return deleteCommunity(_that.communityId);case _InviteMember():
+return inviteMember(_that.communityId,_that.userId,_that.role);case _AcceptInvitation():
+return acceptInvitation(_that.communityId);case _DeclineInvitation():
+return declineInvitation(_that.communityId);case _RemoveMember():
+return removeMember(_that.communityId,_that.memberId);case _UpdateMemberRole():
+return updateMemberRole(_that.communityId,_that.memberId,_that.role);case _LeaveCommunity():
+return leaveCommunity(_that.communityId);case _LoadPendingInvitations():
+return loadPendingInvitations();case _Contribute():
+return contribute(_that.communityId,_that.amount,_that.description);case _Withdraw():
+return withdraw(_that.communityId,_that.amount,_that.description);case _ApproveTransaction():
+return approveTransaction(_that.communityId,_that.transactionId);case _RejectTransaction():
+return rejectTransaction(_that.communityId,_that.transactionId,_that.reason);case _TriggerPayout():
+return triggerPayout(_that.communityId,_that.recipientId);case _LoadAnalytics():
+return loadAnalytics(_that.communityId,_that.months);case _UnreadCountUpdated():
+return unreadCountUpdated(_that.count);case _ClearSelectedCommunity():
+return clearSelectedCommunity();case _ClearError():
+return clearError();case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadUserCommunities,TResult? Function()?  watchUserCommunities,TResult? Function( List<Community> communities)?  userCommunitiesUpdated,TResult? Function( String communityId)?  loadCommunityDetails,TResult? Function( String communityId)?  watchMembers,TResult? Function( List<CommunityMember> members)?  membersUpdated,TResult? Function( String communityId,  int? limit)?  watchTransactions,TResult? Function( List<CommunityTransaction> transactions)?  transactionsUpdated,TResult? Function( String communityId)?  watchPendingApprovals,TResult? Function( List<CommunityApproval> approvals)?  pendingApprovalsUpdated,TResult? Function( CreateCommunityParams params)?  createCommunity,TResult? Function( String communityId,  UpdateCommunityParams params)?  updateCommunity,TResult? Function( String communityId)?  deleteCommunity,TResult? Function( String communityId,  String userId,  MemberRole role)?  inviteMember,TResult? Function( String communityId)?  acceptInvitation,TResult? Function( String communityId)?  declineInvitation,TResult? Function( String communityId,  String memberId)?  removeMember,TResult? Function( String communityId,  String memberId,  MemberRole role)?  updateMemberRole,TResult? Function( String communityId)?  leaveCommunity,TResult? Function()?  loadPendingInvitations,TResult? Function( String communityId,  int amount,  String? description)?  contribute,TResult? Function( String communityId,  int amount,  String? description)?  withdraw,TResult? Function( String communityId,  String transactionId)?  approveTransaction,TResult? Function( String communityId,  String transactionId,  String? reason)?  rejectTransaction,TResult? Function( String communityId,  String? recipientId)?  triggerPayout,TResult? Function( String communityId,  int? months)?  loadAnalytics,TResult? Function( int count)?  unreadCountUpdated,TResult? Function()?  clearSelectedCommunity,TResult? Function()?  clearError,}) {final _that = this;
+switch (_that) {
+case _LoadUserCommunities() when loadUserCommunities != null:
+return loadUserCommunities();case _WatchUserCommunities() when watchUserCommunities != null:
+return watchUserCommunities();case _UserCommunitiesUpdated() when userCommunitiesUpdated != null:
+return userCommunitiesUpdated(_that.communities);case _LoadCommunityDetails() when loadCommunityDetails != null:
+return loadCommunityDetails(_that.communityId);case _WatchMembers() when watchMembers != null:
+return watchMembers(_that.communityId);case _MembersUpdated() when membersUpdated != null:
+return membersUpdated(_that.members);case _WatchTransactions() when watchTransactions != null:
+return watchTransactions(_that.communityId,_that.limit);case _TransactionsUpdated() when transactionsUpdated != null:
+return transactionsUpdated(_that.transactions);case _WatchPendingApprovals() when watchPendingApprovals != null:
+return watchPendingApprovals(_that.communityId);case _PendingApprovalsUpdated() when pendingApprovalsUpdated != null:
+return pendingApprovalsUpdated(_that.approvals);case _CreateCommunity() when createCommunity != null:
+return createCommunity(_that.params);case _UpdateCommunity() when updateCommunity != null:
+return updateCommunity(_that.communityId,_that.params);case _DeleteCommunity() when deleteCommunity != null:
+return deleteCommunity(_that.communityId);case _InviteMember() when inviteMember != null:
+return inviteMember(_that.communityId,_that.userId,_that.role);case _AcceptInvitation() when acceptInvitation != null:
+return acceptInvitation(_that.communityId);case _DeclineInvitation() when declineInvitation != null:
+return declineInvitation(_that.communityId);case _RemoveMember() when removeMember != null:
+return removeMember(_that.communityId,_that.memberId);case _UpdateMemberRole() when updateMemberRole != null:
+return updateMemberRole(_that.communityId,_that.memberId,_that.role);case _LeaveCommunity() when leaveCommunity != null:
+return leaveCommunity(_that.communityId);case _LoadPendingInvitations() when loadPendingInvitations != null:
+return loadPendingInvitations();case _Contribute() when contribute != null:
+return contribute(_that.communityId,_that.amount,_that.description);case _Withdraw() when withdraw != null:
+return withdraw(_that.communityId,_that.amount,_that.description);case _ApproveTransaction() when approveTransaction != null:
+return approveTransaction(_that.communityId,_that.transactionId);case _RejectTransaction() when rejectTransaction != null:
+return rejectTransaction(_that.communityId,_that.transactionId,_that.reason);case _TriggerPayout() when triggerPayout != null:
+return triggerPayout(_that.communityId,_that.recipientId);case _LoadAnalytics() when loadAnalytics != null:
+return loadAnalytics(_that.communityId,_that.months);case _UnreadCountUpdated() when unreadCountUpdated != null:
+return unreadCountUpdated(_that.count);case _ClearSelectedCommunity() when clearSelectedCommunity != null:
+return clearSelectedCommunity();case _ClearError() when clearError != null:
+return clearError();case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _LoadUserCommunities with DiagnosticableTreeMixin implements CommunityEvent {
+  const _LoadUserCommunities();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadUserCommunities'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadUserCommunities);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.loadUserCommunities()';
+}
+
+
+}
+
 
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
 
+
 /// @nodoc
-mixin _$CommunityEvent {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+
+class _WatchUserCommunities with DiagnosticableTreeMixin implements CommunityEvent {
+  const _WatchUserCommunities();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchUserCommunities'))
+    ;
 }
 
-/// @nodoc
-abstract class $CommunityEventCopyWith<$Res> {
-  factory $CommunityEventCopyWith(
-    CommunityEvent value,
-    $Res Function(CommunityEvent) then,
-  ) = _$CommunityEventCopyWithImpl<$Res, CommunityEvent>;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WatchUserCommunities);
 }
 
-/// @nodoc
-class _$CommunityEventCopyWithImpl<$Res, $Val extends CommunityEvent>
-    implements $CommunityEventCopyWith<$Res> {
-  _$CommunityEventCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+@override
+int get hashCode => runtimeType.hashCode;
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.watchUserCommunities()';
 }
 
-/// @nodoc
-abstract class _$$LoadUserCommunitiesImplCopyWith<$Res> {
-  factory _$$LoadUserCommunitiesImplCopyWith(
-    _$LoadUserCommunitiesImpl value,
-    $Res Function(_$LoadUserCommunitiesImpl) then,
-  ) = __$$LoadUserCommunitiesImplCopyWithImpl<$Res>;
+
 }
 
+
+
+
 /// @nodoc
-class __$$LoadUserCommunitiesImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$LoadUserCommunitiesImpl>
-    implements _$$LoadUserCommunitiesImplCopyWith<$Res> {
-  __$$LoadUserCommunitiesImplCopyWithImpl(
-    _$LoadUserCommunitiesImpl _value,
-    $Res Function(_$LoadUserCommunitiesImpl) _then,
-  ) : super(_value, _then);
+
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
+class _UserCommunitiesUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+  const _UserCommunitiesUpdated(final  List<Community> communities): _communities = communities;
+  
+
+ final  List<Community> _communities;
+ List<Community> get communities {
+  if (_communities is EqualUnmodifiableListView) return _communities;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_communities);
 }
 
-/// @nodoc
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UserCommunitiesUpdatedCopyWith<_UserCommunitiesUpdated> get copyWith => __$UserCommunitiesUpdatedCopyWithImpl<_UserCommunitiesUpdated>(this, _$identity);
+
 
-class _$LoadUserCommunitiesImpl
-    with DiagnosticableTreeMixin
-    implements _LoadUserCommunities {
-  const _$LoadUserCommunitiesImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.loadUserCommunities()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadUserCommunities'));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadUserCommunitiesImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return loadUserCommunities();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return loadUserCommunities?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadUserCommunities != null) {
-      return loadUserCommunities();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return loadUserCommunities(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return loadUserCommunities?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadUserCommunities != null) {
-      return loadUserCommunities(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadUserCommunities implements CommunityEvent {
-  const factory _LoadUserCommunities() = _$LoadUserCommunitiesImpl;
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.userCommunitiesUpdated'))
+    ..add(DiagnosticsProperty('communities', communities));
 }
 
-/// @nodoc
-abstract class _$$WatchUserCommunitiesImplCopyWith<$Res> {
-  factory _$$WatchUserCommunitiesImplCopyWith(
-    _$WatchUserCommunitiesImpl value,
-    $Res Function(_$WatchUserCommunitiesImpl) then,
-  ) = __$$WatchUserCommunitiesImplCopyWithImpl<$Res>;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserCommunitiesUpdated&&const DeepCollectionEquality().equals(other._communities, _communities));
 }
 
-/// @nodoc
-class __$$WatchUserCommunitiesImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$WatchUserCommunitiesImpl>
-    implements _$$WatchUserCommunitiesImplCopyWith<$Res> {
-  __$$WatchUserCommunitiesImplCopyWithImpl(
-    _$WatchUserCommunitiesImpl _value,
-    $Res Function(_$WatchUserCommunitiesImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_communities));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.userCommunitiesUpdated(communities: $communities)';
 }
 
-/// @nodoc
 
-class _$WatchUserCommunitiesImpl
-    with DiagnosticableTreeMixin
-    implements _WatchUserCommunities {
-  const _$WatchUserCommunitiesImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.watchUserCommunities()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchUserCommunities'));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WatchUserCommunitiesImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return watchUserCommunities();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return watchUserCommunities?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchUserCommunities != null) {
-      return watchUserCommunities();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return watchUserCommunities(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return watchUserCommunities?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchUserCommunities != null) {
-      return watchUserCommunities(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchUserCommunities implements CommunityEvent {
-  const factory _WatchUserCommunities() = _$WatchUserCommunitiesImpl;
 }
 
 /// @nodoc
-abstract class _$$UserCommunitiesUpdatedImplCopyWith<$Res> {
-  factory _$$UserCommunitiesUpdatedImplCopyWith(
-    _$UserCommunitiesUpdatedImpl value,
-    $Res Function(_$UserCommunitiesUpdatedImpl) then,
-  ) = __$$UserCommunitiesUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<Community> communities});
-}
+abstract mixin class _$UserCommunitiesUpdatedCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$UserCommunitiesUpdatedCopyWith(_UserCommunitiesUpdated value, $Res Function(_UserCommunitiesUpdated) _then) = __$UserCommunitiesUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ List<Community> communities
+});
+
+
+
 
+}
 /// @nodoc
-class __$$UserCommunitiesUpdatedImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$UserCommunitiesUpdatedImpl>
-    implements _$$UserCommunitiesUpdatedImplCopyWith<$Res> {
-  __$$UserCommunitiesUpdatedImplCopyWithImpl(
-    _$UserCommunitiesUpdatedImpl _value,
-    $Res Function(_$UserCommunitiesUpdatedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communities = null}) {
-    return _then(
-      _$UserCommunitiesUpdatedImpl(
-        null == communities
-            ? _value._communities
-            : communities // ignore: cast_nullable_to_non_nullable
-                  as List<Community>,
-      ),
-    );
-  }
+class __$UserCommunitiesUpdatedCopyWithImpl<$Res>
+    implements _$UserCommunitiesUpdatedCopyWith<$Res> {
+  __$UserCommunitiesUpdatedCopyWithImpl(this._self, this._then);
+
+  final _UserCommunitiesUpdated _self;
+  final $Res Function(_UserCommunitiesUpdated) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communities = null,}) {
+  return _then(_UserCommunitiesUpdated(
+null == communities ? _self._communities : communities // ignore: cast_nullable_to_non_nullable
+as List<Community>,
+  ));
 }
 
-/// @nodoc
 
-class _$UserCommunitiesUpdatedImpl
-    with DiagnosticableTreeMixin
-    implements _UserCommunitiesUpdated {
-  const _$UserCommunitiesUpdatedImpl(final List<Community> communities)
-    : _communities = communities;
-
-  final List<Community> _communities;
-  @override
-  List<Community> get communities {
-    if (_communities is EqualUnmodifiableListView) return _communities;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_communities);
-  }
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.userCommunitiesUpdated(communities: $communities)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(
-        DiagnosticsProperty('type', 'CommunityEvent.userCommunitiesUpdated'),
-      )
-      ..add(DiagnosticsProperty('communities', communities));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UserCommunitiesUpdatedImpl &&
-            const DeepCollectionEquality().equals(
-              other._communities,
-              _communities,
-            ));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_communities),
-  );
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UserCommunitiesUpdatedImplCopyWith<_$UserCommunitiesUpdatedImpl>
-  get copyWith =>
-      __$$UserCommunitiesUpdatedImplCopyWithImpl<_$UserCommunitiesUpdatedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return userCommunitiesUpdated(communities);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return userCommunitiesUpdated?.call(communities);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (userCommunitiesUpdated != null) {
-      return userCommunitiesUpdated(communities);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return userCommunitiesUpdated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return userCommunitiesUpdated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (userCommunitiesUpdated != null) {
-      return userCommunitiesUpdated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UserCommunitiesUpdated implements CommunityEvent {
-  const factory _UserCommunitiesUpdated(final List<Community> communities) =
-      _$UserCommunitiesUpdatedImpl;
-
-  List<Community> get communities;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserCommunitiesUpdatedImplCopyWith<_$UserCommunitiesUpdatedImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$LoadCommunityDetailsImplCopyWith<$Res> {
-  factory _$$LoadCommunityDetailsImplCopyWith(
-    _$LoadCommunityDetailsImpl value,
-    $Res Function(_$LoadCommunityDetailsImpl) then,
-  ) = __$$LoadCommunityDetailsImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+
+
+class _LoadCommunityDetails with DiagnosticableTreeMixin implements CommunityEvent {
+  const _LoadCommunityDetails({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadCommunityDetailsCopyWith<_LoadCommunityDetails> get copyWith => __$LoadCommunityDetailsCopyWithImpl<_LoadCommunityDetails>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadCommunityDetails'))
+    ..add(DiagnosticsProperty('communityId', communityId));
 }
 
-/// @nodoc
-class __$$LoadCommunityDetailsImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$LoadCommunityDetailsImpl>
-    implements _$$LoadCommunityDetailsImplCopyWith<$Res> {
-  __$$LoadCommunityDetailsImplCopyWithImpl(
-    _$LoadCommunityDetailsImpl _value,
-    $Res Function(_$LoadCommunityDetailsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$LoadCommunityDetailsImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadCommunityDetails&&(identical(other.communityId, communityId) || other.communityId == communityId));
 }
 
-/// @nodoc
 
-class _$LoadCommunityDetailsImpl
-    with DiagnosticableTreeMixin
-    implements _LoadCommunityDetails {
-  const _$LoadCommunityDetailsImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.loadCommunityDetails(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadCommunityDetails'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadCommunityDetailsImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LoadCommunityDetailsImplCopyWith<_$LoadCommunityDetailsImpl>
-  get copyWith =>
-      __$$LoadCommunityDetailsImplCopyWithImpl<_$LoadCommunityDetailsImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return loadCommunityDetails(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return loadCommunityDetails?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadCommunityDetails != null) {
-      return loadCommunityDetails(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return loadCommunityDetails(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return loadCommunityDetails?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadCommunityDetails != null) {
-      return loadCommunityDetails(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadCommunityDetails implements CommunityEvent {
-  const factory _LoadCommunityDetails({required final String communityId}) =
-      _$LoadCommunityDetailsImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LoadCommunityDetailsImplCopyWith<_$LoadCommunityDetailsImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.loadCommunityDetails(communityId: $communityId)';
 }
 
-/// @nodoc
-abstract class _$$WatchMembersImplCopyWith<$Res> {
-  factory _$$WatchMembersImplCopyWith(
-    _$WatchMembersImpl value,
-    $Res Function(_$WatchMembersImpl) then,
-  ) = __$$WatchMembersImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+
 }
 
 /// @nodoc
-class __$$WatchMembersImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$WatchMembersImpl>
-    implements _$$WatchMembersImplCopyWith<$Res> {
-  __$$WatchMembersImplCopyWithImpl(
-    _$WatchMembersImpl _value,
-    $Res Function(_$WatchMembersImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$WatchMembersImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
+abstract mixin class _$LoadCommunityDetailsCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$LoadCommunityDetailsCopyWith(_LoadCommunityDetails value, $Res Function(_LoadCommunityDetails) _then) = __$LoadCommunityDetailsCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
 
+
+
+
+}
 /// @nodoc
+class __$LoadCommunityDetailsCopyWithImpl<$Res>
+    implements _$LoadCommunityDetailsCopyWith<$Res> {
+  __$LoadCommunityDetailsCopyWithImpl(this._self, this._then);
 
-class _$WatchMembersImpl with DiagnosticableTreeMixin implements _WatchMembers {
-  const _$WatchMembersImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.watchMembers(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchMembers'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WatchMembersImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WatchMembersImplCopyWith<_$WatchMembersImpl> get copyWith =>
-      __$$WatchMembersImplCopyWithImpl<_$WatchMembersImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return watchMembers(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return watchMembers?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchMembers != null) {
-      return watchMembers(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return watchMembers(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return watchMembers?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchMembers != null) {
-      return watchMembers(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchMembers implements CommunityEvent {
-  const factory _WatchMembers({required final String communityId}) =
-      _$WatchMembersImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WatchMembersImplCopyWith<_$WatchMembersImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  final _LoadCommunityDetails _self;
+  final $Res Function(_LoadCommunityDetails) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_LoadCommunityDetails(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$MembersUpdatedImplCopyWith<$Res> {
-  factory _$$MembersUpdatedImplCopyWith(
-    _$MembersUpdatedImpl value,
-    $Res Function(_$MembersUpdatedImpl) then,
-  ) = __$$MembersUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<CommunityMember> members});
+
 }
 
 /// @nodoc
-class __$$MembersUpdatedImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$MembersUpdatedImpl>
-    implements _$$MembersUpdatedImplCopyWith<$Res> {
-  __$$MembersUpdatedImplCopyWithImpl(
-    _$MembersUpdatedImpl _value,
-    $Res Function(_$MembersUpdatedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? members = null}) {
-    return _then(
-      _$MembersUpdatedImpl(
-        null == members
-            ? _value._members
-            : members // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityMember>,
-      ),
-    );
-  }
+
+
+class _WatchMembers with DiagnosticableTreeMixin implements CommunityEvent {
+  const _WatchMembers({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WatchMembersCopyWith<_WatchMembers> get copyWith => __$WatchMembersCopyWithImpl<_WatchMembers>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchMembers'))
+    ..add(DiagnosticsProperty('communityId', communityId));
 }
 
-/// @nodoc
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WatchMembers&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
+
 
-class _$MembersUpdatedImpl
-    with DiagnosticableTreeMixin
-    implements _MembersUpdated {
-  const _$MembersUpdatedImpl(final List<CommunityMember> members)
-    : _members = members;
-
-  final List<CommunityMember> _members;
-  @override
-  List<CommunityMember> get members {
-    if (_members is EqualUnmodifiableListView) return _members;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_members);
-  }
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.membersUpdated(members: $members)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.membersUpdated'))
-      ..add(DiagnosticsProperty('members', members));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MembersUpdatedImpl &&
-            const DeepCollectionEquality().equals(other._members, _members));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_members));
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$MembersUpdatedImplCopyWith<_$MembersUpdatedImpl> get copyWith =>
-      __$$MembersUpdatedImplCopyWithImpl<_$MembersUpdatedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return membersUpdated(members);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return membersUpdated?.call(members);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (membersUpdated != null) {
-      return membersUpdated(members);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return membersUpdated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return membersUpdated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (membersUpdated != null) {
-      return membersUpdated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _MembersUpdated implements CommunityEvent {
-  const factory _MembersUpdated(final List<CommunityMember> members) =
-      _$MembersUpdatedImpl;
-
-  List<CommunityMember> get members;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MembersUpdatedImplCopyWith<_$MembersUpdatedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.watchMembers(communityId: $communityId)';
 }
 
-/// @nodoc
-abstract class _$$WatchTransactionsImplCopyWith<$Res> {
-  factory _$$WatchTransactionsImplCopyWith(
-    _$WatchTransactionsImpl value,
-    $Res Function(_$WatchTransactionsImpl) then,
-  ) = __$$WatchTransactionsImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, int? limit});
+
 }
 
 /// @nodoc
-class __$$WatchTransactionsImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$WatchTransactionsImpl>
-    implements _$$WatchTransactionsImplCopyWith<$Res> {
-  __$$WatchTransactionsImplCopyWithImpl(
-    _$WatchTransactionsImpl _value,
-    $Res Function(_$WatchTransactionsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? limit = freezed}) {
-    return _then(
-      _$WatchTransactionsImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        limit: freezed == limit
-            ? _value.limit
-            : limit // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
-  }
-}
+abstract mixin class _$WatchMembersCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$WatchMembersCopyWith(_WatchMembers value, $Res Function(_WatchMembers) _then) = __$WatchMembersCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
 
+
+
+
+}
 /// @nodoc
+class __$WatchMembersCopyWithImpl<$Res>
+    implements _$WatchMembersCopyWith<$Res> {
+  __$WatchMembersCopyWithImpl(this._self, this._then);
 
-class _$WatchTransactionsImpl
-    with DiagnosticableTreeMixin
-    implements _WatchTransactions {
-  const _$WatchTransactionsImpl({required this.communityId, this.limit});
-
-  @override
-  final String communityId;
-  @override
-  final int? limit;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.watchTransactions(communityId: $communityId, limit: $limit)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchTransactions'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('limit', limit));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WatchTransactionsImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.limit, limit) || other.limit == limit));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, limit);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WatchTransactionsImplCopyWith<_$WatchTransactionsImpl> get copyWith =>
-      __$$WatchTransactionsImplCopyWithImpl<_$WatchTransactionsImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return watchTransactions(communityId, limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return watchTransactions?.call(communityId, limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchTransactions != null) {
-      return watchTransactions(communityId, limit);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return watchTransactions(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return watchTransactions?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchTransactions != null) {
-      return watchTransactions(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchTransactions implements CommunityEvent {
-  const factory _WatchTransactions({
-    required final String communityId,
-    final int? limit,
-  }) = _$WatchTransactionsImpl;
-
-  String get communityId;
-  int? get limit;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WatchTransactionsImplCopyWith<_$WatchTransactionsImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  final _WatchMembers _self;
+  final $Res Function(_WatchMembers) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_WatchMembers(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$TransactionsUpdatedImplCopyWith<$Res> {
-  factory _$$TransactionsUpdatedImplCopyWith(
-    _$TransactionsUpdatedImpl value,
-    $Res Function(_$TransactionsUpdatedImpl) then,
-  ) = __$$TransactionsUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<CommunityTransaction> transactions});
+
 }
 
 /// @nodoc
-class __$$TransactionsUpdatedImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$TransactionsUpdatedImpl>
-    implements _$$TransactionsUpdatedImplCopyWith<$Res> {
-  __$$TransactionsUpdatedImplCopyWithImpl(
-    _$TransactionsUpdatedImpl _value,
-    $Res Function(_$TransactionsUpdatedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? transactions = null}) {
-    return _then(
-      _$TransactionsUpdatedImpl(
-        null == transactions
-            ? _value._transactions
-            : transactions // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityTransaction>,
-      ),
-    );
-  }
+
+
+class _MembersUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+  const _MembersUpdated(final  List<CommunityMember> members): _members = members;
+  
+
+ final  List<CommunityMember> _members;
+ List<CommunityMember> get members {
+  if (_members is EqualUnmodifiableListView) return _members;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_members);
 }
 
-/// @nodoc
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$MembersUpdatedCopyWith<_MembersUpdated> get copyWith => __$MembersUpdatedCopyWithImpl<_MembersUpdated>(this, _$identity);
 
-class _$TransactionsUpdatedImpl
-    with DiagnosticableTreeMixin
-    implements _TransactionsUpdated {
-  const _$TransactionsUpdatedImpl(final List<CommunityTransaction> transactions)
-    : _transactions = transactions;
-
-  final List<CommunityTransaction> _transactions;
-  @override
-  List<CommunityTransaction> get transactions {
-    if (_transactions is EqualUnmodifiableListView) return _transactions;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_transactions);
-  }
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.transactionsUpdated(transactions: $transactions)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.transactionsUpdated'))
-      ..add(DiagnosticsProperty('transactions', transactions));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$TransactionsUpdatedImpl &&
-            const DeepCollectionEquality().equals(
-              other._transactions,
-              _transactions,
-            ));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_transactions),
-  );
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$TransactionsUpdatedImplCopyWith<_$TransactionsUpdatedImpl> get copyWith =>
-      __$$TransactionsUpdatedImplCopyWithImpl<_$TransactionsUpdatedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return transactionsUpdated(transactions);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return transactionsUpdated?.call(transactions);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (transactionsUpdated != null) {
-      return transactionsUpdated(transactions);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return transactionsUpdated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return transactionsUpdated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (transactionsUpdated != null) {
-      return transactionsUpdated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _TransactionsUpdated implements CommunityEvent {
-  const factory _TransactionsUpdated(
-    final List<CommunityTransaction> transactions,
-  ) = _$TransactionsUpdatedImpl;
-
-  List<CommunityTransaction> get transactions;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TransactionsUpdatedImplCopyWith<_$TransactionsUpdatedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.membersUpdated'))
+    ..add(DiagnosticsProperty('members', members));
 }
 
-/// @nodoc
-abstract class _$$WatchPendingApprovalsImplCopyWith<$Res> {
-  factory _$$WatchPendingApprovalsImplCopyWith(
-    _$WatchPendingApprovalsImpl value,
-    $Res Function(_$WatchPendingApprovalsImpl) then,
-  ) = __$$WatchPendingApprovalsImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MembersUpdated&&const DeepCollectionEquality().equals(other._members, _members));
 }
 
-/// @nodoc
-class __$$WatchPendingApprovalsImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$WatchPendingApprovalsImpl>
-    implements _$$WatchPendingApprovalsImplCopyWith<$Res> {
-  __$$WatchPendingApprovalsImplCopyWithImpl(
-    _$WatchPendingApprovalsImpl _value,
-    $Res Function(_$WatchPendingApprovalsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$WatchPendingApprovalsImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_members));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.membersUpdated(members: $members)';
 }
 
-/// @nodoc
 
-class _$WatchPendingApprovalsImpl
-    with DiagnosticableTreeMixin
-    implements _WatchPendingApprovals {
-  const _$WatchPendingApprovalsImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.watchPendingApprovals(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.watchPendingApprovals'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WatchPendingApprovalsImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WatchPendingApprovalsImplCopyWith<_$WatchPendingApprovalsImpl>
-  get copyWith =>
-      __$$WatchPendingApprovalsImplCopyWithImpl<_$WatchPendingApprovalsImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return watchPendingApprovals(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return watchPendingApprovals?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchPendingApprovals != null) {
-      return watchPendingApprovals(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return watchPendingApprovals(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return watchPendingApprovals?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (watchPendingApprovals != null) {
-      return watchPendingApprovals(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _WatchPendingApprovals implements CommunityEvent {
-  const factory _WatchPendingApprovals({required final String communityId}) =
-      _$WatchPendingApprovalsImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WatchPendingApprovalsImplCopyWith<_$WatchPendingApprovalsImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$PendingApprovalsUpdatedImplCopyWith<$Res> {
-  factory _$$PendingApprovalsUpdatedImplCopyWith(
-    _$PendingApprovalsUpdatedImpl value,
-    $Res Function(_$PendingApprovalsUpdatedImpl) then,
-  ) = __$$PendingApprovalsUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<CommunityApproval> approvals});
-}
+abstract mixin class _$MembersUpdatedCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$MembersUpdatedCopyWith(_MembersUpdated value, $Res Function(_MembersUpdated) _then) = __$MembersUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ List<CommunityMember> members
+});
+
 
+
+
+}
 /// @nodoc
-class __$$PendingApprovalsUpdatedImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$PendingApprovalsUpdatedImpl>
-    implements _$$PendingApprovalsUpdatedImplCopyWith<$Res> {
-  __$$PendingApprovalsUpdatedImplCopyWithImpl(
-    _$PendingApprovalsUpdatedImpl _value,
-    $Res Function(_$PendingApprovalsUpdatedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? approvals = null}) {
-    return _then(
-      _$PendingApprovalsUpdatedImpl(
-        null == approvals
-            ? _value._approvals
-            : approvals // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityApproval>,
-      ),
-    );
-  }
+class __$MembersUpdatedCopyWithImpl<$Res>
+    implements _$MembersUpdatedCopyWith<$Res> {
+  __$MembersUpdatedCopyWithImpl(this._self, this._then);
+
+  final _MembersUpdated _self;
+  final $Res Function(_MembersUpdated) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? members = null,}) {
+  return _then(_MembersUpdated(
+null == members ? _self._members : members // ignore: cast_nullable_to_non_nullable
+as List<CommunityMember>,
+  ));
 }
 
-/// @nodoc
 
-class _$PendingApprovalsUpdatedImpl
-    with DiagnosticableTreeMixin
-    implements _PendingApprovalsUpdated {
-  const _$PendingApprovalsUpdatedImpl(final List<CommunityApproval> approvals)
-    : _approvals = approvals;
-
-  final List<CommunityApproval> _approvals;
-  @override
-  List<CommunityApproval> get approvals {
-    if (_approvals is EqualUnmodifiableListView) return _approvals;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_approvals);
-  }
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.pendingApprovalsUpdated(approvals: $approvals)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(
-        DiagnosticsProperty('type', 'CommunityEvent.pendingApprovalsUpdated'),
-      )
-      ..add(DiagnosticsProperty('approvals', approvals));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PendingApprovalsUpdatedImpl &&
-            const DeepCollectionEquality().equals(
-              other._approvals,
-              _approvals,
-            ));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_approvals));
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$PendingApprovalsUpdatedImplCopyWith<_$PendingApprovalsUpdatedImpl>
-  get copyWith =>
-      __$$PendingApprovalsUpdatedImplCopyWithImpl<
-        _$PendingApprovalsUpdatedImpl
-      >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return pendingApprovalsUpdated(approvals);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return pendingApprovalsUpdated?.call(approvals);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (pendingApprovalsUpdated != null) {
-      return pendingApprovalsUpdated(approvals);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return pendingApprovalsUpdated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return pendingApprovalsUpdated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (pendingApprovalsUpdated != null) {
-      return pendingApprovalsUpdated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _PendingApprovalsUpdated implements CommunityEvent {
-  const factory _PendingApprovalsUpdated(
-    final List<CommunityApproval> approvals,
-  ) = _$PendingApprovalsUpdatedImpl;
-
-  List<CommunityApproval> get approvals;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PendingApprovalsUpdatedImplCopyWith<_$PendingApprovalsUpdatedImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$CreateCommunityImplCopyWith<$Res> {
-  factory _$$CreateCommunityImplCopyWith(
-    _$CreateCommunityImpl value,
-    $Res Function(_$CreateCommunityImpl) then,
-  ) = __$$CreateCommunityImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({CreateCommunityParams params});
+
+
+class _WatchTransactions with DiagnosticableTreeMixin implements CommunityEvent {
+  const _WatchTransactions({required this.communityId, this.limit});
+  
+
+ final  String communityId;
+ final  int? limit;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WatchTransactionsCopyWith<_WatchTransactions> get copyWith => __$WatchTransactionsCopyWithImpl<_WatchTransactions>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchTransactions'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('limit', limit));
 }
 
-/// @nodoc
-class __$$CreateCommunityImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$CreateCommunityImpl>
-    implements _$$CreateCommunityImplCopyWith<$Res> {
-  __$$CreateCommunityImplCopyWithImpl(
-    _$CreateCommunityImpl _value,
-    $Res Function(_$CreateCommunityImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? params = null}) {
-    return _then(
-      _$CreateCommunityImpl(
-        params: null == params
-            ? _value.params
-            : params // ignore: cast_nullable_to_non_nullable
-                  as CreateCommunityParams,
-      ),
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WatchTransactions&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.limit, limit) || other.limit == limit));
 }
 
-/// @nodoc
 
-class _$CreateCommunityImpl
-    with DiagnosticableTreeMixin
-    implements _CreateCommunity {
-  const _$CreateCommunityImpl({required this.params});
-
-  @override
-  final CreateCommunityParams params;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.createCommunity(params: $params)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.createCommunity'))
-      ..add(DiagnosticsProperty('params', params));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CreateCommunityImpl &&
-            (identical(other.params, params) || other.params == params));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, params);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CreateCommunityImplCopyWith<_$CreateCommunityImpl> get copyWith =>
-      __$$CreateCommunityImplCopyWithImpl<_$CreateCommunityImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return createCommunity(params);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return createCommunity?.call(params);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (createCommunity != null) {
-      return createCommunity(params);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return createCommunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return createCommunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (createCommunity != null) {
-      return createCommunity(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _CreateCommunity implements CommunityEvent {
-  const factory _CreateCommunity({
-    required final CreateCommunityParams params,
-  }) = _$CreateCommunityImpl;
-
-  CreateCommunityParams get params;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CreateCommunityImplCopyWith<_$CreateCommunityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,communityId,limit);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.watchTransactions(communityId: $communityId, limit: $limit)';
 }
 
-/// @nodoc
-abstract class _$$UpdateCommunityImplCopyWith<$Res> {
-  factory _$$UpdateCommunityImplCopyWith(
-    _$UpdateCommunityImpl value,
-    $Res Function(_$UpdateCommunityImpl) then,
-  ) = __$$UpdateCommunityImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, UpdateCommunityParams params});
+
 }
 
 /// @nodoc
-class __$$UpdateCommunityImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$UpdateCommunityImpl>
-    implements _$$UpdateCommunityImplCopyWith<$Res> {
-  __$$UpdateCommunityImplCopyWithImpl(
-    _$UpdateCommunityImpl _value,
-    $Res Function(_$UpdateCommunityImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? params = null}) {
-    return _then(
-      _$UpdateCommunityImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        params: null == params
-            ? _value.params
-            : params // ignore: cast_nullable_to_non_nullable
-                  as UpdateCommunityParams,
-      ),
-    );
-  }
-}
+abstract mixin class _$WatchTransactionsCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$WatchTransactionsCopyWith(_WatchTransactions value, $Res Function(_WatchTransactions) _then) = __$WatchTransactionsCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, int? limit
+});
+
+
 
+
+}
 /// @nodoc
+class __$WatchTransactionsCopyWithImpl<$Res>
+    implements _$WatchTransactionsCopyWith<$Res> {
+  __$WatchTransactionsCopyWithImpl(this._self, this._then);
 
-class _$UpdateCommunityImpl
-    with DiagnosticableTreeMixin
-    implements _UpdateCommunity {
-  const _$UpdateCommunityImpl({
-    required this.communityId,
-    required this.params,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final UpdateCommunityParams params;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.updateCommunity(communityId: $communityId, params: $params)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.updateCommunity'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('params', params));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateCommunityImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.params, params) || other.params == params));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, params);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateCommunityImplCopyWith<_$UpdateCommunityImpl> get copyWith =>
-      __$$UpdateCommunityImplCopyWithImpl<_$UpdateCommunityImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return updateCommunity(communityId, params);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return updateCommunity?.call(communityId, params);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (updateCommunity != null) {
-      return updateCommunity(communityId, params);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return updateCommunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return updateCommunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (updateCommunity != null) {
-      return updateCommunity(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UpdateCommunity implements CommunityEvent {
-  const factory _UpdateCommunity({
-    required final String communityId,
-    required final UpdateCommunityParams params,
-  }) = _$UpdateCommunityImpl;
-
-  String get communityId;
-  UpdateCommunityParams get params;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateCommunityImplCopyWith<_$UpdateCommunityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  final _WatchTransactions _self;
+  final $Res Function(_WatchTransactions) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? limit = freezed,}) {
+  return _then(_WatchTransactions(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$DeleteCommunityImplCopyWith<$Res> {
-  factory _$$DeleteCommunityImplCopyWith(
-    _$DeleteCommunityImpl value,
-    $Res Function(_$DeleteCommunityImpl) then,
-  ) = __$$DeleteCommunityImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+
 }
 
 /// @nodoc
-class __$$DeleteCommunityImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$DeleteCommunityImpl>
-    implements _$$DeleteCommunityImplCopyWith<$Res> {
-  __$$DeleteCommunityImplCopyWithImpl(
-    _$DeleteCommunityImpl _value,
-    $Res Function(_$DeleteCommunityImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$DeleteCommunityImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+
+
+class _TransactionsUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+  const _TransactionsUpdated(final  List<CommunityTransaction> transactions): _transactions = transactions;
+  
+
+ final  List<CommunityTransaction> _transactions;
+ List<CommunityTransaction> get transactions {
+  if (_transactions is EqualUnmodifiableListView) return _transactions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_transactions);
 }
 
-/// @nodoc
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TransactionsUpdatedCopyWith<_TransactionsUpdated> get copyWith => __$TransactionsUpdatedCopyWithImpl<_TransactionsUpdated>(this, _$identity);
 
-class _$DeleteCommunityImpl
-    with DiagnosticableTreeMixin
-    implements _DeleteCommunity {
-  const _$DeleteCommunityImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.deleteCommunity(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.deleteCommunity'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeleteCommunityImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DeleteCommunityImplCopyWith<_$DeleteCommunityImpl> get copyWith =>
-      __$$DeleteCommunityImplCopyWithImpl<_$DeleteCommunityImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return deleteCommunity(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return deleteCommunity?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (deleteCommunity != null) {
-      return deleteCommunity(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return deleteCommunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return deleteCommunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (deleteCommunity != null) {
-      return deleteCommunity(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _DeleteCommunity implements CommunityEvent {
-  const factory _DeleteCommunity({required final String communityId}) =
-      _$DeleteCommunityImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$DeleteCommunityImplCopyWith<_$DeleteCommunityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.transactionsUpdated'))
+    ..add(DiagnosticsProperty('transactions', transactions));
 }
 
-/// @nodoc
-abstract class _$$InviteMemberImplCopyWith<$Res> {
-  factory _$$InviteMemberImplCopyWith(
-    _$InviteMemberImpl value,
-    $Res Function(_$InviteMemberImpl) then,
-  ) = __$$InviteMemberImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String userId, MemberRole role});
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionsUpdated&&const DeepCollectionEquality().equals(other._transactions, _transactions));
 }
 
-/// @nodoc
-class __$$InviteMemberImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$InviteMemberImpl>
-    implements _$$InviteMemberImplCopyWith<$Res> {
-  __$$InviteMemberImplCopyWithImpl(
-    _$InviteMemberImpl _value,
-    $Res Function(_$InviteMemberImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? communityId = null,
-    Object? userId = null,
-    Object? role = null,
-  }) {
-    return _then(
-      _$InviteMemberImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        role: null == role
-            ? _value.role
-            : role // ignore: cast_nullable_to_non_nullable
-                  as MemberRole,
-      ),
-    );
-  }
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transactions));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.transactionsUpdated(transactions: $transactions)';
 }
 
-/// @nodoc
 
-class _$InviteMemberImpl with DiagnosticableTreeMixin implements _InviteMember {
-  const _$InviteMemberImpl({
-    required this.communityId,
-    required this.userId,
-    required this.role,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final String userId;
-  @override
-  final MemberRole role;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.inviteMember(communityId: $communityId, userId: $userId, role: $role)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.inviteMember'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('userId', userId))
-      ..add(DiagnosticsProperty('role', role));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InviteMemberImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.role, role) || other.role == role));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, userId, role);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$InviteMemberImplCopyWith<_$InviteMemberImpl> get copyWith =>
-      __$$InviteMemberImplCopyWithImpl<_$InviteMemberImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return inviteMember(communityId, userId, role);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return inviteMember?.call(communityId, userId, role);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (inviteMember != null) {
-      return inviteMember(communityId, userId, role);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return inviteMember(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return inviteMember?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (inviteMember != null) {
-      return inviteMember(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _InviteMember implements CommunityEvent {
-  const factory _InviteMember({
-    required final String communityId,
-    required final String userId,
-    required final MemberRole role,
-  }) = _$InviteMemberImpl;
-
-  String get communityId;
-  String get userId;
-  MemberRole get role;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$InviteMemberImplCopyWith<_$InviteMemberImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$AcceptInvitationImplCopyWith<$Res> {
-  factory _$$AcceptInvitationImplCopyWith(
-    _$AcceptInvitationImpl value,
-    $Res Function(_$AcceptInvitationImpl) then,
-  ) = __$$AcceptInvitationImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
-}
+abstract mixin class _$TransactionsUpdatedCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$TransactionsUpdatedCopyWith(_TransactionsUpdated value, $Res Function(_TransactionsUpdated) _then) = __$TransactionsUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ List<CommunityTransaction> transactions
+});
+
+
+
 
+}
 /// @nodoc
-class __$$AcceptInvitationImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$AcceptInvitationImpl>
-    implements _$$AcceptInvitationImplCopyWith<$Res> {
-  __$$AcceptInvitationImplCopyWithImpl(
-    _$AcceptInvitationImpl _value,
-    $Res Function(_$AcceptInvitationImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$AcceptInvitationImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+class __$TransactionsUpdatedCopyWithImpl<$Res>
+    implements _$TransactionsUpdatedCopyWith<$Res> {
+  __$TransactionsUpdatedCopyWithImpl(this._self, this._then);
+
+  final _TransactionsUpdated _self;
+  final $Res Function(_TransactionsUpdated) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? transactions = null,}) {
+  return _then(_TransactionsUpdated(
+null == transactions ? _self._transactions : transactions // ignore: cast_nullable_to_non_nullable
+as List<CommunityTransaction>,
+  ));
 }
 
-/// @nodoc
 
-class _$AcceptInvitationImpl
-    with DiagnosticableTreeMixin
-    implements _AcceptInvitation {
-  const _$AcceptInvitationImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.acceptInvitation(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.acceptInvitation'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AcceptInvitationImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AcceptInvitationImplCopyWith<_$AcceptInvitationImpl> get copyWith =>
-      __$$AcceptInvitationImplCopyWithImpl<_$AcceptInvitationImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return acceptInvitation(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return acceptInvitation?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (acceptInvitation != null) {
-      return acceptInvitation(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return acceptInvitation(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return acceptInvitation?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (acceptInvitation != null) {
-      return acceptInvitation(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AcceptInvitation implements CommunityEvent {
-  const factory _AcceptInvitation({required final String communityId}) =
-      _$AcceptInvitationImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AcceptInvitationImplCopyWith<_$AcceptInvitationImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$DeclineInvitationImplCopyWith<$Res> {
-  factory _$$DeclineInvitationImplCopyWith(
-    _$DeclineInvitationImpl value,
-    $Res Function(_$DeclineInvitationImpl) then,
-  ) = __$$DeclineInvitationImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+
+
+class _WatchPendingApprovals with DiagnosticableTreeMixin implements CommunityEvent {
+  const _WatchPendingApprovals({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WatchPendingApprovalsCopyWith<_WatchPendingApprovals> get copyWith => __$WatchPendingApprovalsCopyWithImpl<_WatchPendingApprovals>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchPendingApprovals'))
+    ..add(DiagnosticsProperty('communityId', communityId));
 }
 
-/// @nodoc
-class __$$DeclineInvitationImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$DeclineInvitationImpl>
-    implements _$$DeclineInvitationImplCopyWith<$Res> {
-  __$$DeclineInvitationImplCopyWithImpl(
-    _$DeclineInvitationImpl _value,
-    $Res Function(_$DeclineInvitationImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$DeclineInvitationImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WatchPendingApprovals&&(identical(other.communityId, communityId) || other.communityId == communityId));
 }
 
-/// @nodoc
 
-class _$DeclineInvitationImpl
-    with DiagnosticableTreeMixin
-    implements _DeclineInvitation {
-  const _$DeclineInvitationImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.declineInvitation(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.declineInvitation'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeclineInvitationImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DeclineInvitationImplCopyWith<_$DeclineInvitationImpl> get copyWith =>
-      __$$DeclineInvitationImplCopyWithImpl<_$DeclineInvitationImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return declineInvitation(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return declineInvitation?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (declineInvitation != null) {
-      return declineInvitation(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return declineInvitation(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return declineInvitation?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (declineInvitation != null) {
-      return declineInvitation(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _DeclineInvitation implements CommunityEvent {
-  const factory _DeclineInvitation({required final String communityId}) =
-      _$DeclineInvitationImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$DeclineInvitationImplCopyWith<_$DeclineInvitationImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.watchPendingApprovals(communityId: $communityId)';
 }
 
-/// @nodoc
-abstract class _$$RemoveMemberImplCopyWith<$Res> {
-  factory _$$RemoveMemberImplCopyWith(
-    _$RemoveMemberImpl value,
-    $Res Function(_$RemoveMemberImpl) then,
-  ) = __$$RemoveMemberImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String memberId});
+
 }
 
 /// @nodoc
-class __$$RemoveMemberImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$RemoveMemberImpl>
-    implements _$$RemoveMemberImplCopyWith<$Res> {
-  __$$RemoveMemberImplCopyWithImpl(
-    _$RemoveMemberImpl _value,
-    $Res Function(_$RemoveMemberImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? memberId = null}) {
-    return _then(
-      _$RemoveMemberImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        memberId: null == memberId
-            ? _value.memberId
-            : memberId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
+abstract mixin class _$WatchPendingApprovalsCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$WatchPendingApprovalsCopyWith(_WatchPendingApprovals value, $Res Function(_WatchPendingApprovals) _then) = __$WatchPendingApprovalsCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
 
+
+
+
+}
 /// @nodoc
+class __$WatchPendingApprovalsCopyWithImpl<$Res>
+    implements _$WatchPendingApprovalsCopyWith<$Res> {
+  __$WatchPendingApprovalsCopyWithImpl(this._self, this._then);
 
-class _$RemoveMemberImpl with DiagnosticableTreeMixin implements _RemoveMember {
-  const _$RemoveMemberImpl({required this.communityId, required this.memberId});
-
-  @override
-  final String communityId;
-  @override
-  final String memberId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.removeMember(communityId: $communityId, memberId: $memberId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.removeMember'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('memberId', memberId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RemoveMemberImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.memberId, memberId) ||
-                other.memberId == memberId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, memberId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RemoveMemberImplCopyWith<_$RemoveMemberImpl> get copyWith =>
-      __$$RemoveMemberImplCopyWithImpl<_$RemoveMemberImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return removeMember(communityId, memberId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return removeMember?.call(communityId, memberId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (removeMember != null) {
-      return removeMember(communityId, memberId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return removeMember(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return removeMember?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (removeMember != null) {
-      return removeMember(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _RemoveMember implements CommunityEvent {
-  const factory _RemoveMember({
-    required final String communityId,
-    required final String memberId,
-  }) = _$RemoveMemberImpl;
-
-  String get communityId;
-  String get memberId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RemoveMemberImplCopyWith<_$RemoveMemberImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  final _WatchPendingApprovals _self;
+  final $Res Function(_WatchPendingApprovals) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_WatchPendingApprovals(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$UpdateMemberRoleImplCopyWith<$Res> {
-  factory _$$UpdateMemberRoleImplCopyWith(
-    _$UpdateMemberRoleImpl value,
-    $Res Function(_$UpdateMemberRoleImpl) then,
-  ) = __$$UpdateMemberRoleImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String memberId, MemberRole role});
+
 }
 
 /// @nodoc
-class __$$UpdateMemberRoleImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$UpdateMemberRoleImpl>
-    implements _$$UpdateMemberRoleImplCopyWith<$Res> {
-  __$$UpdateMemberRoleImplCopyWithImpl(
-    _$UpdateMemberRoleImpl _value,
-    $Res Function(_$UpdateMemberRoleImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? communityId = null,
-    Object? memberId = null,
-    Object? role = null,
-  }) {
-    return _then(
-      _$UpdateMemberRoleImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        memberId: null == memberId
-            ? _value.memberId
-            : memberId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        role: null == role
-            ? _value.role
-            : role // ignore: cast_nullable_to_non_nullable
-                  as MemberRole,
-      ),
-    );
-  }
+
+
+class _PendingApprovalsUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+  const _PendingApprovalsUpdated(final  List<CommunityApproval> approvals): _approvals = approvals;
+  
+
+ final  List<CommunityApproval> _approvals;
+ List<CommunityApproval> get approvals {
+  if (_approvals is EqualUnmodifiableListView) return _approvals;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_approvals);
 }
 
-/// @nodoc
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PendingApprovalsUpdatedCopyWith<_PendingApprovalsUpdated> get copyWith => __$PendingApprovalsUpdatedCopyWithImpl<_PendingApprovalsUpdated>(this, _$identity);
 
-class _$UpdateMemberRoleImpl
-    with DiagnosticableTreeMixin
-    implements _UpdateMemberRole {
-  const _$UpdateMemberRoleImpl({
-    required this.communityId,
-    required this.memberId,
-    required this.role,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final String memberId;
-  @override
-  final MemberRole role;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.updateMemberRole(communityId: $communityId, memberId: $memberId, role: $role)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.updateMemberRole'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('memberId', memberId))
-      ..add(DiagnosticsProperty('role', role));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateMemberRoleImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.memberId, memberId) ||
-                other.memberId == memberId) &&
-            (identical(other.role, role) || other.role == role));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, memberId, role);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateMemberRoleImplCopyWith<_$UpdateMemberRoleImpl> get copyWith =>
-      __$$UpdateMemberRoleImplCopyWithImpl<_$UpdateMemberRoleImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return updateMemberRole(communityId, memberId, role);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return updateMemberRole?.call(communityId, memberId, role);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (updateMemberRole != null) {
-      return updateMemberRole(communityId, memberId, role);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return updateMemberRole(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return updateMemberRole?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (updateMemberRole != null) {
-      return updateMemberRole(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UpdateMemberRole implements CommunityEvent {
-  const factory _UpdateMemberRole({
-    required final String communityId,
-    required final String memberId,
-    required final MemberRole role,
-  }) = _$UpdateMemberRoleImpl;
-
-  String get communityId;
-  String get memberId;
-  MemberRole get role;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateMemberRoleImplCopyWith<_$UpdateMemberRoleImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.pendingApprovalsUpdated'))
+    ..add(DiagnosticsProperty('approvals', approvals));
 }
 
-/// @nodoc
-abstract class _$$LeaveCommunityImplCopyWith<$Res> {
-  factory _$$LeaveCommunityImplCopyWith(
-    _$LeaveCommunityImpl value,
-    $Res Function(_$LeaveCommunityImpl) then,
-  ) = __$$LeaveCommunityImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId});
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PendingApprovalsUpdated&&const DeepCollectionEquality().equals(other._approvals, _approvals));
 }
 
-/// @nodoc
-class __$$LeaveCommunityImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$LeaveCommunityImpl>
-    implements _$$LeaveCommunityImplCopyWith<$Res> {
-  __$$LeaveCommunityImplCopyWithImpl(
-    _$LeaveCommunityImpl _value,
-    $Res Function(_$LeaveCommunityImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null}) {
-    return _then(
-      _$LeaveCommunityImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_approvals));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.pendingApprovalsUpdated(approvals: $approvals)';
 }
 
-/// @nodoc
 
-class _$LeaveCommunityImpl
-    with DiagnosticableTreeMixin
-    implements _LeaveCommunity {
-  const _$LeaveCommunityImpl({required this.communityId});
-
-  @override
-  final String communityId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.leaveCommunity(communityId: $communityId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.leaveCommunity'))
-      ..add(DiagnosticsProperty('communityId', communityId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LeaveCommunityImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LeaveCommunityImplCopyWith<_$LeaveCommunityImpl> get copyWith =>
-      __$$LeaveCommunityImplCopyWithImpl<_$LeaveCommunityImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return leaveCommunity(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return leaveCommunity?.call(communityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (leaveCommunity != null) {
-      return leaveCommunity(communityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return leaveCommunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return leaveCommunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (leaveCommunity != null) {
-      return leaveCommunity(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LeaveCommunity implements CommunityEvent {
-  const factory _LeaveCommunity({required final String communityId}) =
-      _$LeaveCommunityImpl;
-
-  String get communityId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LeaveCommunityImplCopyWith<_$LeaveCommunityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$LoadPendingInvitationsImplCopyWith<$Res> {
-  factory _$$LoadPendingInvitationsImplCopyWith(
-    _$LoadPendingInvitationsImpl value,
-    $Res Function(_$LoadPendingInvitationsImpl) then,
-  ) = __$$LoadPendingInvitationsImplCopyWithImpl<$Res>;
-}
+abstract mixin class _$PendingApprovalsUpdatedCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$PendingApprovalsUpdatedCopyWith(_PendingApprovalsUpdated value, $Res Function(_PendingApprovalsUpdated) _then) = __$PendingApprovalsUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ List<CommunityApproval> approvals
+});
+
 
+
+
+}
 /// @nodoc
-class __$$LoadPendingInvitationsImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$LoadPendingInvitationsImpl>
-    implements _$$LoadPendingInvitationsImplCopyWith<$Res> {
-  __$$LoadPendingInvitationsImplCopyWithImpl(
-    _$LoadPendingInvitationsImpl _value,
-    $Res Function(_$LoadPendingInvitationsImpl) _then,
-  ) : super(_value, _then);
+class __$PendingApprovalsUpdatedCopyWithImpl<$Res>
+    implements _$PendingApprovalsUpdatedCopyWith<$Res> {
+  __$PendingApprovalsUpdatedCopyWithImpl(this._self, this._then);
+
+  final _PendingApprovalsUpdated _self;
+  final $Res Function(_PendingApprovalsUpdated) _then;
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? approvals = null,}) {
+  return _then(_PendingApprovalsUpdated(
+null == approvals ? _self._approvals : approvals // ignore: cast_nullable_to_non_nullable
+as List<CommunityApproval>,
+  ));
 }
 
-/// @nodoc
 
-class _$LoadPendingInvitationsImpl
-    with DiagnosticableTreeMixin
-    implements _LoadPendingInvitations {
-  const _$LoadPendingInvitationsImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.loadPendingInvitations()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(
-      DiagnosticsProperty('type', 'CommunityEvent.loadPendingInvitations'),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadPendingInvitationsImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return loadPendingInvitations();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return loadPendingInvitations?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadPendingInvitations != null) {
-      return loadPendingInvitations();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return loadPendingInvitations(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return loadPendingInvitations?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadPendingInvitations != null) {
-      return loadPendingInvitations(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadPendingInvitations implements CommunityEvent {
-  const factory _LoadPendingInvitations() = _$LoadPendingInvitationsImpl;
 }
 
 /// @nodoc
-abstract class _$$ContributeImplCopyWith<$Res> {
-  factory _$$ContributeImplCopyWith(
-    _$ContributeImpl value,
-    $Res Function(_$ContributeImpl) then,
-  ) = __$$ContributeImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, int amount, String? description});
+
+
+class _CreateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+  const _CreateCommunity({required this.params});
+  
+
+ final  CreateCommunityParams params;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CreateCommunityCopyWith<_CreateCommunity> get copyWith => __$CreateCommunityCopyWithImpl<_CreateCommunity>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.createCommunity'))
+    ..add(DiagnosticsProperty('params', params));
 }
 
-/// @nodoc
-class __$$ContributeImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$ContributeImpl>
-    implements _$$ContributeImplCopyWith<$Res> {
-  __$$ContributeImplCopyWithImpl(
-    _$ContributeImpl _value,
-    $Res Function(_$ContributeImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? communityId = null,
-    Object? amount = null,
-    Object? description = freezed,
-  }) {
-    return _then(
-      _$ContributeImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        amount: null == amount
-            ? _value.amount
-            : amount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateCommunity&&(identical(other.params, params) || other.params == params));
 }
 
-/// @nodoc
+
+@override
+int get hashCode => Object.hash(runtimeType,params);
 
-class _$ContributeImpl with DiagnosticableTreeMixin implements _Contribute {
-  const _$ContributeImpl({
-    required this.communityId,
-    required this.amount,
-    this.description,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final int amount;
-  @override
-  final String? description;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.contribute(communityId: $communityId, amount: $amount, description: $description)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.contribute'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('amount', amount))
-      ..add(DiagnosticsProperty('description', description));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ContributeImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.description, description) ||
-                other.description == description));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, communityId, amount, description);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ContributeImplCopyWith<_$ContributeImpl> get copyWith =>
-      __$$ContributeImplCopyWithImpl<_$ContributeImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return contribute(communityId, amount, description);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return contribute?.call(communityId, amount, description);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (contribute != null) {
-      return contribute(communityId, amount, description);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return contribute(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return contribute?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (contribute != null) {
-      return contribute(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _Contribute implements CommunityEvent {
-  const factory _Contribute({
-    required final String communityId,
-    required final int amount,
-    final String? description,
-  }) = _$ContributeImpl;
-
-  String get communityId;
-  int get amount;
-  String? get description;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ContributeImplCopyWith<_$ContributeImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.createCommunity(params: $params)';
 }
 
-/// @nodoc
-abstract class _$$WithdrawImplCopyWith<$Res> {
-  factory _$$WithdrawImplCopyWith(
-    _$WithdrawImpl value,
-    $Res Function(_$WithdrawImpl) then,
-  ) = __$$WithdrawImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, int amount, String? description});
+
 }
 
 /// @nodoc
-class __$$WithdrawImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$WithdrawImpl>
-    implements _$$WithdrawImplCopyWith<$Res> {
-  __$$WithdrawImplCopyWithImpl(
-    _$WithdrawImpl _value,
-    $Res Function(_$WithdrawImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? communityId = null,
-    Object? amount = null,
-    Object? description = freezed,
-  }) {
-    return _then(
-      _$WithdrawImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        amount: null == amount
-            ? _value.amount
-            : amount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
-}
+abstract mixin class _$CreateCommunityCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$CreateCommunityCopyWith(_CreateCommunity value, $Res Function(_CreateCommunity) _then) = __$CreateCommunityCopyWithImpl;
+@useResult
+$Res call({
+ CreateCommunityParams params
+});
+
+
+
 
+}
 /// @nodoc
+class __$CreateCommunityCopyWithImpl<$Res>
+    implements _$CreateCommunityCopyWith<$Res> {
+  __$CreateCommunityCopyWithImpl(this._self, this._then);
+
+  final _CreateCommunity _self;
+  final $Res Function(_CreateCommunity) _then;
 
-class _$WithdrawImpl with DiagnosticableTreeMixin implements _Withdraw {
-  const _$WithdrawImpl({
-    required this.communityId,
-    required this.amount,
-    this.description,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final int amount;
-  @override
-  final String? description;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.withdraw(communityId: $communityId, amount: $amount, description: $description)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.withdraw'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('amount', amount))
-      ..add(DiagnosticsProperty('description', description));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WithdrawImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.description, description) ||
-                other.description == description));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, communityId, amount, description);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WithdrawImplCopyWith<_$WithdrawImpl> get copyWith =>
-      __$$WithdrawImplCopyWithImpl<_$WithdrawImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return withdraw(communityId, amount, description);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return withdraw?.call(communityId, amount, description);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (withdraw != null) {
-      return withdraw(communityId, amount, description);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return withdraw(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return withdraw?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (withdraw != null) {
-      return withdraw(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _Withdraw implements CommunityEvent {
-  const factory _Withdraw({
-    required final String communityId,
-    required final int amount,
-    final String? description,
-  }) = _$WithdrawImpl;
-
-  String get communityId;
-  int get amount;
-  String? get description;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WithdrawImplCopyWith<_$WithdrawImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? params = null,}) {
+  return _then(_CreateCommunity(
+params: null == params ? _self.params : params // ignore: cast_nullable_to_non_nullable
+as CreateCommunityParams,
+  ));
 }
 
-/// @nodoc
-abstract class _$$ApproveTransactionImplCopyWith<$Res> {
-  factory _$$ApproveTransactionImplCopyWith(
-    _$ApproveTransactionImpl value,
-    $Res Function(_$ApproveTransactionImpl) then,
-  ) = __$$ApproveTransactionImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String transactionId});
+
 }
 
 /// @nodoc
-class __$$ApproveTransactionImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$ApproveTransactionImpl>
-    implements _$$ApproveTransactionImplCopyWith<$Res> {
-  __$$ApproveTransactionImplCopyWithImpl(
-    _$ApproveTransactionImpl _value,
-    $Res Function(_$ApproveTransactionImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? transactionId = null}) {
-    return _then(
-      _$ApproveTransactionImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        transactionId: null == transactionId
-            ? _value.transactionId
-            : transactionId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+
+
+class _UpdateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+  const _UpdateCommunity({required this.communityId, required this.params});
+  
+
+ final  String communityId;
+ final  UpdateCommunityParams params;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateCommunityCopyWith<_UpdateCommunity> get copyWith => __$UpdateCommunityCopyWithImpl<_UpdateCommunity>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.updateCommunity'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('params', params));
 }
 
-/// @nodoc
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateCommunity&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.params, params) || other.params == params));
+}
 
-class _$ApproveTransactionImpl
-    with DiagnosticableTreeMixin
-    implements _ApproveTransaction {
-  const _$ApproveTransactionImpl({
-    required this.communityId,
-    required this.transactionId,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final String transactionId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.approveTransaction(communityId: $communityId, transactionId: $transactionId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.approveTransaction'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('transactionId', transactionId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ApproveTransactionImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.transactionId, transactionId) ||
-                other.transactionId == transactionId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, transactionId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ApproveTransactionImplCopyWith<_$ApproveTransactionImpl> get copyWith =>
-      __$$ApproveTransactionImplCopyWithImpl<_$ApproveTransactionImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return approveTransaction(communityId, transactionId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return approveTransaction?.call(communityId, transactionId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (approveTransaction != null) {
-      return approveTransaction(communityId, transactionId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return approveTransaction(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return approveTransaction?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (approveTransaction != null) {
-      return approveTransaction(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ApproveTransaction implements CommunityEvent {
-  const factory _ApproveTransaction({
-    required final String communityId,
-    required final String transactionId,
-  }) = _$ApproveTransactionImpl;
-
-  String get communityId;
-  String get transactionId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ApproveTransactionImplCopyWith<_$ApproveTransactionImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,params);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.updateCommunity(communityId: $communityId, params: $params)';
 }
 
-/// @nodoc
-abstract class _$$RejectTransactionImplCopyWith<$Res> {
-  factory _$$RejectTransactionImplCopyWith(
-    _$RejectTransactionImpl value,
-    $Res Function(_$RejectTransactionImpl) then,
-  ) = __$$RejectTransactionImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String transactionId, String? reason});
+
 }
 
 /// @nodoc
-class __$$RejectTransactionImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$RejectTransactionImpl>
-    implements _$$RejectTransactionImplCopyWith<$Res> {
-  __$$RejectTransactionImplCopyWithImpl(
-    _$RejectTransactionImpl _value,
-    $Res Function(_$RejectTransactionImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? communityId = null,
-    Object? transactionId = null,
-    Object? reason = freezed,
-  }) {
-    return _then(
-      _$RejectTransactionImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        transactionId: null == transactionId
-            ? _value.transactionId
-            : transactionId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        reason: freezed == reason
-            ? _value.reason
-            : reason // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
-}
+abstract mixin class _$UpdateCommunityCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$UpdateCommunityCopyWith(_UpdateCommunity value, $Res Function(_UpdateCommunity) _then) = __$UpdateCommunityCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, UpdateCommunityParams params
+});
+
+
+
 
+}
 /// @nodoc
+class __$UpdateCommunityCopyWithImpl<$Res>
+    implements _$UpdateCommunityCopyWith<$Res> {
+  __$UpdateCommunityCopyWithImpl(this._self, this._then);
+
+  final _UpdateCommunity _self;
+  final $Res Function(_UpdateCommunity) _then;
 
-class _$RejectTransactionImpl
-    with DiagnosticableTreeMixin
-    implements _RejectTransaction {
-  const _$RejectTransactionImpl({
-    required this.communityId,
-    required this.transactionId,
-    this.reason,
-  });
-
-  @override
-  final String communityId;
-  @override
-  final String transactionId;
-  @override
-  final String? reason;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.rejectTransaction(communityId: $communityId, transactionId: $transactionId, reason: $reason)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.rejectTransaction'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('transactionId', transactionId))
-      ..add(DiagnosticsProperty('reason', reason));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RejectTransactionImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.transactionId, transactionId) ||
-                other.transactionId == transactionId) &&
-            (identical(other.reason, reason) || other.reason == reason));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, communityId, transactionId, reason);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RejectTransactionImplCopyWith<_$RejectTransactionImpl> get copyWith =>
-      __$$RejectTransactionImplCopyWithImpl<_$RejectTransactionImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return rejectTransaction(communityId, transactionId, reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return rejectTransaction?.call(communityId, transactionId, reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (rejectTransaction != null) {
-      return rejectTransaction(communityId, transactionId, reason);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return rejectTransaction(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return rejectTransaction?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (rejectTransaction != null) {
-      return rejectTransaction(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _RejectTransaction implements CommunityEvent {
-  const factory _RejectTransaction({
-    required final String communityId,
-    required final String transactionId,
-    final String? reason,
-  }) = _$RejectTransactionImpl;
-
-  String get communityId;
-  String get transactionId;
-  String? get reason;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RejectTransactionImplCopyWith<_$RejectTransactionImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? params = null,}) {
+  return _then(_UpdateCommunity(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,params: null == params ? _self.params : params // ignore: cast_nullable_to_non_nullable
+as UpdateCommunityParams,
+  ));
 }
 
-/// @nodoc
-abstract class _$$TriggerPayoutImplCopyWith<$Res> {
-  factory _$$TriggerPayoutImplCopyWith(
-    _$TriggerPayoutImpl value,
-    $Res Function(_$TriggerPayoutImpl) then,
-  ) = __$$TriggerPayoutImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, String? recipientId});
+
 }
 
 /// @nodoc
-class __$$TriggerPayoutImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$TriggerPayoutImpl>
-    implements _$$TriggerPayoutImplCopyWith<$Res> {
-  __$$TriggerPayoutImplCopyWithImpl(
-    _$TriggerPayoutImpl _value,
-    $Res Function(_$TriggerPayoutImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? recipientId = freezed}) {
-    return _then(
-      _$TriggerPayoutImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        recipientId: freezed == recipientId
-            ? _value.recipientId
-            : recipientId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+
+class _DeleteCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+  const _DeleteCommunity({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DeleteCommunityCopyWith<_DeleteCommunity> get copyWith => __$DeleteCommunityCopyWithImpl<_DeleteCommunity>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.deleteCommunity'))
+    ..add(DiagnosticsProperty('communityId', communityId));
 }
 
-/// @nodoc
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteCommunity&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
 
-class _$TriggerPayoutImpl
-    with DiagnosticableTreeMixin
-    implements _TriggerPayout {
-  const _$TriggerPayoutImpl({required this.communityId, this.recipientId});
-
-  @override
-  final String communityId;
-  @override
-  final String? recipientId;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.triggerPayout(communityId: $communityId, recipientId: $recipientId)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.triggerPayout'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('recipientId', recipientId));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$TriggerPayoutImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.recipientId, recipientId) ||
-                other.recipientId == recipientId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, recipientId);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$TriggerPayoutImplCopyWith<_$TriggerPayoutImpl> get copyWith =>
-      __$$TriggerPayoutImplCopyWithImpl<_$TriggerPayoutImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return triggerPayout(communityId, recipientId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return triggerPayout?.call(communityId, recipientId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (triggerPayout != null) {
-      return triggerPayout(communityId, recipientId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return triggerPayout(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return triggerPayout?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (triggerPayout != null) {
-      return triggerPayout(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _TriggerPayout implements CommunityEvent {
-  const factory _TriggerPayout({
-    required final String communityId,
-    final String? recipientId,
-  }) = _$TriggerPayoutImpl;
-
-  String get communityId;
-  String? get recipientId;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TriggerPayoutImplCopyWith<_$TriggerPayoutImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.deleteCommunity(communityId: $communityId)';
 }
 
-/// @nodoc
-abstract class _$$LoadAnalyticsImplCopyWith<$Res> {
-  factory _$$LoadAnalyticsImplCopyWith(
-    _$LoadAnalyticsImpl value,
-    $Res Function(_$LoadAnalyticsImpl) then,
-  ) = __$$LoadAnalyticsImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String communityId, int? months});
+
 }
 
 /// @nodoc
-class __$$LoadAnalyticsImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$LoadAnalyticsImpl>
-    implements _$$LoadAnalyticsImplCopyWith<$Res> {
-  __$$LoadAnalyticsImplCopyWithImpl(
-    _$LoadAnalyticsImpl _value,
-    $Res Function(_$LoadAnalyticsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? communityId = null, Object? months = freezed}) {
-    return _then(
-      _$LoadAnalyticsImpl(
-        communityId: null == communityId
-            ? _value.communityId
-            : communityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        months: freezed == months
-            ? _value.months
-            : months // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
-  }
-}
+abstract mixin class _$DeleteCommunityCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$DeleteCommunityCopyWith(_DeleteCommunity value, $Res Function(_DeleteCommunity) _then) = __$DeleteCommunityCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
+
+
+
 
+}
 /// @nodoc
+class __$DeleteCommunityCopyWithImpl<$Res>
+    implements _$DeleteCommunityCopyWith<$Res> {
+  __$DeleteCommunityCopyWithImpl(this._self, this._then);
+
+  final _DeleteCommunity _self;
+  final $Res Function(_DeleteCommunity) _then;
 
-class _$LoadAnalyticsImpl
-    with DiagnosticableTreeMixin
-    implements _LoadAnalytics {
-  const _$LoadAnalyticsImpl({required this.communityId, this.months});
-
-  @override
-  final String communityId;
-  @override
-  final int? months;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.loadAnalytics(communityId: $communityId, months: $months)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.loadAnalytics'))
-      ..add(DiagnosticsProperty('communityId', communityId))
-      ..add(DiagnosticsProperty('months', months));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadAnalyticsImpl &&
-            (identical(other.communityId, communityId) ||
-                other.communityId == communityId) &&
-            (identical(other.months, months) || other.months == months));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, communityId, months);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LoadAnalyticsImplCopyWith<_$LoadAnalyticsImpl> get copyWith =>
-      __$$LoadAnalyticsImplCopyWithImpl<_$LoadAnalyticsImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return loadAnalytics(communityId, months);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return loadAnalytics?.call(communityId, months);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadAnalytics != null) {
-      return loadAnalytics(communityId, months);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return loadAnalytics(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return loadAnalytics?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (loadAnalytics != null) {
-      return loadAnalytics(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadAnalytics implements CommunityEvent {
-  const factory _LoadAnalytics({
-    required final String communityId,
-    final int? months,
-  }) = _$LoadAnalyticsImpl;
-
-  String get communityId;
-  int? get months;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LoadAnalyticsImplCopyWith<_$LoadAnalyticsImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_DeleteCommunity(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$UnreadCountUpdatedImplCopyWith<$Res> {
-  factory _$$UnreadCountUpdatedImplCopyWith(
-    _$UnreadCountUpdatedImpl value,
-    $Res Function(_$UnreadCountUpdatedImpl) then,
-  ) = __$$UnreadCountUpdatedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({int count});
+
 }
 
 /// @nodoc
-class __$$UnreadCountUpdatedImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$UnreadCountUpdatedImpl>
-    implements _$$UnreadCountUpdatedImplCopyWith<$Res> {
-  __$$UnreadCountUpdatedImplCopyWithImpl(
-    _$UnreadCountUpdatedImpl _value,
-    $Res Function(_$UnreadCountUpdatedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? count = null}) {
-    return _then(
-      _$UnreadCountUpdatedImpl(
-        null == count
-            ? _value.count
-            : count // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
+
+
+class _InviteMember with DiagnosticableTreeMixin implements CommunityEvent {
+  const _InviteMember({required this.communityId, required this.userId, required this.role});
+  
+
+ final  String communityId;
+ final  String userId;
+ final  MemberRole role;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InviteMemberCopyWith<_InviteMember> get copyWith => __$InviteMemberCopyWithImpl<_InviteMember>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.inviteMember'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('userId', userId))..add(DiagnosticsProperty('role', role));
 }
 
-/// @nodoc
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InviteMember&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.role, role) || other.role == role));
+}
 
-class _$UnreadCountUpdatedImpl
-    with DiagnosticableTreeMixin
-    implements _UnreadCountUpdated {
-  const _$UnreadCountUpdatedImpl(this.count);
-
-  @override
-  final int count;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.unreadCountUpdated(count: $count)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityEvent.unreadCountUpdated'))
-      ..add(DiagnosticsProperty('count', count));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UnreadCountUpdatedImpl &&
-            (identical(other.count, count) || other.count == count));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, count);
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UnreadCountUpdatedImplCopyWith<_$UnreadCountUpdatedImpl> get copyWith =>
-      __$$UnreadCountUpdatedImplCopyWithImpl<_$UnreadCountUpdatedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return unreadCountUpdated(count);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return unreadCountUpdated?.call(count);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (unreadCountUpdated != null) {
-      return unreadCountUpdated(count);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return unreadCountUpdated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return unreadCountUpdated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (unreadCountUpdated != null) {
-      return unreadCountUpdated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UnreadCountUpdated implements CommunityEvent {
-  const factory _UnreadCountUpdated(final int count) = _$UnreadCountUpdatedImpl;
-
-  int get count;
-
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UnreadCountUpdatedImplCopyWith<_$UnreadCountUpdatedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,userId,role);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.inviteMember(communityId: $communityId, userId: $userId, role: $role)';
 }
 
-/// @nodoc
-abstract class _$$ClearSelectedCommunityImplCopyWith<$Res> {
-  factory _$$ClearSelectedCommunityImplCopyWith(
-    _$ClearSelectedCommunityImpl value,
-    $Res Function(_$ClearSelectedCommunityImpl) then,
-  ) = __$$ClearSelectedCommunityImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$ClearSelectedCommunityImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$ClearSelectedCommunityImpl>
-    implements _$$ClearSelectedCommunityImplCopyWith<$Res> {
-  __$$ClearSelectedCommunityImplCopyWithImpl(
-    _$ClearSelectedCommunityImpl _value,
-    $Res Function(_$ClearSelectedCommunityImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$InviteMemberCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$InviteMemberCopyWith(_InviteMember value, $Res Function(_InviteMember) _then) = __$InviteMemberCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String userId, MemberRole role
+});
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
+
 
+
+}
 /// @nodoc
+class __$InviteMemberCopyWithImpl<$Res>
+    implements _$InviteMemberCopyWith<$Res> {
+  __$InviteMemberCopyWithImpl(this._self, this._then);
 
-class _$ClearSelectedCommunityImpl
-    with DiagnosticableTreeMixin
-    implements _ClearSelectedCommunity {
-  const _$ClearSelectedCommunityImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.clearSelectedCommunity()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(
-      DiagnosticsProperty('type', 'CommunityEvent.clearSelectedCommunity'),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ClearSelectedCommunityImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return clearSelectedCommunity();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return clearSelectedCommunity?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (clearSelectedCommunity != null) {
-      return clearSelectedCommunity();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return clearSelectedCommunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return clearSelectedCommunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (clearSelectedCommunity != null) {
-      return clearSelectedCommunity(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ClearSelectedCommunity implements CommunityEvent {
-  const factory _ClearSelectedCommunity() = _$ClearSelectedCommunityImpl;
+  final _InviteMember _self;
+  final $Res Function(_InviteMember) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? userId = null,Object? role = null,}) {
+  return _then(_InviteMember(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as MemberRole,
+  ));
 }
 
-/// @nodoc
-abstract class _$$ClearErrorImplCopyWith<$Res> {
-  factory _$$ClearErrorImplCopyWith(
-    _$ClearErrorImpl value,
-    $Res Function(_$ClearErrorImpl) then,
-  ) = __$$ClearErrorImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$ClearErrorImplCopyWithImpl<$Res>
-    extends _$CommunityEventCopyWithImpl<$Res, _$ClearErrorImpl>
-    implements _$$ClearErrorImplCopyWith<$Res> {
-  __$$ClearErrorImplCopyWithImpl(
-    _$ClearErrorImpl _value,
-    $Res Function(_$ClearErrorImpl) _then,
-  ) : super(_value, _then);
+
+
+class _AcceptInvitation with DiagnosticableTreeMixin implements CommunityEvent {
+  const _AcceptInvitation({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AcceptInvitationCopyWith<_AcceptInvitation> get copyWith => __$AcceptInvitationCopyWithImpl<_AcceptInvitation>(this, _$identity);
+
 
-  /// Create a copy of CommunityEvent
-  /// with the given fields replaced by the non-null parameter values.
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.acceptInvitation'))
+    ..add(DiagnosticsProperty('communityId', communityId));
 }
 
-/// @nodoc
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AcceptInvitation&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
 
-class _$ClearErrorImpl with DiagnosticableTreeMixin implements _ClearError {
-  const _$ClearErrorImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityEvent.clearError()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'CommunityEvent.clearError'));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$ClearErrorImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadUserCommunities,
-    required TResult Function() watchUserCommunities,
-    required TResult Function(List<Community> communities)
-    userCommunitiesUpdated,
-    required TResult Function(String communityId) loadCommunityDetails,
-    required TResult Function(String communityId) watchMembers,
-    required TResult Function(List<CommunityMember> members) membersUpdated,
-    required TResult Function(String communityId, int? limit) watchTransactions,
-    required TResult Function(List<CommunityTransaction> transactions)
-    transactionsUpdated,
-    required TResult Function(String communityId) watchPendingApprovals,
-    required TResult Function(List<CommunityApproval> approvals)
-    pendingApprovalsUpdated,
-    required TResult Function(CreateCommunityParams params) createCommunity,
-    required TResult Function(String communityId, UpdateCommunityParams params)
-    updateCommunity,
-    required TResult Function(String communityId) deleteCommunity,
-    required TResult Function(
-      String communityId,
-      String userId,
-      MemberRole role,
-    )
-    inviteMember,
-    required TResult Function(String communityId) acceptInvitation,
-    required TResult Function(String communityId) declineInvitation,
-    required TResult Function(String communityId, String memberId) removeMember,
-    required TResult Function(
-      String communityId,
-      String memberId,
-      MemberRole role,
-    )
-    updateMemberRole,
-    required TResult Function(String communityId) leaveCommunity,
-    required TResult Function() loadPendingInvitations,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    contribute,
-    required TResult Function(
-      String communityId,
-      int amount,
-      String? description,
-    )
-    withdraw,
-    required TResult Function(String communityId, String transactionId)
-    approveTransaction,
-    required TResult Function(
-      String communityId,
-      String transactionId,
-      String? reason,
-    )
-    rejectTransaction,
-    required TResult Function(String communityId, String? recipientId)
-    triggerPayout,
-    required TResult Function(String communityId, int? months) loadAnalytics,
-    required TResult Function(int count) unreadCountUpdated,
-    required TResult Function() clearSelectedCommunity,
-    required TResult Function() clearError,
-  }) {
-    return clearError();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadUserCommunities,
-    TResult? Function()? watchUserCommunities,
-    TResult? Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult? Function(String communityId)? loadCommunityDetails,
-    TResult? Function(String communityId)? watchMembers,
-    TResult? Function(List<CommunityMember> members)? membersUpdated,
-    TResult? Function(String communityId, int? limit)? watchTransactions,
-    TResult? Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult? Function(String communityId)? watchPendingApprovals,
-    TResult? Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult? Function(CreateCommunityParams params)? createCommunity,
-    TResult? Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult? Function(String communityId)? deleteCommunity,
-    TResult? Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult? Function(String communityId)? acceptInvitation,
-    TResult? Function(String communityId)? declineInvitation,
-    TResult? Function(String communityId, String memberId)? removeMember,
-    TResult? Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult? Function(String communityId)? leaveCommunity,
-    TResult? Function()? loadPendingInvitations,
-    TResult? Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult? Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult? Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult? Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult? Function(String communityId, String? recipientId)? triggerPayout,
-    TResult? Function(String communityId, int? months)? loadAnalytics,
-    TResult? Function(int count)? unreadCountUpdated,
-    TResult? Function()? clearSelectedCommunity,
-    TResult? Function()? clearError,
-  }) {
-    return clearError?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadUserCommunities,
-    TResult Function()? watchUserCommunities,
-    TResult Function(List<Community> communities)? userCommunitiesUpdated,
-    TResult Function(String communityId)? loadCommunityDetails,
-    TResult Function(String communityId)? watchMembers,
-    TResult Function(List<CommunityMember> members)? membersUpdated,
-    TResult Function(String communityId, int? limit)? watchTransactions,
-    TResult Function(List<CommunityTransaction> transactions)?
-    transactionsUpdated,
-    TResult Function(String communityId)? watchPendingApprovals,
-    TResult Function(List<CommunityApproval> approvals)?
-    pendingApprovalsUpdated,
-    TResult Function(CreateCommunityParams params)? createCommunity,
-    TResult Function(String communityId, UpdateCommunityParams params)?
-    updateCommunity,
-    TResult Function(String communityId)? deleteCommunity,
-    TResult Function(String communityId, String userId, MemberRole role)?
-    inviteMember,
-    TResult Function(String communityId)? acceptInvitation,
-    TResult Function(String communityId)? declineInvitation,
-    TResult Function(String communityId, String memberId)? removeMember,
-    TResult Function(String communityId, String memberId, MemberRole role)?
-    updateMemberRole,
-    TResult Function(String communityId)? leaveCommunity,
-    TResult Function()? loadPendingInvitations,
-    TResult Function(String communityId, int amount, String? description)?
-    contribute,
-    TResult Function(String communityId, int amount, String? description)?
-    withdraw,
-    TResult Function(String communityId, String transactionId)?
-    approveTransaction,
-    TResult Function(String communityId, String transactionId, String? reason)?
-    rejectTransaction,
-    TResult Function(String communityId, String? recipientId)? triggerPayout,
-    TResult Function(String communityId, int? months)? loadAnalytics,
-    TResult Function(int count)? unreadCountUpdated,
-    TResult Function()? clearSelectedCommunity,
-    TResult Function()? clearError,
-    required TResult orElse(),
-  }) {
-    if (clearError != null) {
-      return clearError();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadUserCommunities value) loadUserCommunities,
-    required TResult Function(_WatchUserCommunities value) watchUserCommunities,
-    required TResult Function(_UserCommunitiesUpdated value)
-    userCommunitiesUpdated,
-    required TResult Function(_LoadCommunityDetails value) loadCommunityDetails,
-    required TResult Function(_WatchMembers value) watchMembers,
-    required TResult Function(_MembersUpdated value) membersUpdated,
-    required TResult Function(_WatchTransactions value) watchTransactions,
-    required TResult Function(_TransactionsUpdated value) transactionsUpdated,
-    required TResult Function(_WatchPendingApprovals value)
-    watchPendingApprovals,
-    required TResult Function(_PendingApprovalsUpdated value)
-    pendingApprovalsUpdated,
-    required TResult Function(_CreateCommunity value) createCommunity,
-    required TResult Function(_UpdateCommunity value) updateCommunity,
-    required TResult Function(_DeleteCommunity value) deleteCommunity,
-    required TResult Function(_InviteMember value) inviteMember,
-    required TResult Function(_AcceptInvitation value) acceptInvitation,
-    required TResult Function(_DeclineInvitation value) declineInvitation,
-    required TResult Function(_RemoveMember value) removeMember,
-    required TResult Function(_UpdateMemberRole value) updateMemberRole,
-    required TResult Function(_LeaveCommunity value) leaveCommunity,
-    required TResult Function(_LoadPendingInvitations value)
-    loadPendingInvitations,
-    required TResult Function(_Contribute value) contribute,
-    required TResult Function(_Withdraw value) withdraw,
-    required TResult Function(_ApproveTransaction value) approveTransaction,
-    required TResult Function(_RejectTransaction value) rejectTransaction,
-    required TResult Function(_TriggerPayout value) triggerPayout,
-    required TResult Function(_LoadAnalytics value) loadAnalytics,
-    required TResult Function(_UnreadCountUpdated value) unreadCountUpdated,
-    required TResult Function(_ClearSelectedCommunity value)
-    clearSelectedCommunity,
-    required TResult Function(_ClearError value) clearError,
-  }) {
-    return clearError(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult? Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult? Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult? Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult? Function(_WatchMembers value)? watchMembers,
-    TResult? Function(_MembersUpdated value)? membersUpdated,
-    TResult? Function(_WatchTransactions value)? watchTransactions,
-    TResult? Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult? Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult? Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult? Function(_CreateCommunity value)? createCommunity,
-    TResult? Function(_UpdateCommunity value)? updateCommunity,
-    TResult? Function(_DeleteCommunity value)? deleteCommunity,
-    TResult? Function(_InviteMember value)? inviteMember,
-    TResult? Function(_AcceptInvitation value)? acceptInvitation,
-    TResult? Function(_DeclineInvitation value)? declineInvitation,
-    TResult? Function(_RemoveMember value)? removeMember,
-    TResult? Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult? Function(_LeaveCommunity value)? leaveCommunity,
-    TResult? Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult? Function(_Contribute value)? contribute,
-    TResult? Function(_Withdraw value)? withdraw,
-    TResult? Function(_ApproveTransaction value)? approveTransaction,
-    TResult? Function(_RejectTransaction value)? rejectTransaction,
-    TResult? Function(_TriggerPayout value)? triggerPayout,
-    TResult? Function(_LoadAnalytics value)? loadAnalytics,
-    TResult? Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult? Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult? Function(_ClearError value)? clearError,
-  }) {
-    return clearError?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadUserCommunities value)? loadUserCommunities,
-    TResult Function(_WatchUserCommunities value)? watchUserCommunities,
-    TResult Function(_UserCommunitiesUpdated value)? userCommunitiesUpdated,
-    TResult Function(_LoadCommunityDetails value)? loadCommunityDetails,
-    TResult Function(_WatchMembers value)? watchMembers,
-    TResult Function(_MembersUpdated value)? membersUpdated,
-    TResult Function(_WatchTransactions value)? watchTransactions,
-    TResult Function(_TransactionsUpdated value)? transactionsUpdated,
-    TResult Function(_WatchPendingApprovals value)? watchPendingApprovals,
-    TResult Function(_PendingApprovalsUpdated value)? pendingApprovalsUpdated,
-    TResult Function(_CreateCommunity value)? createCommunity,
-    TResult Function(_UpdateCommunity value)? updateCommunity,
-    TResult Function(_DeleteCommunity value)? deleteCommunity,
-    TResult Function(_InviteMember value)? inviteMember,
-    TResult Function(_AcceptInvitation value)? acceptInvitation,
-    TResult Function(_DeclineInvitation value)? declineInvitation,
-    TResult Function(_RemoveMember value)? removeMember,
-    TResult Function(_UpdateMemberRole value)? updateMemberRole,
-    TResult Function(_LeaveCommunity value)? leaveCommunity,
-    TResult Function(_LoadPendingInvitations value)? loadPendingInvitations,
-    TResult Function(_Contribute value)? contribute,
-    TResult Function(_Withdraw value)? withdraw,
-    TResult Function(_ApproveTransaction value)? approveTransaction,
-    TResult Function(_RejectTransaction value)? rejectTransaction,
-    TResult Function(_TriggerPayout value)? triggerPayout,
-    TResult Function(_LoadAnalytics value)? loadAnalytics,
-    TResult Function(_UnreadCountUpdated value)? unreadCountUpdated,
-    TResult Function(_ClearSelectedCommunity value)? clearSelectedCommunity,
-    TResult Function(_ClearError value)? clearError,
-    required TResult orElse(),
-  }) {
-    if (clearError != null) {
-      return clearError(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ClearError implements CommunityEvent {
-  const factory _ClearError() = _$ClearErrorImpl;
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.acceptInvitation(communityId: $communityId)';
 }
 
-/// @nodoc
-mixin _$CommunityState {
-  // Status
-  CommunityLoadingStatus get status => throw _privateConstructorUsedError;
-  CommunityOperationStatus get operationStatus =>
-      throw _privateConstructorUsedError; // Communities list
-  List<Community> get communities => throw _privateConstructorUsedError;
-  List<CommunityMember> get pendingInvitations =>
-      throw _privateConstructorUsedError; // Selected community details
-  Community? get selectedCommunity => throw _privateConstructorUsedError;
-  List<CommunityMember> get selectedCommunityMembers =>
-      throw _privateConstructorUsedError;
-  List<CommunityTransaction> get selectedCommunityTransactions =>
-      throw _privateConstructorUsedError;
-  List<CommunityApproval> get selectedCommunityApprovals =>
-      throw _privateConstructorUsedError; // Loading states
-  bool get isLoadingMore => throw _privateConstructorUsedError;
-  bool get hasMoreTransactions =>
-      throw _privateConstructorUsedError; // Stokvel analytics
-  StokvelAnalytics? get stokvelAnalytics => throw _privateConstructorUsedError;
-  bool get isLoadingAnalytics => throw _privateConstructorUsedError; // Unread
-  int get totalUnreadCount =>
-      throw _privateConstructorUsedError; // Error handling
-  String? get errorMessage => throw _privateConstructorUsedError;
-  String? get successMessage => throw _privateConstructorUsedError;
-
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CommunityStateCopyWith<CommunityState> get copyWith =>
-      throw _privateConstructorUsedError;
+
 }
 
 /// @nodoc
-abstract class $CommunityStateCopyWith<$Res> {
-  factory $CommunityStateCopyWith(
-    CommunityState value,
-    $Res Function(CommunityState) then,
-  ) = _$CommunityStateCopyWithImpl<$Res, CommunityState>;
-  @useResult
-  $Res call({
-    CommunityLoadingStatus status,
-    CommunityOperationStatus operationStatus,
-    List<Community> communities,
-    List<CommunityMember> pendingInvitations,
-    Community? selectedCommunity,
-    List<CommunityMember> selectedCommunityMembers,
-    List<CommunityTransaction> selectedCommunityTransactions,
-    List<CommunityApproval> selectedCommunityApprovals,
-    bool isLoadingMore,
-    bool hasMoreTransactions,
-    StokvelAnalytics? stokvelAnalytics,
-    bool isLoadingAnalytics,
-    int totalUnreadCount,
-    String? errorMessage,
-    String? successMessage,
-  });
-
-  $CommunityCopyWith<$Res>? get selectedCommunity;
-}
+abstract mixin class _$AcceptInvitationCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$AcceptInvitationCopyWith(_AcceptInvitation value, $Res Function(_AcceptInvitation) _then) = __$AcceptInvitationCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
+
+
 
+
+}
+/// @nodoc
+class __$AcceptInvitationCopyWithImpl<$Res>
+    implements _$AcceptInvitationCopyWith<$Res> {
+  __$AcceptInvitationCopyWithImpl(this._self, this._then);
+
+  final _AcceptInvitation _self;
+  final $Res Function(_AcceptInvitation) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_AcceptInvitation(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _DeclineInvitation with DiagnosticableTreeMixin implements CommunityEvent {
+  const _DeclineInvitation({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DeclineInvitationCopyWith<_DeclineInvitation> get copyWith => __$DeclineInvitationCopyWithImpl<_DeclineInvitation>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.declineInvitation'))
+    ..add(DiagnosticsProperty('communityId', communityId));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeclineInvitation&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.declineInvitation(communityId: $communityId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DeclineInvitationCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$DeclineInvitationCopyWith(_DeclineInvitation value, $Res Function(_DeclineInvitation) _then) = __$DeclineInvitationCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
+
+
+
+
+}
+/// @nodoc
+class __$DeclineInvitationCopyWithImpl<$Res>
+    implements _$DeclineInvitationCopyWith<$Res> {
+  __$DeclineInvitationCopyWithImpl(this._self, this._then);
+
+  final _DeclineInvitation _self;
+  final $Res Function(_DeclineInvitation) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_DeclineInvitation(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _RemoveMember with DiagnosticableTreeMixin implements CommunityEvent {
+  const _RemoveMember({required this.communityId, required this.memberId});
+  
+
+ final  String communityId;
+ final  String memberId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RemoveMemberCopyWith<_RemoveMember> get copyWith => __$RemoveMemberCopyWithImpl<_RemoveMember>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.removeMember'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('memberId', memberId));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RemoveMember&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.memberId, memberId) || other.memberId == memberId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,memberId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.removeMember(communityId: $communityId, memberId: $memberId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RemoveMemberCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$RemoveMemberCopyWith(_RemoveMember value, $Res Function(_RemoveMember) _then) = __$RemoveMemberCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String memberId
+});
+
+
+
+
+}
+/// @nodoc
+class __$RemoveMemberCopyWithImpl<$Res>
+    implements _$RemoveMemberCopyWith<$Res> {
+  __$RemoveMemberCopyWithImpl(this._self, this._then);
+
+  final _RemoveMember _self;
+  final $Res Function(_RemoveMember) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? memberId = null,}) {
+  return _then(_RemoveMember(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _UpdateMemberRole with DiagnosticableTreeMixin implements CommunityEvent {
+  const _UpdateMemberRole({required this.communityId, required this.memberId, required this.role});
+  
+
+ final  String communityId;
+ final  String memberId;
+ final  MemberRole role;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateMemberRoleCopyWith<_UpdateMemberRole> get copyWith => __$UpdateMemberRoleCopyWithImpl<_UpdateMemberRole>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.updateMemberRole'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('memberId', memberId))..add(DiagnosticsProperty('role', role));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateMemberRole&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.memberId, memberId) || other.memberId == memberId)&&(identical(other.role, role) || other.role == role));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,memberId,role);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.updateMemberRole(communityId: $communityId, memberId: $memberId, role: $role)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdateMemberRoleCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$UpdateMemberRoleCopyWith(_UpdateMemberRole value, $Res Function(_UpdateMemberRole) _then) = __$UpdateMemberRoleCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String memberId, MemberRole role
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateMemberRoleCopyWithImpl<$Res>
+    implements _$UpdateMemberRoleCopyWith<$Res> {
+  __$UpdateMemberRoleCopyWithImpl(this._self, this._then);
+
+  final _UpdateMemberRole _self;
+  final $Res Function(_UpdateMemberRole) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? memberId = null,Object? role = null,}) {
+  return _then(_UpdateMemberRole(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,memberId: null == memberId ? _self.memberId : memberId // ignore: cast_nullable_to_non_nullable
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as MemberRole,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LeaveCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+  const _LeaveCommunity({required this.communityId});
+  
+
+ final  String communityId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LeaveCommunityCopyWith<_LeaveCommunity> get copyWith => __$LeaveCommunityCopyWithImpl<_LeaveCommunity>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.leaveCommunity'))
+    ..add(DiagnosticsProperty('communityId', communityId));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LeaveCommunity&&(identical(other.communityId, communityId) || other.communityId == communityId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.leaveCommunity(communityId: $communityId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LeaveCommunityCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$LeaveCommunityCopyWith(_LeaveCommunity value, $Res Function(_LeaveCommunity) _then) = __$LeaveCommunityCopyWithImpl;
+@useResult
+$Res call({
+ String communityId
+});
+
+
+
+
+}
+/// @nodoc
+class __$LeaveCommunityCopyWithImpl<$Res>
+    implements _$LeaveCommunityCopyWith<$Res> {
+  __$LeaveCommunityCopyWithImpl(this._self, this._then);
+
+  final _LeaveCommunity _self;
+  final $Res Function(_LeaveCommunity) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,}) {
+  return _then(_LeaveCommunity(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LoadPendingInvitations with DiagnosticableTreeMixin implements CommunityEvent {
+  const _LoadPendingInvitations();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadPendingInvitations'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadPendingInvitations);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.loadPendingInvitations()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Contribute with DiagnosticableTreeMixin implements CommunityEvent {
+  const _Contribute({required this.communityId, required this.amount, this.description});
+  
+
+ final  String communityId;
+ final  int amount;
+ final  String? description;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ContributeCopyWith<_Contribute> get copyWith => __$ContributeCopyWithImpl<_Contribute>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.contribute'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('description', description));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contribute&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,amount,description);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.contribute(communityId: $communityId, amount: $amount, description: $description)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ContributeCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$ContributeCopyWith(_Contribute value, $Res Function(_Contribute) _then) = __$ContributeCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, int amount, String? description
+});
+
+
+
+
+}
+/// @nodoc
+class __$ContributeCopyWithImpl<$Res>
+    implements _$ContributeCopyWith<$Res> {
+  __$ContributeCopyWithImpl(this._self, this._then);
+
+  final _Contribute _self;
+  final $Res Function(_Contribute) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? amount = null,Object? description = freezed,}) {
+  return _then(_Contribute(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _Withdraw with DiagnosticableTreeMixin implements CommunityEvent {
+  const _Withdraw({required this.communityId, required this.amount, this.description});
+  
+
+ final  String communityId;
+ final  int amount;
+ final  String? description;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WithdrawCopyWith<_Withdraw> get copyWith => __$WithdrawCopyWithImpl<_Withdraw>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.withdraw'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('description', description));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Withdraw&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,amount,description);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.withdraw(communityId: $communityId, amount: $amount, description: $description)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WithdrawCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$WithdrawCopyWith(_Withdraw value, $Res Function(_Withdraw) _then) = __$WithdrawCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, int amount, String? description
+});
+
+
+
+
+}
+/// @nodoc
+class __$WithdrawCopyWithImpl<$Res>
+    implements _$WithdrawCopyWith<$Res> {
+  __$WithdrawCopyWithImpl(this._self, this._then);
+
+  final _Withdraw _self;
+  final $Res Function(_Withdraw) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? amount = null,Object? description = freezed,}) {
+  return _then(_Withdraw(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _ApproveTransaction with DiagnosticableTreeMixin implements CommunityEvent {
+  const _ApproveTransaction({required this.communityId, required this.transactionId});
+  
+
+ final  String communityId;
+ final  String transactionId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ApproveTransactionCopyWith<_ApproveTransaction> get copyWith => __$ApproveTransactionCopyWithImpl<_ApproveTransaction>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.approveTransaction'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ApproveTransaction&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,transactionId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.approveTransaction(communityId: $communityId, transactionId: $transactionId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ApproveTransactionCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$ApproveTransactionCopyWith(_ApproveTransaction value, $Res Function(_ApproveTransaction) _then) = __$ApproveTransactionCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String transactionId
+});
+
+
+
+
+}
+/// @nodoc
+class __$ApproveTransactionCopyWithImpl<$Res>
+    implements _$ApproveTransactionCopyWith<$Res> {
+  __$ApproveTransactionCopyWithImpl(this._self, this._then);
+
+  final _ApproveTransaction _self;
+  final $Res Function(_ApproveTransaction) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? transactionId = null,}) {
+  return _then(_ApproveTransaction(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _RejectTransaction with DiagnosticableTreeMixin implements CommunityEvent {
+  const _RejectTransaction({required this.communityId, required this.transactionId, this.reason});
+  
+
+ final  String communityId;
+ final  String transactionId;
+ final  String? reason;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RejectTransactionCopyWith<_RejectTransaction> get copyWith => __$RejectTransactionCopyWithImpl<_RejectTransaction>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.rejectTransaction'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId))..add(DiagnosticsProperty('reason', reason));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RejectTransaction&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,transactionId,reason);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.rejectTransaction(communityId: $communityId, transactionId: $transactionId, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RejectTransactionCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$RejectTransactionCopyWith(_RejectTransaction value, $Res Function(_RejectTransaction) _then) = __$RejectTransactionCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String transactionId, String? reason
+});
+
+
+
+
+}
+/// @nodoc
+class __$RejectTransactionCopyWithImpl<$Res>
+    implements _$RejectTransactionCopyWith<$Res> {
+  __$RejectTransactionCopyWithImpl(this._self, this._then);
+
+  final _RejectTransaction _self;
+  final $Res Function(_RejectTransaction) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? transactionId = null,Object? reason = freezed,}) {
+  return _then(_RejectTransaction(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _TriggerPayout with DiagnosticableTreeMixin implements CommunityEvent {
+  const _TriggerPayout({required this.communityId, this.recipientId});
+  
+
+ final  String communityId;
+ final  String? recipientId;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TriggerPayoutCopyWith<_TriggerPayout> get copyWith => __$TriggerPayoutCopyWithImpl<_TriggerPayout>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.triggerPayout'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('recipientId', recipientId));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TriggerPayout&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.recipientId, recipientId) || other.recipientId == recipientId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,recipientId);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.triggerPayout(communityId: $communityId, recipientId: $recipientId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TriggerPayoutCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$TriggerPayoutCopyWith(_TriggerPayout value, $Res Function(_TriggerPayout) _then) = __$TriggerPayoutCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, String? recipientId
+});
+
+
+
+
+}
+/// @nodoc
+class __$TriggerPayoutCopyWithImpl<$Res>
+    implements _$TriggerPayoutCopyWith<$Res> {
+  __$TriggerPayoutCopyWithImpl(this._self, this._then);
+
+  final _TriggerPayout _self;
+  final $Res Function(_TriggerPayout) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? recipientId = freezed,}) {
+  return _then(_TriggerPayout(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,recipientId: freezed == recipientId ? _self.recipientId : recipientId // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LoadAnalytics with DiagnosticableTreeMixin implements CommunityEvent {
+  const _LoadAnalytics({required this.communityId, this.months});
+  
+
+ final  String communityId;
+ final  int? months;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadAnalyticsCopyWith<_LoadAnalytics> get copyWith => __$LoadAnalyticsCopyWithImpl<_LoadAnalytics>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadAnalytics'))
+    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('months', months));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadAnalytics&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.months, months) || other.months == months));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,communityId,months);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.loadAnalytics(communityId: $communityId, months: $months)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LoadAnalyticsCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$LoadAnalyticsCopyWith(_LoadAnalytics value, $Res Function(_LoadAnalytics) _then) = __$LoadAnalyticsCopyWithImpl;
+@useResult
+$Res call({
+ String communityId, int? months
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoadAnalyticsCopyWithImpl<$Res>
+    implements _$LoadAnalyticsCopyWith<$Res> {
+  __$LoadAnalyticsCopyWithImpl(this._self, this._then);
+
+  final _LoadAnalytics _self;
+  final $Res Function(_LoadAnalytics) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? communityId = null,Object? months = freezed,}) {
+  return _then(_LoadAnalytics(
+communityId: null == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
+as String,months: freezed == months ? _self.months : months // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _UnreadCountUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+  const _UnreadCountUpdated(this.count);
+  
+
+ final  int count;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UnreadCountUpdatedCopyWith<_UnreadCountUpdated> get copyWith => __$UnreadCountUpdatedCopyWithImpl<_UnreadCountUpdated>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.unreadCountUpdated'))
+    ..add(DiagnosticsProperty('count', count));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UnreadCountUpdated&&(identical(other.count, count) || other.count == count));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,count);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.unreadCountUpdated(count: $count)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UnreadCountUpdatedCopyWith<$Res> implements $CommunityEventCopyWith<$Res> {
+  factory _$UnreadCountUpdatedCopyWith(_UnreadCountUpdated value, $Res Function(_UnreadCountUpdated) _then) = __$UnreadCountUpdatedCopyWithImpl;
+@useResult
+$Res call({
+ int count
+});
+
+
+
+
+}
+/// @nodoc
+class __$UnreadCountUpdatedCopyWithImpl<$Res>
+    implements _$UnreadCountUpdatedCopyWith<$Res> {
+  __$UnreadCountUpdatedCopyWithImpl(this._self, this._then);
+
+  final _UnreadCountUpdated _self;
+  final $Res Function(_UnreadCountUpdated) _then;
+
+/// Create a copy of CommunityEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? count = null,}) {
+  return _then(_UnreadCountUpdated(
+null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _ClearSelectedCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+  const _ClearSelectedCommunity();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.clearSelectedCommunity'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClearSelectedCommunity);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.clearSelectedCommunity()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _ClearError with DiagnosticableTreeMixin implements CommunityEvent {
+  const _ClearError();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityEvent.clearError'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClearError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityEvent.clearError()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+mixin _$CommunityState implements DiagnosticableTreeMixin {
+
+// Status
+ CommunityLoadingStatus get status; CommunityOperationStatus get operationStatus;// Communities list
+ List<Community> get communities; List<CommunityMember> get pendingInvitations;// Selected community details
+ Community? get selectedCommunity; List<CommunityMember> get selectedCommunityMembers; List<CommunityTransaction> get selectedCommunityTransactions; List<CommunityApproval> get selectedCommunityApprovals;// Loading states
+ bool get isLoadingMore; bool get hasMoreTransactions;// Stokvel analytics
+ StokvelAnalytics? get stokvelAnalytics; bool get isLoadingAnalytics;// Unread
+ int get totalUnreadCount;// Error handling
+ String? get errorMessage; String? get successMessage;
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CommunityStateCopyWith<CommunityState> get copyWith => _$CommunityStateCopyWithImpl<CommunityState>(this as CommunityState, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityState'))
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('operationStatus', operationStatus))..add(DiagnosticsProperty('communities', communities))..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))..add(DiagnosticsProperty('selectedCommunityMembers', selectedCommunityMembers))..add(DiagnosticsProperty('selectedCommunityTransactions', selectedCommunityTransactions))..add(DiagnosticsProperty('selectedCommunityApprovals', selectedCommunityApprovals))..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('successMessage', successMessage));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommunityState&&(identical(other.status, status) || other.status == status)&&(identical(other.operationStatus, operationStatus) || other.operationStatus == operationStatus)&&const DeepCollectionEquality().equals(other.communities, communities)&&const DeepCollectionEquality().equals(other.pendingInvitations, pendingInvitations)&&(identical(other.selectedCommunity, selectedCommunity) || other.selectedCommunity == selectedCommunity)&&const DeepCollectionEquality().equals(other.selectedCommunityMembers, selectedCommunityMembers)&&const DeepCollectionEquality().equals(other.selectedCommunityTransactions, selectedCommunityTransactions)&&const DeepCollectionEquality().equals(other.selectedCommunityApprovals, selectedCommunityApprovals)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMoreTransactions, hasMoreTransactions) || other.hasMoreTransactions == hasMoreTransactions)&&(identical(other.stokvelAnalytics, stokvelAnalytics) || other.stokvelAnalytics == stokvelAnalytics)&&(identical(other.isLoadingAnalytics, isLoadingAnalytics) || other.isLoadingAnalytics == isLoadingAnalytics)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,status,operationStatus,const DeepCollectionEquality().hash(communities),const DeepCollectionEquality().hash(pendingInvitations),selectedCommunity,const DeepCollectionEquality().hash(selectedCommunityMembers),const DeepCollectionEquality().hash(selectedCommunityTransactions),const DeepCollectionEquality().hash(selectedCommunityApprovals),isLoadingMore,hasMoreTransactions,stokvelAnalytics,isLoadingAnalytics,totalUnreadCount,errorMessage,successMessage);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CommunityStateCopyWith<$Res>  {
+  factory $CommunityStateCopyWith(CommunityState value, $Res Function(CommunityState) _then) = _$CommunityStateCopyWithImpl;
+@useResult
+$Res call({
+ CommunityLoadingStatus status, CommunityOperationStatus operationStatus, List<Community> communities, List<CommunityMember> pendingInvitations, Community? selectedCommunity, List<CommunityMember> selectedCommunityMembers, List<CommunityTransaction> selectedCommunityTransactions, List<CommunityApproval> selectedCommunityApprovals, bool isLoadingMore, bool hasMoreTransactions, StokvelAnalytics? stokvelAnalytics, bool isLoadingAnalytics, int totalUnreadCount, String? errorMessage, String? successMessage
+});
+
+
+$CommunityCopyWith<$Res>? get selectedCommunity;
+
+}
 /// @nodoc
-class _$CommunityStateCopyWithImpl<$Res, $Val extends CommunityState>
+class _$CommunityStateCopyWithImpl<$Res>
     implements $CommunityStateCopyWith<$Res> {
-  _$CommunityStateCopyWithImpl(this._value, this._then);
+  _$CommunityStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final CommunityState _self;
+  final $Res Function(CommunityState) _then;
 
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? operationStatus = null,
-    Object? communities = null,
-    Object? pendingInvitations = null,
-    Object? selectedCommunity = freezed,
-    Object? selectedCommunityMembers = null,
-    Object? selectedCommunityTransactions = null,
-    Object? selectedCommunityApprovals = null,
-    Object? isLoadingMore = null,
-    Object? hasMoreTransactions = null,
-    Object? stokvelAnalytics = freezed,
-    Object? isLoadingAnalytics = null,
-    Object? totalUnreadCount = null,
-    Object? errorMessage = freezed,
-    Object? successMessage = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as CommunityLoadingStatus,
-            operationStatus: null == operationStatus
-                ? _value.operationStatus
-                : operationStatus // ignore: cast_nullable_to_non_nullable
-                      as CommunityOperationStatus,
-            communities: null == communities
-                ? _value.communities
-                : communities // ignore: cast_nullable_to_non_nullable
-                      as List<Community>,
-            pendingInvitations: null == pendingInvitations
-                ? _value.pendingInvitations
-                : pendingInvitations // ignore: cast_nullable_to_non_nullable
-                      as List<CommunityMember>,
-            selectedCommunity: freezed == selectedCommunity
-                ? _value.selectedCommunity
-                : selectedCommunity // ignore: cast_nullable_to_non_nullable
-                      as Community?,
-            selectedCommunityMembers: null == selectedCommunityMembers
-                ? _value.selectedCommunityMembers
-                : selectedCommunityMembers // ignore: cast_nullable_to_non_nullable
-                      as List<CommunityMember>,
-            selectedCommunityTransactions: null == selectedCommunityTransactions
-                ? _value.selectedCommunityTransactions
-                : selectedCommunityTransactions // ignore: cast_nullable_to_non_nullable
-                      as List<CommunityTransaction>,
-            selectedCommunityApprovals: null == selectedCommunityApprovals
-                ? _value.selectedCommunityApprovals
-                : selectedCommunityApprovals // ignore: cast_nullable_to_non_nullable
-                      as List<CommunityApproval>,
-            isLoadingMore: null == isLoadingMore
-                ? _value.isLoadingMore
-                : isLoadingMore // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            hasMoreTransactions: null == hasMoreTransactions
-                ? _value.hasMoreTransactions
-                : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            stokvelAnalytics: freezed == stokvelAnalytics
-                ? _value.stokvelAnalytics
-                : stokvelAnalytics // ignore: cast_nullable_to_non_nullable
-                      as StokvelAnalytics?,
-            isLoadingAnalytics: null == isLoadingAnalytics
-                ? _value.isLoadingAnalytics
-                : isLoadingAnalytics // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            totalUnreadCount: null == totalUnreadCount
-                ? _value.totalUnreadCount
-                : totalUnreadCount // ignore: cast_nullable_to_non_nullable
-                      as int,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            successMessage: freezed == successMessage
-                ? _value.successMessage
-                : successMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CommunityCopyWith<$Res>? get selectedCommunity {
-    if (_value.selectedCommunity == null) {
-      return null;
-    }
-
-    return $CommunityCopyWith<$Res>(_value.selectedCommunity!, (value) {
-      return _then(_value.copyWith(selectedCommunity: value) as $Val);
-    });
-  }
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? operationStatus = null,Object? communities = null,Object? pendingInvitations = null,Object? selectedCommunity = freezed,Object? selectedCommunityMembers = null,Object? selectedCommunityTransactions = null,Object? selectedCommunityApprovals = null,Object? isLoadingMore = null,Object? hasMoreTransactions = null,Object? stokvelAnalytics = freezed,Object? isLoadingAnalytics = null,Object? totalUnreadCount = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+  return _then(_self.copyWith(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as CommunityLoadingStatus,operationStatus: null == operationStatus ? _self.operationStatus : operationStatus // ignore: cast_nullable_to_non_nullable
+as CommunityOperationStatus,communities: null == communities ? _self.communities : communities // ignore: cast_nullable_to_non_nullable
+as List<Community>,pendingInvitations: null == pendingInvitations ? _self.pendingInvitations : pendingInvitations // ignore: cast_nullable_to_non_nullable
+as List<CommunityMember>,selectedCommunity: freezed == selectedCommunity ? _self.selectedCommunity : selectedCommunity // ignore: cast_nullable_to_non_nullable
+as Community?,selectedCommunityMembers: null == selectedCommunityMembers ? _self.selectedCommunityMembers : selectedCommunityMembers // ignore: cast_nullable_to_non_nullable
+as List<CommunityMember>,selectedCommunityTransactions: null == selectedCommunityTransactions ? _self.selectedCommunityTransactions : selectedCommunityTransactions // ignore: cast_nullable_to_non_nullable
+as List<CommunityTransaction>,selectedCommunityApprovals: null == selectedCommunityApprovals ? _self.selectedCommunityApprovals : selectedCommunityApprovals // ignore: cast_nullable_to_non_nullable
+as List<CommunityApproval>,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,hasMoreTransactions: null == hasMoreTransactions ? _self.hasMoreTransactions : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
+as bool,stokvelAnalytics: freezed == stokvelAnalytics ? _self.stokvelAnalytics : stokvelAnalytics // ignore: cast_nullable_to_non_nullable
+as StokvelAnalytics?,isLoadingAnalytics: null == isLoadingAnalytics ? _self.isLoadingAnalytics : isLoadingAnalytics // ignore: cast_nullable_to_non_nullable
+as bool,totalUnreadCount: null == totalUnreadCount ? _self.totalUnreadCount : totalUnreadCount // ignore: cast_nullable_to_non_nullable
+as int,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CommunityCopyWith<$Res>? get selectedCommunity {
+    if (_self.selectedCommunity == null) {
+    return null;
+  }
 
-/// @nodoc
-abstract class _$$CommunityStateImplCopyWith<$Res>
-    implements $CommunityStateCopyWith<$Res> {
-  factory _$$CommunityStateImplCopyWith(
-    _$CommunityStateImpl value,
-    $Res Function(_$CommunityStateImpl) then,
-  ) = __$$CommunityStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    CommunityLoadingStatus status,
-    CommunityOperationStatus operationStatus,
-    List<Community> communities,
-    List<CommunityMember> pendingInvitations,
-    Community? selectedCommunity,
-    List<CommunityMember> selectedCommunityMembers,
-    List<CommunityTransaction> selectedCommunityTransactions,
-    List<CommunityApproval> selectedCommunityApprovals,
-    bool isLoadingMore,
-    bool hasMoreTransactions,
-    StokvelAnalytics? stokvelAnalytics,
-    bool isLoadingAnalytics,
-    int totalUnreadCount,
-    String? errorMessage,
-    String? successMessage,
+  return $CommunityCopyWith<$Res>(_self.selectedCommunity!, (value) {
+    return _then(_self.copyWith(selectedCommunity: value));
   });
+}
+}
 
-  @override
-  $CommunityCopyWith<$Res>? get selectedCommunity;
+
+/// Adds pattern-matching-related methods to [CommunityState].
+extension CommunityStatePatterns on CommunityState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CommunityState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CommunityState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CommunityState value)  $default,){
+final _that = this;
+switch (_that) {
+case _CommunityState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CommunityState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CommunityState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CommunityLoadingStatus status,  CommunityOperationStatus operationStatus,  List<Community> communities,  List<CommunityMember> pendingInvitations,  Community? selectedCommunity,  List<CommunityMember> selectedCommunityMembers,  List<CommunityTransaction> selectedCommunityTransactions,  List<CommunityApproval> selectedCommunityApprovals,  bool isLoadingMore,  bool hasMoreTransactions,  StokvelAnalytics? stokvelAnalytics,  bool isLoadingAnalytics,  int totalUnreadCount,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CommunityState() when $default != null:
+return $default(_that.status,_that.operationStatus,_that.communities,_that.pendingInvitations,_that.selectedCommunity,_that.selectedCommunityMembers,_that.selectedCommunityTransactions,_that.selectedCommunityApprovals,_that.isLoadingMore,_that.hasMoreTransactions,_that.stokvelAnalytics,_that.isLoadingAnalytics,_that.totalUnreadCount,_that.errorMessage,_that.successMessage);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CommunityLoadingStatus status,  CommunityOperationStatus operationStatus,  List<Community> communities,  List<CommunityMember> pendingInvitations,  Community? selectedCommunity,  List<CommunityMember> selectedCommunityMembers,  List<CommunityTransaction> selectedCommunityTransactions,  List<CommunityApproval> selectedCommunityApprovals,  bool isLoadingMore,  bool hasMoreTransactions,  StokvelAnalytics? stokvelAnalytics,  bool isLoadingAnalytics,  int totalUnreadCount,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
+switch (_that) {
+case _CommunityState():
+return $default(_that.status,_that.operationStatus,_that.communities,_that.pendingInvitations,_that.selectedCommunity,_that.selectedCommunityMembers,_that.selectedCommunityTransactions,_that.selectedCommunityApprovals,_that.isLoadingMore,_that.hasMoreTransactions,_that.stokvelAnalytics,_that.isLoadingAnalytics,_that.totalUnreadCount,_that.errorMessage,_that.successMessage);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CommunityLoadingStatus status,  CommunityOperationStatus operationStatus,  List<Community> communities,  List<CommunityMember> pendingInvitations,  Community? selectedCommunity,  List<CommunityMember> selectedCommunityMembers,  List<CommunityTransaction> selectedCommunityTransactions,  List<CommunityApproval> selectedCommunityApprovals,  bool isLoadingMore,  bool hasMoreTransactions,  StokvelAnalytics? stokvelAnalytics,  bool isLoadingAnalytics,  int totalUnreadCount,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
+switch (_that) {
+case _CommunityState() when $default != null:
+return $default(_that.status,_that.operationStatus,_that.communities,_that.pendingInvitations,_that.selectedCommunity,_that.selectedCommunityMembers,_that.selectedCommunityTransactions,_that.selectedCommunityApprovals,_that.isLoadingMore,_that.hasMoreTransactions,_that.stokvelAnalytics,_that.isLoadingAnalytics,_that.totalUnreadCount,_that.errorMessage,_that.successMessage);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-class __$$CommunityStateImplCopyWithImpl<$Res>
-    extends _$CommunityStateCopyWithImpl<$Res, _$CommunityStateImpl>
-    implements _$$CommunityStateImplCopyWith<$Res> {
-  __$$CommunityStateImplCopyWithImpl(
-    _$CommunityStateImpl _value,
-    $Res Function(_$CommunityStateImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? operationStatus = null,
-    Object? communities = null,
-    Object? pendingInvitations = null,
-    Object? selectedCommunity = freezed,
-    Object? selectedCommunityMembers = null,
-    Object? selectedCommunityTransactions = null,
-    Object? selectedCommunityApprovals = null,
-    Object? isLoadingMore = null,
-    Object? hasMoreTransactions = null,
-    Object? stokvelAnalytics = freezed,
-    Object? isLoadingAnalytics = null,
-    Object? totalUnreadCount = null,
-    Object? errorMessage = freezed,
-    Object? successMessage = freezed,
-  }) {
-    return _then(
-      _$CommunityStateImpl(
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as CommunityLoadingStatus,
-        operationStatus: null == operationStatus
-            ? _value.operationStatus
-            : operationStatus // ignore: cast_nullable_to_non_nullable
-                  as CommunityOperationStatus,
-        communities: null == communities
-            ? _value._communities
-            : communities // ignore: cast_nullable_to_non_nullable
-                  as List<Community>,
-        pendingInvitations: null == pendingInvitations
-            ? _value._pendingInvitations
-            : pendingInvitations // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityMember>,
-        selectedCommunity: freezed == selectedCommunity
-            ? _value.selectedCommunity
-            : selectedCommunity // ignore: cast_nullable_to_non_nullable
-                  as Community?,
-        selectedCommunityMembers: null == selectedCommunityMembers
-            ? _value._selectedCommunityMembers
-            : selectedCommunityMembers // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityMember>,
-        selectedCommunityTransactions: null == selectedCommunityTransactions
-            ? _value._selectedCommunityTransactions
-            : selectedCommunityTransactions // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityTransaction>,
-        selectedCommunityApprovals: null == selectedCommunityApprovals
-            ? _value._selectedCommunityApprovals
-            : selectedCommunityApprovals // ignore: cast_nullable_to_non_nullable
-                  as List<CommunityApproval>,
-        isLoadingMore: null == isLoadingMore
-            ? _value.isLoadingMore
-            : isLoadingMore // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        hasMoreTransactions: null == hasMoreTransactions
-            ? _value.hasMoreTransactions
-            : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        stokvelAnalytics: freezed == stokvelAnalytics
-            ? _value.stokvelAnalytics
-            : stokvelAnalytics // ignore: cast_nullable_to_non_nullable
-                  as StokvelAnalytics?,
-        isLoadingAnalytics: null == isLoadingAnalytics
-            ? _value.isLoadingAnalytics
-            : isLoadingAnalytics // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        totalUnreadCount: null == totalUnreadCount
-            ? _value.totalUnreadCount
-            : totalUnreadCount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        successMessage: freezed == successMessage
-            ? _value.successMessage
-            : successMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+class _CommunityState extends CommunityState with DiagnosticableTreeMixin {
+  const _CommunityState({this.status = CommunityLoadingStatus.initial, this.operationStatus = CommunityOperationStatus.idle, final  List<Community> communities = const [], final  List<CommunityMember> pendingInvitations = const [], this.selectedCommunity, final  List<CommunityMember> selectedCommunityMembers = const [], final  List<CommunityTransaction> selectedCommunityTransactions = const [], final  List<CommunityApproval> selectedCommunityApprovals = const [], this.isLoadingMore = false, this.hasMoreTransactions = false, this.stokvelAnalytics, this.isLoadingAnalytics = false, this.totalUnreadCount = 0, this.errorMessage, this.successMessage}): _communities = communities,_pendingInvitations = pendingInvitations,_selectedCommunityMembers = selectedCommunityMembers,_selectedCommunityTransactions = selectedCommunityTransactions,_selectedCommunityApprovals = selectedCommunityApprovals,super._();
+  
+
+// Status
+@override@JsonKey() final  CommunityLoadingStatus status;
+@override@JsonKey() final  CommunityOperationStatus operationStatus;
+// Communities list
+ final  List<Community> _communities;
+// Communities list
+@override@JsonKey() List<Community> get communities {
+  if (_communities is EqualUnmodifiableListView) return _communities;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_communities);
+}
+
+ final  List<CommunityMember> _pendingInvitations;
+@override@JsonKey() List<CommunityMember> get pendingInvitations {
+  if (_pendingInvitations is EqualUnmodifiableListView) return _pendingInvitations;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pendingInvitations);
+}
+
+// Selected community details
+@override final  Community? selectedCommunity;
+ final  List<CommunityMember> _selectedCommunityMembers;
+@override@JsonKey() List<CommunityMember> get selectedCommunityMembers {
+  if (_selectedCommunityMembers is EqualUnmodifiableListView) return _selectedCommunityMembers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_selectedCommunityMembers);
+}
+
+ final  List<CommunityTransaction> _selectedCommunityTransactions;
+@override@JsonKey() List<CommunityTransaction> get selectedCommunityTransactions {
+  if (_selectedCommunityTransactions is EqualUnmodifiableListView) return _selectedCommunityTransactions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_selectedCommunityTransactions);
+}
+
+ final  List<CommunityApproval> _selectedCommunityApprovals;
+@override@JsonKey() List<CommunityApproval> get selectedCommunityApprovals {
+  if (_selectedCommunityApprovals is EqualUnmodifiableListView) return _selectedCommunityApprovals;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_selectedCommunityApprovals);
+}
+
+// Loading states
+@override@JsonKey() final  bool isLoadingMore;
+@override@JsonKey() final  bool hasMoreTransactions;
+// Stokvel analytics
+@override final  StokvelAnalytics? stokvelAnalytics;
+@override@JsonKey() final  bool isLoadingAnalytics;
+// Unread
+@override@JsonKey() final  int totalUnreadCount;
+// Error handling
+@override final  String? errorMessage;
+@override final  String? successMessage;
+
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CommunityStateCopyWith<_CommunityState> get copyWith => __$CommunityStateCopyWithImpl<_CommunityState>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CommunityState'))
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('operationStatus', operationStatus))..add(DiagnosticsProperty('communities', communities))..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))..add(DiagnosticsProperty('selectedCommunityMembers', selectedCommunityMembers))..add(DiagnosticsProperty('selectedCommunityTransactions', selectedCommunityTransactions))..add(DiagnosticsProperty('selectedCommunityApprovals', selectedCommunityApprovals))..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('successMessage', successMessage));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommunityState&&(identical(other.status, status) || other.status == status)&&(identical(other.operationStatus, operationStatus) || other.operationStatus == operationStatus)&&const DeepCollectionEquality().equals(other._communities, _communities)&&const DeepCollectionEquality().equals(other._pendingInvitations, _pendingInvitations)&&(identical(other.selectedCommunity, selectedCommunity) || other.selectedCommunity == selectedCommunity)&&const DeepCollectionEquality().equals(other._selectedCommunityMembers, _selectedCommunityMembers)&&const DeepCollectionEquality().equals(other._selectedCommunityTransactions, _selectedCommunityTransactions)&&const DeepCollectionEquality().equals(other._selectedCommunityApprovals, _selectedCommunityApprovals)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.hasMoreTransactions, hasMoreTransactions) || other.hasMoreTransactions == hasMoreTransactions)&&(identical(other.stokvelAnalytics, stokvelAnalytics) || other.stokvelAnalytics == stokvelAnalytics)&&(identical(other.isLoadingAnalytics, isLoadingAnalytics) || other.isLoadingAnalytics == isLoadingAnalytics)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,status,operationStatus,const DeepCollectionEquality().hash(_communities),const DeepCollectionEquality().hash(_pendingInvitations),selectedCommunity,const DeepCollectionEquality().hash(_selectedCommunityMembers),const DeepCollectionEquality().hash(_selectedCommunityTransactions),const DeepCollectionEquality().hash(_selectedCommunityApprovals),isLoadingMore,hasMoreTransactions,stokvelAnalytics,isLoadingAnalytics,totalUnreadCount,errorMessage,successMessage);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
+}
+
+
 }
 
 /// @nodoc
+abstract mixin class _$CommunityStateCopyWith<$Res> implements $CommunityStateCopyWith<$Res> {
+  factory _$CommunityStateCopyWith(_CommunityState value, $Res Function(_CommunityState) _then) = __$CommunityStateCopyWithImpl;
+@override @useResult
+$Res call({
+ CommunityLoadingStatus status, CommunityOperationStatus operationStatus, List<Community> communities, List<CommunityMember> pendingInvitations, Community? selectedCommunity, List<CommunityMember> selectedCommunityMembers, List<CommunityTransaction> selectedCommunityTransactions, List<CommunityApproval> selectedCommunityApprovals, bool isLoadingMore, bool hasMoreTransactions, StokvelAnalytics? stokvelAnalytics, bool isLoadingAnalytics, int totalUnreadCount, String? errorMessage, String? successMessage
+});
 
-class _$CommunityStateImpl extends _CommunityState
-    with DiagnosticableTreeMixin {
-  const _$CommunityStateImpl({
-    this.status = CommunityLoadingStatus.initial,
-    this.operationStatus = CommunityOperationStatus.idle,
-    final List<Community> communities = const [],
-    final List<CommunityMember> pendingInvitations = const [],
-    this.selectedCommunity,
-    final List<CommunityMember> selectedCommunityMembers = const [],
-    final List<CommunityTransaction> selectedCommunityTransactions = const [],
-    final List<CommunityApproval> selectedCommunityApprovals = const [],
-    this.isLoadingMore = false,
-    this.hasMoreTransactions = false,
-    this.stokvelAnalytics,
-    this.isLoadingAnalytics = false,
-    this.totalUnreadCount = 0,
-    this.errorMessage,
-    this.successMessage,
-  }) : _communities = communities,
-       _pendingInvitations = pendingInvitations,
-       _selectedCommunityMembers = selectedCommunityMembers,
-       _selectedCommunityTransactions = selectedCommunityTransactions,
-       _selectedCommunityApprovals = selectedCommunityApprovals,
-       super._();
 
-  // Status
-  @override
-  @JsonKey()
-  final CommunityLoadingStatus status;
-  @override
-  @JsonKey()
-  final CommunityOperationStatus operationStatus;
-  // Communities list
-  final List<Community> _communities;
-  // Communities list
-  @override
-  @JsonKey()
-  List<Community> get communities {
-    if (_communities is EqualUnmodifiableListView) return _communities;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_communities);
-  }
+@override $CommunityCopyWith<$Res>? get selectedCommunity;
 
-  final List<CommunityMember> _pendingInvitations;
-  @override
-  @JsonKey()
-  List<CommunityMember> get pendingInvitations {
-    if (_pendingInvitations is EqualUnmodifiableListView)
-      return _pendingInvitations;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_pendingInvitations);
-  }
+}
+/// @nodoc
+class __$CommunityStateCopyWithImpl<$Res>
+    implements _$CommunityStateCopyWith<$Res> {
+  __$CommunityStateCopyWithImpl(this._self, this._then);
 
-  // Selected community details
-  @override
-  final Community? selectedCommunity;
-  final List<CommunityMember> _selectedCommunityMembers;
-  @override
-  @JsonKey()
-  List<CommunityMember> get selectedCommunityMembers {
-    if (_selectedCommunityMembers is EqualUnmodifiableListView)
-      return _selectedCommunityMembers;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedCommunityMembers);
-  }
+  final _CommunityState _self;
+  final $Res Function(_CommunityState) _then;
 
-  final List<CommunityTransaction> _selectedCommunityTransactions;
-  @override
-  @JsonKey()
-  List<CommunityTransaction> get selectedCommunityTransactions {
-    if (_selectedCommunityTransactions is EqualUnmodifiableListView)
-      return _selectedCommunityTransactions;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedCommunityTransactions);
-  }
-
-  final List<CommunityApproval> _selectedCommunityApprovals;
-  @override
-  @JsonKey()
-  List<CommunityApproval> get selectedCommunityApprovals {
-    if (_selectedCommunityApprovals is EqualUnmodifiableListView)
-      return _selectedCommunityApprovals;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedCommunityApprovals);
-  }
-
-  // Loading states
-  @override
-  @JsonKey()
-  final bool isLoadingMore;
-  @override
-  @JsonKey()
-  final bool hasMoreTransactions;
-  // Stokvel analytics
-  @override
-  final StokvelAnalytics? stokvelAnalytics;
-  @override
-  @JsonKey()
-  final bool isLoadingAnalytics;
-  // Unread
-  @override
-  @JsonKey()
-  final int totalUnreadCount;
-  // Error handling
-  @override
-  final String? errorMessage;
-  @override
-  final String? successMessage;
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'CommunityState'))
-      ..add(DiagnosticsProperty('status', status))
-      ..add(DiagnosticsProperty('operationStatus', operationStatus))
-      ..add(DiagnosticsProperty('communities', communities))
-      ..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))
-      ..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))
-      ..add(
-        DiagnosticsProperty(
-          'selectedCommunityMembers',
-          selectedCommunityMembers,
-        ),
-      )
-      ..add(
-        DiagnosticsProperty(
-          'selectedCommunityTransactions',
-          selectedCommunityTransactions,
-        ),
-      )
-      ..add(
-        DiagnosticsProperty(
-          'selectedCommunityApprovals',
-          selectedCommunityApprovals,
-        ),
-      )
-      ..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))
-      ..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))
-      ..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))
-      ..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))
-      ..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))
-      ..add(DiagnosticsProperty('errorMessage', errorMessage))
-      ..add(DiagnosticsProperty('successMessage', successMessage));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CommunityStateImpl &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.operationStatus, operationStatus) ||
-                other.operationStatus == operationStatus) &&
-            const DeepCollectionEquality().equals(
-              other._communities,
-              _communities,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._pendingInvitations,
-              _pendingInvitations,
-            ) &&
-            (identical(other.selectedCommunity, selectedCommunity) ||
-                other.selectedCommunity == selectedCommunity) &&
-            const DeepCollectionEquality().equals(
-              other._selectedCommunityMembers,
-              _selectedCommunityMembers,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._selectedCommunityTransactions,
-              _selectedCommunityTransactions,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._selectedCommunityApprovals,
-              _selectedCommunityApprovals,
-            ) &&
-            (identical(other.isLoadingMore, isLoadingMore) ||
-                other.isLoadingMore == isLoadingMore) &&
-            (identical(other.hasMoreTransactions, hasMoreTransactions) ||
-                other.hasMoreTransactions == hasMoreTransactions) &&
-            (identical(other.stokvelAnalytics, stokvelAnalytics) ||
-                other.stokvelAnalytics == stokvelAnalytics) &&
-            (identical(other.isLoadingAnalytics, isLoadingAnalytics) ||
-                other.isLoadingAnalytics == isLoadingAnalytics) &&
-            (identical(other.totalUnreadCount, totalUnreadCount) ||
-                other.totalUnreadCount == totalUnreadCount) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage) &&
-            (identical(other.successMessage, successMessage) ||
-                other.successMessage == successMessage));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    status,
-    operationStatus,
-    const DeepCollectionEquality().hash(_communities),
-    const DeepCollectionEquality().hash(_pendingInvitations),
-    selectedCommunity,
-    const DeepCollectionEquality().hash(_selectedCommunityMembers),
-    const DeepCollectionEquality().hash(_selectedCommunityTransactions),
-    const DeepCollectionEquality().hash(_selectedCommunityApprovals),
-    isLoadingMore,
-    hasMoreTransactions,
-    stokvelAnalytics,
-    isLoadingAnalytics,
-    totalUnreadCount,
-    errorMessage,
-    successMessage,
-  );
-
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CommunityStateImplCopyWith<_$CommunityStateImpl> get copyWith =>
-      __$$CommunityStateImplCopyWithImpl<_$CommunityStateImpl>(
-        this,
-        _$identity,
-      );
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? operationStatus = null,Object? communities = null,Object? pendingInvitations = null,Object? selectedCommunity = freezed,Object? selectedCommunityMembers = null,Object? selectedCommunityTransactions = null,Object? selectedCommunityApprovals = null,Object? isLoadingMore = null,Object? hasMoreTransactions = null,Object? stokvelAnalytics = freezed,Object? isLoadingAnalytics = null,Object? totalUnreadCount = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+  return _then(_CommunityState(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as CommunityLoadingStatus,operationStatus: null == operationStatus ? _self.operationStatus : operationStatus // ignore: cast_nullable_to_non_nullable
+as CommunityOperationStatus,communities: null == communities ? _self._communities : communities // ignore: cast_nullable_to_non_nullable
+as List<Community>,pendingInvitations: null == pendingInvitations ? _self._pendingInvitations : pendingInvitations // ignore: cast_nullable_to_non_nullable
+as List<CommunityMember>,selectedCommunity: freezed == selectedCommunity ? _self.selectedCommunity : selectedCommunity // ignore: cast_nullable_to_non_nullable
+as Community?,selectedCommunityMembers: null == selectedCommunityMembers ? _self._selectedCommunityMembers : selectedCommunityMembers // ignore: cast_nullable_to_non_nullable
+as List<CommunityMember>,selectedCommunityTransactions: null == selectedCommunityTransactions ? _self._selectedCommunityTransactions : selectedCommunityTransactions // ignore: cast_nullable_to_non_nullable
+as List<CommunityTransaction>,selectedCommunityApprovals: null == selectedCommunityApprovals ? _self._selectedCommunityApprovals : selectedCommunityApprovals // ignore: cast_nullable_to_non_nullable
+as List<CommunityApproval>,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
+as bool,hasMoreTransactions: null == hasMoreTransactions ? _self.hasMoreTransactions : hasMoreTransactions // ignore: cast_nullable_to_non_nullable
+as bool,stokvelAnalytics: freezed == stokvelAnalytics ? _self.stokvelAnalytics : stokvelAnalytics // ignore: cast_nullable_to_non_nullable
+as StokvelAnalytics?,isLoadingAnalytics: null == isLoadingAnalytics ? _self.isLoadingAnalytics : isLoadingAnalytics // ignore: cast_nullable_to_non_nullable
+as bool,totalUnreadCount: null == totalUnreadCount ? _self.totalUnreadCount : totalUnreadCount // ignore: cast_nullable_to_non_nullable
+as int,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-abstract class _CommunityState extends CommunityState {
-  const factory _CommunityState({
-    final CommunityLoadingStatus status,
-    final CommunityOperationStatus operationStatus,
-    final List<Community> communities,
-    final List<CommunityMember> pendingInvitations,
-    final Community? selectedCommunity,
-    final List<CommunityMember> selectedCommunityMembers,
-    final List<CommunityTransaction> selectedCommunityTransactions,
-    final List<CommunityApproval> selectedCommunityApprovals,
-    final bool isLoadingMore,
-    final bool hasMoreTransactions,
-    final StokvelAnalytics? stokvelAnalytics,
-    final bool isLoadingAnalytics,
-    final int totalUnreadCount,
-    final String? errorMessage,
-    final String? successMessage,
-  }) = _$CommunityStateImpl;
-  const _CommunityState._() : super._();
+/// Create a copy of CommunityState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CommunityCopyWith<$Res>? get selectedCommunity {
+    if (_self.selectedCommunity == null) {
+    return null;
+  }
 
-  // Status
-  @override
-  CommunityLoadingStatus get status;
-  @override
-  CommunityOperationStatus get operationStatus; // Communities list
-  @override
-  List<Community> get communities;
-  @override
-  List<CommunityMember> get pendingInvitations; // Selected community details
-  @override
-  Community? get selectedCommunity;
-  @override
-  List<CommunityMember> get selectedCommunityMembers;
-  @override
-  List<CommunityTransaction> get selectedCommunityTransactions;
-  @override
-  List<CommunityApproval> get selectedCommunityApprovals; // Loading states
-  @override
-  bool get isLoadingMore;
-  @override
-  bool get hasMoreTransactions; // Stokvel analytics
-  @override
-  StokvelAnalytics? get stokvelAnalytics;
-  @override
-  bool get isLoadingAnalytics; // Unread
-  @override
-  int get totalUnreadCount; // Error handling
-  @override
-  String? get errorMessage;
-  @override
-  String? get successMessage;
-
-  /// Create a copy of CommunityState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CommunityStateImplCopyWith<_$CommunityStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  return $CommunityCopyWith<$Res>(_self.selectedCommunity!, (value) {
+    return _then(_self.copyWith(selectedCommunity: value));
+  });
 }
+}
+
+// dart format on

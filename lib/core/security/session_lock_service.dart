@@ -178,10 +178,8 @@ class SessionLockService {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: 'Unlock iMaliChat',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true,
       );
 
       if (authenticated) {
@@ -203,10 +201,8 @@ class SessionLockService {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: 'Unlock iMaliChat',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
+        biometricOnly: false,
+        persistAcrossBackgrounding: true,
       );
 
       if (authenticated) {

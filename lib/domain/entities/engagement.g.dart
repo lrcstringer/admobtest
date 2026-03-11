@@ -6,49 +6,46 @@ part of 'engagement.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EngagementImpl _$$EngagementImplFromJson(Map<String, dynamic> json) =>
-    _$EngagementImpl(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      audienceCampaignId: json['audienceCampaignId'] as String?,
-      earnOpportunityId: json['earnOpportunityId'] as String,
-      status: $enumDecode(_$EngagementStatusEnumMap, json['status']),
-      startedAt: DateTime.parse(json['startedAt'] as String),
-      completedAt: json['completedAt'] == null
-          ? null
-          : DateTime.parse(json['completedAt'] as String),
-      watchDurationSeconds: (json['watchDurationSeconds'] as num).toInt(),
-      requiredDurationSeconds: (json['requiredDurationSeconds'] as num).toInt(),
-      answers: (json['answers'] as List<dynamic>)
-          .map((e) => SurveyResponse.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      evidence: json['evidence'] == null
-          ? null
-          : EngagementEvidence.fromJson(
-              json['evidence'] as Map<String, dynamic>,
-            ),
-      tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
-      failureReason: json['failureReason'] as String?,
-      attemptNumber: (json['attemptNumber'] as num).toInt(),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-      threadId: json['threadId'] as String?,
-      clientId: json['clientId'] as String?,
-      streakDayAtCompletion: (json['streakDayAtCompletion'] as num?)?.toInt(),
-      multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
-      adWatched: json['adWatched'] as bool? ?? false,
-      adTransactionId: json['adTransactionId'] as String?,
-      adCompletedAt: json['adCompletedAt'] == null
-          ? null
-          : DateTime.parse(json['adCompletedAt'] as String),
-      rewardItemId: json['rewardItemId'] as String?,
-      rewardCampaignName: json['rewardCampaignName'] as String?,
-      rewardType: json['rewardType'] as String?,
-    );
+_Engagement _$EngagementFromJson(Map<String, dynamic> json) => _Engagement(
+  id: json['id'] as String,
+  userId: json['userId'] as String,
+  audienceCampaignId: json['audienceCampaignId'] as String?,
+  earnOpportunityId: json['earnOpportunityId'] as String,
+  status: $enumDecode(_$EngagementStatusEnumMap, json['status']),
+  startedAt: DateTime.parse(json['startedAt'] as String),
+  completedAt: json['completedAt'] == null
+      ? null
+      : DateTime.parse(json['completedAt'] as String),
+  watchDurationSeconds: (json['watchDurationSeconds'] as num).toInt(),
+  requiredDurationSeconds: (json['requiredDurationSeconds'] as num).toInt(),
+  answers: (json['answers'] as List<dynamic>)
+      .map((e) => SurveyResponse.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  evidence: json['evidence'] == null
+      ? null
+      : EngagementEvidence.fromJson(json['evidence'] as Map<String, dynamic>),
+  tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
+  failureReason: json['failureReason'] as String?,
+  attemptNumber: (json['attemptNumber'] as num).toInt(),
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
+  threadId: json['threadId'] as String?,
+  clientId: json['clientId'] as String?,
+  streakDayAtCompletion: (json['streakDayAtCompletion'] as num?)?.toInt(),
+  multiplierApplied: (json['multiplierApplied'] as num?)?.toDouble(),
+  adWatched: json['adWatched'] as bool? ?? false,
+  adTransactionId: json['adTransactionId'] as String?,
+  adCompletedAt: json['adCompletedAt'] == null
+      ? null
+      : DateTime.parse(json['adCompletedAt'] as String),
+  rewardItemId: json['rewardItemId'] as String?,
+  rewardCampaignName: json['rewardCampaignName'] as String?,
+  rewardType: json['rewardType'] as String?,
+);
 
-Map<String, dynamic> _$$EngagementImplToJson(_$EngagementImpl instance) =>
+Map<String, dynamic> _$EngagementToJson(_Engagement instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
@@ -90,8 +87,8 @@ const _$EngagementStatusEnumMap = {
   EngagementStatus.pendingReview: 'pendingReview',
 };
 
-_$SurveyResponseImpl _$$SurveyResponseImplFromJson(Map<String, dynamic> json) =>
-    _$SurveyResponseImpl(
+_SurveyResponse _$SurveyResponseFromJson(Map<String, dynamic> json) =>
+    _SurveyResponse(
       questionId: json['questionId'] as String,
       questionType: json['questionType'] as String,
       answeredAt: DateTime.parse(json['answeredAt'] as String),
@@ -111,18 +108,17 @@ _$SurveyResponseImpl _$$SurveyResponseImplFromJson(Map<String, dynamic> json) =>
       isCorrect: json['isCorrect'] as bool?,
     );
 
-Map<String, dynamic> _$$SurveyResponseImplToJson(
-  _$SurveyResponseImpl instance,
-) => <String, dynamic>{
-  'questionId': instance.questionId,
-  'questionType': instance.questionType,
-  'answeredAt': instance.answeredAt.toIso8601String(),
-  'selectedOption': instance.selectedOption,
-  'selectedOptions': instance.selectedOptions,
-  'textResponses': instance.textResponses,
-  'likertValue': instance.likertValue,
-  'starRating': instance.starRating,
-  'selectedTags': instance.selectedTags,
-  'sliderValue': instance.sliderValue,
-  'isCorrect': instance.isCorrect,
-};
+Map<String, dynamic> _$SurveyResponseToJson(_SurveyResponse instance) =>
+    <String, dynamic>{
+      'questionId': instance.questionId,
+      'questionType': instance.questionType,
+      'answeredAt': instance.answeredAt.toIso8601String(),
+      'selectedOption': instance.selectedOption,
+      'selectedOptions': instance.selectedOptions,
+      'textResponses': instance.textResponses,
+      'likertValue': instance.likertValue,
+      'starRating': instance.starRating,
+      'selectedTags': instance.selectedTags,
+      'sliderValue': instance.sliderValue,
+      'isCorrect': instance.isCorrect,
+    };

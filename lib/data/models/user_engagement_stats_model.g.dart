@@ -6,9 +6,9 @@ part of 'user_engagement_stats_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserEngagementStatsModelImpl _$$UserEngagementStatsModelImplFromJson(
+_UserEngagementStatsModel _$UserEngagementStatsModelFromJson(
   Map<String, dynamic> json,
-) => _$UserEngagementStatsModelImpl(
+) => _UserEngagementStatsModel(
   userId: json['userId'] as String,
   currentStreak: (json['currentStreak'] as num).toInt(),
   longestStreak: (json['longestStreak'] as num).toInt(),
@@ -21,8 +21,8 @@ _$UserEngagementStatsModelImpl _$$UserEngagementStatsModelImplFromJson(
   updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
 );
 
-Map<String, dynamic> _$$UserEngagementStatsModelImplToJson(
-  _$UserEngagementStatsModelImpl instance,
+Map<String, dynamic> _$UserEngagementStatsModelToJson(
+  _UserEngagementStatsModel instance,
 ) => <String, dynamic>{
   'userId': instance.userId,
   'currentStreak': instance.currentStreak,

@@ -6,24 +6,23 @@ part of 'group_member.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GroupMemberImpl _$$GroupMemberImplFromJson(Map<String, dynamic> json) =>
-    _$GroupMemberImpl(
-      id: json['id'] as String,
-      groupId: json['groupId'] as String,
-      userId: json['userId'] as String,
-      role: $enumDecode(_$GroupRoleEnumMap, json['role']),
-      displayName: json['displayName'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
-      status: $enumDecode(_$GroupMemberStatusEnumMap, json['status']),
-      contributionBalance: (json['contributionBalance'] as num).toInt(),
-      joinedAt: json['joinedAt'] == null
-          ? null
-          : DateTime.parse(json['joinedAt'] as String),
-      invitedBy: json['invitedBy'] as String,
-      invitedAt: DateTime.parse(json['invitedAt'] as String),
-    );
+_GroupMember _$GroupMemberFromJson(Map<String, dynamic> json) => _GroupMember(
+  id: json['id'] as String,
+  groupId: json['groupId'] as String,
+  userId: json['userId'] as String,
+  role: $enumDecode(_$GroupRoleEnumMap, json['role']),
+  displayName: json['displayName'] as String,
+  avatarUrl: json['avatarUrl'] as String?,
+  status: $enumDecode(_$GroupMemberStatusEnumMap, json['status']),
+  contributionBalance: (json['contributionBalance'] as num).toInt(),
+  joinedAt: json['joinedAt'] == null
+      ? null
+      : DateTime.parse(json['joinedAt'] as String),
+  invitedBy: json['invitedBy'] as String,
+  invitedAt: DateTime.parse(json['invitedAt'] as String),
+);
 
-Map<String, dynamic> _$$GroupMemberImplToJson(_$GroupMemberImpl instance) =>
+Map<String, dynamic> _$GroupMemberToJson(_GroupMember instance) =>
     <String, dynamic>{
       'id': instance.id,
       'groupId': instance.groupId,

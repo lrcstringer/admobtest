@@ -6,23 +6,21 @@ part of 'conversation.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ParticipantInfoImpl _$$ParticipantInfoImplFromJson(
-  Map<String, dynamic> json,
-) => _$ParticipantInfoImpl(
-  displayName: json['displayName'] as String,
-  avatarUrl: json['avatarUrl'] as String?,
-);
+_ParticipantInfo _$ParticipantInfoFromJson(Map<String, dynamic> json) =>
+    _ParticipantInfo(
+      displayName: json['displayName'] as String,
+      avatarUrl: json['avatarUrl'] as String?,
+    );
 
-Map<String, dynamic> _$$ParticipantInfoImplToJson(
-  _$ParticipantInfoImpl instance,
-) => <String, dynamic>{
-  'displayName': instance.displayName,
-  'avatarUrl': instance.avatarUrl,
-};
+Map<String, dynamic> _$ParticipantInfoToJson(_ParticipantInfo instance) =>
+    <String, dynamic>{
+      'displayName': instance.displayName,
+      'avatarUrl': instance.avatarUrl,
+    };
 
-_$ConversationImpl _$$ConversationImplFromJson(
+_Conversation _$ConversationFromJson(
   Map<String, dynamic> json,
-) => _$ConversationImpl(
+) => _Conversation(
   id: json['id'] as String,
   type: $enumDecode(_$ConversationTypeEnumMap, json['type']),
   participantIds: (json['participantIds'] as List<dynamic>)
@@ -83,7 +81,7 @@ _$ConversationImpl _$$ConversationImplFromJson(
       : DateTime.parse(json['updatedAt'] as String),
 );
 
-Map<String, dynamic> _$$ConversationImplToJson(_$ConversationImpl instance) =>
+Map<String, dynamic> _$ConversationToJson(_Conversation instance) =>
     <String, dynamic>{
       'id': instance.id,
       'type': _$ConversationTypeEnumMap[instance.type]!,

@@ -6,44 +6,43 @@ part of 'inbox_thread.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$InboxThreadImpl _$$InboxThreadImplFromJson(Map<String, dynamic> json) =>
-    _$InboxThreadImpl(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      threadImage: json['threadImage'] as String?,
-      isPinned: json['isPinned'] as bool,
-      isFeatured: json['isFeatured'] as bool,
-      activeTo: json['activeTo'] == null
-          ? null
-          : DateTime.parse(json['activeTo'] as String),
-      availableOpportunities: (json['availableOpportunities'] as num).toInt(),
-      completedByUser: (json['completedByUser'] as num?)?.toInt() ?? 0,
-      totalTokenReward: (json['totalTokenReward'] as num).toInt(),
-      rewardTypes:
-          (json['rewardTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      earningTypes:
-          (json['earningTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      estimatedDurationSeconds:
-          (json['estimatedDurationSeconds'] as num?)?.toInt() ?? 0,
-      opportunityIds:
-          (json['opportunityIds'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      hasRewardCampaign: json['hasRewardCampaign'] as bool? ?? false,
-      soonestExpiry: json['soonestExpiry'] == null
-          ? null
-          : DateTime.parse(json['soonestExpiry'] as String),
-    );
+_InboxThread _$InboxThreadFromJson(Map<String, dynamic> json) => _InboxThread(
+  id: json['id'] as String,
+  title: json['title'] as String,
+  description: json['description'] as String?,
+  threadImage: json['threadImage'] as String?,
+  isPinned: json['isPinned'] as bool,
+  isFeatured: json['isFeatured'] as bool,
+  activeTo: json['activeTo'] == null
+      ? null
+      : DateTime.parse(json['activeTo'] as String),
+  availableOpportunities: (json['availableOpportunities'] as num).toInt(),
+  completedByUser: (json['completedByUser'] as num?)?.toInt() ?? 0,
+  totalTokenReward: (json['totalTokenReward'] as num).toInt(),
+  rewardTypes:
+      (json['rewardTypes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  earningTypes:
+      (json['earningTypes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  estimatedDurationSeconds:
+      (json['estimatedDurationSeconds'] as num?)?.toInt() ?? 0,
+  opportunityIds:
+      (json['opportunityIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  hasRewardCampaign: json['hasRewardCampaign'] as bool? ?? false,
+  soonestExpiry: json['soonestExpiry'] == null
+      ? null
+      : DateTime.parse(json['soonestExpiry'] as String),
+);
 
-Map<String, dynamic> _$$InboxThreadImplToJson(_$InboxThreadImpl instance) =>
+Map<String, dynamic> _$InboxThreadToJson(_InboxThread instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,

@@ -6,15 +6,14 @@ part of 'brand_storefront.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$QuickActionImpl _$$QuickActionImplFromJson(Map<String, dynamic> json) =>
-    _$QuickActionImpl(
-      label: json['label'] as String,
-      iconEmoji: json['iconEmoji'] as String,
-      deepLink: json['deepLink'] as String,
-      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
-    );
+_QuickAction _$QuickActionFromJson(Map<String, dynamic> json) => _QuickAction(
+  label: json['label'] as String,
+  iconEmoji: json['iconEmoji'] as String,
+  deepLink: json['deepLink'] as String,
+  sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+);
 
-Map<String, dynamic> _$$QuickActionImplToJson(_$QuickActionImpl instance) =>
+Map<String, dynamic> _$QuickActionToJson(_QuickAction instance) =>
     <String, dynamic>{
       'label': instance.label,
       'iconEmoji': instance.iconEmoji,
@@ -22,49 +21,45 @@ Map<String, dynamic> _$$QuickActionImplToJson(_$QuickActionImpl instance) =>
       'sortOrder': instance.sortOrder,
     };
 
-_$StorefrontPromoImpl _$$StorefrontPromoImplFromJson(
+_StorefrontPromo _$StorefrontPromoFromJson(Map<String, dynamic> json) =>
+    _StorefrontPromo(
+      title: json['title'] as String,
+      description: json['description'] as String?,
+      expiresAt: json['expiresAt'] == null
+          ? null
+          : DateTime.parse(json['expiresAt'] as String),
+      deepLink: json['deepLink'] as String?,
+    );
+
+Map<String, dynamic> _$StorefrontPromoToJson(_StorefrontPromo instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'description': instance.description,
+      'expiresAt': instance.expiresAt?.toIso8601String(),
+      'deepLink': instance.deepLink,
+    };
+
+_StorefrontSection _$StorefrontSectionFromJson(Map<String, dynamic> json) =>
+    _StorefrontSection(
+      type: json['type'] as String,
+      title: json['title'] as String?,
+      data: json['data'] as Map<String, dynamic>? ?? const {},
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+      isVisible: json['isVisible'] as bool? ?? true,
+    );
+
+Map<String, dynamic> _$StorefrontSectionToJson(_StorefrontSection instance) =>
+    <String, dynamic>{
+      'type': instance.type,
+      'title': instance.title,
+      'data': instance.data,
+      'sortOrder': instance.sortOrder,
+      'isVisible': instance.isVisible,
+    };
+
+_BrandStorefront _$BrandStorefrontFromJson(
   Map<String, dynamic> json,
-) => _$StorefrontPromoImpl(
-  title: json['title'] as String,
-  description: json['description'] as String?,
-  expiresAt: json['expiresAt'] == null
-      ? null
-      : DateTime.parse(json['expiresAt'] as String),
-  deepLink: json['deepLink'] as String?,
-);
-
-Map<String, dynamic> _$$StorefrontPromoImplToJson(
-  _$StorefrontPromoImpl instance,
-) => <String, dynamic>{
-  'title': instance.title,
-  'description': instance.description,
-  'expiresAt': instance.expiresAt?.toIso8601String(),
-  'deepLink': instance.deepLink,
-};
-
-_$StorefrontSectionImpl _$$StorefrontSectionImplFromJson(
-  Map<String, dynamic> json,
-) => _$StorefrontSectionImpl(
-  type: json['type'] as String,
-  title: json['title'] as String?,
-  data: json['data'] as Map<String, dynamic>? ?? const {},
-  sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
-  isVisible: json['isVisible'] as bool? ?? true,
-);
-
-Map<String, dynamic> _$$StorefrontSectionImplToJson(
-  _$StorefrontSectionImpl instance,
-) => <String, dynamic>{
-  'type': instance.type,
-  'title': instance.title,
-  'data': instance.data,
-  'sortOrder': instance.sortOrder,
-  'isVisible': instance.isVisible,
-};
-
-_$BrandStorefrontImpl _$$BrandStorefrontImplFromJson(
-  Map<String, dynamic> json,
-) => _$BrandStorefrontImpl(
+) => _BrandStorefront(
   id: json['id'] as String,
   brandId: json['brandId'] as String,
   brandName: json['brandName'] as String,
@@ -150,48 +145,47 @@ _$BrandStorefrontImpl _$$BrandStorefrontImplFromJson(
       const [],
 );
 
-Map<String, dynamic> _$$BrandStorefrontImplToJson(
-  _$BrandStorefrontImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'brandId': instance.brandId,
-  'brandName': instance.brandName,
-  'brandLogoUrl': instance.brandLogoUrl,
-  'brandColor': instance.brandColor,
-  'coverImageUrl': instance.coverImageUrl,
-  'tagline': instance.tagline,
-  'isActive': instance.isActive,
-  'isPremium': instance.isPremium,
-  'communityIds': instance.communityIds,
-  'sections': instance.sections,
-  'createdAt': instance.createdAt?.toIso8601String(),
-  'heroStyle': _$HeroStyleEnumMap[instance.heroStyle]!,
-  'heroImageUrl': instance.heroImageUrl,
-  'heroVideoUrl': instance.heroVideoUrl,
-  'accentColor': instance.accentColor,
-  'secondaryColor': instance.secondaryColor,
-  'logoPlacement': _$LogoPlacementEnumMap[instance.logoPlacement]!,
-  'fontStyle': _$StorefrontFontStyleEnumMap[instance.fontStyle]!,
-  'cornerStyle': _$StorefrontCornerStyleEnumMap[instance.cornerStyle]!,
-  'themePreference':
-      _$StorefrontThemePreferenceEnumMap[instance.themePreference]!,
-  'description': instance.description,
-  'bannerImageUrl': instance.bannerImageUrl,
-  'bannerDeepLink': instance.bannerDeepLink,
-  'establishedYear': instance.establishedYear,
-  'socialLinks': instance.socialLinks,
-  'trustBadges': instance.trustBadges
-      .map((e) => _$TrustBadgeEnumMap[e]!)
-      .toList(),
-  'averageRating': instance.averageRating,
-  'ratingCount': instance.ratingCount,
-  'quickActions': instance.quickActions,
-  'galleryImageUrls': instance.galleryImageUrls,
-  'promotions': instance.promotions,
-  'sectionOrder': instance.sectionOrder
-      .map((e) => _$StorefrontSectionTypeEnumMap[e]!)
-      .toList(),
-};
+Map<String, dynamic> _$BrandStorefrontToJson(_BrandStorefront instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'brandId': instance.brandId,
+      'brandName': instance.brandName,
+      'brandLogoUrl': instance.brandLogoUrl,
+      'brandColor': instance.brandColor,
+      'coverImageUrl': instance.coverImageUrl,
+      'tagline': instance.tagline,
+      'isActive': instance.isActive,
+      'isPremium': instance.isPremium,
+      'communityIds': instance.communityIds,
+      'sections': instance.sections,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'heroStyle': _$HeroStyleEnumMap[instance.heroStyle]!,
+      'heroImageUrl': instance.heroImageUrl,
+      'heroVideoUrl': instance.heroVideoUrl,
+      'accentColor': instance.accentColor,
+      'secondaryColor': instance.secondaryColor,
+      'logoPlacement': _$LogoPlacementEnumMap[instance.logoPlacement]!,
+      'fontStyle': _$StorefrontFontStyleEnumMap[instance.fontStyle]!,
+      'cornerStyle': _$StorefrontCornerStyleEnumMap[instance.cornerStyle]!,
+      'themePreference':
+          _$StorefrontThemePreferenceEnumMap[instance.themePreference]!,
+      'description': instance.description,
+      'bannerImageUrl': instance.bannerImageUrl,
+      'bannerDeepLink': instance.bannerDeepLink,
+      'establishedYear': instance.establishedYear,
+      'socialLinks': instance.socialLinks,
+      'trustBadges': instance.trustBadges
+          .map((e) => _$TrustBadgeEnumMap[e]!)
+          .toList(),
+      'averageRating': instance.averageRating,
+      'ratingCount': instance.ratingCount,
+      'quickActions': instance.quickActions,
+      'galleryImageUrls': instance.galleryImageUrls,
+      'promotions': instance.promotions,
+      'sectionOrder': instance.sectionOrder
+          .map((e) => _$StorefrontSectionTypeEnumMap[e]!)
+          .toList(),
+    };
 
 const _$HeroStyleEnumMap = {
   HeroStyle.gradient: 'gradient',

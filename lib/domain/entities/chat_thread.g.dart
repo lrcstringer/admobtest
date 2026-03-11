@@ -6,31 +6,30 @@ part of 'chat_thread.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ChatThreadImpl _$$ChatThreadImplFromJson(Map<String, dynamic> json) =>
-    _$ChatThreadImpl(
-      id: json['id'] as String,
-      type: $enumDecode(_$ChatThreadTypeEnumMap, json['type']),
-      participantIds: (json['participantIds'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      displayName: json['displayName'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
-      avatarColor: json['avatarColor'] as String?,
-      lastMessagePreview: json['lastMessagePreview'] as String?,
-      lastMessageAt: json['lastMessageAt'] == null
-          ? null
-          : DateTime.parse(json['lastMessageAt'] as String),
-      unreadCount: (json['unreadCount'] as num).toInt(),
-      isPinned: json['isPinned'] as bool,
-      isMuted: json['isMuted'] as bool,
-      isArchived: json['isArchived'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-    );
+_ChatThread _$ChatThreadFromJson(Map<String, dynamic> json) => _ChatThread(
+  id: json['id'] as String,
+  type: $enumDecode(_$ChatThreadTypeEnumMap, json['type']),
+  participantIds: (json['participantIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  displayName: json['displayName'] as String,
+  avatarUrl: json['avatarUrl'] as String?,
+  avatarColor: json['avatarColor'] as String?,
+  lastMessagePreview: json['lastMessagePreview'] as String?,
+  lastMessageAt: json['lastMessageAt'] == null
+      ? null
+      : DateTime.parse(json['lastMessageAt'] as String),
+  unreadCount: (json['unreadCount'] as num).toInt(),
+  isPinned: json['isPinned'] as bool,
+  isMuted: json['isMuted'] as bool,
+  isArchived: json['isArchived'] as bool,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
+);
 
-Map<String, dynamic> _$$ChatThreadImplToJson(_$ChatThreadImpl instance) =>
+Map<String, dynamic> _$ChatThreadToJson(_ChatThread instance) =>
     <String, dynamic>{
       'id': instance.id,
       'type': _$ChatThreadTypeEnumMap[instance.type]!,

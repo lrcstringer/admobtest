@@ -6,23 +6,23 @@ part of 'user_engagement_stats.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserEngagementStatsImpl _$$UserEngagementStatsImplFromJson(
-  Map<String, dynamic> json,
-) => _$UserEngagementStatsImpl(
-  userId: json['userId'] as String,
-  currentStreak: (json['currentStreak'] as num).toInt(),
-  longestStreak: (json['longestStreak'] as num).toInt(),
-  streakStartedAt: json['streakStartedAt'] == null
-      ? null
-      : DateTime.parse(json['streakStartedAt'] as String),
-  lastEarnedDate: json['lastEarnedDate'] as String?,
-  totalEngagementsCompleted: (json['totalEngagementsCompleted'] as num).toInt(),
-  totalTokensEarned: (json['totalTokensEarned'] as num).toInt(),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
-);
+_UserEngagementStats _$UserEngagementStatsFromJson(Map<String, dynamic> json) =>
+    _UserEngagementStats(
+      userId: json['userId'] as String,
+      currentStreak: (json['currentStreak'] as num).toInt(),
+      longestStreak: (json['longestStreak'] as num).toInt(),
+      streakStartedAt: json['streakStartedAt'] == null
+          ? null
+          : DateTime.parse(json['streakStartedAt'] as String),
+      lastEarnedDate: json['lastEarnedDate'] as String?,
+      totalEngagementsCompleted: (json['totalEngagementsCompleted'] as num)
+          .toInt(),
+      totalTokensEarned: (json['totalTokensEarned'] as num).toInt(),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
 
-Map<String, dynamic> _$$UserEngagementStatsImplToJson(
-  _$UserEngagementStatsImpl instance,
+Map<String, dynamic> _$UserEngagementStatsToJson(
+  _UserEngagementStats instance,
 ) => <String, dynamic>{
   'userId': instance.userId,
   'currentStreak': instance.currentStreak,

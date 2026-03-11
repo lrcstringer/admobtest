@@ -6,38 +6,37 @@ part of 'user_profile.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
-    _$UserProfileImpl(
-      displayName: json['displayName'] as String,
-      username: json['username'] as String?,
-      avatarUrl: json['avatarUrl'] as String?,
-      avatarColor: json['avatarColor'] as String?,
-      gender: json['gender'] as String?,
-      dateOfBirth: json['dateOfBirth'] == null
-          ? null
-          : DateTime.parse(json['dateOfBirth'] as String),
-      province: json['province'] as String?,
-      city: json['city'] as String?,
-      firstName: json['firstName'] as String?,
-      lastName: json['lastName'] as String?,
-      languages: (json['languages'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      interests: (json['interests'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      selectedClusters: (json['selectedClusters'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      rewardConsent: json['rewardConsent'] as bool? ?? false,
-      privacySettings: json['privacySettings'] == null
-          ? null
-          : PrivacySettings.fromJson(
-              json['privacySettings'] as Map<String, dynamic>,
-            ),
-    );
+_UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => _UserProfile(
+  displayName: json['displayName'] as String,
+  username: json['username'] as String?,
+  avatarUrl: json['avatarUrl'] as String?,
+  avatarColor: json['avatarColor'] as String?,
+  gender: json['gender'] as String?,
+  dateOfBirth: json['dateOfBirth'] == null
+      ? null
+      : DateTime.parse(json['dateOfBirth'] as String),
+  province: json['province'] as String?,
+  city: json['city'] as String?,
+  firstName: json['firstName'] as String?,
+  lastName: json['lastName'] as String?,
+  languages: (json['languages'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  interests: (json['interests'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  selectedClusters: (json['selectedClusters'] as List<dynamic>?)
+      ?.map((e) => e as String)
+      .toList(),
+  rewardConsent: json['rewardConsent'] as bool? ?? false,
+  privacySettings: json['privacySettings'] == null
+      ? null
+      : PrivacySettings.fromJson(
+          json['privacySettings'] as Map<String, dynamic>,
+        ),
+);
 
-Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
+Map<String, dynamic> _$UserProfileToJson(_UserProfile instance) =>
     <String, dynamic>{
       'displayName': instance.displayName,
       'username': instance.username,

@@ -6,7 +6,7 @@ part of 'gift.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GiftImpl _$$GiftImplFromJson(Map<String, dynamic> json) => _$GiftImpl(
+_Gift _$GiftFromJson(Map<String, dynamic> json) => _Gift(
   id: json['id'] as String,
   senderId: json['senderId'] as String,
   senderName: json['senderName'] as String,
@@ -31,27 +31,26 @@ _$GiftImpl _$$GiftImplFromJson(Map<String, dynamic> json) => _$GiftImpl(
   creditTransactionId: json['creditTransactionId'] as String?,
 );
 
-Map<String, dynamic> _$$GiftImplToJson(_$GiftImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'senderId': instance.senderId,
-      'senderName': instance.senderName,
-      'recipientId': instance.recipientId,
-      'recipientName': instance.recipientName,
-      'amount': instance.amount,
-      'conversationId': instance.conversationId,
-      'communityId': instance.communityId,
-      'messageId': instance.messageId,
-      'message': instance.message,
-      'style': _$GiftStyleEnumMap[instance.style]!,
-      'status': _$GiftStatusEnumMap[instance.status]!,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'openedAt': instance.openedAt?.toIso8601String(),
-      'claimedAt': instance.claimedAt?.toIso8601String(),
-      'expiresAt': instance.expiresAt.toIso8601String(),
-      'debitTransactionId': instance.debitTransactionId,
-      'creditTransactionId': instance.creditTransactionId,
-    };
+Map<String, dynamic> _$GiftToJson(_Gift instance) => <String, dynamic>{
+  'id': instance.id,
+  'senderId': instance.senderId,
+  'senderName': instance.senderName,
+  'recipientId': instance.recipientId,
+  'recipientName': instance.recipientName,
+  'amount': instance.amount,
+  'conversationId': instance.conversationId,
+  'communityId': instance.communityId,
+  'messageId': instance.messageId,
+  'message': instance.message,
+  'style': _$GiftStyleEnumMap[instance.style]!,
+  'status': _$GiftStatusEnumMap[instance.status]!,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'openedAt': instance.openedAt?.toIso8601String(),
+  'claimedAt': instance.claimedAt?.toIso8601String(),
+  'expiresAt': instance.expiresAt.toIso8601String(),
+  'debitTransactionId': instance.debitTransactionId,
+  'creditTransactionId': instance.creditTransactionId,
+};
 
 const _$GiftStyleEnumMap = {
   GiftStyle.ndlovukazi: 'ndlovukazi',
@@ -68,15 +67,14 @@ const _$GiftStatusEnumMap = {
   GiftStatus.expired: 'expired',
 };
 
-_$GiftStatsImpl _$$GiftStatsImplFromJson(Map<String, dynamic> json) =>
-    _$GiftStatsImpl(
-      totalSent: (json['totalSent'] as num).toInt(),
-      totalReceived: (json['totalReceived'] as num).toInt(),
-      totalAmountSent: (json['totalAmountSent'] as num).toInt(),
-      totalAmountReceived: (json['totalAmountReceived'] as num).toInt(),
-    );
+_GiftStats _$GiftStatsFromJson(Map<String, dynamic> json) => _GiftStats(
+  totalSent: (json['totalSent'] as num).toInt(),
+  totalReceived: (json['totalReceived'] as num).toInt(),
+  totalAmountSent: (json['totalAmountSent'] as num).toInt(),
+  totalAmountReceived: (json['totalAmountReceived'] as num).toInt(),
+);
 
-Map<String, dynamic> _$$GiftStatsImplToJson(_$GiftStatsImpl instance) =>
+Map<String, dynamic> _$GiftStatsToJson(_GiftStats instance) =>
     <String, dynamic>{
       'totalSent': instance.totalSent,
       'totalReceived': instance.totalReceived,

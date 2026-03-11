@@ -6,20 +6,19 @@ part of 'earn_opportunity.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$BranchRuleImpl _$$BranchRuleImplFromJson(Map<String, dynamic> json) =>
-    _$BranchRuleImpl(
-      optionValue: json['optionValue'] as String,
-      goToQuestionId: json['goToQuestionId'] as String,
-    );
+_BranchRule _$BranchRuleFromJson(Map<String, dynamic> json) => _BranchRule(
+  optionValue: json['optionValue'] as String,
+  goToQuestionId: json['goToQuestionId'] as String,
+);
 
-Map<String, dynamic> _$$BranchRuleImplToJson(_$BranchRuleImpl instance) =>
+Map<String, dynamic> _$BranchRuleToJson(_BranchRule instance) =>
     <String, dynamic>{
       'optionValue': instance.optionValue,
       'goToQuestionId': instance.goToQuestionId,
     };
 
-_$SurveyQuestionImpl _$$SurveyQuestionImplFromJson(Map<String, dynamic> json) =>
-    _$SurveyQuestionImpl(
+_SurveyQuestion _$SurveyQuestionFromJson(Map<String, dynamic> json) =>
+    _SurveyQuestion(
       id: json['id'] as String,
       text: json['text'] as String,
       orderIndex: (json['orderIndex'] as num).toInt(),
@@ -55,33 +54,32 @@ _$SurveyQuestionImpl _$$SurveyQuestionImplFromJson(Map<String, dynamic> json) =>
           const [],
     );
 
-Map<String, dynamic> _$$SurveyQuestionImplToJson(
-  _$SurveyQuestionImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'text': instance.text,
-  'orderIndex': instance.orderIndex,
-  'questionType': _$QuestionTypeEnumMap[instance.questionType]!,
-  'isRequired': instance.isRequired,
-  'options': instance.options,
-  'maxSelections': instance.maxSelections,
-  'textInputCount': instance.textInputCount,
-  'textMaxLength': instance.textMaxLength,
-  'likertScale': instance.likertScale,
-  'likertLowLabel': instance.likertLowLabel,
-  'likertHighLabel': instance.likertHighLabel,
-  'maxStars': instance.maxStars,
-  'tags': instance.tags,
-  'maxTags': instance.maxTags,
-  'sliderMin': instance.sliderMin,
-  'sliderMax': instance.sliderMax,
-  'sliderStep': instance.sliderStep,
-  'sliderMinLabel': instance.sliderMinLabel,
-  'sliderMaxLabel': instance.sliderMaxLabel,
-  'isAttentionCheck': instance.isAttentionCheck,
-  'correctAnswer': instance.correctAnswer,
-  'branchRules': instance.branchRules,
-};
+Map<String, dynamic> _$SurveyQuestionToJson(_SurveyQuestion instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'text': instance.text,
+      'orderIndex': instance.orderIndex,
+      'questionType': _$QuestionTypeEnumMap[instance.questionType]!,
+      'isRequired': instance.isRequired,
+      'options': instance.options,
+      'maxSelections': instance.maxSelections,
+      'textInputCount': instance.textInputCount,
+      'textMaxLength': instance.textMaxLength,
+      'likertScale': instance.likertScale,
+      'likertLowLabel': instance.likertLowLabel,
+      'likertHighLabel': instance.likertHighLabel,
+      'maxStars': instance.maxStars,
+      'tags': instance.tags,
+      'maxTags': instance.maxTags,
+      'sliderMin': instance.sliderMin,
+      'sliderMax': instance.sliderMax,
+      'sliderStep': instance.sliderStep,
+      'sliderMinLabel': instance.sliderMinLabel,
+      'sliderMaxLabel': instance.sliderMaxLabel,
+      'isAttentionCheck': instance.isAttentionCheck,
+      'correctAnswer': instance.correctAnswer,
+      'branchRules': instance.branchRules,
+    };
 
 const _$QuestionTypeEnumMap = {
   QuestionType.singleSelect: 'singleSelect',
@@ -92,9 +90,9 @@ const _$QuestionTypeEnumMap = {
   QuestionType.slider: 'slider',
 };
 
-_$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
+_EarnOpportunity _$EarnOpportunityFromJson(
   Map<String, dynamic> json,
-) => _$EarnOpportunityImpl(
+) => _EarnOpportunity(
   id: json['id'] as String,
   threadId: json['threadId'] as String,
   title: json['title'] as String,
@@ -160,8 +158,8 @@ _$EarnOpportunityImpl _$$EarnOpportunityImplFromJson(
   rewardQuantity: (json['rewardQuantity'] as num?)?.toInt() ?? 1,
 );
 
-Map<String, dynamic> _$$EarnOpportunityImplToJson(
-  _$EarnOpportunityImpl instance,
+Map<String, dynamic> _$EarnOpportunityToJson(
+  _EarnOpportunity instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'threadId': instance.threadId,

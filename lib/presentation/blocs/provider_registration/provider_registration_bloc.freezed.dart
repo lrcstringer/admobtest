@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,1796 +9,918 @@ part of 'provider_registration_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$ProviderRegistrationEvent {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProviderRegistrationEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProviderRegistrationEvent()';
+}
+
+
 }
 
 /// @nodoc
-abstract class $ProviderRegistrationEventCopyWith<$Res> {
-  factory $ProviderRegistrationEventCopyWith(
-    ProviderRegistrationEvent value,
-    $Res Function(ProviderRegistrationEvent) then,
-  ) = _$ProviderRegistrationEventCopyWithImpl<$Res, ProviderRegistrationEvent>;
+class $ProviderRegistrationEventCopyWith<$Res>  {
+$ProviderRegistrationEventCopyWith(ProviderRegistrationEvent _, $Res Function(ProviderRegistrationEvent) __);
 }
 
-/// @nodoc
-class _$ProviderRegistrationEventCopyWithImpl<
-  $Res,
-  $Val extends ProviderRegistrationEvent
->
-    implements $ProviderRegistrationEventCopyWith<$Res> {
-  _$ProviderRegistrationEventCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [ProviderRegistrationEvent].
+extension ProviderRegistrationEventPatterns on ProviderRegistrationEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _UpdateName value)?  updateName,TResult Function( _UpdateBio value)?  updateBio,TResult Function( _UpdateServices value)?  updateServices,TResult Function( _UpdateCategory value)?  updateCategory,TResult Function( _SetPhoto value)?  setPhoto,TResult Function( _NextStep value)?  nextStep,TResult Function( _PreviousStep value)?  previousStep,TResult Function( _Submit value)?  submit,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _UpdateName() when updateName != null:
+return updateName(_that);case _UpdateBio() when updateBio != null:
+return updateBio(_that);case _UpdateServices() when updateServices != null:
+return updateServices(_that);case _UpdateCategory() when updateCategory != null:
+return updateCategory(_that);case _SetPhoto() when setPhoto != null:
+return setPhoto(_that);case _NextStep() when nextStep != null:
+return nextStep(_that);case _PreviousStep() when previousStep != null:
+return previousStep(_that);case _Submit() when submit != null:
+return submit(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _UpdateName value)  updateName,required TResult Function( _UpdateBio value)  updateBio,required TResult Function( _UpdateServices value)  updateServices,required TResult Function( _UpdateCategory value)  updateCategory,required TResult Function( _SetPhoto value)  setPhoto,required TResult Function( _NextStep value)  nextStep,required TResult Function( _PreviousStep value)  previousStep,required TResult Function( _Submit value)  submit,}){
+final _that = this;
+switch (_that) {
+case _UpdateName():
+return updateName(_that);case _UpdateBio():
+return updateBio(_that);case _UpdateServices():
+return updateServices(_that);case _UpdateCategory():
+return updateCategory(_that);case _SetPhoto():
+return setPhoto(_that);case _NextStep():
+return nextStep(_that);case _PreviousStep():
+return previousStep(_that);case _Submit():
+return submit(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _UpdateName value)?  updateName,TResult? Function( _UpdateBio value)?  updateBio,TResult? Function( _UpdateServices value)?  updateServices,TResult? Function( _UpdateCategory value)?  updateCategory,TResult? Function( _SetPhoto value)?  setPhoto,TResult? Function( _NextStep value)?  nextStep,TResult? Function( _PreviousStep value)?  previousStep,TResult? Function( _Submit value)?  submit,}){
+final _that = this;
+switch (_that) {
+case _UpdateName() when updateName != null:
+return updateName(_that);case _UpdateBio() when updateBio != null:
+return updateBio(_that);case _UpdateServices() when updateServices != null:
+return updateServices(_that);case _UpdateCategory() when updateCategory != null:
+return updateCategory(_that);case _SetPhoto() when setPhoto != null:
+return setPhoto(_that);case _NextStep() when nextStep != null:
+return nextStep(_that);case _PreviousStep() when previousStep != null:
+return previousStep(_that);case _Submit() when submit != null:
+return submit(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String name)?  updateName,TResult Function( String bio)?  updateBio,TResult Function( String services)?  updateServices,TResult Function( MarketplaceCategory category)?  updateCategory,TResult Function( String photoPath)?  setPhoto,TResult Function()?  nextStep,TResult Function()?  previousStep,TResult Function()?  submit,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _UpdateName() when updateName != null:
+return updateName(_that.name);case _UpdateBio() when updateBio != null:
+return updateBio(_that.bio);case _UpdateServices() when updateServices != null:
+return updateServices(_that.services);case _UpdateCategory() when updateCategory != null:
+return updateCategory(_that.category);case _SetPhoto() when setPhoto != null:
+return setPhoto(_that.photoPath);case _NextStep() when nextStep != null:
+return nextStep();case _PreviousStep() when previousStep != null:
+return previousStep();case _Submit() when submit != null:
+return submit();case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String name)  updateName,required TResult Function( String bio)  updateBio,required TResult Function( String services)  updateServices,required TResult Function( MarketplaceCategory category)  updateCategory,required TResult Function( String photoPath)  setPhoto,required TResult Function()  nextStep,required TResult Function()  previousStep,required TResult Function()  submit,}) {final _that = this;
+switch (_that) {
+case _UpdateName():
+return updateName(_that.name);case _UpdateBio():
+return updateBio(_that.bio);case _UpdateServices():
+return updateServices(_that.services);case _UpdateCategory():
+return updateCategory(_that.category);case _SetPhoto():
+return setPhoto(_that.photoPath);case _NextStep():
+return nextStep();case _PreviousStep():
+return previousStep();case _Submit():
+return submit();case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String name)?  updateName,TResult? Function( String bio)?  updateBio,TResult? Function( String services)?  updateServices,TResult? Function( MarketplaceCategory category)?  updateCategory,TResult? Function( String photoPath)?  setPhoto,TResult? Function()?  nextStep,TResult? Function()?  previousStep,TResult? Function()?  submit,}) {final _that = this;
+switch (_that) {
+case _UpdateName() when updateName != null:
+return updateName(_that.name);case _UpdateBio() when updateBio != null:
+return updateBio(_that.bio);case _UpdateServices() when updateServices != null:
+return updateServices(_that.services);case _UpdateCategory() when updateCategory != null:
+return updateCategory(_that.category);case _SetPhoto() when setPhoto != null:
+return setPhoto(_that.photoPath);case _NextStep() when nextStep != null:
+return nextStep();case _PreviousStep() when previousStep != null:
+return previousStep();case _Submit() when submit != null:
+return submit();case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$UpdateNameImplCopyWith<$Res> {
-  factory _$$UpdateNameImplCopyWith(
-    _$UpdateNameImpl value,
-    $Res Function(_$UpdateNameImpl) then,
-  ) = __$$UpdateNameImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String name});
-}
-
-/// @nodoc
-class __$$UpdateNameImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$UpdateNameImpl>
-    implements _$$UpdateNameImplCopyWith<$Res> {
-  __$$UpdateNameImplCopyWithImpl(
-    _$UpdateNameImpl _value,
-    $Res Function(_$UpdateNameImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? name = null}) {
-    return _then(
-      _$UpdateNameImpl(
-        null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$UpdateNameImpl implements _UpdateName {
-  const _$UpdateNameImpl(this.name);
-
-  @override
-  final String name;
-
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.updateName(name: $name)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateNameImpl &&
-            (identical(other.name, name) || other.name == name));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, name);
-
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateNameImplCopyWith<_$UpdateNameImpl> get copyWith =>
-      __$$UpdateNameImplCopyWithImpl<_$UpdateNameImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return updateName(name);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return updateName?.call(name);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (updateName != null) {
-      return updateName(name);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return updateName(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return updateName?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (updateName != null) {
-      return updateName(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UpdateName implements ProviderRegistrationEvent {
-  const factory _UpdateName(final String name) = _$UpdateNameImpl;
-
-  String get name;
-
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateNameImplCopyWith<_$UpdateNameImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$UpdateBioImplCopyWith<$Res> {
-  factory _$$UpdateBioImplCopyWith(
-    _$UpdateBioImpl value,
-    $Res Function(_$UpdateBioImpl) then,
-  ) = __$$UpdateBioImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String bio});
-}
-
-/// @nodoc
-class __$$UpdateBioImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$UpdateBioImpl>
-    implements _$$UpdateBioImplCopyWith<$Res> {
-  __$$UpdateBioImplCopyWithImpl(
-    _$UpdateBioImpl _value,
-    $Res Function(_$UpdateBioImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? bio = null}) {
-    return _then(
-      _$UpdateBioImpl(
-        null == bio
-            ? _value.bio
-            : bio // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$UpdateBioImpl implements _UpdateBio {
-  const _$UpdateBioImpl(this.bio);
 
-  @override
-  final String bio;
+class _UpdateName implements ProviderRegistrationEvent {
+  const _UpdateName(this.name);
+  
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.updateBio(bio: $bio)';
-  }
+ final  String name;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateBioImpl &&
-            (identical(other.bio, bio) || other.bio == bio));
-  }
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateNameCopyWith<_UpdateName> get copyWith => __$UpdateNameCopyWithImpl<_UpdateName>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, bio);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateBioImplCopyWith<_$UpdateBioImpl> get copyWith =>
-      __$$UpdateBioImplCopyWithImpl<_$UpdateBioImpl>(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return updateBio(bio);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return updateBio?.call(bio);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (updateBio != null) {
-      return updateBio(bio);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return updateBio(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return updateBio?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (updateBio != null) {
-      return updateBio(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateName&&(identical(other.name, name) || other.name == name));
 }
 
-abstract class _UpdateBio implements ProviderRegistrationEvent {
-  const factory _UpdateBio(final String bio) = _$UpdateBioImpl;
 
-  String get bio;
+@override
+int get hashCode => Object.hash(runtimeType,name);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateBioImplCopyWith<_$UpdateBioImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.updateName(name: $name)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$UpdateServicesImplCopyWith<$Res> {
-  factory _$$UpdateServicesImplCopyWith(
-    _$UpdateServicesImpl value,
-    $Res Function(_$UpdateServicesImpl) then,
-  ) = __$$UpdateServicesImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String services});
+abstract mixin class _$UpdateNameCopyWith<$Res> implements $ProviderRegistrationEventCopyWith<$Res> {
+  factory _$UpdateNameCopyWith(_UpdateName value, $Res Function(_UpdateName) _then) = __$UpdateNameCopyWithImpl;
+@useResult
+$Res call({
+ String name
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateNameCopyWithImpl<$Res>
+    implements _$UpdateNameCopyWith<$Res> {
+  __$UpdateNameCopyWithImpl(this._self, this._then);
+
+  final _UpdateName _self;
+  final $Res Function(_UpdateName) _then;
+
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? name = null,}) {
+  return _then(_UpdateName(
+null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$UpdateServicesImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$UpdateServicesImpl>
-    implements _$$UpdateServicesImplCopyWith<$Res> {
-  __$$UpdateServicesImplCopyWithImpl(
-    _$UpdateServicesImpl _value,
-    $Res Function(_$UpdateServicesImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? services = null}) {
-    return _then(
-      _$UpdateServicesImpl(
-        null == services
-            ? _value.services
-            : services // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$UpdateServicesImpl implements _UpdateServices {
-  const _$UpdateServicesImpl(this.services);
 
-  @override
-  final String services;
+class _UpdateBio implements ProviderRegistrationEvent {
+  const _UpdateBio(this.bio);
+  
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.updateServices(services: $services)';
-  }
+ final  String bio;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateServicesImpl &&
-            (identical(other.services, services) ||
-                other.services == services));
-  }
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateBioCopyWith<_UpdateBio> get copyWith => __$UpdateBioCopyWithImpl<_UpdateBio>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, services);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateServicesImplCopyWith<_$UpdateServicesImpl> get copyWith =>
-      __$$UpdateServicesImplCopyWithImpl<_$UpdateServicesImpl>(
-        this,
-        _$identity,
-      );
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return updateServices(services);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return updateServices?.call(services);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (updateServices != null) {
-      return updateServices(services);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return updateServices(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return updateServices?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (updateServices != null) {
-      return updateServices(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateBio&&(identical(other.bio, bio) || other.bio == bio));
 }
 
-abstract class _UpdateServices implements ProviderRegistrationEvent {
-  const factory _UpdateServices(final String services) = _$UpdateServicesImpl;
 
-  String get services;
+@override
+int get hashCode => Object.hash(runtimeType,bio);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateServicesImplCopyWith<_$UpdateServicesImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.updateBio(bio: $bio)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$UpdateCategoryImplCopyWith<$Res> {
-  factory _$$UpdateCategoryImplCopyWith(
-    _$UpdateCategoryImpl value,
-    $Res Function(_$UpdateCategoryImpl) then,
-  ) = __$$UpdateCategoryImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({MarketplaceCategory category});
+abstract mixin class _$UpdateBioCopyWith<$Res> implements $ProviderRegistrationEventCopyWith<$Res> {
+  factory _$UpdateBioCopyWith(_UpdateBio value, $Res Function(_UpdateBio) _then) = __$UpdateBioCopyWithImpl;
+@useResult
+$Res call({
+ String bio
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateBioCopyWithImpl<$Res>
+    implements _$UpdateBioCopyWith<$Res> {
+  __$UpdateBioCopyWithImpl(this._self, this._then);
+
+  final _UpdateBio _self;
+  final $Res Function(_UpdateBio) _then;
+
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? bio = null,}) {
+  return _then(_UpdateBio(
+null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$UpdateCategoryImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$UpdateCategoryImpl>
-    implements _$$UpdateCategoryImplCopyWith<$Res> {
-  __$$UpdateCategoryImplCopyWithImpl(
-    _$UpdateCategoryImpl _value,
-    $Res Function(_$UpdateCategoryImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? category = null}) {
-    return _then(
-      _$UpdateCategoryImpl(
-        null == category
-            ? _value.category
-            : category // ignore: cast_nullable_to_non_nullable
-                  as MarketplaceCategory,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$UpdateCategoryImpl implements _UpdateCategory {
-  const _$UpdateCategoryImpl(this.category);
 
-  @override
-  final MarketplaceCategory category;
+class _UpdateServices implements ProviderRegistrationEvent {
+  const _UpdateServices(this.services);
+  
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.updateCategory(category: $category)';
-  }
+ final  String services;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateCategoryImpl &&
-            (identical(other.category, category) ||
-                other.category == category));
-  }
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateServicesCopyWith<_UpdateServices> get copyWith => __$UpdateServicesCopyWithImpl<_UpdateServices>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, category);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateCategoryImplCopyWith<_$UpdateCategoryImpl> get copyWith =>
-      __$$UpdateCategoryImplCopyWithImpl<_$UpdateCategoryImpl>(
-        this,
-        _$identity,
-      );
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return updateCategory(category);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return updateCategory?.call(category);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (updateCategory != null) {
-      return updateCategory(category);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return updateCategory(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return updateCategory?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (updateCategory != null) {
-      return updateCategory(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateServices&&(identical(other.services, services) || other.services == services));
 }
 
-abstract class _UpdateCategory implements ProviderRegistrationEvent {
-  const factory _UpdateCategory(final MarketplaceCategory category) =
-      _$UpdateCategoryImpl;
 
-  MarketplaceCategory get category;
+@override
+int get hashCode => Object.hash(runtimeType,services);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateCategoryImplCopyWith<_$UpdateCategoryImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.updateServices(services: $services)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$SetPhotoImplCopyWith<$Res> {
-  factory _$$SetPhotoImplCopyWith(
-    _$SetPhotoImpl value,
-    $Res Function(_$SetPhotoImpl) then,
-  ) = __$$SetPhotoImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String photoPath});
+abstract mixin class _$UpdateServicesCopyWith<$Res> implements $ProviderRegistrationEventCopyWith<$Res> {
+  factory _$UpdateServicesCopyWith(_UpdateServices value, $Res Function(_UpdateServices) _then) = __$UpdateServicesCopyWithImpl;
+@useResult
+$Res call({
+ String services
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateServicesCopyWithImpl<$Res>
+    implements _$UpdateServicesCopyWith<$Res> {
+  __$UpdateServicesCopyWithImpl(this._self, this._then);
+
+  final _UpdateServices _self;
+  final $Res Function(_UpdateServices) _then;
+
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? services = null,}) {
+  return _then(_UpdateServices(
+null == services ? _self.services : services // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$SetPhotoImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$SetPhotoImpl>
-    implements _$$SetPhotoImplCopyWith<$Res> {
-  __$$SetPhotoImplCopyWithImpl(
-    _$SetPhotoImpl _value,
-    $Res Function(_$SetPhotoImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? photoPath = null}) {
-    return _then(
-      _$SetPhotoImpl(
-        null == photoPath
-            ? _value.photoPath
-            : photoPath // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$SetPhotoImpl implements _SetPhoto {
-  const _$SetPhotoImpl(this.photoPath);
 
-  @override
-  final String photoPath;
+class _UpdateCategory implements ProviderRegistrationEvent {
+  const _UpdateCategory(this.category);
+  
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.setPhoto(photoPath: $photoPath)';
-  }
+ final  MarketplaceCategory category;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SetPhotoImpl &&
-            (identical(other.photoPath, photoPath) ||
-                other.photoPath == photoPath));
-  }
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateCategoryCopyWith<_UpdateCategory> get copyWith => __$UpdateCategoryCopyWithImpl<_UpdateCategory>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, photoPath);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SetPhotoImplCopyWith<_$SetPhotoImpl> get copyWith =>
-      __$$SetPhotoImplCopyWithImpl<_$SetPhotoImpl>(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return setPhoto(photoPath);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return setPhoto?.call(photoPath);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (setPhoto != null) {
-      return setPhoto(photoPath);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return setPhoto(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return setPhoto?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (setPhoto != null) {
-      return setPhoto(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateCategory&&(identical(other.category, category) || other.category == category));
 }
 
-abstract class _SetPhoto implements ProviderRegistrationEvent {
-  const factory _SetPhoto(final String photoPath) = _$SetPhotoImpl;
 
-  String get photoPath;
+@override
+int get hashCode => Object.hash(runtimeType,category);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SetPhotoImplCopyWith<_$SetPhotoImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.updateCategory(category: $category)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$NextStepImplCopyWith<$Res> {
-  factory _$$NextStepImplCopyWith(
-    _$NextStepImpl value,
-    $Res Function(_$NextStepImpl) then,
-  ) = __$$NextStepImplCopyWithImpl<$Res>;
+abstract mixin class _$UpdateCategoryCopyWith<$Res> implements $ProviderRegistrationEventCopyWith<$Res> {
+  factory _$UpdateCategoryCopyWith(_UpdateCategory value, $Res Function(_UpdateCategory) _then) = __$UpdateCategoryCopyWithImpl;
+@useResult
+$Res call({
+ MarketplaceCategory category
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateCategoryCopyWithImpl<$Res>
+    implements _$UpdateCategoryCopyWith<$Res> {
+  __$UpdateCategoryCopyWithImpl(this._self, this._then);
+
+  final _UpdateCategory _self;
+  final $Res Function(_UpdateCategory) _then;
+
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? category = null,}) {
+  return _then(_UpdateCategory(
+null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as MarketplaceCategory,
+  ));
 }
 
-/// @nodoc
-class __$$NextStepImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$NextStepImpl>
-    implements _$$NextStepImplCopyWith<$Res> {
-  __$$NextStepImplCopyWithImpl(
-    _$NextStepImpl _value,
-    $Res Function(_$NextStepImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class _$NextStepImpl implements _NextStep {
-  const _$NextStepImpl();
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.nextStep()';
-  }
+class _SetPhoto implements ProviderRegistrationEvent {
+  const _SetPhoto(this.photoPath);
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$NextStepImpl);
-  }
+ final  String photoPath;
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SetPhotoCopyWith<_SetPhoto> get copyWith => __$SetPhotoCopyWithImpl<_SetPhoto>(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return nextStep();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return nextStep?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (nextStep != null) {
-      return nextStep();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return nextStep(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return nextStep?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (nextStep != null) {
-      return nextStep(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetPhoto&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath));
 }
 
-abstract class _NextStep implements ProviderRegistrationEvent {
-  const factory _NextStep() = _$NextStepImpl;
+
+@override
+int get hashCode => Object.hash(runtimeType,photoPath);
+
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.setPhoto(photoPath: $photoPath)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$PreviousStepImplCopyWith<$Res> {
-  factory _$$PreviousStepImplCopyWith(
-    _$PreviousStepImpl value,
-    $Res Function(_$PreviousStepImpl) then,
-  ) = __$$PreviousStepImplCopyWithImpl<$Res>;
+abstract mixin class _$SetPhotoCopyWith<$Res> implements $ProviderRegistrationEventCopyWith<$Res> {
+  factory _$SetPhotoCopyWith(_SetPhoto value, $Res Function(_SetPhoto) _then) = __$SetPhotoCopyWithImpl;
+@useResult
+$Res call({
+ String photoPath
+});
+
+
+
+
+}
+/// @nodoc
+class __$SetPhotoCopyWithImpl<$Res>
+    implements _$SetPhotoCopyWith<$Res> {
+  __$SetPhotoCopyWithImpl(this._self, this._then);
+
+  final _SetPhoto _self;
+  final $Res Function(_SetPhoto) _then;
+
+/// Create a copy of ProviderRegistrationEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? photoPath = null,}) {
+  return _then(_SetPhoto(
+null == photoPath ? _self.photoPath : photoPath // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$PreviousStepImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$PreviousStepImpl>
-    implements _$$PreviousStepImplCopyWith<$Res> {
-  __$$PreviousStepImplCopyWithImpl(
-    _$PreviousStepImpl _value,
-    $Res Function(_$PreviousStepImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class _$PreviousStepImpl implements _PreviousStep {
-  const _$PreviousStepImpl();
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.previousStep()';
-  }
+class _NextStep implements ProviderRegistrationEvent {
+  const _NextStep();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$PreviousStepImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return previousStep();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return previousStep?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (previousStep != null) {
-      return previousStep();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return previousStep(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return previousStep?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (previousStep != null) {
-      return previousStep(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NextStep);
 }
 
-abstract class _PreviousStep implements ProviderRegistrationEvent {
-  const factory _PreviousStep() = _$PreviousStepImpl;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.nextStep()';
 }
 
-/// @nodoc
-abstract class _$$SubmitImplCopyWith<$Res> {
-  factory _$$SubmitImplCopyWith(
-    _$SubmitImpl value,
-    $Res Function(_$SubmitImpl) then,
-  ) = __$$SubmitImplCopyWithImpl<$Res>;
+
 }
 
-/// @nodoc
-class __$$SubmitImplCopyWithImpl<$Res>
-    extends _$ProviderRegistrationEventCopyWithImpl<$Res, _$SubmitImpl>
-    implements _$$SubmitImplCopyWith<$Res> {
-  __$$SubmitImplCopyWithImpl(
-    _$SubmitImpl _value,
-    $Res Function(_$SubmitImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
+
 
 /// @nodoc
 
-class _$SubmitImpl implements _Submit {
-  const _$SubmitImpl();
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationEvent.submit()';
-  }
+class _PreviousStep implements ProviderRegistrationEvent {
+  const _PreviousStep();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$SubmitImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String name) updateName,
-    required TResult Function(String bio) updateBio,
-    required TResult Function(String services) updateServices,
-    required TResult Function(MarketplaceCategory category) updateCategory,
-    required TResult Function(String photoPath) setPhoto,
-    required TResult Function() nextStep,
-    required TResult Function() previousStep,
-    required TResult Function() submit,
-  }) {
-    return submit();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String name)? updateName,
-    TResult? Function(String bio)? updateBio,
-    TResult? Function(String services)? updateServices,
-    TResult? Function(MarketplaceCategory category)? updateCategory,
-    TResult? Function(String photoPath)? setPhoto,
-    TResult? Function()? nextStep,
-    TResult? Function()? previousStep,
-    TResult? Function()? submit,
-  }) {
-    return submit?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String name)? updateName,
-    TResult Function(String bio)? updateBio,
-    TResult Function(String services)? updateServices,
-    TResult Function(MarketplaceCategory category)? updateCategory,
-    TResult Function(String photoPath)? setPhoto,
-    TResult Function()? nextStep,
-    TResult Function()? previousStep,
-    TResult Function()? submit,
-    required TResult orElse(),
-  }) {
-    if (submit != null) {
-      return submit();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_UpdateName value) updateName,
-    required TResult Function(_UpdateBio value) updateBio,
-    required TResult Function(_UpdateServices value) updateServices,
-    required TResult Function(_UpdateCategory value) updateCategory,
-    required TResult Function(_SetPhoto value) setPhoto,
-    required TResult Function(_NextStep value) nextStep,
-    required TResult Function(_PreviousStep value) previousStep,
-    required TResult Function(_Submit value) submit,
-  }) {
-    return submit(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_UpdateName value)? updateName,
-    TResult? Function(_UpdateBio value)? updateBio,
-    TResult? Function(_UpdateServices value)? updateServices,
-    TResult? Function(_UpdateCategory value)? updateCategory,
-    TResult? Function(_SetPhoto value)? setPhoto,
-    TResult? Function(_NextStep value)? nextStep,
-    TResult? Function(_PreviousStep value)? previousStep,
-    TResult? Function(_Submit value)? submit,
-  }) {
-    return submit?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_UpdateName value)? updateName,
-    TResult Function(_UpdateBio value)? updateBio,
-    TResult Function(_UpdateServices value)? updateServices,
-    TResult Function(_UpdateCategory value)? updateCategory,
-    TResult Function(_SetPhoto value)? setPhoto,
-    TResult Function(_NextStep value)? nextStep,
-    TResult Function(_PreviousStep value)? previousStep,
-    TResult Function(_Submit value)? submit,
-    required TResult orElse(),
-  }) {
-    if (submit != null) {
-      return submit(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreviousStep);
 }
 
-abstract class _Submit implements ProviderRegistrationEvent {
-  const factory _Submit() = _$SubmitImpl;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.previousStep()';
 }
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Submit implements ProviderRegistrationEvent {
+  const _Submit();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Submit);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProviderRegistrationEvent.submit()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 mixin _$ProviderRegistrationState {
-  int get currentStep => throw _privateConstructorUsedError;
-  String get displayName => throw _privateConstructorUsedError;
-  String get bio => throw _privateConstructorUsedError;
-  String get servicesDescription => throw _privateConstructorUsedError;
-  MarketplaceCategory? get selectedCategory =>
-      throw _privateConstructorUsedError;
-  String? get photoPath => throw _privateConstructorUsedError;
-  bool get isSubmitting => throw _privateConstructorUsedError;
-  bool get isComplete => throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
-  String? get successMessage => throw _privateConstructorUsedError;
 
-  /// Create a copy of ProviderRegistrationState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProviderRegistrationStateCopyWith<ProviderRegistrationState> get copyWith =>
-      throw _privateConstructorUsedError;
+ int get currentStep; String get displayName; String get bio; String get servicesDescription; MarketplaceCategory? get selectedCategory; String? get photoPath; bool get isSubmitting; bool get isComplete; String? get errorMessage; String? get successMessage;
+/// Create a copy of ProviderRegistrationState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProviderRegistrationStateCopyWith<ProviderRegistrationState> get copyWith => _$ProviderRegistrationStateCopyWithImpl<ProviderRegistrationState>(this as ProviderRegistrationState, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProviderRegistrationState&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.servicesDescription, servicesDescription) || other.servicesDescription == servicesDescription)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.isComplete, isComplete) || other.isComplete == isComplete)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,currentStep,displayName,bio,servicesDescription,selectedCategory,photoPath,isSubmitting,isComplete,errorMessage,successMessage);
+
+@override
+String toString() {
+  return 'ProviderRegistrationState(currentStep: $currentStep, displayName: $displayName, bio: $bio, servicesDescription: $servicesDescription, selectedCategory: $selectedCategory, photoPath: $photoPath, isSubmitting: $isSubmitting, isComplete: $isComplete, errorMessage: $errorMessage, successMessage: $successMessage)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $ProviderRegistrationStateCopyWith<$Res> {
-  factory $ProviderRegistrationStateCopyWith(
-    ProviderRegistrationState value,
-    $Res Function(ProviderRegistrationState) then,
-  ) = _$ProviderRegistrationStateCopyWithImpl<$Res, ProviderRegistrationState>;
-  @useResult
-  $Res call({
-    int currentStep,
-    String displayName,
-    String bio,
-    String servicesDescription,
-    MarketplaceCategory? selectedCategory,
-    String? photoPath,
-    bool isSubmitting,
-    bool isComplete,
-    String? errorMessage,
-    String? successMessage,
-  });
-}
+abstract mixin class $ProviderRegistrationStateCopyWith<$Res>  {
+  factory $ProviderRegistrationStateCopyWith(ProviderRegistrationState value, $Res Function(ProviderRegistrationState) _then) = _$ProviderRegistrationStateCopyWithImpl;
+@useResult
+$Res call({
+ int currentStep, String displayName, String bio, String servicesDescription, MarketplaceCategory? selectedCategory, String? photoPath, bool isSubmitting, bool isComplete, String? errorMessage, String? successMessage
+});
 
+
+
+
+}
 /// @nodoc
-class _$ProviderRegistrationStateCopyWithImpl<
-  $Res,
-  $Val extends ProviderRegistrationState
->
+class _$ProviderRegistrationStateCopyWithImpl<$Res>
     implements $ProviderRegistrationStateCopyWith<$Res> {
-  _$ProviderRegistrationStateCopyWithImpl(this._value, this._then);
+  _$ProviderRegistrationStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final ProviderRegistrationState _self;
+  final $Res Function(ProviderRegistrationState) _then;
 
-  /// Create a copy of ProviderRegistrationState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? currentStep = null,
-    Object? displayName = null,
-    Object? bio = null,
-    Object? servicesDescription = null,
-    Object? selectedCategory = freezed,
-    Object? photoPath = freezed,
-    Object? isSubmitting = null,
-    Object? isComplete = null,
-    Object? errorMessage = freezed,
-    Object? successMessage = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            currentStep: null == currentStep
-                ? _value.currentStep
-                : currentStep // ignore: cast_nullable_to_non_nullable
-                      as int,
-            displayName: null == displayName
-                ? _value.displayName
-                : displayName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            bio: null == bio
-                ? _value.bio
-                : bio // ignore: cast_nullable_to_non_nullable
-                      as String,
-            servicesDescription: null == servicesDescription
-                ? _value.servicesDescription
-                : servicesDescription // ignore: cast_nullable_to_non_nullable
-                      as String,
-            selectedCategory: freezed == selectedCategory
-                ? _value.selectedCategory
-                : selectedCategory // ignore: cast_nullable_to_non_nullable
-                      as MarketplaceCategory?,
-            photoPath: freezed == photoPath
-                ? _value.photoPath
-                : photoPath // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isSubmitting: null == isSubmitting
-                ? _value.isSubmitting
-                : isSubmitting // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isComplete: null == isComplete
-                ? _value.isComplete
-                : isComplete // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            successMessage: freezed == successMessage
-                ? _value.successMessage
-                : successMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of ProviderRegistrationState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? currentStep = null,Object? displayName = null,Object? bio = null,Object? servicesDescription = null,Object? selectedCategory = freezed,Object? photoPath = freezed,Object? isSubmitting = null,Object? isComplete = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+  return _then(_self.copyWith(
+currentStep: null == currentStep ? _self.currentStep : currentStep // ignore: cast_nullable_to_non_nullable
+as int,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String,servicesDescription: null == servicesDescription ? _self.servicesDescription : servicesDescription // ignore: cast_nullable_to_non_nullable
+as String,selectedCategory: freezed == selectedCategory ? _self.selectedCategory : selectedCategory // ignore: cast_nullable_to_non_nullable
+as MarketplaceCategory?,photoPath: freezed == photoPath ? _self.photoPath : photoPath // ignore: cast_nullable_to_non_nullable
+as String?,isSubmitting: null == isSubmitting ? _self.isSubmitting : isSubmitting // ignore: cast_nullable_to_non_nullable
+as bool,isComplete: null == isComplete ? _self.isComplete : isComplete // ignore: cast_nullable_to_non_nullable
+as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$ProviderRegistrationStateImplCopyWith<$Res>
-    implements $ProviderRegistrationStateCopyWith<$Res> {
-  factory _$$ProviderRegistrationStateImplCopyWith(
-    _$ProviderRegistrationStateImpl value,
-    $Res Function(_$ProviderRegistrationStateImpl) then,
-  ) = __$$ProviderRegistrationStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    int currentStep,
-    String displayName,
-    String bio,
-    String servicesDescription,
-    MarketplaceCategory? selectedCategory,
-    String? photoPath,
-    bool isSubmitting,
-    bool isComplete,
-    String? errorMessage,
-    String? successMessage,
-  });
 }
 
-/// @nodoc
-class __$$ProviderRegistrationStateImplCopyWithImpl<$Res>
-    extends
-        _$ProviderRegistrationStateCopyWithImpl<
-          $Res,
-          _$ProviderRegistrationStateImpl
-        >
-    implements _$$ProviderRegistrationStateImplCopyWith<$Res> {
-  __$$ProviderRegistrationStateImplCopyWithImpl(
-    _$ProviderRegistrationStateImpl _value,
-    $Res Function(_$ProviderRegistrationStateImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of ProviderRegistrationState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? currentStep = null,
-    Object? displayName = null,
-    Object? bio = null,
-    Object? servicesDescription = null,
-    Object? selectedCategory = freezed,
-    Object? photoPath = freezed,
-    Object? isSubmitting = null,
-    Object? isComplete = null,
-    Object? errorMessage = freezed,
-    Object? successMessage = freezed,
-  }) {
-    return _then(
-      _$ProviderRegistrationStateImpl(
-        currentStep: null == currentStep
-            ? _value.currentStep
-            : currentStep // ignore: cast_nullable_to_non_nullable
-                  as int,
-        displayName: null == displayName
-            ? _value.displayName
-            : displayName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        bio: null == bio
-            ? _value.bio
-            : bio // ignore: cast_nullable_to_non_nullable
-                  as String,
-        servicesDescription: null == servicesDescription
-            ? _value.servicesDescription
-            : servicesDescription // ignore: cast_nullable_to_non_nullable
-                  as String,
-        selectedCategory: freezed == selectedCategory
-            ? _value.selectedCategory
-            : selectedCategory // ignore: cast_nullable_to_non_nullable
-                  as MarketplaceCategory?,
-        photoPath: freezed == photoPath
-            ? _value.photoPath
-            : photoPath // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isSubmitting: null == isSubmitting
-            ? _value.isSubmitting
-            : isSubmitting // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isComplete: null == isComplete
-            ? _value.isComplete
-            : isComplete // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        successMessage: freezed == successMessage
-            ? _value.successMessage
-            : successMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [ProviderRegistrationState].
+extension ProviderRegistrationStatePatterns on ProviderRegistrationState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProviderRegistrationState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ProviderRegistrationState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProviderRegistrationState value)  $default,){
+final _that = this;
+switch (_that) {
+case _ProviderRegistrationState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProviderRegistrationState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ProviderRegistrationState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int currentStep,  String displayName,  String bio,  String servicesDescription,  MarketplaceCategory? selectedCategory,  String? photoPath,  bool isSubmitting,  bool isComplete,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ProviderRegistrationState() when $default != null:
+return $default(_that.currentStep,_that.displayName,_that.bio,_that.servicesDescription,_that.selectedCategory,_that.photoPath,_that.isSubmitting,_that.isComplete,_that.errorMessage,_that.successMessage);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int currentStep,  String displayName,  String bio,  String servicesDescription,  MarketplaceCategory? selectedCategory,  String? photoPath,  bool isSubmitting,  bool isComplete,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
+switch (_that) {
+case _ProviderRegistrationState():
+return $default(_that.currentStep,_that.displayName,_that.bio,_that.servicesDescription,_that.selectedCategory,_that.photoPath,_that.isSubmitting,_that.isComplete,_that.errorMessage,_that.successMessage);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int currentStep,  String displayName,  String bio,  String servicesDescription,  MarketplaceCategory? selectedCategory,  String? photoPath,  bool isSubmitting,  bool isComplete,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
+switch (_that) {
+case _ProviderRegistrationState() when $default != null:
+return $default(_that.currentStep,_that.displayName,_that.bio,_that.servicesDescription,_that.selectedCategory,_that.photoPath,_that.isSubmitting,_that.isComplete,_that.errorMessage,_that.successMessage);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 
-class _$ProviderRegistrationStateImpl implements _ProviderRegistrationState {
-  const _$ProviderRegistrationStateImpl({
-    this.currentStep = 0,
-    this.displayName = '',
-    this.bio = '',
-    this.servicesDescription = '',
-    this.selectedCategory,
-    this.photoPath,
-    this.isSubmitting = false,
-    this.isComplete = false,
-    this.errorMessage,
-    this.successMessage,
-  });
 
-  @override
-  @JsonKey()
-  final int currentStep;
-  @override
-  @JsonKey()
-  final String displayName;
-  @override
-  @JsonKey()
-  final String bio;
-  @override
-  @JsonKey()
-  final String servicesDescription;
-  @override
-  final MarketplaceCategory? selectedCategory;
-  @override
-  final String? photoPath;
-  @override
-  @JsonKey()
-  final bool isSubmitting;
-  @override
-  @JsonKey()
-  final bool isComplete;
-  @override
-  final String? errorMessage;
-  @override
-  final String? successMessage;
+class _ProviderRegistrationState implements ProviderRegistrationState {
+  const _ProviderRegistrationState({this.currentStep = 0, this.displayName = '', this.bio = '', this.servicesDescription = '', this.selectedCategory, this.photoPath, this.isSubmitting = false, this.isComplete = false, this.errorMessage, this.successMessage});
+  
 
-  @override
-  String toString() {
-    return 'ProviderRegistrationState(currentStep: $currentStep, displayName: $displayName, bio: $bio, servicesDescription: $servicesDescription, selectedCategory: $selectedCategory, photoPath: $photoPath, isSubmitting: $isSubmitting, isComplete: $isComplete, errorMessage: $errorMessage, successMessage: $successMessage)';
-  }
+@override@JsonKey() final  int currentStep;
+@override@JsonKey() final  String displayName;
+@override@JsonKey() final  String bio;
+@override@JsonKey() final  String servicesDescription;
+@override final  MarketplaceCategory? selectedCategory;
+@override final  String? photoPath;
+@override@JsonKey() final  bool isSubmitting;
+@override@JsonKey() final  bool isComplete;
+@override final  String? errorMessage;
+@override final  String? successMessage;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ProviderRegistrationStateImpl &&
-            (identical(other.currentStep, currentStep) ||
-                other.currentStep == currentStep) &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName) &&
-            (identical(other.bio, bio) || other.bio == bio) &&
-            (identical(other.servicesDescription, servicesDescription) ||
-                other.servicesDescription == servicesDescription) &&
-            (identical(other.selectedCategory, selectedCategory) ||
-                other.selectedCategory == selectedCategory) &&
-            (identical(other.photoPath, photoPath) ||
-                other.photoPath == photoPath) &&
-            (identical(other.isSubmitting, isSubmitting) ||
-                other.isSubmitting == isSubmitting) &&
-            (identical(other.isComplete, isComplete) ||
-                other.isComplete == isComplete) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage) &&
-            (identical(other.successMessage, successMessage) ||
-                other.successMessage == successMessage));
-  }
+/// Create a copy of ProviderRegistrationState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProviderRegistrationStateCopyWith<_ProviderRegistrationState> get copyWith => __$ProviderRegistrationStateCopyWithImpl<_ProviderRegistrationState>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    currentStep,
-    displayName,
-    bio,
-    servicesDescription,
-    selectedCategory,
-    photoPath,
-    isSubmitting,
-    isComplete,
-    errorMessage,
-    successMessage,
-  );
 
-  /// Create a copy of ProviderRegistrationState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ProviderRegistrationStateImplCopyWith<_$ProviderRegistrationStateImpl>
-  get copyWith =>
-      __$$ProviderRegistrationStateImplCopyWithImpl<
-        _$ProviderRegistrationStateImpl
-      >(this, _$identity);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProviderRegistrationState&&(identical(other.currentStep, currentStep) || other.currentStep == currentStep)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.servicesDescription, servicesDescription) || other.servicesDescription == servicesDescription)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.photoPath, photoPath) || other.photoPath == photoPath)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.isComplete, isComplete) || other.isComplete == isComplete)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
-abstract class _ProviderRegistrationState implements ProviderRegistrationState {
-  const factory _ProviderRegistrationState({
-    final int currentStep,
-    final String displayName,
-    final String bio,
-    final String servicesDescription,
-    final MarketplaceCategory? selectedCategory,
-    final String? photoPath,
-    final bool isSubmitting,
-    final bool isComplete,
-    final String? errorMessage,
-    final String? successMessage,
-  }) = _$ProviderRegistrationStateImpl;
 
-  @override
-  int get currentStep;
-  @override
-  String get displayName;
-  @override
-  String get bio;
-  @override
-  String get servicesDescription;
-  @override
-  MarketplaceCategory? get selectedCategory;
-  @override
-  String? get photoPath;
-  @override
-  bool get isSubmitting;
-  @override
-  bool get isComplete;
-  @override
-  String? get errorMessage;
-  @override
-  String? get successMessage;
+@override
+int get hashCode => Object.hash(runtimeType,currentStep,displayName,bio,servicesDescription,selectedCategory,photoPath,isSubmitting,isComplete,errorMessage,successMessage);
 
-  /// Create a copy of ProviderRegistrationState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ProviderRegistrationStateImplCopyWith<_$ProviderRegistrationStateImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'ProviderRegistrationState(currentStep: $currentStep, displayName: $displayName, bio: $bio, servicesDescription: $servicesDescription, selectedCategory: $selectedCategory, photoPath: $photoPath, isSubmitting: $isSubmitting, isComplete: $isComplete, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProviderRegistrationStateCopyWith<$Res> implements $ProviderRegistrationStateCopyWith<$Res> {
+  factory _$ProviderRegistrationStateCopyWith(_ProviderRegistrationState value, $Res Function(_ProviderRegistrationState) _then) = __$ProviderRegistrationStateCopyWithImpl;
+@override @useResult
+$Res call({
+ int currentStep, String displayName, String bio, String servicesDescription, MarketplaceCategory? selectedCategory, String? photoPath, bool isSubmitting, bool isComplete, String? errorMessage, String? successMessage
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProviderRegistrationStateCopyWithImpl<$Res>
+    implements _$ProviderRegistrationStateCopyWith<$Res> {
+  __$ProviderRegistrationStateCopyWithImpl(this._self, this._then);
+
+  final _ProviderRegistrationState _self;
+  final $Res Function(_ProviderRegistrationState) _then;
+
+/// Create a copy of ProviderRegistrationState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? currentStep = null,Object? displayName = null,Object? bio = null,Object? servicesDescription = null,Object? selectedCategory = freezed,Object? photoPath = freezed,Object? isSubmitting = null,Object? isComplete = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+  return _then(_ProviderRegistrationState(
+currentStep: null == currentStep ? _self.currentStep : currentStep // ignore: cast_nullable_to_non_nullable
+as int,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String,bio: null == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String,servicesDescription: null == servicesDescription ? _self.servicesDescription : servicesDescription // ignore: cast_nullable_to_non_nullable
+as String,selectedCategory: freezed == selectedCategory ? _self.selectedCategory : selectedCategory // ignore: cast_nullable_to_non_nullable
+as MarketplaceCategory?,photoPath: freezed == photoPath ? _self.photoPath : photoPath // ignore: cast_nullable_to_non_nullable
+as String?,isSubmitting: null == isSubmitting ? _self.isSubmitting : isSubmitting // ignore: cast_nullable_to_non_nullable
+as bool,isComplete: null == isComplete ? _self.isComplete : isComplete // ignore: cast_nullable_to_non_nullable
+as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

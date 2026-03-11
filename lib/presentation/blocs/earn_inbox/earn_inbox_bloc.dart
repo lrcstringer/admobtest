@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../domain/entities/earn_notification.dart';
 import '../../../domain/entities/inbox_client.dart';
+import '../../../core/error/failures.dart';
 import '../../../domain/repositories/earn_repository.dart';
 
 part 'earn_inbox_bloc.freezed.dart';
@@ -35,10 +36,10 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
     result.fold(
       (failure) => emit(state.copyWith(
         status: EarnInboxStatus.error,
-        errorMessage: failure.maybeMap(
-          serverError: (e) => e.message,
-          orElse: () => 'Failed to load inbox',
-        ),
+        errorMessage: switch (failure) {
+          ServerFailure(:final message) => message ?? 'Failed to load inbox',
+          _ => 'Failed to load inbox',
+        },
       )),
       (inbox) => emit(state.copyWith(
         status: EarnInboxStatus.loaded,
@@ -61,10 +62,11 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
 
     result.fold(
       (failure) => emit(state.copyWith(
-        errorMessage: failure.maybeMap(
-          serverError: (e) => e.message,
-          orElse: () => 'Failed to refresh inbox',
-        ),
+        errorMessage: switch (failure) {
+          ServerFailure(:final message) =>
+            message ?? 'Failed to refresh inbox',
+          _ => 'Failed to refresh inbox',
+        },
       )),
       (inbox) => emit(state.copyWith(
         status: EarnInboxStatus.loaded,

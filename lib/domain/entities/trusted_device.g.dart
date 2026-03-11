@@ -6,8 +6,8 @@ part of 'trusted_device.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TrustedDeviceImpl _$$TrustedDeviceImplFromJson(Map<String, dynamic> json) =>
-    _$TrustedDeviceImpl(
+_TrustedDevice _$TrustedDeviceFromJson(Map<String, dynamic> json) =>
+    _TrustedDevice(
       deviceId: json['deviceId'] as String,
       userId: json['userId'] as String,
       publicKeyPem: json['publicKeyPem'] as String,
@@ -27,7 +27,7 @@ _$TrustedDeviceImpl _$$TrustedDeviceImplFromJson(Map<String, dynamic> json) =>
       strongBox: json['strongBox'] as bool?,
     );
 
-Map<String, dynamic> _$$TrustedDeviceImplToJson(_$TrustedDeviceImpl instance) =>
+Map<String, dynamic> _$TrustedDeviceToJson(_TrustedDevice instance) =>
     <String, dynamic>{
       'deviceId': instance.deviceId,
       'userId': instance.userId,

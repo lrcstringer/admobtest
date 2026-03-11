@@ -156,10 +156,8 @@ class StepUpAuthService {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: 'Verify your identity to continue',
-        options: AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: biometricOnly,
-        ),
+        biometricOnly: biometricOnly,
+        persistAcrossBackgrounding: true,
       );
 
       if (authenticated) {

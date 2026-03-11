@@ -6,8 +6,8 @@ part of 'message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MessageMediaImpl _$$MessageMediaImplFromJson(Map<String, dynamic> json) =>
-    _$MessageMediaImpl(
+_MessageMedia _$MessageMediaFromJson(Map<String, dynamic> json) =>
+    _MessageMedia(
       url: json['url'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String?,
       fileName: json['fileName'] as String,
@@ -20,7 +20,7 @@ _$MessageMediaImpl _$$MessageMediaImplFromJson(Map<String, dynamic> json) =>
       thumbKey: json['thumbKey'] as String?,
     );
 
-Map<String, dynamic> _$$MessageMediaImplToJson(_$MessageMediaImpl instance) =>
+Map<String, dynamic> _$MessageMediaToJson(_MessageMedia instance) =>
     <String, dynamic>{
       'url': instance.url,
       'thumbnailUrl': instance.thumbnailUrl,
@@ -34,15 +34,15 @@ Map<String, dynamic> _$$MessageMediaImplToJson(_$MessageMediaImpl instance) =>
       'thumbKey': instance.thumbKey,
     };
 
-_$MessageReplyImpl _$$MessageReplyImplFromJson(Map<String, dynamic> json) =>
-    _$MessageReplyImpl(
+_MessageReply _$MessageReplyFromJson(Map<String, dynamic> json) =>
+    _MessageReply(
       messageId: json['messageId'] as String,
       senderName: json['senderName'] as String,
       text: json['text'] as String,
       type: json['type'] as String,
     );
 
-Map<String, dynamic> _$$MessageReplyImplToJson(_$MessageReplyImpl instance) =>
+Map<String, dynamic> _$MessageReplyToJson(_MessageReply instance) =>
     <String, dynamic>{
       'messageId': instance.messageId,
       'senderName': instance.senderName,
@@ -50,33 +50,31 @@ Map<String, dynamic> _$$MessageReplyImplToJson(_$MessageReplyImpl instance) =>
       'type': instance.type,
     };
 
-_$GiftMessageDataImpl _$$GiftMessageDataImplFromJson(
-  Map<String, dynamic> json,
-) => _$GiftMessageDataImpl(
-  giftId: json['giftId'] as String,
-  amount: (json['amount'] as num).toInt(),
-  message: json['message'] as String,
-  style: $enumDecode(_$GiftStyleEnumMap, json['style']),
-  status: $enumDecode(_$GiftStatusEnumMap, json['status']),
-  recipientId: json['recipientId'] as String?,
-  recipientName: json['recipientName'] as String?,
-  expiresAt: json['expiresAt'] == null
-      ? null
-      : DateTime.parse(json['expiresAt'] as String),
-);
+_GiftMessageData _$GiftMessageDataFromJson(Map<String, dynamic> json) =>
+    _GiftMessageData(
+      giftId: json['giftId'] as String,
+      amount: (json['amount'] as num).toInt(),
+      message: json['message'] as String,
+      style: $enumDecode(_$GiftStyleEnumMap, json['style']),
+      status: $enumDecode(_$GiftStatusEnumMap, json['status']),
+      recipientId: json['recipientId'] as String?,
+      recipientName: json['recipientName'] as String?,
+      expiresAt: json['expiresAt'] == null
+          ? null
+          : DateTime.parse(json['expiresAt'] as String),
+    );
 
-Map<String, dynamic> _$$GiftMessageDataImplToJson(
-  _$GiftMessageDataImpl instance,
-) => <String, dynamic>{
-  'giftId': instance.giftId,
-  'amount': instance.amount,
-  'message': instance.message,
-  'style': _$GiftStyleEnumMap[instance.style]!,
-  'status': _$GiftStatusEnumMap[instance.status]!,
-  'recipientId': instance.recipientId,
-  'recipientName': instance.recipientName,
-  'expiresAt': instance.expiresAt?.toIso8601String(),
-};
+Map<String, dynamic> _$GiftMessageDataToJson(_GiftMessageData instance) =>
+    <String, dynamic>{
+      'giftId': instance.giftId,
+      'amount': instance.amount,
+      'message': instance.message,
+      'style': _$GiftStyleEnumMap[instance.style]!,
+      'status': _$GiftStatusEnumMap[instance.status]!,
+      'recipientId': instance.recipientId,
+      'recipientName': instance.recipientName,
+      'expiresAt': instance.expiresAt?.toIso8601String(),
+    };
 
 const _$GiftStyleEnumMap = {
   GiftStyle.ndlovukazi: 'ndlovukazi',
@@ -93,9 +91,9 @@ const _$GiftStatusEnumMap = {
   GiftStatus.expired: 'expired',
 };
 
-_$TokenSprayMessageDataImpl _$$TokenSprayMessageDataImplFromJson(
+_TokenSprayMessageData _$TokenSprayMessageDataFromJson(
   Map<String, dynamic> json,
-) => _$TokenSprayMessageDataImpl(
+) => _TokenSprayMessageData(
   sprayId: json['sprayId'] as String,
   recipientId: json['recipientId'] as String,
   recipientName: json['recipientName'] as String,
@@ -107,8 +105,8 @@ _$TokenSprayMessageDataImpl _$$TokenSprayMessageDataImplFromJson(
   expiresAt: DateTime.parse(json['expiresAt'] as String),
 );
 
-Map<String, dynamic> _$$TokenSprayMessageDataImplToJson(
-  _$TokenSprayMessageDataImpl instance,
+Map<String, dynamic> _$TokenSprayMessageDataToJson(
+  _TokenSprayMessageData instance,
 ) => <String, dynamic>{
   'sprayId': instance.sprayId,
   'recipientId': instance.recipientId,
@@ -128,9 +126,9 @@ const _$SprayStatusEnumMap = {
   SprayStatus.expired: 'expired',
 };
 
-_$GroupGiftMessageDataImpl _$$GroupGiftMessageDataImplFromJson(
+_GroupGiftMessageData _$GroupGiftMessageDataFromJson(
   Map<String, dynamic> json,
-) => _$GroupGiftMessageDataImpl(
+) => _GroupGiftMessageData(
   poolId: json['poolId'] as String,
   amount: (json['amount'] as num).toInt(),
   message: json['message'] as String,
@@ -150,8 +148,8 @@ _$GroupGiftMessageDataImpl _$$GroupGiftMessageDataImplFromJson(
       : DateTime.parse(json['expiresAt'] as String),
 );
 
-Map<String, dynamic> _$$GroupGiftMessageDataImplToJson(
-  _$GroupGiftMessageDataImpl instance,
+Map<String, dynamic> _$GroupGiftMessageDataToJson(
+  _GroupGiftMessageData instance,
 ) => <String, dynamic>{
   'poolId': instance.poolId,
   'amount': instance.amount,
@@ -174,22 +172,22 @@ const _$PoolStatusEnumMap = {
   PoolStatus.expired: 'expired',
 };
 
-_$ForwardedFromImpl _$$ForwardedFromImplFromJson(Map<String, dynamic> json) =>
-    _$ForwardedFromImpl(
+_ForwardedFrom _$ForwardedFromFromJson(Map<String, dynamic> json) =>
+    _ForwardedFrom(
       messageId: json['messageId'] as String,
       conversationId: json['conversationId'] as String,
       senderName: json['senderName'] as String,
     );
 
-Map<String, dynamic> _$$ForwardedFromImplToJson(_$ForwardedFromImpl instance) =>
+Map<String, dynamic> _$ForwardedFromToJson(_ForwardedFrom instance) =>
     <String, dynamic>{
       'messageId': instance.messageId,
       'conversationId': instance.conversationId,
       'senderName': instance.senderName,
     };
 
-_$E2eeMetadataImpl _$$E2eeMetadataImplFromJson(Map<String, dynamic> json) =>
-    _$E2eeMetadataImpl(
+_E2eeMetadata _$E2eeMetadataFromJson(Map<String, dynamic> json) =>
+    _E2eeMetadata(
       protocol: json['protocol'] as String,
       senderKeyChainId: json['senderKeyChainId'] as String?,
       messageNumber: (json['messageNumber'] as num?)?.toInt(),
@@ -198,7 +196,7 @@ _$E2eeMetadataImpl _$$E2eeMetadataImplFromJson(Map<String, dynamic> json) =>
       signature: json['signature'] as String?,
     );
 
-Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
+Map<String, dynamic> _$E2eeMetadataToJson(_E2eeMetadata instance) =>
     <String, dynamic>{
       'protocol': instance.protocol,
       'senderKeyChainId': instance.senderKeyChainId,
@@ -208,15 +206,14 @@ Map<String, dynamic> _$$E2eeMetadataImplToJson(_$E2eeMetadataImpl instance) =>
       'signature': instance.signature,
     };
 
-_$X3dhHeaderImpl _$$X3dhHeaderImplFromJson(Map<String, dynamic> json) =>
-    _$X3dhHeaderImpl(
-      identityKey: json['identityKey'] as String,
-      ephemeralKey: json['ephemeralKey'] as String,
-      oneTimePreKeyId: (json['oneTimePreKeyId'] as num?)?.toInt(),
-      signedPreKeyId: (json['signedPreKeyId'] as num?)?.toInt(),
-    );
+_X3dhHeader _$X3dhHeaderFromJson(Map<String, dynamic> json) => _X3dhHeader(
+  identityKey: json['identityKey'] as String,
+  ephemeralKey: json['ephemeralKey'] as String,
+  oneTimePreKeyId: (json['oneTimePreKeyId'] as num?)?.toInt(),
+  signedPreKeyId: (json['signedPreKeyId'] as num?)?.toInt(),
+);
 
-Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
+Map<String, dynamic> _$X3dhHeaderToJson(_X3dhHeader instance) =>
     <String, dynamic>{
       'identityKey': instance.identityKey,
       'ephemeralKey': instance.ephemeralKey,
@@ -224,9 +221,7 @@ Map<String, dynamic> _$$X3dhHeaderImplToJson(_$X3dhHeaderImpl instance) =>
       'signedPreKeyId': instance.signedPreKeyId,
     };
 
-_$MessageImpl _$$MessageImplFromJson(
-  Map<String, dynamic> json,
-) => _$MessageImpl(
+_Message _$MessageFromJson(Map<String, dynamic> json) => _Message(
   id: json['id'] as String,
   senderId: json['senderId'] as String,
   senderName: json['senderName'] as String,
@@ -298,39 +293,38 @@ _$MessageImpl _$$MessageImplFromJson(
   deletedForEveryone: json['deletedForEveryone'] as bool? ?? false,
 );
 
-Map<String, dynamic> _$$MessageImplToJson(_$MessageImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'senderId': instance.senderId,
-      'senderName': instance.senderName,
-      'senderAvatarUrl': instance.senderAvatarUrl,
-      'type': _$MessageTypeEnumMap[instance.type]!,
-      'status': _$MessageStatusEnumMap[instance.status]!,
-      'textContent': instance.textContent,
-      'tokenAmount': instance.tokenAmount,
-      'recipientId': instance.recipientId,
-      'ledgerJournalId': instance.ledgerJournalId,
-      'media': instance.media,
-      'reactions': instance.reactions,
-      'replyTo': instance.replyTo,
-      'readBy': instance.readBy.map((k, e) => MapEntry(k, e.toIso8601String())),
-      'forwardedFrom': instance.forwardedFrom,
-      'gift': instance.gift,
-      'groupGift': instance.groupGift,
-      'tokenSpray': instance.tokenSpray,
-      'communityId': instance.communityId,
-      'systemEventType': instance.systemEventType,
-      'systemEventData': instance.systemEventData,
-      'ciphertext': instance.ciphertext,
-      'e2ee': instance.e2ee,
-      'x3dhHeader': instance.x3dhHeader,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'expiresAt': instance.expiresAt?.toIso8601String(),
-      'actionedAt': instance.actionedAt?.toIso8601String(),
-      'deletedAt': instance.deletedAt?.toIso8601String(),
-      'deletedFor': instance.deletedFor,
-      'deletedForEveryone': instance.deletedForEveryone,
-    };
+Map<String, dynamic> _$MessageToJson(_Message instance) => <String, dynamic>{
+  'id': instance.id,
+  'senderId': instance.senderId,
+  'senderName': instance.senderName,
+  'senderAvatarUrl': instance.senderAvatarUrl,
+  'type': _$MessageTypeEnumMap[instance.type]!,
+  'status': _$MessageStatusEnumMap[instance.status]!,
+  'textContent': instance.textContent,
+  'tokenAmount': instance.tokenAmount,
+  'recipientId': instance.recipientId,
+  'ledgerJournalId': instance.ledgerJournalId,
+  'media': instance.media,
+  'reactions': instance.reactions,
+  'replyTo': instance.replyTo,
+  'readBy': instance.readBy.map((k, e) => MapEntry(k, e.toIso8601String())),
+  'forwardedFrom': instance.forwardedFrom,
+  'gift': instance.gift,
+  'groupGift': instance.groupGift,
+  'tokenSpray': instance.tokenSpray,
+  'communityId': instance.communityId,
+  'systemEventType': instance.systemEventType,
+  'systemEventData': instance.systemEventData,
+  'ciphertext': instance.ciphertext,
+  'e2ee': instance.e2ee,
+  'x3dhHeader': instance.x3dhHeader,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'expiresAt': instance.expiresAt?.toIso8601String(),
+  'actionedAt': instance.actionedAt?.toIso8601String(),
+  'deletedAt': instance.deletedAt?.toIso8601String(),
+  'deletedFor': instance.deletedFor,
+  'deletedForEveryone': instance.deletedForEveryone,
+};
 
 const _$MessageTypeEnumMap = {
   MessageType.text: 'text',

@@ -6,29 +6,27 @@ part of 'group_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GroupSettingsModelImpl _$$GroupSettingsModelImplFromJson(
-  Map<String, dynamic> json,
-) => _$GroupSettingsModelImpl(
-  requireApprovalAbove: (json['requireApprovalAbove'] as num).toInt(),
-  allowMemberWithdrawals: json['allowMemberWithdrawals'] as bool,
-  contributionCycle: json['contributionCycle'] as String,
-  contributionAmount: (json['contributionAmount'] as num).toInt(),
-  penaltyPercentage: (json['penaltyPercentage'] as num).toInt(),
-);
+_GroupSettingsModel _$GroupSettingsModelFromJson(Map<String, dynamic> json) =>
+    _GroupSettingsModel(
+      requireApprovalAbove: (json['requireApprovalAbove'] as num).toInt(),
+      allowMemberWithdrawals: json['allowMemberWithdrawals'] as bool,
+      contributionCycle: json['contributionCycle'] as String,
+      contributionAmount: (json['contributionAmount'] as num).toInt(),
+      penaltyPercentage: (json['penaltyPercentage'] as num).toInt(),
+    );
 
-Map<String, dynamic> _$$GroupSettingsModelImplToJson(
-  _$GroupSettingsModelImpl instance,
-) => <String, dynamic>{
-  'requireApprovalAbove': instance.requireApprovalAbove,
-  'allowMemberWithdrawals': instance.allowMemberWithdrawals,
-  'contributionCycle': instance.contributionCycle,
-  'contributionAmount': instance.contributionAmount,
-  'penaltyPercentage': instance.penaltyPercentage,
-};
+Map<String, dynamic> _$GroupSettingsModelToJson(_GroupSettingsModel instance) =>
+    <String, dynamic>{
+      'requireApprovalAbove': instance.requireApprovalAbove,
+      'allowMemberWithdrawals': instance.allowMemberWithdrawals,
+      'contributionCycle': instance.contributionCycle,
+      'contributionAmount': instance.contributionAmount,
+      'penaltyPercentage': instance.penaltyPercentage,
+    };
 
-_$StokvelSettingsModelImpl _$$StokvelSettingsModelImplFromJson(
+_StokvelSettingsModel _$StokvelSettingsModelFromJson(
   Map<String, dynamic> json,
-) => _$StokvelSettingsModelImpl(
+) => _StokvelSettingsModel(
   payoutType: json['payoutType'] as String,
   payoutSchedule: json['payoutSchedule'] as String,
   currentPayoutRecipient: json['currentPayoutRecipient'] as String?,
@@ -40,8 +38,8 @@ _$StokvelSettingsModelImpl _$$StokvelSettingsModelImplFromJson(
       .toList(),
 );
 
-Map<String, dynamic> _$$StokvelSettingsModelImplToJson(
-  _$StokvelSettingsModelImpl instance,
+Map<String, dynamic> _$StokvelSettingsModelToJson(
+  _StokvelSettingsModel instance,
 ) => <String, dynamic>{
   'payoutType': instance.payoutType,
   'payoutSchedule': instance.payoutSchedule,
@@ -52,33 +50,32 @@ Map<String, dynamic> _$$StokvelSettingsModelImplToJson(
   'payoutOrder': instance.payoutOrder,
 };
 
-_$GroupModelImpl _$$GroupModelImplFromJson(Map<String, dynamic> json) =>
-    _$GroupModelImpl(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      avatarUrl: json['avatarUrl'] as String?,
-      ownerId: json['ownerId'] as String,
-      memberIds: (json['memberIds'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      memberCount: (json['memberCount'] as num).toInt(),
-      totalBalance: (json['totalBalance'] as num).toInt(),
-      status: json['status'] as String,
-      settings: GroupSettingsModel.fromJson(
-        json['settings'] as Map<String, dynamic>,
-      ),
-      stokvelSettings: json['stokvelSettings'] == null
-          ? null
-          : StokvelSettingsModel.fromJson(
-              json['stokvelSettings'] as Map<String, dynamic>,
-            ),
-      createdAt: const TimestampConverter().fromJson(json['createdAt']),
-      updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
-    );
+_GroupModel _$GroupModelFromJson(Map<String, dynamic> json) => _GroupModel(
+  id: json['id'] as String,
+  type: json['type'] as String,
+  name: json['name'] as String,
+  description: json['description'] as String,
+  avatarUrl: json['avatarUrl'] as String?,
+  ownerId: json['ownerId'] as String,
+  memberIds: (json['memberIds'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  memberCount: (json['memberCount'] as num).toInt(),
+  totalBalance: (json['totalBalance'] as num).toInt(),
+  status: json['status'] as String,
+  settings: GroupSettingsModel.fromJson(
+    json['settings'] as Map<String, dynamic>,
+  ),
+  stokvelSettings: json['stokvelSettings'] == null
+      ? null
+      : StokvelSettingsModel.fromJson(
+          json['stokvelSettings'] as Map<String, dynamic>,
+        ),
+  createdAt: const TimestampConverter().fromJson(json['createdAt']),
+  updatedAt: const TimestampConverter().fromJson(json['updatedAt']),
+);
 
-Map<String, dynamic> _$$GroupModelImplToJson(_$GroupModelImpl instance) =>
+Map<String, dynamic> _$GroupModelToJson(_GroupModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'type': instance.type,

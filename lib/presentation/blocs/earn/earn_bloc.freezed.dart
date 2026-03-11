@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,7842 +9,1968 @@ part of 'earn_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$EarnEvent {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarnEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent()';
+}
+
+
 }
 
 /// @nodoc
-abstract class $EarnEventCopyWith<$Res> {
-  factory $EarnEventCopyWith(EarnEvent value, $Res Function(EarnEvent) then) =
-      _$EarnEventCopyWithImpl<$Res, EarnEvent>;
+class $EarnEventCopyWith<$Res>  {
+$EarnEventCopyWith(EarnEvent _, $Res Function(EarnEvent) __);
 }
 
-/// @nodoc
-class _$EarnEventCopyWithImpl<$Res, $Val extends EarnEvent>
-    implements $EarnEventCopyWith<$Res> {
-  _$EarnEventCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [EarnEvent].
+extension EarnEventPatterns on EarnEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadThreads value)?  loadThreads,TResult Function( _SelectThread value)?  selectThread,TResult Function( _LoadOpportunities value)?  loadOpportunities,TResult Function( _SelectOpportunity value)?  selectOpportunity,TResult Function( _StartEngagement value)?  startEngagement,TResult Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult Function( _SubmitSurvey value)?  submitSurvey,TResult Function( _AbandonEngagement value)?  abandonEngagement,TResult Function( _LoadHistory value)?  loadHistory,TResult Function( _LoadMoreHistory value)?  loadMoreHistory,TResult Function( _Refresh value)?  refresh,TResult Function( _ClearError value)?  clearError,TResult Function( _ResetEngagement value)?  resetEngagement,TResult Function( _LoadAdVideo value)?  loadAdVideo,TResult Function( _AdVideoCompleted value)?  adVideoCompleted,TResult Function( _AdVideoFailed value)?  adVideoFailed,TResult Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult Function( _SubmitUpload value)?  submitUpload,TResult Function( _UploadProgressChanged value)?  uploadProgressChanged,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _LoadThreads() when loadThreads != null:
+return loadThreads(_that);case _SelectThread() when selectThread != null:
+return selectThread(_that);case _LoadOpportunities() when loadOpportunities != null:
+return loadOpportunities(_that);case _SelectOpportunity() when selectOpportunity != null:
+return selectOpportunity(_that);case _StartEngagement() when startEngagement != null:
+return startEngagement(_that);case _UpdateWatchProgress() when updateWatchProgress != null:
+return updateWatchProgress(_that);case _SubmitSurvey() when submitSurvey != null:
+return submitSurvey(_that);case _AbandonEngagement() when abandonEngagement != null:
+return abandonEngagement(_that);case _LoadHistory() when loadHistory != null:
+return loadHistory(_that);case _LoadMoreHistory() when loadMoreHistory != null:
+return loadMoreHistory(_that);case _Refresh() when refresh != null:
+return refresh(_that);case _ClearError() when clearError != null:
+return clearError(_that);case _ResetEngagement() when resetEngagement != null:
+return resetEngagement(_that);case _LoadAdVideo() when loadAdVideo != null:
+return loadAdVideo(_that);case _AdVideoCompleted() when adVideoCompleted != null:
+return adVideoCompleted(_that);case _AdVideoFailed() when adVideoFailed != null:
+return adVideoFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adReadyStateChanged(_that);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
+return adLoadingStateChanged(_that);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
+return adLoadAttemptChanged(_that);case _SubmitUpload() when submitUpload != null:
+return submitUpload(_that);case _UploadProgressChanged() when uploadProgressChanged != null:
+return uploadProgressChanged(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadThreads value)  loadThreads,required TResult Function( _SelectThread value)  selectThread,required TResult Function( _LoadOpportunities value)  loadOpportunities,required TResult Function( _SelectOpportunity value)  selectOpportunity,required TResult Function( _StartEngagement value)  startEngagement,required TResult Function( _UpdateWatchProgress value)  updateWatchProgress,required TResult Function( _SubmitSurvey value)  submitSurvey,required TResult Function( _AbandonEngagement value)  abandonEngagement,required TResult Function( _LoadHistory value)  loadHistory,required TResult Function( _LoadMoreHistory value)  loadMoreHistory,required TResult Function( _Refresh value)  refresh,required TResult Function( _ClearError value)  clearError,required TResult Function( _ResetEngagement value)  resetEngagement,required TResult Function( _LoadAdVideo value)  loadAdVideo,required TResult Function( _AdVideoCompleted value)  adVideoCompleted,required TResult Function( _AdVideoFailed value)  adVideoFailed,required TResult Function( _AdReadyStateChanged value)  adReadyStateChanged,required TResult Function( _AdLoadingStateChanged value)  adLoadingStateChanged,required TResult Function( _AdLoadAttemptChanged value)  adLoadAttemptChanged,required TResult Function( _SubmitUpload value)  submitUpload,required TResult Function( _UploadProgressChanged value)  uploadProgressChanged,}){
+final _that = this;
+switch (_that) {
+case _LoadThreads():
+return loadThreads(_that);case _SelectThread():
+return selectThread(_that);case _LoadOpportunities():
+return loadOpportunities(_that);case _SelectOpportunity():
+return selectOpportunity(_that);case _StartEngagement():
+return startEngagement(_that);case _UpdateWatchProgress():
+return updateWatchProgress(_that);case _SubmitSurvey():
+return submitSurvey(_that);case _AbandonEngagement():
+return abandonEngagement(_that);case _LoadHistory():
+return loadHistory(_that);case _LoadMoreHistory():
+return loadMoreHistory(_that);case _Refresh():
+return refresh(_that);case _ClearError():
+return clearError(_that);case _ResetEngagement():
+return resetEngagement(_that);case _LoadAdVideo():
+return loadAdVideo(_that);case _AdVideoCompleted():
+return adVideoCompleted(_that);case _AdVideoFailed():
+return adVideoFailed(_that);case _AdReadyStateChanged():
+return adReadyStateChanged(_that);case _AdLoadingStateChanged():
+return adLoadingStateChanged(_that);case _AdLoadAttemptChanged():
+return adLoadAttemptChanged(_that);case _SubmitUpload():
+return submitUpload(_that);case _UploadProgressChanged():
+return uploadProgressChanged(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadThreads value)?  loadThreads,TResult? Function( _SelectThread value)?  selectThread,TResult? Function( _LoadOpportunities value)?  loadOpportunities,TResult? Function( _SelectOpportunity value)?  selectOpportunity,TResult? Function( _StartEngagement value)?  startEngagement,TResult? Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult? Function( _SubmitSurvey value)?  submitSurvey,TResult? Function( _AbandonEngagement value)?  abandonEngagement,TResult? Function( _LoadHistory value)?  loadHistory,TResult? Function( _LoadMoreHistory value)?  loadMoreHistory,TResult? Function( _Refresh value)?  refresh,TResult? Function( _ClearError value)?  clearError,TResult? Function( _ResetEngagement value)?  resetEngagement,TResult? Function( _LoadAdVideo value)?  loadAdVideo,TResult? Function( _AdVideoCompleted value)?  adVideoCompleted,TResult? Function( _AdVideoFailed value)?  adVideoFailed,TResult? Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult? Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult? Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult? Function( _SubmitUpload value)?  submitUpload,TResult? Function( _UploadProgressChanged value)?  uploadProgressChanged,}){
+final _that = this;
+switch (_that) {
+case _LoadThreads() when loadThreads != null:
+return loadThreads(_that);case _SelectThread() when selectThread != null:
+return selectThread(_that);case _LoadOpportunities() when loadOpportunities != null:
+return loadOpportunities(_that);case _SelectOpportunity() when selectOpportunity != null:
+return selectOpportunity(_that);case _StartEngagement() when startEngagement != null:
+return startEngagement(_that);case _UpdateWatchProgress() when updateWatchProgress != null:
+return updateWatchProgress(_that);case _SubmitSurvey() when submitSurvey != null:
+return submitSurvey(_that);case _AbandonEngagement() when abandonEngagement != null:
+return abandonEngagement(_that);case _LoadHistory() when loadHistory != null:
+return loadHistory(_that);case _LoadMoreHistory() when loadMoreHistory != null:
+return loadMoreHistory(_that);case _Refresh() when refresh != null:
+return refresh(_that);case _ClearError() when clearError != null:
+return clearError(_that);case _ResetEngagement() when resetEngagement != null:
+return resetEngagement(_that);case _LoadAdVideo() when loadAdVideo != null:
+return loadAdVideo(_that);case _AdVideoCompleted() when adVideoCompleted != null:
+return adVideoCompleted(_that);case _AdVideoFailed() when adVideoFailed != null:
+return adVideoFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adReadyStateChanged(_that);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
+return adLoadingStateChanged(_that);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
+return adLoadAttemptChanged(_that);case _SubmitUpload() when submitUpload != null:
+return submitUpload(_that);case _UploadProgressChanged() when uploadProgressChanged != null:
+return uploadProgressChanged(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadThreads,TResult Function( String threadId)?  selectThread,TResult Function( String threadId)?  loadOpportunities,TResult Function( String opportunityId)?  selectOpportunity,TResult Function( String opportunityId)?  startEngagement,TResult Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult Function( String engagementId)?  abandonEngagement,TResult Function( int? limit)?  loadHistory,TResult Function()?  loadMoreHistory,TResult Function()?  refresh,TResult Function()?  clearError,TResult Function()?  resetEngagement,TResult Function()?  loadAdVideo,TResult Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult Function( String reason)?  adVideoFailed,TResult Function( bool isReady)?  adReadyStateChanged,TResult Function( bool isLoading)?  adLoadingStateChanged,TResult Function( int attempt)?  adLoadAttemptChanged,TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _LoadThreads() when loadThreads != null:
+return loadThreads();case _SelectThread() when selectThread != null:
+return selectThread(_that.threadId);case _LoadOpportunities() when loadOpportunities != null:
+return loadOpportunities(_that.threadId);case _SelectOpportunity() when selectOpportunity != null:
+return selectOpportunity(_that.opportunityId);case _StartEngagement() when startEngagement != null:
+return startEngagement(_that.opportunityId);case _UpdateWatchProgress() when updateWatchProgress != null:
+return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey() when submitSurvey != null:
+return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement() when abandonEngagement != null:
+return abandonEngagement(_that.engagementId);case _LoadHistory() when loadHistory != null:
+return loadHistory(_that.limit);case _LoadMoreHistory() when loadMoreHistory != null:
+return loadMoreHistory();case _Refresh() when refresh != null:
+return refresh();case _ClearError() when clearError != null:
+return clearError();case _ResetEngagement() when resetEngagement != null:
+return resetEngagement();case _LoadAdVideo() when loadAdVideo != null:
+return loadAdVideo();case _AdVideoCompleted() when adVideoCompleted != null:
+return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed() when adVideoFailed != null:
+return adVideoFailed(_that.reason);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
+return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
+return adLoadAttemptChanged(_that.attempt);case _SubmitUpload() when submitUpload != null:
+return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged() when uploadProgressChanged != null:
+return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadThreads,required TResult Function( String threadId)  selectThread,required TResult Function( String threadId)  loadOpportunities,required TResult Function( String opportunityId)  selectOpportunity,required TResult Function( String opportunityId)  startEngagement,required TResult Function( String engagementId,  int watchDurationSeconds)  updateWatchProgress,required TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)  submitSurvey,required TResult Function( String engagementId)  abandonEngagement,required TResult Function( int? limit)  loadHistory,required TResult Function()  loadMoreHistory,required TResult Function()  refresh,required TResult Function()  clearError,required TResult Function()  resetEngagement,required TResult Function()  loadAdVideo,required TResult Function( String transactionId,  int rewardAmount,  String? responseId)  adVideoCompleted,required TResult Function( String reason)  adVideoFailed,required TResult Function( bool isReady)  adReadyStateChanged,required TResult Function( bool isLoading)  adLoadingStateChanged,required TResult Function( int attempt)  adLoadAttemptChanged,required TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)  submitUpload,required TResult Function( double progress,  int bytesTransferred,  int totalBytes)  uploadProgressChanged,}) {final _that = this;
+switch (_that) {
+case _LoadThreads():
+return loadThreads();case _SelectThread():
+return selectThread(_that.threadId);case _LoadOpportunities():
+return loadOpportunities(_that.threadId);case _SelectOpportunity():
+return selectOpportunity(_that.opportunityId);case _StartEngagement():
+return startEngagement(_that.opportunityId);case _UpdateWatchProgress():
+return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey():
+return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement():
+return abandonEngagement(_that.engagementId);case _LoadHistory():
+return loadHistory(_that.limit);case _LoadMoreHistory():
+return loadMoreHistory();case _Refresh():
+return refresh();case _ClearError():
+return clearError();case _ResetEngagement():
+return resetEngagement();case _LoadAdVideo():
+return loadAdVideo();case _AdVideoCompleted():
+return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed():
+return adVideoFailed(_that.reason);case _AdReadyStateChanged():
+return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged():
+return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged():
+return adLoadAttemptChanged(_that.attempt);case _SubmitUpload():
+return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged():
+return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadThreads,TResult? Function( String threadId)?  selectThread,TResult? Function( String threadId)?  loadOpportunities,TResult? Function( String opportunityId)?  selectOpportunity,TResult? Function( String opportunityId)?  startEngagement,TResult? Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult? Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult? Function( String engagementId)?  abandonEngagement,TResult? Function( int? limit)?  loadHistory,TResult? Function()?  loadMoreHistory,TResult? Function()?  refresh,TResult? Function()?  clearError,TResult? Function()?  resetEngagement,TResult? Function()?  loadAdVideo,TResult? Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult? Function( String reason)?  adVideoFailed,TResult? Function( bool isReady)?  adReadyStateChanged,TResult? Function( bool isLoading)?  adLoadingStateChanged,TResult? Function( int attempt)?  adLoadAttemptChanged,TResult? Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult? Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,}) {final _that = this;
+switch (_that) {
+case _LoadThreads() when loadThreads != null:
+return loadThreads();case _SelectThread() when selectThread != null:
+return selectThread(_that.threadId);case _LoadOpportunities() when loadOpportunities != null:
+return loadOpportunities(_that.threadId);case _SelectOpportunity() when selectOpportunity != null:
+return selectOpportunity(_that.opportunityId);case _StartEngagement() when startEngagement != null:
+return startEngagement(_that.opportunityId);case _UpdateWatchProgress() when updateWatchProgress != null:
+return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey() when submitSurvey != null:
+return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement() when abandonEngagement != null:
+return abandonEngagement(_that.engagementId);case _LoadHistory() when loadHistory != null:
+return loadHistory(_that.limit);case _LoadMoreHistory() when loadMoreHistory != null:
+return loadMoreHistory();case _Refresh() when refresh != null:
+return refresh();case _ClearError() when clearError != null:
+return clearError();case _ResetEngagement() when resetEngagement != null:
+return resetEngagement();case _LoadAdVideo() when loadAdVideo != null:
+return loadAdVideo();case _AdVideoCompleted() when adVideoCompleted != null:
+return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed() when adVideoFailed != null:
+return adVideoFailed(_that.reason);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
+return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
+return adLoadAttemptChanged(_that.attempt);case _SubmitUpload() when submitUpload != null:
+return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged() when uploadProgressChanged != null:
+return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$LoadThreadsImplCopyWith<$Res> {
-  factory _$$LoadThreadsImplCopyWith(
-    _$LoadThreadsImpl value,
-    $Res Function(_$LoadThreadsImpl) then,
-  ) = __$$LoadThreadsImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$LoadThreadsImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$LoadThreadsImpl>
-    implements _$$LoadThreadsImplCopyWith<$Res> {
-  __$$LoadThreadsImplCopyWithImpl(
-    _$LoadThreadsImpl _value,
-    $Res Function(_$LoadThreadsImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$LoadThreadsImpl implements _LoadThreads {
-  const _$LoadThreadsImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.loadThreads()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LoadThreadsImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return loadThreads();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return loadThreads?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadThreads != null) {
-      return loadThreads();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return loadThreads(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return loadThreads?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadThreads != null) {
-      return loadThreads(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadThreads implements EarnEvent {
-  const factory _LoadThreads() = _$LoadThreadsImpl;
-}
-
-/// @nodoc
-abstract class _$$SelectThreadImplCopyWith<$Res> {
-  factory _$$SelectThreadImplCopyWith(
-    _$SelectThreadImpl value,
-    $Res Function(_$SelectThreadImpl) then,
-  ) = __$$SelectThreadImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String threadId});
-}
-
-/// @nodoc
-class __$$SelectThreadImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$SelectThreadImpl>
-    implements _$$SelectThreadImplCopyWith<$Res> {
-  __$$SelectThreadImplCopyWithImpl(
-    _$SelectThreadImpl _value,
-    $Res Function(_$SelectThreadImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? threadId = null}) {
-    return _then(
-      _$SelectThreadImpl(
-        null == threadId
-            ? _value.threadId
-            : threadId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$SelectThreadImpl implements _SelectThread {
-  const _$SelectThreadImpl(this.threadId);
 
-  @override
-  final String threadId;
+class _LoadThreads implements EarnEvent {
+  const _LoadThreads();
+  
 
-  @override
-  String toString() {
-    return 'EarnEvent.selectThread(threadId: $threadId)';
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SelectThreadImpl &&
-            (identical(other.threadId, threadId) ||
-                other.threadId == threadId));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, threadId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SelectThreadImplCopyWith<_$SelectThreadImpl> get copyWith =>
-      __$$SelectThreadImplCopyWithImpl<_$SelectThreadImpl>(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return selectThread(threadId);
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return selectThread?.call(threadId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (selectThread != null) {
-      return selectThread(threadId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return selectThread(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return selectThread?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (selectThread != null) {
-      return selectThread(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadThreads);
 }
 
-abstract class _SelectThread implements EarnEvent {
-  const factory _SelectThread(final String threadId) = _$SelectThreadImpl;
 
-  String get threadId;
+@override
+int get hashCode => runtimeType.hashCode;
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SelectThreadImplCopyWith<_$SelectThreadImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'EarnEvent.loadThreads()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _SelectThread implements EarnEvent {
+  const _SelectThread(this.threadId);
+  
+
+ final  String threadId;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SelectThreadCopyWith<_SelectThread> get copyWith => __$SelectThreadCopyWithImpl<_SelectThread>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SelectThread&&(identical(other.threadId, threadId) || other.threadId == threadId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,threadId);
+
+@override
+String toString() {
+  return 'EarnEvent.selectThread(threadId: $threadId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$LoadOpportunitiesImplCopyWith<$Res> {
-  factory _$$LoadOpportunitiesImplCopyWith(
-    _$LoadOpportunitiesImpl value,
-    $Res Function(_$LoadOpportunitiesImpl) then,
-  ) = __$$LoadOpportunitiesImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String threadId});
+abstract mixin class _$SelectThreadCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$SelectThreadCopyWith(_SelectThread value, $Res Function(_SelectThread) _then) = __$SelectThreadCopyWithImpl;
+@useResult
+$Res call({
+ String threadId
+});
+
+
+
+
+}
+/// @nodoc
+class __$SelectThreadCopyWithImpl<$Res>
+    implements _$SelectThreadCopyWith<$Res> {
+  __$SelectThreadCopyWithImpl(this._self, this._then);
+
+  final _SelectThread _self;
+  final $Res Function(_SelectThread) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? threadId = null,}) {
+  return _then(_SelectThread(
+null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$LoadOpportunitiesImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$LoadOpportunitiesImpl>
-    implements _$$LoadOpportunitiesImplCopyWith<$Res> {
-  __$$LoadOpportunitiesImplCopyWithImpl(
-    _$LoadOpportunitiesImpl _value,
-    $Res Function(_$LoadOpportunitiesImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? threadId = null}) {
-    return _then(
-      _$LoadOpportunitiesImpl(
-        threadId: null == threadId
-            ? _value.threadId
-            : threadId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$LoadOpportunitiesImpl implements _LoadOpportunities {
-  const _$LoadOpportunitiesImpl({required this.threadId});
 
-  @override
-  final String threadId;
+class _LoadOpportunities implements EarnEvent {
+  const _LoadOpportunities({required this.threadId});
+  
 
-  @override
-  String toString() {
-    return 'EarnEvent.loadOpportunities(threadId: $threadId)';
-  }
+ final  String threadId;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadOpportunitiesImpl &&
-            (identical(other.threadId, threadId) ||
-                other.threadId == threadId));
-  }
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadOpportunitiesCopyWith<_LoadOpportunities> get copyWith => __$LoadOpportunitiesCopyWithImpl<_LoadOpportunities>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, threadId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LoadOpportunitiesImplCopyWith<_$LoadOpportunitiesImpl> get copyWith =>
-      __$$LoadOpportunitiesImplCopyWithImpl<_$LoadOpportunitiesImpl>(
-        this,
-        _$identity,
-      );
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return loadOpportunities(threadId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return loadOpportunities?.call(threadId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadOpportunities != null) {
-      return loadOpportunities(threadId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return loadOpportunities(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return loadOpportunities?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadOpportunities != null) {
-      return loadOpportunities(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadOpportunities&&(identical(other.threadId, threadId) || other.threadId == threadId));
 }
 
-abstract class _LoadOpportunities implements EarnEvent {
-  const factory _LoadOpportunities({required final String threadId}) =
-      _$LoadOpportunitiesImpl;
 
-  String get threadId;
+@override
+int get hashCode => Object.hash(runtimeType,threadId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LoadOpportunitiesImplCopyWith<_$LoadOpportunitiesImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'EarnEvent.loadOpportunities(threadId: $threadId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$SelectOpportunityImplCopyWith<$Res> {
-  factory _$$SelectOpportunityImplCopyWith(
-    _$SelectOpportunityImpl value,
-    $Res Function(_$SelectOpportunityImpl) then,
-  ) = __$$SelectOpportunityImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String opportunityId});
+abstract mixin class _$LoadOpportunitiesCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$LoadOpportunitiesCopyWith(_LoadOpportunities value, $Res Function(_LoadOpportunities) _then) = __$LoadOpportunitiesCopyWithImpl;
+@useResult
+$Res call({
+ String threadId
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoadOpportunitiesCopyWithImpl<$Res>
+    implements _$LoadOpportunitiesCopyWith<$Res> {
+  __$LoadOpportunitiesCopyWithImpl(this._self, this._then);
+
+  final _LoadOpportunities _self;
+  final $Res Function(_LoadOpportunities) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? threadId = null,}) {
+  return _then(_LoadOpportunities(
+threadId: null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$SelectOpportunityImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$SelectOpportunityImpl>
-    implements _$$SelectOpportunityImplCopyWith<$Res> {
-  __$$SelectOpportunityImplCopyWithImpl(
-    _$SelectOpportunityImpl _value,
-    $Res Function(_$SelectOpportunityImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? opportunityId = null}) {
-    return _then(
-      _$SelectOpportunityImpl(
-        null == opportunityId
-            ? _value.opportunityId
-            : opportunityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$SelectOpportunityImpl implements _SelectOpportunity {
-  const _$SelectOpportunityImpl(this.opportunityId);
 
-  @override
-  final String opportunityId;
+class _SelectOpportunity implements EarnEvent {
+  const _SelectOpportunity(this.opportunityId);
+  
 
-  @override
-  String toString() {
-    return 'EarnEvent.selectOpportunity(opportunityId: $opportunityId)';
-  }
+ final  String opportunityId;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SelectOpportunityImpl &&
-            (identical(other.opportunityId, opportunityId) ||
-                other.opportunityId == opportunityId));
-  }
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SelectOpportunityCopyWith<_SelectOpportunity> get copyWith => __$SelectOpportunityCopyWithImpl<_SelectOpportunity>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, opportunityId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SelectOpportunityImplCopyWith<_$SelectOpportunityImpl> get copyWith =>
-      __$$SelectOpportunityImplCopyWithImpl<_$SelectOpportunityImpl>(
-        this,
-        _$identity,
-      );
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return selectOpportunity(opportunityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return selectOpportunity?.call(opportunityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (selectOpportunity != null) {
-      return selectOpportunity(opportunityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return selectOpportunity(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return selectOpportunity?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (selectOpportunity != null) {
-      return selectOpportunity(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SelectOpportunity&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId));
 }
 
-abstract class _SelectOpportunity implements EarnEvent {
-  const factory _SelectOpportunity(final String opportunityId) =
-      _$SelectOpportunityImpl;
 
-  String get opportunityId;
+@override
+int get hashCode => Object.hash(runtimeType,opportunityId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SelectOpportunityImplCopyWith<_$SelectOpportunityImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'EarnEvent.selectOpportunity(opportunityId: $opportunityId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$StartEngagementImplCopyWith<$Res> {
-  factory _$$StartEngagementImplCopyWith(
-    _$StartEngagementImpl value,
-    $Res Function(_$StartEngagementImpl) then,
-  ) = __$$StartEngagementImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String opportunityId});
+abstract mixin class _$SelectOpportunityCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$SelectOpportunityCopyWith(_SelectOpportunity value, $Res Function(_SelectOpportunity) _then) = __$SelectOpportunityCopyWithImpl;
+@useResult
+$Res call({
+ String opportunityId
+});
+
+
+
+
+}
+/// @nodoc
+class __$SelectOpportunityCopyWithImpl<$Res>
+    implements _$SelectOpportunityCopyWith<$Res> {
+  __$SelectOpportunityCopyWithImpl(this._self, this._then);
+
+  final _SelectOpportunity _self;
+  final $Res Function(_SelectOpportunity) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? opportunityId = null,}) {
+  return _then(_SelectOpportunity(
+null == opportunityId ? _self.opportunityId : opportunityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$StartEngagementImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$StartEngagementImpl>
-    implements _$$StartEngagementImplCopyWith<$Res> {
-  __$$StartEngagementImplCopyWithImpl(
-    _$StartEngagementImpl _value,
-    $Res Function(_$StartEngagementImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? opportunityId = null}) {
-    return _then(
-      _$StartEngagementImpl(
-        opportunityId: null == opportunityId
-            ? _value.opportunityId
-            : opportunityId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$StartEngagementImpl implements _StartEngagement {
-  const _$StartEngagementImpl({required this.opportunityId});
 
-  @override
-  final String opportunityId;
+class _StartEngagement implements EarnEvent {
+  const _StartEngagement({required this.opportunityId});
+  
 
-  @override
-  String toString() {
-    return 'EarnEvent.startEngagement(opportunityId: $opportunityId)';
-  }
+ final  String opportunityId;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$StartEngagementImpl &&
-            (identical(other.opportunityId, opportunityId) ||
-                other.opportunityId == opportunityId));
-  }
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StartEngagementCopyWith<_StartEngagement> get copyWith => __$StartEngagementCopyWithImpl<_StartEngagement>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, opportunityId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$StartEngagementImplCopyWith<_$StartEngagementImpl> get copyWith =>
-      __$$StartEngagementImplCopyWithImpl<_$StartEngagementImpl>(
-        this,
-        _$identity,
-      );
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return startEngagement(opportunityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return startEngagement?.call(opportunityId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (startEngagement != null) {
-      return startEngagement(opportunityId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return startEngagement(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return startEngagement?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (startEngagement != null) {
-      return startEngagement(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StartEngagement&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId));
 }
 
-abstract class _StartEngagement implements EarnEvent {
-  const factory _StartEngagement({required final String opportunityId}) =
-      _$StartEngagementImpl;
 
-  String get opportunityId;
+@override
+int get hashCode => Object.hash(runtimeType,opportunityId);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$StartEngagementImplCopyWith<_$StartEngagementImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'EarnEvent.startEngagement(opportunityId: $opportunityId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$UpdateWatchProgressImplCopyWith<$Res> {
-  factory _$$UpdateWatchProgressImplCopyWith(
-    _$UpdateWatchProgressImpl value,
-    $Res Function(_$UpdateWatchProgressImpl) then,
-  ) = __$$UpdateWatchProgressImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String engagementId, int watchDurationSeconds});
+abstract mixin class _$StartEngagementCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$StartEngagementCopyWith(_StartEngagement value, $Res Function(_StartEngagement) _then) = __$StartEngagementCopyWithImpl;
+@useResult
+$Res call({
+ String opportunityId
+});
+
+
+
+
+}
+/// @nodoc
+class __$StartEngagementCopyWithImpl<$Res>
+    implements _$StartEngagementCopyWith<$Res> {
+  __$StartEngagementCopyWithImpl(this._self, this._then);
+
+  final _StartEngagement _self;
+  final $Res Function(_StartEngagement) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? opportunityId = null,}) {
+  return _then(_StartEngagement(
+opportunityId: null == opportunityId ? _self.opportunityId : opportunityId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$UpdateWatchProgressImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$UpdateWatchProgressImpl>
-    implements _$$UpdateWatchProgressImplCopyWith<$Res> {
-  __$$UpdateWatchProgressImplCopyWithImpl(
-    _$UpdateWatchProgressImpl _value,
-    $Res Function(_$UpdateWatchProgressImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? engagementId = null,
-    Object? watchDurationSeconds = null,
-  }) {
-    return _then(
-      _$UpdateWatchProgressImpl(
-        engagementId: null == engagementId
-            ? _value.engagementId
-            : engagementId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        watchDurationSeconds: null == watchDurationSeconds
-            ? _value.watchDurationSeconds
-            : watchDurationSeconds // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$UpdateWatchProgressImpl implements _UpdateWatchProgress {
-  const _$UpdateWatchProgressImpl({
-    required this.engagementId,
-    required this.watchDurationSeconds,
+
+class _UpdateWatchProgress implements EarnEvent {
+  const _UpdateWatchProgress({required this.engagementId, required this.watchDurationSeconds});
+  
+
+ final  String engagementId;
+ final  int watchDurationSeconds;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateWatchProgressCopyWith<_UpdateWatchProgress> get copyWith => __$UpdateWatchProgressCopyWithImpl<_UpdateWatchProgress>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateWatchProgress&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&(identical(other.watchDurationSeconds, watchDurationSeconds) || other.watchDurationSeconds == watchDurationSeconds));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,engagementId,watchDurationSeconds);
+
+@override
+String toString() {
+  return 'EarnEvent.updateWatchProgress(engagementId: $engagementId, watchDurationSeconds: $watchDurationSeconds)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdateWatchProgressCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$UpdateWatchProgressCopyWith(_UpdateWatchProgress value, $Res Function(_UpdateWatchProgress) _then) = __$UpdateWatchProgressCopyWithImpl;
+@useResult
+$Res call({
+ String engagementId, int watchDurationSeconds
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateWatchProgressCopyWithImpl<$Res>
+    implements _$UpdateWatchProgressCopyWith<$Res> {
+  __$UpdateWatchProgressCopyWithImpl(this._self, this._then);
+
+  final _UpdateWatchProgress _self;
+  final $Res Function(_UpdateWatchProgress) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? engagementId = null,Object? watchDurationSeconds = null,}) {
+  return _then(_UpdateWatchProgress(
+engagementId: null == engagementId ? _self.engagementId : engagementId // ignore: cast_nullable_to_non_nullable
+as String,watchDurationSeconds: null == watchDurationSeconds ? _self.watchDurationSeconds : watchDurationSeconds // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _SubmitSurvey implements EarnEvent {
+  const _SubmitSurvey({required this.engagementId, required final  List<EngagementAnswer> answers, required this.evidence}): _answers = answers;
+  
+
+ final  String engagementId;
+ final  List<EngagementAnswer> _answers;
+ List<EngagementAnswer> get answers {
+  if (_answers is EqualUnmodifiableListView) return _answers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_answers);
+}
+
+ final  EngagementEvidence evidence;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SubmitSurveyCopyWith<_SubmitSurvey> get copyWith => __$SubmitSurveyCopyWithImpl<_SubmitSurvey>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitSurvey&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&const DeepCollectionEquality().equals(other._answers, _answers)&&(identical(other.evidence, evidence) || other.evidence == evidence));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,engagementId,const DeepCollectionEquality().hash(_answers),evidence);
+
+@override
+String toString() {
+  return 'EarnEvent.submitSurvey(engagementId: $engagementId, answers: $answers, evidence: $evidence)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SubmitSurveyCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$SubmitSurveyCopyWith(_SubmitSurvey value, $Res Function(_SubmitSurvey) _then) = __$SubmitSurveyCopyWithImpl;
+@useResult
+$Res call({
+ String engagementId, List<EngagementAnswer> answers, EngagementEvidence evidence
+});
+
+
+$EngagementEvidenceCopyWith<$Res> get evidence;
+
+}
+/// @nodoc
+class __$SubmitSurveyCopyWithImpl<$Res>
+    implements _$SubmitSurveyCopyWith<$Res> {
+  __$SubmitSurveyCopyWithImpl(this._self, this._then);
+
+  final _SubmitSurvey _self;
+  final $Res Function(_SubmitSurvey) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? engagementId = null,Object? answers = null,Object? evidence = null,}) {
+  return _then(_SubmitSurvey(
+engagementId: null == engagementId ? _self.engagementId : engagementId // ignore: cast_nullable_to_non_nullable
+as String,answers: null == answers ? _self._answers : answers // ignore: cast_nullable_to_non_nullable
+as List<EngagementAnswer>,evidence: null == evidence ? _self.evidence : evidence // ignore: cast_nullable_to_non_nullable
+as EngagementEvidence,
+  ));
+}
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EngagementEvidenceCopyWith<$Res> get evidence {
+  
+  return $EngagementEvidenceCopyWith<$Res>(_self.evidence, (value) {
+    return _then(_self.copyWith(evidence: value));
   });
-
-  @override
-  final String engagementId;
-  @override
-  final int watchDurationSeconds;
-
-  @override
-  String toString() {
-    return 'EarnEvent.updateWatchProgress(engagementId: $engagementId, watchDurationSeconds: $watchDurationSeconds)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateWatchProgressImpl &&
-            (identical(other.engagementId, engagementId) ||
-                other.engagementId == engagementId) &&
-            (identical(other.watchDurationSeconds, watchDurationSeconds) ||
-                other.watchDurationSeconds == watchDurationSeconds));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, engagementId, watchDurationSeconds);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateWatchProgressImplCopyWith<_$UpdateWatchProgressImpl> get copyWith =>
-      __$$UpdateWatchProgressImplCopyWithImpl<_$UpdateWatchProgressImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return updateWatchProgress(engagementId, watchDurationSeconds);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return updateWatchProgress?.call(engagementId, watchDurationSeconds);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (updateWatchProgress != null) {
-      return updateWatchProgress(engagementId, watchDurationSeconds);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return updateWatchProgress(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return updateWatchProgress?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (updateWatchProgress != null) {
-      return updateWatchProgress(this);
-    }
-    return orElse();
-  }
 }
-
-abstract class _UpdateWatchProgress implements EarnEvent {
-  const factory _UpdateWatchProgress({
-    required final String engagementId,
-    required final int watchDurationSeconds,
-  }) = _$UpdateWatchProgressImpl;
-
-  String get engagementId;
-  int get watchDurationSeconds;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UpdateWatchProgressImplCopyWith<_$UpdateWatchProgressImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$SubmitSurveyImplCopyWith<$Res> {
-  factory _$$SubmitSurveyImplCopyWith(
-    _$SubmitSurveyImpl value,
-    $Res Function(_$SubmitSurveyImpl) then,
-  ) = __$$SubmitSurveyImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({
-    String engagementId,
-    List<SurveyResponse> answers,
-    EngagementEvidence evidence,
+
+
+class _AbandonEngagement implements EarnEvent {
+  const _AbandonEngagement(this.engagementId);
+  
+
+ final  String engagementId;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AbandonEngagementCopyWith<_AbandonEngagement> get copyWith => __$AbandonEngagementCopyWithImpl<_AbandonEngagement>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AbandonEngagement&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,engagementId);
+
+@override
+String toString() {
+  return 'EarnEvent.abandonEngagement(engagementId: $engagementId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AbandonEngagementCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AbandonEngagementCopyWith(_AbandonEngagement value, $Res Function(_AbandonEngagement) _then) = __$AbandonEngagementCopyWithImpl;
+@useResult
+$Res call({
+ String engagementId
+});
+
+
+
+
+}
+/// @nodoc
+class __$AbandonEngagementCopyWithImpl<$Res>
+    implements _$AbandonEngagementCopyWith<$Res> {
+  __$AbandonEngagementCopyWithImpl(this._self, this._then);
+
+  final _AbandonEngagement _self;
+  final $Res Function(_AbandonEngagement) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? engagementId = null,}) {
+  return _then(_AbandonEngagement(
+null == engagementId ? _self.engagementId : engagementId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LoadHistory implements EarnEvent {
+  const _LoadHistory({this.limit});
+  
+
+ final  int? limit;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadHistoryCopyWith<_LoadHistory> get copyWith => __$LoadHistoryCopyWithImpl<_LoadHistory>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadHistory&&(identical(other.limit, limit) || other.limit == limit));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,limit);
+
+@override
+String toString() {
+  return 'EarnEvent.loadHistory(limit: $limit)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LoadHistoryCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$LoadHistoryCopyWith(_LoadHistory value, $Res Function(_LoadHistory) _then) = __$LoadHistoryCopyWithImpl;
+@useResult
+$Res call({
+ int? limit
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoadHistoryCopyWithImpl<$Res>
+    implements _$LoadHistoryCopyWith<$Res> {
+  __$LoadHistoryCopyWithImpl(this._self, this._then);
+
+  final _LoadHistory _self;
+  final $Res Function(_LoadHistory) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? limit = freezed,}) {
+  return _then(_LoadHistory(
+limit: freezed == limit ? _self.limit : limit // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _LoadMoreHistory implements EarnEvent {
+  const _LoadMoreHistory();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadMoreHistory);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.loadMoreHistory()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _Refresh implements EarnEvent {
+  const _Refresh();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Refresh);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.refresh()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _ClearError implements EarnEvent {
+  const _ClearError();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ClearError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.clearError()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _ResetEngagement implements EarnEvent {
+  const _ResetEngagement();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResetEngagement);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.resetEngagement()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _LoadAdVideo implements EarnEvent {
+  const _LoadAdVideo();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadAdVideo);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.loadAdVideo()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _AdVideoCompleted implements EarnEvent {
+  const _AdVideoCompleted({required this.transactionId, required this.rewardAmount, this.responseId});
+  
+
+ final  String transactionId;
+ final  int rewardAmount;
+ final  String? responseId;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdVideoCompletedCopyWith<_AdVideoCompleted> get copyWith => __$AdVideoCompletedCopyWithImpl<_AdVideoCompleted>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdVideoCompleted&&(identical(other.transactionId, transactionId) || other.transactionId == transactionId)&&(identical(other.rewardAmount, rewardAmount) || other.rewardAmount == rewardAmount)&&(identical(other.responseId, responseId) || other.responseId == responseId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,transactionId,rewardAmount,responseId);
+
+@override
+String toString() {
+  return 'EarnEvent.adVideoCompleted(transactionId: $transactionId, rewardAmount: $rewardAmount, responseId: $responseId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdVideoCompletedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdVideoCompletedCopyWith(_AdVideoCompleted value, $Res Function(_AdVideoCompleted) _then) = __$AdVideoCompletedCopyWithImpl;
+@useResult
+$Res call({
+ String transactionId, int rewardAmount, String? responseId
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdVideoCompletedCopyWithImpl<$Res>
+    implements _$AdVideoCompletedCopyWith<$Res> {
+  __$AdVideoCompletedCopyWithImpl(this._self, this._then);
+
+  final _AdVideoCompleted _self;
+  final $Res Function(_AdVideoCompleted) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? transactionId = null,Object? rewardAmount = null,Object? responseId = freezed,}) {
+  return _then(_AdVideoCompleted(
+transactionId: null == transactionId ? _self.transactionId : transactionId // ignore: cast_nullable_to_non_nullable
+as String,rewardAmount: null == rewardAmount ? _self.rewardAmount : rewardAmount // ignore: cast_nullable_to_non_nullable
+as int,responseId: freezed == responseId ? _self.responseId : responseId // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AdVideoFailed implements EarnEvent {
+  const _AdVideoFailed({required this.reason});
+  
+
+ final  String reason;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdVideoFailedCopyWith<_AdVideoFailed> get copyWith => __$AdVideoFailedCopyWithImpl<_AdVideoFailed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdVideoFailed&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reason);
+
+@override
+String toString() {
+  return 'EarnEvent.adVideoFailed(reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdVideoFailedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdVideoFailedCopyWith(_AdVideoFailed value, $Res Function(_AdVideoFailed) _then) = __$AdVideoFailedCopyWithImpl;
+@useResult
+$Res call({
+ String reason
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdVideoFailedCopyWithImpl<$Res>
+    implements _$AdVideoFailedCopyWith<$Res> {
+  __$AdVideoFailedCopyWithImpl(this._self, this._then);
+
+  final _AdVideoFailed _self;
+  final $Res Function(_AdVideoFailed) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reason = null,}) {
+  return _then(_AdVideoFailed(
+reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AdReadyStateChanged implements EarnEvent {
+  const _AdReadyStateChanged({required this.isReady});
+  
+
+ final  bool isReady;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdReadyStateChangedCopyWith<_AdReadyStateChanged> get copyWith => __$AdReadyStateChangedCopyWithImpl<_AdReadyStateChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdReadyStateChanged&&(identical(other.isReady, isReady) || other.isReady == isReady));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isReady);
+
+@override
+String toString() {
+  return 'EarnEvent.adReadyStateChanged(isReady: $isReady)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdReadyStateChangedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdReadyStateChangedCopyWith(_AdReadyStateChanged value, $Res Function(_AdReadyStateChanged) _then) = __$AdReadyStateChangedCopyWithImpl;
+@useResult
+$Res call({
+ bool isReady
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdReadyStateChangedCopyWithImpl<$Res>
+    implements _$AdReadyStateChangedCopyWith<$Res> {
+  __$AdReadyStateChangedCopyWithImpl(this._self, this._then);
+
+  final _AdReadyStateChanged _self;
+  final $Res Function(_AdReadyStateChanged) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isReady = null,}) {
+  return _then(_AdReadyStateChanged(
+isReady: null == isReady ? _self.isReady : isReady // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AdLoadingStateChanged implements EarnEvent {
+  const _AdLoadingStateChanged({required this.isLoading});
+  
+
+ final  bool isLoading;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdLoadingStateChangedCopyWith<_AdLoadingStateChanged> get copyWith => __$AdLoadingStateChangedCopyWithImpl<_AdLoadingStateChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdLoadingStateChanged&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isLoading);
+
+@override
+String toString() {
+  return 'EarnEvent.adLoadingStateChanged(isLoading: $isLoading)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdLoadingStateChangedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdLoadingStateChangedCopyWith(_AdLoadingStateChanged value, $Res Function(_AdLoadingStateChanged) _then) = __$AdLoadingStateChangedCopyWithImpl;
+@useResult
+$Res call({
+ bool isLoading
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdLoadingStateChangedCopyWithImpl<$Res>
+    implements _$AdLoadingStateChangedCopyWith<$Res> {
+  __$AdLoadingStateChangedCopyWithImpl(this._self, this._then);
+
+  final _AdLoadingStateChanged _self;
+  final $Res Function(_AdLoadingStateChanged) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isLoading = null,}) {
+  return _then(_AdLoadingStateChanged(
+isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AdLoadAttemptChanged implements EarnEvent {
+  const _AdLoadAttemptChanged({required this.attempt});
+  
+
+ final  int attempt;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdLoadAttemptChangedCopyWith<_AdLoadAttemptChanged> get copyWith => __$AdLoadAttemptChangedCopyWithImpl<_AdLoadAttemptChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdLoadAttemptChanged&&(identical(other.attempt, attempt) || other.attempt == attempt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,attempt);
+
+@override
+String toString() {
+  return 'EarnEvent.adLoadAttemptChanged(attempt: $attempt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdLoadAttemptChangedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdLoadAttemptChangedCopyWith(_AdLoadAttemptChanged value, $Res Function(_AdLoadAttemptChanged) _then) = __$AdLoadAttemptChangedCopyWithImpl;
+@useResult
+$Res call({
+ int attempt
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdLoadAttemptChangedCopyWithImpl<$Res>
+    implements _$AdLoadAttemptChangedCopyWith<$Res> {
+  __$AdLoadAttemptChangedCopyWithImpl(this._self, this._then);
+
+  final _AdLoadAttemptChanged _self;
+  final $Res Function(_AdLoadAttemptChanged) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? attempt = null,}) {
+  return _then(_AdLoadAttemptChanged(
+attempt: null == attempt ? _self.attempt : attempt // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _SubmitUpload implements EarnEvent {
+  const _SubmitUpload({required this.engagementId, required final  List<UploadedFileEvidence> uploadedFiles, this.textResponse, required this.evidence}): _uploadedFiles = uploadedFiles;
+  
+
+ final  String engagementId;
+ final  List<UploadedFileEvidence> _uploadedFiles;
+ List<UploadedFileEvidence> get uploadedFiles {
+  if (_uploadedFiles is EqualUnmodifiableListView) return _uploadedFiles;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_uploadedFiles);
+}
+
+ final  String? textResponse;
+ final  EngagementEvidence evidence;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SubmitUploadCopyWith<_SubmitUpload> get copyWith => __$SubmitUploadCopyWithImpl<_SubmitUpload>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitUpload&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&const DeepCollectionEquality().equals(other._uploadedFiles, _uploadedFiles)&&(identical(other.textResponse, textResponse) || other.textResponse == textResponse)&&(identical(other.evidence, evidence) || other.evidence == evidence));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,engagementId,const DeepCollectionEquality().hash(_uploadedFiles),textResponse,evidence);
+
+@override
+String toString() {
+  return 'EarnEvent.submitUpload(engagementId: $engagementId, uploadedFiles: $uploadedFiles, textResponse: $textResponse, evidence: $evidence)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SubmitUploadCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$SubmitUploadCopyWith(_SubmitUpload value, $Res Function(_SubmitUpload) _then) = __$SubmitUploadCopyWithImpl;
+@useResult
+$Res call({
+ String engagementId, List<UploadedFileEvidence> uploadedFiles, String? textResponse, EngagementEvidence evidence
+});
+
+
+$EngagementEvidenceCopyWith<$Res> get evidence;
+
+}
+/// @nodoc
+class __$SubmitUploadCopyWithImpl<$Res>
+    implements _$SubmitUploadCopyWith<$Res> {
+  __$SubmitUploadCopyWithImpl(this._self, this._then);
+
+  final _SubmitUpload _self;
+  final $Res Function(_SubmitUpload) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? engagementId = null,Object? uploadedFiles = null,Object? textResponse = freezed,Object? evidence = null,}) {
+  return _then(_SubmitUpload(
+engagementId: null == engagementId ? _self.engagementId : engagementId // ignore: cast_nullable_to_non_nullable
+as String,uploadedFiles: null == uploadedFiles ? _self._uploadedFiles : uploadedFiles // ignore: cast_nullable_to_non_nullable
+as List<UploadedFileEvidence>,textResponse: freezed == textResponse ? _self.textResponse : textResponse // ignore: cast_nullable_to_non_nullable
+as String?,evidence: null == evidence ? _self.evidence : evidence // ignore: cast_nullable_to_non_nullable
+as EngagementEvidence,
+  ));
+}
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EngagementEvidenceCopyWith<$Res> get evidence {
+  
+  return $EngagementEvidenceCopyWith<$Res>(_self.evidence, (value) {
+    return _then(_self.copyWith(evidence: value));
   });
-
-  $EngagementEvidenceCopyWith<$Res> get evidence;
 }
-
-/// @nodoc
-class __$$SubmitSurveyImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$SubmitSurveyImpl>
-    implements _$$SubmitSurveyImplCopyWith<$Res> {
-  __$$SubmitSurveyImplCopyWithImpl(
-    _$SubmitSurveyImpl _value,
-    $Res Function(_$SubmitSurveyImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? engagementId = null,
-    Object? answers = null,
-    Object? evidence = null,
-  }) {
-    return _then(
-      _$SubmitSurveyImpl(
-        engagementId: null == engagementId
-            ? _value.engagementId
-            : engagementId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        answers: null == answers
-            ? _value._answers
-            : answers // ignore: cast_nullable_to_non_nullable
-                  as List<SurveyResponse>,
-        evidence: null == evidence
-            ? _value.evidence
-            : evidence // ignore: cast_nullable_to_non_nullable
-                  as EngagementEvidence,
-      ),
-    );
-  }
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EngagementEvidenceCopyWith<$Res> get evidence {
-    return $EngagementEvidenceCopyWith<$Res>(_value.evidence, (value) {
-      return _then(_value.copyWith(evidence: value));
-    });
-  }
 }
 
 /// @nodoc
 
-class _$SubmitSurveyImpl implements _SubmitSurvey {
-  const _$SubmitSurveyImpl({
-    required this.engagementId,
-    required final List<SurveyResponse> answers,
-    required this.evidence,
-  }) : _answers = answers;
 
-  @override
-  final String engagementId;
-  final List<SurveyResponse> _answers;
-  @override
-  List<SurveyResponse> get answers {
-    if (_answers is EqualUnmodifiableListView) return _answers;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_answers);
-  }
+class _UploadProgressChanged implements EarnEvent {
+  const _UploadProgressChanged({required this.progress, required this.bytesTransferred, required this.totalBytes});
+  
 
-  @override
-  final EngagementEvidence evidence;
+ final  double progress;
+ final  int bytesTransferred;
+ final  int totalBytes;
 
-  @override
-  String toString() {
-    return 'EarnEvent.submitSurvey(engagementId: $engagementId, answers: $answers, evidence: $evidence)';
-  }
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UploadProgressChangedCopyWith<_UploadProgressChanged> get copyWith => __$UploadProgressChangedCopyWithImpl<_UploadProgressChanged>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SubmitSurveyImpl &&
-            (identical(other.engagementId, engagementId) ||
-                other.engagementId == engagementId) &&
-            const DeepCollectionEquality().equals(other._answers, _answers) &&
-            (identical(other.evidence, evidence) ||
-                other.evidence == evidence));
-  }
 
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    engagementId,
-    const DeepCollectionEquality().hash(_answers),
-    evidence,
-  );
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SubmitSurveyImplCopyWith<_$SubmitSurveyImpl> get copyWith =>
-      __$$SubmitSurveyImplCopyWithImpl<_$SubmitSurveyImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return submitSurvey(engagementId, answers, evidence);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return submitSurvey?.call(engagementId, answers, evidence);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (submitSurvey != null) {
-      return submitSurvey(engagementId, answers, evidence);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return submitSurvey(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return submitSurvey?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (submitSurvey != null) {
-      return submitSurvey(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UploadProgressChanged&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.bytesTransferred, bytesTransferred) || other.bytesTransferred == bytesTransferred)&&(identical(other.totalBytes, totalBytes) || other.totalBytes == totalBytes));
 }
 
-abstract class _SubmitSurvey implements EarnEvent {
-  const factory _SubmitSurvey({
-    required final String engagementId,
-    required final List<SurveyResponse> answers,
-    required final EngagementEvidence evidence,
-  }) = _$SubmitSurveyImpl;
 
-  String get engagementId;
-  List<SurveyResponse> get answers;
-  EngagementEvidence get evidence;
+@override
+int get hashCode => Object.hash(runtimeType,progress,bytesTransferred,totalBytes);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SubmitSurveyImplCopyWith<_$SubmitSurveyImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'EarnEvent.uploadProgressChanged(progress: $progress, bytesTransferred: $bytesTransferred, totalBytes: $totalBytes)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$AbandonEngagementImplCopyWith<$Res> {
-  factory _$$AbandonEngagementImplCopyWith(
-    _$AbandonEngagementImpl value,
-    $Res Function(_$AbandonEngagementImpl) then,
-  ) = __$$AbandonEngagementImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String engagementId});
-}
+abstract mixin class _$UploadProgressChangedCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$UploadProgressChangedCopyWith(_UploadProgressChanged value, $Res Function(_UploadProgressChanged) _then) = __$UploadProgressChangedCopyWithImpl;
+@useResult
+$Res call({
+ double progress, int bytesTransferred, int totalBytes
+});
 
+
+
+
+}
 /// @nodoc
-class __$$AbandonEngagementImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AbandonEngagementImpl>
-    implements _$$AbandonEngagementImplCopyWith<$Res> {
-  __$$AbandonEngagementImplCopyWithImpl(
-    _$AbandonEngagementImpl _value,
-    $Res Function(_$AbandonEngagementImpl) _then,
-  ) : super(_value, _then);
+class __$UploadProgressChangedCopyWithImpl<$Res>
+    implements _$UploadProgressChangedCopyWith<$Res> {
+  __$UploadProgressChangedCopyWithImpl(this._self, this._then);
 
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? engagementId = null}) {
-    return _then(
-      _$AbandonEngagementImpl(
-        null == engagementId
-            ? _value.engagementId
-            : engagementId // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+  final _UploadProgressChanged _self;
+  final $Res Function(_UploadProgressChanged) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? progress = null,Object? bytesTransferred = null,Object? totalBytes = null,}) {
+  return _then(_UploadProgressChanged(
+progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
+as double,bytesTransferred: null == bytesTransferred ? _self.bytesTransferred : bytesTransferred // ignore: cast_nullable_to_non_nullable
+as int,totalBytes: null == totalBytes ? _self.totalBytes : totalBytes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
 
-class _$AbandonEngagementImpl implements _AbandonEngagement {
-  const _$AbandonEngagementImpl(this.engagementId);
-
-  @override
-  final String engagementId;
-
-  @override
-  String toString() {
-    return 'EarnEvent.abandonEngagement(engagementId: $engagementId)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AbandonEngagementImpl &&
-            (identical(other.engagementId, engagementId) ||
-                other.engagementId == engagementId));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, engagementId);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AbandonEngagementImplCopyWith<_$AbandonEngagementImpl> get copyWith =>
-      __$$AbandonEngagementImplCopyWithImpl<_$AbandonEngagementImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return abandonEngagement(engagementId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return abandonEngagement?.call(engagementId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (abandonEngagement != null) {
-      return abandonEngagement(engagementId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return abandonEngagement(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return abandonEngagement?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (abandonEngagement != null) {
-      return abandonEngagement(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AbandonEngagement implements EarnEvent {
-  const factory _AbandonEngagement(final String engagementId) =
-      _$AbandonEngagementImpl;
-
-  String get engagementId;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AbandonEngagementImplCopyWith<_$AbandonEngagementImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$LoadHistoryImplCopyWith<$Res> {
-  factory _$$LoadHistoryImplCopyWith(
-    _$LoadHistoryImpl value,
-    $Res Function(_$LoadHistoryImpl) then,
-  ) = __$$LoadHistoryImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({int? limit});
-}
-
-/// @nodoc
-class __$$LoadHistoryImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$LoadHistoryImpl>
-    implements _$$LoadHistoryImplCopyWith<$Res> {
-  __$$LoadHistoryImplCopyWithImpl(
-    _$LoadHistoryImpl _value,
-    $Res Function(_$LoadHistoryImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? limit = freezed}) {
-    return _then(
-      _$LoadHistoryImpl(
-        limit: freezed == limit
-            ? _value.limit
-            : limit // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$LoadHistoryImpl implements _LoadHistory {
-  const _$LoadHistoryImpl({this.limit});
-
-  @override
-  final int? limit;
-
-  @override
-  String toString() {
-    return 'EarnEvent.loadHistory(limit: $limit)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadHistoryImpl &&
-            (identical(other.limit, limit) || other.limit == limit));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, limit);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LoadHistoryImplCopyWith<_$LoadHistoryImpl> get copyWith =>
-      __$$LoadHistoryImplCopyWithImpl<_$LoadHistoryImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return loadHistory(limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return loadHistory?.call(limit);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadHistory != null) {
-      return loadHistory(limit);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return loadHistory(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return loadHistory?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadHistory != null) {
-      return loadHistory(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadHistory implements EarnEvent {
-  const factory _LoadHistory({final int? limit}) = _$LoadHistoryImpl;
-
-  int? get limit;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$LoadHistoryImplCopyWith<_$LoadHistoryImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$LoadMoreHistoryImplCopyWith<$Res> {
-  factory _$$LoadMoreHistoryImplCopyWith(
-    _$LoadMoreHistoryImpl value,
-    $Res Function(_$LoadMoreHistoryImpl) then,
-  ) = __$$LoadMoreHistoryImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$LoadMoreHistoryImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$LoadMoreHistoryImpl>
-    implements _$$LoadMoreHistoryImplCopyWith<$Res> {
-  __$$LoadMoreHistoryImplCopyWithImpl(
-    _$LoadMoreHistoryImpl _value,
-    $Res Function(_$LoadMoreHistoryImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$LoadMoreHistoryImpl implements _LoadMoreHistory {
-  const _$LoadMoreHistoryImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.loadMoreHistory()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LoadMoreHistoryImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return loadMoreHistory();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return loadMoreHistory?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadMoreHistory != null) {
-      return loadMoreHistory();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return loadMoreHistory(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return loadMoreHistory?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadMoreHistory != null) {
-      return loadMoreHistory(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadMoreHistory implements EarnEvent {
-  const factory _LoadMoreHistory() = _$LoadMoreHistoryImpl;
-}
-
-/// @nodoc
-abstract class _$$RefreshImplCopyWith<$Res> {
-  factory _$$RefreshImplCopyWith(
-    _$RefreshImpl value,
-    $Res Function(_$RefreshImpl) then,
-  ) = __$$RefreshImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$RefreshImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$RefreshImpl>
-    implements _$$RefreshImplCopyWith<$Res> {
-  __$$RefreshImplCopyWithImpl(
-    _$RefreshImpl _value,
-    $Res Function(_$RefreshImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$RefreshImpl implements _Refresh {
-  const _$RefreshImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.refresh()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$RefreshImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return refresh();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return refresh?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (refresh != null) {
-      return refresh();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return refresh(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return refresh?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (refresh != null) {
-      return refresh(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _Refresh implements EarnEvent {
-  const factory _Refresh() = _$RefreshImpl;
-}
-
-/// @nodoc
-abstract class _$$ClearErrorImplCopyWith<$Res> {
-  factory _$$ClearErrorImplCopyWith(
-    _$ClearErrorImpl value,
-    $Res Function(_$ClearErrorImpl) then,
-  ) = __$$ClearErrorImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$ClearErrorImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$ClearErrorImpl>
-    implements _$$ClearErrorImplCopyWith<$Res> {
-  __$$ClearErrorImplCopyWithImpl(
-    _$ClearErrorImpl _value,
-    $Res Function(_$ClearErrorImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$ClearErrorImpl implements _ClearError {
-  const _$ClearErrorImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.clearError()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$ClearErrorImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return clearError();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return clearError?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (clearError != null) {
-      return clearError();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return clearError(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return clearError?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (clearError != null) {
-      return clearError(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ClearError implements EarnEvent {
-  const factory _ClearError() = _$ClearErrorImpl;
-}
-
-/// @nodoc
-abstract class _$$ResetEngagementImplCopyWith<$Res> {
-  factory _$$ResetEngagementImplCopyWith(
-    _$ResetEngagementImpl value,
-    $Res Function(_$ResetEngagementImpl) then,
-  ) = __$$ResetEngagementImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$ResetEngagementImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$ResetEngagementImpl>
-    implements _$$ResetEngagementImplCopyWith<$Res> {
-  __$$ResetEngagementImplCopyWithImpl(
-    _$ResetEngagementImpl _value,
-    $Res Function(_$ResetEngagementImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$ResetEngagementImpl implements _ResetEngagement {
-  const _$ResetEngagementImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.resetEngagement()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$ResetEngagementImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return resetEngagement();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return resetEngagement?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (resetEngagement != null) {
-      return resetEngagement();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return resetEngagement(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return resetEngagement?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (resetEngagement != null) {
-      return resetEngagement(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _ResetEngagement implements EarnEvent {
-  const factory _ResetEngagement() = _$ResetEngagementImpl;
-}
-
-/// @nodoc
-abstract class _$$LoadAdVideoImplCopyWith<$Res> {
-  factory _$$LoadAdVideoImplCopyWith(
-    _$LoadAdVideoImpl value,
-    $Res Function(_$LoadAdVideoImpl) then,
-  ) = __$$LoadAdVideoImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$LoadAdVideoImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$LoadAdVideoImpl>
-    implements _$$LoadAdVideoImplCopyWith<$Res> {
-  __$$LoadAdVideoImplCopyWithImpl(
-    _$LoadAdVideoImpl _value,
-    $Res Function(_$LoadAdVideoImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$LoadAdVideoImpl implements _LoadAdVideo {
-  const _$LoadAdVideoImpl();
-
-  @override
-  String toString() {
-    return 'EarnEvent.loadAdVideo()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LoadAdVideoImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return loadAdVideo();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return loadAdVideo?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadAdVideo != null) {
-      return loadAdVideo();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return loadAdVideo(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return loadAdVideo?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (loadAdVideo != null) {
-      return loadAdVideo(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _LoadAdVideo implements EarnEvent {
-  const factory _LoadAdVideo() = _$LoadAdVideoImpl;
-}
-
-/// @nodoc
-abstract class _$$AdVideoCompletedImplCopyWith<$Res> {
-  factory _$$AdVideoCompletedImplCopyWith(
-    _$AdVideoCompletedImpl value,
-    $Res Function(_$AdVideoCompletedImpl) then,
-  ) = __$$AdVideoCompletedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String transactionId, int rewardAmount, String? responseId});
-}
-
-/// @nodoc
-class __$$AdVideoCompletedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AdVideoCompletedImpl>
-    implements _$$AdVideoCompletedImplCopyWith<$Res> {
-  __$$AdVideoCompletedImplCopyWithImpl(
-    _$AdVideoCompletedImpl _value,
-    $Res Function(_$AdVideoCompletedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? transactionId = null,
-    Object? rewardAmount = null,
-    Object? responseId = freezed,
-  }) {
-    return _then(
-      _$AdVideoCompletedImpl(
-        transactionId: null == transactionId
-            ? _value.transactionId
-            : transactionId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        rewardAmount: null == rewardAmount
-            ? _value.rewardAmount
-            : rewardAmount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        responseId: freezed == responseId
-            ? _value.responseId
-            : responseId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$AdVideoCompletedImpl implements _AdVideoCompleted {
-  const _$AdVideoCompletedImpl({
-    required this.transactionId,
-    required this.rewardAmount,
-    this.responseId,
-  });
-
-  @override
-  final String transactionId;
-  @override
-  final int rewardAmount;
-  @override
-  final String? responseId;
-
-  @override
-  String toString() {
-    return 'EarnEvent.adVideoCompleted(transactionId: $transactionId, rewardAmount: $rewardAmount, responseId: $responseId)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AdVideoCompletedImpl &&
-            (identical(other.transactionId, transactionId) ||
-                other.transactionId == transactionId) &&
-            (identical(other.rewardAmount, rewardAmount) ||
-                other.rewardAmount == rewardAmount) &&
-            (identical(other.responseId, responseId) ||
-                other.responseId == responseId));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, transactionId, rewardAmount, responseId);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AdVideoCompletedImplCopyWith<_$AdVideoCompletedImpl> get copyWith =>
-      __$$AdVideoCompletedImplCopyWithImpl<_$AdVideoCompletedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return adVideoCompleted(transactionId, rewardAmount, responseId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return adVideoCompleted?.call(transactionId, rewardAmount, responseId);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adVideoCompleted != null) {
-      return adVideoCompleted(transactionId, rewardAmount, responseId);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return adVideoCompleted(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return adVideoCompleted?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adVideoCompleted != null) {
-      return adVideoCompleted(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AdVideoCompleted implements EarnEvent {
-  const factory _AdVideoCompleted({
-    required final String transactionId,
-    required final int rewardAmount,
-    final String? responseId,
-  }) = _$AdVideoCompletedImpl;
-
-  String get transactionId;
-  int get rewardAmount;
-  String? get responseId;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AdVideoCompletedImplCopyWith<_$AdVideoCompletedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$AdVideoFailedImplCopyWith<$Res> {
-  factory _$$AdVideoFailedImplCopyWith(
-    _$AdVideoFailedImpl value,
-    $Res Function(_$AdVideoFailedImpl) then,
-  ) = __$$AdVideoFailedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String reason});
-}
-
-/// @nodoc
-class __$$AdVideoFailedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AdVideoFailedImpl>
-    implements _$$AdVideoFailedImplCopyWith<$Res> {
-  __$$AdVideoFailedImplCopyWithImpl(
-    _$AdVideoFailedImpl _value,
-    $Res Function(_$AdVideoFailedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? reason = null}) {
-    return _then(
-      _$AdVideoFailedImpl(
-        reason: null == reason
-            ? _value.reason
-            : reason // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$AdVideoFailedImpl implements _AdVideoFailed {
-  const _$AdVideoFailedImpl({required this.reason});
-
-  @override
-  final String reason;
-
-  @override
-  String toString() {
-    return 'EarnEvent.adVideoFailed(reason: $reason)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AdVideoFailedImpl &&
-            (identical(other.reason, reason) || other.reason == reason));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, reason);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AdVideoFailedImplCopyWith<_$AdVideoFailedImpl> get copyWith =>
-      __$$AdVideoFailedImplCopyWithImpl<_$AdVideoFailedImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return adVideoFailed(reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return adVideoFailed?.call(reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adVideoFailed != null) {
-      return adVideoFailed(reason);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return adVideoFailed(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return adVideoFailed?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adVideoFailed != null) {
-      return adVideoFailed(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AdVideoFailed implements EarnEvent {
-  const factory _AdVideoFailed({required final String reason}) =
-      _$AdVideoFailedImpl;
-
-  String get reason;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AdVideoFailedImplCopyWith<_$AdVideoFailedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$AdReadyStateChangedImplCopyWith<$Res> {
-  factory _$$AdReadyStateChangedImplCopyWith(
-    _$AdReadyStateChangedImpl value,
-    $Res Function(_$AdReadyStateChangedImpl) then,
-  ) = __$$AdReadyStateChangedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({bool isReady});
-}
-
-/// @nodoc
-class __$$AdReadyStateChangedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AdReadyStateChangedImpl>
-    implements _$$AdReadyStateChangedImplCopyWith<$Res> {
-  __$$AdReadyStateChangedImplCopyWithImpl(
-    _$AdReadyStateChangedImpl _value,
-    $Res Function(_$AdReadyStateChangedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? isReady = null}) {
-    return _then(
-      _$AdReadyStateChangedImpl(
-        isReady: null == isReady
-            ? _value.isReady
-            : isReady // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$AdReadyStateChangedImpl implements _AdReadyStateChanged {
-  const _$AdReadyStateChangedImpl({required this.isReady});
-
-  @override
-  final bool isReady;
-
-  @override
-  String toString() {
-    return 'EarnEvent.adReadyStateChanged(isReady: $isReady)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AdReadyStateChangedImpl &&
-            (identical(other.isReady, isReady) || other.isReady == isReady));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, isReady);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AdReadyStateChangedImplCopyWith<_$AdReadyStateChangedImpl> get copyWith =>
-      __$$AdReadyStateChangedImplCopyWithImpl<_$AdReadyStateChangedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return adReadyStateChanged(isReady);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return adReadyStateChanged?.call(isReady);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adReadyStateChanged != null) {
-      return adReadyStateChanged(isReady);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return adReadyStateChanged(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return adReadyStateChanged?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adReadyStateChanged != null) {
-      return adReadyStateChanged(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AdReadyStateChanged implements EarnEvent {
-  const factory _AdReadyStateChanged({required final bool isReady}) =
-      _$AdReadyStateChangedImpl;
-
-  bool get isReady;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AdReadyStateChangedImplCopyWith<_$AdReadyStateChangedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$AdLoadingStateChangedImplCopyWith<$Res> {
-  factory _$$AdLoadingStateChangedImplCopyWith(
-    _$AdLoadingStateChangedImpl value,
-    $Res Function(_$AdLoadingStateChangedImpl) then,
-  ) = __$$AdLoadingStateChangedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({bool isLoading});
-}
-
-/// @nodoc
-class __$$AdLoadingStateChangedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AdLoadingStateChangedImpl>
-    implements _$$AdLoadingStateChangedImplCopyWith<$Res> {
-  __$$AdLoadingStateChangedImplCopyWithImpl(
-    _$AdLoadingStateChangedImpl _value,
-    $Res Function(_$AdLoadingStateChangedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? isLoading = null}) {
-    return _then(
-      _$AdLoadingStateChangedImpl(
-        isLoading: null == isLoading
-            ? _value.isLoading
-            : isLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$AdLoadingStateChangedImpl implements _AdLoadingStateChanged {
-  const _$AdLoadingStateChangedImpl({required this.isLoading});
-
-  @override
-  final bool isLoading;
-
-  @override
-  String toString() {
-    return 'EarnEvent.adLoadingStateChanged(isLoading: $isLoading)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AdLoadingStateChangedImpl &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, isLoading);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AdLoadingStateChangedImplCopyWith<_$AdLoadingStateChangedImpl>
-  get copyWith =>
-      __$$AdLoadingStateChangedImplCopyWithImpl<_$AdLoadingStateChangedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return adLoadingStateChanged(isLoading);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return adLoadingStateChanged?.call(isLoading);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adLoadingStateChanged != null) {
-      return adLoadingStateChanged(isLoading);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return adLoadingStateChanged(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return adLoadingStateChanged?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adLoadingStateChanged != null) {
-      return adLoadingStateChanged(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AdLoadingStateChanged implements EarnEvent {
-  const factory _AdLoadingStateChanged({required final bool isLoading}) =
-      _$AdLoadingStateChangedImpl;
-
-  bool get isLoading;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AdLoadingStateChangedImplCopyWith<_$AdLoadingStateChangedImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$AdLoadAttemptChangedImplCopyWith<$Res> {
-  factory _$$AdLoadAttemptChangedImplCopyWith(
-    _$AdLoadAttemptChangedImpl value,
-    $Res Function(_$AdLoadAttemptChangedImpl) then,
-  ) = __$$AdLoadAttemptChangedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({int attempt});
-}
-
-/// @nodoc
-class __$$AdLoadAttemptChangedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$AdLoadAttemptChangedImpl>
-    implements _$$AdLoadAttemptChangedImplCopyWith<$Res> {
-  __$$AdLoadAttemptChangedImplCopyWithImpl(
-    _$AdLoadAttemptChangedImpl _value,
-    $Res Function(_$AdLoadAttemptChangedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? attempt = null}) {
-    return _then(
-      _$AdLoadAttemptChangedImpl(
-        attempt: null == attempt
-            ? _value.attempt
-            : attempt // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$AdLoadAttemptChangedImpl implements _AdLoadAttemptChanged {
-  const _$AdLoadAttemptChangedImpl({required this.attempt});
-
-  @override
-  final int attempt;
-
-  @override
-  String toString() {
-    return 'EarnEvent.adLoadAttemptChanged(attempt: $attempt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AdLoadAttemptChangedImpl &&
-            (identical(other.attempt, attempt) || other.attempt == attempt));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, attempt);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AdLoadAttemptChangedImplCopyWith<_$AdLoadAttemptChangedImpl>
-  get copyWith =>
-      __$$AdLoadAttemptChangedImplCopyWithImpl<_$AdLoadAttemptChangedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return adLoadAttemptChanged(attempt);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return adLoadAttemptChanged?.call(attempt);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adLoadAttemptChanged != null) {
-      return adLoadAttemptChanged(attempt);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return adLoadAttemptChanged(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return adLoadAttemptChanged?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (adLoadAttemptChanged != null) {
-      return adLoadAttemptChanged(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _AdLoadAttemptChanged implements EarnEvent {
-  const factory _AdLoadAttemptChanged({required final int attempt}) =
-      _$AdLoadAttemptChangedImpl;
-
-  int get attempt;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AdLoadAttemptChangedImplCopyWith<_$AdLoadAttemptChangedImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$SubmitUploadImplCopyWith<$Res> {
-  factory _$$SubmitUploadImplCopyWith(
-    _$SubmitUploadImpl value,
-    $Res Function(_$SubmitUploadImpl) then,
-  ) = __$$SubmitUploadImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({
-    String engagementId,
-    List<UploadedFileEvidence> uploadedFiles,
-    String? textResponse,
-    EngagementEvidence evidence,
-  });
-
-  $EngagementEvidenceCopyWith<$Res> get evidence;
-}
-
-/// @nodoc
-class __$$SubmitUploadImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$SubmitUploadImpl>
-    implements _$$SubmitUploadImplCopyWith<$Res> {
-  __$$SubmitUploadImplCopyWithImpl(
-    _$SubmitUploadImpl _value,
-    $Res Function(_$SubmitUploadImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? engagementId = null,
-    Object? uploadedFiles = null,
-    Object? textResponse = freezed,
-    Object? evidence = null,
-  }) {
-    return _then(
-      _$SubmitUploadImpl(
-        engagementId: null == engagementId
-            ? _value.engagementId
-            : engagementId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        uploadedFiles: null == uploadedFiles
-            ? _value._uploadedFiles
-            : uploadedFiles // ignore: cast_nullable_to_non_nullable
-                  as List<UploadedFileEvidence>,
-        textResponse: freezed == textResponse
-            ? _value.textResponse
-            : textResponse // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        evidence: null == evidence
-            ? _value.evidence
-            : evidence // ignore: cast_nullable_to_non_nullable
-                  as EngagementEvidence,
-      ),
-    );
-  }
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EngagementEvidenceCopyWith<$Res> get evidence {
-    return $EngagementEvidenceCopyWith<$Res>(_value.evidence, (value) {
-      return _then(_value.copyWith(evidence: value));
-    });
-  }
-}
-
-/// @nodoc
-
-class _$SubmitUploadImpl implements _SubmitUpload {
-  const _$SubmitUploadImpl({
-    required this.engagementId,
-    required final List<UploadedFileEvidence> uploadedFiles,
-    this.textResponse,
-    required this.evidence,
-  }) : _uploadedFiles = uploadedFiles;
-
-  @override
-  final String engagementId;
-  final List<UploadedFileEvidence> _uploadedFiles;
-  @override
-  List<UploadedFileEvidence> get uploadedFiles {
-    if (_uploadedFiles is EqualUnmodifiableListView) return _uploadedFiles;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_uploadedFiles);
-  }
-
-  @override
-  final String? textResponse;
-  @override
-  final EngagementEvidence evidence;
-
-  @override
-  String toString() {
-    return 'EarnEvent.submitUpload(engagementId: $engagementId, uploadedFiles: $uploadedFiles, textResponse: $textResponse, evidence: $evidence)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SubmitUploadImpl &&
-            (identical(other.engagementId, engagementId) ||
-                other.engagementId == engagementId) &&
-            const DeepCollectionEquality().equals(
-              other._uploadedFiles,
-              _uploadedFiles,
-            ) &&
-            (identical(other.textResponse, textResponse) ||
-                other.textResponse == textResponse) &&
-            (identical(other.evidence, evidence) ||
-                other.evidence == evidence));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    engagementId,
-    const DeepCollectionEquality().hash(_uploadedFiles),
-    textResponse,
-    evidence,
-  );
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SubmitUploadImplCopyWith<_$SubmitUploadImpl> get copyWith =>
-      __$$SubmitUploadImplCopyWithImpl<_$SubmitUploadImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return submitUpload(engagementId, uploadedFiles, textResponse, evidence);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return submitUpload?.call(
-      engagementId,
-      uploadedFiles,
-      textResponse,
-      evidence,
-    );
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (submitUpload != null) {
-      return submitUpload(engagementId, uploadedFiles, textResponse, evidence);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return submitUpload(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return submitUpload?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (submitUpload != null) {
-      return submitUpload(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _SubmitUpload implements EarnEvent {
-  const factory _SubmitUpload({
-    required final String engagementId,
-    required final List<UploadedFileEvidence> uploadedFiles,
-    final String? textResponse,
-    required final EngagementEvidence evidence,
-  }) = _$SubmitUploadImpl;
-
-  String get engagementId;
-  List<UploadedFileEvidence> get uploadedFiles;
-  String? get textResponse;
-  EngagementEvidence get evidence;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SubmitUploadImplCopyWith<_$SubmitUploadImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$UploadProgressChangedImplCopyWith<$Res> {
-  factory _$$UploadProgressChangedImplCopyWith(
-    _$UploadProgressChangedImpl value,
-    $Res Function(_$UploadProgressChangedImpl) then,
-  ) = __$$UploadProgressChangedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({double progress, int bytesTransferred, int totalBytes});
-}
-
-/// @nodoc
-class __$$UploadProgressChangedImplCopyWithImpl<$Res>
-    extends _$EarnEventCopyWithImpl<$Res, _$UploadProgressChangedImpl>
-    implements _$$UploadProgressChangedImplCopyWith<$Res> {
-  __$$UploadProgressChangedImplCopyWithImpl(
-    _$UploadProgressChangedImpl _value,
-    $Res Function(_$UploadProgressChangedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? progress = null,
-    Object? bytesTransferred = null,
-    Object? totalBytes = null,
-  }) {
-    return _then(
-      _$UploadProgressChangedImpl(
-        progress: null == progress
-            ? _value.progress
-            : progress // ignore: cast_nullable_to_non_nullable
-                  as double,
-        bytesTransferred: null == bytesTransferred
-            ? _value.bytesTransferred
-            : bytesTransferred // ignore: cast_nullable_to_non_nullable
-                  as int,
-        totalBytes: null == totalBytes
-            ? _value.totalBytes
-            : totalBytes // ignore: cast_nullable_to_non_nullable
-                  as int,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$UploadProgressChangedImpl implements _UploadProgressChanged {
-  const _$UploadProgressChangedImpl({
-    required this.progress,
-    required this.bytesTransferred,
-    required this.totalBytes,
-  });
-
-  @override
-  final double progress;
-  @override
-  final int bytesTransferred;
-  @override
-  final int totalBytes;
-
-  @override
-  String toString() {
-    return 'EarnEvent.uploadProgressChanged(progress: $progress, bytesTransferred: $bytesTransferred, totalBytes: $totalBytes)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UploadProgressChangedImpl &&
-            (identical(other.progress, progress) ||
-                other.progress == progress) &&
-            (identical(other.bytesTransferred, bytesTransferred) ||
-                other.bytesTransferred == bytesTransferred) &&
-            (identical(other.totalBytes, totalBytes) ||
-                other.totalBytes == totalBytes));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, progress, bytesTransferred, totalBytes);
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UploadProgressChangedImplCopyWith<_$UploadProgressChangedImpl>
-  get copyWith =>
-      __$$UploadProgressChangedImplCopyWithImpl<_$UploadProgressChangedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() loadThreads,
-    required TResult Function(String threadId) selectThread,
-    required TResult Function(String threadId) loadOpportunities,
-    required TResult Function(String opportunityId) selectOpportunity,
-    required TResult Function(String opportunityId) startEngagement,
-    required TResult Function(String engagementId, int watchDurationSeconds)
-    updateWatchProgress,
-    required TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )
-    submitSurvey,
-    required TResult Function(String engagementId) abandonEngagement,
-    required TResult Function(int? limit) loadHistory,
-    required TResult Function() loadMoreHistory,
-    required TResult Function() refresh,
-    required TResult Function() clearError,
-    required TResult Function() resetEngagement,
-    required TResult Function() loadAdVideo,
-    required TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )
-    adVideoCompleted,
-    required TResult Function(String reason) adVideoFailed,
-    required TResult Function(bool isReady) adReadyStateChanged,
-    required TResult Function(bool isLoading) adLoadingStateChanged,
-    required TResult Function(int attempt) adLoadAttemptChanged,
-    required TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )
-    submitUpload,
-    required TResult Function(
-      double progress,
-      int bytesTransferred,
-      int totalBytes,
-    )
-    uploadProgressChanged,
-  }) {
-    return uploadProgressChanged(progress, bytesTransferred, totalBytes);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? loadThreads,
-    TResult? Function(String threadId)? selectThread,
-    TResult? Function(String threadId)? loadOpportunities,
-    TResult? Function(String opportunityId)? selectOpportunity,
-    TResult? Function(String opportunityId)? startEngagement,
-    TResult? Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult? Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult? Function(String engagementId)? abandonEngagement,
-    TResult? Function(int? limit)? loadHistory,
-    TResult? Function()? loadMoreHistory,
-    TResult? Function()? refresh,
-    TResult? Function()? clearError,
-    TResult? Function()? resetEngagement,
-    TResult? Function()? loadAdVideo,
-    TResult? Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult? Function(String reason)? adVideoFailed,
-    TResult? Function(bool isReady)? adReadyStateChanged,
-    TResult? Function(bool isLoading)? adLoadingStateChanged,
-    TResult? Function(int attempt)? adLoadAttemptChanged,
-    TResult? Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult? Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-  }) {
-    return uploadProgressChanged?.call(progress, bytesTransferred, totalBytes);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? loadThreads,
-    TResult Function(String threadId)? selectThread,
-    TResult Function(String threadId)? loadOpportunities,
-    TResult Function(String opportunityId)? selectOpportunity,
-    TResult Function(String opportunityId)? startEngagement,
-    TResult Function(String engagementId, int watchDurationSeconds)?
-    updateWatchProgress,
-    TResult Function(
-      String engagementId,
-      List<SurveyResponse> answers,
-      EngagementEvidence evidence,
-    )?
-    submitSurvey,
-    TResult Function(String engagementId)? abandonEngagement,
-    TResult Function(int? limit)? loadHistory,
-    TResult Function()? loadMoreHistory,
-    TResult Function()? refresh,
-    TResult Function()? clearError,
-    TResult Function()? resetEngagement,
-    TResult Function()? loadAdVideo,
-    TResult Function(
-      String transactionId,
-      int rewardAmount,
-      String? responseId,
-    )?
-    adVideoCompleted,
-    TResult Function(String reason)? adVideoFailed,
-    TResult Function(bool isReady)? adReadyStateChanged,
-    TResult Function(bool isLoading)? adLoadingStateChanged,
-    TResult Function(int attempt)? adLoadAttemptChanged,
-    TResult Function(
-      String engagementId,
-      List<UploadedFileEvidence> uploadedFiles,
-      String? textResponse,
-      EngagementEvidence evidence,
-    )?
-    submitUpload,
-    TResult Function(double progress, int bytesTransferred, int totalBytes)?
-    uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (uploadProgressChanged != null) {
-      return uploadProgressChanged(progress, bytesTransferred, totalBytes);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_LoadThreads value) loadThreads,
-    required TResult Function(_SelectThread value) selectThread,
-    required TResult Function(_LoadOpportunities value) loadOpportunities,
-    required TResult Function(_SelectOpportunity value) selectOpportunity,
-    required TResult Function(_StartEngagement value) startEngagement,
-    required TResult Function(_UpdateWatchProgress value) updateWatchProgress,
-    required TResult Function(_SubmitSurvey value) submitSurvey,
-    required TResult Function(_AbandonEngagement value) abandonEngagement,
-    required TResult Function(_LoadHistory value) loadHistory,
-    required TResult Function(_LoadMoreHistory value) loadMoreHistory,
-    required TResult Function(_Refresh value) refresh,
-    required TResult Function(_ClearError value) clearError,
-    required TResult Function(_ResetEngagement value) resetEngagement,
-    required TResult Function(_LoadAdVideo value) loadAdVideo,
-    required TResult Function(_AdVideoCompleted value) adVideoCompleted,
-    required TResult Function(_AdVideoFailed value) adVideoFailed,
-    required TResult Function(_AdReadyStateChanged value) adReadyStateChanged,
-    required TResult Function(_AdLoadingStateChanged value)
-    adLoadingStateChanged,
-    required TResult Function(_AdLoadAttemptChanged value) adLoadAttemptChanged,
-    required TResult Function(_SubmitUpload value) submitUpload,
-    required TResult Function(_UploadProgressChanged value)
-    uploadProgressChanged,
-  }) {
-    return uploadProgressChanged(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_LoadThreads value)? loadThreads,
-    TResult? Function(_SelectThread value)? selectThread,
-    TResult? Function(_LoadOpportunities value)? loadOpportunities,
-    TResult? Function(_SelectOpportunity value)? selectOpportunity,
-    TResult? Function(_StartEngagement value)? startEngagement,
-    TResult? Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult? Function(_SubmitSurvey value)? submitSurvey,
-    TResult? Function(_AbandonEngagement value)? abandonEngagement,
-    TResult? Function(_LoadHistory value)? loadHistory,
-    TResult? Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult? Function(_Refresh value)? refresh,
-    TResult? Function(_ClearError value)? clearError,
-    TResult? Function(_ResetEngagement value)? resetEngagement,
-    TResult? Function(_LoadAdVideo value)? loadAdVideo,
-    TResult? Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult? Function(_AdVideoFailed value)? adVideoFailed,
-    TResult? Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult? Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult? Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult? Function(_SubmitUpload value)? submitUpload,
-    TResult? Function(_UploadProgressChanged value)? uploadProgressChanged,
-  }) {
-    return uploadProgressChanged?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_LoadThreads value)? loadThreads,
-    TResult Function(_SelectThread value)? selectThread,
-    TResult Function(_LoadOpportunities value)? loadOpportunities,
-    TResult Function(_SelectOpportunity value)? selectOpportunity,
-    TResult Function(_StartEngagement value)? startEngagement,
-    TResult Function(_UpdateWatchProgress value)? updateWatchProgress,
-    TResult Function(_SubmitSurvey value)? submitSurvey,
-    TResult Function(_AbandonEngagement value)? abandonEngagement,
-    TResult Function(_LoadHistory value)? loadHistory,
-    TResult Function(_LoadMoreHistory value)? loadMoreHistory,
-    TResult Function(_Refresh value)? refresh,
-    TResult Function(_ClearError value)? clearError,
-    TResult Function(_ResetEngagement value)? resetEngagement,
-    TResult Function(_LoadAdVideo value)? loadAdVideo,
-    TResult Function(_AdVideoCompleted value)? adVideoCompleted,
-    TResult Function(_AdVideoFailed value)? adVideoFailed,
-    TResult Function(_AdReadyStateChanged value)? adReadyStateChanged,
-    TResult Function(_AdLoadingStateChanged value)? adLoadingStateChanged,
-    TResult Function(_AdLoadAttemptChanged value)? adLoadAttemptChanged,
-    TResult Function(_SubmitUpload value)? submitUpload,
-    TResult Function(_UploadProgressChanged value)? uploadProgressChanged,
-    required TResult orElse(),
-  }) {
-    if (uploadProgressChanged != null) {
-      return uploadProgressChanged(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _UploadProgressChanged implements EarnEvent {
-  const factory _UploadProgressChanged({
-    required final double progress,
-    required final int bytesTransferred,
-    required final int totalBytes,
-  }) = _$UploadProgressChangedImpl;
-
-  double get progress;
-  int get bytesTransferred;
-  int get totalBytes;
-
-  /// Create a copy of EarnEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UploadProgressChangedImplCopyWith<_$UploadProgressChangedImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 mixin _$EarnState {
-  EarnStatus get status => throw _privateConstructorUsedError;
-  List<EarnThread> get threads => throw _privateConstructorUsedError;
-  EarnThread? get selectedThread => throw _privateConstructorUsedError;
-  EarnStatus get opportunitiesStatus => throw _privateConstructorUsedError;
-  List<EarnOpportunity> get opportunities => throw _privateConstructorUsedError;
-  EarnOpportunity? get selectedOpportunity =>
-      throw _privateConstructorUsedError;
-  Engagement? get currentEngagement => throw _privateConstructorUsedError;
-  EngagementPhase get engagementPhase => throw _privateConstructorUsedError;
-  List<Engagement> get history => throw _privateConstructorUsedError;
-  bool get isLoadingHistory => throw _privateConstructorUsedError;
-  bool get hasMoreHistory => throw _privateConstructorUsedError;
-  DateTime? get lastHistoryTimestamp => throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
-  int get totalAvailableOpportunities =>
-      throw _privateConstructorUsedError; // Daily completion limit
-  int get dailyCompletions => throw _privateConstructorUsedError;
-  int get dailyEarnCap => throw _privateConstructorUsedError;
-  bool get dailyLimitReached =>
-      throw _privateConstructorUsedError; // AdMob state
-  bool get isAdLoading => throw _privateConstructorUsedError;
-  bool get isAdReady => throw _privateConstructorUsedError;
-  String? get adTransactionId => throw _privateConstructorUsedError;
 
-  /// AdMob response ID — uniquely identifies the ad impression for debugging
-  String? get adResponseId => throw _privateConstructorUsedError;
+ EarnStatus get status; List<EarnThread> get threads; EarnThread? get selectedThread; EarnStatus get opportunitiesStatus; List<EarnOpportunity> get opportunities; EarnOpportunity? get selectedOpportunity; Engagement? get currentEngagement; EngagementPhase get engagementPhase; List<Engagement> get history; bool get isLoadingHistory; bool get hasMoreHistory; DateTime? get lastHistoryTimestamp; String? get errorMessage; int get totalAvailableOpportunities;// Daily completion limit
+ int get dailyCompletions; int get dailyEarnCap; bool get dailyLimitReached;// AdMob state
+ bool get isAdLoading; bool get isAdReady; String? get adTransactionId;/// AdMob response ID — uniquely identifies the ad impression for debugging
+ String? get adResponseId;/// Current load attempt (1-based) shown during loading; 0 when idle
+ int get adLoadAttempt;/// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
+ int get adRetryRound;// Upload progress
+ double? get uploadProgress; int? get uploadBytesTransferred; int? get uploadTotalBytes;/// Whether the completed engagement is pending admin review
+ bool get isPendingReview;// Reward allocation state (set after engagement completion)
+ String? get rewardItemId; String? get rewardCampaignName; String? get rewardType;
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EarnStateCopyWith<EarnState> get copyWith => _$EarnStateCopyWithImpl<EarnState>(this as EarnState, _$identity);
 
-  /// Current load attempt (1-based) shown during loading; 0 when idle
-  int get adLoadAttempt => throw _privateConstructorUsedError;
 
-  /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
-  int get adRetryRound => throw _privateConstructorUsedError; // Upload progress
-  double? get uploadProgress => throw _privateConstructorUsedError;
-  int? get uploadBytesTransferred => throw _privateConstructorUsedError;
-  int? get uploadTotalBytes => throw _privateConstructorUsedError;
 
-  /// Whether the completed engagement is pending admin review
-  bool get isPendingReview =>
-      throw _privateConstructorUsedError; // Reward allocation state (set after engagement completion)
-  String? get rewardItemId => throw _privateConstructorUsedError;
-  String? get rewardCampaignName => throw _privateConstructorUsedError;
-  String? get rewardType => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.threads, threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other.opportunities, opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other.history, history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
+}
 
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $EarnStateCopyWith<EarnState> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
+
+@override
+String toString() {
+  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $EarnStateCopyWith<$Res> {
-  factory $EarnStateCopyWith(EarnState value, $Res Function(EarnState) then) =
-      _$EarnStateCopyWithImpl<$Res, EarnState>;
-  @useResult
-  $Res call({
-    EarnStatus status,
-    List<EarnThread> threads,
-    EarnThread? selectedThread,
-    EarnStatus opportunitiesStatus,
-    List<EarnOpportunity> opportunities,
-    EarnOpportunity? selectedOpportunity,
-    Engagement? currentEngagement,
-    EngagementPhase engagementPhase,
-    List<Engagement> history,
-    bool isLoadingHistory,
-    bool hasMoreHistory,
-    DateTime? lastHistoryTimestamp,
-    String? errorMessage,
-    int totalAvailableOpportunities,
-    int dailyCompletions,
-    int dailyEarnCap,
-    bool dailyLimitReached,
-    bool isAdLoading,
-    bool isAdReady,
-    String? adTransactionId,
-    String? adResponseId,
-    int adLoadAttempt,
-    int adRetryRound,
-    double? uploadProgress,
-    int? uploadBytesTransferred,
-    int? uploadTotalBytes,
-    bool isPendingReview,
-    String? rewardItemId,
-    String? rewardCampaignName,
-    String? rewardType,
-  });
+abstract mixin class $EarnStateCopyWith<$Res>  {
+  factory $EarnStateCopyWith(EarnState value, $Res Function(EarnState) _then) = _$EarnStateCopyWithImpl;
+@useResult
+$Res call({
+ EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
+});
 
-  $EarnThreadCopyWith<$Res>? get selectedThread;
-  $EarnOpportunityCopyWith<$Res>? get selectedOpportunity;
-  $EngagementCopyWith<$Res>? get currentEngagement;
+
+$EarnThreadCopyWith<$Res>? get selectedThread;$EarnOpportunityCopyWith<$Res>? get selectedOpportunity;$EngagementCopyWith<$Res>? get currentEngagement;
+
 }
-
 /// @nodoc
-class _$EarnStateCopyWithImpl<$Res, $Val extends EarnState>
+class _$EarnStateCopyWithImpl<$Res>
     implements $EarnStateCopyWith<$Res> {
-  _$EarnStateCopyWithImpl(this._value, this._then);
+  _$EarnStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final EarnState _self;
+  final $Res Function(EarnState) _then;
 
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? threads = null,
-    Object? selectedThread = freezed,
-    Object? opportunitiesStatus = null,
-    Object? opportunities = null,
-    Object? selectedOpportunity = freezed,
-    Object? currentEngagement = freezed,
-    Object? engagementPhase = null,
-    Object? history = null,
-    Object? isLoadingHistory = null,
-    Object? hasMoreHistory = null,
-    Object? lastHistoryTimestamp = freezed,
-    Object? errorMessage = freezed,
-    Object? totalAvailableOpportunities = null,
-    Object? dailyCompletions = null,
-    Object? dailyEarnCap = null,
-    Object? dailyLimitReached = null,
-    Object? isAdLoading = null,
-    Object? isAdReady = null,
-    Object? adTransactionId = freezed,
-    Object? adResponseId = freezed,
-    Object? adLoadAttempt = null,
-    Object? adRetryRound = null,
-    Object? uploadProgress = freezed,
-    Object? uploadBytesTransferred = freezed,
-    Object? uploadTotalBytes = freezed,
-    Object? isPendingReview = null,
-    Object? rewardItemId = freezed,
-    Object? rewardCampaignName = freezed,
-    Object? rewardType = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as EarnStatus,
-            threads: null == threads
-                ? _value.threads
-                : threads // ignore: cast_nullable_to_non_nullable
-                      as List<EarnThread>,
-            selectedThread: freezed == selectedThread
-                ? _value.selectedThread
-                : selectedThread // ignore: cast_nullable_to_non_nullable
-                      as EarnThread?,
-            opportunitiesStatus: null == opportunitiesStatus
-                ? _value.opportunitiesStatus
-                : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
-                      as EarnStatus,
-            opportunities: null == opportunities
-                ? _value.opportunities
-                : opportunities // ignore: cast_nullable_to_non_nullable
-                      as List<EarnOpportunity>,
-            selectedOpportunity: freezed == selectedOpportunity
-                ? _value.selectedOpportunity
-                : selectedOpportunity // ignore: cast_nullable_to_non_nullable
-                      as EarnOpportunity?,
-            currentEngagement: freezed == currentEngagement
-                ? _value.currentEngagement
-                : currentEngagement // ignore: cast_nullable_to_non_nullable
-                      as Engagement?,
-            engagementPhase: null == engagementPhase
-                ? _value.engagementPhase
-                : engagementPhase // ignore: cast_nullable_to_non_nullable
-                      as EngagementPhase,
-            history: null == history
-                ? _value.history
-                : history // ignore: cast_nullable_to_non_nullable
-                      as List<Engagement>,
-            isLoadingHistory: null == isLoadingHistory
-                ? _value.isLoadingHistory
-                : isLoadingHistory // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            hasMoreHistory: null == hasMoreHistory
-                ? _value.hasMoreHistory
-                : hasMoreHistory // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            lastHistoryTimestamp: freezed == lastHistoryTimestamp
-                ? _value.lastHistoryTimestamp
-                : lastHistoryTimestamp // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            totalAvailableOpportunities: null == totalAvailableOpportunities
-                ? _value.totalAvailableOpportunities
-                : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
-                      as int,
-            dailyCompletions: null == dailyCompletions
-                ? _value.dailyCompletions
-                : dailyCompletions // ignore: cast_nullable_to_non_nullable
-                      as int,
-            dailyEarnCap: null == dailyEarnCap
-                ? _value.dailyEarnCap
-                : dailyEarnCap // ignore: cast_nullable_to_non_nullable
-                      as int,
-            dailyLimitReached: null == dailyLimitReached
-                ? _value.dailyLimitReached
-                : dailyLimitReached // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isAdLoading: null == isAdLoading
-                ? _value.isAdLoading
-                : isAdLoading // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isAdReady: null == isAdReady
-                ? _value.isAdReady
-                : isAdReady // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            adTransactionId: freezed == adTransactionId
-                ? _value.adTransactionId
-                : adTransactionId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            adResponseId: freezed == adResponseId
-                ? _value.adResponseId
-                : adResponseId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            adLoadAttempt: null == adLoadAttempt
-                ? _value.adLoadAttempt
-                : adLoadAttempt // ignore: cast_nullable_to_non_nullable
-                      as int,
-            adRetryRound: null == adRetryRound
-                ? _value.adRetryRound
-                : adRetryRound // ignore: cast_nullable_to_non_nullable
-                      as int,
-            uploadProgress: freezed == uploadProgress
-                ? _value.uploadProgress
-                : uploadProgress // ignore: cast_nullable_to_non_nullable
-                      as double?,
-            uploadBytesTransferred: freezed == uploadBytesTransferred
-                ? _value.uploadBytesTransferred
-                : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            uploadTotalBytes: freezed == uploadTotalBytes
-                ? _value.uploadTotalBytes
-                : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            isPendingReview: null == isPendingReview
-                ? _value.isPendingReview
-                : isPendingReview // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            rewardItemId: freezed == rewardItemId
-                ? _value.rewardItemId
-                : rewardItemId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            rewardCampaignName: freezed == rewardCampaignName
-                ? _value.rewardCampaignName
-                : rewardCampaignName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            rewardType: freezed == rewardType
-                ? _value.rewardType
-                : rewardType // ignore: cast_nullable_to_non_nullable
-                      as String?,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EarnThreadCopyWith<$Res>? get selectedThread {
-    if (_value.selectedThread == null) {
-      return null;
-    }
-
-    return $EarnThreadCopyWith<$Res>(_value.selectedThread!, (value) {
-      return _then(_value.copyWith(selectedThread: value) as $Val);
-    });
-  }
-
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EarnOpportunityCopyWith<$Res>? get selectedOpportunity {
-    if (_value.selectedOpportunity == null) {
-      return null;
-    }
-
-    return $EarnOpportunityCopyWith<$Res>(_value.selectedOpportunity!, (value) {
-      return _then(_value.copyWith(selectedOpportunity: value) as $Val);
-    });
-  }
-
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $EngagementCopyWith<$Res>? get currentEngagement {
-    if (_value.currentEngagement == null) {
-      return null;
-    }
-
-    return $EngagementCopyWith<$Res>(_value.currentEngagement!, (value) {
-      return _then(_value.copyWith(currentEngagement: value) as $Val);
-    });
-  }
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
+  return _then(_self.copyWith(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as EarnStatus,threads: null == threads ? _self.threads : threads // ignore: cast_nullable_to_non_nullable
+as List<EarnThread>,selectedThread: freezed == selectedThread ? _self.selectedThread : selectedThread // ignore: cast_nullable_to_non_nullable
+as EarnThread?,opportunitiesStatus: null == opportunitiesStatus ? _self.opportunitiesStatus : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
+as EarnStatus,opportunities: null == opportunities ? _self.opportunities : opportunities // ignore: cast_nullable_to_non_nullable
+as List<EarnOpportunity>,selectedOpportunity: freezed == selectedOpportunity ? _self.selectedOpportunity : selectedOpportunity // ignore: cast_nullable_to_non_nullable
+as EarnOpportunity?,currentEngagement: freezed == currentEngagement ? _self.currentEngagement : currentEngagement // ignore: cast_nullable_to_non_nullable
+as Engagement?,engagementPhase: null == engagementPhase ? _self.engagementPhase : engagementPhase // ignore: cast_nullable_to_non_nullable
+as EngagementPhase,history: null == history ? _self.history : history // ignore: cast_nullable_to_non_nullable
+as List<Engagement>,isLoadingHistory: null == isLoadingHistory ? _self.isLoadingHistory : isLoadingHistory // ignore: cast_nullable_to_non_nullable
+as bool,hasMoreHistory: null == hasMoreHistory ? _self.hasMoreHistory : hasMoreHistory // ignore: cast_nullable_to_non_nullable
+as bool,lastHistoryTimestamp: freezed == lastHistoryTimestamp ? _self.lastHistoryTimestamp : lastHistoryTimestamp // ignore: cast_nullable_to_non_nullable
+as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,totalAvailableOpportunities: null == totalAvailableOpportunities ? _self.totalAvailableOpportunities : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
+as int,dailyCompletions: null == dailyCompletions ? _self.dailyCompletions : dailyCompletions // ignore: cast_nullable_to_non_nullable
+as int,dailyEarnCap: null == dailyEarnCap ? _self.dailyEarnCap : dailyEarnCap // ignore: cast_nullable_to_non_nullable
+as int,dailyLimitReached: null == dailyLimitReached ? _self.dailyLimitReached : dailyLimitReached // ignore: cast_nullable_to_non_nullable
+as bool,isAdLoading: null == isAdLoading ? _self.isAdLoading : isAdLoading // ignore: cast_nullable_to_non_nullable
+as bool,isAdReady: null == isAdReady ? _self.isAdReady : isAdReady // ignore: cast_nullable_to_non_nullable
+as bool,adTransactionId: freezed == adTransactionId ? _self.adTransactionId : adTransactionId // ignore: cast_nullable_to_non_nullable
+as String?,adResponseId: freezed == adResponseId ? _self.adResponseId : adResponseId // ignore: cast_nullable_to_non_nullable
+as String?,adLoadAttempt: null == adLoadAttempt ? _self.adLoadAttempt : adLoadAttempt // ignore: cast_nullable_to_non_nullable
+as int,adRetryRound: null == adRetryRound ? _self.adRetryRound : adRetryRound // ignore: cast_nullable_to_non_nullable
+as int,uploadProgress: freezed == uploadProgress ? _self.uploadProgress : uploadProgress // ignore: cast_nullable_to_non_nullable
+as double?,uploadBytesTransferred: freezed == uploadBytesTransferred ? _self.uploadBytesTransferred : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
+as int?,uploadTotalBytes: freezed == uploadTotalBytes ? _self.uploadTotalBytes : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
+as int?,isPendingReview: null == isPendingReview ? _self.isPendingReview : isPendingReview // ignore: cast_nullable_to_non_nullable
+as bool,rewardItemId: freezed == rewardItemId ? _self.rewardItemId : rewardItemId // ignore: cast_nullable_to_non_nullable
+as String?,rewardCampaignName: freezed == rewardCampaignName ? _self.rewardCampaignName : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+as String?,rewardType: freezed == rewardType ? _self.rewardType : rewardType // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EarnThreadCopyWith<$Res>? get selectedThread {
+    if (_self.selectedThread == null) {
+    return null;
+  }
 
-/// @nodoc
-abstract class _$$EarnStateImplCopyWith<$Res>
-    implements $EarnStateCopyWith<$Res> {
-  factory _$$EarnStateImplCopyWith(
-    _$EarnStateImpl value,
-    $Res Function(_$EarnStateImpl) then,
-  ) = __$$EarnStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    EarnStatus status,
-    List<EarnThread> threads,
-    EarnThread? selectedThread,
-    EarnStatus opportunitiesStatus,
-    List<EarnOpportunity> opportunities,
-    EarnOpportunity? selectedOpportunity,
-    Engagement? currentEngagement,
-    EngagementPhase engagementPhase,
-    List<Engagement> history,
-    bool isLoadingHistory,
-    bool hasMoreHistory,
-    DateTime? lastHistoryTimestamp,
-    String? errorMessage,
-    int totalAvailableOpportunities,
-    int dailyCompletions,
-    int dailyEarnCap,
-    bool dailyLimitReached,
-    bool isAdLoading,
-    bool isAdReady,
-    String? adTransactionId,
-    String? adResponseId,
-    int adLoadAttempt,
-    int adRetryRound,
-    double? uploadProgress,
-    int? uploadBytesTransferred,
-    int? uploadTotalBytes,
-    bool isPendingReview,
-    String? rewardItemId,
-    String? rewardCampaignName,
-    String? rewardType,
+  return $EarnThreadCopyWith<$Res>(_self.selectedThread!, (value) {
+    return _then(_self.copyWith(selectedThread: value));
   });
+}/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EarnOpportunityCopyWith<$Res>? get selectedOpportunity {
+    if (_self.selectedOpportunity == null) {
+    return null;
+  }
 
-  @override
-  $EarnThreadCopyWith<$Res>? get selectedThread;
-  @override
-  $EarnOpportunityCopyWith<$Res>? get selectedOpportunity;
-  @override
-  $EngagementCopyWith<$Res>? get currentEngagement;
+  return $EarnOpportunityCopyWith<$Res>(_self.selectedOpportunity!, (value) {
+    return _then(_self.copyWith(selectedOpportunity: value));
+  });
+}/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EngagementCopyWith<$Res>? get currentEngagement {
+    if (_self.currentEngagement == null) {
+    return null;
+  }
+
+  return $EngagementCopyWith<$Res>(_self.currentEngagement!, (value) {
+    return _then(_self.copyWith(currentEngagement: value));
+  });
+}
 }
 
-/// @nodoc
-class __$$EarnStateImplCopyWithImpl<$Res>
-    extends _$EarnStateCopyWithImpl<$Res, _$EarnStateImpl>
-    implements _$$EarnStateImplCopyWith<$Res> {
-  __$$EarnStateImplCopyWithImpl(
-    _$EarnStateImpl _value,
-    $Res Function(_$EarnStateImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? threads = null,
-    Object? selectedThread = freezed,
-    Object? opportunitiesStatus = null,
-    Object? opportunities = null,
-    Object? selectedOpportunity = freezed,
-    Object? currentEngagement = freezed,
-    Object? engagementPhase = null,
-    Object? history = null,
-    Object? isLoadingHistory = null,
-    Object? hasMoreHistory = null,
-    Object? lastHistoryTimestamp = freezed,
-    Object? errorMessage = freezed,
-    Object? totalAvailableOpportunities = null,
-    Object? dailyCompletions = null,
-    Object? dailyEarnCap = null,
-    Object? dailyLimitReached = null,
-    Object? isAdLoading = null,
-    Object? isAdReady = null,
-    Object? adTransactionId = freezed,
-    Object? adResponseId = freezed,
-    Object? adLoadAttempt = null,
-    Object? adRetryRound = null,
-    Object? uploadProgress = freezed,
-    Object? uploadBytesTransferred = freezed,
-    Object? uploadTotalBytes = freezed,
-    Object? isPendingReview = null,
-    Object? rewardItemId = freezed,
-    Object? rewardCampaignName = freezed,
-    Object? rewardType = freezed,
-  }) {
-    return _then(
-      _$EarnStateImpl(
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as EarnStatus,
-        threads: null == threads
-            ? _value._threads
-            : threads // ignore: cast_nullable_to_non_nullable
-                  as List<EarnThread>,
-        selectedThread: freezed == selectedThread
-            ? _value.selectedThread
-            : selectedThread // ignore: cast_nullable_to_non_nullable
-                  as EarnThread?,
-        opportunitiesStatus: null == opportunitiesStatus
-            ? _value.opportunitiesStatus
-            : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
-                  as EarnStatus,
-        opportunities: null == opportunities
-            ? _value._opportunities
-            : opportunities // ignore: cast_nullable_to_non_nullable
-                  as List<EarnOpportunity>,
-        selectedOpportunity: freezed == selectedOpportunity
-            ? _value.selectedOpportunity
-            : selectedOpportunity // ignore: cast_nullable_to_non_nullable
-                  as EarnOpportunity?,
-        currentEngagement: freezed == currentEngagement
-            ? _value.currentEngagement
-            : currentEngagement // ignore: cast_nullable_to_non_nullable
-                  as Engagement?,
-        engagementPhase: null == engagementPhase
-            ? _value.engagementPhase
-            : engagementPhase // ignore: cast_nullable_to_non_nullable
-                  as EngagementPhase,
-        history: null == history
-            ? _value._history
-            : history // ignore: cast_nullable_to_non_nullable
-                  as List<Engagement>,
-        isLoadingHistory: null == isLoadingHistory
-            ? _value.isLoadingHistory
-            : isLoadingHistory // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        hasMoreHistory: null == hasMoreHistory
-            ? _value.hasMoreHistory
-            : hasMoreHistory // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        lastHistoryTimestamp: freezed == lastHistoryTimestamp
-            ? _value.lastHistoryTimestamp
-            : lastHistoryTimestamp // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        totalAvailableOpportunities: null == totalAvailableOpportunities
-            ? _value.totalAvailableOpportunities
-            : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
-                  as int,
-        dailyCompletions: null == dailyCompletions
-            ? _value.dailyCompletions
-            : dailyCompletions // ignore: cast_nullable_to_non_nullable
-                  as int,
-        dailyEarnCap: null == dailyEarnCap
-            ? _value.dailyEarnCap
-            : dailyEarnCap // ignore: cast_nullable_to_non_nullable
-                  as int,
-        dailyLimitReached: null == dailyLimitReached
-            ? _value.dailyLimitReached
-            : dailyLimitReached // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isAdLoading: null == isAdLoading
-            ? _value.isAdLoading
-            : isAdLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isAdReady: null == isAdReady
-            ? _value.isAdReady
-            : isAdReady // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        adTransactionId: freezed == adTransactionId
-            ? _value.adTransactionId
-            : adTransactionId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        adResponseId: freezed == adResponseId
-            ? _value.adResponseId
-            : adResponseId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        adLoadAttempt: null == adLoadAttempt
-            ? _value.adLoadAttempt
-            : adLoadAttempt // ignore: cast_nullable_to_non_nullable
-                  as int,
-        adRetryRound: null == adRetryRound
-            ? _value.adRetryRound
-            : adRetryRound // ignore: cast_nullable_to_non_nullable
-                  as int,
-        uploadProgress: freezed == uploadProgress
-            ? _value.uploadProgress
-            : uploadProgress // ignore: cast_nullable_to_non_nullable
-                  as double?,
-        uploadBytesTransferred: freezed == uploadBytesTransferred
-            ? _value.uploadBytesTransferred
-            : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        uploadTotalBytes: freezed == uploadTotalBytes
-            ? _value.uploadTotalBytes
-            : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        isPendingReview: null == isPendingReview
-            ? _value.isPendingReview
-            : isPendingReview // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        rewardItemId: freezed == rewardItemId
-            ? _value.rewardItemId
-            : rewardItemId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        rewardCampaignName: freezed == rewardCampaignName
-            ? _value.rewardCampaignName
-            : rewardCampaignName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        rewardType: freezed == rewardType
-            ? _value.rewardType
-            : rewardType // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [EarnState].
+extension EarnStatePatterns on EarnState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _EarnState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _EarnState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _EarnState value)  $default,){
+final _that = this;
+switch (_that) {
+case _EarnState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _EarnState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _EarnState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _EarnState() when $default != null:
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)  $default,) {final _that = this;
+switch (_that) {
+case _EarnState():
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,) {final _that = this;
+switch (_that) {
+case _EarnState() when $default != null:
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 
-class _$EarnStateImpl extends _EarnState {
-  const _$EarnStateImpl({
-    this.status = EarnStatus.initial,
-    final List<EarnThread> threads = const [],
-    this.selectedThread,
-    this.opportunitiesStatus = EarnStatus.initial,
-    final List<EarnOpportunity> opportunities = const [],
-    this.selectedOpportunity,
-    this.currentEngagement,
-    this.engagementPhase = EngagementPhase.idle,
-    final List<Engagement> history = const [],
-    this.isLoadingHistory = false,
-    this.hasMoreHistory = false,
-    this.lastHistoryTimestamp,
-    this.errorMessage,
-    this.totalAvailableOpportunities = 0,
-    this.dailyCompletions = 0,
-    this.dailyEarnCap = 30,
-    this.dailyLimitReached = false,
-    this.isAdLoading = false,
-    this.isAdReady = false,
-    this.adTransactionId,
-    this.adResponseId,
-    this.adLoadAttempt = 0,
-    this.adRetryRound = 0,
-    this.uploadProgress,
-    this.uploadBytesTransferred,
-    this.uploadTotalBytes,
-    this.isPendingReview = false,
-    this.rewardItemId,
-    this.rewardCampaignName,
-    this.rewardType,
-  }) : _threads = threads,
-       _opportunities = opportunities,
-       _history = history,
-       super._();
 
-  @override
-  @JsonKey()
-  final EarnStatus status;
-  final List<EarnThread> _threads;
-  @override
-  @JsonKey()
-  List<EarnThread> get threads {
-    if (_threads is EqualUnmodifiableListView) return _threads;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_threads);
-  }
+class _EarnState extends EarnState {
+  const _EarnState({this.status = EarnStatus.initial, final  List<EarnThread> threads = const [], this.selectedThread, this.opportunitiesStatus = EarnStatus.initial, final  List<EarnOpportunity> opportunities = const [], this.selectedOpportunity, this.currentEngagement, this.engagementPhase = EngagementPhase.idle, final  List<Engagement> history = const [], this.isLoadingHistory = false, this.hasMoreHistory = false, this.lastHistoryTimestamp, this.errorMessage, this.totalAvailableOpportunities = 0, this.dailyCompletions = 0, this.dailyEarnCap = 30, this.dailyLimitReached = false, this.isAdLoading = false, this.isAdReady = false, this.adTransactionId, this.adResponseId, this.adLoadAttempt = 0, this.adRetryRound = 0, this.uploadProgress, this.uploadBytesTransferred, this.uploadTotalBytes, this.isPendingReview = false, this.rewardItemId, this.rewardCampaignName, this.rewardType}): _threads = threads,_opportunities = opportunities,_history = history,super._();
+  
 
-  @override
-  final EarnThread? selectedThread;
-  @override
-  @JsonKey()
-  final EarnStatus opportunitiesStatus;
-  final List<EarnOpportunity> _opportunities;
-  @override
-  @JsonKey()
-  List<EarnOpportunity> get opportunities {
-    if (_opportunities is EqualUnmodifiableListView) return _opportunities;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_opportunities);
-  }
-
-  @override
-  final EarnOpportunity? selectedOpportunity;
-  @override
-  final Engagement? currentEngagement;
-  @override
-  @JsonKey()
-  final EngagementPhase engagementPhase;
-  final List<Engagement> _history;
-  @override
-  @JsonKey()
-  List<Engagement> get history {
-    if (_history is EqualUnmodifiableListView) return _history;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_history);
-  }
-
-  @override
-  @JsonKey()
-  final bool isLoadingHistory;
-  @override
-  @JsonKey()
-  final bool hasMoreHistory;
-  @override
-  final DateTime? lastHistoryTimestamp;
-  @override
-  final String? errorMessage;
-  @override
-  @JsonKey()
-  final int totalAvailableOpportunities;
-  // Daily completion limit
-  @override
-  @JsonKey()
-  final int dailyCompletions;
-  @override
-  @JsonKey()
-  final int dailyEarnCap;
-  @override
-  @JsonKey()
-  final bool dailyLimitReached;
-  // AdMob state
-  @override
-  @JsonKey()
-  final bool isAdLoading;
-  @override
-  @JsonKey()
-  final bool isAdReady;
-  @override
-  final String? adTransactionId;
-
-  /// AdMob response ID — uniquely identifies the ad impression for debugging
-  @override
-  final String? adResponseId;
-
-  /// Current load attempt (1-based) shown during loading; 0 when idle
-  @override
-  @JsonKey()
-  final int adLoadAttempt;
-
-  /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
-  @override
-  @JsonKey()
-  final int adRetryRound;
-  // Upload progress
-  @override
-  final double? uploadProgress;
-  @override
-  final int? uploadBytesTransferred;
-  @override
-  final int? uploadTotalBytes;
-
-  /// Whether the completed engagement is pending admin review
-  @override
-  @JsonKey()
-  final bool isPendingReview;
-  // Reward allocation state (set after engagement completion)
-  @override
-  final String? rewardItemId;
-  @override
-  final String? rewardCampaignName;
-  @override
-  final String? rewardType;
-
-  @override
-  String toString() {
-    return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$EarnStateImpl &&
-            (identical(other.status, status) || other.status == status) &&
-            const DeepCollectionEquality().equals(other._threads, _threads) &&
-            (identical(other.selectedThread, selectedThread) ||
-                other.selectedThread == selectedThread) &&
-            (identical(other.opportunitiesStatus, opportunitiesStatus) ||
-                other.opportunitiesStatus == opportunitiesStatus) &&
-            const DeepCollectionEquality().equals(
-              other._opportunities,
-              _opportunities,
-            ) &&
-            (identical(other.selectedOpportunity, selectedOpportunity) ||
-                other.selectedOpportunity == selectedOpportunity) &&
-            (identical(other.currentEngagement, currentEngagement) ||
-                other.currentEngagement == currentEngagement) &&
-            (identical(other.engagementPhase, engagementPhase) ||
-                other.engagementPhase == engagementPhase) &&
-            const DeepCollectionEquality().equals(other._history, _history) &&
-            (identical(other.isLoadingHistory, isLoadingHistory) ||
-                other.isLoadingHistory == isLoadingHistory) &&
-            (identical(other.hasMoreHistory, hasMoreHistory) ||
-                other.hasMoreHistory == hasMoreHistory) &&
-            (identical(other.lastHistoryTimestamp, lastHistoryTimestamp) ||
-                other.lastHistoryTimestamp == lastHistoryTimestamp) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage) &&
-            (identical(
-                  other.totalAvailableOpportunities,
-                  totalAvailableOpportunities,
-                ) ||
-                other.totalAvailableOpportunities ==
-                    totalAvailableOpportunities) &&
-            (identical(other.dailyCompletions, dailyCompletions) ||
-                other.dailyCompletions == dailyCompletions) &&
-            (identical(other.dailyEarnCap, dailyEarnCap) ||
-                other.dailyEarnCap == dailyEarnCap) &&
-            (identical(other.dailyLimitReached, dailyLimitReached) ||
-                other.dailyLimitReached == dailyLimitReached) &&
-            (identical(other.isAdLoading, isAdLoading) ||
-                other.isAdLoading == isAdLoading) &&
-            (identical(other.isAdReady, isAdReady) ||
-                other.isAdReady == isAdReady) &&
-            (identical(other.adTransactionId, adTransactionId) ||
-                other.adTransactionId == adTransactionId) &&
-            (identical(other.adResponseId, adResponseId) ||
-                other.adResponseId == adResponseId) &&
-            (identical(other.adLoadAttempt, adLoadAttempt) ||
-                other.adLoadAttempt == adLoadAttempt) &&
-            (identical(other.adRetryRound, adRetryRound) ||
-                other.adRetryRound == adRetryRound) &&
-            (identical(other.uploadProgress, uploadProgress) ||
-                other.uploadProgress == uploadProgress) &&
-            (identical(other.uploadBytesTransferred, uploadBytesTransferred) ||
-                other.uploadBytesTransferred == uploadBytesTransferred) &&
-            (identical(other.uploadTotalBytes, uploadTotalBytes) ||
-                other.uploadTotalBytes == uploadTotalBytes) &&
-            (identical(other.isPendingReview, isPendingReview) ||
-                other.isPendingReview == isPendingReview) &&
-            (identical(other.rewardItemId, rewardItemId) ||
-                other.rewardItemId == rewardItemId) &&
-            (identical(other.rewardCampaignName, rewardCampaignName) ||
-                other.rewardCampaignName == rewardCampaignName) &&
-            (identical(other.rewardType, rewardType) ||
-                other.rewardType == rewardType));
-  }
-
-  @override
-  int get hashCode => Object.hashAll([
-    runtimeType,
-    status,
-    const DeepCollectionEquality().hash(_threads),
-    selectedThread,
-    opportunitiesStatus,
-    const DeepCollectionEquality().hash(_opportunities),
-    selectedOpportunity,
-    currentEngagement,
-    engagementPhase,
-    const DeepCollectionEquality().hash(_history),
-    isLoadingHistory,
-    hasMoreHistory,
-    lastHistoryTimestamp,
-    errorMessage,
-    totalAvailableOpportunities,
-    dailyCompletions,
-    dailyEarnCap,
-    dailyLimitReached,
-    isAdLoading,
-    isAdReady,
-    adTransactionId,
-    adResponseId,
-    adLoadAttempt,
-    adRetryRound,
-    uploadProgress,
-    uploadBytesTransferred,
-    uploadTotalBytes,
-    isPendingReview,
-    rewardItemId,
-    rewardCampaignName,
-    rewardType,
-  ]);
-
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$EarnStateImplCopyWith<_$EarnStateImpl> get copyWith =>
-      __$$EarnStateImplCopyWithImpl<_$EarnStateImpl>(this, _$identity);
+@override@JsonKey() final  EarnStatus status;
+ final  List<EarnThread> _threads;
+@override@JsonKey() List<EarnThread> get threads {
+  if (_threads is EqualUnmodifiableListView) return _threads;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_threads);
 }
 
-abstract class _EarnState extends EarnState {
-  const factory _EarnState({
-    final EarnStatus status,
-    final List<EarnThread> threads,
-    final EarnThread? selectedThread,
-    final EarnStatus opportunitiesStatus,
-    final List<EarnOpportunity> opportunities,
-    final EarnOpportunity? selectedOpportunity,
-    final Engagement? currentEngagement,
-    final EngagementPhase engagementPhase,
-    final List<Engagement> history,
-    final bool isLoadingHistory,
-    final bool hasMoreHistory,
-    final DateTime? lastHistoryTimestamp,
-    final String? errorMessage,
-    final int totalAvailableOpportunities,
-    final int dailyCompletions,
-    final int dailyEarnCap,
-    final bool dailyLimitReached,
-    final bool isAdLoading,
-    final bool isAdReady,
-    final String? adTransactionId,
-    final String? adResponseId,
-    final int adLoadAttempt,
-    final int adRetryRound,
-    final double? uploadProgress,
-    final int? uploadBytesTransferred,
-    final int? uploadTotalBytes,
-    final bool isPendingReview,
-    final String? rewardItemId,
-    final String? rewardCampaignName,
-    final String? rewardType,
-  }) = _$EarnStateImpl;
-  const _EarnState._() : super._();
-
-  @override
-  EarnStatus get status;
-  @override
-  List<EarnThread> get threads;
-  @override
-  EarnThread? get selectedThread;
-  @override
-  EarnStatus get opportunitiesStatus;
-  @override
-  List<EarnOpportunity> get opportunities;
-  @override
-  EarnOpportunity? get selectedOpportunity;
-  @override
-  Engagement? get currentEngagement;
-  @override
-  EngagementPhase get engagementPhase;
-  @override
-  List<Engagement> get history;
-  @override
-  bool get isLoadingHistory;
-  @override
-  bool get hasMoreHistory;
-  @override
-  DateTime? get lastHistoryTimestamp;
-  @override
-  String? get errorMessage;
-  @override
-  int get totalAvailableOpportunities; // Daily completion limit
-  @override
-  int get dailyCompletions;
-  @override
-  int get dailyEarnCap;
-  @override
-  bool get dailyLimitReached; // AdMob state
-  @override
-  bool get isAdLoading;
-  @override
-  bool get isAdReady;
-  @override
-  String? get adTransactionId;
-
-  /// AdMob response ID — uniquely identifies the ad impression for debugging
-  @override
-  String? get adResponseId;
-
-  /// Current load attempt (1-based) shown during loading; 0 when idle
-  @override
-  int get adLoadAttempt;
-
-  /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
-  @override
-  int get adRetryRound; // Upload progress
-  @override
-  double? get uploadProgress;
-  @override
-  int? get uploadBytesTransferred;
-  @override
-  int? get uploadTotalBytes;
-
-  /// Whether the completed engagement is pending admin review
-  @override
-  bool get isPendingReview; // Reward allocation state (set after engagement completion)
-  @override
-  String? get rewardItemId;
-  @override
-  String? get rewardCampaignName;
-  @override
-  String? get rewardType;
-
-  /// Create a copy of EarnState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$EarnStateImplCopyWith<_$EarnStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override final  EarnThread? selectedThread;
+@override@JsonKey() final  EarnStatus opportunitiesStatus;
+ final  List<EarnOpportunity> _opportunities;
+@override@JsonKey() List<EarnOpportunity> get opportunities {
+  if (_opportunities is EqualUnmodifiableListView) return _opportunities;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_opportunities);
 }
+
+@override final  EarnOpportunity? selectedOpportunity;
+@override final  Engagement? currentEngagement;
+@override@JsonKey() final  EngagementPhase engagementPhase;
+ final  List<Engagement> _history;
+@override@JsonKey() List<Engagement> get history {
+  if (_history is EqualUnmodifiableListView) return _history;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_history);
+}
+
+@override@JsonKey() final  bool isLoadingHistory;
+@override@JsonKey() final  bool hasMoreHistory;
+@override final  DateTime? lastHistoryTimestamp;
+@override final  String? errorMessage;
+@override@JsonKey() final  int totalAvailableOpportunities;
+// Daily completion limit
+@override@JsonKey() final  int dailyCompletions;
+@override@JsonKey() final  int dailyEarnCap;
+@override@JsonKey() final  bool dailyLimitReached;
+// AdMob state
+@override@JsonKey() final  bool isAdLoading;
+@override@JsonKey() final  bool isAdReady;
+@override final  String? adTransactionId;
+/// AdMob response ID — uniquely identifies the ad impression for debugging
+@override final  String? adResponseId;
+/// Current load attempt (1-based) shown during loading; 0 when idle
+@override@JsonKey() final  int adLoadAttempt;
+/// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
+@override@JsonKey() final  int adRetryRound;
+// Upload progress
+@override final  double? uploadProgress;
+@override final  int? uploadBytesTransferred;
+@override final  int? uploadTotalBytes;
+/// Whether the completed engagement is pending admin review
+@override@JsonKey() final  bool isPendingReview;
+// Reward allocation state (set after engagement completion)
+@override final  String? rewardItemId;
+@override final  String? rewardCampaignName;
+@override final  String? rewardType;
+
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EarnStateCopyWith<_EarnState> get copyWith => __$EarnStateCopyWithImpl<_EarnState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._threads, _threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other._opportunities, _opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other._history, _history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
+}
+
+
+@override
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(_threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(_opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(_history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
+
+@override
+String toString() {
+  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EarnStateCopyWith<$Res> implements $EarnStateCopyWith<$Res> {
+  factory _$EarnStateCopyWith(_EarnState value, $Res Function(_EarnState) _then) = __$EarnStateCopyWithImpl;
+@override @useResult
+$Res call({
+ EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
+});
+
+
+@override $EarnThreadCopyWith<$Res>? get selectedThread;@override $EarnOpportunityCopyWith<$Res>? get selectedOpportunity;@override $EngagementCopyWith<$Res>? get currentEngagement;
+
+}
+/// @nodoc
+class __$EarnStateCopyWithImpl<$Res>
+    implements _$EarnStateCopyWith<$Res> {
+  __$EarnStateCopyWithImpl(this._self, this._then);
+
+  final _EarnState _self;
+  final $Res Function(_EarnState) _then;
+
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
+  return _then(_EarnState(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as EarnStatus,threads: null == threads ? _self._threads : threads // ignore: cast_nullable_to_non_nullable
+as List<EarnThread>,selectedThread: freezed == selectedThread ? _self.selectedThread : selectedThread // ignore: cast_nullable_to_non_nullable
+as EarnThread?,opportunitiesStatus: null == opportunitiesStatus ? _self.opportunitiesStatus : opportunitiesStatus // ignore: cast_nullable_to_non_nullable
+as EarnStatus,opportunities: null == opportunities ? _self._opportunities : opportunities // ignore: cast_nullable_to_non_nullable
+as List<EarnOpportunity>,selectedOpportunity: freezed == selectedOpportunity ? _self.selectedOpportunity : selectedOpportunity // ignore: cast_nullable_to_non_nullable
+as EarnOpportunity?,currentEngagement: freezed == currentEngagement ? _self.currentEngagement : currentEngagement // ignore: cast_nullable_to_non_nullable
+as Engagement?,engagementPhase: null == engagementPhase ? _self.engagementPhase : engagementPhase // ignore: cast_nullable_to_non_nullable
+as EngagementPhase,history: null == history ? _self._history : history // ignore: cast_nullable_to_non_nullable
+as List<Engagement>,isLoadingHistory: null == isLoadingHistory ? _self.isLoadingHistory : isLoadingHistory // ignore: cast_nullable_to_non_nullable
+as bool,hasMoreHistory: null == hasMoreHistory ? _self.hasMoreHistory : hasMoreHistory // ignore: cast_nullable_to_non_nullable
+as bool,lastHistoryTimestamp: freezed == lastHistoryTimestamp ? _self.lastHistoryTimestamp : lastHistoryTimestamp // ignore: cast_nullable_to_non_nullable
+as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,totalAvailableOpportunities: null == totalAvailableOpportunities ? _self.totalAvailableOpportunities : totalAvailableOpportunities // ignore: cast_nullable_to_non_nullable
+as int,dailyCompletions: null == dailyCompletions ? _self.dailyCompletions : dailyCompletions // ignore: cast_nullable_to_non_nullable
+as int,dailyEarnCap: null == dailyEarnCap ? _self.dailyEarnCap : dailyEarnCap // ignore: cast_nullable_to_non_nullable
+as int,dailyLimitReached: null == dailyLimitReached ? _self.dailyLimitReached : dailyLimitReached // ignore: cast_nullable_to_non_nullable
+as bool,isAdLoading: null == isAdLoading ? _self.isAdLoading : isAdLoading // ignore: cast_nullable_to_non_nullable
+as bool,isAdReady: null == isAdReady ? _self.isAdReady : isAdReady // ignore: cast_nullable_to_non_nullable
+as bool,adTransactionId: freezed == adTransactionId ? _self.adTransactionId : adTransactionId // ignore: cast_nullable_to_non_nullable
+as String?,adResponseId: freezed == adResponseId ? _self.adResponseId : adResponseId // ignore: cast_nullable_to_non_nullable
+as String?,adLoadAttempt: null == adLoadAttempt ? _self.adLoadAttempt : adLoadAttempt // ignore: cast_nullable_to_non_nullable
+as int,adRetryRound: null == adRetryRound ? _self.adRetryRound : adRetryRound // ignore: cast_nullable_to_non_nullable
+as int,uploadProgress: freezed == uploadProgress ? _self.uploadProgress : uploadProgress // ignore: cast_nullable_to_non_nullable
+as double?,uploadBytesTransferred: freezed == uploadBytesTransferred ? _self.uploadBytesTransferred : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
+as int?,uploadTotalBytes: freezed == uploadTotalBytes ? _self.uploadTotalBytes : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
+as int?,isPendingReview: null == isPendingReview ? _self.isPendingReview : isPendingReview // ignore: cast_nullable_to_non_nullable
+as bool,rewardItemId: freezed == rewardItemId ? _self.rewardItemId : rewardItemId // ignore: cast_nullable_to_non_nullable
+as String?,rewardCampaignName: freezed == rewardCampaignName ? _self.rewardCampaignName : rewardCampaignName // ignore: cast_nullable_to_non_nullable
+as String?,rewardType: freezed == rewardType ? _self.rewardType : rewardType // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EarnThreadCopyWith<$Res>? get selectedThread {
+    if (_self.selectedThread == null) {
+    return null;
+  }
+
+  return $EarnThreadCopyWith<$Res>(_self.selectedThread!, (value) {
+    return _then(_self.copyWith(selectedThread: value));
+  });
+}/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EarnOpportunityCopyWith<$Res>? get selectedOpportunity {
+    if (_self.selectedOpportunity == null) {
+    return null;
+  }
+
+  return $EarnOpportunityCopyWith<$Res>(_self.selectedOpportunity!, (value) {
+    return _then(_self.copyWith(selectedOpportunity: value));
+  });
+}/// Create a copy of EarnState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EngagementCopyWith<$Res>? get currentEngagement {
+    if (_self.currentEngagement == null) {
+    return null;
+  }
+
+  return $EngagementCopyWith<$Res>(_self.currentEngagement!, (value) {
+    return _then(_self.copyWith(currentEngagement: value));
+  });
+}
+}
+
+// dart format on

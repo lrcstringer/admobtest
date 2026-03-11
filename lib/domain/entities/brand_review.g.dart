@@ -6,27 +6,26 @@ part of 'brand_review.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$BrandReviewImpl _$$BrandReviewImplFromJson(Map<String, dynamic> json) =>
-    _$BrandReviewImpl(
-      id: json['id'] as String,
-      brandId: json['brandId'] as String,
-      userId: json['userId'] as String,
-      userName: json['userName'] as String,
-      orderId: json['orderId'] as String,
-      qualityRating: (json['qualityRating'] as num).toInt(),
-      valueRating: (json['valueRating'] as num).toInt(),
-      serviceRating: (json['serviceRating'] as num).toInt(),
-      overallRating: (json['overallRating'] as num).toDouble(),
-      comment: json['comment'] as String?,
-      isFiltered: json['isFiltered'] as bool? ?? false,
-      isRemovedByAdmin: json['isRemovedByAdmin'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-    );
+_BrandReview _$BrandReviewFromJson(Map<String, dynamic> json) => _BrandReview(
+  id: json['id'] as String,
+  brandId: json['brandId'] as String,
+  userId: json['userId'] as String,
+  userName: json['userName'] as String,
+  orderId: json['orderId'] as String,
+  qualityRating: (json['qualityRating'] as num).toInt(),
+  valueRating: (json['valueRating'] as num).toInt(),
+  serviceRating: (json['serviceRating'] as num).toInt(),
+  overallRating: (json['overallRating'] as num).toDouble(),
+  comment: json['comment'] as String?,
+  isFiltered: json['isFiltered'] as bool? ?? false,
+  isRemovedByAdmin: json['isRemovedByAdmin'] as bool? ?? false,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
+);
 
-Map<String, dynamic> _$$BrandReviewImplToJson(_$BrandReviewImpl instance) =>
+Map<String, dynamic> _$BrandReviewToJson(_BrandReview instance) =>
     <String, dynamic>{
       'id': instance.id,
       'brandId': instance.brandId,

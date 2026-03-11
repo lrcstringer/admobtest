@@ -6,21 +6,20 @@ part of 'inbox_client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$InboxClientImpl _$$InboxClientImplFromJson(Map<String, dynamic> json) =>
-    _$InboxClientImpl(
-      clientId: json['clientId'] as String,
-      clientName: json['clientName'] as String,
-      clientAvatarImage: json['clientAvatarImage'] as String?,
-      clientAvatarColor: json['clientAvatarColor'] as String?,
-      isPinned: json['isPinned'] as bool,
-      isFeatured: json['isFeatured'] as bool,
-      activeThreadCount: (json['activeThreadCount'] as num).toInt(),
-      threads: (json['threads'] as List<dynamic>)
-          .map((e) => InboxThread.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+_InboxClient _$InboxClientFromJson(Map<String, dynamic> json) => _InboxClient(
+  clientId: json['clientId'] as String,
+  clientName: json['clientName'] as String,
+  clientAvatarImage: json['clientAvatarImage'] as String?,
+  clientAvatarColor: json['clientAvatarColor'] as String?,
+  isPinned: json['isPinned'] as bool,
+  isFeatured: json['isFeatured'] as bool,
+  activeThreadCount: (json['activeThreadCount'] as num).toInt(),
+  threads: (json['threads'] as List<dynamic>)
+      .map((e) => InboxThread.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
 
-Map<String, dynamic> _$$InboxClientImplToJson(_$InboxClientImpl instance) =>
+Map<String, dynamic> _$InboxClientToJson(_InboxClient instance) =>
     <String, dynamic>{
       'clientId': instance.clientId,
       'clientName': instance.clientName,

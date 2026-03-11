@@ -38,7 +38,10 @@ class _OnboardingSettingsScreenState extends State<OnboardingSettingsScreen> {
 
   Future<void> _onToggleAllowAccess(bool val) async {
     if (val) {
-      final granted = await FlutterContacts.requestPermission(readonly: true);
+      final status =
+          await FlutterContacts.permissions.request(PermissionType.read);
+      final granted = status == PermissionStatus.granted ||
+          status == PermissionStatus.limited;
       if (mounted) setState(() => _allowAccess = granted);
     } else {
       setState(() => _allowAccess = false);

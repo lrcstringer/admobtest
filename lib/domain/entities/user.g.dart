@@ -6,7 +6,7 @@ part of 'user.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
+_User _$UserFromJson(Map<String, dynamic> json) => _User(
   id: json['id'] as String,
   phoneNumber: json['phoneNumber'] as String,
   status: $enumDecode(_$UserStatusEnumMap, json['status']),
@@ -38,28 +38,27 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
   kycTier: json['kycTier'] as String? ?? 'none',
 );
 
-Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'phoneNumber': instance.phoneNumber,
-      'status': _$UserStatusEnumMap[instance.status]!,
-      'isPotEligible': instance.isPotEligible,
-      'hasAcceptedTerms': instance.hasAcceptedTerms,
-      'hasCompletedOnboarding': instance.hasCompletedOnboarding,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'lastActiveAt': instance.lastActiveAt?.toIso8601String(),
-      'potEligibleAt': instance.potEligibleAt?.toIso8601String(),
-      'referralCode': instance.referralCode,
-      'referredBy': instance.referredBy,
-      'currentVisitorId': instance.currentVisitorId,
-      'profile': instance.profile,
-      'riskScore': instance.riskScore,
-      'primaryDeviceId': instance.primaryDeviceId,
-      'riskLevel': instance.riskLevel,
-      'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
-      'kycTier': instance.kycTier,
-    };
+Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
+  'id': instance.id,
+  'phoneNumber': instance.phoneNumber,
+  'status': _$UserStatusEnumMap[instance.status]!,
+  'isPotEligible': instance.isPotEligible,
+  'hasAcceptedTerms': instance.hasAcceptedTerms,
+  'hasCompletedOnboarding': instance.hasCompletedOnboarding,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'lastActiveAt': instance.lastActiveAt?.toIso8601String(),
+  'potEligibleAt': instance.potEligibleAt?.toIso8601String(),
+  'referralCode': instance.referralCode,
+  'referredBy': instance.referredBy,
+  'currentVisitorId': instance.currentVisitorId,
+  'profile': instance.profile,
+  'riskScore': instance.riskScore,
+  'primaryDeviceId': instance.primaryDeviceId,
+  'riskLevel': instance.riskLevel,
+  'lastLoginAt': instance.lastLoginAt?.toIso8601String(),
+  'kycTier': instance.kycTier,
+};
 
 const _$UserStatusEnumMap = {
   UserStatus.pending: 'pending',

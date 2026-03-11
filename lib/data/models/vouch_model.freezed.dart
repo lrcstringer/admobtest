@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,329 +9,287 @@ part of 'vouch_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$VouchModel {
-  String get id => throw _privateConstructorUsedError;
-  String get voucherId => throw _privateConstructorUsedError;
-  String get voucherName => throw _privateConstructorUsedError;
-  String? get voucherPhotoUrl => throw _privateConstructorUsedError;
-  String get providerId => throw _privateConstructorUsedError;
-  String? get orderId => throw _privateConstructorUsedError;
-  int get rating => throw _privateConstructorUsedError;
-  String? get comment => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of VouchModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $VouchModelCopyWith<VouchModel> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get id; String get voucherId; String get voucherName; String? get voucherPhotoUrl; String get providerId; String? get orderId; int get rating; String? get comment; DateTime get createdAt;
+/// Create a copy of VouchModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$VouchModelCopyWith<VouchModel> get copyWith => _$VouchModelCopyWithImpl<VouchModel>(this as VouchModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VouchModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucherId, voucherId) || other.voucherId == voucherId)&&(identical(other.voucherName, voucherName) || other.voucherName == voucherName)&&(identical(other.voucherPhotoUrl, voucherPhotoUrl) || other.voucherPhotoUrl == voucherPhotoUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,voucherId,voucherName,voucherPhotoUrl,providerId,orderId,rating,comment,createdAt);
+
+@override
+String toString() {
+  return 'VouchModel(id: $id, voucherId: $voucherId, voucherName: $voucherName, voucherPhotoUrl: $voucherPhotoUrl, providerId: $providerId, orderId: $orderId, rating: $rating, comment: $comment, createdAt: $createdAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $VouchModelCopyWith<$Res> {
-  factory $VouchModelCopyWith(
-    VouchModel value,
-    $Res Function(VouchModel) then,
-  ) = _$VouchModelCopyWithImpl<$Res, VouchModel>;
-  @useResult
-  $Res call({
-    String id,
-    String voucherId,
-    String voucherName,
-    String? voucherPhotoUrl,
-    String providerId,
-    String? orderId,
-    int rating,
-    String? comment,
-    DateTime createdAt,
-  });
-}
+abstract mixin class $VouchModelCopyWith<$Res>  {
+  factory $VouchModelCopyWith(VouchModel value, $Res Function(VouchModel) _then) = _$VouchModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String voucherId, String voucherName, String? voucherPhotoUrl, String providerId, String? orderId, int rating, String? comment, DateTime createdAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$VouchModelCopyWithImpl<$Res, $Val extends VouchModel>
+class _$VouchModelCopyWithImpl<$Res>
     implements $VouchModelCopyWith<$Res> {
-  _$VouchModelCopyWithImpl(this._value, this._then);
+  _$VouchModelCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final VouchModel _self;
+  final $Res Function(VouchModel) _then;
 
-  /// Create a copy of VouchModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? voucherId = null,
-    Object? voucherName = null,
-    Object? voucherPhotoUrl = freezed,
-    Object? providerId = null,
-    Object? orderId = freezed,
-    Object? rating = null,
-    Object? comment = freezed,
-    Object? createdAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            voucherId: null == voucherId
-                ? _value.voucherId
-                : voucherId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            voucherName: null == voucherName
-                ? _value.voucherName
-                : voucherName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            voucherPhotoUrl: freezed == voucherPhotoUrl
-                ? _value.voucherPhotoUrl
-                : voucherPhotoUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            providerId: null == providerId
-                ? _value.providerId
-                : providerId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            orderId: freezed == orderId
-                ? _value.orderId
-                : orderId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            rating: null == rating
-                ? _value.rating
-                : rating // ignore: cast_nullable_to_non_nullable
-                      as int,
-            comment: freezed == comment
-                ? _value.comment
-                : comment // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of VouchModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? voucherId = null,Object? voucherName = null,Object? voucherPhotoUrl = freezed,Object? providerId = null,Object? orderId = freezed,Object? rating = null,Object? comment = freezed,Object? createdAt = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,voucherId: null == voucherId ? _self.voucherId : voucherId // ignore: cast_nullable_to_non_nullable
+as String,voucherName: null == voucherName ? _self.voucherName : voucherName // ignore: cast_nullable_to_non_nullable
+as String,voucherPhotoUrl: freezed == voucherPhotoUrl ? _self.voucherPhotoUrl : voucherPhotoUrl // ignore: cast_nullable_to_non_nullable
+as String?,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
+as String,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as int,comment: freezed == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [VouchModel].
+extension VouchModelPatterns on VouchModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _VouchModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _VouchModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _VouchModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _VouchModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _VouchModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _VouchModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String voucherId,  String voucherName,  String? voucherPhotoUrl,  String providerId,  String? orderId,  int rating,  String? comment,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _VouchModel() when $default != null:
+return $default(_that.id,_that.voucherId,_that.voucherName,_that.voucherPhotoUrl,_that.providerId,_that.orderId,_that.rating,_that.comment,_that.createdAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String voucherId,  String voucherName,  String? voucherPhotoUrl,  String providerId,  String? orderId,  int rating,  String? comment,  DateTime createdAt)  $default,) {final _that = this;
+switch (_that) {
+case _VouchModel():
+return $default(_that.id,_that.voucherId,_that.voucherName,_that.voucherPhotoUrl,_that.providerId,_that.orderId,_that.rating,_that.comment,_that.createdAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String voucherId,  String voucherName,  String? voucherPhotoUrl,  String providerId,  String? orderId,  int rating,  String? comment,  DateTime createdAt)?  $default,) {final _that = this;
+switch (_that) {
+case _VouchModel() when $default != null:
+return $default(_that.id,_that.voucherId,_that.voucherName,_that.voucherPhotoUrl,_that.providerId,_that.orderId,_that.rating,_that.comment,_that.createdAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$VouchModelImplCopyWith<$Res>
-    implements $VouchModelCopyWith<$Res> {
-  factory _$$VouchModelImplCopyWith(
-    _$VouchModelImpl value,
-    $Res Function(_$VouchModelImpl) then,
-  ) = __$$VouchModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String voucherId,
-    String voucherName,
-    String? voucherPhotoUrl,
-    String providerId,
-    String? orderId,
-    int rating,
-    String? comment,
-    DateTime createdAt,
-  });
+
+
+class _VouchModel extends VouchModel {
+  const _VouchModel({required this.id, required this.voucherId, required this.voucherName, this.voucherPhotoUrl, required this.providerId, this.orderId, required this.rating, this.comment, required this.createdAt}): super._();
+  
+
+@override final  String id;
+@override final  String voucherId;
+@override final  String voucherName;
+@override final  String? voucherPhotoUrl;
+@override final  String providerId;
+@override final  String? orderId;
+@override final  int rating;
+@override final  String? comment;
+@override final  DateTime createdAt;
+
+/// Create a copy of VouchModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VouchModelCopyWith<_VouchModel> get copyWith => __$VouchModelCopyWithImpl<_VouchModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VouchModel&&(identical(other.id, id) || other.id == id)&&(identical(other.voucherId, voucherId) || other.voucherId == voucherId)&&(identical(other.voucherName, voucherName) || other.voucherName == voucherName)&&(identical(other.voucherPhotoUrl, voucherPhotoUrl) || other.voucherPhotoUrl == voucherPhotoUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,voucherId,voucherName,voucherPhotoUrl,providerId,orderId,rating,comment,createdAt);
+
+@override
+String toString() {
+  return 'VouchModel(id: $id, voucherId: $voucherId, voucherName: $voucherName, voucherPhotoUrl: $voucherPhotoUrl, providerId: $providerId, orderId: $orderId, rating: $rating, comment: $comment, createdAt: $createdAt)';
+}
+
+
 }
 
 /// @nodoc
-class __$$VouchModelImplCopyWithImpl<$Res>
-    extends _$VouchModelCopyWithImpl<$Res, _$VouchModelImpl>
-    implements _$$VouchModelImplCopyWith<$Res> {
-  __$$VouchModelImplCopyWithImpl(
-    _$VouchModelImpl _value,
-    $Res Function(_$VouchModelImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$VouchModelCopyWith<$Res> implements $VouchModelCopyWith<$Res> {
+  factory _$VouchModelCopyWith(_VouchModel value, $Res Function(_VouchModel) _then) = __$VouchModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String voucherId, String voucherName, String? voucherPhotoUrl, String providerId, String? orderId, int rating, String? comment, DateTime createdAt
+});
 
-  /// Create a copy of VouchModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? voucherId = null,
-    Object? voucherName = null,
-    Object? voucherPhotoUrl = freezed,
-    Object? providerId = null,
-    Object? orderId = freezed,
-    Object? rating = null,
-    Object? comment = freezed,
-    Object? createdAt = null,
-  }) {
-    return _then(
-      _$VouchModelImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        voucherId: null == voucherId
-            ? _value.voucherId
-            : voucherId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        voucherName: null == voucherName
-            ? _value.voucherName
-            : voucherName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        voucherPhotoUrl: freezed == voucherPhotoUrl
-            ? _value.voucherPhotoUrl
-            : voucherPhotoUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        providerId: null == providerId
-            ? _value.providerId
-            : providerId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        orderId: freezed == orderId
-            ? _value.orderId
-            : orderId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        rating: null == rating
-            ? _value.rating
-            : rating // ignore: cast_nullable_to_non_nullable
-                  as int,
-        comment: freezed == comment
-            ? _value.comment
-            : comment // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$VouchModelCopyWithImpl<$Res>
+    implements _$VouchModelCopyWith<$Res> {
+  __$VouchModelCopyWithImpl(this._self, this._then);
 
-class _$VouchModelImpl extends _VouchModel {
-  const _$VouchModelImpl({
-    required this.id,
-    required this.voucherId,
-    required this.voucherName,
-    this.voucherPhotoUrl,
-    required this.providerId,
-    this.orderId,
-    required this.rating,
-    this.comment,
-    required this.createdAt,
-  }) : super._();
+  final _VouchModel _self;
+  final $Res Function(_VouchModel) _then;
 
-  @override
-  final String id;
-  @override
-  final String voucherId;
-  @override
-  final String voucherName;
-  @override
-  final String? voucherPhotoUrl;
-  @override
-  final String providerId;
-  @override
-  final String? orderId;
-  @override
-  final int rating;
-  @override
-  final String? comment;
-  @override
-  final DateTime createdAt;
-
-  @override
-  String toString() {
-    return 'VouchModel(id: $id, voucherId: $voucherId, voucherName: $voucherName, voucherPhotoUrl: $voucherPhotoUrl, providerId: $providerId, orderId: $orderId, rating: $rating, comment: $comment, createdAt: $createdAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$VouchModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.voucherId, voucherId) ||
-                other.voucherId == voucherId) &&
-            (identical(other.voucherName, voucherName) ||
-                other.voucherName == voucherName) &&
-            (identical(other.voucherPhotoUrl, voucherPhotoUrl) ||
-                other.voucherPhotoUrl == voucherPhotoUrl) &&
-            (identical(other.providerId, providerId) ||
-                other.providerId == providerId) &&
-            (identical(other.orderId, orderId) || other.orderId == orderId) &&
-            (identical(other.rating, rating) || other.rating == rating) &&
-            (identical(other.comment, comment) || other.comment == comment) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    voucherId,
-    voucherName,
-    voucherPhotoUrl,
-    providerId,
-    orderId,
-    rating,
-    comment,
-    createdAt,
-  );
-
-  /// Create a copy of VouchModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$VouchModelImplCopyWith<_$VouchModelImpl> get copyWith =>
-      __$$VouchModelImplCopyWithImpl<_$VouchModelImpl>(this, _$identity);
+/// Create a copy of VouchModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? voucherId = null,Object? voucherName = null,Object? voucherPhotoUrl = freezed,Object? providerId = null,Object? orderId = freezed,Object? rating = null,Object? comment = freezed,Object? createdAt = null,}) {
+  return _then(_VouchModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,voucherId: null == voucherId ? _self.voucherId : voucherId // ignore: cast_nullable_to_non_nullable
+as String,voucherName: null == voucherName ? _self.voucherName : voucherName // ignore: cast_nullable_to_non_nullable
+as String,voucherPhotoUrl: freezed == voucherPhotoUrl ? _self.voucherPhotoUrl : voucherPhotoUrl // ignore: cast_nullable_to_non_nullable
+as String?,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
+as String,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as int,comment: freezed == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
 }
 
-abstract class _VouchModel extends VouchModel {
-  const factory _VouchModel({
-    required final String id,
-    required final String voucherId,
-    required final String voucherName,
-    final String? voucherPhotoUrl,
-    required final String providerId,
-    final String? orderId,
-    required final int rating,
-    final String? comment,
-    required final DateTime createdAt,
-  }) = _$VouchModelImpl;
-  const _VouchModel._() : super._();
 
-  @override
-  String get id;
-  @override
-  String get voucherId;
-  @override
-  String get voucherName;
-  @override
-  String? get voucherPhotoUrl;
-  @override
-  String get providerId;
-  @override
-  String? get orderId;
-  @override
-  int get rating;
-  @override
-  String? get comment;
-  @override
-  DateTime get createdAt;
-
-  /// Create a copy of VouchModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$VouchModelImplCopyWith<_$VouchModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on

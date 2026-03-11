@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,6288 +9,1312 @@ part of 'failures.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$Failure {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Failure);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure()';
+}
+
+
+}
+
+/// @nodoc
+class $FailureCopyWith<$Res>  {
+$FailureCopyWith(Failure _, $Res Function(Failure) __);
+}
+
+
+/// Adds pattern-matching-related methods to [Failure].
+extension FailurePatterns on Failure {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( TimeoutFailure value)?  timeout,TResult Function( NoInternetFailure value)?  noInternet,TResult Function( AuthFailure value)?  auth,TResult Function( UnauthenticatedFailure value)?  unauthenticated,TResult Function( InvalidOtpFailure value)?  invalidOtp,TResult Function( OtpExpiredFailure value)?  otpExpired,TResult Function( TooManyAttemptsFailure value)?  tooManyAttempts,TResult Function( DailyCapReachedFailure value)?  dailyCapReached,TResult Function( InsufficientBalanceFailure value)?  insufficientBalance,TResult Function( CashoutNotEligibleFailure value)?  cashoutNotEligible,TResult Function( PotNotEligibleFailure value)?  potNotEligible,TResult Function( UserSuspendedFailure value)?  userSuspended,TResult Function( InvalidPhoneFailure value)?  invalidPhone,TResult Function( InvalidUsernameFailure value)?  invalidUsername,TResult Function( InvalidAmountFailure value)?  invalidAmount,TResult Function( ServerFailure value)?  serverError,TResult Function( UnknownFailure value)?  unknown,TResult Function( StepUpRequiredFailure value)?  stepUpRequired,TResult Function( DeviceNotTrustedFailure value)?  deviceNotTrusted,TResult Function( SimChangedFailure value)?  simChanged,TResult Function( DeviceBindingFailedFailure value)?  deviceBindingFailed,TResult Function( SessionLockedFailure value)?  sessionLocked,TResult Function( CacheFailure value)?  cacheError,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case NetworkFailure() when network != null:
+return network(_that);case TimeoutFailure() when timeout != null:
+return timeout(_that);case NoInternetFailure() when noInternet != null:
+return noInternet(_that);case AuthFailure() when auth != null:
+return auth(_that);case UnauthenticatedFailure() when unauthenticated != null:
+return unauthenticated(_that);case InvalidOtpFailure() when invalidOtp != null:
+return invalidOtp(_that);case OtpExpiredFailure() when otpExpired != null:
+return otpExpired(_that);case TooManyAttemptsFailure() when tooManyAttempts != null:
+return tooManyAttempts(_that);case DailyCapReachedFailure() when dailyCapReached != null:
+return dailyCapReached(_that);case InsufficientBalanceFailure() when insufficientBalance != null:
+return insufficientBalance(_that);case CashoutNotEligibleFailure() when cashoutNotEligible != null:
+return cashoutNotEligible(_that);case PotNotEligibleFailure() when potNotEligible != null:
+return potNotEligible(_that);case UserSuspendedFailure() when userSuspended != null:
+return userSuspended(_that);case InvalidPhoneFailure() when invalidPhone != null:
+return invalidPhone(_that);case InvalidUsernameFailure() when invalidUsername != null:
+return invalidUsername(_that);case InvalidAmountFailure() when invalidAmount != null:
+return invalidAmount(_that);case ServerFailure() when serverError != null:
+return serverError(_that);case UnknownFailure() when unknown != null:
+return unknown(_that);case StepUpRequiredFailure() when stepUpRequired != null:
+return stepUpRequired(_that);case DeviceNotTrustedFailure() when deviceNotTrusted != null:
+return deviceNotTrusted(_that);case SimChangedFailure() when simChanged != null:
+return simChanged(_that);case DeviceBindingFailedFailure() when deviceBindingFailed != null:
+return deviceBindingFailed(_that);case SessionLockedFailure() when sessionLocked != null:
+return sessionLocked(_that);case CacheFailure() when cacheError != null:
+return cacheError(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( TimeoutFailure value)  timeout,required TResult Function( NoInternetFailure value)  noInternet,required TResult Function( AuthFailure value)  auth,required TResult Function( UnauthenticatedFailure value)  unauthenticated,required TResult Function( InvalidOtpFailure value)  invalidOtp,required TResult Function( OtpExpiredFailure value)  otpExpired,required TResult Function( TooManyAttemptsFailure value)  tooManyAttempts,required TResult Function( DailyCapReachedFailure value)  dailyCapReached,required TResult Function( InsufficientBalanceFailure value)  insufficientBalance,required TResult Function( CashoutNotEligibleFailure value)  cashoutNotEligible,required TResult Function( PotNotEligibleFailure value)  potNotEligible,required TResult Function( UserSuspendedFailure value)  userSuspended,required TResult Function( InvalidPhoneFailure value)  invalidPhone,required TResult Function( InvalidUsernameFailure value)  invalidUsername,required TResult Function( InvalidAmountFailure value)  invalidAmount,required TResult Function( ServerFailure value)  serverError,required TResult Function( UnknownFailure value)  unknown,required TResult Function( StepUpRequiredFailure value)  stepUpRequired,required TResult Function( DeviceNotTrustedFailure value)  deviceNotTrusted,required TResult Function( SimChangedFailure value)  simChanged,required TResult Function( DeviceBindingFailedFailure value)  deviceBindingFailed,required TResult Function( SessionLockedFailure value)  sessionLocked,required TResult Function( CacheFailure value)  cacheError,}){
+final _that = this;
+switch (_that) {
+case NetworkFailure():
+return network(_that);case TimeoutFailure():
+return timeout(_that);case NoInternetFailure():
+return noInternet(_that);case AuthFailure():
+return auth(_that);case UnauthenticatedFailure():
+return unauthenticated(_that);case InvalidOtpFailure():
+return invalidOtp(_that);case OtpExpiredFailure():
+return otpExpired(_that);case TooManyAttemptsFailure():
+return tooManyAttempts(_that);case DailyCapReachedFailure():
+return dailyCapReached(_that);case InsufficientBalanceFailure():
+return insufficientBalance(_that);case CashoutNotEligibleFailure():
+return cashoutNotEligible(_that);case PotNotEligibleFailure():
+return potNotEligible(_that);case UserSuspendedFailure():
+return userSuspended(_that);case InvalidPhoneFailure():
+return invalidPhone(_that);case InvalidUsernameFailure():
+return invalidUsername(_that);case InvalidAmountFailure():
+return invalidAmount(_that);case ServerFailure():
+return serverError(_that);case UnknownFailure():
+return unknown(_that);case StepUpRequiredFailure():
+return stepUpRequired(_that);case DeviceNotTrustedFailure():
+return deviceNotTrusted(_that);case SimChangedFailure():
+return simChanged(_that);case DeviceBindingFailedFailure():
+return deviceBindingFailed(_that);case SessionLockedFailure():
+return sessionLocked(_that);case CacheFailure():
+return cacheError(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( TimeoutFailure value)?  timeout,TResult? Function( NoInternetFailure value)?  noInternet,TResult? Function( AuthFailure value)?  auth,TResult? Function( UnauthenticatedFailure value)?  unauthenticated,TResult? Function( InvalidOtpFailure value)?  invalidOtp,TResult? Function( OtpExpiredFailure value)?  otpExpired,TResult? Function( TooManyAttemptsFailure value)?  tooManyAttempts,TResult? Function( DailyCapReachedFailure value)?  dailyCapReached,TResult? Function( InsufficientBalanceFailure value)?  insufficientBalance,TResult? Function( CashoutNotEligibleFailure value)?  cashoutNotEligible,TResult? Function( PotNotEligibleFailure value)?  potNotEligible,TResult? Function( UserSuspendedFailure value)?  userSuspended,TResult? Function( InvalidPhoneFailure value)?  invalidPhone,TResult? Function( InvalidUsernameFailure value)?  invalidUsername,TResult? Function( InvalidAmountFailure value)?  invalidAmount,TResult? Function( ServerFailure value)?  serverError,TResult? Function( UnknownFailure value)?  unknown,TResult? Function( StepUpRequiredFailure value)?  stepUpRequired,TResult? Function( DeviceNotTrustedFailure value)?  deviceNotTrusted,TResult? Function( SimChangedFailure value)?  simChanged,TResult? Function( DeviceBindingFailedFailure value)?  deviceBindingFailed,TResult? Function( SessionLockedFailure value)?  sessionLocked,TResult? Function( CacheFailure value)?  cacheError,}){
+final _that = this;
+switch (_that) {
+case NetworkFailure() when network != null:
+return network(_that);case TimeoutFailure() when timeout != null:
+return timeout(_that);case NoInternetFailure() when noInternet != null:
+return noInternet(_that);case AuthFailure() when auth != null:
+return auth(_that);case UnauthenticatedFailure() when unauthenticated != null:
+return unauthenticated(_that);case InvalidOtpFailure() when invalidOtp != null:
+return invalidOtp(_that);case OtpExpiredFailure() when otpExpired != null:
+return otpExpired(_that);case TooManyAttemptsFailure() when tooManyAttempts != null:
+return tooManyAttempts(_that);case DailyCapReachedFailure() when dailyCapReached != null:
+return dailyCapReached(_that);case InsufficientBalanceFailure() when insufficientBalance != null:
+return insufficientBalance(_that);case CashoutNotEligibleFailure() when cashoutNotEligible != null:
+return cashoutNotEligible(_that);case PotNotEligibleFailure() when potNotEligible != null:
+return potNotEligible(_that);case UserSuspendedFailure() when userSuspended != null:
+return userSuspended(_that);case InvalidPhoneFailure() when invalidPhone != null:
+return invalidPhone(_that);case InvalidUsernameFailure() when invalidUsername != null:
+return invalidUsername(_that);case InvalidAmountFailure() when invalidAmount != null:
+return invalidAmount(_that);case ServerFailure() when serverError != null:
+return serverError(_that);case UnknownFailure() when unknown != null:
+return unknown(_that);case StepUpRequiredFailure() when stepUpRequired != null:
+return stepUpRequired(_that);case DeviceNotTrustedFailure() when deviceNotTrusted != null:
+return deviceNotTrusted(_that);case SimChangedFailure() when simChanged != null:
+return simChanged(_that);case DeviceBindingFailedFailure() when deviceBindingFailed != null:
+return deviceBindingFailed(_that);case SessionLockedFailure() when sessionLocked != null:
+return sessionLocked(_that);case CacheFailure() when cacheError != null:
+return cacheError(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? message)?  network,TResult Function()?  timeout,TResult Function()?  noInternet,TResult Function( String? message)?  auth,TResult Function()?  unauthenticated,TResult Function()?  invalidOtp,TResult Function()?  otpExpired,TResult Function()?  tooManyAttempts,TResult Function()?  dailyCapReached,TResult Function()?  insufficientBalance,TResult Function()?  cashoutNotEligible,TResult Function()?  potNotEligible,TResult Function()?  userSuspended,TResult Function()?  invalidPhone,TResult Function()?  invalidUsername,TResult Function()?  invalidAmount,TResult Function( String? code,  String? message)?  serverError,TResult Function( String? message)?  unknown,TResult Function( String? reason)?  stepUpRequired,TResult Function()?  deviceNotTrusted,TResult Function()?  simChanged,TResult Function( String? message)?  deviceBindingFailed,TResult Function()?  sessionLocked,TResult Function( String? message)?  cacheError,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case NetworkFailure() when network != null:
+return network(_that.message);case TimeoutFailure() when timeout != null:
+return timeout();case NoInternetFailure() when noInternet != null:
+return noInternet();case AuthFailure() when auth != null:
+return auth(_that.message);case UnauthenticatedFailure() when unauthenticated != null:
+return unauthenticated();case InvalidOtpFailure() when invalidOtp != null:
+return invalidOtp();case OtpExpiredFailure() when otpExpired != null:
+return otpExpired();case TooManyAttemptsFailure() when tooManyAttempts != null:
+return tooManyAttempts();case DailyCapReachedFailure() when dailyCapReached != null:
+return dailyCapReached();case InsufficientBalanceFailure() when insufficientBalance != null:
+return insufficientBalance();case CashoutNotEligibleFailure() when cashoutNotEligible != null:
+return cashoutNotEligible();case PotNotEligibleFailure() when potNotEligible != null:
+return potNotEligible();case UserSuspendedFailure() when userSuspended != null:
+return userSuspended();case InvalidPhoneFailure() when invalidPhone != null:
+return invalidPhone();case InvalidUsernameFailure() when invalidUsername != null:
+return invalidUsername();case InvalidAmountFailure() when invalidAmount != null:
+return invalidAmount();case ServerFailure() when serverError != null:
+return serverError(_that.code,_that.message);case UnknownFailure() when unknown != null:
+return unknown(_that.message);case StepUpRequiredFailure() when stepUpRequired != null:
+return stepUpRequired(_that.reason);case DeviceNotTrustedFailure() when deviceNotTrusted != null:
+return deviceNotTrusted();case SimChangedFailure() when simChanged != null:
+return simChanged();case DeviceBindingFailedFailure() when deviceBindingFailed != null:
+return deviceBindingFailed(_that.message);case SessionLockedFailure() when sessionLocked != null:
+return sessionLocked();case CacheFailure() when cacheError != null:
+return cacheError(_that.message);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? message)  network,required TResult Function()  timeout,required TResult Function()  noInternet,required TResult Function( String? message)  auth,required TResult Function()  unauthenticated,required TResult Function()  invalidOtp,required TResult Function()  otpExpired,required TResult Function()  tooManyAttempts,required TResult Function()  dailyCapReached,required TResult Function()  insufficientBalance,required TResult Function()  cashoutNotEligible,required TResult Function()  potNotEligible,required TResult Function()  userSuspended,required TResult Function()  invalidPhone,required TResult Function()  invalidUsername,required TResult Function()  invalidAmount,required TResult Function( String? code,  String? message)  serverError,required TResult Function( String? message)  unknown,required TResult Function( String? reason)  stepUpRequired,required TResult Function()  deviceNotTrusted,required TResult Function()  simChanged,required TResult Function( String? message)  deviceBindingFailed,required TResult Function()  sessionLocked,required TResult Function( String? message)  cacheError,}) {final _that = this;
+switch (_that) {
+case NetworkFailure():
+return network(_that.message);case TimeoutFailure():
+return timeout();case NoInternetFailure():
+return noInternet();case AuthFailure():
+return auth(_that.message);case UnauthenticatedFailure():
+return unauthenticated();case InvalidOtpFailure():
+return invalidOtp();case OtpExpiredFailure():
+return otpExpired();case TooManyAttemptsFailure():
+return tooManyAttempts();case DailyCapReachedFailure():
+return dailyCapReached();case InsufficientBalanceFailure():
+return insufficientBalance();case CashoutNotEligibleFailure():
+return cashoutNotEligible();case PotNotEligibleFailure():
+return potNotEligible();case UserSuspendedFailure():
+return userSuspended();case InvalidPhoneFailure():
+return invalidPhone();case InvalidUsernameFailure():
+return invalidUsername();case InvalidAmountFailure():
+return invalidAmount();case ServerFailure():
+return serverError(_that.code,_that.message);case UnknownFailure():
+return unknown(_that.message);case StepUpRequiredFailure():
+return stepUpRequired(_that.reason);case DeviceNotTrustedFailure():
+return deviceNotTrusted();case SimChangedFailure():
+return simChanged();case DeviceBindingFailedFailure():
+return deviceBindingFailed(_that.message);case SessionLockedFailure():
+return sessionLocked();case CacheFailure():
+return cacheError(_that.message);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? message)?  network,TResult? Function()?  timeout,TResult? Function()?  noInternet,TResult? Function( String? message)?  auth,TResult? Function()?  unauthenticated,TResult? Function()?  invalidOtp,TResult? Function()?  otpExpired,TResult? Function()?  tooManyAttempts,TResult? Function()?  dailyCapReached,TResult? Function()?  insufficientBalance,TResult? Function()?  cashoutNotEligible,TResult? Function()?  potNotEligible,TResult? Function()?  userSuspended,TResult? Function()?  invalidPhone,TResult? Function()?  invalidUsername,TResult? Function()?  invalidAmount,TResult? Function( String? code,  String? message)?  serverError,TResult? Function( String? message)?  unknown,TResult? Function( String? reason)?  stepUpRequired,TResult? Function()?  deviceNotTrusted,TResult? Function()?  simChanged,TResult? Function( String? message)?  deviceBindingFailed,TResult? Function()?  sessionLocked,TResult? Function( String? message)?  cacheError,}) {final _that = this;
+switch (_that) {
+case NetworkFailure() when network != null:
+return network(_that.message);case TimeoutFailure() when timeout != null:
+return timeout();case NoInternetFailure() when noInternet != null:
+return noInternet();case AuthFailure() when auth != null:
+return auth(_that.message);case UnauthenticatedFailure() when unauthenticated != null:
+return unauthenticated();case InvalidOtpFailure() when invalidOtp != null:
+return invalidOtp();case OtpExpiredFailure() when otpExpired != null:
+return otpExpired();case TooManyAttemptsFailure() when tooManyAttempts != null:
+return tooManyAttempts();case DailyCapReachedFailure() when dailyCapReached != null:
+return dailyCapReached();case InsufficientBalanceFailure() when insufficientBalance != null:
+return insufficientBalance();case CashoutNotEligibleFailure() when cashoutNotEligible != null:
+return cashoutNotEligible();case PotNotEligibleFailure() when potNotEligible != null:
+return potNotEligible();case UserSuspendedFailure() when userSuspended != null:
+return userSuspended();case InvalidPhoneFailure() when invalidPhone != null:
+return invalidPhone();case InvalidUsernameFailure() when invalidUsername != null:
+return invalidUsername();case InvalidAmountFailure() when invalidAmount != null:
+return invalidAmount();case ServerFailure() when serverError != null:
+return serverError(_that.code,_that.message);case UnknownFailure() when unknown != null:
+return unknown(_that.message);case StepUpRequiredFailure() when stepUpRequired != null:
+return stepUpRequired(_that.reason);case DeviceNotTrustedFailure() when deviceNotTrusted != null:
+return deviceNotTrusted();case SimChangedFailure() when simChanged != null:
+return simChanged();case DeviceBindingFailedFailure() when deviceBindingFailed != null:
+return deviceBindingFailed(_that.message);case SessionLockedFailure() when sessionLocked != null:
+return sessionLocked();case CacheFailure() when cacheError != null:
+return cacheError(_that.message);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class $FailureCopyWith<$Res> {
-  factory $FailureCopyWith(Failure value, $Res Function(Failure) then) =
-      _$FailureCopyWithImpl<$Res, Failure>;
+
+
+class NetworkFailure implements Failure {
+  const NetworkFailure({this.message});
+  
+
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NetworkFailureCopyWith<NetworkFailure> get copyWith => _$NetworkFailureCopyWithImpl<NetworkFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkFailure&&(identical(other.message, message) || other.message == message));
 }
 
-/// @nodoc
-class _$FailureCopyWithImpl<$Res, $Val extends Failure>
-    implements $FailureCopyWith<$Res> {
-  _$FailureCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+@override
+int get hashCode => Object.hash(runtimeType,message);
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+@override
+String toString() {
+  return 'Failure.network(message: $message)';
 }
 
-/// @nodoc
-abstract class _$$NetworkFailureImplCopyWith<$Res> {
-  factory _$$NetworkFailureImplCopyWith(
-    _$NetworkFailureImpl value,
-    $Res Function(_$NetworkFailureImpl) then,
-  ) = __$$NetworkFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? message});
+
 }
 
 /// @nodoc
-class __$$NetworkFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$NetworkFailureImpl>
-    implements _$$NetworkFailureImplCopyWith<$Res> {
-  __$$NetworkFailureImplCopyWithImpl(
-    _$NetworkFailureImpl _value,
-    $Res Function(_$NetworkFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = freezed}) {
-    return _then(
-      _$NetworkFailureImpl(
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
-}
+abstract mixin class $NetworkFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $NetworkFailureCopyWith(NetworkFailure value, $Res Function(NetworkFailure) _then) = _$NetworkFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? message
+});
+
+
 
+
+}
 /// @nodoc
+class _$NetworkFailureCopyWithImpl<$Res>
+    implements $NetworkFailureCopyWith<$Res> {
+  _$NetworkFailureCopyWithImpl(this._self, this._then);
+
+  final NetworkFailure _self;
+  final $Res Function(NetworkFailure) _then;
 
-class _$NetworkFailureImpl implements NetworkFailure {
-  const _$NetworkFailureImpl({this.message});
-
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.network(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$NetworkFailureImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$NetworkFailureImplCopyWith<_$NetworkFailureImpl> get copyWith =>
-      __$$NetworkFailureImplCopyWithImpl<_$NetworkFailureImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return network(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return network?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (network != null) {
-      return network(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return network(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return network?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (network != null) {
-      return network(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class NetworkFailure implements Failure {
-  const factory NetworkFailure({final String? message}) = _$NetworkFailureImpl;
-
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$NetworkFailureImplCopyWith<_$NetworkFailureImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
+  return _then(NetworkFailure(
+message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$TimeoutFailureImplCopyWith<$Res> {
-  factory _$$TimeoutFailureImplCopyWith(
-    _$TimeoutFailureImpl value,
-    $Res Function(_$TimeoutFailureImpl) then,
-  ) = __$$TimeoutFailureImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$TimeoutFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$TimeoutFailureImpl>
-    implements _$$TimeoutFailureImplCopyWith<$Res> {
-  __$$TimeoutFailureImplCopyWithImpl(
-    _$TimeoutFailureImpl _value,
-    $Res Function(_$TimeoutFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class TimeoutFailure implements Failure {
+  const TimeoutFailure();
+  
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimeoutFailure);
 }
 
-/// @nodoc
 
-class _$TimeoutFailureImpl implements TimeoutFailure {
-  const _$TimeoutFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.timeout()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$TimeoutFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return timeout();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return timeout?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (timeout != null) {
-      return timeout();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return timeout(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return timeout?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (timeout != null) {
-      return timeout(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class TimeoutFailure implements Failure {
-  const factory TimeoutFailure() = _$TimeoutFailureImpl;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.timeout()';
 }
 
-/// @nodoc
-abstract class _$$NoInternetFailureImplCopyWith<$Res> {
-  factory _$$NoInternetFailureImplCopyWith(
-    _$NoInternetFailureImpl value,
-    $Res Function(_$NoInternetFailureImpl) then,
-  ) = __$$NoInternetFailureImplCopyWithImpl<$Res>;
+
 }
+
+
+
 
 /// @nodoc
-class __$$NoInternetFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$NoInternetFailureImpl>
-    implements _$$NoInternetFailureImplCopyWith<$Res> {
-  __$$NoInternetFailureImplCopyWithImpl(
-    _$NoInternetFailureImpl _value,
-    $Res Function(_$NoInternetFailureImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+class NoInternetFailure implements Failure {
+  const NoInternetFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NoInternetFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$NoInternetFailureImpl implements NoInternetFailure {
-  const _$NoInternetFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.noInternet()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$NoInternetFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return noInternet();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return noInternet?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (noInternet != null) {
-      return noInternet();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return noInternet(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return noInternet?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (noInternet != null) {
-      return noInternet(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class NoInternetFailure implements Failure {
-  const factory NoInternetFailure() = _$NoInternetFailureImpl;
+@override
+String toString() {
+  return 'Failure.noInternet()';
 }
 
-/// @nodoc
-abstract class _$$AuthFailureImplCopyWith<$Res> {
-  factory _$$AuthFailureImplCopyWith(
-    _$AuthFailureImpl value,
-    $Res Function(_$AuthFailureImpl) then,
-  ) = __$$AuthFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? message});
+
 }
+
+
 
+
 /// @nodoc
-class __$$AuthFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$AuthFailureImpl>
-    implements _$$AuthFailureImplCopyWith<$Res> {
-  __$$AuthFailureImplCopyWithImpl(
-    _$AuthFailureImpl _value,
-    $Res Function(_$AuthFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = freezed}) {
-    return _then(
-      _$AuthFailureImpl(
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+
+class AuthFailure implements Failure {
+  const AuthFailure({this.message});
+  
+
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthFailureCopyWith<AuthFailure> get copyWith => _$AuthFailureCopyWithImpl<AuthFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthFailure&&(identical(other.message, message) || other.message == message));
 }
 
-/// @nodoc
 
-class _$AuthFailureImpl implements AuthFailure {
-  const _$AuthFailureImpl({this.message});
-
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.auth(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AuthFailureImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AuthFailureImplCopyWith<_$AuthFailureImpl> get copyWith =>
-      __$$AuthFailureImplCopyWithImpl<_$AuthFailureImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return auth(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return auth?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (auth != null) {
-      return auth(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return auth(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return auth?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (auth != null) {
-      return auth(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class AuthFailure implements Failure {
-  const factory AuthFailure({final String? message}) = _$AuthFailureImpl;
-
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AuthFailureImplCopyWith<_$AuthFailureImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.auth(message: $message)';
 }
 
-/// @nodoc
-abstract class _$$UnauthenticatedFailureImplCopyWith<$Res> {
-  factory _$$UnauthenticatedFailureImplCopyWith(
-    _$UnauthenticatedFailureImpl value,
-    $Res Function(_$UnauthenticatedFailureImpl) then,
-  ) = __$$UnauthenticatedFailureImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$UnauthenticatedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$UnauthenticatedFailureImpl>
-    implements _$$UnauthenticatedFailureImplCopyWith<$Res> {
-  __$$UnauthenticatedFailureImplCopyWithImpl(
-    _$UnauthenticatedFailureImpl _value,
-    $Res Function(_$UnauthenticatedFailureImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class $AuthFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $AuthFailureCopyWith(AuthFailure value, $Res Function(AuthFailure) _then) = _$AuthFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? message
+});
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-}
+
+
 
+}
 /// @nodoc
+class _$AuthFailureCopyWithImpl<$Res>
+    implements $AuthFailureCopyWith<$Res> {
+  _$AuthFailureCopyWithImpl(this._self, this._then);
 
-class _$UnauthenticatedFailureImpl implements UnauthenticatedFailure {
-  const _$UnauthenticatedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.unauthenticated()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UnauthenticatedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return unauthenticated();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return unauthenticated?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (unauthenticated != null) {
-      return unauthenticated();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return unauthenticated(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return unauthenticated?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (unauthenticated != null) {
-      return unauthenticated(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class UnauthenticatedFailure implements Failure {
-  const factory UnauthenticatedFailure() = _$UnauthenticatedFailureImpl;
+  final AuthFailure _self;
+  final $Res Function(AuthFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
+  return _then(AuthFailure(
+message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$InvalidOtpFailureImplCopyWith<$Res> {
-  factory _$$InvalidOtpFailureImplCopyWith(
-    _$InvalidOtpFailureImpl value,
-    $Res Function(_$InvalidOtpFailureImpl) then,
-  ) = __$$InvalidOtpFailureImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$InvalidOtpFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$InvalidOtpFailureImpl>
-    implements _$$InvalidOtpFailureImplCopyWith<$Res> {
-  __$$InvalidOtpFailureImplCopyWithImpl(
-    _$InvalidOtpFailureImpl _value,
-    $Res Function(_$InvalidOtpFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class UnauthenticatedFailure implements Failure {
+  const UnauthenticatedFailure();
+  
+
+
+
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UnauthenticatedFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$InvalidOtpFailureImpl implements InvalidOtpFailure {
-  const _$InvalidOtpFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.invalidOtp()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$InvalidOtpFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return invalidOtp();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return invalidOtp?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidOtp != null) {
-      return invalidOtp();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return invalidOtp(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return invalidOtp?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidOtp != null) {
-      return invalidOtp(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class InvalidOtpFailure implements Failure {
-  const factory InvalidOtpFailure() = _$InvalidOtpFailureImpl;
+@override
+String toString() {
+  return 'Failure.unauthenticated()';
 }
 
-/// @nodoc
-abstract class _$$OtpExpiredFailureImplCopyWith<$Res> {
-  factory _$$OtpExpiredFailureImplCopyWith(
-    _$OtpExpiredFailureImpl value,
-    $Res Function(_$OtpExpiredFailureImpl) then,
-  ) = __$$OtpExpiredFailureImplCopyWithImpl<$Res>;
+
 }
+
 
+
+
 /// @nodoc
-class __$$OtpExpiredFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$OtpExpiredFailureImpl>
-    implements _$$OtpExpiredFailureImplCopyWith<$Res> {
-  __$$OtpExpiredFailureImplCopyWithImpl(
-    _$OtpExpiredFailureImpl _value,
-    $Res Function(_$OtpExpiredFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class InvalidOtpFailure implements Failure {
+  const InvalidOtpFailure();
+  
+
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvalidOtpFailure);
 }
 
-/// @nodoc
 
-class _$OtpExpiredFailureImpl implements OtpExpiredFailure {
-  const _$OtpExpiredFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.otpExpired()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$OtpExpiredFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return otpExpired();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return otpExpired?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (otpExpired != null) {
-      return otpExpired();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return otpExpired(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return otpExpired?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (otpExpired != null) {
-      return otpExpired(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class OtpExpiredFailure implements Failure {
-  const factory OtpExpiredFailure() = _$OtpExpiredFailureImpl;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.invalidOtp()';
 }
 
-/// @nodoc
-abstract class _$$TooManyAttemptsFailureImplCopyWith<$Res> {
-  factory _$$TooManyAttemptsFailureImplCopyWith(
-    _$TooManyAttemptsFailureImpl value,
-    $Res Function(_$TooManyAttemptsFailureImpl) then,
-  ) = __$$TooManyAttemptsFailureImplCopyWithImpl<$Res>;
+
 }
+
+
 
+
 /// @nodoc
-class __$$TooManyAttemptsFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$TooManyAttemptsFailureImpl>
-    implements _$$TooManyAttemptsFailureImplCopyWith<$Res> {
-  __$$TooManyAttemptsFailureImplCopyWithImpl(
-    _$TooManyAttemptsFailureImpl _value,
-    $Res Function(_$TooManyAttemptsFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class OtpExpiredFailure implements Failure {
+  const OtpExpiredFailure();
+  
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OtpExpiredFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$TooManyAttemptsFailureImpl implements TooManyAttemptsFailure {
-  const _$TooManyAttemptsFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.tooManyAttempts()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$TooManyAttemptsFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return tooManyAttempts();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return tooManyAttempts?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (tooManyAttempts != null) {
-      return tooManyAttempts();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return tooManyAttempts(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return tooManyAttempts?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (tooManyAttempts != null) {
-      return tooManyAttempts(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class TooManyAttemptsFailure implements Failure {
-  const factory TooManyAttemptsFailure() = _$TooManyAttemptsFailureImpl;
+@override
+String toString() {
+  return 'Failure.otpExpired()';
 }
 
-/// @nodoc
-abstract class _$$DailyCapReachedFailureImplCopyWith<$Res> {
-  factory _$$DailyCapReachedFailureImplCopyWith(
-    _$DailyCapReachedFailureImpl value,
-    $Res Function(_$DailyCapReachedFailureImpl) then,
-  ) = __$$DailyCapReachedFailureImplCopyWithImpl<$Res>;
+
 }
+
 
+
+
 /// @nodoc
-class __$$DailyCapReachedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$DailyCapReachedFailureImpl>
-    implements _$$DailyCapReachedFailureImplCopyWith<$Res> {
-  __$$DailyCapReachedFailureImplCopyWithImpl(
-    _$DailyCapReachedFailureImpl _value,
-    $Res Function(_$DailyCapReachedFailureImpl) _then,
-  ) : super(_value, _then);
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+class TooManyAttemptsFailure implements Failure {
+  const TooManyAttemptsFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TooManyAttemptsFailure);
 }
 
-/// @nodoc
 
-class _$DailyCapReachedFailureImpl implements DailyCapReachedFailure {
-  const _$DailyCapReachedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.dailyCapReached()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DailyCapReachedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return dailyCapReached();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return dailyCapReached?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (dailyCapReached != null) {
-      return dailyCapReached();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return dailyCapReached(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return dailyCapReached?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (dailyCapReached != null) {
-      return dailyCapReached(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class DailyCapReachedFailure implements Failure {
-  const factory DailyCapReachedFailure() = _$DailyCapReachedFailureImpl;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.tooManyAttempts()';
 }
 
-/// @nodoc
-abstract class _$$InsufficientBalanceFailureImplCopyWith<$Res> {
-  factory _$$InsufficientBalanceFailureImplCopyWith(
-    _$InsufficientBalanceFailureImpl value,
-    $Res Function(_$InsufficientBalanceFailureImpl) then,
-  ) = __$$InsufficientBalanceFailureImplCopyWithImpl<$Res>;
+
 }
+
+
+
 
 /// @nodoc
-class __$$InsufficientBalanceFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$InsufficientBalanceFailureImpl>
-    implements _$$InsufficientBalanceFailureImplCopyWith<$Res> {
-  __$$InsufficientBalanceFailureImplCopyWithImpl(
-    _$InsufficientBalanceFailureImpl _value,
-    $Res Function(_$InsufficientBalanceFailureImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+class DailyCapReachedFailure implements Failure {
+  const DailyCapReachedFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailyCapReachedFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$InsufficientBalanceFailureImpl implements InsufficientBalanceFailure {
-  const _$InsufficientBalanceFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.insufficientBalance()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InsufficientBalanceFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return insufficientBalance();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return insufficientBalance?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (insufficientBalance != null) {
-      return insufficientBalance();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return insufficientBalance(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return insufficientBalance?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (insufficientBalance != null) {
-      return insufficientBalance(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class InsufficientBalanceFailure implements Failure {
-  const factory InsufficientBalanceFailure() = _$InsufficientBalanceFailureImpl;
+@override
+String toString() {
+  return 'Failure.dailyCapReached()';
 }
 
-/// @nodoc
-abstract class _$$CashoutNotEligibleFailureImplCopyWith<$Res> {
-  factory _$$CashoutNotEligibleFailureImplCopyWith(
-    _$CashoutNotEligibleFailureImpl value,
-    $Res Function(_$CashoutNotEligibleFailureImpl) then,
-  ) = __$$CashoutNotEligibleFailureImplCopyWithImpl<$Res>;
+
 }
+
 
+
+
 /// @nodoc
-class __$$CashoutNotEligibleFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$CashoutNotEligibleFailureImpl>
-    implements _$$CashoutNotEligibleFailureImplCopyWith<$Res> {
-  __$$CashoutNotEligibleFailureImplCopyWithImpl(
-    _$CashoutNotEligibleFailureImpl _value,
-    $Res Function(_$CashoutNotEligibleFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class InsufficientBalanceFailure implements Failure {
+  const InsufficientBalanceFailure();
+  
+
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InsufficientBalanceFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$CashoutNotEligibleFailureImpl implements CashoutNotEligibleFailure {
-  const _$CashoutNotEligibleFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.cashoutNotEligible()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CashoutNotEligibleFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return cashoutNotEligible();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return cashoutNotEligible?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (cashoutNotEligible != null) {
-      return cashoutNotEligible();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return cashoutNotEligible(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return cashoutNotEligible?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (cashoutNotEligible != null) {
-      return cashoutNotEligible(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class CashoutNotEligibleFailure implements Failure {
-  const factory CashoutNotEligibleFailure() = _$CashoutNotEligibleFailureImpl;
+@override
+String toString() {
+  return 'Failure.insufficientBalance()';
 }
 
-/// @nodoc
-abstract class _$$PotNotEligibleFailureImplCopyWith<$Res> {
-  factory _$$PotNotEligibleFailureImplCopyWith(
-    _$PotNotEligibleFailureImpl value,
-    $Res Function(_$PotNotEligibleFailureImpl) then,
-  ) = __$$PotNotEligibleFailureImplCopyWithImpl<$Res>;
+
 }
 
+
+
+
 /// @nodoc
-class __$$PotNotEligibleFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$PotNotEligibleFailureImpl>
-    implements _$$PotNotEligibleFailureImplCopyWith<$Res> {
-  __$$PotNotEligibleFailureImplCopyWithImpl(
-    _$PotNotEligibleFailureImpl _value,
-    $Res Function(_$PotNotEligibleFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class CashoutNotEligibleFailure implements Failure {
+  const CashoutNotEligibleFailure();
+  
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CashoutNotEligibleFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$PotNotEligibleFailureImpl implements PotNotEligibleFailure {
-  const _$PotNotEligibleFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.potNotEligible()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PotNotEligibleFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return potNotEligible();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return potNotEligible?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (potNotEligible != null) {
-      return potNotEligible();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return potNotEligible(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return potNotEligible?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (potNotEligible != null) {
-      return potNotEligible(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class PotNotEligibleFailure implements Failure {
-  const factory PotNotEligibleFailure() = _$PotNotEligibleFailureImpl;
+@override
+String toString() {
+  return 'Failure.cashoutNotEligible()';
 }
 
-/// @nodoc
-abstract class _$$UserSuspendedFailureImplCopyWith<$Res> {
-  factory _$$UserSuspendedFailureImplCopyWith(
-    _$UserSuspendedFailureImpl value,
-    $Res Function(_$UserSuspendedFailureImpl) then,
-  ) = __$$UserSuspendedFailureImplCopyWithImpl<$Res>;
+
 }
+
 
+
+
 /// @nodoc
-class __$$UserSuspendedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$UserSuspendedFailureImpl>
-    implements _$$UserSuspendedFailureImplCopyWith<$Res> {
-  __$$UserSuspendedFailureImplCopyWithImpl(
-    _$UserSuspendedFailureImpl _value,
-    $Res Function(_$UserSuspendedFailureImpl) _then,
-  ) : super(_value, _then);
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+class PotNotEligibleFailure implements Failure {
+  const PotNotEligibleFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PotNotEligibleFailure);
 }
 
-/// @nodoc
 
-class _$UserSuspendedFailureImpl implements UserSuspendedFailure {
-  const _$UserSuspendedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.userSuspended()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UserSuspendedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return userSuspended();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return userSuspended?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (userSuspended != null) {
-      return userSuspended();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return userSuspended(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return userSuspended?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (userSuspended != null) {
-      return userSuspended(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class UserSuspendedFailure implements Failure {
-  const factory UserSuspendedFailure() = _$UserSuspendedFailureImpl;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.potNotEligible()';
 }
 
-/// @nodoc
-abstract class _$$InvalidPhoneFailureImplCopyWith<$Res> {
-  factory _$$InvalidPhoneFailureImplCopyWith(
-    _$InvalidPhoneFailureImpl value,
-    $Res Function(_$InvalidPhoneFailureImpl) then,
-  ) = __$$InvalidPhoneFailureImplCopyWithImpl<$Res>;
+
 }
+
+
+
 
 /// @nodoc
-class __$$InvalidPhoneFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$InvalidPhoneFailureImpl>
-    implements _$$InvalidPhoneFailureImplCopyWith<$Res> {
-  __$$InvalidPhoneFailureImplCopyWithImpl(
-    _$InvalidPhoneFailureImpl _value,
-    $Res Function(_$InvalidPhoneFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class UserSuspendedFailure implements Failure {
+  const UserSuspendedFailure();
+  
+
+
+
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserSuspendedFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$InvalidPhoneFailureImpl implements InvalidPhoneFailure {
-  const _$InvalidPhoneFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.invalidPhone()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InvalidPhoneFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return invalidPhone();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return invalidPhone?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidPhone != null) {
-      return invalidPhone();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return invalidPhone(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return invalidPhone?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidPhone != null) {
-      return invalidPhone(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class InvalidPhoneFailure implements Failure {
-  const factory InvalidPhoneFailure() = _$InvalidPhoneFailureImpl;
+@override
+String toString() {
+  return 'Failure.userSuspended()';
 }
 
-/// @nodoc
-abstract class _$$InvalidUsernameFailureImplCopyWith<$Res> {
-  factory _$$InvalidUsernameFailureImplCopyWith(
-    _$InvalidUsernameFailureImpl value,
-    $Res Function(_$InvalidUsernameFailureImpl) then,
-  ) = __$$InvalidUsernameFailureImplCopyWithImpl<$Res>;
+
 }
+
 
+
+
 /// @nodoc
-class __$$InvalidUsernameFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$InvalidUsernameFailureImpl>
-    implements _$$InvalidUsernameFailureImplCopyWith<$Res> {
-  __$$InvalidUsernameFailureImplCopyWithImpl(
-    _$InvalidUsernameFailureImpl _value,
-    $Res Function(_$InvalidUsernameFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class InvalidPhoneFailure implements Failure {
+  const InvalidPhoneFailure();
+  
+
+
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvalidPhoneFailure);
 }
 
-/// @nodoc
 
-class _$InvalidUsernameFailureImpl implements InvalidUsernameFailure {
-  const _$InvalidUsernameFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.invalidUsername()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InvalidUsernameFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return invalidUsername();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return invalidUsername?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidUsername != null) {
-      return invalidUsername();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return invalidUsername(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return invalidUsername?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidUsername != null) {
-      return invalidUsername(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class InvalidUsernameFailure implements Failure {
-  const factory InvalidUsernameFailure() = _$InvalidUsernameFailureImpl;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.invalidPhone()';
 }
 
-/// @nodoc
-abstract class _$$InvalidAmountFailureImplCopyWith<$Res> {
-  factory _$$InvalidAmountFailureImplCopyWith(
-    _$InvalidAmountFailureImpl value,
-    $Res Function(_$InvalidAmountFailureImpl) then,
-  ) = __$$InvalidAmountFailureImplCopyWithImpl<$Res>;
+
 }
 
+
+
+
 /// @nodoc
-class __$$InvalidAmountFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$InvalidAmountFailureImpl>
-    implements _$$InvalidAmountFailureImplCopyWith<$Res> {
-  __$$InvalidAmountFailureImplCopyWithImpl(
-    _$InvalidAmountFailureImpl _value,
-    $Res Function(_$InvalidAmountFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class InvalidUsernameFailure implements Failure {
+  const InvalidUsernameFailure();
+  
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvalidUsernameFailure);
 }
 
-/// @nodoc
+
+@override
+int get hashCode => runtimeType.hashCode;
 
-class _$InvalidAmountFailureImpl implements InvalidAmountFailure {
-  const _$InvalidAmountFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.invalidAmount()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InvalidAmountFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return invalidAmount();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return invalidAmount?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidAmount != null) {
-      return invalidAmount();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return invalidAmount(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return invalidAmount?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (invalidAmount != null) {
-      return invalidAmount(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class InvalidAmountFailure implements Failure {
-  const factory InvalidAmountFailure() = _$InvalidAmountFailureImpl;
+@override
+String toString() {
+  return 'Failure.invalidUsername()';
 }
 
-/// @nodoc
-abstract class _$$ServerFailureImplCopyWith<$Res> {
-  factory _$$ServerFailureImplCopyWith(
-    _$ServerFailureImpl value,
-    $Res Function(_$ServerFailureImpl) then,
-  ) = __$$ServerFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? code, String? message});
+
 }
+
 
+
+
 /// @nodoc
-class __$$ServerFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$ServerFailureImpl>
-    implements _$$ServerFailureImplCopyWith<$Res> {
-  __$$ServerFailureImplCopyWithImpl(
-    _$ServerFailureImpl _value,
-    $Res Function(_$ServerFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? code = freezed, Object? message = freezed}) {
-    return _then(
-      _$ServerFailureImpl(
-        code: freezed == code
-            ? _value.code
-            : code // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+
+class InvalidAmountFailure implements Failure {
+  const InvalidAmountFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvalidAmountFailure);
 }
 
-/// @nodoc
 
-class _$ServerFailureImpl implements ServerFailure {
-  const _$ServerFailureImpl({this.code, this.message});
-
-  @override
-  final String? code;
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.serverError(code: $code, message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ServerFailureImpl &&
-            (identical(other.code, code) || other.code == code) &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, code, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ServerFailureImplCopyWith<_$ServerFailureImpl> get copyWith =>
-      __$$ServerFailureImplCopyWithImpl<_$ServerFailureImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return serverError(code, message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return serverError?.call(code, message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (serverError != null) {
-      return serverError(code, message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return serverError(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return serverError?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (serverError != null) {
-      return serverError(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class ServerFailure implements Failure {
-  const factory ServerFailure({final String? code, final String? message}) =
-      _$ServerFailureImpl;
-
-  String? get code;
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ServerFailureImplCopyWith<_$ServerFailureImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.invalidAmount()';
 }
 
-/// @nodoc
-abstract class _$$UnknownFailureImplCopyWith<$Res> {
-  factory _$$UnknownFailureImplCopyWith(
-    _$UnknownFailureImpl value,
-    $Res Function(_$UnknownFailureImpl) then,
-  ) = __$$UnknownFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? message});
+
 }
+
+
 
+
 /// @nodoc
-class __$$UnknownFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$UnknownFailureImpl>
-    implements _$$UnknownFailureImplCopyWith<$Res> {
-  __$$UnknownFailureImplCopyWithImpl(
-    _$UnknownFailureImpl _value,
-    $Res Function(_$UnknownFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = freezed}) {
-    return _then(
-      _$UnknownFailureImpl(
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+
+class ServerFailure implements Failure {
+  const ServerFailure({this.code, this.message});
+  
+
+ final  String? code;
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ServerFailureCopyWith<ServerFailure> get copyWith => _$ServerFailureCopyWithImpl<ServerFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServerFailure&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message));
 }
 
-/// @nodoc
 
-class _$UnknownFailureImpl implements UnknownFailure {
-  const _$UnknownFailureImpl({this.message});
-
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.unknown(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UnknownFailureImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UnknownFailureImplCopyWith<_$UnknownFailureImpl> get copyWith =>
-      __$$UnknownFailureImplCopyWithImpl<_$UnknownFailureImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return unknown(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return unknown?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (unknown != null) {
-      return unknown(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return unknown(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return unknown?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (unknown != null) {
-      return unknown(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class UnknownFailure implements Failure {
-  const factory UnknownFailure({final String? message}) = _$UnknownFailureImpl;
-
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UnknownFailureImplCopyWith<_$UnknownFailureImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,code,message);
+
+@override
+String toString() {
+  return 'Failure.serverError(code: $code, message: $message)';
 }
 
-/// @nodoc
-abstract class _$$StepUpRequiredFailureImplCopyWith<$Res> {
-  factory _$$StepUpRequiredFailureImplCopyWith(
-    _$StepUpRequiredFailureImpl value,
-    $Res Function(_$StepUpRequiredFailureImpl) then,
-  ) = __$$StepUpRequiredFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? reason});
+
 }
 
 /// @nodoc
-class __$$StepUpRequiredFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$StepUpRequiredFailureImpl>
-    implements _$$StepUpRequiredFailureImplCopyWith<$Res> {
-  __$$StepUpRequiredFailureImplCopyWithImpl(
-    _$StepUpRequiredFailureImpl _value,
-    $Res Function(_$StepUpRequiredFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? reason = freezed}) {
-    return _then(
-      _$StepUpRequiredFailureImpl(
-        reason: freezed == reason
-            ? _value.reason
-            : reason // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
-}
+abstract mixin class $ServerFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $ServerFailureCopyWith(ServerFailure value, $Res Function(ServerFailure) _then) = _$ServerFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? code, String? message
+});
 
+
+
+
+}
 /// @nodoc
+class _$ServerFailureCopyWithImpl<$Res>
+    implements $ServerFailureCopyWith<$Res> {
+  _$ServerFailureCopyWithImpl(this._self, this._then);
 
-class _$StepUpRequiredFailureImpl implements StepUpRequiredFailure {
-  const _$StepUpRequiredFailureImpl({this.reason});
-
-  @override
-  final String? reason;
-
-  @override
-  String toString() {
-    return 'Failure.stepUpRequired(reason: $reason)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$StepUpRequiredFailureImpl &&
-            (identical(other.reason, reason) || other.reason == reason));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, reason);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$StepUpRequiredFailureImplCopyWith<_$StepUpRequiredFailureImpl>
-  get copyWith =>
-      __$$StepUpRequiredFailureImplCopyWithImpl<_$StepUpRequiredFailureImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return stepUpRequired(reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return stepUpRequired?.call(reason);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (stepUpRequired != null) {
-      return stepUpRequired(reason);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return stepUpRequired(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return stepUpRequired?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (stepUpRequired != null) {
-      return stepUpRequired(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class StepUpRequiredFailure implements Failure {
-  const factory StepUpRequiredFailure({final String? reason}) =
-      _$StepUpRequiredFailureImpl;
-
-  String? get reason;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$StepUpRequiredFailureImplCopyWith<_$StepUpRequiredFailureImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  final ServerFailure _self;
+  final $Res Function(ServerFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? code = freezed,Object? message = freezed,}) {
+  return _then(ServerFailure(
+code: freezed == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String?,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$DeviceNotTrustedFailureImplCopyWith<$Res> {
-  factory _$$DeviceNotTrustedFailureImplCopyWith(
-    _$DeviceNotTrustedFailureImpl value,
-    $Res Function(_$DeviceNotTrustedFailureImpl) then,
-  ) = __$$DeviceNotTrustedFailureImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$DeviceNotTrustedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$DeviceNotTrustedFailureImpl>
-    implements _$$DeviceNotTrustedFailureImplCopyWith<$Res> {
-  __$$DeviceNotTrustedFailureImplCopyWithImpl(
-    _$DeviceNotTrustedFailureImpl _value,
-    $Res Function(_$DeviceNotTrustedFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class UnknownFailure implements Failure {
+  const UnknownFailure({this.message});
+  
+
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UnknownFailureCopyWith<UnknownFailure> get copyWith => _$UnknownFailureCopyWithImpl<UnknownFailure>(this, _$identity);
+
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UnknownFailure&&(identical(other.message, message) || other.message == message));
 }
 
-/// @nodoc
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
 
-class _$DeviceNotTrustedFailureImpl implements DeviceNotTrustedFailure {
-  const _$DeviceNotTrustedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.deviceNotTrusted()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceNotTrustedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return deviceNotTrusted();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return deviceNotTrusted?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (deviceNotTrusted != null) {
-      return deviceNotTrusted();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return deviceNotTrusted(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return deviceNotTrusted?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (deviceNotTrusted != null) {
-      return deviceNotTrusted(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class DeviceNotTrustedFailure implements Failure {
-  const factory DeviceNotTrustedFailure() = _$DeviceNotTrustedFailureImpl;
+@override
+String toString() {
+  return 'Failure.unknown(message: $message)';
 }
 
-/// @nodoc
-abstract class _$$SimChangedFailureImplCopyWith<$Res> {
-  factory _$$SimChangedFailureImplCopyWith(
-    _$SimChangedFailureImpl value,
-    $Res Function(_$SimChangedFailureImpl) then,
-  ) = __$$SimChangedFailureImplCopyWithImpl<$Res>;
+
 }
 
 /// @nodoc
-class __$$SimChangedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$SimChangedFailureImpl>
-    implements _$$SimChangedFailureImplCopyWith<$Res> {
-  __$$SimChangedFailureImplCopyWithImpl(
-    _$SimChangedFailureImpl _value,
-    $Res Function(_$SimChangedFailureImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class $UnknownFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $UnknownFailureCopyWith(UnknownFailure value, $Res Function(UnknownFailure) _then) = _$UnknownFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? message
+});
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-}
 
+
+
+}
 /// @nodoc
+class _$UnknownFailureCopyWithImpl<$Res>
+    implements $UnknownFailureCopyWith<$Res> {
+  _$UnknownFailureCopyWithImpl(this._self, this._then);
+
+  final UnknownFailure _self;
+  final $Res Function(UnknownFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
+  return _then(UnknownFailure(
+message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
 
-class _$SimChangedFailureImpl implements SimChangedFailure {
-  const _$SimChangedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.simChanged()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$SimChangedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return simChanged();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return simChanged?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (simChanged != null) {
-      return simChanged();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return simChanged(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return simChanged?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (simChanged != null) {
-      return simChanged(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class SimChangedFailure implements Failure {
-  const factory SimChangedFailure() = _$SimChangedFailureImpl;
 }
 
 /// @nodoc
-abstract class _$$DeviceBindingFailedFailureImplCopyWith<$Res> {
-  factory _$$DeviceBindingFailedFailureImplCopyWith(
-    _$DeviceBindingFailedFailureImpl value,
-    $Res Function(_$DeviceBindingFailedFailureImpl) then,
-  ) = __$$DeviceBindingFailedFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? message});
+
+
+class StepUpRequiredFailure implements Failure {
+  const StepUpRequiredFailure({this.reason});
+  
+
+ final  String? reason;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StepUpRequiredFailureCopyWith<StepUpRequiredFailure> get copyWith => _$StepUpRequiredFailureCopyWithImpl<StepUpRequiredFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StepUpRequiredFailure&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reason);
+
+@override
+String toString() {
+  return 'Failure.stepUpRequired(reason: $reason)';
+}
+
+
 }
+
+/// @nodoc
+abstract mixin class $StepUpRequiredFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $StepUpRequiredFailureCopyWith(StepUpRequiredFailure value, $Res Function(StepUpRequiredFailure) _then) = _$StepUpRequiredFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? reason
+});
+
+
 
+
+}
 /// @nodoc
-class __$$DeviceBindingFailedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$DeviceBindingFailedFailureImpl>
-    implements _$$DeviceBindingFailedFailureImplCopyWith<$Res> {
-  __$$DeviceBindingFailedFailureImplCopyWithImpl(
-    _$DeviceBindingFailedFailureImpl _value,
-    $Res Function(_$DeviceBindingFailedFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = freezed}) {
-    return _then(
-      _$DeviceBindingFailedFailureImpl(
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+class _$StepUpRequiredFailureCopyWithImpl<$Res>
+    implements $StepUpRequiredFailureCopyWith<$Res> {
+  _$StepUpRequiredFailureCopyWithImpl(this._self, this._then);
+
+  final StepUpRequiredFailure _self;
+  final $Res Function(StepUpRequiredFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reason = freezed,}) {
+  return _then(StepUpRequiredFailure(
+reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
 }
 
 /// @nodoc
 
-class _$DeviceBindingFailedFailureImpl implements DeviceBindingFailedFailure {
-  const _$DeviceBindingFailedFailureImpl({this.message});
-
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.deviceBindingFailed(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DeviceBindingFailedFailureImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DeviceBindingFailedFailureImplCopyWith<_$DeviceBindingFailedFailureImpl>
-  get copyWith =>
-      __$$DeviceBindingFailedFailureImplCopyWithImpl<
-        _$DeviceBindingFailedFailureImpl
-      >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return deviceBindingFailed(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return deviceBindingFailed?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (deviceBindingFailed != null) {
-      return deviceBindingFailed(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return deviceBindingFailed(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return deviceBindingFailed?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (deviceBindingFailed != null) {
-      return deviceBindingFailed(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class DeviceBindingFailedFailure implements Failure {
-  const factory DeviceBindingFailedFailure({final String? message}) =
-      _$DeviceBindingFailedFailureImpl;
-
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$DeviceBindingFailedFailureImplCopyWith<_$DeviceBindingFailedFailureImpl>
-  get copyWith => throw _privateConstructorUsedError;
+
+class DeviceNotTrustedFailure implements Failure {
+  const DeviceNotTrustedFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceNotTrustedFailure);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.deviceNotTrusted()';
+}
+
+
 }
+
 
+
+
 /// @nodoc
-abstract class _$$SessionLockedFailureImplCopyWith<$Res> {
-  factory _$$SessionLockedFailureImplCopyWith(
-    _$SessionLockedFailureImpl value,
-    $Res Function(_$SessionLockedFailureImpl) then,
-  ) = __$$SessionLockedFailureImplCopyWithImpl<$Res>;
+
+
+class SimChangedFailure implements Failure {
+  const SimChangedFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SimChangedFailure);
 }
 
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.simChanged()';
+}
+
+
+}
+
+
+
+
 /// @nodoc
-class __$$SessionLockedFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$SessionLockedFailureImpl>
-    implements _$$SessionLockedFailureImplCopyWith<$Res> {
-  __$$SessionLockedFailureImplCopyWithImpl(
-    _$SessionLockedFailureImpl _value,
-    $Res Function(_$SessionLockedFailureImpl) _then,
-  ) : super(_value, _then);
+
+
+class DeviceBindingFailedFailure implements Failure {
+  const DeviceBindingFailedFailure({this.message});
+  
 
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DeviceBindingFailedFailureCopyWith<DeviceBindingFailedFailure> get copyWith => _$DeviceBindingFailedFailureCopyWithImpl<DeviceBindingFailedFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DeviceBindingFailedFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.deviceBindingFailed(message: $message)';
+}
+
+
 }
+
+/// @nodoc
+abstract mixin class $DeviceBindingFailedFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $DeviceBindingFailedFailureCopyWith(DeviceBindingFailedFailure value, $Res Function(DeviceBindingFailedFailure) _then) = _$DeviceBindingFailedFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? message
+});
 
+
+
+
+}
 /// @nodoc
+class _$DeviceBindingFailedFailureCopyWithImpl<$Res>
+    implements $DeviceBindingFailedFailureCopyWith<$Res> {
+  _$DeviceBindingFailedFailureCopyWithImpl(this._self, this._then);
+
+  final DeviceBindingFailedFailure _self;
+  final $Res Function(DeviceBindingFailedFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
+  return _then(DeviceBindingFailedFailure(
+message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
 
-class _$SessionLockedFailureImpl implements SessionLockedFailure {
-  const _$SessionLockedFailureImpl();
-
-  @override
-  String toString() {
-    return 'Failure.sessionLocked()';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SessionLockedFailureImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return sessionLocked();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return sessionLocked?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (sessionLocked != null) {
-      return sessionLocked();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return sessionLocked(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return sessionLocked?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (sessionLocked != null) {
-      return sessionLocked(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class SessionLockedFailure implements Failure {
-  const factory SessionLockedFailure() = _$SessionLockedFailureImpl;
+
 }
 
 /// @nodoc
-abstract class _$$CacheFailureImplCopyWith<$Res> {
-  factory _$$CacheFailureImplCopyWith(
-    _$CacheFailureImpl value,
-    $Res Function(_$CacheFailureImpl) then,
-  ) = __$$CacheFailureImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String? message});
+
+
+class SessionLockedFailure implements Failure {
+  const SessionLockedFailure();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionLockedFailure);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'Failure.sessionLocked()';
+}
+
+
 }
+
+
 
+
 /// @nodoc
-class __$$CacheFailureImplCopyWithImpl<$Res>
-    extends _$FailureCopyWithImpl<$Res, _$CacheFailureImpl>
-    implements _$$CacheFailureImplCopyWith<$Res> {
-  __$$CacheFailureImplCopyWithImpl(
-    _$CacheFailureImpl _value,
-    $Res Function(_$CacheFailureImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = freezed}) {
-    return _then(
-      _$CacheFailureImpl(
-        message: freezed == message
-            ? _value.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String?,
-      ),
-    );
-  }
+
+
+class CacheFailure implements Failure {
+  const CacheFailure({this.message});
+  
+
+ final  String? message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CacheFailureCopyWith<CacheFailure> get copyWith => _$CacheFailureCopyWithImpl<CacheFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CacheFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.cacheError(message: $message)';
+}
+
+
 }
+
+/// @nodoc
+abstract mixin class $CacheFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $CacheFailureCopyWith(CacheFailure value, $Res Function(CacheFailure) _then) = _$CacheFailureCopyWithImpl;
+@useResult
+$Res call({
+ String? message
+});
+
+
 
+
+}
 /// @nodoc
+class _$CacheFailureCopyWithImpl<$Res>
+    implements $CacheFailureCopyWith<$Res> {
+  _$CacheFailureCopyWithImpl(this._self, this._then);
+
+  final CacheFailure _self;
+  final $Res Function(CacheFailure) _then;
 
-class _$CacheFailureImpl implements CacheFailure {
-  const _$CacheFailureImpl({this.message});
-
-  @override
-  final String? message;
-
-  @override
-  String toString() {
-    return 'Failure.cacheError(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CacheFailureImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CacheFailureImplCopyWith<_$CacheFailureImpl> get copyWith =>
-      __$$CacheFailureImplCopyWithImpl<_$CacheFailureImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String? message) network,
-    required TResult Function() timeout,
-    required TResult Function() noInternet,
-    required TResult Function(String? message) auth,
-    required TResult Function() unauthenticated,
-    required TResult Function() invalidOtp,
-    required TResult Function() otpExpired,
-    required TResult Function() tooManyAttempts,
-    required TResult Function() dailyCapReached,
-    required TResult Function() insufficientBalance,
-    required TResult Function() cashoutNotEligible,
-    required TResult Function() potNotEligible,
-    required TResult Function() userSuspended,
-    required TResult Function() invalidPhone,
-    required TResult Function() invalidUsername,
-    required TResult Function() invalidAmount,
-    required TResult Function(String? code, String? message) serverError,
-    required TResult Function(String? message) unknown,
-    required TResult Function(String? reason) stepUpRequired,
-    required TResult Function() deviceNotTrusted,
-    required TResult Function() simChanged,
-    required TResult Function(String? message) deviceBindingFailed,
-    required TResult Function() sessionLocked,
-    required TResult Function(String? message) cacheError,
-  }) {
-    return cacheError(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String? message)? network,
-    TResult? Function()? timeout,
-    TResult? Function()? noInternet,
-    TResult? Function(String? message)? auth,
-    TResult? Function()? unauthenticated,
-    TResult? Function()? invalidOtp,
-    TResult? Function()? otpExpired,
-    TResult? Function()? tooManyAttempts,
-    TResult? Function()? dailyCapReached,
-    TResult? Function()? insufficientBalance,
-    TResult? Function()? cashoutNotEligible,
-    TResult? Function()? potNotEligible,
-    TResult? Function()? userSuspended,
-    TResult? Function()? invalidPhone,
-    TResult? Function()? invalidUsername,
-    TResult? Function()? invalidAmount,
-    TResult? Function(String? code, String? message)? serverError,
-    TResult? Function(String? message)? unknown,
-    TResult? Function(String? reason)? stepUpRequired,
-    TResult? Function()? deviceNotTrusted,
-    TResult? Function()? simChanged,
-    TResult? Function(String? message)? deviceBindingFailed,
-    TResult? Function()? sessionLocked,
-    TResult? Function(String? message)? cacheError,
-  }) {
-    return cacheError?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String? message)? network,
-    TResult Function()? timeout,
-    TResult Function()? noInternet,
-    TResult Function(String? message)? auth,
-    TResult Function()? unauthenticated,
-    TResult Function()? invalidOtp,
-    TResult Function()? otpExpired,
-    TResult Function()? tooManyAttempts,
-    TResult Function()? dailyCapReached,
-    TResult Function()? insufficientBalance,
-    TResult Function()? cashoutNotEligible,
-    TResult Function()? potNotEligible,
-    TResult Function()? userSuspended,
-    TResult Function()? invalidPhone,
-    TResult Function()? invalidUsername,
-    TResult Function()? invalidAmount,
-    TResult Function(String? code, String? message)? serverError,
-    TResult Function(String? message)? unknown,
-    TResult Function(String? reason)? stepUpRequired,
-    TResult Function()? deviceNotTrusted,
-    TResult Function()? simChanged,
-    TResult Function(String? message)? deviceBindingFailed,
-    TResult Function()? sessionLocked,
-    TResult Function(String? message)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (cacheError != null) {
-      return cacheError(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(NetworkFailure value) network,
-    required TResult Function(TimeoutFailure value) timeout,
-    required TResult Function(NoInternetFailure value) noInternet,
-    required TResult Function(AuthFailure value) auth,
-    required TResult Function(UnauthenticatedFailure value) unauthenticated,
-    required TResult Function(InvalidOtpFailure value) invalidOtp,
-    required TResult Function(OtpExpiredFailure value) otpExpired,
-    required TResult Function(TooManyAttemptsFailure value) tooManyAttempts,
-    required TResult Function(DailyCapReachedFailure value) dailyCapReached,
-    required TResult Function(InsufficientBalanceFailure value)
-    insufficientBalance,
-    required TResult Function(CashoutNotEligibleFailure value)
-    cashoutNotEligible,
-    required TResult Function(PotNotEligibleFailure value) potNotEligible,
-    required TResult Function(UserSuspendedFailure value) userSuspended,
-    required TResult Function(InvalidPhoneFailure value) invalidPhone,
-    required TResult Function(InvalidUsernameFailure value) invalidUsername,
-    required TResult Function(InvalidAmountFailure value) invalidAmount,
-    required TResult Function(ServerFailure value) serverError,
-    required TResult Function(UnknownFailure value) unknown,
-    required TResult Function(StepUpRequiredFailure value) stepUpRequired,
-    required TResult Function(DeviceNotTrustedFailure value) deviceNotTrusted,
-    required TResult Function(SimChangedFailure value) simChanged,
-    required TResult Function(DeviceBindingFailedFailure value)
-    deviceBindingFailed,
-    required TResult Function(SessionLockedFailure value) sessionLocked,
-    required TResult Function(CacheFailure value) cacheError,
-  }) {
-    return cacheError(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(NetworkFailure value)? network,
-    TResult? Function(TimeoutFailure value)? timeout,
-    TResult? Function(NoInternetFailure value)? noInternet,
-    TResult? Function(AuthFailure value)? auth,
-    TResult? Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult? Function(InvalidOtpFailure value)? invalidOtp,
-    TResult? Function(OtpExpiredFailure value)? otpExpired,
-    TResult? Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult? Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult? Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult? Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult? Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult? Function(UserSuspendedFailure value)? userSuspended,
-    TResult? Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult? Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult? Function(InvalidAmountFailure value)? invalidAmount,
-    TResult? Function(ServerFailure value)? serverError,
-    TResult? Function(UnknownFailure value)? unknown,
-    TResult? Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult? Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult? Function(SimChangedFailure value)? simChanged,
-    TResult? Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult? Function(SessionLockedFailure value)? sessionLocked,
-    TResult? Function(CacheFailure value)? cacheError,
-  }) {
-    return cacheError?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(NetworkFailure value)? network,
-    TResult Function(TimeoutFailure value)? timeout,
-    TResult Function(NoInternetFailure value)? noInternet,
-    TResult Function(AuthFailure value)? auth,
-    TResult Function(UnauthenticatedFailure value)? unauthenticated,
-    TResult Function(InvalidOtpFailure value)? invalidOtp,
-    TResult Function(OtpExpiredFailure value)? otpExpired,
-    TResult Function(TooManyAttemptsFailure value)? tooManyAttempts,
-    TResult Function(DailyCapReachedFailure value)? dailyCapReached,
-    TResult Function(InsufficientBalanceFailure value)? insufficientBalance,
-    TResult Function(CashoutNotEligibleFailure value)? cashoutNotEligible,
-    TResult Function(PotNotEligibleFailure value)? potNotEligible,
-    TResult Function(UserSuspendedFailure value)? userSuspended,
-    TResult Function(InvalidPhoneFailure value)? invalidPhone,
-    TResult Function(InvalidUsernameFailure value)? invalidUsername,
-    TResult Function(InvalidAmountFailure value)? invalidAmount,
-    TResult Function(ServerFailure value)? serverError,
-    TResult Function(UnknownFailure value)? unknown,
-    TResult Function(StepUpRequiredFailure value)? stepUpRequired,
-    TResult Function(DeviceNotTrustedFailure value)? deviceNotTrusted,
-    TResult Function(SimChangedFailure value)? simChanged,
-    TResult Function(DeviceBindingFailedFailure value)? deviceBindingFailed,
-    TResult Function(SessionLockedFailure value)? sessionLocked,
-    TResult Function(CacheFailure value)? cacheError,
-    required TResult orElse(),
-  }) {
-    if (cacheError != null) {
-      return cacheError(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class CacheFailure implements Failure {
-  const factory CacheFailure({final String? message}) = _$CacheFailureImpl;
-
-  String? get message;
-
-  /// Create a copy of Failure
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CacheFailureImplCopyWith<_$CacheFailureImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
+  return _then(CacheFailure(
+message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
+
+
+}
+
+// dart format on

@@ -11,40 +11,41 @@ dependencies:
     sdk: flutter
 
   # State Management
-  flutter_bloc: ^8.1.6
-  bloc: ^8.1.4
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
 
   # Code Generation
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
 
   # Dependency Injection
-  get_it: ^8.0.3
+  get_it: ^9.2.1
   injectable: ^2.5.0
 
   # Navigation
-  go_router: ^14.6.2
+  go_router: ^17.1.0
 
   # Firebase
-  firebase_core: ^3.8.1
-  firebase_auth: ^5.3.4
-  cloud_firestore: ^5.5.1
-  cloud_functions: ^5.1.6
-  firebase_messaging: ^15.1.6
-  firebase_analytics: ^11.3.6
-  firebase_app_check: ^0.3.1+6
-  firebase_database: ^11.1.0
+  firebase_core: ^4.5.0
+  firebase_auth: ^6.2.0
+  cloud_firestore: ^6.1.3
+  cloud_functions: ^6.0.7
+  firebase_messaging: ^16.1.2
+  firebase_analytics: ^12.1.3
+  firebase_app_check: ^0.4.1+5
+  firebase_database: ^12.1.4
 
   # Local Database (encrypted with SQLCipher)
   drift: ^2.22.1
-  sqlcipher_flutter_libs: ^0.6.4
-  sqlite3: ^2.4.0
+  sqlcipher_flutter_libs: ^0.7.0+eol
+  sqlite3: ^3.2.0
   path_provider: ^2.1.5
   path: ^1.9.0
+  archive: ^4.0.2
 
   # Networking
   dio: ^5.7.0
-  connectivity_plus: ^6.1.1
+  connectivity_plus: ^7.0.0
 
   # Utilities
   dartz: ^0.10.1
@@ -54,7 +55,7 @@ dependencies:
   collection: ^1.18.0
   internet_connection_checker_plus: ^2.5.2
   shared_preferences: ^2.3.4
-  firebase_storage: ^12.3.7
+  firebase_storage: ^13.1.0
 
   # UI
   flutter_svg: ^2.0.16
@@ -65,39 +66,39 @@ dependencies:
   photo_view: ^0.15.0
 
   # Audio (voice messages)
-  record: ^5.1.2
-  just_audio: ^0.9.40
+  record: ^6.2.0
+  just_audio: ^0.10.5
 
   # Forms & Validation
-  reactive_forms: ^17.0.1
+  reactive_forms: ^18.2.2
 
   # Secure Storage
-  flutter_secure_storage: ^9.2.2
+  flutter_secure_storage: ^10.0.0
 
   # Contacts
-  flutter_contacts: ^1.1.9+2
+  flutter_contacts: ^2.0.0
 
   # Share
-  share_plus: ^10.1.3
+  share_plus: ^12.0.1
   url_launcher: ^6.3.1
 
   # Deep Links
-  app_links: ^6.3.3
+  app_links: ^7.0.0
 
   # Fonts
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
 
   # Notifications
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^21.0.0
 
   # Emoji Picker
   emoji_picker_flutter: ^4.3.0
 
   # Misc
-  pin_code_fields: ^8.0.1
+  pin_code_fields: ^9.1.0
   sms_autofill: ^2.2.0
   flutter_animate: ^4.5.0
-  confetti: ^0.7.0
+  confetti: ^0.8.0
 
   # Image Picker
   image_picker: ^1.1.2
@@ -106,23 +107,23 @@ dependencies:
   image: ^4.3.0
 
   # File Picker (web-compatible, used for admin video uploads)
-  file_picker: ^8.0.0
+  file_picker: ^10.3.10
 
   # Camera (for upload video recording)
-  camera: ^0.11.0+2
+  camera: ^0.12.0
 
   # Video compression (min variant = smallest binary size)
   # Original ffmpeg_kit_flutter_min archived; using maintained fork
   ffmpeg_kit_flutter_new_min: ^3.1.0
 
   # Device Info (for fraud prevention)
-  device_info_plus: ^10.1.2
+  device_info_plus: ^12.3.0
 
   # HTTP client (for external API calls)
   http: ^1.2.2
 
   # Biometric / Local Authentication
-  local_auth: ^2.3.0
+  local_auth: ^3.0.1
 
   # Cryptography (HMAC-SHA256 for in-app PIN hashing)
   crypto: ^3.0.6
@@ -131,15 +132,15 @@ dependencies:
   cryptography: ^2.7.0
 
   # Phone number parsing & E.164 normalization
-  phone_numbers_parser: ^8.3.0
+  phone_numbers_parser: ^9.0.20
 
   # Runtime Application Self-Protection
-  freerasp: ^6.5.0
+  freerasp: ^7.5.0
 
   # Google AdMob for rewarded video ads
   google_mobile_ads: ^7.0.0
   qr_flutter: ^4.1.0
-  mobile_scanner: ^6.0.2
+  mobile_scanner: ^7.2.0
   open_filex: ^4.7.0
   gal: ^2.3.2
   flutter_webrtc: ^1.3.1
@@ -153,17 +154,17 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
   # Code Generation
   build_runner: ^2.4.13
-  freezed: ^2.5.7
+  freezed: ^3.2.5
   json_serializable: ^6.8.0
   injectable_generator: ^2.6.2
   drift_dev: ^2.22.1
 
   # Testing
-  bloc_test: ^9.1.7
+  bloc_test: ^10.0.0
   mocktail: ^1.0.4
 
   # Launcher Icons

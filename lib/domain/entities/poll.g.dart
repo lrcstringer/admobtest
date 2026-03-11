@@ -6,13 +6,13 @@ part of 'poll.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PollOptionImpl _$$PollOptionImplFromJson(Map<String, dynamic> json) =>
-    _$PollOptionImpl(id: json['id'] as String, text: json['text'] as String);
+_PollOption _$PollOptionFromJson(Map<String, dynamic> json) =>
+    _PollOption(id: json['id'] as String, text: json['text'] as String);
 
-Map<String, dynamic> _$$PollOptionImplToJson(_$PollOptionImpl instance) =>
+Map<String, dynamic> _$PollOptionToJson(_PollOption instance) =>
     <String, dynamic>{'id': instance.id, 'text': instance.text};
 
-_$PollImpl _$$PollImplFromJson(Map<String, dynamic> json) => _$PollImpl(
+_Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
   id: json['id'] as String,
   opportunityId: json['opportunityId'] as String,
   threadId: json['threadId'] as String,
@@ -44,26 +44,25 @@ _$PollImpl _$$PollImplFromJson(Map<String, dynamic> json) => _$PollImpl(
   createdBy: json['createdBy'] as String,
 );
 
-Map<String, dynamic> _$$PollImplToJson(_$PollImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'opportunityId': instance.opportunityId,
-      'threadId': instance.threadId,
-      'clientId': instance.clientId,
-      'question': instance.question,
-      'options': instance.options,
-      'status': _$PollStatusEnumMap[instance.status]!,
-      'isAnonymous': instance.isAnonymous,
-      'showResultsAfterVote': instance.showResultsAfterVote,
-      'allowChangeVote': instance.allowChangeVote,
-      'openedAt': instance.openedAt?.toIso8601String(),
-      'closedAt': instance.closedAt?.toIso8601String(),
-      'totalRespondents': instance.totalRespondents,
-      'optionCounts': instance.optionCounts,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'createdBy': instance.createdBy,
-    };
+Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
+  'id': instance.id,
+  'opportunityId': instance.opportunityId,
+  'threadId': instance.threadId,
+  'clientId': instance.clientId,
+  'question': instance.question,
+  'options': instance.options,
+  'status': _$PollStatusEnumMap[instance.status]!,
+  'isAnonymous': instance.isAnonymous,
+  'showResultsAfterVote': instance.showResultsAfterVote,
+  'allowChangeVote': instance.allowChangeVote,
+  'openedAt': instance.openedAt?.toIso8601String(),
+  'closedAt': instance.closedAt?.toIso8601String(),
+  'totalRespondents': instance.totalRespondents,
+  'optionCounts': instance.optionCounts,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+  'createdBy': instance.createdBy,
+};
 
 const _$PollStatusEnumMap = {
   PollStatus.draft: 'draft',
@@ -72,8 +71,8 @@ const _$PollStatusEnumMap = {
   PollStatus.archived: 'archived',
 };
 
-_$PollResponseImpl _$$PollResponseImplFromJson(Map<String, dynamic> json) =>
-    _$PollResponseImpl(
+_PollResponse _$PollResponseFromJson(Map<String, dynamic> json) =>
+    _PollResponse(
       userId: json['userId'] as String,
       pollId: json['pollId'] as String,
       selectedOption: json['selectedOption'] as String,
@@ -96,7 +95,7 @@ _$PollResponseImpl _$$PollResponseImplFromJson(Map<String, dynamic> json) =>
       ),
     );
 
-Map<String, dynamic> _$$PollResponseImplToJson(_$PollResponseImpl instance) =>
+Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'pollId': instance.pollId,
@@ -114,16 +113,15 @@ Map<String, dynamic> _$$PollResponseImplToJson(_$PollResponseImpl instance) =>
       'demographics': instance.demographics,
     };
 
-_$PollResultsImpl _$$PollResultsImplFromJson(Map<String, dynamic> json) =>
-    _$PollResultsImpl(
-      totalRespondents: (json['totalRespondents'] as num).toInt(),
-      optionCounts: Map<String, int>.from(json['optionCounts'] as Map),
-      percentages: (json['percentages'] as Map<String, dynamic>).map(
-        (k, e) => MapEntry(k, (e as num).toDouble()),
-      ),
-    );
+_PollResults _$PollResultsFromJson(Map<String, dynamic> json) => _PollResults(
+  totalRespondents: (json['totalRespondents'] as num).toInt(),
+  optionCounts: Map<String, int>.from(json['optionCounts'] as Map),
+  percentages: (json['percentages'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry(k, (e as num).toDouble()),
+  ),
+);
 
-Map<String, dynamic> _$$PollResultsImplToJson(_$PollResultsImpl instance) =>
+Map<String, dynamic> _$PollResultsToJson(_PollResults instance) =>
     <String, dynamic>{
       'totalRespondents': instance.totalRespondents,
       'optionCounts': instance.optionCounts,

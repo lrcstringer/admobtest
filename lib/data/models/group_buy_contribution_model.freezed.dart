@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,296 +9,281 @@ part of 'group_buy_contribution_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$GroupBuyContributionModel {
-  String get id => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-  String get userName => throw _privateConstructorUsedError;
-  int get amount => throw _privateConstructorUsedError;
-  String? get journalId => throw _privateConstructorUsedError;
-  String? get deliveryAddress => throw _privateConstructorUsedError;
-  DateTime get contributedAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of GroupBuyContributionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $GroupBuyContributionModelCopyWith<GroupBuyContributionModel> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get id; String get userId; String get userName; int get amount; String? get journalId; String? get deliveryAddress; DateTime get contributedAt;
+/// Create a copy of GroupBuyContributionModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GroupBuyContributionModelCopyWith<GroupBuyContributionModel> get copyWith => _$GroupBuyContributionModelCopyWithImpl<GroupBuyContributionModel>(this as GroupBuyContributionModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt);
+
+@override
+String toString() {
+  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $GroupBuyContributionModelCopyWith<$Res> {
-  factory $GroupBuyContributionModelCopyWith(
-    GroupBuyContributionModel value,
-    $Res Function(GroupBuyContributionModel) then,
-  ) = _$GroupBuyContributionModelCopyWithImpl<$Res, GroupBuyContributionModel>;
-  @useResult
-  $Res call({
-    String id,
-    String userId,
-    String userName,
-    int amount,
-    String? journalId,
-    String? deliveryAddress,
-    DateTime contributedAt,
-  });
-}
+abstract mixin class $GroupBuyContributionModelCopyWith<$Res>  {
+  factory $GroupBuyContributionModelCopyWith(GroupBuyContributionModel value, $Res Function(GroupBuyContributionModel) _then) = _$GroupBuyContributionModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$GroupBuyContributionModelCopyWithImpl<
-  $Res,
-  $Val extends GroupBuyContributionModel
->
+class _$GroupBuyContributionModelCopyWithImpl<$Res>
     implements $GroupBuyContributionModelCopyWith<$Res> {
-  _$GroupBuyContributionModelCopyWithImpl(this._value, this._then);
+  _$GroupBuyContributionModelCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final GroupBuyContributionModel _self;
+  final $Res Function(GroupBuyContributionModel) _then;
 
-  /// Create a copy of GroupBuyContributionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? userName = null,
-    Object? amount = null,
-    Object? journalId = freezed,
-    Object? deliveryAddress = freezed,
-    Object? contributedAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            userName: null == userName
-                ? _value.userName
-                : userName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            amount: null == amount
-                ? _value.amount
-                : amount // ignore: cast_nullable_to_non_nullable
-                      as int,
-            journalId: freezed == journalId
-                ? _value.journalId
-                : journalId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            deliveryAddress: freezed == deliveryAddress
-                ? _value.deliveryAddress
-                : deliveryAddress // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            contributedAt: null == contributedAt
-                ? _value.contributedAt
-                : contributedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of GroupBuyContributionModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,journalId: freezed == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
+as String?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
+as String?,contributedAt: null == contributedAt ? _self.contributedAt : contributedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GroupBuyContributionModel].
+extension GroupBuyContributionModelPatterns on GroupBuyContributionModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GroupBuyContributionModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GroupBuyContributionModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GroupBuyContributionModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel() when $default != null:
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)  $default,) {final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel():
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _GroupBuyContributionModel() when $default != null:
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$GroupBuyContributionModelImplCopyWith<$Res>
-    implements $GroupBuyContributionModelCopyWith<$Res> {
-  factory _$$GroupBuyContributionModelImplCopyWith(
-    _$GroupBuyContributionModelImpl value,
-    $Res Function(_$GroupBuyContributionModelImpl) then,
-  ) = __$$GroupBuyContributionModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String userId,
-    String userName,
-    int amount,
-    String? journalId,
-    String? deliveryAddress,
-    DateTime contributedAt,
-  });
+
+
+class _GroupBuyContributionModel extends GroupBuyContributionModel {
+  const _GroupBuyContributionModel({required this.id, required this.userId, required this.userName, required this.amount, this.journalId, this.deliveryAddress, required this.contributedAt}): super._();
+  
+
+@override final  String id;
+@override final  String userId;
+@override final  String userName;
+@override final  int amount;
+@override final  String? journalId;
+@override final  String? deliveryAddress;
+@override final  DateTime contributedAt;
+
+/// Create a copy of GroupBuyContributionModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GroupBuyContributionModelCopyWith<_GroupBuyContributionModel> get copyWith => __$GroupBuyContributionModelCopyWithImpl<_GroupBuyContributionModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt);
+
+@override
+String toString() {
+  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
+}
+
+
 }
 
 /// @nodoc
-class __$$GroupBuyContributionModelImplCopyWithImpl<$Res>
-    extends
-        _$GroupBuyContributionModelCopyWithImpl<
-          $Res,
-          _$GroupBuyContributionModelImpl
-        >
-    implements _$$GroupBuyContributionModelImplCopyWith<$Res> {
-  __$$GroupBuyContributionModelImplCopyWithImpl(
-    _$GroupBuyContributionModelImpl _value,
-    $Res Function(_$GroupBuyContributionModelImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$GroupBuyContributionModelCopyWith<$Res> implements $GroupBuyContributionModelCopyWith<$Res> {
+  factory _$GroupBuyContributionModelCopyWith(_GroupBuyContributionModel value, $Res Function(_GroupBuyContributionModel) _then) = __$GroupBuyContributionModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt
+});
 
-  /// Create a copy of GroupBuyContributionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? userId = null,
-    Object? userName = null,
-    Object? amount = null,
-    Object? journalId = freezed,
-    Object? deliveryAddress = freezed,
-    Object? contributedAt = null,
-  }) {
-    return _then(
-      _$GroupBuyContributionModelImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        userName: null == userName
-            ? _value.userName
-            : userName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        amount: null == amount
-            ? _value.amount
-            : amount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        journalId: freezed == journalId
-            ? _value.journalId
-            : journalId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        deliveryAddress: freezed == deliveryAddress
-            ? _value.deliveryAddress
-            : deliveryAddress // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        contributedAt: null == contributedAt
-            ? _value.contributedAt
-            : contributedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$GroupBuyContributionModelCopyWithImpl<$Res>
+    implements _$GroupBuyContributionModelCopyWith<$Res> {
+  __$GroupBuyContributionModelCopyWithImpl(this._self, this._then);
 
-class _$GroupBuyContributionModelImpl extends _GroupBuyContributionModel {
-  const _$GroupBuyContributionModelImpl({
-    required this.id,
-    required this.userId,
-    required this.userName,
-    required this.amount,
-    this.journalId,
-    this.deliveryAddress,
-    required this.contributedAt,
-  }) : super._();
+  final _GroupBuyContributionModel _self;
+  final $Res Function(_GroupBuyContributionModel) _then;
 
-  @override
-  final String id;
-  @override
-  final String userId;
-  @override
-  final String userName;
-  @override
-  final int amount;
-  @override
-  final String? journalId;
-  @override
-  final String? deliveryAddress;
-  @override
-  final DateTime contributedAt;
-
-  @override
-  String toString() {
-    return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$GroupBuyContributionModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.userName, userName) ||
-                other.userName == userName) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.journalId, journalId) ||
-                other.journalId == journalId) &&
-            (identical(other.deliveryAddress, deliveryAddress) ||
-                other.deliveryAddress == deliveryAddress) &&
-            (identical(other.contributedAt, contributedAt) ||
-                other.contributedAt == contributedAt));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    userId,
-    userName,
-    amount,
-    journalId,
-    deliveryAddress,
-    contributedAt,
-  );
-
-  /// Create a copy of GroupBuyContributionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$GroupBuyContributionModelImplCopyWith<_$GroupBuyContributionModelImpl>
-  get copyWith =>
-      __$$GroupBuyContributionModelImplCopyWithImpl<
-        _$GroupBuyContributionModelImpl
-      >(this, _$identity);
+/// Create a copy of GroupBuyContributionModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,}) {
+  return _then(_GroupBuyContributionModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
+as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,journalId: freezed == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
+as String?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
+as String?,contributedAt: null == contributedAt ? _self.contributedAt : contributedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
 }
 
-abstract class _GroupBuyContributionModel extends GroupBuyContributionModel {
-  const factory _GroupBuyContributionModel({
-    required final String id,
-    required final String userId,
-    required final String userName,
-    required final int amount,
-    final String? journalId,
-    final String? deliveryAddress,
-    required final DateTime contributedAt,
-  }) = _$GroupBuyContributionModelImpl;
-  const _GroupBuyContributionModel._() : super._();
 
-  @override
-  String get id;
-  @override
-  String get userId;
-  @override
-  String get userName;
-  @override
-  int get amount;
-  @override
-  String? get journalId;
-  @override
-  String? get deliveryAddress;
-  @override
-  DateTime get contributedAt;
-
-  /// Create a copy of GroupBuyContributionModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$GroupBuyContributionModelImplCopyWith<_$GroupBuyContributionModelImpl>
-  get copyWith => throw _privateConstructorUsedError;
 }
+
+// dart format on

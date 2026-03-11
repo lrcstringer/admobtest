@@ -6,33 +6,32 @@ part of 'reward_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RewardItemImpl _$$RewardItemImplFromJson(Map<String, dynamic> json) =>
-    _$RewardItemImpl(
-      id: json['id'] as String,
-      campaignId: json['campaignId'] as String,
-      campaignName: json['campaignName'] as String?,
-      clientName: json['clientName'] as String?,
-      clientAvatarImage: json['clientAvatarImage'] as String?,
-      clientAvatarColor: json['clientAvatarColor'] as String?,
-      rewardType: $enumDecodeNullable(_$RewardTypeEnumMap, json['rewardType']),
-      status: $enumDecode(_$RewardItemStatusEnumMap, json['status']),
-      codeValue: json['codeValue'] as String?,
-      allocatedAt: json['allocatedAt'] == null
-          ? null
-          : DateTime.parse(json['allocatedAt'] as String),
-      redeemedAt: json['redeemedAt'] == null
-          ? null
-          : DateTime.parse(json['redeemedAt'] as String),
-      expiresAt: json['expiresAt'] == null
-          ? null
-          : DateTime.parse(json['expiresAt'] as String),
-      redemptionLocation: json['redemptionLocation'] as String?,
-      campaignMetadata:
-          json['campaignMetadata'] as Map<String, dynamic>? ?? const {},
-      itemMetadata: json['itemMetadata'] as Map<String, dynamic>? ?? const {},
-    );
+_RewardItem _$RewardItemFromJson(Map<String, dynamic> json) => _RewardItem(
+  id: json['id'] as String,
+  campaignId: json['campaignId'] as String,
+  campaignName: json['campaignName'] as String?,
+  clientName: json['clientName'] as String?,
+  clientAvatarImage: json['clientAvatarImage'] as String?,
+  clientAvatarColor: json['clientAvatarColor'] as String?,
+  rewardType: $enumDecodeNullable(_$RewardTypeEnumMap, json['rewardType']),
+  status: $enumDecode(_$RewardItemStatusEnumMap, json['status']),
+  codeValue: json['codeValue'] as String?,
+  allocatedAt: json['allocatedAt'] == null
+      ? null
+      : DateTime.parse(json['allocatedAt'] as String),
+  redeemedAt: json['redeemedAt'] == null
+      ? null
+      : DateTime.parse(json['redeemedAt'] as String),
+  expiresAt: json['expiresAt'] == null
+      ? null
+      : DateTime.parse(json['expiresAt'] as String),
+  redemptionLocation: json['redemptionLocation'] as String?,
+  campaignMetadata:
+      json['campaignMetadata'] as Map<String, dynamic>? ?? const {},
+  itemMetadata: json['itemMetadata'] as Map<String, dynamic>? ?? const {},
+);
 
-Map<String, dynamic> _$$RewardItemImplToJson(_$RewardItemImpl instance) =>
+Map<String, dynamic> _$RewardItemToJson(_RewardItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'campaignId': instance.campaignId,

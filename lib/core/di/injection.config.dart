@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -167,6 +167,7 @@ import '../services/call_notification_service.dart' as _i673;
 import '../services/call_signaling_service.dart' as _i846;
 import '../services/chat_analytics_service.dart' as _i550;
 import '../services/community_sync_service.dart' as _i310;
+import '../services/conversation_export_service.dart' as _i265;
 import '../services/crypto_service.dart' as _i1024;
 import '../services/deep_link_service.dart' as _i391;
 import '../services/key_backup_service.dart' as _i946;
@@ -243,17 +244,36 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
-    gh.lazySingleton<_i434.UploadService>(
-      () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
-    );
-    gh.lazySingleton<_i50.UserRemoteDataSource>(
-      () => _i50.UserRemoteDataSourceImpl(
+    gh.lazySingleton<_i590.GroupBuyRemoteDataSource>(
+      () => _i590.GroupBuyRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i418.KeyManagementService>(
+      () => _i418.KeyManagementService(
+        gh<_i1024.CryptoService>(),
+        gh<_i558.FlutterSecureStorage>(),
         gh<_i809.FirebaseFunctions>(),
       ),
     );
-    gh.lazySingleton<_i1057.AuthRemoteDataSource>(
-      () => _i1057.AuthRemoteDataSourceImpl(
+    gh.lazySingleton<_i433.DeviceRemoteDataSource>(
+      () => _i433.DeviceRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i309.DeviceCapabilityService>(
+      () => _i309.DeviceCapabilityService(
+        gh<_i152.LocalAuthentication>(),
+        gh<_i558.FlutterSecureStorage>(),
+      ),
+    );
+    gh.lazySingleton<_i482.ContactRepository>(
+      () => _i133.ContactRepositoryImpl(
+        gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
       ),
@@ -264,133 +284,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i345.FirebaseDatabase>(),
       ),
     );
-    gh.lazySingleton<_i654.MediaUploadDatasource>(
-      () => _i654.MediaUploadDatasource(
-        gh<_i457.FirebaseStorage>(),
-        gh<_i1024.CryptoService>(),
-      ),
-    );
-    gh.lazySingleton<_i932.NetworkInfo>(
-      () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
-    );
-    gh.lazySingleton<_i366.RewardRemoteDataSource>(
-      () => _i366.RewardRemoteDataSourceImpl(
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-      ),
-    );
-    gh.lazySingleton<_i418.KeyManagementService>(
-      () => _i418.KeyManagementService(
-        gh<_i1024.CryptoService>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i809.FirebaseFunctions>(),
-      ),
-    );
     gh.lazySingleton<_i399.MarketplaceRemoteDataSource>(
       () => _i399.MarketplaceRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
-      ),
-    );
-    gh.lazySingleton<_i161.SignalProtocolService>(
-      () => _i161.SignalProtocolService(
-        gh<_i418.KeyManagementService>(),
-        gh<_i1024.CryptoService>(),
-        gh<_i558.FlutterSecureStorage>(),
-      ),
-    );
-    gh.lazySingleton<_i271.UserRepository>(
-      () => _i790.UserRepositoryImpl(
-        gh<_i50.UserRemoteDataSource>(),
-        gh<_i1057.AuthRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-      ),
-    );
-    gh.lazySingleton<_i590.GroupBuyRemoteDataSource>(
-      () => _i590.GroupBuyRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i59.FirebaseAuth>(),
-      ),
-    );
-    gh.lazySingleton<_i752.PinManager>(
-      () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
-    );
-    gh.lazySingleton<_i48.AdminEarnRemoteDataSource>(
-      () => _i48.AdminEarnRemoteDataSource(
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i974.FirebaseFirestore>(),
-      ),
-    );
-    gh.lazySingleton<_i433.DeviceRemoteDataSource>(
-      () => _i433.DeviceRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i59.FirebaseAuth>(),
-      ),
-    );
-    gh.lazySingleton<_i191.RewardRepository>(
-      () => _i905.RewardRepositoryImpl(gh<_i366.RewardRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i631.MarketplaceRepository>(
-      () => _i199.MarketplaceRepositoryImpl(
-        gh<_i399.MarketplaceRemoteDataSource>(),
-        gh<_i654.MediaUploadDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i749.GamificationRemoteDataSource>(
-      () => _i749.GamificationRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-      ),
-    );
-    gh.lazySingleton<_i946.KeyBackupService>(
-      () => _i946.KeyBackupService(
-        gh<_i418.KeyManagementService>(),
-        gh<_i1024.CryptoService>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i59.FirebaseAuth>(),
-      ),
-    );
-    gh.lazySingleton<_i474.ShareService>(
-      () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
-    );
-    gh.lazySingleton<_i525.GroupBuyRepository>(
-      () => _i923.GroupBuyRepositoryImpl(gh<_i590.GroupBuyRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i988.AuditLogger>(
-      () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i124.MediaRecoveryService>(
-      () => _i124.MediaRecoveryService(
-        gh<_i892.KeystoreService>(),
-        gh<_i1024.CryptoService>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-      ),
-    );
-    gh.lazySingleton<_i313.ModerationRemoteDatasource>(
-      () => _i313.ModerationRemoteDatasourceImpl(gh<_i809.FirebaseFunctions>()),
-    );
-    gh.lazySingleton<_i309.DeviceCapabilityService>(
-      () => _i309.DeviceCapabilityService(
-        gh<_i152.LocalAuthentication>(),
-        gh<_i558.FlutterSecureStorage>(),
-      ),
-    );
-    gh.lazySingleton<_i38.AudioPlaybackService>(
-      () => _i38.AudioPlaybackService(gh<_i654.MediaUploadDatasource>()),
-      dispose: (i) => i.dispose(),
-    );
-    gh.lazySingleton<_i1073.AuthRepository>(
-      () => _i895.AuthRepositoryImpl(
-        gh<_i1057.AuthRemoteDataSource>(),
-        gh<_i50.UserRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-        gh<_i483.AppDatabase>(),
       ),
     );
     gh.lazySingleton<_i108.CallAnalyticsService>(
@@ -399,18 +297,31 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i550.ChatAnalyticsService>(
       () => _i550.ChatAnalyticsService(gh<_i398.FirebaseAnalytics>()),
     );
-    gh.lazySingleton<_i925.SimChangeDetector>(
-      () => _i925.SimChangeDetector(
-        gh<_i892.KeystoreService>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i988.AuditLogger>(),
+    gh.lazySingleton<_i752.PinManager>(
+      () => _i752.PinManager(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i366.RewardRemoteDataSource>(
+      () => _i366.RewardRemoteDataSourceImpl(
+        gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
       ),
     );
-    gh.lazySingleton<_i574.BuyRemoteDataSource>(
-      () => _i574.BuyRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
+    gh.lazySingleton<_i654.MediaUploadDatasource>(
+      () => _i654.MediaUploadDatasource(
+        gh<_i457.FirebaseStorage>(),
+        gh<_i1024.CryptoService>(),
+      ),
+    );
+    gh.lazySingleton<_i434.UploadService>(
+      () => _i434.UploadService(gh<_i457.FirebaseStorage>()),
+    );
+    gh.lazySingleton<_i42.FeatureFlagRemoteDataSource>(
+      () => _i42.FeatureFlagRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i265.ConversationExportService>(
+      () => _i265.ConversationExportService(
+        gh<_i483.AppDatabase>(),
+        gh<_i654.MediaUploadDatasource>(),
       ),
     );
     gh.lazySingleton<_i351.PlayIntegrityService>(
@@ -422,46 +333,27 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i909.PollRemoteDataSource>(
       () => _i909.PollRemoteDataSource(gh<_i809.FirebaseFunctions>()),
     );
-    gh.lazySingleton<_i425.ConversationRemoteDataSource>(
-      () => _i425.ConversationRemoteDataSourceImpl(
+    gh.lazySingleton<_i108.GiftRemoteDataSource>(
+      () => _i108.GiftRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i407.SenderKeyService>(
-      () => _i407.SenderKeyService(
+    gh.lazySingleton<_i124.MediaRecoveryService>(
+      () => _i124.MediaRecoveryService(
+        gh<_i892.KeystoreService>(),
         gh<_i1024.CryptoService>(),
-        gh<_i161.SignalProtocolService>(),
         gh<_i558.FlutterSecureStorage>(),
-        gh<_i809.FirebaseFunctions>(),
-      ),
-    );
-    gh.lazySingleton<_i42.FeatureFlagRemoteDataSource>(
-      () => _i42.FeatureFlagRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i482.ContactRepository>(
-      () => _i133.ContactRepositoryImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i50.UserRemoteDataSource>(
+      () => _i50.UserRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
         gh<_i809.FirebaseFunctions>(),
-      ),
-    );
-    gh.lazySingleton<_i454.DeviceRepository>(
-      () => _i34.DeviceRepositoryImpl(
-        gh<_i433.DeviceRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-      ),
-    );
-    gh.factory<_i206.RewardBloc>(
-      () => _i206.RewardBloc(gh<_i191.RewardRepository>()),
-    );
-    gh.lazySingleton<_i465.MessageDecryptionService>(
-      () => _i465.MessageDecryptionService(
-        gh<_i161.SignalProtocolService>(),
-        gh<_i425.ConversationRemoteDataSource>(),
-        gh<_i483.AppDatabase>(),
       ),
     );
     gh.lazySingleton<_i9.ReferralRemoteDataSource>(
@@ -472,20 +364,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i637.BuyRepository>(
-      () => _i193.BuyRepositoryImpl(
-        gh<_i574.BuyRemoteDataSource>(),
-        gh<_i483.AppDatabase>(),
+    gh.lazySingleton<_i525.GroupBuyRepository>(
+      () => _i923.GroupBuyRepositoryImpl(gh<_i590.GroupBuyRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i684.TokenPoolRemoteDataSource>(
+      () => _i684.TokenPoolRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.factory<_i46.MarketplaceBloc>(
-      () => _i46.MarketplaceBloc(gh<_i631.MarketplaceRepository>()),
+    gh.lazySingleton<_i988.AuditLogger>(
+      () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
     );
-    gh.factory<_i25.OrderBloc>(
-      () => _i25.OrderBloc(gh<_i631.MarketplaceRepository>()),
-    );
-    gh.factory<_i682.ProviderRegistrationBloc>(
-      () => _i682.ProviderRegistrationBloc(gh<_i631.MarketplaceRepository>()),
+    gh.lazySingleton<_i474.ShareService>(
+      () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
     );
     gh.lazySingleton<_i267.PurchaseRemoteDataSource>(
       () => _i267.PurchaseRemoteDataSourceImpl(
@@ -495,13 +389,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i862.ModerationRepository>(
-      () => _i527.ModerationRepositoryImpl(
-        gh<_i313.ModerationRemoteDatasource>(),
-      ),
+    gh.lazySingleton<_i38.AudioPlaybackService>(
+      () => _i38.AudioPlaybackService(gh<_i654.MediaUploadDatasource>()),
+      dispose: (i) => i.dispose(),
     );
-    gh.lazySingleton<_i658.CallRepository>(
-      () => _i294.CallRepositoryImpl(gh<_i340.CallRemoteDatasource>()),
+    gh.lazySingleton<_i574.BuyRemoteDataSource>(
+      () => _i574.BuyRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
     );
     gh.lazySingleton<_i942.SessionLockService>(
       () => _i942.SessionLockService(
@@ -509,46 +405,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i152.LocalAuthentication>(),
         gh<_i752.PinManager>(),
         gh<_i988.AuditLogger>(),
-      ),
-    );
-    gh.lazySingleton<_i1034.MessageSyncService>(
-      () => _i1034.MessageSyncService(
-        gh<_i425.ConversationRemoteDataSource>(),
-        gh<_i465.MessageDecryptionService>(),
-        gh<_i483.AppDatabase>(),
-        gh<_i124.MediaRecoveryService>(),
-      ),
-    );
-    gh.factory<_i399.GroupBuyBloc>(
-      () => _i399.GroupBuyBloc(gh<_i525.GroupBuyRepository>()),
-    );
-    gh.factory<_i1026.AdminEarnBloc>(
-      () => _i1026.AdminEarnBloc(gh<_i48.AdminEarnRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i1010.GamificationRepository>(
-      () => _i500.GamificationRepositoryImpl(
-        gh<_i749.GamificationRemoteDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i993.FeatureFlagRepository>(
-      () => _i821.FeatureFlagRepositoryImpl(
-        gh<_i42.FeatureFlagRemoteDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i224.ChatRemoteDataSource>(
-      () => _i224.ChatRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i351.PlayIntegrityService>(),
-      ),
-    );
-    gh.lazySingleton<_i389.WalletRemoteDataSource>(
-      () => _i389.WalletRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i351.PlayIntegrityService>(),
       ),
     );
     gh.lazySingleton<_i560.CommunityRemoteDataSource>(
@@ -559,54 +415,146 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.factory<_i604.BrandStorefrontBloc>(
-      () => _i604.BrandStorefrontBloc(gh<_i637.BuyRepository>()),
+    gh.lazySingleton<_i1057.AuthRemoteDataSource>(
+      () => _i1057.AuthRemoteDataSourceImpl(
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
     );
-    gh.factory<_i58.PotBloc>(
-      () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
+    gh.lazySingleton<_i720.StepUpAuthService>(
+      () => _i720.StepUpAuthService(
+        gh<_i309.DeviceCapabilityService>(),
+        gh<_i152.LocalAuthentication>(),
+        gh<_i942.SessionLockService>(),
+        gh<_i988.AuditLogger>(),
+      ),
     );
-    gh.lazySingleton<_i684.TokenPoolRemoteDataSource>(
-      () => _i684.TokenPoolRemoteDataSourceImpl(
+    gh.lazySingleton<_i313.ModerationRemoteDatasource>(
+      () => _i313.ModerationRemoteDatasourceImpl(gh<_i809.FirebaseFunctions>()),
+    );
+    gh.lazySingleton<_i48.AdminEarnRemoteDataSource>(
+      () => _i48.AdminEarnRemoteDataSource(
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i974.FirebaseFirestore>(),
+      ),
+    );
+    gh.lazySingleton<_i749.GamificationRemoteDataSource>(
+      () => _i749.GamificationRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i932.NetworkInfo>(
+      () => _i932.NetworkInfoImpl(gh<_i161.InternetConnection>()),
+    );
+    gh.lazySingleton<_i224.ChatRemoteDataSource>(
+      () => _i224.ChatRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i693.DeviceBindingService>(
-      () => _i693.DeviceBindingService(
-        gh<_i892.KeystoreService>(),
-        gh<_i454.DeviceRepository>(),
-        gh<_i892.FirebaseMessaging>(),
-        gh<_i558.FlutterSecureStorage>(),
-        gh<_i988.AuditLogger>(),
-        gh<_i124.MediaRecoveryService>(),
+    gh.lazySingleton<_i284.AdMobService>(
+      () => _i284.AdMobService(gh<_i942.SessionLockService>()),
+    );
+    gh.lazySingleton<_i389.WalletRemoteDataSource>(
+      () => _i389.WalletRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
       ),
+    );
+    gh.lazySingleton<_i851.WalletRepository>(
+      () => _i520.WalletRepositoryImpl(
+        gh<_i389.WalletRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+    );
+    gh.factory<_i399.GroupBuyBloc>(
+      () => _i399.GroupBuyBloc(gh<_i525.GroupBuyRepository>()),
+    );
+    gh.lazySingleton<_i862.ModerationRepository>(
+      () => _i527.ModerationRepositoryImpl(
+        gh<_i313.ModerationRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i946.KeyBackupService>(
+      () => _i946.KeyBackupService(
+        gh<_i418.KeyManagementService>(),
+        gh<_i1024.CryptoService>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i161.SignalProtocolService>(
+      () => _i161.SignalProtocolService(
+        gh<_i418.KeyManagementService>(),
+        gh<_i1024.CryptoService>(),
+        gh<_i558.FlutterSecureStorage>(),
+      ),
+    );
+    gh.lazySingleton<_i1010.GamificationRepository>(
+      () => _i500.GamificationRepositoryImpl(
+        gh<_i749.GamificationRemoteDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i637.BuyRepository>(
+      () => _i193.BuyRepositoryImpl(
+        gh<_i574.BuyRemoteDataSource>(),
+        gh<_i483.AppDatabase>(),
+      ),
+    );
+    gh.lazySingleton<_i631.MarketplaceRepository>(
+      () => _i199.MarketplaceRepositoryImpl(
+        gh<_i399.MarketplaceRemoteDataSource>(),
+        gh<_i654.MediaUploadDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i454.DeviceRepository>(
+      () => _i34.DeviceRepositoryImpl(
+        gh<_i433.DeviceRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+    );
+    gh.lazySingleton<_i191.RewardRepository>(
+      () => _i905.RewardRepositoryImpl(gh<_i366.RewardRemoteDataSource>()),
+    );
+    gh.factory<_i772.CashoutBloc>(
+      () => _i772.CashoutBloc(gh<_i851.WalletRepository>()),
+    );
+    gh.factory<_i1019.WalletBloc>(
+      () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
+    );
+    gh.lazySingleton<_i633.ReferralRepository>(
+      () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i658.CallRepository>(
+      () => _i294.CallRepositoryImpl(gh<_i340.CallRemoteDatasource>()),
+    );
+    gh.lazySingleton<_i533.GiftRepository>(
+      () => _i350.GiftRepositoryImpl(gh<_i108.GiftRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i1072.ChatRepository>(
+      () => _i838.ChatRepositoryImpl(gh<_i224.ChatRemoteDataSource>()),
     );
     gh.lazySingleton<_i742.PurchaseRepository>(
       () => _i1044.PurchaseRepositoryImpl(gh<_i267.PurchaseRemoteDataSource>()),
     );
-    gh.factory<_i807.CallBloc>(
-      () => _i807.CallBloc(
-        gh<_i658.CallRepository>(),
-        gh<_i980.WebRtcServiceFactory>(),
-        gh<_i846.CallSignalingService>(),
-        gh<_i108.CallAnalyticsService>(),
-      ),
+    gh.factory<_i604.BrandStorefrontBloc>(
+      () => _i604.BrandStorefrontBloc(gh<_i637.BuyRepository>()),
     );
-    gh.factory<_i394.FeatureFlagBloc>(
-      () => _i394.FeatureFlagBloc(gh<_i993.FeatureFlagRepository>()),
+    gh.factory<_i206.RewardBloc>(
+      () => _i206.RewardBloc(gh<_i191.RewardRepository>()),
     );
-    gh.lazySingleton<_i42.GroupRemoteDataSource>(
-      () => _i42.GroupRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i809.FirebaseFunctions>(),
-        gh<_i351.PlayIntegrityService>(),
-      ),
+    gh.lazySingleton<_i119.TokenPoolRepository>(
+      () =>
+          _i889.TokenPoolRepositoryImpl(gh<_i684.TokenPoolRemoteDataSource>()),
     );
-    gh.lazySingleton<_i1009.TokenSprayRemoteDataSource>(
-      () => _i1009.TokenSprayRemoteDataSourceImpl(
+    gh.lazySingleton<_i425.ConversationRemoteDataSource>(
+      () => _i425.ConversationRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
@@ -619,29 +567,37 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i974.FirebaseFirestore>(),
       ),
     );
-    gh.lazySingleton<_i108.GiftRemoteDataSource>(
-      () => _i108.GiftRemoteDataSourceImpl(
+    gh.factory<_i936.PurchaseBloc>(
+      () => _i936.PurchaseBloc(gh<_i742.PurchaseRepository>()),
+    );
+    gh.lazySingleton<_i993.FeatureFlagRepository>(
+      () => _i821.FeatureFlagRepositoryImpl(
+        gh<_i42.FeatureFlagRemoteDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i1009.TokenSprayRemoteDataSource>(
+      () => _i1009.TokenSprayRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i119.TokenPoolRepository>(
-      () =>
-          _i889.TokenPoolRepositoryImpl(gh<_i684.TokenPoolRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i720.StepUpAuthService>(
-      () => _i720.StepUpAuthService(
-        gh<_i309.DeviceCapabilityService>(),
-        gh<_i152.LocalAuthentication>(),
-        gh<_i942.SessionLockService>(),
-        gh<_i988.AuditLogger>(),
+    gh.lazySingleton<_i42.GroupRemoteDataSource>(
+      () => _i42.GroupRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.factory<_i809.BuyTabBloc>(
-      () =>
-          _i809.BuyTabBloc(gh<_i637.BuyRepository>(), gh<_i932.NetworkInfo>()),
+    gh.lazySingleton<_i1073.AuthRepository>(
+      () => _i895.AuthRepositoryImpl(
+        gh<_i1057.AuthRemoteDataSource>(),
+        gh<_i50.UserRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i483.AppDatabase>(),
+      ),
     );
     gh.lazySingleton<_i520.EarnRemoteDataSource>(
       () => _i520.EarnRemoteDataSourceImpl(
@@ -651,8 +607,107 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
-    gh.lazySingleton<_i633.ReferralRepository>(
-      () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),
+    gh.lazySingleton<_i925.SimChangeDetector>(
+      () => _i925.SimChangeDetector(
+        gh<_i892.KeystoreService>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i988.AuditLogger>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.factory<_i807.CallBloc>(
+      () => _i807.CallBloc(
+        gh<_i658.CallRepository>(),
+        gh<_i980.WebRtcServiceFactory>(),
+        gh<_i846.CallSignalingService>(),
+        gh<_i108.CallAnalyticsService>(),
+      ),
+    );
+    gh.factory<_i142.ChatBloc>(
+      () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
+    );
+    gh.lazySingleton<_i805.EarnRepository>(
+      () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
+    );
+    gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
+    gh.factory<_i46.MarketplaceBloc>(
+      () => _i46.MarketplaceBloc(gh<_i631.MarketplaceRepository>()),
+    );
+    gh.factory<_i25.OrderBloc>(
+      () => _i25.OrderBloc(gh<_i631.MarketplaceRepository>()),
+    );
+    gh.factory<_i682.ProviderRegistrationBloc>(
+      () => _i682.ProviderRegistrationBloc(gh<_i631.MarketplaceRepository>()),
+    );
+    gh.lazySingleton<_i271.UserRepository>(
+      () => _i790.UserRepositoryImpl(
+        gh<_i50.UserRemoteDataSource>(),
+        gh<_i1057.AuthRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+    );
+    gh.factory<_i809.BuyTabBloc>(
+      () =>
+          _i809.BuyTabBloc(gh<_i637.BuyRepository>(), gh<_i932.NetworkInfo>()),
+    );
+    gh.factory<_i394.FeatureFlagBloc>(
+      () => _i394.FeatureFlagBloc(gh<_i993.FeatureFlagRepository>()),
+    );
+    gh.factory<_i58.PotBloc>(
+      () => _i58.PotBloc(gh<_i1010.GamificationRepository>()),
+    );
+    gh.factory<_i1026.AdminEarnBloc>(
+      () => _i1026.AdminEarnBloc(gh<_i48.AdminEarnRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i693.DeviceBindingService>(
+      () => _i693.DeviceBindingService(
+        gh<_i892.KeystoreService>(),
+        gh<_i454.DeviceRepository>(),
+        gh<_i892.FirebaseMessaging>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i988.AuditLogger>(),
+        gh<_i124.MediaRecoveryService>(),
+      ),
+    );
+    gh.factory<_i775.EarnBloc>(
+      () =>
+          _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
+    );
+    gh.lazySingleton<_i943.TokenSprayRepository>(
+      () => _i895.TokenSprayRepositoryImpl(
+        gh<_i1009.TokenSprayRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i969.TokenPoolBloc>(
+      () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
+    );
+    gh.lazySingleton<_i407.SenderKeyService>(
+      () => _i407.SenderKeyService(
+        gh<_i1024.CryptoService>(),
+        gh<_i161.SignalProtocolService>(),
+        gh<_i558.FlutterSecureStorage>(),
+        gh<_i809.FirebaseFunctions>(),
+      ),
+    );
+    gh.lazySingleton<_i340.OfflineActionQueue>(
+      () => _i340.OfflineActionQueue(
+        gh<_i483.AppDatabase>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i560.CommunityRemoteDataSource>(),
+      ),
+    );
+    gh.factory<_i344.ProfileBloc>(
+      () => _i344.ProfileBloc(
+        gh<_i271.UserRepository>(),
+        gh<_i851.WalletRepository>(),
+      ),
+    );
+    gh.factory<_i480.EarnInboxBloc>(
+      () => _i480.EarnInboxBloc(gh<_i805.EarnRepository>()),
+    );
+    gh.factory<_i595.ReferralBloc>(
+      () => _i595.ReferralBloc(gh<_i633.ReferralRepository>()),
     );
     gh.lazySingleton<_i310.CommunitySyncService>(
       () => _i310.CommunitySyncService(
@@ -664,40 +719,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i932.NetworkInfo>(),
       ),
     );
-    gh.lazySingleton<_i943.TokenSprayRepository>(
-      () => _i895.TokenSprayRepositoryImpl(
-        gh<_i1009.TokenSprayRemoteDataSource>(),
-      ),
-    );
-    gh.factory<_i595.ReferralBloc>(
-      () => _i595.ReferralBloc(gh<_i633.ReferralRepository>()),
-    );
-    gh.lazySingleton<_i340.OfflineActionQueue>(
-      () => _i340.OfflineActionQueue(
-        gh<_i483.AppDatabase>(),
-        gh<_i932.NetworkInfo>(),
-        gh<_i425.ConversationRemoteDataSource>(),
-        gh<_i560.CommunityRemoteDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i1072.ChatRepository>(
-      () => _i838.ChatRepositoryImpl(gh<_i224.ChatRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i805.EarnRepository>(
-      () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i708.GroupRepository>(
-      () => _i654.GroupRepositoryImpl(
-        gh<_i42.GroupRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-      ),
-    );
-    gh.factory<_i275.GroupBloc>(
-      () => _i275.GroupBloc(gh<_i708.GroupRepository>()),
-    );
-    gh.lazySingleton<_i284.AdMobService>(
-      () => _i284.AdMobService(gh<_i942.SessionLockService>()),
-    );
     gh.lazySingleton<_i290.BiometricLoginService>(
       () => _i290.BiometricLoginService(
         gh<_i693.DeviceBindingService>(),
@@ -708,30 +729,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
       ),
     );
-    gh.lazySingleton<_i851.WalletRepository>(
-      () => _i520.WalletRepositoryImpl(
-        gh<_i389.WalletRemoteDataSource>(),
+    gh.lazySingleton<_i708.GroupRepository>(
+      () => _i654.GroupRepositoryImpl(
+        gh<_i42.GroupRemoteDataSource>(),
         gh<_i932.NetworkInfo>(),
       ),
     );
-    gh.factory<_i969.TokenPoolBloc>(
-      () => _i969.TokenPoolBloc(gh<_i119.TokenPoolRepository>()),
-    );
-    gh.factory<_i936.PurchaseBloc>(
-      () => _i936.PurchaseBloc(gh<_i742.PurchaseRepository>()),
-    );
-    gh.factory<_i344.ProfileBloc>(
-      () => _i344.ProfileBloc(
-        gh<_i271.UserRepository>(),
-        gh<_i851.WalletRepository>(),
+    gh.lazySingleton<_i465.MessageDecryptionService>(
+      () => _i465.MessageDecryptionService(
+        gh<_i161.SignalProtocolService>(),
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i483.AppDatabase>(),
       ),
     );
-    gh.factoryParam<_i609.TokenSprayBloc, String, dynamic>(
-      (_communityId, _) =>
-          _i609.TokenSprayBloc(gh<_i943.TokenSprayRepository>(), _communityId),
+    gh.factory<_i973.HomeBloc>(
+      () => _i973.HomeBloc(
+        gh<_i805.EarnRepository>(),
+        gh<_i1010.GamificationRepository>(),
+      ),
     );
-    gh.lazySingleton<_i533.GiftRepository>(
-      () => _i350.GiftRepositoryImpl(gh<_i108.GiftRemoteDataSource>()),
+    gh.lazySingleton<_i1034.MessageSyncService>(
+      () => _i1034.MessageSyncService(
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i465.MessageDecryptionService>(),
+        gh<_i483.AppDatabase>(),
+        gh<_i124.MediaRecoveryService>(),
+      ),
     );
     gh.lazySingleton<_i111.OutgoingMessageQueue>(
       () => _i111.OutgoingMessageQueue(
@@ -745,6 +768,40 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i310.CommunitySyncService>(),
         gh<_i124.MediaRecoveryService>(),
       ),
+    );
+    gh.lazySingleton<_i936.CommunityRepository>(
+      () => _i462.CommunityRepositoryImpl(
+        gh<_i560.CommunityRemoteDataSource>(),
+        gh<_i932.NetworkInfo>(),
+        gh<_i483.AppDatabase>(),
+        gh<_i340.OfflineActionQueue>(),
+        gh<_i111.OutgoingMessageQueue>(),
+        gh<_i654.MediaUploadDatasource>(),
+        gh<_i310.CommunitySyncService>(),
+        gh<_i407.SenderKeyService>(),
+      ),
+    );
+    gh.factoryParam<_i256.CommunityMessagingBloc, String, dynamic>(
+      (communityId, _) => _i256.CommunityMessagingBloc(
+        gh<_i936.CommunityRepository>(),
+        communityId: communityId,
+      ),
+    );
+    gh.factoryParam<_i609.TokenSprayBloc, String, dynamic>(
+      (_communityId, _) =>
+          _i609.TokenSprayBloc(gh<_i943.TokenSprayRepository>(), _communityId),
+    );
+    gh.lazySingleton<_i973.ConversationRepository>(
+      () => _i161.ConversationRepositoryImpl(
+        gh<_i425.ConversationRemoteDataSource>(),
+        gh<_i483.AppDatabase>(),
+        gh<_i654.MediaUploadDatasource>(),
+        gh<_i340.OfflineActionQueue>(),
+        gh<_i111.OutgoingMessageQueue>(),
+      ),
+    );
+    gh.factory<_i275.GroupBloc>(
+      () => _i275.GroupBloc(gh<_i708.GroupRepository>()),
     );
     gh.factory<_i141.AuthBloc>(
       () => _i141.AuthBloc(
@@ -760,68 +817,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i111.OutgoingMessageQueue>(),
       ),
     );
-    gh.factory<_i775.EarnBloc>(
-      () =>
-          _i775.EarnBloc(gh<_i805.EarnRepository>(), gh<_i284.AdMobService>()),
-    );
-    gh.lazySingleton<_i936.CommunityRepository>(
-      () => _i462.CommunityRepositoryImpl(
-        gh<_i560.CommunityRemoteDataSource>(),
-        gh<_i932.NetworkInfo>(),
-        gh<_i483.AppDatabase>(),
-        gh<_i340.OfflineActionQueue>(),
-        gh<_i111.OutgoingMessageQueue>(),
-        gh<_i654.MediaUploadDatasource>(),
-        gh<_i310.CommunitySyncService>(),
-        gh<_i407.SenderKeyService>(),
-      ),
-    );
-    gh.factory<_i142.ChatBloc>(
-      () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
-    );
-    gh.factory<_i772.CashoutBloc>(
-      () => _i772.CashoutBloc(gh<_i851.WalletRepository>()),
-    );
-    gh.factory<_i1019.WalletBloc>(
-      () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
-    );
-    gh.factory<_i480.EarnInboxBloc>(
-      () => _i480.EarnInboxBloc(gh<_i805.EarnRepository>()),
-    );
-    gh.factory<_i973.HomeBloc>(
-      () => _i973.HomeBloc(
-        gh<_i805.EarnRepository>(),
-        gh<_i1010.GamificationRepository>(),
-      ),
-    );
-    gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
-    gh.lazySingleton<_i727.RaspService>(
-      () => _i727.RaspService(gh<_i141.AuthBloc>()),
-    );
-    gh.lazySingleton<_i973.ConversationRepository>(
-      () => _i161.ConversationRepositoryImpl(
-        gh<_i425.ConversationRemoteDataSource>(),
-        gh<_i483.AppDatabase>(),
-        gh<_i654.MediaUploadDatasource>(),
-        gh<_i340.OfflineActionQueue>(),
-        gh<_i111.OutgoingMessageQueue>(),
-      ),
-    );
-    gh.factoryParam<_i256.CommunityMessagingBloc, String, dynamic>(
-      (communityId, _) => _i256.CommunityMessagingBloc(
-        gh<_i936.CommunityRepository>(),
-        communityId: communityId,
-      ),
-    );
-    gh.factory<_i856.CommunityBloc>(
-      () => _i856.CommunityBloc(gh<_i936.CommunityRepository>()),
-    );
-    gh.factory<_i792.ContactBloc>(
-      () => _i792.ContactBloc(
-        gh<_i482.ContactRepository>(),
-        gh<_i973.ConversationRepository>(),
-      ),
-    );
     gh.factory<_i654.ConversationBloc>(
       () => _i654.ConversationBloc(gh<_i973.ConversationRepository>()),
     );
@@ -830,6 +825,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i812.UserSearchBloc>(
       () => _i812.UserSearchBloc(gh<_i973.ConversationRepository>()),
+    );
+    gh.factory<_i792.ContactBloc>(
+      () => _i792.ContactBloc(
+        gh<_i482.ContactRepository>(),
+        gh<_i973.ConversationRepository>(),
+      ),
+    );
+    gh.factory<_i856.CommunityBloc>(
+      () => _i856.CommunityBloc(gh<_i936.CommunityRepository>()),
+    );
+    gh.lazySingleton<_i727.RaspService>(
+      () => _i727.RaspService(gh<_i141.AuthBloc>()),
     );
     return this;
   }

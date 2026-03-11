@@ -6,9 +6,9 @@ part of 'privacy_settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$PrivacySettingsImpl _$$PrivacySettingsImplFromJson(
+_PrivacySettings _$PrivacySettingsFromJson(
   Map<String, dynamic> json,
-) => _$PrivacySettingsImpl(
+) => _PrivacySettings(
   discoverability:
       $enumDecodeNullable(_$DiscoverabilityEnumMap, json['discoverability']) ??
       Discoverability.everyone,
@@ -42,21 +42,20 @@ _$PrivacySettingsImpl _$$PrivacySettingsImplFromJson(
       BrandMessaging.allowAll,
 );
 
-Map<String, dynamic> _$$PrivacySettingsImplToJson(
-  _$PrivacySettingsImpl instance,
-) => <String, dynamic>{
-  'discoverability': _$DiscoverabilityEnumMap[instance.discoverability]!,
-  'phoneNumberVisibility':
-      _$PhoneNumberVisibilityEnumMap[instance.phoneNumberVisibility]!,
-  'profilePhotoVisibility':
-      _$ProfilePhotoVisibilityEnumMap[instance.profilePhotoVisibility]!,
-  'lastSeenVisibility':
-      _$LastSeenVisibilityEnumMap[instance.lastSeenVisibility]!,
-  'readReceipts': instance.readReceipts,
-  'groupAddPermission':
-      _$GroupAddPermissionEnumMap[instance.groupAddPermission]!,
-  'brandMessaging': _$BrandMessagingEnumMap[instance.brandMessaging]!,
-};
+Map<String, dynamic> _$PrivacySettingsToJson(_PrivacySettings instance) =>
+    <String, dynamic>{
+      'discoverability': _$DiscoverabilityEnumMap[instance.discoverability]!,
+      'phoneNumberVisibility':
+          _$PhoneNumberVisibilityEnumMap[instance.phoneNumberVisibility]!,
+      'profilePhotoVisibility':
+          _$ProfilePhotoVisibilityEnumMap[instance.profilePhotoVisibility]!,
+      'lastSeenVisibility':
+          _$LastSeenVisibilityEnumMap[instance.lastSeenVisibility]!,
+      'readReceipts': instance.readReceipts,
+      'groupAddPermission':
+          _$GroupAddPermissionEnumMap[instance.groupAddPermission]!,
+      'brandMessaging': _$BrandMessagingEnumMap[instance.brandMessaging]!,
+    };
 
 const _$DiscoverabilityEnumMap = {
   Discoverability.everyone: 'everyone',

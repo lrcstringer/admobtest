@@ -6,9 +6,9 @@ part of 'group_transaction_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GroupTransactionModelImpl _$$GroupTransactionModelImplFromJson(
+_GroupTransactionModel _$GroupTransactionModelFromJson(
   Map<String, dynamic> json,
-) => _$GroupTransactionModelImpl(
+) => _GroupTransactionModel(
   id: json['id'] as String,
   groupId: json['groupId'] as String,
   journalId: json['journalId'] as String?,
@@ -24,8 +24,8 @@ _$GroupTransactionModelImpl _$$GroupTransactionModelImplFromJson(
   completedAt: const NullableTimestampConverter().fromJson(json['completedAt']),
 );
 
-Map<String, dynamic> _$$GroupTransactionModelImplToJson(
-  _$GroupTransactionModelImpl instance,
+Map<String, dynamic> _$GroupTransactionModelToJson(
+  _GroupTransactionModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'groupId': instance.groupId,
@@ -44,9 +44,9 @@ Map<String, dynamic> _$$GroupTransactionModelImplToJson(
   ),
 };
 
-_$PendingApprovalModelImpl _$$PendingApprovalModelImplFromJson(
+_PendingApprovalModel _$PendingApprovalModelFromJson(
   Map<String, dynamic> json,
-) => _$PendingApprovalModelImpl(
+) => _PendingApprovalModel(
   id: json['id'] as String,
   groupId: json['groupId'] as String,
   transactionId: json['transactionId'] as String,
@@ -66,8 +66,8 @@ _$PendingApprovalModelImpl _$$PendingApprovalModelImplFromJson(
   createdBy: json['createdBy'] as String?,
 );
 
-Map<String, dynamic> _$$PendingApprovalModelImplToJson(
-  _$PendingApprovalModelImpl instance,
+Map<String, dynamic> _$PendingApprovalModelToJson(
+  _PendingApprovalModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'groupId': instance.groupId,

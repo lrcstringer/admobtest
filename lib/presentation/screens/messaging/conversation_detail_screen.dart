@@ -8,9 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:share_plus/share_plus.dart';
+
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/services/audio_playback_service.dart';
+import '../../../core/services/conversation_export_service.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/enums/call_status.dart';
@@ -1008,6 +1011,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.ios_share_outlined),
+              title: const Text('Export Chat'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showExportOptions(context, conv);
+              },
+            ),
+            ListTile(
               leading: const Icon(
                 Icons.delete_sweep_outlined,
                 color: AppColors.error,
@@ -1047,6 +1058,157 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         ),
       ),
     );
+  }
+
+  void _showExportOptions(BuildContext context, Conversation conv) {
+    final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
+    final convName = conv.displayNameFor(currentUserId);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textHint,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.text_snippet_outlined),
+              title: const Text('Without Media'),
+              subtitle: const Text('Export as text file'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportChat(
+                  context,
+                  conversationId: conv.id,
+                  conversationName: convName,
+                  currentUserId: currentUserId,
+                  withMedia: false,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.perm_media_outlined),
+              title: const Text('Include Media'),
+              subtitle:
+                  const Text('Export as ZIP with photos, videos & documents'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportChat(
+                  context,
+                  conversationId: conv.id,
+                  conversationName: convName,
+                  currentUserId: currentUserId,
+                  withMedia: true,
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportChat(
+    BuildContext context, {
+    required String conversationId,
+    required String conversationName,
+    required String currentUserId,
+    required bool withMedia,
+  }) async {
+    final exportService = getIt<ConversationExportService>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      if (!withMedia) {
+        // Text-only: quick export with loading overlay
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const Center(child: CircularProgressIndicator()),
+        );
+
+        final file = await exportService.exportAsText(
+          conversationId: conversationId,
+          conversationName: conversationName,
+          currentUserId: currentUserId,
+        );
+
+        if (context.mounted) Navigator.of(context).pop(); // dismiss loader
+        await Share.shareXFiles(
+          [file],
+          subject: 'iMaliChat \u2014 $conversationName',
+        );
+      } else {
+        // With media: progress dialog
+        final progress = ValueNotifier<(int, int)>((0, 0));
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => ValueListenableBuilder<(int, int)>(
+            valueListenable: progress,
+            builder: (_, value, __) {
+              final (completed, total) = value;
+              final fraction = total > 0 ? completed / total : 0.0;
+              return AlertDialog(
+                title: const Text('Exporting chat...'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LinearProgressIndicator(value: fraction),
+                    const SizedBox(height: 12),
+                    Text(
+                      total > 0
+                          ? '$completed of $total media files'
+                          : 'Preparing...',
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+
+        final file = await exportService.exportWithMedia(
+          conversationId: conversationId,
+          conversationName: conversationName,
+          currentUserId: currentUserId,
+          onProgress: (completed, total) {
+            progress.value = (completed, total);
+          },
+        );
+
+        if (context.mounted) Navigator.of(context).pop(); // dismiss dialog
+        progress.dispose();
+
+        await Share.shareXFiles(
+          [file],
+          subject: 'iMaliChat \u2014 $conversationName',
+        );
+      }
+    } on ExportException catch (e) {
+      if (context.mounted) {
+        // Dismiss any open dialog
+        Navigator.of(context).popUntil((route) => route is! DialogRoute);
+      }
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context).popUntil((route) => route is! DialogRoute);
+      }
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Failed to export chat')),
+      );
+    }
   }
 
   void _showDisappearingMessagesDialog(

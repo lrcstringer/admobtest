@@ -6,8 +6,8 @@ part of 'ledger_account.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$LedgerAccountImpl _$$LedgerAccountImplFromJson(Map<String, dynamic> json) =>
-    _$LedgerAccountImpl(
+_LedgerAccount _$LedgerAccountFromJson(Map<String, dynamic> json) =>
+    _LedgerAccount(
       id: json['id'] as String,
       type: $enumDecode(_$LedgerAccountTypeEnumMap, json['type']),
       name: json['name'] as String,
@@ -22,7 +22,7 @@ _$LedgerAccountImpl _$$LedgerAccountImplFromJson(Map<String, dynamic> json) =>
       version: (json['version'] as num?)?.toInt() ?? 1,
     );
 
-Map<String, dynamic> _$$LedgerAccountImplToJson(_$LedgerAccountImpl instance) =>
+Map<String, dynamic> _$LedgerAccountToJson(_LedgerAccount instance) =>
     <String, dynamic>{
       'id': instance.id,
       'type': _$LedgerAccountTypeEnumMap[instance.type]!,

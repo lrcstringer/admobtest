@@ -6,8 +6,8 @@ part of 'reward_campaign.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RewardCampaignImpl _$$RewardCampaignImplFromJson(Map<String, dynamic> json) =>
-    _$RewardCampaignImpl(
+_RewardCampaign _$RewardCampaignFromJson(Map<String, dynamic> json) =>
+    _RewardCampaign(
       id: json['id'] as String,
       clientId: json['clientId'] as String,
       clientName: json['clientName'] as String?,
@@ -38,32 +38,31 @@ _$RewardCampaignImpl _$$RewardCampaignImplFromJson(Map<String, dynamic> json) =>
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
-Map<String, dynamic> _$$RewardCampaignImplToJson(
-  _$RewardCampaignImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'clientId': instance.clientId,
-  'clientName': instance.clientName,
-  'clientAvatarImage': instance.clientAvatarImage,
-  'clientAvatarColor': instance.clientAvatarColor,
-  'name': instance.name,
-  'description': instance.description,
-  'rewardType': _$RewardTypeEnumMap[instance.rewardType]!,
-  'status': _$CampaignStatusEnumMap[instance.status]!,
-  'totalQuantity': instance.totalQuantity,
-  'remainingQuantity': instance.remainingQuantity,
-  'allocatedQuantity': instance.allocatedQuantity,
-  'redeemedQuantity': instance.redeemedQuantity,
-  'maxPerUser': instance.maxPerUser,
-  'startsAt': instance.startsAt.toIso8601String(),
-  'endsAt': instance.endsAt.toIso8601String(),
-  'itemExpiresAt': instance.itemExpiresAt?.toIso8601String(),
-  'displayImageUrl': instance.displayImageUrl,
-  'displayPriority': instance.displayPriority,
-  'metadata': instance.metadata,
-  'linkedOpportunityIds': instance.linkedOpportunityIds,
-  'createdAt': instance.createdAt.toIso8601String(),
-};
+Map<String, dynamic> _$RewardCampaignToJson(_RewardCampaign instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'clientId': instance.clientId,
+      'clientName': instance.clientName,
+      'clientAvatarImage': instance.clientAvatarImage,
+      'clientAvatarColor': instance.clientAvatarColor,
+      'name': instance.name,
+      'description': instance.description,
+      'rewardType': _$RewardTypeEnumMap[instance.rewardType]!,
+      'status': _$CampaignStatusEnumMap[instance.status]!,
+      'totalQuantity': instance.totalQuantity,
+      'remainingQuantity': instance.remainingQuantity,
+      'allocatedQuantity': instance.allocatedQuantity,
+      'redeemedQuantity': instance.redeemedQuantity,
+      'maxPerUser': instance.maxPerUser,
+      'startsAt': instance.startsAt.toIso8601String(),
+      'endsAt': instance.endsAt.toIso8601String(),
+      'itemExpiresAt': instance.itemExpiresAt?.toIso8601String(),
+      'displayImageUrl': instance.displayImageUrl,
+      'displayPriority': instance.displayPriority,
+      'metadata': instance.metadata,
+      'linkedOpportunityIds': instance.linkedOpportunityIds,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };
 
 const _$RewardTypeEnumMap = {
   RewardType.qrCode: 'qrCode',

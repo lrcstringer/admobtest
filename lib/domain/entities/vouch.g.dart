@@ -6,7 +6,7 @@ part of 'vouch.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$VouchImpl _$$VouchImplFromJson(Map<String, dynamic> json) => _$VouchImpl(
+_Vouch _$VouchFromJson(Map<String, dynamic> json) => _Vouch(
   id: json['id'] as String,
   voucherId: json['voucherId'] as String,
   voucherName: json['voucherName'] as String,
@@ -18,15 +18,14 @@ _$VouchImpl _$$VouchImplFromJson(Map<String, dynamic> json) => _$VouchImpl(
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
-Map<String, dynamic> _$$VouchImplToJson(_$VouchImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'voucherId': instance.voucherId,
-      'voucherName': instance.voucherName,
-      'voucherPhotoUrl': instance.voucherPhotoUrl,
-      'providerId': instance.providerId,
-      'orderId': instance.orderId,
-      'rating': instance.rating,
-      'comment': instance.comment,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };
+Map<String, dynamic> _$VouchToJson(_Vouch instance) => <String, dynamic>{
+  'id': instance.id,
+  'voucherId': instance.voucherId,
+  'voucherName': instance.voucherName,
+  'voucherPhotoUrl': instance.voucherPhotoUrl,
+  'providerId': instance.providerId,
+  'orderId': instance.orderId,
+  'rating': instance.rating,
+  'comment': instance.comment,
+  'createdAt': instance.createdAt.toIso8601String(),
+};

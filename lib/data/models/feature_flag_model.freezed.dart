@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,280 +9,284 @@ part of 'feature_flag_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$FeatureFlagModel {
-  String get id => throw _privateConstructorUsedError;
-  String get featureKey => throw _privateConstructorUsedError;
-  bool get isEnabled => throw _privateConstructorUsedError;
-  bool get isGlobal => throw _privateConstructorUsedError;
-  List<String> get enabledCommunityIds => throw _privateConstructorUsedError;
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of FeatureFlagModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $FeatureFlagModelCopyWith<FeatureFlagModel> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get id; String get featureKey; bool get isEnabled; bool get isGlobal; List<String> get enabledCommunityIds; DateTime? get updatedAt;
+/// Create a copy of FeatureFlagModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FeatureFlagModelCopyWith<FeatureFlagModel> get copyWith => _$FeatureFlagModelCopyWithImpl<FeatureFlagModel>(this as FeatureFlagModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeatureFlagModel&&(identical(other.id, id) || other.id == id)&&(identical(other.featureKey, featureKey) || other.featureKey == featureKey)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isGlobal, isGlobal) || other.isGlobal == isGlobal)&&const DeepCollectionEquality().equals(other.enabledCommunityIds, enabledCommunityIds)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,featureKey,isEnabled,isGlobal,const DeepCollectionEquality().hash(enabledCommunityIds),updatedAt);
+
+@override
+String toString() {
+  return 'FeatureFlagModel(id: $id, featureKey: $featureKey, isEnabled: $isEnabled, isGlobal: $isGlobal, enabledCommunityIds: $enabledCommunityIds, updatedAt: $updatedAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $FeatureFlagModelCopyWith<$Res> {
-  factory $FeatureFlagModelCopyWith(
-    FeatureFlagModel value,
-    $Res Function(FeatureFlagModel) then,
-  ) = _$FeatureFlagModelCopyWithImpl<$Res, FeatureFlagModel>;
-  @useResult
-  $Res call({
-    String id,
-    String featureKey,
-    bool isEnabled,
-    bool isGlobal,
-    List<String> enabledCommunityIds,
-    DateTime? updatedAt,
-  });
-}
+abstract mixin class $FeatureFlagModelCopyWith<$Res>  {
+  factory $FeatureFlagModelCopyWith(FeatureFlagModel value, $Res Function(FeatureFlagModel) _then) = _$FeatureFlagModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String featureKey, bool isEnabled, bool isGlobal, List<String> enabledCommunityIds, DateTime? updatedAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$FeatureFlagModelCopyWithImpl<$Res, $Val extends FeatureFlagModel>
+class _$FeatureFlagModelCopyWithImpl<$Res>
     implements $FeatureFlagModelCopyWith<$Res> {
-  _$FeatureFlagModelCopyWithImpl(this._value, this._then);
+  _$FeatureFlagModelCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final FeatureFlagModel _self;
+  final $Res Function(FeatureFlagModel) _then;
 
-  /// Create a copy of FeatureFlagModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? featureKey = null,
-    Object? isEnabled = null,
-    Object? isGlobal = null,
-    Object? enabledCommunityIds = null,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            featureKey: null == featureKey
-                ? _value.featureKey
-                : featureKey // ignore: cast_nullable_to_non_nullable
-                      as String,
-            isEnabled: null == isEnabled
-                ? _value.isEnabled
-                : isEnabled // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isGlobal: null == isGlobal
-                ? _value.isGlobal
-                : isGlobal // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            enabledCommunityIds: null == enabledCommunityIds
-                ? _value.enabledCommunityIds
-                : enabledCommunityIds // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            updatedAt: freezed == updatedAt
-                ? _value.updatedAt
-                : updatedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of FeatureFlagModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? featureKey = null,Object? isEnabled = null,Object? isGlobal = null,Object? enabledCommunityIds = null,Object? updatedAt = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,featureKey: null == featureKey ? _self.featureKey : featureKey // ignore: cast_nullable_to_non_nullable
+as String,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as bool,isGlobal: null == isGlobal ? _self.isGlobal : isGlobal // ignore: cast_nullable_to_non_nullable
+as bool,enabledCommunityIds: null == enabledCommunityIds ? _self.enabledCommunityIds : enabledCommunityIds // ignore: cast_nullable_to_non_nullable
+as List<String>,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FeatureFlagModel].
+extension FeatureFlagModelPatterns on FeatureFlagModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FeatureFlagModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FeatureFlagModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FeatureFlagModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _FeatureFlagModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FeatureFlagModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FeatureFlagModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String featureKey,  bool isEnabled,  bool isGlobal,  List<String> enabledCommunityIds,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FeatureFlagModel() when $default != null:
+return $default(_that.id,_that.featureKey,_that.isEnabled,_that.isGlobal,_that.enabledCommunityIds,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String featureKey,  bool isEnabled,  bool isGlobal,  List<String> enabledCommunityIds,  DateTime? updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _FeatureFlagModel():
+return $default(_that.id,_that.featureKey,_that.isEnabled,_that.isGlobal,_that.enabledCommunityIds,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String featureKey,  bool isEnabled,  bool isGlobal,  List<String> enabledCommunityIds,  DateTime? updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _FeatureFlagModel() when $default != null:
+return $default(_that.id,_that.featureKey,_that.isEnabled,_that.isGlobal,_that.enabledCommunityIds,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$FeatureFlagModelImplCopyWith<$Res>
-    implements $FeatureFlagModelCopyWith<$Res> {
-  factory _$$FeatureFlagModelImplCopyWith(
-    _$FeatureFlagModelImpl value,
-    $Res Function(_$FeatureFlagModelImpl) then,
-  ) = __$$FeatureFlagModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String featureKey,
-    bool isEnabled,
-    bool isGlobal,
-    List<String> enabledCommunityIds,
-    DateTime? updatedAt,
-  });
+
+
+class _FeatureFlagModel extends FeatureFlagModel {
+  const _FeatureFlagModel({required this.id, required this.featureKey, required this.isEnabled, required this.isGlobal, final  List<String> enabledCommunityIds = const [], this.updatedAt}): _enabledCommunityIds = enabledCommunityIds,super._();
+  
+
+@override final  String id;
+@override final  String featureKey;
+@override final  bool isEnabled;
+@override final  bool isGlobal;
+ final  List<String> _enabledCommunityIds;
+@override@JsonKey() List<String> get enabledCommunityIds {
+  if (_enabledCommunityIds is EqualUnmodifiableListView) return _enabledCommunityIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_enabledCommunityIds);
+}
+
+@override final  DateTime? updatedAt;
+
+/// Create a copy of FeatureFlagModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FeatureFlagModelCopyWith<_FeatureFlagModel> get copyWith => __$FeatureFlagModelCopyWithImpl<_FeatureFlagModel>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeatureFlagModel&&(identical(other.id, id) || other.id == id)&&(identical(other.featureKey, featureKey) || other.featureKey == featureKey)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled)&&(identical(other.isGlobal, isGlobal) || other.isGlobal == isGlobal)&&const DeepCollectionEquality().equals(other._enabledCommunityIds, _enabledCommunityIds)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,featureKey,isEnabled,isGlobal,const DeepCollectionEquality().hash(_enabledCommunityIds),updatedAt);
+
+@override
+String toString() {
+  return 'FeatureFlagModel(id: $id, featureKey: $featureKey, isEnabled: $isEnabled, isGlobal: $isGlobal, enabledCommunityIds: $enabledCommunityIds, updatedAt: $updatedAt)';
+}
+
+
 }
 
 /// @nodoc
-class __$$FeatureFlagModelImplCopyWithImpl<$Res>
-    extends _$FeatureFlagModelCopyWithImpl<$Res, _$FeatureFlagModelImpl>
-    implements _$$FeatureFlagModelImplCopyWith<$Res> {
-  __$$FeatureFlagModelImplCopyWithImpl(
-    _$FeatureFlagModelImpl _value,
-    $Res Function(_$FeatureFlagModelImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$FeatureFlagModelCopyWith<$Res> implements $FeatureFlagModelCopyWith<$Res> {
+  factory _$FeatureFlagModelCopyWith(_FeatureFlagModel value, $Res Function(_FeatureFlagModel) _then) = __$FeatureFlagModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String featureKey, bool isEnabled, bool isGlobal, List<String> enabledCommunityIds, DateTime? updatedAt
+});
 
-  /// Create a copy of FeatureFlagModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? featureKey = null,
-    Object? isEnabled = null,
-    Object? isGlobal = null,
-    Object? enabledCommunityIds = null,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(
-      _$FeatureFlagModelImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        featureKey: null == featureKey
-            ? _value.featureKey
-            : featureKey // ignore: cast_nullable_to_non_nullable
-                  as String,
-        isEnabled: null == isEnabled
-            ? _value.isEnabled
-            : isEnabled // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isGlobal: null == isGlobal
-            ? _value.isGlobal
-            : isGlobal // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        enabledCommunityIds: null == enabledCommunityIds
-            ? _value._enabledCommunityIds
-            : enabledCommunityIds // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        updatedAt: freezed == updatedAt
-            ? _value.updatedAt
-            : updatedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$FeatureFlagModelCopyWithImpl<$Res>
+    implements _$FeatureFlagModelCopyWith<$Res> {
+  __$FeatureFlagModelCopyWithImpl(this._self, this._then);
 
-class _$FeatureFlagModelImpl extends _FeatureFlagModel {
-  const _$FeatureFlagModelImpl({
-    required this.id,
-    required this.featureKey,
-    required this.isEnabled,
-    required this.isGlobal,
-    final List<String> enabledCommunityIds = const [],
-    this.updatedAt,
-  }) : _enabledCommunityIds = enabledCommunityIds,
-       super._();
+  final _FeatureFlagModel _self;
+  final $Res Function(_FeatureFlagModel) _then;
 
-  @override
-  final String id;
-  @override
-  final String featureKey;
-  @override
-  final bool isEnabled;
-  @override
-  final bool isGlobal;
-  final List<String> _enabledCommunityIds;
-  @override
-  @JsonKey()
-  List<String> get enabledCommunityIds {
-    if (_enabledCommunityIds is EqualUnmodifiableListView)
-      return _enabledCommunityIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_enabledCommunityIds);
-  }
-
-  @override
-  final DateTime? updatedAt;
-
-  @override
-  String toString() {
-    return 'FeatureFlagModel(id: $id, featureKey: $featureKey, isEnabled: $isEnabled, isGlobal: $isGlobal, enabledCommunityIds: $enabledCommunityIds, updatedAt: $updatedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$FeatureFlagModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.featureKey, featureKey) ||
-                other.featureKey == featureKey) &&
-            (identical(other.isEnabled, isEnabled) ||
-                other.isEnabled == isEnabled) &&
-            (identical(other.isGlobal, isGlobal) ||
-                other.isGlobal == isGlobal) &&
-            const DeepCollectionEquality().equals(
-              other._enabledCommunityIds,
-              _enabledCommunityIds,
-            ) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    featureKey,
-    isEnabled,
-    isGlobal,
-    const DeepCollectionEquality().hash(_enabledCommunityIds),
-    updatedAt,
-  );
-
-  /// Create a copy of FeatureFlagModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$FeatureFlagModelImplCopyWith<_$FeatureFlagModelImpl> get copyWith =>
-      __$$FeatureFlagModelImplCopyWithImpl<_$FeatureFlagModelImpl>(
-        this,
-        _$identity,
-      );
+/// Create a copy of FeatureFlagModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? featureKey = null,Object? isEnabled = null,Object? isGlobal = null,Object? enabledCommunityIds = null,Object? updatedAt = freezed,}) {
+  return _then(_FeatureFlagModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,featureKey: null == featureKey ? _self.featureKey : featureKey // ignore: cast_nullable_to_non_nullable
+as String,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as bool,isGlobal: null == isGlobal ? _self.isGlobal : isGlobal // ignore: cast_nullable_to_non_nullable
+as bool,enabledCommunityIds: null == enabledCommunityIds ? _self._enabledCommunityIds : enabledCommunityIds // ignore: cast_nullable_to_non_nullable
+as List<String>,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
 }
 
-abstract class _FeatureFlagModel extends FeatureFlagModel {
-  const factory _FeatureFlagModel({
-    required final String id,
-    required final String featureKey,
-    required final bool isEnabled,
-    required final bool isGlobal,
-    final List<String> enabledCommunityIds,
-    final DateTime? updatedAt,
-  }) = _$FeatureFlagModelImpl;
-  const _FeatureFlagModel._() : super._();
 
-  @override
-  String get id;
-  @override
-  String get featureKey;
-  @override
-  bool get isEnabled;
-  @override
-  bool get isGlobal;
-  @override
-  List<String> get enabledCommunityIds;
-  @override
-  DateTime? get updatedAt;
-
-  /// Create a copy of FeatureFlagModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$FeatureFlagModelImplCopyWith<_$FeatureFlagModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on

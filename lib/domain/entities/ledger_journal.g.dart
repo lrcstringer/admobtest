@@ -6,17 +6,16 @@ part of 'ledger_journal.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$LedgerEntryImpl _$$LedgerEntryImplFromJson(Map<String, dynamic> json) =>
-    _$LedgerEntryImpl(
-      id: json['id'] as String,
-      accountId: json['accountId'] as String,
-      entryType: $enumDecode(_$LedgerEntryTypeEnumMap, json['entryType']),
-      amount: (json['amount'] as num).toInt(),
-      balanceAfter: (json['balanceAfter'] as num).toInt(),
-      description: json['description'] as String?,
-    );
+_LedgerEntry _$LedgerEntryFromJson(Map<String, dynamic> json) => _LedgerEntry(
+  id: json['id'] as String,
+  accountId: json['accountId'] as String,
+  entryType: $enumDecode(_$LedgerEntryTypeEnumMap, json['entryType']),
+  amount: (json['amount'] as num).toInt(),
+  balanceAfter: (json['balanceAfter'] as num).toInt(),
+  description: json['description'] as String?,
+);
 
-Map<String, dynamic> _$$LedgerEntryImplToJson(_$LedgerEntryImpl instance) =>
+Map<String, dynamic> _$LedgerEntryToJson(_LedgerEntry instance) =>
     <String, dynamic>{
       'id': instance.id,
       'accountId': instance.accountId,
@@ -31,8 +30,8 @@ const _$LedgerEntryTypeEnumMap = {
   LedgerEntryType.credit: 'credit',
 };
 
-_$LedgerJournalImpl _$$LedgerJournalImplFromJson(Map<String, dynamic> json) =>
-    _$LedgerJournalImpl(
+_LedgerJournal _$LedgerJournalFromJson(Map<String, dynamic> json) =>
+    _LedgerJournal(
       id: json['id'] as String,
       idempotencyKey: json['idempotencyKey'] as String,
       type: $enumDecode(_$LedgerJournalTypeEnumMap, json['type']),
@@ -63,7 +62,7 @@ _$LedgerJournalImpl _$$LedgerJournalImplFromJson(Map<String, dynamic> json) =>
       metadata: json['metadata'] as Map<String, dynamic>? ?? const {},
     );
 
-Map<String, dynamic> _$$LedgerJournalImplToJson(_$LedgerJournalImpl instance) =>
+Map<String, dynamic> _$LedgerJournalToJson(_LedgerJournal instance) =>
     <String, dynamic>{
       'id': instance.id,
       'idempotencyKey': instance.idempotencyKey,

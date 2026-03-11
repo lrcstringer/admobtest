@@ -6,7 +6,7 @@ part of 'survey.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$SurveyImpl _$$SurveyImplFromJson(Map<String, dynamic> json) => _$SurveyImpl(
+_Survey _$SurveyFromJson(Map<String, dynamic> json) => _Survey(
   id: json['id'] as String,
   campaignId: json['campaignId'] as String,
   title: json['title'] as String,
@@ -26,22 +26,21 @@ _$SurveyImpl _$$SurveyImplFromJson(Map<String, dynamic> json) => _$SurveyImpl(
   targetingCriteria: json['targetingCriteria'] as Map<String, dynamic>?,
 );
 
-Map<String, dynamic> _$$SurveyImplToJson(_$SurveyImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'campaignId': instance.campaignId,
-      'title': instance.title,
-      'description': instance.description,
-      'questions': instance.questions,
-      'tokenReward': instance.tokenReward,
-      'estimatedMinutes': instance.estimatedMinutes,
-      'status': _$SurveyStatusEnumMap[instance.status]!,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'expiresAt': instance.expiresAt?.toIso8601String(),
-      'maxResponses': instance.maxResponses,
-      'currentResponses': instance.currentResponses,
-      'targetingCriteria': instance.targetingCriteria,
-    };
+Map<String, dynamic> _$SurveyToJson(_Survey instance) => <String, dynamic>{
+  'id': instance.id,
+  'campaignId': instance.campaignId,
+  'title': instance.title,
+  'description': instance.description,
+  'questions': instance.questions,
+  'tokenReward': instance.tokenReward,
+  'estimatedMinutes': instance.estimatedMinutes,
+  'status': _$SurveyStatusEnumMap[instance.status]!,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'expiresAt': instance.expiresAt?.toIso8601String(),
+  'maxResponses': instance.maxResponses,
+  'currentResponses': instance.currentResponses,
+  'targetingCriteria': instance.targetingCriteria,
+};
 
 const _$SurveyStatusEnumMap = {
   SurveyStatus.draft: 'draft',
@@ -51,8 +50,8 @@ const _$SurveyStatusEnumMap = {
   SurveyStatus.expired: 'expired',
 };
 
-_$SurveyQuestionImpl _$$SurveyQuestionImplFromJson(Map<String, dynamic> json) =>
-    _$SurveyQuestionImpl(
+_SurveyQuestion _$SurveyQuestionFromJson(Map<String, dynamic> json) =>
+    _SurveyQuestion(
       id: json['id'] as String,
       text: json['text'] as String,
       type: $enumDecode(_$QuestionTypeEnumMap, json['type']),
@@ -65,18 +64,17 @@ _$SurveyQuestionImpl _$$SurveyQuestionImplFromJson(Map<String, dynamic> json) =>
       placeholder: json['placeholder'] as String?,
     );
 
-Map<String, dynamic> _$$SurveyQuestionImplToJson(
-  _$SurveyQuestionImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'text': instance.text,
-  'type': _$QuestionTypeEnumMap[instance.type]!,
-  'isRequired': instance.isRequired,
-  'options': instance.options,
-  'minValue': instance.minValue,
-  'maxValue': instance.maxValue,
-  'placeholder': instance.placeholder,
-};
+Map<String, dynamic> _$SurveyQuestionToJson(_SurveyQuestion instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'text': instance.text,
+      'type': _$QuestionTypeEnumMap[instance.type]!,
+      'isRequired': instance.isRequired,
+      'options': instance.options,
+      'minValue': instance.minValue,
+      'maxValue': instance.maxValue,
+      'placeholder': instance.placeholder,
+    };
 
 const _$QuestionTypeEnumMap = {
   QuestionType.singleChoice: 'single_choice',

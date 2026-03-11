@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,606 +9,574 @@ part of 'buy_category.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-BuySubcategory _$BuySubcategoryFromJson(Map<String, dynamic> json) {
-  return _BuySubcategory.fromJson(json);
-}
 
 /// @nodoc
 mixin _$BuySubcategory {
-  String get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String get iconEmoji => throw _privateConstructorUsedError;
+
+ String get id; String get name; String get iconEmoji;
+/// Create a copy of BuySubcategory
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BuySubcategoryCopyWith<BuySubcategory> get copyWith => _$BuySubcategoryCopyWithImpl<BuySubcategory>(this as BuySubcategory, _$identity);
 
   /// Serializes this BuySubcategory to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of BuySubcategory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $BuySubcategoryCopyWith<BuySubcategory> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuySubcategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,iconEmoji);
+
+@override
+String toString() {
+  return 'BuySubcategory(id: $id, name: $name, iconEmoji: $iconEmoji)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $BuySubcategoryCopyWith<$Res> {
-  factory $BuySubcategoryCopyWith(
-    BuySubcategory value,
-    $Res Function(BuySubcategory) then,
-  ) = _$BuySubcategoryCopyWithImpl<$Res, BuySubcategory>;
-  @useResult
-  $Res call({String id, String name, String iconEmoji});
-}
+abstract mixin class $BuySubcategoryCopyWith<$Res>  {
+  factory $BuySubcategoryCopyWith(BuySubcategory value, $Res Function(BuySubcategory) _then) = _$BuySubcategoryCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String iconEmoji
+});
 
+
+
+
+}
 /// @nodoc
-class _$BuySubcategoryCopyWithImpl<$Res, $Val extends BuySubcategory>
+class _$BuySubcategoryCopyWithImpl<$Res>
     implements $BuySubcategoryCopyWith<$Res> {
-  _$BuySubcategoryCopyWithImpl(this._value, this._then);
+  _$BuySubcategoryCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final BuySubcategory _self;
+  final $Res Function(BuySubcategory) _then;
 
-  /// Create a copy of BuySubcategory
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? iconEmoji = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            iconEmoji: null == iconEmoji
-                ? _value.iconEmoji
-                : iconEmoji // ignore: cast_nullable_to_non_nullable
-                      as String,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of BuySubcategory
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? iconEmoji = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,iconEmoji: null == iconEmoji ? _self.iconEmoji : iconEmoji // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$BuySubcategoryImplCopyWith<$Res>
-    implements $BuySubcategoryCopyWith<$Res> {
-  factory _$$BuySubcategoryImplCopyWith(
-    _$BuySubcategoryImpl value,
-    $Res Function(_$BuySubcategoryImpl) then,
-  ) = __$$BuySubcategoryImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String id, String name, String iconEmoji});
 }
 
-/// @nodoc
-class __$$BuySubcategoryImplCopyWithImpl<$Res>
-    extends _$BuySubcategoryCopyWithImpl<$Res, _$BuySubcategoryImpl>
-    implements _$$BuySubcategoryImplCopyWith<$Res> {
-  __$$BuySubcategoryImplCopyWithImpl(
-    _$BuySubcategoryImpl _value,
-    $Res Function(_$BuySubcategoryImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of BuySubcategory
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? iconEmoji = null,
-  }) {
-    return _then(
-      _$BuySubcategoryImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        iconEmoji: null == iconEmoji
-            ? _value.iconEmoji
-            : iconEmoji // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [BuySubcategory].
+extension BuySubcategoryPatterns on BuySubcategory {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BuySubcategory value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BuySubcategory() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BuySubcategory value)  $default,){
+final _that = this;
+switch (_that) {
+case _BuySubcategory():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BuySubcategory value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BuySubcategory() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String iconEmoji)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BuySubcategory() when $default != null:
+return $default(_that.id,_that.name,_that.iconEmoji);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String iconEmoji)  $default,) {final _that = this;
+switch (_that) {
+case _BuySubcategory():
+return $default(_that.id,_that.name,_that.iconEmoji);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String iconEmoji)?  $default,) {final _that = this;
+switch (_that) {
+case _BuySubcategory() when $default != null:
+return $default(_that.id,_that.name,_that.iconEmoji);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$BuySubcategoryImpl implements _BuySubcategory {
-  const _$BuySubcategoryImpl({
-    required this.id,
-    required this.name,
-    this.iconEmoji = '',
-  });
 
-  factory _$BuySubcategoryImpl.fromJson(Map<String, dynamic> json) =>
-      _$$BuySubcategoryImplFromJson(json);
+class _BuySubcategory implements BuySubcategory {
+  const _BuySubcategory({required this.id, required this.name, this.iconEmoji = ''});
+  factory _BuySubcategory.fromJson(Map<String, dynamic> json) => _$BuySubcategoryFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String name;
-  @override
-  @JsonKey()
-  final String iconEmoji;
+@override final  String id;
+@override final  String name;
+@override@JsonKey() final  String iconEmoji;
 
-  @override
-  String toString() {
-    return 'BuySubcategory(id: $id, name: $name, iconEmoji: $iconEmoji)';
-  }
+/// Create a copy of BuySubcategory
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BuySubcategoryCopyWith<_BuySubcategory> get copyWith => __$BuySubcategoryCopyWithImpl<_BuySubcategory>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$BuySubcategoryImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.iconEmoji, iconEmoji) ||
-                other.iconEmoji == iconEmoji));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, id, name, iconEmoji);
-
-  /// Create a copy of BuySubcategory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$BuySubcategoryImplCopyWith<_$BuySubcategoryImpl> get copyWith =>
-      __$$BuySubcategoryImplCopyWithImpl<_$BuySubcategoryImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$BuySubcategoryImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$BuySubcategoryToJson(this, );
 }
 
-abstract class _BuySubcategory implements BuySubcategory {
-  const factory _BuySubcategory({
-    required final String id,
-    required final String name,
-    final String iconEmoji,
-  }) = _$BuySubcategoryImpl;
-
-  factory _BuySubcategory.fromJson(Map<String, dynamic> json) =
-      _$BuySubcategoryImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get name;
-  @override
-  String get iconEmoji;
-
-  /// Create a copy of BuySubcategory
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$BuySubcategoryImplCopyWith<_$BuySubcategoryImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuySubcategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji));
 }
 
-BuyCategory _$BuyCategoryFromJson(Map<String, dynamic> json) {
-  return _BuyCategory.fromJson(json);
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,iconEmoji);
+
+@override
+String toString() {
+  return 'BuySubcategory(id: $id, name: $name, iconEmoji: $iconEmoji)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BuySubcategoryCopyWith<$Res> implements $BuySubcategoryCopyWith<$Res> {
+  factory _$BuySubcategoryCopyWith(_BuySubcategory value, $Res Function(_BuySubcategory) _then) = __$BuySubcategoryCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String iconEmoji
+});
+
+
+
+
+}
+/// @nodoc
+class __$BuySubcategoryCopyWithImpl<$Res>
+    implements _$BuySubcategoryCopyWith<$Res> {
+  __$BuySubcategoryCopyWithImpl(this._self, this._then);
+
+  final _BuySubcategory _self;
+  final $Res Function(_BuySubcategory) _then;
+
+/// Create a copy of BuySubcategory
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? iconEmoji = null,}) {
+  return _then(_BuySubcategory(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,iconEmoji: null == iconEmoji ? _self.iconEmoji : iconEmoji // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
 
 /// @nodoc
 mixin _$BuyCategory {
-  String get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String get iconEmoji => throw _privateConstructorUsedError;
-  int get sortOrder => throw _privateConstructorUsedError;
-  bool get isActive => throw _privateConstructorUsedError;
-  bool get isComingSoon => throw _privateConstructorUsedError;
-  String? get purchaseCategoryMapping => throw _privateConstructorUsedError;
-  String? get featureFlagKey => throw _privateConstructorUsedError;
-  String? get logoUrl => throw _privateConstructorUsedError;
-  String? get backgroundColor => throw _privateConstructorUsedError;
-  List<BuySubcategory> get subcategories => throw _privateConstructorUsedError;
+
+ String get id; String get name; String get iconEmoji; int get sortOrder; bool get isActive; bool get isComingSoon; String? get purchaseCategoryMapping; String? get featureFlagKey; String? get logoUrl; String? get backgroundColor; List<BuySubcategory> get subcategories;
+/// Create a copy of BuyCategory
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BuyCategoryCopyWith<BuyCategory> get copyWith => _$BuyCategoryCopyWithImpl<BuyCategory>(this as BuyCategory, _$identity);
 
   /// Serializes this BuyCategory to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of BuyCategory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $BuyCategoryCopyWith<BuyCategory> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isComingSoon, isComingSoon) || other.isComingSoon == isComingSoon)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping)&&(identical(other.featureFlagKey, featureFlagKey) || other.featureFlagKey == featureFlagKey)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor)&&const DeepCollectionEquality().equals(other.subcategories, subcategories));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,iconEmoji,sortOrder,isActive,isComingSoon,purchaseCategoryMapping,featureFlagKey,logoUrl,backgroundColor,const DeepCollectionEquality().hash(subcategories));
+
+@override
+String toString() {
+  return 'BuyCategory(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor, subcategories: $subcategories)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $BuyCategoryCopyWith<$Res> {
-  factory $BuyCategoryCopyWith(
-    BuyCategory value,
-    $Res Function(BuyCategory) then,
-  ) = _$BuyCategoryCopyWithImpl<$Res, BuyCategory>;
-  @useResult
-  $Res call({
-    String id,
-    String name,
-    String iconEmoji,
-    int sortOrder,
-    bool isActive,
-    bool isComingSoon,
-    String? purchaseCategoryMapping,
-    String? featureFlagKey,
-    String? logoUrl,
-    String? backgroundColor,
-    List<BuySubcategory> subcategories,
-  });
-}
+abstract mixin class $BuyCategoryCopyWith<$Res>  {
+  factory $BuyCategoryCopyWith(BuyCategory value, $Res Function(BuyCategory) _then) = _$BuyCategoryCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name, String iconEmoji, int sortOrder, bool isActive, bool isComingSoon, String? purchaseCategoryMapping, String? featureFlagKey, String? logoUrl, String? backgroundColor, List<BuySubcategory> subcategories
+});
 
+
+
+
+}
 /// @nodoc
-class _$BuyCategoryCopyWithImpl<$Res, $Val extends BuyCategory>
+class _$BuyCategoryCopyWithImpl<$Res>
     implements $BuyCategoryCopyWith<$Res> {
-  _$BuyCategoryCopyWithImpl(this._value, this._then);
+  _$BuyCategoryCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final BuyCategory _self;
+  final $Res Function(BuyCategory) _then;
 
-  /// Create a copy of BuyCategory
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? iconEmoji = null,
-    Object? sortOrder = null,
-    Object? isActive = null,
-    Object? isComingSoon = null,
-    Object? purchaseCategoryMapping = freezed,
-    Object? featureFlagKey = freezed,
-    Object? logoUrl = freezed,
-    Object? backgroundColor = freezed,
-    Object? subcategories = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            iconEmoji: null == iconEmoji
-                ? _value.iconEmoji
-                : iconEmoji // ignore: cast_nullable_to_non_nullable
-                      as String,
-            sortOrder: null == sortOrder
-                ? _value.sortOrder
-                : sortOrder // ignore: cast_nullable_to_non_nullable
-                      as int,
-            isActive: null == isActive
-                ? _value.isActive
-                : isActive // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isComingSoon: null == isComingSoon
-                ? _value.isComingSoon
-                : isComingSoon // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            purchaseCategoryMapping: freezed == purchaseCategoryMapping
-                ? _value.purchaseCategoryMapping
-                : purchaseCategoryMapping // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            featureFlagKey: freezed == featureFlagKey
-                ? _value.featureFlagKey
-                : featureFlagKey // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            logoUrl: freezed == logoUrl
-                ? _value.logoUrl
-                : logoUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            backgroundColor: freezed == backgroundColor
-                ? _value.backgroundColor
-                : backgroundColor // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            subcategories: null == subcategories
-                ? _value.subcategories
-                : subcategories // ignore: cast_nullable_to_non_nullable
-                      as List<BuySubcategory>,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of BuyCategory
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? iconEmoji = null,Object? sortOrder = null,Object? isActive = null,Object? isComingSoon = null,Object? purchaseCategoryMapping = freezed,Object? featureFlagKey = freezed,Object? logoUrl = freezed,Object? backgroundColor = freezed,Object? subcategories = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,iconEmoji: null == iconEmoji ? _self.iconEmoji : iconEmoji // ignore: cast_nullable_to_non_nullable
+as String,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isComingSoon: null == isComingSoon ? _self.isComingSoon : isComingSoon // ignore: cast_nullable_to_non_nullable
+as bool,purchaseCategoryMapping: freezed == purchaseCategoryMapping ? _self.purchaseCategoryMapping : purchaseCategoryMapping // ignore: cast_nullable_to_non_nullable
+as String?,featureFlagKey: freezed == featureFlagKey ? _self.featureFlagKey : featureFlagKey // ignore: cast_nullable_to_non_nullable
+as String?,logoUrl: freezed == logoUrl ? _self.logoUrl : logoUrl // ignore: cast_nullable_to_non_nullable
+as String?,backgroundColor: freezed == backgroundColor ? _self.backgroundColor : backgroundColor // ignore: cast_nullable_to_non_nullable
+as String?,subcategories: null == subcategories ? _self.subcategories : subcategories // ignore: cast_nullable_to_non_nullable
+as List<BuySubcategory>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$BuyCategoryImplCopyWith<$Res>
-    implements $BuyCategoryCopyWith<$Res> {
-  factory _$$BuyCategoryImplCopyWith(
-    _$BuyCategoryImpl value,
-    $Res Function(_$BuyCategoryImpl) then,
-  ) = __$$BuyCategoryImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String name,
-    String iconEmoji,
-    int sortOrder,
-    bool isActive,
-    bool isComingSoon,
-    String? purchaseCategoryMapping,
-    String? featureFlagKey,
-    String? logoUrl,
-    String? backgroundColor,
-    List<BuySubcategory> subcategories,
-  });
 }
 
-/// @nodoc
-class __$$BuyCategoryImplCopyWithImpl<$Res>
-    extends _$BuyCategoryCopyWithImpl<$Res, _$BuyCategoryImpl>
-    implements _$$BuyCategoryImplCopyWith<$Res> {
-  __$$BuyCategoryImplCopyWithImpl(
-    _$BuyCategoryImpl _value,
-    $Res Function(_$BuyCategoryImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of BuyCategory
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? iconEmoji = null,
-    Object? sortOrder = null,
-    Object? isActive = null,
-    Object? isComingSoon = null,
-    Object? purchaseCategoryMapping = freezed,
-    Object? featureFlagKey = freezed,
-    Object? logoUrl = freezed,
-    Object? backgroundColor = freezed,
-    Object? subcategories = null,
-  }) {
-    return _then(
-      _$BuyCategoryImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        iconEmoji: null == iconEmoji
-            ? _value.iconEmoji
-            : iconEmoji // ignore: cast_nullable_to_non_nullable
-                  as String,
-        sortOrder: null == sortOrder
-            ? _value.sortOrder
-            : sortOrder // ignore: cast_nullable_to_non_nullable
-                  as int,
-        isActive: null == isActive
-            ? _value.isActive
-            : isActive // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isComingSoon: null == isComingSoon
-            ? _value.isComingSoon
-            : isComingSoon // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        purchaseCategoryMapping: freezed == purchaseCategoryMapping
-            ? _value.purchaseCategoryMapping
-            : purchaseCategoryMapping // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        featureFlagKey: freezed == featureFlagKey
-            ? _value.featureFlagKey
-            : featureFlagKey // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        logoUrl: freezed == logoUrl
-            ? _value.logoUrl
-            : logoUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        backgroundColor: freezed == backgroundColor
-            ? _value.backgroundColor
-            : backgroundColor // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        subcategories: null == subcategories
-            ? _value._subcategories
-            : subcategories // ignore: cast_nullable_to_non_nullable
-                  as List<BuySubcategory>,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [BuyCategory].
+extension BuyCategoryPatterns on BuyCategory {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BuyCategory value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BuyCategory() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BuyCategory value)  $default,){
+final _that = this;
+switch (_that) {
+case _BuyCategory():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BuyCategory value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BuyCategory() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String iconEmoji,  int sortOrder,  bool isActive,  bool isComingSoon,  String? purchaseCategoryMapping,  String? featureFlagKey,  String? logoUrl,  String? backgroundColor,  List<BuySubcategory> subcategories)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BuyCategory() when $default != null:
+return $default(_that.id,_that.name,_that.iconEmoji,_that.sortOrder,_that.isActive,_that.isComingSoon,_that.purchaseCategoryMapping,_that.featureFlagKey,_that.logoUrl,_that.backgroundColor,_that.subcategories);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String iconEmoji,  int sortOrder,  bool isActive,  bool isComingSoon,  String? purchaseCategoryMapping,  String? featureFlagKey,  String? logoUrl,  String? backgroundColor,  List<BuySubcategory> subcategories)  $default,) {final _that = this;
+switch (_that) {
+case _BuyCategory():
+return $default(_that.id,_that.name,_that.iconEmoji,_that.sortOrder,_that.isActive,_that.isComingSoon,_that.purchaseCategoryMapping,_that.featureFlagKey,_that.logoUrl,_that.backgroundColor,_that.subcategories);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String iconEmoji,  int sortOrder,  bool isActive,  bool isComingSoon,  String? purchaseCategoryMapping,  String? featureFlagKey,  String? logoUrl,  String? backgroundColor,  List<BuySubcategory> subcategories)?  $default,) {final _that = this;
+switch (_that) {
+case _BuyCategory() when $default != null:
+return $default(_that.id,_that.name,_that.iconEmoji,_that.sortOrder,_that.isActive,_that.isComingSoon,_that.purchaseCategoryMapping,_that.featureFlagKey,_that.logoUrl,_that.backgroundColor,_that.subcategories);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$BuyCategoryImpl extends _BuyCategory {
-  const _$BuyCategoryImpl({
-    required this.id,
-    required this.name,
-    required this.iconEmoji,
-    required this.sortOrder,
-    required this.isActive,
-    this.isComingSoon = false,
-    this.purchaseCategoryMapping,
-    this.featureFlagKey,
-    this.logoUrl,
-    this.backgroundColor,
-    final List<BuySubcategory> subcategories = const [],
-  }) : _subcategories = subcategories,
-       super._();
 
-  factory _$BuyCategoryImpl.fromJson(Map<String, dynamic> json) =>
-      _$$BuyCategoryImplFromJson(json);
+class _BuyCategory extends BuyCategory {
+  const _BuyCategory({required this.id, required this.name, required this.iconEmoji, required this.sortOrder, required this.isActive, this.isComingSoon = false, this.purchaseCategoryMapping, this.featureFlagKey, this.logoUrl, this.backgroundColor, final  List<BuySubcategory> subcategories = const []}): _subcategories = subcategories,super._();
+  factory _BuyCategory.fromJson(Map<String, dynamic> json) => _$BuyCategoryFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String name;
-  @override
-  final String iconEmoji;
-  @override
-  final int sortOrder;
-  @override
-  final bool isActive;
-  @override
-  @JsonKey()
-  final bool isComingSoon;
-  @override
-  final String? purchaseCategoryMapping;
-  @override
-  final String? featureFlagKey;
-  @override
-  final String? logoUrl;
-  @override
-  final String? backgroundColor;
-  final List<BuySubcategory> _subcategories;
-  @override
-  @JsonKey()
-  List<BuySubcategory> get subcategories {
-    if (_subcategories is EqualUnmodifiableListView) return _subcategories;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_subcategories);
-  }
-
-  @override
-  String toString() {
-    return 'BuyCategory(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor, subcategories: $subcategories)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$BuyCategoryImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.iconEmoji, iconEmoji) ||
-                other.iconEmoji == iconEmoji) &&
-            (identical(other.sortOrder, sortOrder) ||
-                other.sortOrder == sortOrder) &&
-            (identical(other.isActive, isActive) ||
-                other.isActive == isActive) &&
-            (identical(other.isComingSoon, isComingSoon) ||
-                other.isComingSoon == isComingSoon) &&
-            (identical(
-                  other.purchaseCategoryMapping,
-                  purchaseCategoryMapping,
-                ) ||
-                other.purchaseCategoryMapping == purchaseCategoryMapping) &&
-            (identical(other.featureFlagKey, featureFlagKey) ||
-                other.featureFlagKey == featureFlagKey) &&
-            (identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl) &&
-            (identical(other.backgroundColor, backgroundColor) ||
-                other.backgroundColor == backgroundColor) &&
-            const DeepCollectionEquality().equals(
-              other._subcategories,
-              _subcategories,
-            ));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    name,
-    iconEmoji,
-    sortOrder,
-    isActive,
-    isComingSoon,
-    purchaseCategoryMapping,
-    featureFlagKey,
-    logoUrl,
-    backgroundColor,
-    const DeepCollectionEquality().hash(_subcategories),
-  );
-
-  /// Create a copy of BuyCategory
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$BuyCategoryImplCopyWith<_$BuyCategoryImpl> get copyWith =>
-      __$$BuyCategoryImplCopyWithImpl<_$BuyCategoryImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$BuyCategoryImplToJson(this);
-  }
+@override final  String id;
+@override final  String name;
+@override final  String iconEmoji;
+@override final  int sortOrder;
+@override final  bool isActive;
+@override@JsonKey() final  bool isComingSoon;
+@override final  String? purchaseCategoryMapping;
+@override final  String? featureFlagKey;
+@override final  String? logoUrl;
+@override final  String? backgroundColor;
+ final  List<BuySubcategory> _subcategories;
+@override@JsonKey() List<BuySubcategory> get subcategories {
+  if (_subcategories is EqualUnmodifiableListView) return _subcategories;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_subcategories);
 }
 
-abstract class _BuyCategory extends BuyCategory {
-  const factory _BuyCategory({
-    required final String id,
-    required final String name,
-    required final String iconEmoji,
-    required final int sortOrder,
-    required final bool isActive,
-    final bool isComingSoon,
-    final String? purchaseCategoryMapping,
-    final String? featureFlagKey,
-    final String? logoUrl,
-    final String? backgroundColor,
-    final List<BuySubcategory> subcategories,
-  }) = _$BuyCategoryImpl;
-  const _BuyCategory._() : super._();
 
-  factory _BuyCategory.fromJson(Map<String, dynamic> json) =
-      _$BuyCategoryImpl.fromJson;
+/// Create a copy of BuyCategory
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BuyCategoryCopyWith<_BuyCategory> get copyWith => __$BuyCategoryCopyWithImpl<_BuyCategory>(this, _$identity);
 
-  @override
-  String get id;
-  @override
-  String get name;
-  @override
-  String get iconEmoji;
-  @override
-  int get sortOrder;
-  @override
-  bool get isActive;
-  @override
-  bool get isComingSoon;
-  @override
-  String? get purchaseCategoryMapping;
-  @override
-  String? get featureFlagKey;
-  @override
-  String? get logoUrl;
-  @override
-  String? get backgroundColor;
-  @override
-  List<BuySubcategory> get subcategories;
-
-  /// Create a copy of BuyCategory
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$BuyCategoryImplCopyWith<_$BuyCategoryImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+Map<String, dynamic> toJson() {
+  return _$BuyCategoryToJson(this, );
 }
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isComingSoon, isComingSoon) || other.isComingSoon == isComingSoon)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping)&&(identical(other.featureFlagKey, featureFlagKey) || other.featureFlagKey == featureFlagKey)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor)&&const DeepCollectionEquality().equals(other._subcategories, _subcategories));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,iconEmoji,sortOrder,isActive,isComingSoon,purchaseCategoryMapping,featureFlagKey,logoUrl,backgroundColor,const DeepCollectionEquality().hash(_subcategories));
+
+@override
+String toString() {
+  return 'BuyCategory(id: $id, name: $name, iconEmoji: $iconEmoji, sortOrder: $sortOrder, isActive: $isActive, isComingSoon: $isComingSoon, purchaseCategoryMapping: $purchaseCategoryMapping, featureFlagKey: $featureFlagKey, logoUrl: $logoUrl, backgroundColor: $backgroundColor, subcategories: $subcategories)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BuyCategoryCopyWith<$Res> implements $BuyCategoryCopyWith<$Res> {
+  factory _$BuyCategoryCopyWith(_BuyCategory value, $Res Function(_BuyCategory) _then) = __$BuyCategoryCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name, String iconEmoji, int sortOrder, bool isActive, bool isComingSoon, String? purchaseCategoryMapping, String? featureFlagKey, String? logoUrl, String? backgroundColor, List<BuySubcategory> subcategories
+});
+
+
+
+
+}
+/// @nodoc
+class __$BuyCategoryCopyWithImpl<$Res>
+    implements _$BuyCategoryCopyWith<$Res> {
+  __$BuyCategoryCopyWithImpl(this._self, this._then);
+
+  final _BuyCategory _self;
+  final $Res Function(_BuyCategory) _then;
+
+/// Create a copy of BuyCategory
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? iconEmoji = null,Object? sortOrder = null,Object? isActive = null,Object? isComingSoon = null,Object? purchaseCategoryMapping = freezed,Object? featureFlagKey = freezed,Object? logoUrl = freezed,Object? backgroundColor = freezed,Object? subcategories = null,}) {
+  return _then(_BuyCategory(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,iconEmoji: null == iconEmoji ? _self.iconEmoji : iconEmoji // ignore: cast_nullable_to_non_nullable
+as String,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isComingSoon: null == isComingSoon ? _self.isComingSoon : isComingSoon // ignore: cast_nullable_to_non_nullable
+as bool,purchaseCategoryMapping: freezed == purchaseCategoryMapping ? _self.purchaseCategoryMapping : purchaseCategoryMapping // ignore: cast_nullable_to_non_nullable
+as String?,featureFlagKey: freezed == featureFlagKey ? _self.featureFlagKey : featureFlagKey // ignore: cast_nullable_to_non_nullable
+as String?,logoUrl: freezed == logoUrl ? _self.logoUrl : logoUrl // ignore: cast_nullable_to_non_nullable
+as String?,backgroundColor: freezed == backgroundColor ? _self.backgroundColor : backgroundColor // ignore: cast_nullable_to_non_nullable
+as String?,subcategories: null == subcategories ? _self._subcategories : subcategories // ignore: cast_nullable_to_non_nullable
+as List<BuySubcategory>,
+  ));
+}
+
+
+}
+
+// dart format on

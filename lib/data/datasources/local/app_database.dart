@@ -7,8 +7,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:sqlite3/open.dart';
-import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 
 part 'app_database.g.dart';
 
@@ -811,6 +809,18 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  /// Fetch ALL messages for a conversation in ascending (chronological) order.
+  /// Excludes soft-deleted messages. Used by conversation export.
+  Future<List<LocalFullMessage>> getAllLocalMessagesAsc(
+      String conversationId) {
+    return (select(localFullMessages)
+          ..where((m) =>
+              m.conversationId.equals(conversationId) &
+              m.deletedForEveryone.equals(false))
+          ..orderBy([(m) => OrderingTerm.asc(m.createdAt)]))
+        .get();
+  }
+
   Future<void> upsertLocalMessage(LocalFullMessagesCompanion message) {
     return into(localFullMessages).insertOnConflictUpdate(message);
   }
@@ -1316,13 +1326,6 @@ class AppDatabase extends _$AppDatabase {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    // Load sqlcipher native library on Android.
-    // IMPORTANT: This override is per-isolate. We must NOT use
-    // NativeDatabase.createInBackground because the background isolate
-    // would not inherit this override and would fail with:
-    //   dlopen failed: library "libsqlite3.so" not found
-    open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
-
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'imali_local_encrypted.db'));
 

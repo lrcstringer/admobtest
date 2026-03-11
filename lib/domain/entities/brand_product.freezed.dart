@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,580 +9,330 @@ part of 'brand_product.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-BrandProduct _$BrandProductFromJson(Map<String, dynamic> json) {
-  return _BrandProduct.fromJson(json);
-}
 
 /// @nodoc
 mixin _$BrandProduct {
-  String get id => throw _privateConstructorUsedError;
-  String get brandId => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  double get priceZar => throw _privateConstructorUsedError;
-  int get priceTokens => throw _privateConstructorUsedError;
-  String? get imageUrl => throw _privateConstructorUsedError;
-  String? get category => throw _privateConstructorUsedError;
-  bool get isActive => throw _privateConstructorUsedError;
-  bool get isFeatured => throw _privateConstructorUsedError;
-  int get sortOrder => throw _privateConstructorUsedError;
 
-  /// null = unlimited stock
-  int? get stockCount => throw _privateConstructorUsedError;
-  FulfilmentType get fulfilmentType => throw _privateConstructorUsedError;
-
-  /// For catalog items — WhatsApp link, email, etc.
-  String? get contactMethod => throw _privateConstructorUsedError;
-
-  /// For digital items — what user receives after purchase
-  String? get voucherInstructions => throw _privateConstructorUsedError;
-
-  /// For physical items — store address if collection
-  String? get collectionAddress => throw _privateConstructorUsedError;
-
-  /// For physical items — delivery terms/timeframes
-  String? get deliveryInfo => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
+ String get id; String get brandId; String get name; String? get description; double get priceZar; int get priceTokens; String? get imageUrl; String? get category; bool get isActive; bool get isFeatured; int get sortOrder;/// null = unlimited stock
+ int? get stockCount; FulfilmentType get fulfilmentType;/// For catalog items — WhatsApp link, email, etc.
+ String? get contactMethod;/// For digital items — what user receives after purchase
+ String? get voucherInstructions;/// For physical items — store address if collection
+ String? get collectionAddress;/// For physical items — delivery terms/timeframes
+ String? get deliveryInfo; DateTime get createdAt;
+/// Create a copy of BrandProduct
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BrandProductCopyWith<BrandProduct> get copyWith => _$BrandProductCopyWithImpl<BrandProduct>(this as BrandProduct, _$identity);
 
   /// Serializes this BrandProduct to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of BrandProduct
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $BrandProductCopyWith<BrandProduct> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.stockCount, stockCount) || other.stockCount == stockCount)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&(identical(other.contactMethod, contactMethod) || other.contactMethod == contactMethod)&&(identical(other.voucherInstructions, voucherInstructions) || other.voucherInstructions == voucherInstructions)&&(identical(other.collectionAddress, collectionAddress) || other.collectionAddress == collectionAddress)&&(identical(other.deliveryInfo, deliveryInfo) || other.deliveryInfo == deliveryInfo)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,brandId,name,description,priceZar,priceTokens,imageUrl,category,isActive,isFeatured,sortOrder,stockCount,fulfilmentType,contactMethod,voucherInstructions,collectionAddress,deliveryInfo,createdAt);
+
+@override
+String toString() {
+  return 'BrandProduct(id: $id, brandId: $brandId, name: $name, description: $description, priceZar: $priceZar, priceTokens: $priceTokens, imageUrl: $imageUrl, category: $category, isActive: $isActive, isFeatured: $isFeatured, sortOrder: $sortOrder, stockCount: $stockCount, fulfilmentType: $fulfilmentType, contactMethod: $contactMethod, voucherInstructions: $voucherInstructions, collectionAddress: $collectionAddress, deliveryInfo: $deliveryInfo, createdAt: $createdAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $BrandProductCopyWith<$Res> {
-  factory $BrandProductCopyWith(
-    BrandProduct value,
-    $Res Function(BrandProduct) then,
-  ) = _$BrandProductCopyWithImpl<$Res, BrandProduct>;
-  @useResult
-  $Res call({
-    String id,
-    String brandId,
-    String name,
-    String? description,
-    double priceZar,
-    int priceTokens,
-    String? imageUrl,
-    String? category,
-    bool isActive,
-    bool isFeatured,
-    int sortOrder,
-    int? stockCount,
-    FulfilmentType fulfilmentType,
-    String? contactMethod,
-    String? voucherInstructions,
-    String? collectionAddress,
-    String? deliveryInfo,
-    DateTime createdAt,
-  });
-}
+abstract mixin class $BrandProductCopyWith<$Res>  {
+  factory $BrandProductCopyWith(BrandProduct value, $Res Function(BrandProduct) _then) = _$BrandProductCopyWithImpl;
+@useResult
+$Res call({
+ String id, String brandId, String name, String? description, double priceZar, int priceTokens, String? imageUrl, String? category, bool isActive, bool isFeatured, int sortOrder, int? stockCount, FulfilmentType fulfilmentType, String? contactMethod, String? voucherInstructions, String? collectionAddress, String? deliveryInfo, DateTime createdAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$BrandProductCopyWithImpl<$Res, $Val extends BrandProduct>
+class _$BrandProductCopyWithImpl<$Res>
     implements $BrandProductCopyWith<$Res> {
-  _$BrandProductCopyWithImpl(this._value, this._then);
+  _$BrandProductCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final BrandProduct _self;
+  final $Res Function(BrandProduct) _then;
 
-  /// Create a copy of BrandProduct
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? brandId = null,
-    Object? name = null,
-    Object? description = freezed,
-    Object? priceZar = null,
-    Object? priceTokens = null,
-    Object? imageUrl = freezed,
-    Object? category = freezed,
-    Object? isActive = null,
-    Object? isFeatured = null,
-    Object? sortOrder = null,
-    Object? stockCount = freezed,
-    Object? fulfilmentType = null,
-    Object? contactMethod = freezed,
-    Object? voucherInstructions = freezed,
-    Object? collectionAddress = freezed,
-    Object? deliveryInfo = freezed,
-    Object? createdAt = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            brandId: null == brandId
-                ? _value.brandId
-                : brandId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            description: freezed == description
-                ? _value.description
-                : description // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            priceZar: null == priceZar
-                ? _value.priceZar
-                : priceZar // ignore: cast_nullable_to_non_nullable
-                      as double,
-            priceTokens: null == priceTokens
-                ? _value.priceTokens
-                : priceTokens // ignore: cast_nullable_to_non_nullable
-                      as int,
-            imageUrl: freezed == imageUrl
-                ? _value.imageUrl
-                : imageUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            category: freezed == category
-                ? _value.category
-                : category // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isActive: null == isActive
-                ? _value.isActive
-                : isActive // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isFeatured: null == isFeatured
-                ? _value.isFeatured
-                : isFeatured // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            sortOrder: null == sortOrder
-                ? _value.sortOrder
-                : sortOrder // ignore: cast_nullable_to_non_nullable
-                      as int,
-            stockCount: freezed == stockCount
-                ? _value.stockCount
-                : stockCount // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            fulfilmentType: null == fulfilmentType
-                ? _value.fulfilmentType
-                : fulfilmentType // ignore: cast_nullable_to_non_nullable
-                      as FulfilmentType,
-            contactMethod: freezed == contactMethod
-                ? _value.contactMethod
-                : contactMethod // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            voucherInstructions: freezed == voucherInstructions
-                ? _value.voucherInstructions
-                : voucherInstructions // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            collectionAddress: freezed == collectionAddress
-                ? _value.collectionAddress
-                : collectionAddress // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            deliveryInfo: freezed == deliveryInfo
-                ? _value.deliveryInfo
-                : deliveryInfo // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of BrandProduct
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? brandId = null,Object? name = null,Object? description = freezed,Object? priceZar = null,Object? priceTokens = null,Object? imageUrl = freezed,Object? category = freezed,Object? isActive = null,Object? isFeatured = null,Object? sortOrder = null,Object? stockCount = freezed,Object? fulfilmentType = null,Object? contactMethod = freezed,Object? voucherInstructions = freezed,Object? collectionAddress = freezed,Object? deliveryInfo = freezed,Object? createdAt = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,brandId: null == brandId ? _self.brandId : brandId // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,priceZar: null == priceZar ? _self.priceZar : priceZar // ignore: cast_nullable_to_non_nullable
+as double,priceTokens: null == priceTokens ? _self.priceTokens : priceTokens // ignore: cast_nullable_to_non_nullable
+as int,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as String?,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isFeatured: null == isFeatured ? _self.isFeatured : isFeatured // ignore: cast_nullable_to_non_nullable
+as bool,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,stockCount: freezed == stockCount ? _self.stockCount : stockCount // ignore: cast_nullable_to_non_nullable
+as int?,fulfilmentType: null == fulfilmentType ? _self.fulfilmentType : fulfilmentType // ignore: cast_nullable_to_non_nullable
+as FulfilmentType,contactMethod: freezed == contactMethod ? _self.contactMethod : contactMethod // ignore: cast_nullable_to_non_nullable
+as String?,voucherInstructions: freezed == voucherInstructions ? _self.voucherInstructions : voucherInstructions // ignore: cast_nullable_to_non_nullable
+as String?,collectionAddress: freezed == collectionAddress ? _self.collectionAddress : collectionAddress // ignore: cast_nullable_to_non_nullable
+as String?,deliveryInfo: freezed == deliveryInfo ? _self.deliveryInfo : deliveryInfo // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
 }
 
-/// @nodoc
-abstract class _$$BrandProductImplCopyWith<$Res>
-    implements $BrandProductCopyWith<$Res> {
-  factory _$$BrandProductImplCopyWith(
-    _$BrandProductImpl value,
-    $Res Function(_$BrandProductImpl) then,
-  ) = __$$BrandProductImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String brandId,
-    String name,
-    String? description,
-    double priceZar,
-    int priceTokens,
-    String? imageUrl,
-    String? category,
-    bool isActive,
-    bool isFeatured,
-    int sortOrder,
-    int? stockCount,
-    FulfilmentType fulfilmentType,
-    String? contactMethod,
-    String? voucherInstructions,
-    String? collectionAddress,
-    String? deliveryInfo,
-    DateTime createdAt,
-  });
 }
 
-/// @nodoc
-class __$$BrandProductImplCopyWithImpl<$Res>
-    extends _$BrandProductCopyWithImpl<$Res, _$BrandProductImpl>
-    implements _$$BrandProductImplCopyWith<$Res> {
-  __$$BrandProductImplCopyWithImpl(
-    _$BrandProductImpl _value,
-    $Res Function(_$BrandProductImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of BrandProduct
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? brandId = null,
-    Object? name = null,
-    Object? description = freezed,
-    Object? priceZar = null,
-    Object? priceTokens = null,
-    Object? imageUrl = freezed,
-    Object? category = freezed,
-    Object? isActive = null,
-    Object? isFeatured = null,
-    Object? sortOrder = null,
-    Object? stockCount = freezed,
-    Object? fulfilmentType = null,
-    Object? contactMethod = freezed,
-    Object? voucherInstructions = freezed,
-    Object? collectionAddress = freezed,
-    Object? deliveryInfo = freezed,
-    Object? createdAt = null,
-  }) {
-    return _then(
-      _$BrandProductImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        brandId: null == brandId
-            ? _value.brandId
-            : brandId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        priceZar: null == priceZar
-            ? _value.priceZar
-            : priceZar // ignore: cast_nullable_to_non_nullable
-                  as double,
-        priceTokens: null == priceTokens
-            ? _value.priceTokens
-            : priceTokens // ignore: cast_nullable_to_non_nullable
-                  as int,
-        imageUrl: freezed == imageUrl
-            ? _value.imageUrl
-            : imageUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        category: freezed == category
-            ? _value.category
-            : category // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isActive: null == isActive
-            ? _value.isActive
-            : isActive // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isFeatured: null == isFeatured
-            ? _value.isFeatured
-            : isFeatured // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        sortOrder: null == sortOrder
-            ? _value.sortOrder
-            : sortOrder // ignore: cast_nullable_to_non_nullable
-                  as int,
-        stockCount: freezed == stockCount
-            ? _value.stockCount
-            : stockCount // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        fulfilmentType: null == fulfilmentType
-            ? _value.fulfilmentType
-            : fulfilmentType // ignore: cast_nullable_to_non_nullable
-                  as FulfilmentType,
-        contactMethod: freezed == contactMethod
-            ? _value.contactMethod
-            : contactMethod // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        voucherInstructions: freezed == voucherInstructions
-            ? _value.voucherInstructions
-            : voucherInstructions // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        collectionAddress: freezed == collectionAddress
-            ? _value.collectionAddress
-            : collectionAddress // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        deliveryInfo: freezed == deliveryInfo
-            ? _value.deliveryInfo
-            : deliveryInfo // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [BrandProduct].
+extension BrandProductPatterns on BrandProduct {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BrandProduct value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BrandProduct() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BrandProduct value)  $default,){
+final _that = this;
+switch (_that) {
+case _BrandProduct():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BrandProduct value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BrandProduct() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String brandId,  String name,  String? description,  double priceZar,  int priceTokens,  String? imageUrl,  String? category,  bool isActive,  bool isFeatured,  int sortOrder,  int? stockCount,  FulfilmentType fulfilmentType,  String? contactMethod,  String? voucherInstructions,  String? collectionAddress,  String? deliveryInfo,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BrandProduct() when $default != null:
+return $default(_that.id,_that.brandId,_that.name,_that.description,_that.priceZar,_that.priceTokens,_that.imageUrl,_that.category,_that.isActive,_that.isFeatured,_that.sortOrder,_that.stockCount,_that.fulfilmentType,_that.contactMethod,_that.voucherInstructions,_that.collectionAddress,_that.deliveryInfo,_that.createdAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String brandId,  String name,  String? description,  double priceZar,  int priceTokens,  String? imageUrl,  String? category,  bool isActive,  bool isFeatured,  int sortOrder,  int? stockCount,  FulfilmentType fulfilmentType,  String? contactMethod,  String? voucherInstructions,  String? collectionAddress,  String? deliveryInfo,  DateTime createdAt)  $default,) {final _that = this;
+switch (_that) {
+case _BrandProduct():
+return $default(_that.id,_that.brandId,_that.name,_that.description,_that.priceZar,_that.priceTokens,_that.imageUrl,_that.category,_that.isActive,_that.isFeatured,_that.sortOrder,_that.stockCount,_that.fulfilmentType,_that.contactMethod,_that.voucherInstructions,_that.collectionAddress,_that.deliveryInfo,_that.createdAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String brandId,  String name,  String? description,  double priceZar,  int priceTokens,  String? imageUrl,  String? category,  bool isActive,  bool isFeatured,  int sortOrder,  int? stockCount,  FulfilmentType fulfilmentType,  String? contactMethod,  String? voucherInstructions,  String? collectionAddress,  String? deliveryInfo,  DateTime createdAt)?  $default,) {final _that = this;
+switch (_that) {
+case _BrandProduct() when $default != null:
+return $default(_that.id,_that.brandId,_that.name,_that.description,_that.priceZar,_that.priceTokens,_that.imageUrl,_that.category,_that.isActive,_that.isFeatured,_that.sortOrder,_that.stockCount,_that.fulfilmentType,_that.contactMethod,_that.voucherInstructions,_that.collectionAddress,_that.deliveryInfo,_that.createdAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$BrandProductImpl extends _BrandProduct {
-  const _$BrandProductImpl({
-    required this.id,
-    required this.brandId,
-    required this.name,
-    this.description,
-    required this.priceZar,
-    required this.priceTokens,
-    this.imageUrl,
-    this.category,
-    this.isActive = true,
-    this.isFeatured = false,
-    this.sortOrder = 0,
-    this.stockCount,
-    required this.fulfilmentType,
-    this.contactMethod,
-    this.voucherInstructions,
-    this.collectionAddress,
-    this.deliveryInfo,
-    required this.createdAt,
-  }) : super._();
 
-  factory _$BrandProductImpl.fromJson(Map<String, dynamic> json) =>
-      _$$BrandProductImplFromJson(json);
+class _BrandProduct extends BrandProduct {
+  const _BrandProduct({required this.id, required this.brandId, required this.name, this.description, required this.priceZar, required this.priceTokens, this.imageUrl, this.category, this.isActive = true, this.isFeatured = false, this.sortOrder = 0, this.stockCount, required this.fulfilmentType, this.contactMethod, this.voucherInstructions, this.collectionAddress, this.deliveryInfo, required this.createdAt}): super._();
+  factory _BrandProduct.fromJson(Map<String, dynamic> json) => _$BrandProductFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String brandId;
-  @override
-  final String name;
-  @override
-  final String? description;
-  @override
-  final double priceZar;
-  @override
-  final int priceTokens;
-  @override
-  final String? imageUrl;
-  @override
-  final String? category;
-  @override
-  @JsonKey()
-  final bool isActive;
-  @override
-  @JsonKey()
-  final bool isFeatured;
-  @override
-  @JsonKey()
-  final int sortOrder;
+@override final  String id;
+@override final  String brandId;
+@override final  String name;
+@override final  String? description;
+@override final  double priceZar;
+@override final  int priceTokens;
+@override final  String? imageUrl;
+@override final  String? category;
+@override@JsonKey() final  bool isActive;
+@override@JsonKey() final  bool isFeatured;
+@override@JsonKey() final  int sortOrder;
+/// null = unlimited stock
+@override final  int? stockCount;
+@override final  FulfilmentType fulfilmentType;
+/// For catalog items — WhatsApp link, email, etc.
+@override final  String? contactMethod;
+/// For digital items — what user receives after purchase
+@override final  String? voucherInstructions;
+/// For physical items — store address if collection
+@override final  String? collectionAddress;
+/// For physical items — delivery terms/timeframes
+@override final  String? deliveryInfo;
+@override final  DateTime createdAt;
 
-  /// null = unlimited stock
-  @override
-  final int? stockCount;
-  @override
-  final FulfilmentType fulfilmentType;
+/// Create a copy of BrandProduct
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BrandProductCopyWith<_BrandProduct> get copyWith => __$BrandProductCopyWithImpl<_BrandProduct>(this, _$identity);
 
-  /// For catalog items — WhatsApp link, email, etc.
-  @override
-  final String? contactMethod;
-
-  /// For digital items — what user receives after purchase
-  @override
-  final String? voucherInstructions;
-
-  /// For physical items — store address if collection
-  @override
-  final String? collectionAddress;
-
-  /// For physical items — delivery terms/timeframes
-  @override
-  final String? deliveryInfo;
-  @override
-  final DateTime createdAt;
-
-  @override
-  String toString() {
-    return 'BrandProduct(id: $id, brandId: $brandId, name: $name, description: $description, priceZar: $priceZar, priceTokens: $priceTokens, imageUrl: $imageUrl, category: $category, isActive: $isActive, isFeatured: $isFeatured, sortOrder: $sortOrder, stockCount: $stockCount, fulfilmentType: $fulfilmentType, contactMethod: $contactMethod, voucherInstructions: $voucherInstructions, collectionAddress: $collectionAddress, deliveryInfo: $deliveryInfo, createdAt: $createdAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$BrandProductImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.brandId, brandId) || other.brandId == brandId) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            (identical(other.priceZar, priceZar) ||
-                other.priceZar == priceZar) &&
-            (identical(other.priceTokens, priceTokens) ||
-                other.priceTokens == priceTokens) &&
-            (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.isActive, isActive) ||
-                other.isActive == isActive) &&
-            (identical(other.isFeatured, isFeatured) ||
-                other.isFeatured == isFeatured) &&
-            (identical(other.sortOrder, sortOrder) ||
-                other.sortOrder == sortOrder) &&
-            (identical(other.stockCount, stockCount) ||
-                other.stockCount == stockCount) &&
-            (identical(other.fulfilmentType, fulfilmentType) ||
-                other.fulfilmentType == fulfilmentType) &&
-            (identical(other.contactMethod, contactMethod) ||
-                other.contactMethod == contactMethod) &&
-            (identical(other.voucherInstructions, voucherInstructions) ||
-                other.voucherInstructions == voucherInstructions) &&
-            (identical(other.collectionAddress, collectionAddress) ||
-                other.collectionAddress == collectionAddress) &&
-            (identical(other.deliveryInfo, deliveryInfo) ||
-                other.deliveryInfo == deliveryInfo) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    brandId,
-    name,
-    description,
-    priceZar,
-    priceTokens,
-    imageUrl,
-    category,
-    isActive,
-    isFeatured,
-    sortOrder,
-    stockCount,
-    fulfilmentType,
-    contactMethod,
-    voucherInstructions,
-    collectionAddress,
-    deliveryInfo,
-    createdAt,
-  );
-
-  /// Create a copy of BrandProduct
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$BrandProductImplCopyWith<_$BrandProductImpl> get copyWith =>
-      __$$BrandProductImplCopyWithImpl<_$BrandProductImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$BrandProductImplToJson(this);
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$BrandProductToJson(this, );
 }
 
-abstract class _BrandProduct extends BrandProduct {
-  const factory _BrandProduct({
-    required final String id,
-    required final String brandId,
-    required final String name,
-    final String? description,
-    required final double priceZar,
-    required final int priceTokens,
-    final String? imageUrl,
-    final String? category,
-    final bool isActive,
-    final bool isFeatured,
-    final int sortOrder,
-    final int? stockCount,
-    required final FulfilmentType fulfilmentType,
-    final String? contactMethod,
-    final String? voucherInstructions,
-    final String? collectionAddress,
-    final String? deliveryInfo,
-    required final DateTime createdAt,
-  }) = _$BrandProductImpl;
-  const _BrandProduct._() : super._();
-
-  factory _BrandProduct.fromJson(Map<String, dynamic> json) =
-      _$BrandProductImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get brandId;
-  @override
-  String get name;
-  @override
-  String? get description;
-  @override
-  double get priceZar;
-  @override
-  int get priceTokens;
-  @override
-  String? get imageUrl;
-  @override
-  String? get category;
-  @override
-  bool get isActive;
-  @override
-  bool get isFeatured;
-  @override
-  int get sortOrder;
-
-  /// null = unlimited stock
-  @override
-  int? get stockCount;
-  @override
-  FulfilmentType get fulfilmentType;
-
-  /// For catalog items — WhatsApp link, email, etc.
-  @override
-  String? get contactMethod;
-
-  /// For digital items — what user receives after purchase
-  @override
-  String? get voucherInstructions;
-
-  /// For physical items — store address if collection
-  @override
-  String? get collectionAddress;
-
-  /// For physical items — delivery terms/timeframes
-  @override
-  String? get deliveryInfo;
-  @override
-  DateTime get createdAt;
-
-  /// Create a copy of BrandProduct
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$BrandProductImplCopyWith<_$BrandProductImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.stockCount, stockCount) || other.stockCount == stockCount)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&(identical(other.contactMethod, contactMethod) || other.contactMethod == contactMethod)&&(identical(other.voucherInstructions, voucherInstructions) || other.voucherInstructions == voucherInstructions)&&(identical(other.collectionAddress, collectionAddress) || other.collectionAddress == collectionAddress)&&(identical(other.deliveryInfo, deliveryInfo) || other.deliveryInfo == deliveryInfo)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,brandId,name,description,priceZar,priceTokens,imageUrl,category,isActive,isFeatured,sortOrder,stockCount,fulfilmentType,contactMethod,voucherInstructions,collectionAddress,deliveryInfo,createdAt);
+
+@override
+String toString() {
+  return 'BrandProduct(id: $id, brandId: $brandId, name: $name, description: $description, priceZar: $priceZar, priceTokens: $priceTokens, imageUrl: $imageUrl, category: $category, isActive: $isActive, isFeatured: $isFeatured, sortOrder: $sortOrder, stockCount: $stockCount, fulfilmentType: $fulfilmentType, contactMethod: $contactMethod, voucherInstructions: $voucherInstructions, collectionAddress: $collectionAddress, deliveryInfo: $deliveryInfo, createdAt: $createdAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BrandProductCopyWith<$Res> implements $BrandProductCopyWith<$Res> {
+  factory _$BrandProductCopyWith(_BrandProduct value, $Res Function(_BrandProduct) _then) = __$BrandProductCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String brandId, String name, String? description, double priceZar, int priceTokens, String? imageUrl, String? category, bool isActive, bool isFeatured, int sortOrder, int? stockCount, FulfilmentType fulfilmentType, String? contactMethod, String? voucherInstructions, String? collectionAddress, String? deliveryInfo, DateTime createdAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$BrandProductCopyWithImpl<$Res>
+    implements _$BrandProductCopyWith<$Res> {
+  __$BrandProductCopyWithImpl(this._self, this._then);
+
+  final _BrandProduct _self;
+  final $Res Function(_BrandProduct) _then;
+
+/// Create a copy of BrandProduct
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brandId = null,Object? name = null,Object? description = freezed,Object? priceZar = null,Object? priceTokens = null,Object? imageUrl = freezed,Object? category = freezed,Object? isActive = null,Object? isFeatured = null,Object? sortOrder = null,Object? stockCount = freezed,Object? fulfilmentType = null,Object? contactMethod = freezed,Object? voucherInstructions = freezed,Object? collectionAddress = freezed,Object? deliveryInfo = freezed,Object? createdAt = null,}) {
+  return _then(_BrandProduct(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,brandId: null == brandId ? _self.brandId : brandId // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,priceZar: null == priceZar ? _self.priceZar : priceZar // ignore: cast_nullable_to_non_nullable
+as double,priceTokens: null == priceTokens ? _self.priceTokens : priceTokens // ignore: cast_nullable_to_non_nullable
+as int,imageUrl: freezed == imageUrl ? _self.imageUrl : imageUrl // ignore: cast_nullable_to_non_nullable
+as String?,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isFeatured: null == isFeatured ? _self.isFeatured : isFeatured // ignore: cast_nullable_to_non_nullable
+as bool,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as int,stockCount: freezed == stockCount ? _self.stockCount : stockCount // ignore: cast_nullable_to_non_nullable
+as int?,fulfilmentType: null == fulfilmentType ? _self.fulfilmentType : fulfilmentType // ignore: cast_nullable_to_non_nullable
+as FulfilmentType,contactMethod: freezed == contactMethod ? _self.contactMethod : contactMethod // ignore: cast_nullable_to_non_nullable
+as String?,voucherInstructions: freezed == voucherInstructions ? _self.voucherInstructions : voucherInstructions // ignore: cast_nullable_to_non_nullable
+as String?,collectionAddress: freezed == collectionAddress ? _self.collectionAddress : collectionAddress // ignore: cast_nullable_to_non_nullable
+as String?,deliveryInfo: freezed == deliveryInfo ? _self.deliveryInfo : deliveryInfo // ignore: cast_nullable_to_non_nullable
+as String?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+// dart format on

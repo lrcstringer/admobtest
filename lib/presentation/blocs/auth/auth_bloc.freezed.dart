@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,3073 +9,1200 @@ part of 'auth_bloc.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
-mixin _$AuthEvent {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+mixin _$AuthEvent implements DiagnosticableTreeMixin {
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent()';
+}
+
+
 }
 
 /// @nodoc
-abstract class $AuthEventCopyWith<$Res> {
-  factory $AuthEventCopyWith(AuthEvent value, $Res Function(AuthEvent) then) =
-      _$AuthEventCopyWithImpl<$Res, AuthEvent>;
+class $AuthEventCopyWith<$Res>  {
+$AuthEventCopyWith(AuthEvent _, $Res Function(AuthEvent) __);
 }
 
-/// @nodoc
-class _$AuthEventCopyWithImpl<$Res, $Val extends AuthEvent>
-    implements $AuthEventCopyWith<$Res> {
-  _$AuthEventCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [AuthEvent].
+extension AuthEventPatterns on AuthEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _CheckAuthStatus value)?  checkAuthStatus,TResult Function( _SendOtp value)?  sendOtp,TResult Function( _VerifyOtp value)?  verifyOtp,TResult Function( _ResendOtp value)?  resendOtp,TResult Function( _SignOut value)?  signOut,TResult Function( _DeleteAccount value)?  deleteAccount,TResult Function( _AcceptTerms value)?  acceptTerms,TResult Function( _CompleteOnboarding value)?  completeOnboarding,TResult Function( _BindDevice value)?  bindDevice,TResult Function( _LockSession value)?  lockSession,TResult Function( _UnlockSession value)?  unlockSession,TResult Function( _ForceReauth value)?  forceReauth,TResult Function( _AuthenticateWithPushToken value)?  authenticateWithPushToken,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CheckAuthStatus() when checkAuthStatus != null:
+return checkAuthStatus(_that);case _SendOtp() when sendOtp != null:
+return sendOtp(_that);case _VerifyOtp() when verifyOtp != null:
+return verifyOtp(_that);case _ResendOtp() when resendOtp != null:
+return resendOtp(_that);case _SignOut() when signOut != null:
+return signOut(_that);case _DeleteAccount() when deleteAccount != null:
+return deleteAccount(_that);case _AcceptTerms() when acceptTerms != null:
+return acceptTerms(_that);case _CompleteOnboarding() when completeOnboarding != null:
+return completeOnboarding(_that);case _BindDevice() when bindDevice != null:
+return bindDevice(_that);case _LockSession() when lockSession != null:
+return lockSession(_that);case _UnlockSession() when unlockSession != null:
+return unlockSession(_that);case _ForceReauth() when forceReauth != null:
+return forceReauth(_that);case _AuthenticateWithPushToken() when authenticateWithPushToken != null:
+return authenticateWithPushToken(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _CheckAuthStatus value)  checkAuthStatus,required TResult Function( _SendOtp value)  sendOtp,required TResult Function( _VerifyOtp value)  verifyOtp,required TResult Function( _ResendOtp value)  resendOtp,required TResult Function( _SignOut value)  signOut,required TResult Function( _DeleteAccount value)  deleteAccount,required TResult Function( _AcceptTerms value)  acceptTerms,required TResult Function( _CompleteOnboarding value)  completeOnboarding,required TResult Function( _BindDevice value)  bindDevice,required TResult Function( _LockSession value)  lockSession,required TResult Function( _UnlockSession value)  unlockSession,required TResult Function( _ForceReauth value)  forceReauth,required TResult Function( _AuthenticateWithPushToken value)  authenticateWithPushToken,}){
+final _that = this;
+switch (_that) {
+case _CheckAuthStatus():
+return checkAuthStatus(_that);case _SendOtp():
+return sendOtp(_that);case _VerifyOtp():
+return verifyOtp(_that);case _ResendOtp():
+return resendOtp(_that);case _SignOut():
+return signOut(_that);case _DeleteAccount():
+return deleteAccount(_that);case _AcceptTerms():
+return acceptTerms(_that);case _CompleteOnboarding():
+return completeOnboarding(_that);case _BindDevice():
+return bindDevice(_that);case _LockSession():
+return lockSession(_that);case _UnlockSession():
+return unlockSession(_that);case _ForceReauth():
+return forceReauth(_that);case _AuthenticateWithPushToken():
+return authenticateWithPushToken(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _CheckAuthStatus value)?  checkAuthStatus,TResult? Function( _SendOtp value)?  sendOtp,TResult? Function( _VerifyOtp value)?  verifyOtp,TResult? Function( _ResendOtp value)?  resendOtp,TResult? Function( _SignOut value)?  signOut,TResult? Function( _DeleteAccount value)?  deleteAccount,TResult? Function( _AcceptTerms value)?  acceptTerms,TResult? Function( _CompleteOnboarding value)?  completeOnboarding,TResult? Function( _BindDevice value)?  bindDevice,TResult? Function( _LockSession value)?  lockSession,TResult? Function( _UnlockSession value)?  unlockSession,TResult? Function( _ForceReauth value)?  forceReauth,TResult? Function( _AuthenticateWithPushToken value)?  authenticateWithPushToken,}){
+final _that = this;
+switch (_that) {
+case _CheckAuthStatus() when checkAuthStatus != null:
+return checkAuthStatus(_that);case _SendOtp() when sendOtp != null:
+return sendOtp(_that);case _VerifyOtp() when verifyOtp != null:
+return verifyOtp(_that);case _ResendOtp() when resendOtp != null:
+return resendOtp(_that);case _SignOut() when signOut != null:
+return signOut(_that);case _DeleteAccount() when deleteAccount != null:
+return deleteAccount(_that);case _AcceptTerms() when acceptTerms != null:
+return acceptTerms(_that);case _CompleteOnboarding() when completeOnboarding != null:
+return completeOnboarding(_that);case _BindDevice() when bindDevice != null:
+return bindDevice(_that);case _LockSession() when lockSession != null:
+return lockSession(_that);case _UnlockSession() when unlockSession != null:
+return unlockSession(_that);case _ForceReauth() when forceReauth != null:
+return forceReauth(_that);case _AuthenticateWithPushToken() when authenticateWithPushToken != null:
+return authenticateWithPushToken(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  checkAuthStatus,TResult Function( String phoneNumber)?  sendOtp,TResult Function( String verificationId,  String otp)?  verifyOtp,TResult Function( String phoneNumber)?  resendOtp,TResult Function()?  signOut,TResult Function()?  deleteAccount,TResult Function()?  acceptTerms,TResult Function()?  completeOnboarding,TResult Function()?  bindDevice,TResult Function()?  lockSession,TResult Function()?  unlockSession,TResult Function()?  forceReauth,TResult Function( String customToken)?  authenticateWithPushToken,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CheckAuthStatus() when checkAuthStatus != null:
+return checkAuthStatus();case _SendOtp() when sendOtp != null:
+return sendOtp(_that.phoneNumber);case _VerifyOtp() when verifyOtp != null:
+return verifyOtp(_that.verificationId,_that.otp);case _ResendOtp() when resendOtp != null:
+return resendOtp(_that.phoneNumber);case _SignOut() when signOut != null:
+return signOut();case _DeleteAccount() when deleteAccount != null:
+return deleteAccount();case _AcceptTerms() when acceptTerms != null:
+return acceptTerms();case _CompleteOnboarding() when completeOnboarding != null:
+return completeOnboarding();case _BindDevice() when bindDevice != null:
+return bindDevice();case _LockSession() when lockSession != null:
+return lockSession();case _UnlockSession() when unlockSession != null:
+return unlockSession();case _ForceReauth() when forceReauth != null:
+return forceReauth();case _AuthenticateWithPushToken() when authenticateWithPushToken != null:
+return authenticateWithPushToken(_that.customToken);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  checkAuthStatus,required TResult Function( String phoneNumber)  sendOtp,required TResult Function( String verificationId,  String otp)  verifyOtp,required TResult Function( String phoneNumber)  resendOtp,required TResult Function()  signOut,required TResult Function()  deleteAccount,required TResult Function()  acceptTerms,required TResult Function()  completeOnboarding,required TResult Function()  bindDevice,required TResult Function()  lockSession,required TResult Function()  unlockSession,required TResult Function()  forceReauth,required TResult Function( String customToken)  authenticateWithPushToken,}) {final _that = this;
+switch (_that) {
+case _CheckAuthStatus():
+return checkAuthStatus();case _SendOtp():
+return sendOtp(_that.phoneNumber);case _VerifyOtp():
+return verifyOtp(_that.verificationId,_that.otp);case _ResendOtp():
+return resendOtp(_that.phoneNumber);case _SignOut():
+return signOut();case _DeleteAccount():
+return deleteAccount();case _AcceptTerms():
+return acceptTerms();case _CompleteOnboarding():
+return completeOnboarding();case _BindDevice():
+return bindDevice();case _LockSession():
+return lockSession();case _UnlockSession():
+return unlockSession();case _ForceReauth():
+return forceReauth();case _AuthenticateWithPushToken():
+return authenticateWithPushToken(_that.customToken);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  checkAuthStatus,TResult? Function( String phoneNumber)?  sendOtp,TResult? Function( String verificationId,  String otp)?  verifyOtp,TResult? Function( String phoneNumber)?  resendOtp,TResult? Function()?  signOut,TResult? Function()?  deleteAccount,TResult? Function()?  acceptTerms,TResult? Function()?  completeOnboarding,TResult? Function()?  bindDevice,TResult? Function()?  lockSession,TResult? Function()?  unlockSession,TResult? Function()?  forceReauth,TResult? Function( String customToken)?  authenticateWithPushToken,}) {final _that = this;
+switch (_that) {
+case _CheckAuthStatus() when checkAuthStatus != null:
+return checkAuthStatus();case _SendOtp() when sendOtp != null:
+return sendOtp(_that.phoneNumber);case _VerifyOtp() when verifyOtp != null:
+return verifyOtp(_that.verificationId,_that.otp);case _ResendOtp() when resendOtp != null:
+return resendOtp(_that.phoneNumber);case _SignOut() when signOut != null:
+return signOut();case _DeleteAccount() when deleteAccount != null:
+return deleteAccount();case _AcceptTerms() when acceptTerms != null:
+return acceptTerms();case _CompleteOnboarding() when completeOnboarding != null:
+return completeOnboarding();case _BindDevice() when bindDevice != null:
+return bindDevice();case _LockSession() when lockSession != null:
+return lockSession();case _UnlockSession() when unlockSession != null:
+return unlockSession();case _ForceReauth() when forceReauth != null:
+return forceReauth();case _AuthenticateWithPushToken() when authenticateWithPushToken != null:
+return authenticateWithPushToken(_that.customToken);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$CheckAuthStatusImplCopyWith<$Res> {
-  factory _$$CheckAuthStatusImplCopyWith(
-    _$CheckAuthStatusImpl value,
-    $Res Function(_$CheckAuthStatusImpl) then,
-  ) = __$$CheckAuthStatusImplCopyWithImpl<$Res>;
-}
-
-/// @nodoc
-class __$$CheckAuthStatusImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$CheckAuthStatusImpl>
-    implements _$$CheckAuthStatusImplCopyWith<$Res> {
-  __$$CheckAuthStatusImplCopyWithImpl(
-    _$CheckAuthStatusImpl _value,
-    $Res Function(_$CheckAuthStatusImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-}
-
-/// @nodoc
-
-class _$CheckAuthStatusImpl
-    with DiagnosticableTreeMixin
-    implements _CheckAuthStatus {
-  const _$CheckAuthStatusImpl();
-
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.checkAuthStatus()';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.checkAuthStatus'));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$CheckAuthStatusImpl);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return checkAuthStatus();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return checkAuthStatus?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (checkAuthStatus != null) {
-      return checkAuthStatus();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return checkAuthStatus(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return checkAuthStatus?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (checkAuthStatus != null) {
-      return checkAuthStatus(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _CheckAuthStatus implements AuthEvent {
-  const factory _CheckAuthStatus() = _$CheckAuthStatusImpl;
-}
-
-/// @nodoc
-abstract class _$$SendOtpImplCopyWith<$Res> {
-  factory _$$SendOtpImplCopyWith(
-    _$SendOtpImpl value,
-    $Res Function(_$SendOtpImpl) then,
-  ) = __$$SendOtpImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String phoneNumber});
-}
-
-/// @nodoc
-class __$$SendOtpImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$SendOtpImpl>
-    implements _$$SendOtpImplCopyWith<$Res> {
-  __$$SendOtpImplCopyWithImpl(
-    _$SendOtpImpl _value,
-    $Res Function(_$SendOtpImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? phoneNumber = null}) {
-    return _then(
-      _$SendOtpImpl(
-        phoneNumber: null == phoneNumber
-            ? _value.phoneNumber
-            : phoneNumber // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$SendOtpImpl with DiagnosticableTreeMixin implements _SendOtp {
-  const _$SendOtpImpl({required this.phoneNumber});
 
-  @override
-  final String phoneNumber;
+class _CheckAuthStatus with DiagnosticableTreeMixin implements AuthEvent {
+  const _CheckAuthStatus();
+  
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.sendOtp(phoneNumber: $phoneNumber)';
-  }
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthEvent.sendOtp'))
-      ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$SendOtpImpl &&
-            (identical(other.phoneNumber, phoneNumber) ||
-                other.phoneNumber == phoneNumber));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, phoneNumber);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$SendOtpImplCopyWith<_$SendOtpImpl> get copyWith =>
-      __$$SendOtpImplCopyWithImpl<_$SendOtpImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return sendOtp(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return sendOtp?.call(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (sendOtp != null) {
-      return sendOtp(phoneNumber);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return sendOtp(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return sendOtp?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (sendOtp != null) {
-      return sendOtp(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.checkAuthStatus'))
+    ;
 }
 
-abstract class _SendOtp implements AuthEvent {
-  const factory _SendOtp({required final String phoneNumber}) = _$SendOtpImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckAuthStatus);
+}
 
-  String get phoneNumber;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SendOtpImplCopyWith<_$SendOtpImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.checkAuthStatus()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _SendOtp with DiagnosticableTreeMixin implements AuthEvent {
+  const _SendOtp({required this.phoneNumber});
+  
+
+ final  String phoneNumber;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SendOtpCopyWith<_SendOtp> get copyWith => __$SendOtpCopyWithImpl<_SendOtp>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.sendOtp'))
+    ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SendOtp&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,phoneNumber);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.sendOtp(phoneNumber: $phoneNumber)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$VerifyOtpImplCopyWith<$Res> {
-  factory _$$VerifyOtpImplCopyWith(
-    _$VerifyOtpImpl value,
-    $Res Function(_$VerifyOtpImpl) then,
-  ) = __$$VerifyOtpImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String verificationId, String otp});
+abstract mixin class _$SendOtpCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$SendOtpCopyWith(_SendOtp value, $Res Function(_SendOtp) _then) = __$SendOtpCopyWithImpl;
+@useResult
+$Res call({
+ String phoneNumber
+});
+
+
+
+
+}
+/// @nodoc
+class __$SendOtpCopyWithImpl<$Res>
+    implements _$SendOtpCopyWith<$Res> {
+  __$SendOtpCopyWithImpl(this._self, this._then);
+
+  final _SendOtp _self;
+  final $Res Function(_SendOtp) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? phoneNumber = null,}) {
+  return _then(_SendOtp(
+phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$VerifyOtpImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$VerifyOtpImpl>
-    implements _$$VerifyOtpImplCopyWith<$Res> {
-  __$$VerifyOtpImplCopyWithImpl(
-    _$VerifyOtpImpl _value,
-    $Res Function(_$VerifyOtpImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? verificationId = null, Object? otp = null}) {
-    return _then(
-      _$VerifyOtpImpl(
-        verificationId: null == verificationId
-            ? _value.verificationId
-            : verificationId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        otp: null == otp
-            ? _value.otp
-            : otp // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$VerifyOtpImpl with DiagnosticableTreeMixin implements _VerifyOtp {
-  const _$VerifyOtpImpl({required this.verificationId, required this.otp});
 
-  @override
-  final String verificationId;
-  @override
-  final String otp;
+class _VerifyOtp with DiagnosticableTreeMixin implements AuthEvent {
+  const _VerifyOtp({required this.verificationId, required this.otp});
+  
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.verifyOtp(verificationId: $verificationId, otp: $otp)';
-  }
+ final  String verificationId;
+ final  String otp;
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthEvent.verifyOtp'))
-      ..add(DiagnosticsProperty('verificationId', verificationId))
-      ..add(DiagnosticsProperty('otp', otp));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$VerifyOtpCopyWith<_VerifyOtp> get copyWith => __$VerifyOtpCopyWithImpl<_VerifyOtp>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$VerifyOtpImpl &&
-            (identical(other.verificationId, verificationId) ||
-                other.verificationId == verificationId) &&
-            (identical(other.otp, otp) || other.otp == otp));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, verificationId, otp);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$VerifyOtpImplCopyWith<_$VerifyOtpImpl> get copyWith =>
-      __$$VerifyOtpImplCopyWithImpl<_$VerifyOtpImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return verifyOtp(verificationId, otp);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return verifyOtp?.call(verificationId, otp);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (verifyOtp != null) {
-      return verifyOtp(verificationId, otp);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return verifyOtp(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return verifyOtp?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (verifyOtp != null) {
-      return verifyOtp(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.verifyOtp'))
+    ..add(DiagnosticsProperty('verificationId', verificationId))..add(DiagnosticsProperty('otp', otp));
 }
 
-abstract class _VerifyOtp implements AuthEvent {
-  const factory _VerifyOtp({
-    required final String verificationId,
-    required final String otp,
-  }) = _$VerifyOtpImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VerifyOtp&&(identical(other.verificationId, verificationId) || other.verificationId == verificationId)&&(identical(other.otp, otp) || other.otp == otp));
+}
 
-  String get verificationId;
-  String get otp;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$VerifyOtpImplCopyWith<_$VerifyOtpImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,verificationId,otp);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.verifyOtp(verificationId: $verificationId, otp: $otp)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$ResendOtpImplCopyWith<$Res> {
-  factory _$$ResendOtpImplCopyWith(
-    _$ResendOtpImpl value,
-    $Res Function(_$ResendOtpImpl) then,
-  ) = __$$ResendOtpImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String phoneNumber});
+abstract mixin class _$VerifyOtpCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$VerifyOtpCopyWith(_VerifyOtp value, $Res Function(_VerifyOtp) _then) = __$VerifyOtpCopyWithImpl;
+@useResult
+$Res call({
+ String verificationId, String otp
+});
+
+
+
+
+}
+/// @nodoc
+class __$VerifyOtpCopyWithImpl<$Res>
+    implements _$VerifyOtpCopyWith<$Res> {
+  __$VerifyOtpCopyWithImpl(this._self, this._then);
+
+  final _VerifyOtp _self;
+  final $Res Function(_VerifyOtp) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? verificationId = null,Object? otp = null,}) {
+  return _then(_VerifyOtp(
+verificationId: null == verificationId ? _self.verificationId : verificationId // ignore: cast_nullable_to_non_nullable
+as String,otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$ResendOtpImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$ResendOtpImpl>
-    implements _$$ResendOtpImplCopyWith<$Res> {
-  __$$ResendOtpImplCopyWithImpl(
-    _$ResendOtpImpl _value,
-    $Res Function(_$ResendOtpImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? phoneNumber = null}) {
-    return _then(
-      _$ResendOtpImpl(
-        phoneNumber: null == phoneNumber
-            ? _value.phoneNumber
-            : phoneNumber // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$ResendOtpImpl with DiagnosticableTreeMixin implements _ResendOtp {
-  const _$ResendOtpImpl({required this.phoneNumber});
 
-  @override
-  final String phoneNumber;
+class _ResendOtp with DiagnosticableTreeMixin implements AuthEvent {
+  const _ResendOtp({required this.phoneNumber});
+  
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.resendOtp(phoneNumber: $phoneNumber)';
-  }
+ final  String phoneNumber;
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthEvent.resendOtp'))
-      ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ResendOtpCopyWith<_ResendOtp> get copyWith => __$ResendOtpCopyWithImpl<_ResendOtp>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ResendOtpImpl &&
-            (identical(other.phoneNumber, phoneNumber) ||
-                other.phoneNumber == phoneNumber));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, phoneNumber);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ResendOtpImplCopyWith<_$ResendOtpImpl> get copyWith =>
-      __$$ResendOtpImplCopyWithImpl<_$ResendOtpImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return resendOtp(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return resendOtp?.call(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (resendOtp != null) {
-      return resendOtp(phoneNumber);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return resendOtp(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return resendOtp?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (resendOtp != null) {
-      return resendOtp(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.resendOtp'))
+    ..add(DiagnosticsProperty('phoneNumber', phoneNumber));
 }
 
-abstract class _ResendOtp implements AuthEvent {
-  const factory _ResendOtp({required final String phoneNumber}) =
-      _$ResendOtpImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ResendOtp&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber));
+}
 
-  String get phoneNumber;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ResendOtpImplCopyWith<_$ResendOtpImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,phoneNumber);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.resendOtp(phoneNumber: $phoneNumber)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$SignOutImplCopyWith<$Res> {
-  factory _$$SignOutImplCopyWith(
-    _$SignOutImpl value,
-    $Res Function(_$SignOutImpl) then,
-  ) = __$$SignOutImplCopyWithImpl<$Res>;
+abstract mixin class _$ResendOtpCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$ResendOtpCopyWith(_ResendOtp value, $Res Function(_ResendOtp) _then) = __$ResendOtpCopyWithImpl;
+@useResult
+$Res call({
+ String phoneNumber
+});
+
+
+
+
+}
+/// @nodoc
+class __$ResendOtpCopyWithImpl<$Res>
+    implements _$ResendOtpCopyWith<$Res> {
+  __$ResendOtpCopyWithImpl(this._self, this._then);
+
+  final _ResendOtp _self;
+  final $Res Function(_ResendOtp) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? phoneNumber = null,}) {
+  return _then(_ResendOtp(
+phoneNumber: null == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$SignOutImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$SignOutImpl>
-    implements _$$SignOutImplCopyWith<$Res> {
-  __$$SignOutImplCopyWithImpl(
-    _$SignOutImpl _value,
-    $Res Function(_$SignOutImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class _$SignOutImpl with DiagnosticableTreeMixin implements _SignOut {
-  const _$SignOutImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.signOut()';
-  }
+class _SignOut with DiagnosticableTreeMixin implements AuthEvent {
+  const _SignOut();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.signOut'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$SignOutImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return signOut();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return signOut?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (signOut != null) {
-      return signOut();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return signOut(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return signOut?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (signOut != null) {
-      return signOut(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.signOut'))
+    ;
 }
 
-abstract class _SignOut implements AuthEvent {
-  const factory _SignOut() = _$SignOutImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignOut);
 }
 
-/// @nodoc
-abstract class _$$DeleteAccountImplCopyWith<$Res> {
-  factory _$$DeleteAccountImplCopyWith(
-    _$DeleteAccountImpl value,
-    $Res Function(_$DeleteAccountImpl) then,
-  ) = __$$DeleteAccountImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.signOut()';
 }
 
-/// @nodoc
-class __$$DeleteAccountImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$DeleteAccountImpl>
-    implements _$$DeleteAccountImplCopyWith<$Res> {
-  __$$DeleteAccountImplCopyWithImpl(
-    _$DeleteAccountImpl _value,
-    $Res Function(_$DeleteAccountImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$DeleteAccountImpl
-    with DiagnosticableTreeMixin
-    implements _DeleteAccount {
-  const _$DeleteAccountImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.deleteAccount()';
-  }
+class _DeleteAccount with DiagnosticableTreeMixin implements AuthEvent {
+  const _DeleteAccount();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.deleteAccount'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$DeleteAccountImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return deleteAccount();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return deleteAccount?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (deleteAccount != null) {
-      return deleteAccount();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return deleteAccount(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return deleteAccount?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (deleteAccount != null) {
-      return deleteAccount(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.deleteAccount'))
+    ;
 }
 
-abstract class _DeleteAccount implements AuthEvent {
-  const factory _DeleteAccount() = _$DeleteAccountImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteAccount);
 }
 
-/// @nodoc
-abstract class _$$AcceptTermsImplCopyWith<$Res> {
-  factory _$$AcceptTermsImplCopyWith(
-    _$AcceptTermsImpl value,
-    $Res Function(_$AcceptTermsImpl) then,
-  ) = __$$AcceptTermsImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.deleteAccount()';
 }
 
-/// @nodoc
-class __$$AcceptTermsImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$AcceptTermsImpl>
-    implements _$$AcceptTermsImplCopyWith<$Res> {
-  __$$AcceptTermsImplCopyWithImpl(
-    _$AcceptTermsImpl _value,
-    $Res Function(_$AcceptTermsImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$AcceptTermsImpl with DiagnosticableTreeMixin implements _AcceptTerms {
-  const _$AcceptTermsImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.acceptTerms()';
-  }
+class _AcceptTerms with DiagnosticableTreeMixin implements AuthEvent {
+  const _AcceptTerms();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.acceptTerms'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$AcceptTermsImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return acceptTerms();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return acceptTerms?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (acceptTerms != null) {
-      return acceptTerms();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return acceptTerms(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return acceptTerms?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (acceptTerms != null) {
-      return acceptTerms(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.acceptTerms'))
+    ;
 }
 
-abstract class _AcceptTerms implements AuthEvent {
-  const factory _AcceptTerms() = _$AcceptTermsImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AcceptTerms);
 }
 
-/// @nodoc
-abstract class _$$CompleteOnboardingImplCopyWith<$Res> {
-  factory _$$CompleteOnboardingImplCopyWith(
-    _$CompleteOnboardingImpl value,
-    $Res Function(_$CompleteOnboardingImpl) then,
-  ) = __$$CompleteOnboardingImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.acceptTerms()';
 }
 
-/// @nodoc
-class __$$CompleteOnboardingImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$CompleteOnboardingImpl>
-    implements _$$CompleteOnboardingImplCopyWith<$Res> {
-  __$$CompleteOnboardingImplCopyWithImpl(
-    _$CompleteOnboardingImpl _value,
-    $Res Function(_$CompleteOnboardingImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$CompleteOnboardingImpl
-    with DiagnosticableTreeMixin
-    implements _CompleteOnboarding {
-  const _$CompleteOnboardingImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.completeOnboarding()';
-  }
+class _CompleteOnboarding with DiagnosticableTreeMixin implements AuthEvent {
+  const _CompleteOnboarding();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthEvent.completeOnboarding'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$CompleteOnboardingImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return completeOnboarding();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return completeOnboarding?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (completeOnboarding != null) {
-      return completeOnboarding();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return completeOnboarding(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return completeOnboarding?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (completeOnboarding != null) {
-      return completeOnboarding(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.completeOnboarding'))
+    ;
 }
 
-abstract class _CompleteOnboarding implements AuthEvent {
-  const factory _CompleteOnboarding() = _$CompleteOnboardingImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CompleteOnboarding);
 }
 
-/// @nodoc
-abstract class _$$BindDeviceImplCopyWith<$Res> {
-  factory _$$BindDeviceImplCopyWith(
-    _$BindDeviceImpl value,
-    $Res Function(_$BindDeviceImpl) then,
-  ) = __$$BindDeviceImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.completeOnboarding()';
 }
 
-/// @nodoc
-class __$$BindDeviceImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$BindDeviceImpl>
-    implements _$$BindDeviceImplCopyWith<$Res> {
-  __$$BindDeviceImplCopyWithImpl(
-    _$BindDeviceImpl _value,
-    $Res Function(_$BindDeviceImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$BindDeviceImpl with DiagnosticableTreeMixin implements _BindDevice {
-  const _$BindDeviceImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.bindDevice()';
-  }
+class _BindDevice with DiagnosticableTreeMixin implements AuthEvent {
+  const _BindDevice();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.bindDevice'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$BindDeviceImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return bindDevice();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return bindDevice?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (bindDevice != null) {
-      return bindDevice();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return bindDevice(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return bindDevice?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (bindDevice != null) {
-      return bindDevice(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.bindDevice'))
+    ;
 }
 
-abstract class _BindDevice implements AuthEvent {
-  const factory _BindDevice() = _$BindDeviceImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BindDevice);
 }
 
-/// @nodoc
-abstract class _$$LockSessionImplCopyWith<$Res> {
-  factory _$$LockSessionImplCopyWith(
-    _$LockSessionImpl value,
-    $Res Function(_$LockSessionImpl) then,
-  ) = __$$LockSessionImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.bindDevice()';
 }
 
-/// @nodoc
-class __$$LockSessionImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$LockSessionImpl>
-    implements _$$LockSessionImplCopyWith<$Res> {
-  __$$LockSessionImplCopyWithImpl(
-    _$LockSessionImpl _value,
-    $Res Function(_$LockSessionImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$LockSessionImpl with DiagnosticableTreeMixin implements _LockSession {
-  const _$LockSessionImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.lockSession()';
-  }
+class _LockSession with DiagnosticableTreeMixin implements AuthEvent {
+  const _LockSession();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.lockSession'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LockSessionImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return lockSession();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return lockSession?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (lockSession != null) {
-      return lockSession();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return lockSession(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return lockSession?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (lockSession != null) {
-      return lockSession(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.lockSession'))
+    ;
 }
 
-abstract class _LockSession implements AuthEvent {
-  const factory _LockSession() = _$LockSessionImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LockSession);
 }
 
-/// @nodoc
-abstract class _$$UnlockSessionImplCopyWith<$Res> {
-  factory _$$UnlockSessionImplCopyWith(
-    _$UnlockSessionImpl value,
-    $Res Function(_$UnlockSessionImpl) then,
-  ) = __$$UnlockSessionImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.lockSession()';
 }
 
-/// @nodoc
-class __$$UnlockSessionImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$UnlockSessionImpl>
-    implements _$$UnlockSessionImplCopyWith<$Res> {
-  __$$UnlockSessionImplCopyWithImpl(
-    _$UnlockSessionImpl _value,
-    $Res Function(_$UnlockSessionImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$UnlockSessionImpl
-    with DiagnosticableTreeMixin
-    implements _UnlockSession {
-  const _$UnlockSessionImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.unlockSession()';
-  }
+class _UnlockSession with DiagnosticableTreeMixin implements AuthEvent {
+  const _UnlockSession();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.unlockSession'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$UnlockSessionImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return unlockSession();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return unlockSession?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (unlockSession != null) {
-      return unlockSession();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return unlockSession(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return unlockSession?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (unlockSession != null) {
-      return unlockSession(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.unlockSession'))
+    ;
 }
 
-abstract class _UnlockSession implements AuthEvent {
-  const factory _UnlockSession() = _$UnlockSessionImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UnlockSession);
 }
 
-/// @nodoc
-abstract class _$$ForceReauthImplCopyWith<$Res> {
-  factory _$$ForceReauthImplCopyWith(
-    _$ForceReauthImpl value,
-    $Res Function(_$ForceReauthImpl) then,
-  ) = __$$ForceReauthImplCopyWithImpl<$Res>;
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.unlockSession()';
 }
 
-/// @nodoc
-class __$$ForceReauthImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$ForceReauthImpl>
-    implements _$$ForceReauthImplCopyWith<$Res> {
-  __$$ForceReauthImplCopyWithImpl(
-    _$ForceReauthImpl _value,
-    $Res Function(_$ForceReauthImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
 }
+
+
+
 
 /// @nodoc
 
-class _$ForceReauthImpl with DiagnosticableTreeMixin implements _ForceReauth {
-  const _$ForceReauthImpl();
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.forceReauth()';
-  }
+class _ForceReauth with DiagnosticableTreeMixin implements AuthEvent {
+  const _ForceReauth();
+  
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties..add(DiagnosticsProperty('type', 'AuthEvent.forceReauth'));
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$ForceReauthImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return forceReauth();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return forceReauth?.call();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (forceReauth != null) {
-      return forceReauth();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return forceReauth(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return forceReauth?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (forceReauth != null) {
-      return forceReauth(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.forceReauth'))
+    ;
 }
 
-abstract class _ForceReauth implements AuthEvent {
-  const factory _ForceReauth() = _$ForceReauthImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ForceReauth);
 }
 
-/// @nodoc
-abstract class _$$AuthenticateWithPushTokenImplCopyWith<$Res> {
-  factory _$$AuthenticateWithPushTokenImplCopyWith(
-    _$AuthenticateWithPushTokenImpl value,
-    $Res Function(_$AuthenticateWithPushTokenImpl) then,
-  ) = __$$AuthenticateWithPushTokenImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String customToken});
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.forceReauth()';
 }
 
-/// @nodoc
-class __$$AuthenticateWithPushTokenImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$AuthenticateWithPushTokenImpl>
-    implements _$$AuthenticateWithPushTokenImplCopyWith<$Res> {
-  __$$AuthenticateWithPushTokenImplCopyWithImpl(
-    _$AuthenticateWithPushTokenImpl _value,
-    $Res Function(_$AuthenticateWithPushTokenImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? customToken = null}) {
-    return _then(
-      _$AuthenticateWithPushTokenImpl(
-        customToken: null == customToken
-            ? _value.customToken
-            : customToken // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
+
+
+
 
 /// @nodoc
 
-class _$AuthenticateWithPushTokenImpl
-    with DiagnosticableTreeMixin
-    implements _AuthenticateWithPushToken {
-  const _$AuthenticateWithPushTokenImpl({required this.customToken});
 
-  @override
-  final String customToken;
+class _AuthenticateWithPushToken with DiagnosticableTreeMixin implements AuthEvent {
+  const _AuthenticateWithPushToken({required this.customToken});
+  
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthEvent.authenticateWithPushToken(customToken: $customToken)';
-  }
+ final  String customToken;
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthEvent.authenticateWithPushToken'))
-      ..add(DiagnosticsProperty('customToken', customToken));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AuthenticateWithPushTokenCopyWith<_AuthenticateWithPushToken> get copyWith => __$AuthenticateWithPushTokenCopyWithImpl<_AuthenticateWithPushToken>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AuthenticateWithPushTokenImpl &&
-            (identical(other.customToken, customToken) ||
-                other.customToken == customToken));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, customToken);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AuthenticateWithPushTokenImplCopyWith<_$AuthenticateWithPushTokenImpl>
-  get copyWith =>
-      __$$AuthenticateWithPushTokenImplCopyWithImpl<
-        _$AuthenticateWithPushTokenImpl
-      >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkAuthStatus,
-    required TResult Function(String phoneNumber) sendOtp,
-    required TResult Function(String verificationId, String otp) verifyOtp,
-    required TResult Function(String phoneNumber) resendOtp,
-    required TResult Function() signOut,
-    required TResult Function() deleteAccount,
-    required TResult Function() acceptTerms,
-    required TResult Function() completeOnboarding,
-    required TResult Function() bindDevice,
-    required TResult Function() lockSession,
-    required TResult Function() unlockSession,
-    required TResult Function() forceReauth,
-    required TResult Function(String customToken) authenticateWithPushToken,
-  }) {
-    return authenticateWithPushToken(customToken);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkAuthStatus,
-    TResult? Function(String phoneNumber)? sendOtp,
-    TResult? Function(String verificationId, String otp)? verifyOtp,
-    TResult? Function(String phoneNumber)? resendOtp,
-    TResult? Function()? signOut,
-    TResult? Function()? deleteAccount,
-    TResult? Function()? acceptTerms,
-    TResult? Function()? completeOnboarding,
-    TResult? Function()? bindDevice,
-    TResult? Function()? lockSession,
-    TResult? Function()? unlockSession,
-    TResult? Function()? forceReauth,
-    TResult? Function(String customToken)? authenticateWithPushToken,
-  }) {
-    return authenticateWithPushToken?.call(customToken);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkAuthStatus,
-    TResult Function(String phoneNumber)? sendOtp,
-    TResult Function(String verificationId, String otp)? verifyOtp,
-    TResult Function(String phoneNumber)? resendOtp,
-    TResult Function()? signOut,
-    TResult Function()? deleteAccount,
-    TResult Function()? acceptTerms,
-    TResult Function()? completeOnboarding,
-    TResult Function()? bindDevice,
-    TResult Function()? lockSession,
-    TResult Function()? unlockSession,
-    TResult Function()? forceReauth,
-    TResult Function(String customToken)? authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (authenticateWithPushToken != null) {
-      return authenticateWithPushToken(customToken);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckAuthStatus value) checkAuthStatus,
-    required TResult Function(_SendOtp value) sendOtp,
-    required TResult Function(_VerifyOtp value) verifyOtp,
-    required TResult Function(_ResendOtp value) resendOtp,
-    required TResult Function(_SignOut value) signOut,
-    required TResult Function(_DeleteAccount value) deleteAccount,
-    required TResult Function(_AcceptTerms value) acceptTerms,
-    required TResult Function(_CompleteOnboarding value) completeOnboarding,
-    required TResult Function(_BindDevice value) bindDevice,
-    required TResult Function(_LockSession value) lockSession,
-    required TResult Function(_UnlockSession value) unlockSession,
-    required TResult Function(_ForceReauth value) forceReauth,
-    required TResult Function(_AuthenticateWithPushToken value)
-    authenticateWithPushToken,
-  }) {
-    return authenticateWithPushToken(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult? Function(_SendOtp value)? sendOtp,
-    TResult? Function(_VerifyOtp value)? verifyOtp,
-    TResult? Function(_ResendOtp value)? resendOtp,
-    TResult? Function(_SignOut value)? signOut,
-    TResult? Function(_DeleteAccount value)? deleteAccount,
-    TResult? Function(_AcceptTerms value)? acceptTerms,
-    TResult? Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult? Function(_BindDevice value)? bindDevice,
-    TResult? Function(_LockSession value)? lockSession,
-    TResult? Function(_UnlockSession value)? unlockSession,
-    TResult? Function(_ForceReauth value)? forceReauth,
-    TResult? Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-  }) {
-    return authenticateWithPushToken?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckAuthStatus value)? checkAuthStatus,
-    TResult Function(_SendOtp value)? sendOtp,
-    TResult Function(_VerifyOtp value)? verifyOtp,
-    TResult Function(_ResendOtp value)? resendOtp,
-    TResult Function(_SignOut value)? signOut,
-    TResult Function(_DeleteAccount value)? deleteAccount,
-    TResult Function(_AcceptTerms value)? acceptTerms,
-    TResult Function(_CompleteOnboarding value)? completeOnboarding,
-    TResult Function(_BindDevice value)? bindDevice,
-    TResult Function(_LockSession value)? lockSession,
-    TResult Function(_UnlockSession value)? unlockSession,
-    TResult Function(_ForceReauth value)? forceReauth,
-    TResult Function(_AuthenticateWithPushToken value)?
-    authenticateWithPushToken,
-    required TResult orElse(),
-  }) {
-    if (authenticateWithPushToken != null) {
-      return authenticateWithPushToken(this);
-    }
-    return orElse();
-  }
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthEvent.authenticateWithPushToken'))
+    ..add(DiagnosticsProperty('customToken', customToken));
 }
 
-abstract class _AuthenticateWithPushToken implements AuthEvent {
-  const factory _AuthenticateWithPushToken({
-    required final String customToken,
-  }) = _$AuthenticateWithPushTokenImpl;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthenticateWithPushToken&&(identical(other.customToken, customToken) || other.customToken == customToken));
+}
 
-  String get customToken;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AuthenticateWithPushTokenImplCopyWith<_$AuthenticateWithPushTokenImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,customToken);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthEvent.authenticateWithPushToken(customToken: $customToken)';
+}
+
+
 }
 
 /// @nodoc
-mixin _$AuthState {
-  AuthStatus get status => throw _privateConstructorUsedError;
-  User? get user => throw _privateConstructorUsedError;
-  String? get verificationId => throw _privateConstructorUsedError;
-  String? get phoneNumber => throw _privateConstructorUsedError;
-  String? get errorMessage => throw _privateConstructorUsedError;
-  bool get isLoading => throw _privateConstructorUsedError;
-  int get resendCountdown => throw _privateConstructorUsedError;
-  bool get isDeviceBound => throw _privateConstructorUsedError;
-  String? get deviceId => throw _privateConstructorUsedError;
+abstract mixin class _$AuthenticateWithPushTokenCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$AuthenticateWithPushTokenCopyWith(_AuthenticateWithPushToken value, $Res Function(_AuthenticateWithPushToken) _then) = __$AuthenticateWithPushTokenCopyWithImpl;
+@useResult
+$Res call({
+ String customToken
+});
 
-  /// True when E2EE key restore from backup failed and fresh keys were
-  /// generated. Some older messages may not be decryptable.
-  bool get keyRestoreFailed => throw _privateConstructorUsedError;
 
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $AuthStateCopyWith<AuthState> get copyWith =>
-      throw _privateConstructorUsedError;
+
+
+}
+/// @nodoc
+class __$AuthenticateWithPushTokenCopyWithImpl<$Res>
+    implements _$AuthenticateWithPushTokenCopyWith<$Res> {
+  __$AuthenticateWithPushTokenCopyWithImpl(this._self, this._then);
+
+  final _AuthenticateWithPushToken _self;
+  final $Res Function(_AuthenticateWithPushToken) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? customToken = null,}) {
+  return _then(_AuthenticateWithPushToken(
+customToken: null == customToken ? _self.customToken : customToken // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
-abstract class $AuthStateCopyWith<$Res> {
-  factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) then) =
-      _$AuthStateCopyWithImpl<$Res, AuthState>;
-  @useResult
-  $Res call({
-    AuthStatus status,
-    User? user,
-    String? verificationId,
-    String? phoneNumber,
-    String? errorMessage,
-    bool isLoading,
-    int resendCountdown,
-    bool isDeviceBound,
-    String? deviceId,
-    bool keyRestoreFailed,
-  });
+mixin _$AuthState implements DiagnosticableTreeMixin {
 
-  $UserCopyWith<$Res>? get user;
+ AuthStatus get status; User? get user; String? get verificationId; String? get phoneNumber; String? get errorMessage; bool get isLoading; int get resendCountdown; bool get isDeviceBound; String? get deviceId;/// True when E2EE key restore from backup failed and fresh keys were
+/// generated. Some older messages may not be decryptable.
+ bool get keyRestoreFailed;
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthStateCopyWith<AuthState> get copyWith => _$AuthStateCopyWithImpl<AuthState>(this as AuthState, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthState'))
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('user', user))..add(DiagnosticsProperty('verificationId', verificationId))..add(DiagnosticsProperty('phoneNumber', phoneNumber))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('resendCountdown', resendCountdown))..add(DiagnosticsProperty('isDeviceBound', isDeviceBound))..add(DiagnosticsProperty('deviceId', deviceId))..add(DiagnosticsProperty('keyRestoreFailed', keyRestoreFailed));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.user, user) || other.user == user)&&(identical(other.verificationId, verificationId) || other.verificationId == verificationId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.resendCountdown, resendCountdown) || other.resendCountdown == resendCountdown)&&(identical(other.isDeviceBound, isDeviceBound) || other.isDeviceBound == isDeviceBound)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.keyRestoreFailed, keyRestoreFailed) || other.keyRestoreFailed == keyRestoreFailed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,status,user,verificationId,phoneNumber,errorMessage,isLoading,resendCountdown,isDeviceBound,deviceId,keyRestoreFailed);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthState(status: $status, user: $user, verificationId: $verificationId, phoneNumber: $phoneNumber, errorMessage: $errorMessage, isLoading: $isLoading, resendCountdown: $resendCountdown, isDeviceBound: $isDeviceBound, deviceId: $deviceId, keyRestoreFailed: $keyRestoreFailed)';
+}
+
+
 }
 
 /// @nodoc
-class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
+abstract mixin class $AuthStateCopyWith<$Res>  {
+  factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) _then) = _$AuthStateCopyWithImpl;
+@useResult
+$Res call({
+ AuthStatus status, User? user, String? verificationId, String? phoneNumber, String? errorMessage, bool isLoading, int resendCountdown, bool isDeviceBound, String? deviceId, bool keyRestoreFailed
+});
+
+
+$UserCopyWith<$Res>? get user;
+
+}
+/// @nodoc
+class _$AuthStateCopyWithImpl<$Res>
     implements $AuthStateCopyWith<$Res> {
-  _$AuthStateCopyWithImpl(this._value, this._then);
+  _$AuthStateCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final AuthState _self;
+  final $Res Function(AuthState) _then;
 
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? user = freezed,
-    Object? verificationId = freezed,
-    Object? phoneNumber = freezed,
-    Object? errorMessage = freezed,
-    Object? isLoading = null,
-    Object? resendCountdown = null,
-    Object? isDeviceBound = null,
-    Object? deviceId = freezed,
-    Object? keyRestoreFailed = null,
-  }) {
-    return _then(
-      _value.copyWith(
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as AuthStatus,
-            user: freezed == user
-                ? _value.user
-                : user // ignore: cast_nullable_to_non_nullable
-                      as User?,
-            verificationId: freezed == verificationId
-                ? _value.verificationId
-                : verificationId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            phoneNumber: freezed == phoneNumber
-                ? _value.phoneNumber
-                : phoneNumber // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            errorMessage: freezed == errorMessage
-                ? _value.errorMessage
-                : errorMessage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isLoading: null == isLoading
-                ? _value.isLoading
-                : isLoading // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            resendCountdown: null == resendCountdown
-                ? _value.resendCountdown
-                : resendCountdown // ignore: cast_nullable_to_non_nullable
-                      as int,
-            isDeviceBound: null == isDeviceBound
-                ? _value.isDeviceBound
-                : isDeviceBound // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            deviceId: freezed == deviceId
-                ? _value.deviceId
-                : deviceId // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            keyRestoreFailed: null == keyRestoreFailed
-                ? _value.keyRestoreFailed
-                : keyRestoreFailed // ignore: cast_nullable_to_non_nullable
-                      as bool,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $UserCopyWith<$Res>? get user {
-    if (_value.user == null) {
-      return null;
-    }
-
-    return $UserCopyWith<$Res>(_value.user!, (value) {
-      return _then(_value.copyWith(user: value) as $Val);
-    });
-  }
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? user = freezed,Object? verificationId = freezed,Object? phoneNumber = freezed,Object? errorMessage = freezed,Object? isLoading = null,Object? resendCountdown = null,Object? isDeviceBound = null,Object? deviceId = freezed,Object? keyRestoreFailed = null,}) {
+  return _then(_self.copyWith(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as AuthStatus,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as User?,verificationId: freezed == verificationId ? _self.verificationId : verificationId // ignore: cast_nullable_to_non_nullable
+as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,resendCountdown: null == resendCountdown ? _self.resendCountdown : resendCountdown // ignore: cast_nullable_to_non_nullable
+as int,isDeviceBound: null == isDeviceBound ? _self.isDeviceBound : isDeviceBound // ignore: cast_nullable_to_non_nullable
+as bool,deviceId: freezed == deviceId ? _self.deviceId : deviceId // ignore: cast_nullable_to_non_nullable
+as String?,keyRestoreFailed: null == keyRestoreFailed ? _self.keyRestoreFailed : keyRestoreFailed // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
 }
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UserCopyWith<$Res>? get user {
+    if (_self.user == null) {
+    return null;
+  }
 
-/// @nodoc
-abstract class _$$AuthStateImplCopyWith<$Res>
-    implements $AuthStateCopyWith<$Res> {
-  factory _$$AuthStateImplCopyWith(
-    _$AuthStateImpl value,
-    $Res Function(_$AuthStateImpl) then,
-  ) = __$$AuthStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    AuthStatus status,
-    User? user,
-    String? verificationId,
-    String? phoneNumber,
-    String? errorMessage,
-    bool isLoading,
-    int resendCountdown,
-    bool isDeviceBound,
-    String? deviceId,
-    bool keyRestoreFailed,
+  return $UserCopyWith<$Res>(_self.user!, (value) {
+    return _then(_self.copyWith(user: value));
   });
+}
+}
 
-  @override
-  $UserCopyWith<$Res>? get user;
+
+/// Adds pattern-matching-related methods to [AuthState].
+extension AuthStatePatterns on AuthState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AuthState value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AuthState() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AuthState value)  $default,){
+final _that = this;
+switch (_that) {
+case _AuthState():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AuthState value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AuthState() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AuthStatus status,  User? user,  String? verificationId,  String? phoneNumber,  String? errorMessage,  bool isLoading,  int resendCountdown,  bool isDeviceBound,  String? deviceId,  bool keyRestoreFailed)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AuthState() when $default != null:
+return $default(_that.status,_that.user,_that.verificationId,_that.phoneNumber,_that.errorMessage,_that.isLoading,_that.resendCountdown,_that.isDeviceBound,_that.deviceId,_that.keyRestoreFailed);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AuthStatus status,  User? user,  String? verificationId,  String? phoneNumber,  String? errorMessage,  bool isLoading,  int resendCountdown,  bool isDeviceBound,  String? deviceId,  bool keyRestoreFailed)  $default,) {final _that = this;
+switch (_that) {
+case _AuthState():
+return $default(_that.status,_that.user,_that.verificationId,_that.phoneNumber,_that.errorMessage,_that.isLoading,_that.resendCountdown,_that.isDeviceBound,_that.deviceId,_that.keyRestoreFailed);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AuthStatus status,  User? user,  String? verificationId,  String? phoneNumber,  String? errorMessage,  bool isLoading,  int resendCountdown,  bool isDeviceBound,  String? deviceId,  bool keyRestoreFailed)?  $default,) {final _that = this;
+switch (_that) {
+case _AuthState() when $default != null:
+return $default(_that.status,_that.user,_that.verificationId,_that.phoneNumber,_that.errorMessage,_that.isLoading,_that.resendCountdown,_that.isDeviceBound,_that.deviceId,_that.keyRestoreFailed);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-class __$$AuthStateImplCopyWithImpl<$Res>
-    extends _$AuthStateCopyWithImpl<$Res, _$AuthStateImpl>
-    implements _$$AuthStateImplCopyWith<$Res> {
-  __$$AuthStateImplCopyWithImpl(
-    _$AuthStateImpl _value,
-    $Res Function(_$AuthStateImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? status = null,
-    Object? user = freezed,
-    Object? verificationId = freezed,
-    Object? phoneNumber = freezed,
-    Object? errorMessage = freezed,
-    Object? isLoading = null,
-    Object? resendCountdown = null,
-    Object? isDeviceBound = null,
-    Object? deviceId = freezed,
-    Object? keyRestoreFailed = null,
-  }) {
-    return _then(
-      _$AuthStateImpl(
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as AuthStatus,
-        user: freezed == user
-            ? _value.user
-            : user // ignore: cast_nullable_to_non_nullable
-                  as User?,
-        verificationId: freezed == verificationId
-            ? _value.verificationId
-            : verificationId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        phoneNumber: freezed == phoneNumber
-            ? _value.phoneNumber
-            : phoneNumber // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        errorMessage: freezed == errorMessage
-            ? _value.errorMessage
-            : errorMessage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isLoading: null == isLoading
-            ? _value.isLoading
-            : isLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        resendCountdown: null == resendCountdown
-            ? _value.resendCountdown
-            : resendCountdown // ignore: cast_nullable_to_non_nullable
-                  as int,
-        isDeviceBound: null == isDeviceBound
-            ? _value.isDeviceBound
-            : isDeviceBound // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        deviceId: freezed == deviceId
-            ? _value.deviceId
-            : deviceId // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        keyRestoreFailed: null == keyRestoreFailed
-            ? _value.keyRestoreFailed
-            : keyRestoreFailed // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
+
+class _AuthState extends AuthState with DiagnosticableTreeMixin {
+  const _AuthState({this.status = AuthStatus.initial, this.user, this.verificationId, this.phoneNumber, this.errorMessage, this.isLoading = false, this.resendCountdown = 0, this.isDeviceBound = false, this.deviceId, this.keyRestoreFailed = false}): super._();
+  
+
+@override@JsonKey() final  AuthStatus status;
+@override final  User? user;
+@override final  String? verificationId;
+@override final  String? phoneNumber;
+@override final  String? errorMessage;
+@override@JsonKey() final  bool isLoading;
+@override@JsonKey() final  int resendCountdown;
+@override@JsonKey() final  bool isDeviceBound;
+@override final  String? deviceId;
+/// True when E2EE key restore from backup failed and fresh keys were
+/// generated. Some older messages may not be decryptable.
+@override@JsonKey() final  bool keyRestoreFailed;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AuthStateCopyWith<_AuthState> get copyWith => __$AuthStateCopyWithImpl<_AuthState>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'AuthState'))
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('user', user))..add(DiagnosticsProperty('verificationId', verificationId))..add(DiagnosticsProperty('phoneNumber', phoneNumber))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('isLoading', isLoading))..add(DiagnosticsProperty('resendCountdown', resendCountdown))..add(DiagnosticsProperty('isDeviceBound', isDeviceBound))..add(DiagnosticsProperty('deviceId', deviceId))..add(DiagnosticsProperty('keyRestoreFailed', keyRestoreFailed));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.status, status) || other.status == status)&&(identical(other.user, user) || other.user == user)&&(identical(other.verificationId, verificationId) || other.verificationId == verificationId)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.resendCountdown, resendCountdown) || other.resendCountdown == resendCountdown)&&(identical(other.isDeviceBound, isDeviceBound) || other.isDeviceBound == isDeviceBound)&&(identical(other.deviceId, deviceId) || other.deviceId == deviceId)&&(identical(other.keyRestoreFailed, keyRestoreFailed) || other.keyRestoreFailed == keyRestoreFailed));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,status,user,verificationId,phoneNumber,errorMessage,isLoading,resendCountdown,isDeviceBound,deviceId,keyRestoreFailed);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'AuthState(status: $status, user: $user, verificationId: $verificationId, phoneNumber: $phoneNumber, errorMessage: $errorMessage, isLoading: $isLoading, resendCountdown: $resendCountdown, isDeviceBound: $isDeviceBound, deviceId: $deviceId, keyRestoreFailed: $keyRestoreFailed)';
+}
+
+
 }
 
 /// @nodoc
+abstract mixin class _$AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory _$AuthStateCopyWith(_AuthState value, $Res Function(_AuthState) _then) = __$AuthStateCopyWithImpl;
+@override @useResult
+$Res call({
+ AuthStatus status, User? user, String? verificationId, String? phoneNumber, String? errorMessage, bool isLoading, int resendCountdown, bool isDeviceBound, String? deviceId, bool keyRestoreFailed
+});
 
-class _$AuthStateImpl extends _AuthState with DiagnosticableTreeMixin {
-  const _$AuthStateImpl({
-    this.status = AuthStatus.initial,
-    this.user,
-    this.verificationId,
-    this.phoneNumber,
-    this.errorMessage,
-    this.isLoading = false,
-    this.resendCountdown = 0,
-    this.isDeviceBound = false,
-    this.deviceId,
-    this.keyRestoreFailed = false,
-  }) : super._();
 
-  @override
-  @JsonKey()
-  final AuthStatus status;
-  @override
-  final User? user;
-  @override
-  final String? verificationId;
-  @override
-  final String? phoneNumber;
-  @override
-  final String? errorMessage;
-  @override
-  @JsonKey()
-  final bool isLoading;
-  @override
-  @JsonKey()
-  final int resendCountdown;
-  @override
-  @JsonKey()
-  final bool isDeviceBound;
-  @override
-  final String? deviceId;
+@override $UserCopyWith<$Res>? get user;
 
-  /// True when E2EE key restore from backup failed and fresh keys were
-  /// generated. Some older messages may not be decryptable.
-  @override
-  @JsonKey()
-  final bool keyRestoreFailed;
+}
+/// @nodoc
+class __$AuthStateCopyWithImpl<$Res>
+    implements _$AuthStateCopyWith<$Res> {
+  __$AuthStateCopyWithImpl(this._self, this._then);
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AuthState(status: $status, user: $user, verificationId: $verificationId, phoneNumber: $phoneNumber, errorMessage: $errorMessage, isLoading: $isLoading, resendCountdown: $resendCountdown, isDeviceBound: $isDeviceBound, deviceId: $deviceId, keyRestoreFailed: $keyRestoreFailed)';
-  }
+  final _AuthState _self;
+  final $Res Function(_AuthState) _then;
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'AuthState'))
-      ..add(DiagnosticsProperty('status', status))
-      ..add(DiagnosticsProperty('user', user))
-      ..add(DiagnosticsProperty('verificationId', verificationId))
-      ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
-      ..add(DiagnosticsProperty('errorMessage', errorMessage))
-      ..add(DiagnosticsProperty('isLoading', isLoading))
-      ..add(DiagnosticsProperty('resendCountdown', resendCountdown))
-      ..add(DiagnosticsProperty('isDeviceBound', isDeviceBound))
-      ..add(DiagnosticsProperty('deviceId', deviceId))
-      ..add(DiagnosticsProperty('keyRestoreFailed', keyRestoreFailed));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$AuthStateImpl &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.user, user) || other.user == user) &&
-            (identical(other.verificationId, verificationId) ||
-                other.verificationId == verificationId) &&
-            (identical(other.phoneNumber, phoneNumber) ||
-                other.phoneNumber == phoneNumber) &&
-            (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage) &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
-            (identical(other.resendCountdown, resendCountdown) ||
-                other.resendCountdown == resendCountdown) &&
-            (identical(other.isDeviceBound, isDeviceBound) ||
-                other.isDeviceBound == isDeviceBound) &&
-            (identical(other.deviceId, deviceId) ||
-                other.deviceId == deviceId) &&
-            (identical(other.keyRestoreFailed, keyRestoreFailed) ||
-                other.keyRestoreFailed == keyRestoreFailed));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    status,
-    user,
-    verificationId,
-    phoneNumber,
-    errorMessage,
-    isLoading,
-    resendCountdown,
-    isDeviceBound,
-    deviceId,
-    keyRestoreFailed,
-  );
-
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$AuthStateImplCopyWith<_$AuthStateImpl> get copyWith =>
-      __$$AuthStateImplCopyWithImpl<_$AuthStateImpl>(this, _$identity);
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? user = freezed,Object? verificationId = freezed,Object? phoneNumber = freezed,Object? errorMessage = freezed,Object? isLoading = null,Object? resendCountdown = null,Object? isDeviceBound = null,Object? deviceId = freezed,Object? keyRestoreFailed = null,}) {
+  return _then(_AuthState(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as AuthStatus,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as User?,verificationId: freezed == verificationId ? _self.verificationId : verificationId // ignore: cast_nullable_to_non_nullable
+as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as bool,resendCountdown: null == resendCountdown ? _self.resendCountdown : resendCountdown // ignore: cast_nullable_to_non_nullable
+as int,isDeviceBound: null == isDeviceBound ? _self.isDeviceBound : isDeviceBound // ignore: cast_nullable_to_non_nullable
+as bool,deviceId: freezed == deviceId ? _self.deviceId : deviceId // ignore: cast_nullable_to_non_nullable
+as String?,keyRestoreFailed: null == keyRestoreFailed ? _self.keyRestoreFailed : keyRestoreFailed // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
 }
 
-abstract class _AuthState extends AuthState {
-  const factory _AuthState({
-    final AuthStatus status,
-    final User? user,
-    final String? verificationId,
-    final String? phoneNumber,
-    final String? errorMessage,
-    final bool isLoading,
-    final int resendCountdown,
-    final bool isDeviceBound,
-    final String? deviceId,
-    final bool keyRestoreFailed,
-  }) = _$AuthStateImpl;
-  const _AuthState._() : super._();
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UserCopyWith<$Res>? get user {
+    if (_self.user == null) {
+    return null;
+  }
 
-  @override
-  AuthStatus get status;
-  @override
-  User? get user;
-  @override
-  String? get verificationId;
-  @override
-  String? get phoneNumber;
-  @override
-  String? get errorMessage;
-  @override
-  bool get isLoading;
-  @override
-  int get resendCountdown;
-  @override
-  bool get isDeviceBound;
-  @override
-  String? get deviceId;
-
-  /// True when E2EE key restore from backup failed and fresh keys were
-  /// generated. Some older messages may not be decryptable.
-  @override
-  bool get keyRestoreFailed;
-
-  /// Create a copy of AuthState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$AuthStateImplCopyWith<_$AuthStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  return $UserCopyWith<$Res>(_self.user!, (value) {
+    return _then(_self.copyWith(user: value));
+  });
 }
+}
+
+// dart format on

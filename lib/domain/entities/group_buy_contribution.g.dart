@@ -6,9 +6,9 @@ part of 'group_buy_contribution.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GroupBuyContributionImpl _$$GroupBuyContributionImplFromJson(
+_GroupBuyContribution _$GroupBuyContributionFromJson(
   Map<String, dynamic> json,
-) => _$GroupBuyContributionImpl(
+) => _GroupBuyContribution(
   id: json['id'] as String,
   userId: json['userId'] as String,
   userName: json['userName'] as String,
@@ -18,8 +18,8 @@ _$GroupBuyContributionImpl _$$GroupBuyContributionImplFromJson(
   contributedAt: DateTime.parse(json['contributedAt'] as String),
 );
 
-Map<String, dynamic> _$$GroupBuyContributionImplToJson(
-  _$GroupBuyContributionImpl instance,
+Map<String, dynamic> _$GroupBuyContributionToJson(
+  _GroupBuyContribution instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'userId': instance.userId,

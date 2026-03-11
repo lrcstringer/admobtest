@@ -95,7 +95,7 @@ class NotificationService {
     const initSettings = InitializationSettings(android: androidSettings);
 
     await _localNotifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onLocalNotificationTap,
     );
 
@@ -180,10 +180,10 @@ class NotificationService {
     try {
       if (count > 0) {
         await _badgePlugin.show(
-          _badgeNotificationId,
-          null, // no title — silent
-          null, // no body — silent
-          NotificationDetails(
+          id: _badgeNotificationId,
+          title: null, // no title — silent
+          body: null, // no body — silent
+          notificationDetails: NotificationDetails(
             android: AndroidNotificationDetails(
               _defaultChannelId,
               _defaultChannelName,
@@ -202,7 +202,7 @@ class NotificationService {
           ),
         );
       } else {
-        await _badgePlugin.cancel(_badgeNotificationId);
+        await _badgePlugin.cancel(id: _badgeNotificationId);
       }
     } catch (e) {
       debugPrint('NotificationService: Badge update failed: $e');
@@ -307,10 +307,10 @@ class NotificationService {
         (relevantId ?? notification.hashCode.toString()).hashCode;
 
     _localNotifications.show(
-      notificationId,
-      notification.title,
-      notification.body,
-      NotificationDetails(
+      id: notificationId,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
           channelName,

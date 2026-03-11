@@ -6,9 +6,7 @@ part of 'earn_thread.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EarnThreadImpl _$$EarnThreadImplFromJson(
-  Map<String, dynamic> json,
-) => _$EarnThreadImpl(
+_EarnThread _$EarnThreadFromJson(Map<String, dynamic> json) => _EarnThread(
   id: json['id'] as String,
   clientId: json['clientId'] as String,
   clientName: json['clientName'] as String,
@@ -41,7 +39,7 @@ _$EarnThreadImpl _$$EarnThreadImplFromJson(
       : TargetingCriteria.fromJson(json['targeting'] as Map<String, dynamic>),
 );
 
-Map<String, dynamic> _$$EarnThreadImplToJson(_$EarnThreadImpl instance) =>
+Map<String, dynamic> _$EarnThreadToJson(_EarnThread instance) =>
     <String, dynamic>{
       'id': instance.id,
       'clientId': instance.clientId,

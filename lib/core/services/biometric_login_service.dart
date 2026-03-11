@@ -180,10 +180,8 @@ class BiometricLoginService {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: 'Sign in to iMali',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false, // Allow PIN/pattern fallback
-        ),
+        biometricOnly: false, // Allow PIN/pattern fallback
+        persistAcrossBackgrounding: true,
       );
 
       if (!authenticated) {

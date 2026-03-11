@@ -6,9 +6,9 @@ part of 'community_transaction_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CommunityTransactionModelImpl _$$CommunityTransactionModelImplFromJson(
+_CommunityTransactionModel _$CommunityTransactionModelFromJson(
   Map<String, dynamic> json,
-) => _$CommunityTransactionModelImpl(
+) => _CommunityTransactionModel(
   id: json['id'] as String,
   communityId: json['communityId'] as String,
   journalId: json['journalId'] as String?,
@@ -25,8 +25,8 @@ _$CommunityTransactionModelImpl _$$CommunityTransactionModelImplFromJson(
   completedAt: const NullableTimestampConverter().fromJson(json['completedAt']),
 );
 
-Map<String, dynamic> _$$CommunityTransactionModelImplToJson(
-  _$CommunityTransactionModelImpl instance,
+Map<String, dynamic> _$CommunityTransactionModelToJson(
+  _CommunityTransactionModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'communityId': instance.communityId,
@@ -46,9 +46,9 @@ Map<String, dynamic> _$$CommunityTransactionModelImplToJson(
   ),
 };
 
-_$CommunityApprovalModelImpl _$$CommunityApprovalModelImplFromJson(
+_CommunityApprovalModel _$CommunityApprovalModelFromJson(
   Map<String, dynamic> json,
-) => _$CommunityApprovalModelImpl(
+) => _CommunityApprovalModel(
   id: json['id'] as String,
   communityId: json['communityId'] as String,
   transactionId: json['transactionId'] as String,
@@ -66,8 +66,8 @@ _$CommunityApprovalModelImpl _$$CommunityApprovalModelImplFromJson(
   expiresAt: const TimestampConverter().fromJson(json['expiresAt']),
 );
 
-Map<String, dynamic> _$$CommunityApprovalModelImplToJson(
-  _$CommunityApprovalModelImpl instance,
+Map<String, dynamic> _$CommunityApprovalModelToJson(
+  _CommunityApprovalModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'communityId': instance.communityId,

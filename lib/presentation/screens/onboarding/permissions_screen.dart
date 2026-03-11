@@ -28,7 +28,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
     try {
       // Request contacts permission if toggle is on
       if (_allowAccess) {
-        await FlutterContacts.requestPermission(readonly: true);
+        await FlutterContacts.permissions.request(PermissionType.read);
       }
 
       // Request notification permission if toggle is on.

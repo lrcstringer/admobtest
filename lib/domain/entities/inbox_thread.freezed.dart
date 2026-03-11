@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,540 +9,332 @@ part of 'inbox_thread.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
-InboxThread _$InboxThreadFromJson(Map<String, dynamic> json) {
-  return _InboxThread.fromJson(json);
-}
 
 /// @nodoc
 mixin _$InboxThread {
-  String get id => throw _privateConstructorUsedError;
-  String get title => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  String? get threadImage => throw _privateConstructorUsedError;
-  bool get isPinned => throw _privateConstructorUsedError;
-  bool get isFeatured => throw _privateConstructorUsedError;
-  DateTime? get activeTo => throw _privateConstructorUsedError;
-  int get availableOpportunities => throw _privateConstructorUsedError;
-  int get completedByUser => throw _privateConstructorUsedError;
-  int get totalTokenReward => throw _privateConstructorUsedError;
-  List<String> get rewardTypes => throw _privateConstructorUsedError;
-  List<String> get earningTypes => throw _privateConstructorUsedError;
-  int get estimatedDurationSeconds => throw _privateConstructorUsedError;
-  List<String> get opportunityIds => throw _privateConstructorUsedError;
-  bool get hasRewardCampaign => throw _privateConstructorUsedError;
-  DateTime? get soonestExpiry => throw _privateConstructorUsedError;
+
+ String get id; String get title; String? get description; String? get threadImage; bool get isPinned; bool get isFeatured; DateTime? get activeTo; int get availableOpportunities; int get completedByUser; int get totalTokenReward; List<String> get rewardTypes; List<String> get earningTypes; int get estimatedDurationSeconds; List<String> get opportunityIds; bool get hasRewardCampaign; DateTime? get soonestExpiry;
+/// Create a copy of InboxThread
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InboxThreadCopyWith<InboxThread> get copyWith => _$InboxThreadCopyWithImpl<InboxThread>(this as InboxThread, _$identity);
 
   /// Serializes this InboxThread to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  Map<String, dynamic> toJson();
 
-  /// Create a copy of InboxThread
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $InboxThreadCopyWith<InboxThread> get copyWith =>
-      throw _privateConstructorUsedError;
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InboxThread&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.threadImage, threadImage) || other.threadImage == threadImage)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.activeTo, activeTo) || other.activeTo == activeTo)&&(identical(other.availableOpportunities, availableOpportunities) || other.availableOpportunities == availableOpportunities)&&(identical(other.completedByUser, completedByUser) || other.completedByUser == completedByUser)&&(identical(other.totalTokenReward, totalTokenReward) || other.totalTokenReward == totalTokenReward)&&const DeepCollectionEquality().equals(other.rewardTypes, rewardTypes)&&const DeepCollectionEquality().equals(other.earningTypes, earningTypes)&&(identical(other.estimatedDurationSeconds, estimatedDurationSeconds) || other.estimatedDurationSeconds == estimatedDurationSeconds)&&const DeepCollectionEquality().equals(other.opportunityIds, opportunityIds)&&(identical(other.hasRewardCampaign, hasRewardCampaign) || other.hasRewardCampaign == hasRewardCampaign)&&(identical(other.soonestExpiry, soonestExpiry) || other.soonestExpiry == soonestExpiry));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,title,description,threadImage,isPinned,isFeatured,activeTo,availableOpportunities,completedByUser,totalTokenReward,const DeepCollectionEquality().hash(rewardTypes),const DeepCollectionEquality().hash(earningTypes),estimatedDurationSeconds,const DeepCollectionEquality().hash(opportunityIds),hasRewardCampaign,soonestExpiry);
+
+@override
+String toString() {
+  return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, completedByUser: $completedByUser, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $InboxThreadCopyWith<$Res> {
-  factory $InboxThreadCopyWith(
-    InboxThread value,
-    $Res Function(InboxThread) then,
-  ) = _$InboxThreadCopyWithImpl<$Res, InboxThread>;
-  @useResult
-  $Res call({
-    String id,
-    String title,
-    String? description,
-    String? threadImage,
-    bool isPinned,
-    bool isFeatured,
-    DateTime? activeTo,
-    int availableOpportunities,
-    int completedByUser,
-    int totalTokenReward,
-    List<String> rewardTypes,
-    List<String> earningTypes,
-    int estimatedDurationSeconds,
-    List<String> opportunityIds,
-    bool hasRewardCampaign,
-    DateTime? soonestExpiry,
-  });
-}
+abstract mixin class $InboxThreadCopyWith<$Res>  {
+  factory $InboxThreadCopyWith(InboxThread value, $Res Function(InboxThread) _then) = _$InboxThreadCopyWithImpl;
+@useResult
+$Res call({
+ String id, String title, String? description, String? threadImage, bool isPinned, bool isFeatured, DateTime? activeTo, int availableOpportunities, int completedByUser, int totalTokenReward, List<String> rewardTypes, List<String> earningTypes, int estimatedDurationSeconds, List<String> opportunityIds, bool hasRewardCampaign, DateTime? soonestExpiry
+});
 
+
+
+
+}
 /// @nodoc
-class _$InboxThreadCopyWithImpl<$Res, $Val extends InboxThread>
+class _$InboxThreadCopyWithImpl<$Res>
     implements $InboxThreadCopyWith<$Res> {
-  _$InboxThreadCopyWithImpl(this._value, this._then);
+  _$InboxThreadCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final InboxThread _self;
+  final $Res Function(InboxThread) _then;
 
-  /// Create a copy of InboxThread
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? title = null,
-    Object? description = freezed,
-    Object? threadImage = freezed,
-    Object? isPinned = null,
-    Object? isFeatured = null,
-    Object? activeTo = freezed,
-    Object? availableOpportunities = null,
-    Object? completedByUser = null,
-    Object? totalTokenReward = null,
-    Object? rewardTypes = null,
-    Object? earningTypes = null,
-    Object? estimatedDurationSeconds = null,
-    Object? opportunityIds = null,
-    Object? hasRewardCampaign = null,
-    Object? soonestExpiry = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            title: null == title
-                ? _value.title
-                : title // ignore: cast_nullable_to_non_nullable
-                      as String,
-            description: freezed == description
-                ? _value.description
-                : description // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            threadImage: freezed == threadImage
-                ? _value.threadImage
-                : threadImage // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isPinned: null == isPinned
-                ? _value.isPinned
-                : isPinned // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isFeatured: null == isFeatured
-                ? _value.isFeatured
-                : isFeatured // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            activeTo: freezed == activeTo
-                ? _value.activeTo
-                : activeTo // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            availableOpportunities: null == availableOpportunities
-                ? _value.availableOpportunities
-                : availableOpportunities // ignore: cast_nullable_to_non_nullable
-                      as int,
-            completedByUser: null == completedByUser
-                ? _value.completedByUser
-                : completedByUser // ignore: cast_nullable_to_non_nullable
-                      as int,
-            totalTokenReward: null == totalTokenReward
-                ? _value.totalTokenReward
-                : totalTokenReward // ignore: cast_nullable_to_non_nullable
-                      as int,
-            rewardTypes: null == rewardTypes
-                ? _value.rewardTypes
-                : rewardTypes // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            earningTypes: null == earningTypes
-                ? _value.earningTypes
-                : earningTypes // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            estimatedDurationSeconds: null == estimatedDurationSeconds
-                ? _value.estimatedDurationSeconds
-                : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
-                      as int,
-            opportunityIds: null == opportunityIds
-                ? _value.opportunityIds
-                : opportunityIds // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            hasRewardCampaign: null == hasRewardCampaign
-                ? _value.hasRewardCampaign
-                : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            soonestExpiry: freezed == soonestExpiry
-                ? _value.soonestExpiry
-                : soonestExpiry // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of InboxThread
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? threadImage = freezed,Object? isPinned = null,Object? isFeatured = null,Object? activeTo = freezed,Object? availableOpportunities = null,Object? completedByUser = null,Object? totalTokenReward = null,Object? rewardTypes = null,Object? earningTypes = null,Object? estimatedDurationSeconds = null,Object? opportunityIds = null,Object? hasRewardCampaign = null,Object? soonestExpiry = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,threadImage: freezed == threadImage ? _self.threadImage : threadImage // ignore: cast_nullable_to_non_nullable
+as String?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,isFeatured: null == isFeatured ? _self.isFeatured : isFeatured // ignore: cast_nullable_to_non_nullable
+as bool,activeTo: freezed == activeTo ? _self.activeTo : activeTo // ignore: cast_nullable_to_non_nullable
+as DateTime?,availableOpportunities: null == availableOpportunities ? _self.availableOpportunities : availableOpportunities // ignore: cast_nullable_to_non_nullable
+as int,completedByUser: null == completedByUser ? _self.completedByUser : completedByUser // ignore: cast_nullable_to_non_nullable
+as int,totalTokenReward: null == totalTokenReward ? _self.totalTokenReward : totalTokenReward // ignore: cast_nullable_to_non_nullable
+as int,rewardTypes: null == rewardTypes ? _self.rewardTypes : rewardTypes // ignore: cast_nullable_to_non_nullable
+as List<String>,earningTypes: null == earningTypes ? _self.earningTypes : earningTypes // ignore: cast_nullable_to_non_nullable
+as List<String>,estimatedDurationSeconds: null == estimatedDurationSeconds ? _self.estimatedDurationSeconds : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
+as int,opportunityIds: null == opportunityIds ? _self.opportunityIds : opportunityIds // ignore: cast_nullable_to_non_nullable
+as List<String>,hasRewardCampaign: null == hasRewardCampaign ? _self.hasRewardCampaign : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
+as bool,soonestExpiry: freezed == soonestExpiry ? _self.soonestExpiry : soonestExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$InboxThreadImplCopyWith<$Res>
-    implements $InboxThreadCopyWith<$Res> {
-  factory _$$InboxThreadImplCopyWith(
-    _$InboxThreadImpl value,
-    $Res Function(_$InboxThreadImpl) then,
-  ) = __$$InboxThreadImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String title,
-    String? description,
-    String? threadImage,
-    bool isPinned,
-    bool isFeatured,
-    DateTime? activeTo,
-    int availableOpportunities,
-    int completedByUser,
-    int totalTokenReward,
-    List<String> rewardTypes,
-    List<String> earningTypes,
-    int estimatedDurationSeconds,
-    List<String> opportunityIds,
-    bool hasRewardCampaign,
-    DateTime? soonestExpiry,
-  });
 }
 
-/// @nodoc
-class __$$InboxThreadImplCopyWithImpl<$Res>
-    extends _$InboxThreadCopyWithImpl<$Res, _$InboxThreadImpl>
-    implements _$$InboxThreadImplCopyWith<$Res> {
-  __$$InboxThreadImplCopyWithImpl(
-    _$InboxThreadImpl _value,
-    $Res Function(_$InboxThreadImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of InboxThread
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? title = null,
-    Object? description = freezed,
-    Object? threadImage = freezed,
-    Object? isPinned = null,
-    Object? isFeatured = null,
-    Object? activeTo = freezed,
-    Object? availableOpportunities = null,
-    Object? completedByUser = null,
-    Object? totalTokenReward = null,
-    Object? rewardTypes = null,
-    Object? earningTypes = null,
-    Object? estimatedDurationSeconds = null,
-    Object? opportunityIds = null,
-    Object? hasRewardCampaign = null,
-    Object? soonestExpiry = freezed,
-  }) {
-    return _then(
-      _$InboxThreadImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        title: null == title
-            ? _value.title
-            : title // ignore: cast_nullable_to_non_nullable
-                  as String,
-        description: freezed == description
-            ? _value.description
-            : description // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        threadImage: freezed == threadImage
-            ? _value.threadImage
-            : threadImage // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isPinned: null == isPinned
-            ? _value.isPinned
-            : isPinned // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isFeatured: null == isFeatured
-            ? _value.isFeatured
-            : isFeatured // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        activeTo: freezed == activeTo
-            ? _value.activeTo
-            : activeTo // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        availableOpportunities: null == availableOpportunities
-            ? _value.availableOpportunities
-            : availableOpportunities // ignore: cast_nullable_to_non_nullable
-                  as int,
-        completedByUser: null == completedByUser
-            ? _value.completedByUser
-            : completedByUser // ignore: cast_nullable_to_non_nullable
-                  as int,
-        totalTokenReward: null == totalTokenReward
-            ? _value.totalTokenReward
-            : totalTokenReward // ignore: cast_nullable_to_non_nullable
-                  as int,
-        rewardTypes: null == rewardTypes
-            ? _value._rewardTypes
-            : rewardTypes // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        earningTypes: null == earningTypes
-            ? _value._earningTypes
-            : earningTypes // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        estimatedDurationSeconds: null == estimatedDurationSeconds
-            ? _value.estimatedDurationSeconds
-            : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
-                  as int,
-        opportunityIds: null == opportunityIds
-            ? _value._opportunityIds
-            : opportunityIds // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        hasRewardCampaign: null == hasRewardCampaign
-            ? _value.hasRewardCampaign
-            : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        soonestExpiry: freezed == soonestExpiry
-            ? _value.soonestExpiry
-            : soonestExpiry // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [InboxThread].
+extension InboxThreadPatterns on InboxThread {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _InboxThread value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _InboxThread() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _InboxThread value)  $default,){
+final _that = this;
+switch (_that) {
+case _InboxThread():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _InboxThread value)?  $default,){
+final _that = this;
+switch (_that) {
+case _InboxThread() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? description,  String? threadImage,  bool isPinned,  bool isFeatured,  DateTime? activeTo,  int availableOpportunities,  int completedByUser,  int totalTokenReward,  List<String> rewardTypes,  List<String> earningTypes,  int estimatedDurationSeconds,  List<String> opportunityIds,  bool hasRewardCampaign,  DateTime? soonestExpiry)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _InboxThread() when $default != null:
+return $default(_that.id,_that.title,_that.description,_that.threadImage,_that.isPinned,_that.isFeatured,_that.activeTo,_that.availableOpportunities,_that.completedByUser,_that.totalTokenReward,_that.rewardTypes,_that.earningTypes,_that.estimatedDurationSeconds,_that.opportunityIds,_that.hasRewardCampaign,_that.soonestExpiry);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? description,  String? threadImage,  bool isPinned,  bool isFeatured,  DateTime? activeTo,  int availableOpportunities,  int completedByUser,  int totalTokenReward,  List<String> rewardTypes,  List<String> earningTypes,  int estimatedDurationSeconds,  List<String> opportunityIds,  bool hasRewardCampaign,  DateTime? soonestExpiry)  $default,) {final _that = this;
+switch (_that) {
+case _InboxThread():
+return $default(_that.id,_that.title,_that.description,_that.threadImage,_that.isPinned,_that.isFeatured,_that.activeTo,_that.availableOpportunities,_that.completedByUser,_that.totalTokenReward,_that.rewardTypes,_that.earningTypes,_that.estimatedDurationSeconds,_that.opportunityIds,_that.hasRewardCampaign,_that.soonestExpiry);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? description,  String? threadImage,  bool isPinned,  bool isFeatured,  DateTime? activeTo,  int availableOpportunities,  int completedByUser,  int totalTokenReward,  List<String> rewardTypes,  List<String> earningTypes,  int estimatedDurationSeconds,  List<String> opportunityIds,  bool hasRewardCampaign,  DateTime? soonestExpiry)?  $default,) {final _that = this;
+switch (_that) {
+case _InboxThread() when $default != null:
+return $default(_that.id,_that.title,_that.description,_that.threadImage,_that.isPinned,_that.isFeatured,_that.activeTo,_that.availableOpportunities,_that.completedByUser,_that.totalTokenReward,_that.rewardTypes,_that.earningTypes,_that.estimatedDurationSeconds,_that.opportunityIds,_that.hasRewardCampaign,_that.soonestExpiry);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$InboxThreadImpl extends _InboxThread {
-  const _$InboxThreadImpl({
-    required this.id,
-    required this.title,
-    this.description,
-    this.threadImage,
-    required this.isPinned,
-    required this.isFeatured,
-    this.activeTo,
-    required this.availableOpportunities,
-    this.completedByUser = 0,
-    required this.totalTokenReward,
-    final List<String> rewardTypes = const [],
-    final List<String> earningTypes = const [],
-    this.estimatedDurationSeconds = 0,
-    final List<String> opportunityIds = const [],
-    this.hasRewardCampaign = false,
-    this.soonestExpiry,
-  }) : _rewardTypes = rewardTypes,
-       _earningTypes = earningTypes,
-       _opportunityIds = opportunityIds,
-       super._();
 
-  factory _$InboxThreadImpl.fromJson(Map<String, dynamic> json) =>
-      _$$InboxThreadImplFromJson(json);
+class _InboxThread extends InboxThread {
+  const _InboxThread({required this.id, required this.title, this.description, this.threadImage, required this.isPinned, required this.isFeatured, this.activeTo, required this.availableOpportunities, this.completedByUser = 0, required this.totalTokenReward, final  List<String> rewardTypes = const [], final  List<String> earningTypes = const [], this.estimatedDurationSeconds = 0, final  List<String> opportunityIds = const [], this.hasRewardCampaign = false, this.soonestExpiry}): _rewardTypes = rewardTypes,_earningTypes = earningTypes,_opportunityIds = opportunityIds,super._();
+  factory _InboxThread.fromJson(Map<String, dynamic> json) => _$InboxThreadFromJson(json);
 
-  @override
-  final String id;
-  @override
-  final String title;
-  @override
-  final String? description;
-  @override
-  final String? threadImage;
-  @override
-  final bool isPinned;
-  @override
-  final bool isFeatured;
-  @override
-  final DateTime? activeTo;
-  @override
-  final int availableOpportunities;
-  @override
-  @JsonKey()
-  final int completedByUser;
-  @override
-  final int totalTokenReward;
-  final List<String> _rewardTypes;
-  @override
-  @JsonKey()
-  List<String> get rewardTypes {
-    if (_rewardTypes is EqualUnmodifiableListView) return _rewardTypes;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_rewardTypes);
-  }
-
-  final List<String> _earningTypes;
-  @override
-  @JsonKey()
-  List<String> get earningTypes {
-    if (_earningTypes is EqualUnmodifiableListView) return _earningTypes;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_earningTypes);
-  }
-
-  @override
-  @JsonKey()
-  final int estimatedDurationSeconds;
-  final List<String> _opportunityIds;
-  @override
-  @JsonKey()
-  List<String> get opportunityIds {
-    if (_opportunityIds is EqualUnmodifiableListView) return _opportunityIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_opportunityIds);
-  }
-
-  @override
-  @JsonKey()
-  final bool hasRewardCampaign;
-  @override
-  final DateTime? soonestExpiry;
-
-  @override
-  String toString() {
-    return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, completedByUser: $completedByUser, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$InboxThreadImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            (identical(other.threadImage, threadImage) ||
-                other.threadImage == threadImage) &&
-            (identical(other.isPinned, isPinned) ||
-                other.isPinned == isPinned) &&
-            (identical(other.isFeatured, isFeatured) ||
-                other.isFeatured == isFeatured) &&
-            (identical(other.activeTo, activeTo) ||
-                other.activeTo == activeTo) &&
-            (identical(other.availableOpportunities, availableOpportunities) ||
-                other.availableOpportunities == availableOpportunities) &&
-            (identical(other.completedByUser, completedByUser) ||
-                other.completedByUser == completedByUser) &&
-            (identical(other.totalTokenReward, totalTokenReward) ||
-                other.totalTokenReward == totalTokenReward) &&
-            const DeepCollectionEquality().equals(
-              other._rewardTypes,
-              _rewardTypes,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._earningTypes,
-              _earningTypes,
-            ) &&
-            (identical(
-                  other.estimatedDurationSeconds,
-                  estimatedDurationSeconds,
-                ) ||
-                other.estimatedDurationSeconds == estimatedDurationSeconds) &&
-            const DeepCollectionEquality().equals(
-              other._opportunityIds,
-              _opportunityIds,
-            ) &&
-            (identical(other.hasRewardCampaign, hasRewardCampaign) ||
-                other.hasRewardCampaign == hasRewardCampaign) &&
-            (identical(other.soonestExpiry, soonestExpiry) ||
-                other.soonestExpiry == soonestExpiry));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    title,
-    description,
-    threadImage,
-    isPinned,
-    isFeatured,
-    activeTo,
-    availableOpportunities,
-    completedByUser,
-    totalTokenReward,
-    const DeepCollectionEquality().hash(_rewardTypes),
-    const DeepCollectionEquality().hash(_earningTypes),
-    estimatedDurationSeconds,
-    const DeepCollectionEquality().hash(_opportunityIds),
-    hasRewardCampaign,
-    soonestExpiry,
-  );
-
-  /// Create a copy of InboxThread
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$InboxThreadImplCopyWith<_$InboxThreadImpl> get copyWith =>
-      __$$InboxThreadImplCopyWithImpl<_$InboxThreadImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$InboxThreadImplToJson(this);
-  }
+@override final  String id;
+@override final  String title;
+@override final  String? description;
+@override final  String? threadImage;
+@override final  bool isPinned;
+@override final  bool isFeatured;
+@override final  DateTime? activeTo;
+@override final  int availableOpportunities;
+@override@JsonKey() final  int completedByUser;
+@override final  int totalTokenReward;
+ final  List<String> _rewardTypes;
+@override@JsonKey() List<String> get rewardTypes {
+  if (_rewardTypes is EqualUnmodifiableListView) return _rewardTypes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_rewardTypes);
 }
 
-abstract class _InboxThread extends InboxThread {
-  const factory _InboxThread({
-    required final String id,
-    required final String title,
-    final String? description,
-    final String? threadImage,
-    required final bool isPinned,
-    required final bool isFeatured,
-    final DateTime? activeTo,
-    required final int availableOpportunities,
-    final int completedByUser,
-    required final int totalTokenReward,
-    final List<String> rewardTypes,
-    final List<String> earningTypes,
-    final int estimatedDurationSeconds,
-    final List<String> opportunityIds,
-    final bool hasRewardCampaign,
-    final DateTime? soonestExpiry,
-  }) = _$InboxThreadImpl;
-  const _InboxThread._() : super._();
-
-  factory _InboxThread.fromJson(Map<String, dynamic> json) =
-      _$InboxThreadImpl.fromJson;
-
-  @override
-  String get id;
-  @override
-  String get title;
-  @override
-  String? get description;
-  @override
-  String? get threadImage;
-  @override
-  bool get isPinned;
-  @override
-  bool get isFeatured;
-  @override
-  DateTime? get activeTo;
-  @override
-  int get availableOpportunities;
-  @override
-  int get completedByUser;
-  @override
-  int get totalTokenReward;
-  @override
-  List<String> get rewardTypes;
-  @override
-  List<String> get earningTypes;
-  @override
-  int get estimatedDurationSeconds;
-  @override
-  List<String> get opportunityIds;
-  @override
-  bool get hasRewardCampaign;
-  @override
-  DateTime? get soonestExpiry;
-
-  /// Create a copy of InboxThread
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$InboxThreadImplCopyWith<_$InboxThreadImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+ final  List<String> _earningTypes;
+@override@JsonKey() List<String> get earningTypes {
+  if (_earningTypes is EqualUnmodifiableListView) return _earningTypes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_earningTypes);
 }
+
+@override@JsonKey() final  int estimatedDurationSeconds;
+ final  List<String> _opportunityIds;
+@override@JsonKey() List<String> get opportunityIds {
+  if (_opportunityIds is EqualUnmodifiableListView) return _opportunityIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_opportunityIds);
+}
+
+@override@JsonKey() final  bool hasRewardCampaign;
+@override final  DateTime? soonestExpiry;
+
+/// Create a copy of InboxThread
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$InboxThreadCopyWith<_InboxThread> get copyWith => __$InboxThreadCopyWithImpl<_InboxThread>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$InboxThreadToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _InboxThread&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.threadImage, threadImage) || other.threadImage == threadImage)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.activeTo, activeTo) || other.activeTo == activeTo)&&(identical(other.availableOpportunities, availableOpportunities) || other.availableOpportunities == availableOpportunities)&&(identical(other.completedByUser, completedByUser) || other.completedByUser == completedByUser)&&(identical(other.totalTokenReward, totalTokenReward) || other.totalTokenReward == totalTokenReward)&&const DeepCollectionEquality().equals(other._rewardTypes, _rewardTypes)&&const DeepCollectionEquality().equals(other._earningTypes, _earningTypes)&&(identical(other.estimatedDurationSeconds, estimatedDurationSeconds) || other.estimatedDurationSeconds == estimatedDurationSeconds)&&const DeepCollectionEquality().equals(other._opportunityIds, _opportunityIds)&&(identical(other.hasRewardCampaign, hasRewardCampaign) || other.hasRewardCampaign == hasRewardCampaign)&&(identical(other.soonestExpiry, soonestExpiry) || other.soonestExpiry == soonestExpiry));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,title,description,threadImage,isPinned,isFeatured,activeTo,availableOpportunities,completedByUser,totalTokenReward,const DeepCollectionEquality().hash(_rewardTypes),const DeepCollectionEquality().hash(_earningTypes),estimatedDurationSeconds,const DeepCollectionEquality().hash(_opportunityIds),hasRewardCampaign,soonestExpiry);
+
+@override
+String toString() {
+  return 'InboxThread(id: $id, title: $title, description: $description, threadImage: $threadImage, isPinned: $isPinned, isFeatured: $isFeatured, activeTo: $activeTo, availableOpportunities: $availableOpportunities, completedByUser: $completedByUser, totalTokenReward: $totalTokenReward, rewardTypes: $rewardTypes, earningTypes: $earningTypes, estimatedDurationSeconds: $estimatedDurationSeconds, opportunityIds: $opportunityIds, hasRewardCampaign: $hasRewardCampaign, soonestExpiry: $soonestExpiry)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$InboxThreadCopyWith<$Res> implements $InboxThreadCopyWith<$Res> {
+  factory _$InboxThreadCopyWith(_InboxThread value, $Res Function(_InboxThread) _then) = __$InboxThreadCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String title, String? description, String? threadImage, bool isPinned, bool isFeatured, DateTime? activeTo, int availableOpportunities, int completedByUser, int totalTokenReward, List<String> rewardTypes, List<String> earningTypes, int estimatedDurationSeconds, List<String> opportunityIds, bool hasRewardCampaign, DateTime? soonestExpiry
+});
+
+
+
+
+}
+/// @nodoc
+class __$InboxThreadCopyWithImpl<$Res>
+    implements _$InboxThreadCopyWith<$Res> {
+  __$InboxThreadCopyWithImpl(this._self, this._then);
+
+  final _InboxThread _self;
+  final $Res Function(_InboxThread) _then;
+
+/// Create a copy of InboxThread
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? threadImage = freezed,Object? isPinned = null,Object? isFeatured = null,Object? activeTo = freezed,Object? availableOpportunities = null,Object? completedByUser = null,Object? totalTokenReward = null,Object? rewardTypes = null,Object? earningTypes = null,Object? estimatedDurationSeconds = null,Object? opportunityIds = null,Object? hasRewardCampaign = null,Object? soonestExpiry = freezed,}) {
+  return _then(_InboxThread(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,threadImage: freezed == threadImage ? _self.threadImage : threadImage // ignore: cast_nullable_to_non_nullable
+as String?,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,isFeatured: null == isFeatured ? _self.isFeatured : isFeatured // ignore: cast_nullable_to_non_nullable
+as bool,activeTo: freezed == activeTo ? _self.activeTo : activeTo // ignore: cast_nullable_to_non_nullable
+as DateTime?,availableOpportunities: null == availableOpportunities ? _self.availableOpportunities : availableOpportunities // ignore: cast_nullable_to_non_nullable
+as int,completedByUser: null == completedByUser ? _self.completedByUser : completedByUser // ignore: cast_nullable_to_non_nullable
+as int,totalTokenReward: null == totalTokenReward ? _self.totalTokenReward : totalTokenReward // ignore: cast_nullable_to_non_nullable
+as int,rewardTypes: null == rewardTypes ? _self._rewardTypes : rewardTypes // ignore: cast_nullable_to_non_nullable
+as List<String>,earningTypes: null == earningTypes ? _self._earningTypes : earningTypes // ignore: cast_nullable_to_non_nullable
+as List<String>,estimatedDurationSeconds: null == estimatedDurationSeconds ? _self.estimatedDurationSeconds : estimatedDurationSeconds // ignore: cast_nullable_to_non_nullable
+as int,opportunityIds: null == opportunityIds ? _self._opportunityIds : opportunityIds // ignore: cast_nullable_to_non_nullable
+as List<String>,hasRewardCampaign: null == hasRewardCampaign ? _self.hasRewardCampaign : hasRewardCampaign // ignore: cast_nullable_to_non_nullable
+as bool,soonestExpiry: freezed == soonestExpiry ? _self.soonestExpiry : soonestExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on

@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,580 +9,328 @@ part of 'purchase_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$PurchaseModel {
-  String get id => throw _privateConstructorUsedError;
-  String get walletId => throw _privateConstructorUsedError;
-  String get userId => throw _privateConstructorUsedError;
-  String get providerId => throw _privateConstructorUsedError;
-  String get providerName => throw _privateConstructorUsedError;
-  String get category => throw _privateConstructorUsedError;
-  int get tokenAmount => throw _privateConstructorUsedError;
-  double get zarAmount => throw _privateConstructorUsedError;
-  String get status => throw _privateConstructorUsedError;
-  String get productCode => throw _privateConstructorUsedError;
-  String get productName => throw _privateConstructorUsedError;
-  String? get recipientNumber => throw _privateConstructorUsedError;
-  String? get voucherCode => throw _privateConstructorUsedError;
-  String? get voucherPin => throw _privateConstructorUsedError;
-  String? get reference => throw _privateConstructorUsedError;
-  String? get failureReason => throw _privateConstructorUsedError;
-  Map<String, dynamic>? get metadata => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime? get processedAt => throw _privateConstructorUsedError;
-  DateTime? get completedAt => throw _privateConstructorUsedError;
 
-  /// Create a copy of PurchaseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $PurchaseModelCopyWith<PurchaseModel> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get id; String get walletId; String get userId; String get providerId; String get providerName; String get category; int get tokenAmount; double get zarAmount; String get status; String get productCode; String get productName; String? get recipientNumber; String? get voucherCode; String? get voucherPin; String? get reference; String? get failureReason; Map<String, dynamic>? get metadata; DateTime get createdAt; DateTime? get processedAt; DateTime? get completedAt;
+/// Create a copy of PurchaseModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PurchaseModelCopyWith<PurchaseModel> get copyWith => _$PurchaseModelCopyWithImpl<PurchaseModel>(this as PurchaseModel, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PurchaseModel&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
+}
+
+
+@override
+int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(metadata),createdAt,processedAt,completedAt]);
+
+@override
+String toString() {
+  return 'PurchaseModel(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $PurchaseModelCopyWith<$Res> {
-  factory $PurchaseModelCopyWith(
-    PurchaseModel value,
-    $Res Function(PurchaseModel) then,
-  ) = _$PurchaseModelCopyWithImpl<$Res, PurchaseModel>;
-  @useResult
-  $Res call({
-    String id,
-    String walletId,
-    String userId,
-    String providerId,
-    String providerName,
-    String category,
-    int tokenAmount,
-    double zarAmount,
-    String status,
-    String productCode,
-    String productName,
-    String? recipientNumber,
-    String? voucherCode,
-    String? voucherPin,
-    String? reference,
-    String? failureReason,
-    Map<String, dynamic>? metadata,
-    DateTime createdAt,
-    DateTime? processedAt,
-    DateTime? completedAt,
-  });
-}
+abstract mixin class $PurchaseModelCopyWith<$Res>  {
+  factory $PurchaseModelCopyWith(PurchaseModel value, $Res Function(PurchaseModel) _then) = _$PurchaseModelCopyWithImpl;
+@useResult
+$Res call({
+ String id, String walletId, String userId, String providerId, String providerName, String category, int tokenAmount, double zarAmount, String status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
+});
 
+
+
+
+}
 /// @nodoc
-class _$PurchaseModelCopyWithImpl<$Res, $Val extends PurchaseModel>
+class _$PurchaseModelCopyWithImpl<$Res>
     implements $PurchaseModelCopyWith<$Res> {
-  _$PurchaseModelCopyWithImpl(this._value, this._then);
+  _$PurchaseModelCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final PurchaseModel _self;
+  final $Res Function(PurchaseModel) _then;
 
-  /// Create a copy of PurchaseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? walletId = null,
-    Object? userId = null,
-    Object? providerId = null,
-    Object? providerName = null,
-    Object? category = null,
-    Object? tokenAmount = null,
-    Object? zarAmount = null,
-    Object? status = null,
-    Object? productCode = null,
-    Object? productName = null,
-    Object? recipientNumber = freezed,
-    Object? voucherCode = freezed,
-    Object? voucherPin = freezed,
-    Object? reference = freezed,
-    Object? failureReason = freezed,
-    Object? metadata = freezed,
-    Object? createdAt = null,
-    Object? processedAt = freezed,
-    Object? completedAt = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as String,
-            walletId: null == walletId
-                ? _value.walletId
-                : walletId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            userId: null == userId
-                ? _value.userId
-                : userId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            providerId: null == providerId
-                ? _value.providerId
-                : providerId // ignore: cast_nullable_to_non_nullable
-                      as String,
-            providerName: null == providerName
-                ? _value.providerName
-                : providerName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            category: null == category
-                ? _value.category
-                : category // ignore: cast_nullable_to_non_nullable
-                      as String,
-            tokenAmount: null == tokenAmount
-                ? _value.tokenAmount
-                : tokenAmount // ignore: cast_nullable_to_non_nullable
-                      as int,
-            zarAmount: null == zarAmount
-                ? _value.zarAmount
-                : zarAmount // ignore: cast_nullable_to_non_nullable
-                      as double,
-            status: null == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String,
-            productCode: null == productCode
-                ? _value.productCode
-                : productCode // ignore: cast_nullable_to_non_nullable
-                      as String,
-            productName: null == productName
-                ? _value.productName
-                : productName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            recipientNumber: freezed == recipientNumber
-                ? _value.recipientNumber
-                : recipientNumber // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            voucherCode: freezed == voucherCode
-                ? _value.voucherCode
-                : voucherCode // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            voucherPin: freezed == voucherPin
-                ? _value.voucherPin
-                : voucherPin // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            reference: freezed == reference
-                ? _value.reference
-                : reference // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            failureReason: freezed == failureReason
-                ? _value.failureReason
-                : failureReason // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            metadata: freezed == metadata
-                ? _value.metadata
-                : metadata // ignore: cast_nullable_to_non_nullable
-                      as Map<String, dynamic>?,
-            createdAt: null == createdAt
-                ? _value.createdAt
-                : createdAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            processedAt: freezed == processedAt
-                ? _value.processedAt
-                : processedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            completedAt: freezed == completedAt
-                ? _value.completedAt
-                : completedAt // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of PurchaseModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? walletId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
+as String,providerName: null == providerName ? _self.providerName : providerName // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,tokenAmount: null == tokenAmount ? _self.tokenAmount : tokenAmount // ignore: cast_nullable_to_non_nullable
+as int,zarAmount: null == zarAmount ? _self.zarAmount : zarAmount // ignore: cast_nullable_to_non_nullable
+as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,productCode: null == productCode ? _self.productCode : productCode // ignore: cast_nullable_to_non_nullable
+as String,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String,recipientNumber: freezed == recipientNumber ? _self.recipientNumber : recipientNumber // ignore: cast_nullable_to_non_nullable
+as String?,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,voucherPin: freezed == voucherPin ? _self.voucherPin : voucherPin // ignore: cast_nullable_to_non_nullable
+as String?,reference: freezed == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
+as String?,failureReason: freezed == failureReason ? _self.failureReason : failureReason // ignore: cast_nullable_to_non_nullable
+as String?,metadata: freezed == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,processedAt: freezed == processedAt ? _self.processedAt : processedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$PurchaseModelImplCopyWith<$Res>
-    implements $PurchaseModelCopyWith<$Res> {
-  factory _$$PurchaseModelImplCopyWith(
-    _$PurchaseModelImpl value,
-    $Res Function(_$PurchaseModelImpl) then,
-  ) = __$$PurchaseModelImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    String id,
-    String walletId,
-    String userId,
-    String providerId,
-    String providerName,
-    String category,
-    int tokenAmount,
-    double zarAmount,
-    String status,
-    String productCode,
-    String productName,
-    String? recipientNumber,
-    String? voucherCode,
-    String? voucherPin,
-    String? reference,
-    String? failureReason,
-    Map<String, dynamic>? metadata,
-    DateTime createdAt,
-    DateTime? processedAt,
-    DateTime? completedAt,
-  });
 }
 
-/// @nodoc
-class __$$PurchaseModelImplCopyWithImpl<$Res>
-    extends _$PurchaseModelCopyWithImpl<$Res, _$PurchaseModelImpl>
-    implements _$$PurchaseModelImplCopyWith<$Res> {
-  __$$PurchaseModelImplCopyWithImpl(
-    _$PurchaseModelImpl _value,
-    $Res Function(_$PurchaseModelImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of PurchaseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? walletId = null,
-    Object? userId = null,
-    Object? providerId = null,
-    Object? providerName = null,
-    Object? category = null,
-    Object? tokenAmount = null,
-    Object? zarAmount = null,
-    Object? status = null,
-    Object? productCode = null,
-    Object? productName = null,
-    Object? recipientNumber = freezed,
-    Object? voucherCode = freezed,
-    Object? voucherPin = freezed,
-    Object? reference = freezed,
-    Object? failureReason = freezed,
-    Object? metadata = freezed,
-    Object? createdAt = null,
-    Object? processedAt = freezed,
-    Object? completedAt = freezed,
-  }) {
-    return _then(
-      _$PurchaseModelImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as String,
-        walletId: null == walletId
-            ? _value.walletId
-            : walletId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        userId: null == userId
-            ? _value.userId
-            : userId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        providerId: null == providerId
-            ? _value.providerId
-            : providerId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        providerName: null == providerName
-            ? _value.providerName
-            : providerName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        category: null == category
-            ? _value.category
-            : category // ignore: cast_nullable_to_non_nullable
-                  as String,
-        tokenAmount: null == tokenAmount
-            ? _value.tokenAmount
-            : tokenAmount // ignore: cast_nullable_to_non_nullable
-                  as int,
-        zarAmount: null == zarAmount
-            ? _value.zarAmount
-            : zarAmount // ignore: cast_nullable_to_non_nullable
-                  as double,
-        status: null == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String,
-        productCode: null == productCode
-            ? _value.productCode
-            : productCode // ignore: cast_nullable_to_non_nullable
-                  as String,
-        productName: null == productName
-            ? _value.productName
-            : productName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        recipientNumber: freezed == recipientNumber
-            ? _value.recipientNumber
-            : recipientNumber // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        voucherCode: freezed == voucherCode
-            ? _value.voucherCode
-            : voucherCode // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        voucherPin: freezed == voucherPin
-            ? _value.voucherPin
-            : voucherPin // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        reference: freezed == reference
-            ? _value.reference
-            : reference // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        failureReason: freezed == failureReason
-            ? _value.failureReason
-            : failureReason // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        metadata: freezed == metadata
-            ? _value._metadata
-            : metadata // ignore: cast_nullable_to_non_nullable
-                  as Map<String, dynamic>?,
-        createdAt: null == createdAt
-            ? _value.createdAt
-            : createdAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        processedAt: freezed == processedAt
-            ? _value.processedAt
-            : processedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        completedAt: freezed == completedAt
-            ? _value.completedAt
-            : completedAt // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-      ),
-    );
-  }
+/// Adds pattern-matching-related methods to [PurchaseModel].
+extension PurchaseModelPatterns on PurchaseModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PurchaseModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PurchaseModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PurchaseModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _PurchaseModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PurchaseModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PurchaseModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  String category,  int tokenAmount,  double zarAmount,  String status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PurchaseModel() when $default != null:
+return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  String category,  int tokenAmount,  double zarAmount,  String status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)  $default,) {final _that = this;
+switch (_that) {
+case _PurchaseModel():
+return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  String category,  int tokenAmount,  double zarAmount,  String status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _PurchaseModel() when $default != null:
+return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 
-class _$PurchaseModelImpl extends _PurchaseModel {
-  const _$PurchaseModelImpl({
-    required this.id,
-    required this.walletId,
-    required this.userId,
-    required this.providerId,
-    required this.providerName,
-    required this.category,
-    required this.tokenAmount,
-    required this.zarAmount,
-    required this.status,
-    required this.productCode,
-    required this.productName,
-    this.recipientNumber,
-    this.voucherCode,
-    this.voucherPin,
-    this.reference,
-    this.failureReason,
-    final Map<String, dynamic>? metadata,
-    required this.createdAt,
-    this.processedAt,
-    this.completedAt,
-  }) : _metadata = metadata,
-       super._();
 
-  @override
-  final String id;
-  @override
-  final String walletId;
-  @override
-  final String userId;
-  @override
-  final String providerId;
-  @override
-  final String providerName;
-  @override
-  final String category;
-  @override
-  final int tokenAmount;
-  @override
-  final double zarAmount;
-  @override
-  final String status;
-  @override
-  final String productCode;
-  @override
-  final String productName;
-  @override
-  final String? recipientNumber;
-  @override
-  final String? voucherCode;
-  @override
-  final String? voucherPin;
-  @override
-  final String? reference;
-  @override
-  final String? failureReason;
-  final Map<String, dynamic>? _metadata;
-  @override
-  Map<String, dynamic>? get metadata {
-    final value = _metadata;
-    if (value == null) return null;
-    if (_metadata is EqualUnmodifiableMapView) return _metadata;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(value);
-  }
+class _PurchaseModel extends PurchaseModel {
+  const _PurchaseModel({required this.id, required this.walletId, required this.userId, required this.providerId, required this.providerName, required this.category, required this.tokenAmount, required this.zarAmount, required this.status, required this.productCode, required this.productName, this.recipientNumber, this.voucherCode, this.voucherPin, this.reference, this.failureReason, final  Map<String, dynamic>? metadata, required this.createdAt, this.processedAt, this.completedAt}): _metadata = metadata,super._();
+  
 
-  @override
-  final DateTime createdAt;
-  @override
-  final DateTime? processedAt;
-  @override
-  final DateTime? completedAt;
-
-  @override
-  String toString() {
-    return 'PurchaseModel(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PurchaseModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.walletId, walletId) ||
-                other.walletId == walletId) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.providerId, providerId) ||
-                other.providerId == providerId) &&
-            (identical(other.providerName, providerName) ||
-                other.providerName == providerName) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.tokenAmount, tokenAmount) ||
-                other.tokenAmount == tokenAmount) &&
-            (identical(other.zarAmount, zarAmount) ||
-                other.zarAmount == zarAmount) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.productCode, productCode) ||
-                other.productCode == productCode) &&
-            (identical(other.productName, productName) ||
-                other.productName == productName) &&
-            (identical(other.recipientNumber, recipientNumber) ||
-                other.recipientNumber == recipientNumber) &&
-            (identical(other.voucherCode, voucherCode) ||
-                other.voucherCode == voucherCode) &&
-            (identical(other.voucherPin, voucherPin) ||
-                other.voucherPin == voucherPin) &&
-            (identical(other.reference, reference) ||
-                other.reference == reference) &&
-            (identical(other.failureReason, failureReason) ||
-                other.failureReason == failureReason) &&
-            const DeepCollectionEquality().equals(other._metadata, _metadata) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.processedAt, processedAt) ||
-                other.processedAt == processedAt) &&
-            (identical(other.completedAt, completedAt) ||
-                other.completedAt == completedAt));
-  }
-
-  @override
-  int get hashCode => Object.hashAll([
-    runtimeType,
-    id,
-    walletId,
-    userId,
-    providerId,
-    providerName,
-    category,
-    tokenAmount,
-    zarAmount,
-    status,
-    productCode,
-    productName,
-    recipientNumber,
-    voucherCode,
-    voucherPin,
-    reference,
-    failureReason,
-    const DeepCollectionEquality().hash(_metadata),
-    createdAt,
-    processedAt,
-    completedAt,
-  ]);
-
-  /// Create a copy of PurchaseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$PurchaseModelImplCopyWith<_$PurchaseModelImpl> get copyWith =>
-      __$$PurchaseModelImplCopyWithImpl<_$PurchaseModelImpl>(this, _$identity);
+@override final  String id;
+@override final  String walletId;
+@override final  String userId;
+@override final  String providerId;
+@override final  String providerName;
+@override final  String category;
+@override final  int tokenAmount;
+@override final  double zarAmount;
+@override final  String status;
+@override final  String productCode;
+@override final  String productName;
+@override final  String? recipientNumber;
+@override final  String? voucherCode;
+@override final  String? voucherPin;
+@override final  String? reference;
+@override final  String? failureReason;
+ final  Map<String, dynamic>? _metadata;
+@override Map<String, dynamic>? get metadata {
+  final value = _metadata;
+  if (value == null) return null;
+  if (_metadata is EqualUnmodifiableMapView) return _metadata;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
 }
 
-abstract class _PurchaseModel extends PurchaseModel {
-  const factory _PurchaseModel({
-    required final String id,
-    required final String walletId,
-    required final String userId,
-    required final String providerId,
-    required final String providerName,
-    required final String category,
-    required final int tokenAmount,
-    required final double zarAmount,
-    required final String status,
-    required final String productCode,
-    required final String productName,
-    final String? recipientNumber,
-    final String? voucherCode,
-    final String? voucherPin,
-    final String? reference,
-    final String? failureReason,
-    final Map<String, dynamic>? metadata,
-    required final DateTime createdAt,
-    final DateTime? processedAt,
-    final DateTime? completedAt,
-  }) = _$PurchaseModelImpl;
-  const _PurchaseModel._() : super._();
+@override final  DateTime createdAt;
+@override final  DateTime? processedAt;
+@override final  DateTime? completedAt;
 
-  @override
-  String get id;
-  @override
-  String get walletId;
-  @override
-  String get userId;
-  @override
-  String get providerId;
-  @override
-  String get providerName;
-  @override
-  String get category;
-  @override
-  int get tokenAmount;
-  @override
-  double get zarAmount;
-  @override
-  String get status;
-  @override
-  String get productCode;
-  @override
-  String get productName;
-  @override
-  String? get recipientNumber;
-  @override
-  String? get voucherCode;
-  @override
-  String? get voucherPin;
-  @override
-  String? get reference;
-  @override
-  String? get failureReason;
-  @override
-  Map<String, dynamic>? get metadata;
-  @override
-  DateTime get createdAt;
-  @override
-  DateTime? get processedAt;
-  @override
-  DateTime? get completedAt;
+/// Create a copy of PurchaseModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PurchaseModelCopyWith<_PurchaseModel> get copyWith => __$PurchaseModelCopyWithImpl<_PurchaseModel>(this, _$identity);
 
-  /// Create a copy of PurchaseModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PurchaseModelImplCopyWith<_$PurchaseModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PurchaseModel&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
 }
+
+
+@override
+int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(_metadata),createdAt,processedAt,completedAt]);
+
+@override
+String toString() {
+  return 'PurchaseModel(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PurchaseModelCopyWith<$Res> implements $PurchaseModelCopyWith<$Res> {
+  factory _$PurchaseModelCopyWith(_PurchaseModel value, $Res Function(_PurchaseModel) _then) = __$PurchaseModelCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String walletId, String userId, String providerId, String providerName, String category, int tokenAmount, double zarAmount, String status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$PurchaseModelCopyWithImpl<$Res>
+    implements _$PurchaseModelCopyWith<$Res> {
+  __$PurchaseModelCopyWithImpl(this._self, this._then);
+
+  final _PurchaseModel _self;
+  final $Res Function(_PurchaseModel) _then;
+
+/// Create a copy of PurchaseModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? walletId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
+  return _then(_PurchaseModel(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
+as String,providerName: null == providerName ? _self.providerName : providerName // ignore: cast_nullable_to_non_nullable
+as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,tokenAmount: null == tokenAmount ? _self.tokenAmount : tokenAmount // ignore: cast_nullable_to_non_nullable
+as int,zarAmount: null == zarAmount ? _self.zarAmount : zarAmount // ignore: cast_nullable_to_non_nullable
+as double,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,productCode: null == productCode ? _self.productCode : productCode // ignore: cast_nullable_to_non_nullable
+as String,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
+as String,recipientNumber: freezed == recipientNumber ? _self.recipientNumber : recipientNumber // ignore: cast_nullable_to_non_nullable
+as String?,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,voucherPin: freezed == voucherPin ? _self.voucherPin : voucherPin // ignore: cast_nullable_to_non_nullable
+as String?,reference: freezed == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
+as String?,failureReason: freezed == failureReason ? _self.failureReason : failureReason // ignore: cast_nullable_to_non_nullable
+as String?,metadata: freezed == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,processedAt: freezed == processedAt ? _self.processedAt : processedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+// dart format on

@@ -491,8 +491,10 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
 
   Future<void> _requestPermissionAndImport() async {
     // Request read-only permission (manifest only declares READ_CONTACTS)
-    final granted = await FlutterContacts.requestPermission(readonly: true);
-    if (!granted) {
+    final status =
+        await FlutterContacts.permissions.request(PermissionType.read);
+    if (status != PermissionStatus.granted &&
+        status != PermissionStatus.limited) {
       setState(() => _permissionDenied = true);
       return;
     }
@@ -503,9 +505,8 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
     });
 
     // Read device contacts
-    _deviceContacts = await FlutterContacts.getContacts(
-      withProperties: true,
-      withPhoto: false,
+    _deviceContacts = await FlutterContacts.getAll(
+      properties: {ContactProperty.name, ContactProperty.phone},
     );
 
     // Extract and normalize phone numbers
@@ -517,7 +518,7 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
         final normalized = _normalizePhone(phone.number);
         if (normalized.isNotEmpty) {
           phoneNumbers.add(normalized);
-          _phoneToName[normalized] = contact.displayName;
+          _phoneToName[normalized] = contact.displayName ?? '';
         }
       }
     }

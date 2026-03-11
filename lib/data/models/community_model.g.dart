@@ -6,9 +6,9 @@ part of 'community_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CommunitySettingsModelImpl _$$CommunitySettingsModelImplFromJson(
+_CommunitySettingsModel _$CommunitySettingsModelFromJson(
   Map<String, dynamic> json,
-) => _$CommunitySettingsModelImpl(
+) => _CommunitySettingsModel(
   maxMembers: (json['maxMembers'] as num?)?.toInt() ?? 100,
   allowMemberInvites: json['allowMemberInvites'] as bool? ?? true,
   onlyAdminsPost: json['onlyAdminsPost'] as bool? ?? false,
@@ -21,8 +21,8 @@ _$CommunitySettingsModelImpl _$$CommunitySettingsModelImplFromJson(
   penaltyPercentage: (json['penaltyPercentage'] as num?)?.toInt() ?? 0,
 );
 
-Map<String, dynamic> _$$CommunitySettingsModelImplToJson(
-  _$CommunitySettingsModelImpl instance,
+Map<String, dynamic> _$CommunitySettingsModelToJson(
+  _CommunitySettingsModel instance,
 ) => <String, dynamic>{
   'maxMembers': instance.maxMembers,
   'allowMemberInvites': instance.allowMemberInvites,
@@ -36,8 +36,8 @@ Map<String, dynamic> _$$CommunitySettingsModelImplToJson(
   'penaltyPercentage': instance.penaltyPercentage,
 };
 
-_$CommunityModelImpl _$$CommunityModelImplFromJson(Map<String, dynamic> json) =>
-    _$CommunityModelImpl(
+_CommunityModel _$CommunityModelFromJson(Map<String, dynamic> json) =>
+    _CommunityModel(
       id: json['id'] as String,
       type: json['type'] as String,
       name: json['name'] as String,
@@ -87,8 +87,8 @@ _$CommunityModelImpl _$$CommunityModelImplFromJson(Map<String, dynamic> json) =>
       updatedAt: const NullableTimestampConverter().fromJson(json['updatedAt']),
     );
 
-Map<String, dynamic> _$$CommunityModelImplToJson(
-  _$CommunityModelImpl instance,
+Map<String, dynamic> _$CommunityModelToJson(
+  _CommunityModel instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'type': instance.type,

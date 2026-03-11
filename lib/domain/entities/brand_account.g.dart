@@ -6,8 +6,8 @@ part of 'brand_account.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$BrandAccountImpl _$$BrandAccountImplFromJson(Map<String, dynamic> json) =>
-    _$BrandAccountImpl(
+_BrandAccount _$BrandAccountFromJson(Map<String, dynamic> json) =>
+    _BrandAccount(
       id: json['id'] as String,
       name: json['name'] as String,
       logoUrl: json['logoUrl'] as String?,
@@ -20,7 +20,7 @@ _$BrandAccountImpl _$$BrandAccountImplFromJson(Map<String, dynamic> json) =>
       followerCount: (json['followerCount'] as num?)?.toInt() ?? 0,
     );
 
-Map<String, dynamic> _$$BrandAccountImplToJson(_$BrandAccountImpl instance) =>
+Map<String, dynamic> _$BrandAccountToJson(_BrandAccount instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

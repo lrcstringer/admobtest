@@ -6,9 +6,7 @@ part of 'group_buy.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GroupBuyImpl _$$GroupBuyImplFromJson(
-  Map<String, dynamic> json,
-) => _$GroupBuyImpl(
+_GroupBuy _$GroupBuyFromJson(Map<String, dynamic> json) => _GroupBuy(
   id: json['id'] as String,
   title: json['title'] as String,
   description: json['description'] as String,
@@ -57,9 +55,7 @@ _$GroupBuyImpl _$$GroupBuyImplFromJson(
       : DateTime.parse(json['updatedAt'] as String),
 );
 
-Map<String, dynamic> _$$GroupBuyImplToJson(
-  _$GroupBuyImpl instance,
-) => <String, dynamic>{
+Map<String, dynamic> _$GroupBuyToJson(_GroupBuy instance) => <String, dynamic>{
   'id': instance.id,
   'title': instance.title,
   'description': instance.description,

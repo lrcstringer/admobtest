@@ -6,24 +6,23 @@ part of 'earn_message.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EarnMessageImpl _$$EarnMessageImplFromJson(Map<String, dynamic> json) =>
-    _$EarnMessageImpl(
-      id: json['id'] as String,
-      threadId: json['threadId'] as String,
-      userId: json['userId'] as String,
-      type: $enumDecode(_$EarnMessageTypeEnumMap, json['type']),
-      content: json['content'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      status: $enumDecodeNullable(_$EarnMessageStatusEnumMap, json['status']),
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      questionId: json['questionId'] as String?,
-      response: json['response'],
-      adId: json['adId'] as String?,
-      watchDurationSeconds: (json['watchDurationSeconds'] as num?)?.toInt(),
-      tokensEarned: (json['tokensEarned'] as num?)?.toInt(),
-    );
+_EarnMessage _$EarnMessageFromJson(Map<String, dynamic> json) => _EarnMessage(
+  id: json['id'] as String,
+  threadId: json['threadId'] as String,
+  userId: json['userId'] as String,
+  type: $enumDecode(_$EarnMessageTypeEnumMap, json['type']),
+  content: json['content'] as String,
+  createdAt: DateTime.parse(json['createdAt'] as String),
+  status: $enumDecodeNullable(_$EarnMessageStatusEnumMap, json['status']),
+  metadata: json['metadata'] as Map<String, dynamic>?,
+  questionId: json['questionId'] as String?,
+  response: json['response'],
+  adId: json['adId'] as String?,
+  watchDurationSeconds: (json['watchDurationSeconds'] as num?)?.toInt(),
+  tokensEarned: (json['tokensEarned'] as num?)?.toInt(),
+);
 
-Map<String, dynamic> _$$EarnMessageImplToJson(_$EarnMessageImpl instance) =>
+Map<String, dynamic> _$EarnMessageToJson(_EarnMessage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'threadId': instance.threadId,
