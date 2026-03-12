@@ -44,6 +44,11 @@ class AppColors {
   static const Color goldLight = Color(0xFFFFCC66);
   static const Color goldDark = Color(0xFFCC9323);
 
+  // Gooi-Gooi teal
+  static const Color teal = Color(0xFF00BFA5);
+  static const Color tealLight = Color(0xFF4DD9C6);
+  static const Color tealDark = Color(0xFF009984);
+
   // ============ BACKGROUND COLORS ============
   // Deep dark - Main app background
   static const Color background = Color(0xFF0C1124);

@@ -124,7 +124,18 @@ export type JournalType =
   // Group buy transactions
   | "group_buy_escrow" // Contributor → group buy escrow on join
   | "group_buy_release" // Group buy escrow → organizer on completion
-  | "group_buy_refund"; // Group buy escrow → contributor on expiry/cancel
+  | "group_buy_refund" // Group buy escrow → contributor on expiry/cancel
+  // Gooi-Gooi transactions
+  | "gooi_contribution" // Member contribution to Gooi-Gooi group
+  | "gooi_reserve" // Member reserve fund contribution
+  | "gooi_payout" // Cycle payout to recipient
+  | "gooi_reserve_topup" // Reserve fund tops up shortfall
+  | "gooi_late_fee" // Late fee charged to member
+  | "gooi_refund" // Refund to member on group dissolution
+  | "gooi_debt_recovery" // Recovery of outstanding debt from member
+  | "gooi_reserve_return" // Reserve fund returned to member
+  | "gooi_bid_bonus" // Bonus from bid auction
+  | "gooi_bad_debt_writeoff"; // Bad debt written off
 
 /**
  * Journal status
@@ -174,7 +185,8 @@ export interface LedgerJournal {
     | "pot_entry"
     | "client_fund" // Client funding/refund operations
     | "group" // Group transactions
-    | "sub_account_expiry"; // Token expiry refund to brand client
+    | "sub_account_expiry" // Token expiry refund to brand client
+    | "gooi_gooi"; // Gooi-Gooi rotating savings
   referenceId?: string;
 
   // Sub-account tracking
@@ -532,6 +544,17 @@ export const IdempotencyKey = {
   groupBuyEscrow: (groupBuyId: string, userId: string) => `gb_escrow:${groupBuyId}:${userId}`,
   groupBuyRelease: (groupBuyId: string) => `gb_release:${groupBuyId}`,
   groupBuyRefund: (groupBuyId: string, userId: string) => `gb_refund:${groupBuyId}:${userId}`,
+  // Gooi-Gooi keys
+  gooiContribution: (groupId: string, cycleId: string, memberId: string) => `gooi_c:${groupId}:${cycleId}:${memberId}`,
+  gooiReserve: (groupId: string, cycleId: string, memberId: string) => `gooi_r:${groupId}:${cycleId}:${memberId}`,
+  gooiPayout: (groupId: string, cycleId: string) => `gooi_p:${groupId}:${cycleId}`,
+  gooiReserveTopup: (groupId: string, cycleId: string) => `gooi_rt:${groupId}:${cycleId}`,
+  gooiLateFee: (groupId: string, cycleId: string, memberId: string) => `gooi_lf:${groupId}:${cycleId}:${memberId}`,
+  gooiRefund: (groupId: string, memberId: string) => `gooi_ref:${groupId}:${memberId}`,
+  gooiDebtRecovery: (debtId: string) => `gooi_debt:${debtId}`,
+  gooiReserveReturn: (groupId: string, memberId: string) => `gooi_rr:${groupId}:${memberId}`,
+  gooiBidBonus: (groupId: string, memberId: string) => `gooi_bb:${groupId}:${memberId}`,
+  gooiBadDebtWriteoff: (groupId: string) => `gooi_bdw:${groupId}`,
 };
 
 // ============================================================================

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/datasources/local/app_database.dart';
 import '../../../core/error/failures.dart';
@@ -432,6 +433,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Clear local DB so stale communities/messages don't persist across
     // sign-out/in (they'll be re-synced from Firestore on next login).
     await _authRepository.clearLocalCache();
+    // Clear per-user feature flags so a different user starts fresh
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('hasSeenGooiGooiOnboarding');
 
     // NOTE: Do NOT clear device binding on sign-out.
     // The device binding (keypair + Firestore record) must persist

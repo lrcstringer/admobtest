@@ -24,6 +24,9 @@ import 'presentation/blocs/user_search/user_search_bloc.dart';
 import 'presentation/blocs/earn/earn_bloc.dart';
 import 'presentation/blocs/earn_inbox/earn_inbox_bloc.dart';
 import 'presentation/blocs/gift/gift_bloc.dart';
+import 'presentation/blocs/gooi/gooi_dashboard_bloc.dart';
+import 'presentation/blocs/gooi/gooi_formation_bloc.dart';
+import 'presentation/blocs/gooi/gooi_list_bloc.dart';
 import 'presentation/blocs/pot/pot_bloc.dart';
 import 'presentation/blocs/token_pool/token_pool_bloc.dart';
 import 'presentation/blocs/buy_tab/buy_tab_bloc.dart';
@@ -72,6 +75,9 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final MarketplaceBloc _marketplaceBloc;
   late final OrderBloc _orderBloc;
   late final GroupBuyBloc _groupBuyBloc;
+  late final GooiListBloc _gooiListBloc;
+  late final GooiDashboardBloc _gooiDashboardBloc;
+  late final GooiFormationBloc _gooiFormationBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -105,6 +111,9 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _marketplaceBloc = getIt<MarketplaceBloc>();
     _orderBloc = getIt<OrderBloc>();
     _groupBuyBloc = getIt<GroupBuyBloc>();
+    _gooiListBloc = getIt<GooiListBloc>();
+    _gooiDashboardBloc = getIt<GooiDashboardBloc>();
+    _gooiFormationBloc = getIt<GooiFormationBloc>();
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _appRouter = AppRouter(authBloc: _authBloc);
@@ -271,6 +280,9 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<MarketplaceBloc>.value(value: _marketplaceBloc),
         BlocProvider<OrderBloc>.value(value: _orderBloc),
         BlocProvider<GroupBuyBloc>.value(value: _groupBuyBloc),
+        BlocProvider<GooiListBloc>.value(value: _gooiListBloc),
+        BlocProvider<GooiDashboardBloc>.value(value: _gooiDashboardBloc),
+        BlocProvider<GooiFormationBloc>.value(value: _gooiFormationBloc),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (prev, curr) =>
