@@ -151,31 +151,9 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
 }
 
 MarketplaceCategory _parseMarketplaceCategory(String? value) {
-  switch (value) {
-    case 'goods':
-      return MarketplaceCategory.goods;
-    case 'food':
-      return MarketplaceCategory.food;
-    case 'gigs':
-      return MarketplaceCategory.gigs;
-    case 'groupBuys':
-      return MarketplaceCategory.groupBuys;
-    default:
-      return MarketplaceCategory.services;
-  }
+  return MarketplaceCategoryX.fromString(value ?? 'everythingElse');
 }
 
 ListingStatus _parseListingStatus(String? value) {
-  switch (value) {
-    case 'flagged':
-      return ListingStatus.flagged;
-    case 'removed':
-      return ListingStatus.removed;
-    case 'soldOut':
-      return ListingStatus.soldOut;
-    case 'expired':
-      return ListingStatus.expired;
-    default:
-      return ListingStatus.active;
-  }
+  return ListingStatusX.fromString(value ?? 'active');
 }

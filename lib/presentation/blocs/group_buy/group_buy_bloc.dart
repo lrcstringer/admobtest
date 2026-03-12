@@ -25,6 +25,9 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     on<_LoadHubGroupBuys>(_onLoadHubGroupBuys);
     on<_LeaveGroupBuy>(_onLeaveGroupBuy);
     on<_SuggestDeal>(_onSuggestDeal);
+    on<_ConfirmCollection>(_onConfirmCollection);
+    on<_CancelGroupBuy>(_onCancelGroupBuy);
+    on<_UpdateDeliveryStatus>(_onUpdateDeliveryStatus);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -219,6 +222,84 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     );
   }
 
+  Future<void> _onConfirmCollection(
+    _ConfirmCollection event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isConfirmingCollection) return;
+
+    emit(state.copyWith(isConfirmingCollection: true, errorMessage: null));
+    final result = await _repository.confirmCollection(
+      groupBuyId: event.groupBuyId,
+      contributionId: event.contributionId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isConfirmingCollection: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isConfirmingCollection: false,
+          successMessage: 'Collection confirmed!',
+        ));
+        // Reload to reflect updated contribution status
+        add(GroupBuyEvent.loadGroupBuy(event.groupBuyId));
+      },
+    );
+  }
+
+  Future<void> _onCancelGroupBuy(
+    _CancelGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isCancelling) return;
+
+    emit(state.copyWith(isCancelling: true, errorMessage: null));
+    final result = await _repository.cancelGroupBuy(
+      groupBuyId: event.groupBuyId,
+      reason: event.reason,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isCancelling: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isCancelling: false,
+        successMessage: 'Group buy cancelled. Contributions will be refunded.',
+      )),
+    );
+  }
+
+  Future<void> _onUpdateDeliveryStatus(
+    _UpdateDeliveryStatus event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isUpdatingDelivery) return;
+
+    emit(state.copyWith(isUpdatingDelivery: true, errorMessage: null));
+    final result = await _repository.updateDeliveryStatus(
+      groupBuyId: event.groupBuyId,
+      deliveryStatus: event.deliveryStatus,
+      trackingInfo: event.trackingInfo,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isUpdatingDelivery: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isUpdatingDelivery: false,
+          successMessage: 'Delivery status updated',
+        ));
+        // Reload to reflect updated status
+        add(GroupBuyEvent.loadGroupBuy(event.groupBuyId));
+      },
+    );
+  }
+
   void _onClearMessages(
     _ClearMessages event,
     Emitter<GroupBuyState> emit,
@@ -229,6 +310,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       joinSuccessMessage: null,
       leaveSuccessMessage: null,
       suggestSuccessId: null,
+      successMessage: null,
     ));
   }
 }

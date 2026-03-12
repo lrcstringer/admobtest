@@ -15,6 +15,11 @@ class GroupBuyContribution with _$GroupBuyContribution {
     /// Delivery address for physical fulfilment group buys
     String? deliveryAddress,
     required DateTime contributedAt,
+    // ── New fields (Spec §9.16) ──
+    String? voucherCode,
+    @Default(false) bool hasCollected,
+    DateTime? collectedAt,
+    @Default('primary') String walletId,
   }) = _GroupBuyContribution;
 
   factory GroupBuyContribution.fromJson(Map<String, dynamic> json) =>

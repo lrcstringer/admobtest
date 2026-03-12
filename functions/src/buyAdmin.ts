@@ -10,6 +10,7 @@ import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
 import { requireAdminPermission, logAdminAction, createPendingAction } from "./adminAuth";
+import { refundMarketplaceEscrow } from "./ledger/marketplaceEscrow";
 
 const db = admin.firestore();
 
@@ -2477,5 +2478,1216 @@ export const adminSeedBuyInitialData = onCall(
 
     logger.info(`Buy data seeded by ${adminCtx.email}: ${created} created, ${skipped} skipped`);
     return { success: true, created, skipped };
+  }
+);
+
+// ============================================================================
+// PROVIDER MODERATION
+// ============================================================================
+
+/**
+ * Ban a marketplace provider — permanently disables their account.
+ * Cascades: removes all active listings, refunds open orders.
+ */
+export const adminBanProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminBanProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:banProvider",
+      "adminBanProvider"
+    );
+
+    const { providerId, reason } = request.data;
+    if (!providerId || typeof providerId !== "string") {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+
+    const providerRef = db.collection("providers").doc(providerId);
+    const providerDoc = await providerRef.get();
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "Provider not found");
+    }
+
+    const provider = providerDoc.data()!;
+    if (provider.status === "banned") {
+      return { success: true, message: "Provider is already banned" };
+    }
+
+    // Ban provider
+    await providerRef.update({
+      status: "banned",
+      suspensionReason: reason || "Banned by admin",
+      suspensionTrigger: "admin_ban",
+      bannedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Remove all active/paused listings
+    const listingsSnap = await db
+      .collection("marketplaceListings")
+      .where("providerId", "==", providerId)
+      .where("status", "in", ["active", "paused"])
+      .get();
+
+    if (!listingsSnap.empty) {
+      const batch = db.batch();
+      for (const doc of listingsSnap.docs) {
+        batch.update(doc.ref, {
+          status: "removed",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+    }
+
+    // Refund open orders (escrowed/fulfilled)
+    const openOrders = await db
+      .collection("buyOrders")
+      .where("sellerId", "==", provider.userId)
+      .where("status", "in", ["escrowed", "fulfilled"])
+      .get();
+
+    let refundedCount = 0;
+    for (const doc of openOrders.docs) {
+      const order = doc.data();
+      try {
+        const journalId = await refundMarketplaceEscrow(
+          order.buyerId,
+          order.amount,
+          doc.id,
+          `Admin ban refund: provider ${providerId} banned`
+        );
+        await doc.ref.update({
+          status: "refunded",
+          refundJournalId: journalId,
+          refundType: "admin_ban",
+          refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+          cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        refundedCount++;
+      } catch (err) {
+        logger.error(`Failed to refund order ${doc.id} during provider ban`, err);
+      }
+    }
+
+    await logAdminAction(adminCtx.uid, "buy:banProvider", "adminBanProvider", {
+      providerId,
+      reason,
+      listingsRemoved: listingsSnap.size,
+      ordersRefunded: refundedCount,
+    });
+
+    logger.info(
+      `Provider ${providerId} banned by ${adminCtx.email}: ${listingsSnap.size} listings removed, ${refundedCount} orders refunded`
+    );
+    return { success: true, listingsRemoved: listingsSnap.size, ordersRefunded: refundedCount };
+  }
+);
+
+/**
+ * Reinstate a suspended or banned provider.
+ */
+export const adminReinstateProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminReinstateProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:reinstateProvider",
+      "adminReinstateProvider"
+    );
+
+    const { providerId } = request.data;
+    if (!providerId || typeof providerId !== "string") {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+
+    const providerRef = db.collection("providers").doc(providerId);
+    const providerDoc = await providerRef.get();
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "Provider not found");
+    }
+
+    const provider = providerDoc.data()!;
+    if (provider.status === "active") {
+      return { success: true, message: "Provider is already active" };
+    }
+
+    await providerRef.update({
+      status: "active",
+      suspensionReason: null,
+      suspensionTrigger: null,
+      suspendedAt: null,
+      bannedAt: null,
+      warningCount: 0,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:reinstateProvider", "adminReinstateProvider", {
+      providerId,
+      previousStatus: provider.status,
+    });
+
+    logger.info(`Provider ${providerId} reinstated by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Admin partial refund — refund a portion of an order back to buyer.
+ */
+export const adminPartialRefund = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminPartialRefund");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:partialRefund",
+      "adminPartialRefund"
+    );
+
+    const { orderId, refundAmount, reason } = request.data;
+    if (!orderId || typeof orderId !== "string") {
+      throw new HttpsError("invalid-argument", "Order ID is required");
+    }
+    if (!refundAmount || typeof refundAmount !== "number" || refundAmount <= 0 || !Number.isInteger(refundAmount)) {
+      throw new HttpsError("invalid-argument", "Refund amount must be a positive integer");
+    }
+
+    const orderRef = db.collection("buyOrders").doc(orderId);
+    const orderDoc = await orderRef.get();
+    if (!orderDoc.exists) {
+      throw new HttpsError("not-found", "Order not found");
+    }
+    const order = orderDoc.data()!;
+
+    if (!["escrowed", "fulfilled", "disputed", "completed"].includes(order.status)) {
+      throw new HttpsError("failed-precondition", `Cannot refund order with status: ${order.status}`);
+    }
+    if (refundAmount > order.amount) {
+      throw new HttpsError("invalid-argument", "Refund amount exceeds order total");
+    }
+
+    const journalId = await refundMarketplaceEscrow(
+      order.buyerId,
+      refundAmount,
+      orderId,
+      `Admin partial refund: ${reason || "Admin decision"}`
+    );
+
+    await orderRef.update({
+      disputeResolution: "partial_refund",
+      disputeResolutionAmount: refundAmount,
+      disputeResolutionNote: reason || "Admin partial refund",
+      refundJournalId: journalId,
+      refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+      resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
+      status: order.status === "disputed" ? "resolved" : order.status,
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:partialRefund", "adminPartialRefund", {
+      orderId,
+      refundAmount,
+      originalAmount: order.amount,
+      reason,
+    });
+
+    logger.info(`Order ${orderId} partial refund of ${refundAmount} by ${adminCtx.email}`);
+    return { success: true, journalId };
+  }
+);
+
+/**
+ * Admin requires buyer to return item before refund is processed.
+ * Sets order to "return_required" status.
+ */
+export const adminRequireReturn = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminRequireReturn");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:requireReturn",
+      "adminRequireReturn"
+    );
+
+    const { orderId, instructions } = request.data;
+    if (!orderId || typeof orderId !== "string") {
+      throw new HttpsError("invalid-argument", "Order ID is required");
+    }
+
+    const orderRef = db.collection("buyOrders").doc(orderId);
+    const orderDoc = await orderRef.get();
+    if (!orderDoc.exists) {
+      throw new HttpsError("not-found", "Order not found");
+    }
+    const order = orderDoc.data()!;
+
+    if (order.status !== "disputed") {
+      throw new HttpsError("failed-precondition", "Only disputed orders can require return");
+    }
+
+    await orderRef.update({
+      disputeResolution: "return_required",
+      disputeResolutionNote: instructions || "Please return the item to the seller",
+      resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:requireReturn", "adminRequireReturn", {
+      orderId,
+      instructions,
+    });
+
+    logger.info(`Order ${orderId} return required by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Admin escalate dispute to SMS (for users without push notification access).
+ */
+export const adminEscalateToSms = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminEscalateToSms");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:escalateToSms",
+      "adminEscalateToSms"
+    );
+
+    const { orderId, recipientUserId, message } = request.data;
+    if (!orderId || !recipientUserId || !message) {
+      throw new HttpsError("invalid-argument", "orderId, recipientUserId, and message are required");
+    }
+
+    const userDoc = await db.collection("users").doc(recipientUserId).get();
+    if (!userDoc.exists) {
+      throw new HttpsError("not-found", "User not found");
+    }
+    const phoneNumber = userDoc.data()?.phoneNumber;
+    if (!phoneNumber) {
+      throw new HttpsError("failed-precondition", "User has no phone number on file");
+    }
+
+    // Create SMS record for external SMS service to pick up
+    await db.collection("smsQueue").doc().set({
+      to: phoneNumber,
+      body: message.trim().substring(0, 160),
+      orderId,
+      userId: recipientUserId,
+      sentBy: adminCtx.uid,
+      status: "pending",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:escalateToSms", "adminEscalateToSms", {
+      orderId,
+      recipientUserId,
+    });
+
+    logger.info(`SMS escalation queued for order ${orderId} by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// SELLER LEVEL CONFIG & BANNED WORDS
+// ============================================================================
+
+/**
+ * Update seller level thresholds in the marketplace config.
+ */
+export const adminUpdateSellerLevelConfig = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateSellerLevelConfig");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateSellerLevelConfig",
+      "adminUpdateSellerLevelConfig"
+    );
+
+    const { thresholds } = request.data;
+    if (!thresholds || typeof thresholds !== "object") {
+      throw new HttpsError("invalid-argument", "Thresholds object is required");
+    }
+
+    // Validate thresholds structure
+    const requiredLevels = ["active", "trusted", "star"];
+    for (const level of requiredLevels) {
+      if (!thresholds[level]) {
+        throw new HttpsError("invalid-argument", `Missing threshold for level: ${level}`);
+      }
+      if (typeof thresholds[level].sales !== "number" || typeof thresholds[level].rating !== "number") {
+        throw new HttpsError("invalid-argument", `Each level needs 'sales' (number) and 'rating' (number)`);
+      }
+    }
+
+    await db.collection("config").doc("marketplace").set(
+      {
+        sellerLevelThresholds: thresholds,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    await logAdminAction(adminCtx.uid, "buy:updateSellerLevelConfig", "adminUpdateSellerLevelConfig", {
+      thresholds,
+    });
+
+    logger.info(`Seller level config updated by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Update banned words list in marketplace config.
+ */
+export const adminUpdateBannedWords = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateBannedWords");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateBannedWords",
+      "adminUpdateBannedWords"
+    );
+
+    const { bannedWords } = request.data;
+    if (!Array.isArray(bannedWords)) {
+      throw new HttpsError("invalid-argument", "bannedWords must be an array of strings");
+    }
+
+    // Normalize and deduplicate
+    const normalized = [...new Set(
+      bannedWords
+        .filter((w: unknown) => typeof w === "string" && w.trim().length > 0)
+        .map((w: string) => w.trim().toLowerCase())
+    )];
+
+    await db.collection("config").doc("marketplace").set(
+      {
+        bannedWords: normalized,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    await logAdminAction(adminCtx.uid, "buy:updateBannedWords", "adminUpdateBannedWords", {
+      wordCount: normalized.length,
+    });
+
+    logger.info(`Banned words updated (${normalized.length} words) by ${adminCtx.email}`);
+    return { success: true, wordCount: normalized.length };
+  }
+);
+
+// ============================================================================
+// BRAND PRODUCT CRUD
+// ============================================================================
+
+/**
+ * List products for a brand storefront.
+ */
+export const adminListBrandProducts = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminListBrandProducts");
+    await requireAdminPermission(
+      request,
+      "buy:listBrandProducts",
+      "adminListBrandProducts"
+    );
+
+    const { storefrontId } = request.data;
+    if (!storefrontId || typeof storefrontId !== "string") {
+      throw new HttpsError("invalid-argument", "Storefront ID is required");
+    }
+
+    const productsSnap = await db
+      .collection("brandProducts")
+      .where("storefrontId", "==", storefrontId)
+      .orderBy("sortOrder", "asc")
+      .get();
+
+    const products = productsSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return { success: true, products };
+  }
+);
+
+/**
+ * Create a brand product.
+ */
+export const adminCreateBrandProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateBrandProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:createBrandProduct",
+      "adminCreateBrandProduct"
+    );
+
+    const { storefrontId, name, description, priceZar, imageUrl, externalUrl, sortOrder } =
+      request.data;
+
+    if (!storefrontId || !name) {
+      throw new HttpsError("invalid-argument", "storefrontId and name are required");
+    }
+
+    // Verify storefront exists
+    const storefrontDoc = await db.collection("brandStorefronts").doc(storefrontId).get();
+    if (!storefrontDoc.exists) {
+      throw new HttpsError("not-found", "Storefront not found");
+    }
+
+    const productRef = db.collection("brandProducts").doc();
+    await productRef.set({
+      id: productRef.id,
+      storefrontId,
+      brandId: storefrontDoc.data()!.brandId || storefrontId,
+      name: name.trim(),
+      description: description?.trim() || null,
+      priceZar: priceZar || null,
+      priceTokens: priceZar ? Math.round(priceZar * 100) : null,
+      imageUrl: imageUrl || null,
+      externalUrl: externalUrl || null,
+      sortOrder: sortOrder || 0,
+      isActive: true,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:createBrandProduct", "adminCreateBrandProduct", {
+      productId: productRef.id,
+      storefrontId,
+      name,
+    });
+
+    logger.info(`Brand product ${productRef.id} created by ${adminCtx.email}`);
+    return { success: true, productId: productRef.id };
+  }
+);
+
+/**
+ * Update a brand product.
+ */
+export const adminUpdateBrandProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateBrandProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateBrandProduct",
+      "adminUpdateBrandProduct"
+    );
+
+    const { productId, ...updates } = request.data;
+    if (!productId || typeof productId !== "string") {
+      throw new HttpsError("invalid-argument", "Product ID is required");
+    }
+
+    const productRef = db.collection("brandProducts").doc(productId);
+    const productDoc = await productRef.get();
+    if (!productDoc.exists) {
+      throw new HttpsError("not-found", "Product not found");
+    }
+
+    const allowedFields = ["name", "description", "priceZar", "imageUrl", "externalUrl", "sortOrder", "isActive"];
+    const safeUpdates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        safeUpdates[key] = updates[key];
+      }
+    }
+    // Auto-calculate priceTokens when priceZar changes
+    if (updates.priceZar !== undefined) {
+      safeUpdates.priceTokens = updates.priceZar ? Math.round(updates.priceZar * 100) : null;
+    }
+
+    await productRef.update(safeUpdates);
+
+    await logAdminAction(adminCtx.uid, "buy:updateBrandProduct", "adminUpdateBrandProduct", {
+      productId,
+      updatedFields: Object.keys(safeUpdates),
+    });
+
+    logger.info(`Brand product ${productId} updated by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Delete (soft) a brand product.
+ */
+export const adminDeleteBrandProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminDeleteBrandProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:deleteBrandProduct",
+      "adminDeleteBrandProduct"
+    );
+
+    const { productId } = request.data;
+    if (!productId || typeof productId !== "string") {
+      throw new HttpsError("invalid-argument", "Product ID is required");
+    }
+
+    const productRef = db.collection("brandProducts").doc(productId);
+    const productDoc = await productRef.get();
+    if (!productDoc.exists) {
+      throw new HttpsError("not-found", "Product not found");
+    }
+
+    await productRef.update({
+      isActive: false,
+      isDeleted: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:deleteBrandProduct", "adminDeleteBrandProduct", {
+      productId,
+    });
+
+    logger.info(`Brand product ${productId} deleted by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// VAS PROVIDER & PRODUCT ADMIN
+// ============================================================================
+
+/**
+ * Create a VAS provider (e.g., Eskom for electricity, Vodacom for airtime).
+ */
+export const adminCreateVasProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateVasProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:createVasProvider",
+      "adminCreateVasProvider"
+    );
+
+    const { name, code, category, logoUrl, description, sortOrder } = request.data;
+    if (!name || !code || !category) {
+      throw new HttpsError("invalid-argument", "name, code, and category are required");
+    }
+
+    // Check code uniqueness
+    const existing = await db
+      .collection("serviceProviders")
+      .where("code", "==", code)
+      .limit(1)
+      .get();
+    if (!existing.empty) {
+      throw new HttpsError("already-exists", `Provider with code "${code}" already exists`);
+    }
+
+    const ref = db.collection("serviceProviders").doc();
+    await ref.set({
+      id: ref.id,
+      name: name.trim(),
+      code: code.trim().toLowerCase(),
+      category,
+      logoUrl: logoUrl || null,
+      description: description?.trim() || null,
+      sortOrder: sortOrder || 0,
+      isActive: true,
+      isDeleted: false,
+      productsCount: 0,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:createVasProvider", "adminCreateVasProvider", {
+      providerId: ref.id,
+      name,
+      code,
+      category,
+    });
+
+    logger.info(`VAS provider ${ref.id} (${code}) created by ${adminCtx.email}`);
+    return { success: true, providerId: ref.id };
+  }
+);
+
+/**
+ * Update a VAS provider.
+ */
+export const adminUpdateVasProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateVasProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateVasProvider",
+      "adminUpdateVasProvider"
+    );
+
+    const { providerId, ...updates } = request.data;
+    if (!providerId) {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+
+    const ref = db.collection("serviceProviders").doc(providerId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS provider not found");
+    }
+
+    const allowedFields = ["name", "code", "category", "logoUrl", "description", "sortOrder"];
+    const safeUpdates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        safeUpdates[key] = typeof updates[key] === "string" ? updates[key].trim() : updates[key];
+      }
+    }
+
+    await ref.update(safeUpdates);
+
+    await logAdminAction(adminCtx.uid, "buy:updateVasProvider", "adminUpdateVasProvider", {
+      providerId,
+    });
+
+    logger.info(`VAS provider ${providerId} updated by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Toggle VAS provider active/inactive.
+ */
+export const adminToggleVasProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminToggleVasProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:toggleVasProvider",
+      "adminToggleVasProvider"
+    );
+
+    const { providerId } = request.data;
+    if (!providerId) {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+
+    const ref = db.collection("serviceProviders").doc(providerId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS provider not found");
+    }
+
+    const newStatus = !doc.data()!.isActive;
+    await ref.update({
+      isActive: newStatus,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:toggleVasProvider", "adminToggleVasProvider", {
+      providerId,
+      isActive: newStatus,
+    });
+
+    logger.info(`VAS provider ${providerId} toggled to ${newStatus ? "active" : "inactive"} by ${adminCtx.email}`);
+    return { success: true, isActive: newStatus };
+  }
+);
+
+/**
+ * Soft-delete a VAS provider.
+ */
+export const adminDeleteVasProvider = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminDeleteVasProvider");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:deleteVasProvider",
+      "adminDeleteVasProvider"
+    );
+
+    const { providerId } = request.data;
+    if (!providerId) {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+
+    const ref = db.collection("serviceProviders").doc(providerId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS provider not found");
+    }
+
+    await ref.update({
+      isActive: false,
+      isDeleted: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:deleteVasProvider", "adminDeleteVasProvider", {
+      providerId,
+    });
+
+    logger.info(`VAS provider ${providerId} deleted by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Create a VAS product under a provider.
+ */
+export const adminCreateVasProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateVasProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:createVasProduct",
+      "adminCreateVasProduct"
+    );
+
+    const { providerId, name, code, priceZar, validity, metadata, sortOrder } = request.data;
+    if (!providerId || !name || !code) {
+      throw new HttpsError("invalid-argument", "providerId, name, and code are required");
+    }
+    if (typeof priceZar !== "number" || priceZar <= 0) {
+      throw new HttpsError("invalid-argument", "priceZar must be a positive number");
+    }
+
+    // Verify provider exists
+    const providerDoc = await db.collection("serviceProviders").doc(providerId).get();
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "VAS provider not found");
+    }
+
+    const productRef = db.collection("serviceProducts").doc();
+    await productRef.set({
+      id: productRef.id,
+      providerId,
+      providerCode: providerDoc.data()!.code,
+      name: name.trim(),
+      code: code.trim(),
+      priceZar,
+      priceTokens: Math.round(priceZar * 100),
+      validity: validity || null,
+      metadata: metadata || {},
+      sortOrder: sortOrder || 0,
+      isActive: true,
+      isDeleted: false,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Update provider product count
+    await db.collection("serviceProviders").doc(providerId).update({
+      productsCount: admin.firestore.FieldValue.increment(1),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:createVasProduct", "adminCreateVasProduct", {
+      productId: productRef.id,
+      providerId,
+      name,
+      code,
+      priceZar,
+    });
+
+    logger.info(`VAS product ${productRef.id} created by ${adminCtx.email}`);
+    return { success: true, productId: productRef.id };
+  }
+);
+
+/**
+ * Update a VAS product.
+ */
+export const adminUpdateVasProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateVasProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateVasProduct",
+      "adminUpdateVasProduct"
+    );
+
+    const { productId, ...updates } = request.data;
+    if (!productId) {
+      throw new HttpsError("invalid-argument", "Product ID is required");
+    }
+
+    const ref = db.collection("serviceProducts").doc(productId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS product not found");
+    }
+
+    const allowedFields = ["name", "code", "priceZar", "validity", "metadata", "sortOrder"];
+    const safeUpdates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        safeUpdates[key] = updates[key];
+      }
+    }
+    if (updates.priceZar !== undefined) {
+      safeUpdates.priceTokens = Math.round(updates.priceZar * 100);
+    }
+
+    await ref.update(safeUpdates);
+
+    await logAdminAction(adminCtx.uid, "buy:updateVasProduct", "adminUpdateVasProduct", {
+      productId,
+    });
+
+    logger.info(`VAS product ${productId} updated by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Toggle a VAS product active/inactive.
+ */
+export const adminToggleVasProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminToggleVasProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:toggleVasProduct",
+      "adminToggleVasProduct"
+    );
+
+    const { productId } = request.data;
+    if (!productId) {
+      throw new HttpsError("invalid-argument", "Product ID is required");
+    }
+
+    const ref = db.collection("serviceProducts").doc(productId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS product not found");
+    }
+
+    const newStatus = !doc.data()!.isActive;
+    await ref.update({
+      isActive: newStatus,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "buy:toggleVasProduct", "adminToggleVasProduct", {
+      productId,
+      isActive: newStatus,
+    });
+
+    return { success: true, isActive: newStatus };
+  }
+);
+
+/**
+ * Soft-delete a VAS product.
+ */
+export const adminDeleteVasProduct = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminDeleteVasProduct");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:deleteVasProduct",
+      "adminDeleteVasProduct"
+    );
+
+    const { productId } = request.data;
+    if (!productId) {
+      throw new HttpsError("invalid-argument", "Product ID is required");
+    }
+
+    const ref = db.collection("serviceProducts").doc(productId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "VAS product not found");
+    }
+
+    const providerId = doc.data()!.providerId;
+
+    await ref.update({
+      isActive: false,
+      isDeleted: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Decrement provider product count
+    if (providerId) {
+      await db.collection("serviceProviders").doc(providerId).update({
+        productsCount: admin.firestore.FieldValue.increment(-1),
+      });
+    }
+
+    await logAdminAction(adminCtx.uid, "buy:deleteVasProduct", "adminDeleteVasProduct", {
+      productId,
+    });
+
+    logger.info(`VAS product ${productId} deleted by ${adminCtx.email}`);
+    return { success: true };
+  }
+);
+
+/**
+ * Bulk update VAS product prices (percentage or flat adjustment).
+ */
+export const adminBulkUpdateVasProductPrices = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminBulkUpdateVasProductPrices");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:bulkUpdateVasProductPrices",
+      "adminBulkUpdateVasProductPrices"
+    );
+
+    const { providerId, adjustmentType, adjustmentValue } = request.data;
+    if (!providerId) {
+      throw new HttpsError("invalid-argument", "Provider ID is required");
+    }
+    if (!["percentage", "flat"].includes(adjustmentType)) {
+      throw new HttpsError("invalid-argument", "adjustmentType must be 'percentage' or 'flat'");
+    }
+    if (typeof adjustmentValue !== "number") {
+      throw new HttpsError("invalid-argument", "adjustmentValue must be a number");
+    }
+
+    const productsSnap = await db
+      .collection("serviceProducts")
+      .where("providerId", "==", providerId)
+      .where("isActive", "==", true)
+      .get();
+
+    if (productsSnap.empty) {
+      return { success: true, updatedCount: 0 };
+    }
+
+    const batch = db.batch();
+    let updatedCount = 0;
+    for (const doc of productsSnap.docs) {
+      const currentPrice = doc.data().priceZar;
+      if (typeof currentPrice !== "number") continue;
+
+      let newPrice: number;
+      if (adjustmentType === "percentage") {
+        newPrice = Math.round(currentPrice * (1 + adjustmentValue / 100) * 100) / 100;
+      } else {
+        newPrice = Math.round((currentPrice + adjustmentValue) * 100) / 100;
+      }
+
+      if (newPrice <= 0) continue; // Skip if adjustment would make price negative
+
+      batch.update(doc.ref, {
+        priceZar: newPrice,
+        priceTokens: Math.round(newPrice * 100),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      updatedCount++;
+    }
+
+    await batch.commit();
+
+    await logAdminAction(adminCtx.uid, "buy:bulkUpdateVasProductPrices", "adminBulkUpdateVasProductPrices", {
+      providerId,
+      adjustmentType,
+      adjustmentValue,
+      updatedCount,
+    });
+
+    logger.info(
+      `Bulk price update for provider ${providerId}: ${adjustmentType} ${adjustmentValue}, ${updatedCount} products by ${adminCtx.email}`
+    );
+    return { success: true, updatedCount };
+  }
+);
+
+/**
+ * Seed default VAS providers (idempotent — skips existing by code).
+ */
+export const adminSeedVasProviders = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminSeedVasProviders");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:seedVasProviders",
+      "adminSeedVasProviders"
+    );
+
+    const defaultProviders = [
+      // Electricity
+      { name: "Eskom", code: "eskom", category: "electricity", sortOrder: 1 },
+      { name: "City Power", code: "city-power", category: "electricity", sortOrder: 2 },
+      { name: "Tshwane Electricity", code: "tshwane-electricity", category: "electricity", sortOrder: 3 },
+      // Airtime
+      { name: "Vodacom", code: "vodacom-airtime", category: "airtime", sortOrder: 1 },
+      { name: "MTN", code: "mtn-airtime", category: "airtime", sortOrder: 2 },
+      { name: "Cell C", code: "cellc-airtime", category: "airtime", sortOrder: 3 },
+      { name: "Telkom Mobile", code: "telkom-airtime", category: "airtime", sortOrder: 4 },
+      // Data
+      { name: "Vodacom Data", code: "vodacom-data", category: "data", sortOrder: 1 },
+      { name: "MTN Data", code: "mtn-data", category: "data", sortOrder: 2 },
+      { name: "Cell C Data", code: "cellc-data", category: "data", sortOrder: 3 },
+      { name: "Telkom Data", code: "telkom-data", category: "data", sortOrder: 4 },
+      // Vouchers
+      { name: "1ForYou", code: "1foryou", category: "voucher", sortOrder: 1 },
+      { name: "Blu Voucher", code: "blu-voucher", category: "voucher", sortOrder: 2 },
+      { name: "Flash", code: "flash", category: "voucher", sortOrder: 3 },
+      { name: "OTT", code: "ott", category: "voucher", sortOrder: 4 },
+    ];
+
+    const batch = db.batch();
+    let created = 0;
+    let skipped = 0;
+
+    for (const provider of defaultProviders) {
+      const existing = await db
+        .collection("serviceProviders")
+        .where("code", "==", provider.code)
+        .limit(1)
+        .get();
+
+      if (!existing.empty) {
+        skipped++;
+        continue;
+      }
+
+      const ref = db.collection("serviceProviders").doc();
+      batch.set(ref, {
+        id: ref.id,
+        name: provider.name,
+        code: provider.code,
+        category: provider.category,
+        logoUrl: null,
+        description: null,
+        sortOrder: provider.sortOrder,
+        isActive: true,
+        isDeleted: false,
+        productsCount: 0,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      created++;
+    }
+
+    await batch.commit();
+
+    await logAdminAction(adminCtx.uid, "buy:seedVasProviders", "adminSeedVasProviders", {
+      created,
+      skipped,
+    });
+
+    logger.info(`VAS providers seeded by ${adminCtx.email}: ${created} created, ${skipped} skipped`);
+    return { success: true, created, skipped };
+  }
+);
+
+// ============================================================================
+// LISTING CATEGORY MIGRATION (one-off)
+// ============================================================================
+
+/**
+ * Migrate old listing category enum values to new 8-category system.
+ * Idempotent — skips docs already using new category values.
+ */
+export const migrateListingCategories = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "migrateListingCategories");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:migrateCategories",
+      "migrateListingCategories"
+    );
+
+    const newCategories = new Set([
+      "foodAndDrinks", "beautyAndWellness", "homeAndProperty", "clothingAndFashion",
+      "fixAndRepair", "movingAndDelivery", "kidsPetsAndCare", "everythingElse",
+    ]);
+
+    const legacyMapping: Record<string, string> = {
+      services: "fixAndRepair",
+      goods: "everythingElse",
+      food: "foodAndDrinks",
+      gigs: "fixAndRepair",
+      groupBuys: "everythingElse",
+      beauty: "beautyAndWellness",
+      home: "homeAndProperty",
+      clothing: "clothingAndFashion",
+      moving: "movingAndDelivery",
+      kids: "kidsPetsAndCare",
+    };
+
+    const allListings = await db.collection("marketplaceListings").get();
+    let migrated = 0;
+    let skipped = 0;
+    let unmapped: string[] = [];
+
+    // Process in batches of 500
+    const batchSize = 500;
+    let batch = db.batch();
+    let batchCount = 0;
+
+    for (const doc of allListings.docs) {
+      const category = doc.data().category;
+
+      if (newCategories.has(category)) {
+        skipped++;
+        continue;
+      }
+
+      const newCategory = legacyMapping[category];
+      if (!newCategory) {
+        unmapped.push(`${doc.id}:${category}`);
+        continue;
+      }
+
+      batch.update(doc.ref, {
+        category: newCategory,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      migrated++;
+      batchCount++;
+
+      if (batchCount >= batchSize) {
+        await batch.commit();
+        batch = db.batch();
+        batchCount = 0;
+      }
+    }
+
+    if (batchCount > 0) {
+      await batch.commit();
+    }
+
+    await logAdminAction(adminCtx.uid, "buy:migrateCategories", "migrateListingCategories", {
+      migrated,
+      skipped,
+      unmappedCount: unmapped.length,
+    });
+
+    logger.info(
+      `Category migration by ${adminCtx.email}: ${migrated} migrated, ${skipped} skipped, ${unmapped.length} unmapped`
+    );
+    return { success: true, migrated, skipped, unmapped };
   }
 );

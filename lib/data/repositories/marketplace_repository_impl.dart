@@ -284,4 +284,118 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateListing({
+    required String listingId,
+    String? title,
+    String? description,
+    String? category,
+    int? priceTokens,
+    List<String>? imageUrls,
+    String? location,
+  }) async {
+    try {
+      await _remoteDataSource.updateListing(
+        listingId: listingId,
+        title: title,
+        description: description,
+        category: category,
+        priceTokens: priceTokens,
+        imageUrls: imageUrls,
+        location: location,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> toggleListingStatus({
+    required String listingId,
+    required String action,
+  }) async {
+    try {
+      await _remoteDataSource.toggleListingStatus(
+        listingId: listingId,
+        action: action,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> renewListing(String listingId) async {
+    try {
+      await _remoteDataSource.renewListing(listingId: listingId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> makeOffer({
+    required String listingId,
+    required int offerAmount,
+    String? message,
+  }) async {
+    try {
+      final offerId = await _remoteDataSource.makeOffer(
+        listingId: listingId,
+        offerAmount: offerAmount,
+        message: message,
+      );
+      return Right(offerId);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String?>> respondToOffer({
+    required String offerId,
+    required String action,
+    int? counterAmount,
+  }) async {
+    try {
+      final orderId = await _remoteDataSource.respondToOffer(
+        offerId: offerId,
+        action: action,
+        counterAmount: counterAmount,
+      );
+      return Right(orderId);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sellerRefund({
+    required String orderId,
+    String? reason,
+  }) async {
+    try {
+      await _remoteDataSource.sellerRefund(
+        orderId: orderId,
+        reason: reason,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getSellerDashboard() async {
+    try {
+      final dashboard = await _remoteDataSource.getSellerDashboard();
+      return Right(dashboard);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 }

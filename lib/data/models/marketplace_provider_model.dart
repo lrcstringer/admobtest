@@ -117,14 +117,5 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
 }
 
 ProviderStatus _parseProviderStatus(String? value) {
-  switch (value) {
-    case 'approved':
-      return ProviderStatus.approved;
-    case 'suspended':
-      return ProviderStatus.suspended;
-    case 'rejected':
-      return ProviderStatus.rejected;
-    default:
-      return ProviderStatus.pending;
-  }
+  return ProviderStatusX.fromString(value ?? 'active');
 }

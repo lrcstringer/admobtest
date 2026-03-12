@@ -186,6 +186,20 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
         return Icons.bolt;
       case PurchaseCategory.voucher:
         return Icons.card_giftcard;
+      case PurchaseCategory.marketplace:
+        return Icons.storefront;
+      case PurchaseCategory.school:
+        return Icons.school;
+      case PurchaseCategory.municipal:
+        return Icons.account_balance;
+      case PurchaseCategory.insurance:
+        return Icons.shield;
+      case PurchaseCategory.funeral:
+        return Icons.favorite_border;
+      case PurchaseCategory.stokvel:
+        return Icons.people;
+      case PurchaseCategory.gaming:
+        return Icons.sports_esports;
       case PurchaseCategory.other:
         return Icons.shopping_bag;
     }

@@ -389,6 +389,22 @@ class _BrandStorefrontBody extends StatelessWidget {
         return _buildAbout(storefront);
       case StorefrontSectionType.socialLinks:
         return _buildSocialLinks(storefront);
+      case StorefrontSectionType.announcementBar:
+        return _buildAnnouncementBar(storefront);
+      case StorefrontSectionType.videoShowcase:
+        return _buildVideoShowcase(storefront);
+      case StorefrontSectionType.couponCenter:
+        return _buildCouponCenter(context, storefront);
+      case StorefrontSectionType.faq:
+        return _buildFaq(storefront);
+      case StorefrontSectionType.testimonials:
+        return _buildTestimonials(storefront);
+      case StorefrontSectionType.locationCard:
+        return _buildLocationCard(storefront);
+      case StorefrontSectionType.divider:
+        return _buildDivider();
+      case StorefrontSectionType.richText:
+        return _buildRichText(storefront);
     }
   }
 
@@ -1080,6 +1096,344 @@ class _BrandStorefrontBody extends StatelessWidget {
     );
   }
 
+  // ─── Announcement Bar ──────────────────────────────────
+
+  Widget _buildAnnouncementBar(BrandStorefront storefront) {
+    final text = storefront.announcementText;
+    if (text == null || text.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      color: _parseBrandColor(storefront.accentColor) ?? AppColors.primary,
+      child: Row(
+        children: [
+          const Icon(Icons.campaign, color: Colors.white, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (storefront.announcementDismissible)
+            const Icon(Icons.close, color: Colors.white70, size: 16),
+        ],
+      ),
+    );
+  }
+
+  // ─── Video Showcase ──────────────────────────────────────
+
+  Widget _buildVideoShowcase(BrandStorefront storefront) {
+    final videos = storefront.showcaseVideos;
+    if (videos.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionTitle('Videos'),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 180,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: videos.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final video = videos[index];
+                return Container(
+                  width: 260,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              if (video.thumbnailUrl != null)
+                                Image.network(video.thumbnailUrl!, fit: BoxFit.cover)
+                              else
+                                Container(color: AppColors.shimmerBase),
+                              const Center(
+                                child: Icon(Icons.play_circle_fill, size: 48, color: Colors.white70),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          video.title ?? '',
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Coupon Center ───────────────────────────────────────
+
+  Widget _buildCouponCenter(BuildContext context, BrandStorefront storefront) {
+    final coupons = storefront.coupons;
+    if (coupons.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionTitle('Coupons & Deals'),
+          const SizedBox(height: 8),
+          ...coupons.map((coupon) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    (_parseBrandColor(storefront.accentColor) ?? AppColors.primary).withValues(alpha: 0.1),
+                    AppColors.surfaceElevated,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: (_parseBrandColor(storefront.accentColor) ?? AppColors.primary).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.local_offer,
+                      color: _parseBrandColor(storefront.accentColor) ?? AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          coupon.title,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        if (coupon.description != null)
+                          Text(
+                            coupon.description!,
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Wire to BLoC claimCoupon event
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Coupon claimed!')),
+                      );
+                    },
+                    child: const Text('Claim'),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // ─── FAQ ─────────────────────────────────────────────────
+
+  Widget _buildFaq(BrandStorefront storefront) {
+    final items = storefront.faqItems;
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionTitle('FAQ'),
+          const SizedBox(height: 8),
+          ...items.map((faq) {
+            return ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: 12),
+              title: Text(
+                faq.question,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              children: [
+                Text(
+                  faq.answer,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // ─── Testimonials ────────────────────────────────────────
+
+  Widget _buildTestimonials(BrandStorefront storefront) {
+    // Uses the reviews section data as testimonials when testimonialReviewIds are set
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionTitle('What People Say'),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevated,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+            ),
+            child: const Center(
+              child: Text(
+                'Testimonials will appear here',
+                style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Location Card ───────────────────────────────────────
+
+  Widget _buildLocationCard(BrandStorefront storefront) {
+    final locations = storefront.locations;
+    if (locations.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _SectionTitle('Locations'),
+          const SizedBox(height: 8),
+          ...locations.map((loc) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on, color: AppColors.textSecondary, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          loc.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        if (loc.address != null)
+                          Text(
+                            loc.address!,
+                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // ─── Divider ─────────────────────────────────────────────
+
+  Widget _buildDivider() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Divider(color: AppColors.border, thickness: 0.5),
+    );
+  }
+
+  // ─── Rich Text ───────────────────────────────────────────
+
+  Widget _buildRichText(BrandStorefront storefront) {
+    final blocks = storefront.richTextBlocks;
+    if (blocks.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: blocks.entries.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              entry.value,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.6,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   // ─── Legacy Section Router ───────────────────────────────
 
   Widget _buildLegacySection(
@@ -1102,6 +1456,20 @@ class _BrandStorefrontBody extends StatelessWidget {
   }
 
   // ─── Helpers ─────────────────────────────────────────────
+
+  Color? _parseBrandColor(String? hex) {
+    if (hex == null || hex.isEmpty) return null;
+    final cleaned = hex.replaceFirst('#', '');
+    if (cleaned.length == 6) {
+      final value = int.tryParse('FF$cleaned', radix: 16);
+      return value != null ? Color(value) : null;
+    }
+    if (cleaned.length == 8) {
+      final value = int.tryParse(cleaned, radix: 16);
+      return value != null ? Color(value) : null;
+    }
+    return null;
+  }
 
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(

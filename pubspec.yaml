@@ -148,6 +148,10 @@ dependencies:
   wakelock_plus: ^1.4.0
   app_settings: ^7.0.0
   flutter_colorpicker: ^1.1.0
+  flutter_quill: ^11.5.0
+  flutter_markdown: ^0.7.6
+  easy_localization: ^3.0.7
+  geolocator: ^13.0.2
 
 dev_dependencies:
   flutter_test:

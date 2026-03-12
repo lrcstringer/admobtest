@@ -148,6 +148,32 @@ export type AdminPermission =
   | "buy:flagBrandReview"
   // Buy escrow overview
   | "buy:getEscrowOverview"
+  // Buy moderation
+  | "buy:banProvider"
+  | "buy:reinstateProvider"
+  | "buy:partialRefund"
+  | "buy:requireReturn"
+  | "buy:escalateToSms"
+  | "buy:updateSellerLevelConfig"
+  | "buy:updateBannedWords"
+  // Buy brand products
+  | "buy:listBrandProducts"
+  | "buy:createBrandProduct"
+  | "buy:updateBrandProduct"
+  | "buy:deleteBrandProduct"
+  // Buy VAS management
+  | "buy:createVasProvider"
+  | "buy:updateVasProvider"
+  | "buy:toggleVasProvider"
+  | "buy:deleteVasProvider"
+  | "buy:createVasProduct"
+  | "buy:updateVasProduct"
+  | "buy:toggleVasProduct"
+  | "buy:deleteVasProduct"
+  | "buy:bulkUpdateVasProductPrices"
+  | "buy:seedVasProviders"
+  // Buy migration
+  | "buy:migrateCategories"
   // Pending actions (maker-checker)
   | "pending:list"
   | "pending:approve"
@@ -231,6 +257,32 @@ const platformAdminPerms: AdminPermission[] = [
   "buy:getGroupBuyDetails",
   "buy:extendGroupBuyDeadline",
   "buy:createBrandGroupBuy",
+  // Buy moderation
+  "buy:banProvider",
+  "buy:reinstateProvider",
+  "buy:partialRefund",
+  "buy:requireReturn",
+  "buy:escalateToSms",
+  "buy:updateSellerLevelConfig",
+  "buy:updateBannedWords",
+  // Buy brand products
+  "buy:listBrandProducts",
+  "buy:createBrandProduct",
+  "buy:updateBrandProduct",
+  "buy:deleteBrandProduct",
+  // Buy VAS management
+  "buy:createVasProvider",
+  "buy:updateVasProvider",
+  "buy:toggleVasProvider",
+  "buy:deleteVasProvider",
+  "buy:createVasProduct",
+  "buy:updateVasProduct",
+  "buy:toggleVasProduct",
+  "buy:deleteVasProduct",
+  "buy:bulkUpdateVasProductPrices",
+  "buy:seedVasProviders",
+  // Buy migration
+  "buy:migrateCategories",
 ];
 
 const financeAdminPerms: AdminPermission[] = [
@@ -273,6 +325,11 @@ const financeAdminPerms: AdminPermission[] = [
   "buy:forceCancelGroupBuy",
   "buy:retryGroupBuyRefunds",
   "buy:getEscrowOverview",
+  "buy:banProvider",
+  "buy:reinstateProvider",
+  "buy:partialRefund",
+  "buy:requireReturn",
+  "buy:escalateToSms",
 ];
 
 const campaignAdminPerms: AdminPermission[] = [

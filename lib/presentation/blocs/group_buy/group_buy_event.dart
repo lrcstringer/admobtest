@@ -52,4 +52,23 @@ class GroupBuyEvent with _$GroupBuyEvent {
 
   /// Clear success/error messages
   const factory GroupBuyEvent.clearMessages() = _ClearMessages;
+
+  /// Confirm collection of a physical item
+  const factory GroupBuyEvent.confirmCollection({
+    required String groupBuyId,
+    required String contributionId,
+  }) = _ConfirmCollection;
+
+  /// Cancel a community group buy (organizer only)
+  const factory GroupBuyEvent.cancelGroupBuy({
+    required String groupBuyId,
+    String? reason,
+  }) = _CancelGroupBuy;
+
+  /// Update delivery status (organizer only)
+  const factory GroupBuyEvent.updateDeliveryStatus({
+    required String groupBuyId,
+    required String deliveryStatus,
+    String? trackingInfo,
+  }) = _UpdateDeliveryStatus;
 }

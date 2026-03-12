@@ -192,11 +192,35 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
       }
     }
 
-    // cancelled/refunded → notify other party
+    // cancelled/refunded → notify both parties
     if ((after.status === "cancelled" || after.status === "refunded") &&
         before.status !== "cancelled" && before.status !== "refunded") {
+      const [buyerToken, sellerToken] = await Promise.all([
+        getFcmToken(after.buyerId),
+        getFcmToken(after.sellerId),
+      ]);
+
+      // Notify buyer about refund
+      if (buyerToken) {
+        try {
+          await admin.messaging().send({
+            token: buyerToken,
+            notification: {
+              title: after.status === "refunded" ? "Refund processed" : "Order cancelled",
+              body: after.status === "refunded"
+                ? `Your ${after.amount} tokens for "${after.listingTitle}" have been refunded`
+                : `Your order for "${after.listingTitle}" has been cancelled. Tokens refunded.`,
+            },
+            data: { type: "marketplace_order", orderId, screen: "buy_order_detail" },
+            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+          });
+        } catch (error) {
+          logger.warn(`Failed to send refund notification to buyer ${after.buyerId}:`, error);
+        }
+      }
+
       // Notify seller about cancellation
-      const sellerToken = await getFcmToken(after.sellerId);
       if (sellerToken) {
         try {
           await admin.messaging().send({
@@ -205,7 +229,7 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
               title: "Order cancelled",
               body: `Order for "${after.listingTitle}" has been cancelled`,
             },
-            data: { type: "marketplace_order", orderId },
+            data: { type: "marketplace_order", orderId, screen: "seller_orders" },
             android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
             apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
           });
@@ -213,6 +237,257 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
           logger.warn(`Failed to send cancellation notification to seller ${after.sellerId}:`, error);
         }
       }
+    }
+
+    // resolved (dispute resolved) → notify both parties
+    if (after.status === "resolved" && before.status !== "resolved") {
+      const [buyerToken, sellerToken] = await Promise.all([
+        getFcmToken(after.buyerId),
+        getFcmToken(after.sellerId),
+      ]);
+
+      const resolution = after.disputeResolution || "resolved";
+      const resolutionText = resolution === "partial_refund"
+        ? `Partial refund of ${after.disputeResolutionAmount || 0} tokens`
+        : resolution === "full_refund" ? "Full refund issued"
+        : resolution === "return_required" ? "Return required — check order details"
+        : "Dispute has been resolved";
+
+      for (const [token, label] of [[buyerToken, "buyer"], [sellerToken, "seller"]] as const) {
+        if (token) {
+          try {
+            await admin.messaging().send({
+              token,
+              notification: {
+                title: "Dispute resolved",
+                body: `"${after.listingTitle}": ${resolutionText}`,
+              },
+              data: { type: "marketplace_dispute_resolved", orderId, screen: "buy_order_detail" },
+              android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+              apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+            });
+          } catch (error) {
+            logger.warn(`Failed to send dispute resolved notification to ${label}:`, error);
+          }
+        }
+      }
+    }
+  }
+);
+
+// ============================================================================
+// OFFER NOTIFICATIONS
+// ============================================================================
+
+/**
+ * Trigger: Marketplace offer created → notify seller
+ */
+export const onMarketplaceOfferCreated = onDocumentCreated(
+  { document: "marketplaceOffers/{offerId}", retry: true, labels: { area: "marketplace" } },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const offer = snap.data();
+    if (!offer.sellerId) return;
+
+    const fcmToken = await getFcmToken(offer.sellerId);
+    if (!fcmToken) return;
+
+    try {
+      await admin.messaging().send({
+        token: fcmToken,
+        notification: {
+          title: "New offer received!",
+          body: `${offer.buyerName || "A buyer"} offered ${offer.offerAmount} tokens for "${offer.listingTitle}"`,
+        },
+        data: {
+          type: "marketplace_offer",
+          offerId: snap.id,
+          listingId: offer.listingId || "",
+          screen: "seller_offers",
+        },
+        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+      });
+    } catch (error) {
+      logger.warn(`Failed to send offer notification to seller ${offer.sellerId}:`, error);
+    }
+  }
+);
+
+/**
+ * Trigger: Offer status changed → notify buyer
+ */
+export const onMarketplaceOfferUpdated = onDocumentUpdated(
+  { document: "marketplaceOffers/{offerId}", retry: true, labels: { area: "marketplace" } },
+  async (event) => {
+    if (!event.data) return;
+
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+
+    if (before.status === after.status) return;
+
+    const offerId = event.data.after.id;
+
+    // Notify buyer about offer response
+    const buyerToken = await getFcmToken(after.buyerId);
+    if (!buyerToken) return;
+
+    let title = "";
+    let body = "";
+
+    switch (after.status) {
+      case "accepted":
+        title = "Offer accepted!";
+        body = `Your offer of ${after.offerAmount} tokens for "${after.listingTitle}" was accepted`;
+        break;
+      case "declined":
+        title = "Offer declined";
+        body = `Your offer for "${after.listingTitle}" was declined`;
+        break;
+      case "countered":
+        title = "Counter offer received";
+        body = `Seller countered with ${after.counterAmount} tokens for "${after.listingTitle}"`;
+        break;
+      case "expired":
+        title = "Offer expired";
+        body = `Your offer for "${after.listingTitle}" has expired`;
+        break;
+      default:
+        return;
+    }
+
+    try {
+      await admin.messaging().send({
+        token: buyerToken,
+        notification: { title, body },
+        data: {
+          type: "marketplace_offer_response",
+          offerId,
+          listingId: after.listingId || "",
+          screen: "marketplace_listing_detail",
+        },
+        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+      });
+    } catch (error) {
+      logger.warn(`Failed to send offer response notification to buyer ${after.buyerId}:`, error);
+    }
+  }
+);
+
+// ============================================================================
+// LISTING NOTIFICATIONS
+// ============================================================================
+
+/**
+ * Trigger: Listing status changed → notify provider
+ */
+export const onListingStatusChanged = onDocumentUpdated(
+  { document: "marketplaceListings/{listingId}", retry: true, labels: { area: "marketplace" } },
+  async (event) => {
+    if (!event.data) return;
+
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const listingId = event.data.after.id;
+
+    if (before.status === after.status) return;
+
+    // Get provider's user ID
+    const providerDoc = await db.collection("providers").doc(after.providerId).get();
+    if (!providerDoc.exists) return;
+
+    const fcmToken = await getFcmToken(providerDoc.data()!.userId);
+    if (!fcmToken) return;
+
+    let title = "";
+    let body = "";
+
+    if (after.status === "flagged") {
+      title = "Listing flagged";
+      body = `Your listing "${after.title}" has been flagged for review`;
+    } else if (after.status === "removed") {
+      title = "Listing removed";
+      body = `Your listing "${after.title}" has been removed by a moderator`;
+    } else if (after.status === "expired") {
+      title = "Listing expired";
+      body = `Your listing "${after.title}" has expired. Renew it to keep selling!`;
+    } else {
+      return; // Don't notify for other status changes
+    }
+
+    try {
+      await admin.messaging().send({
+        token: fcmToken,
+        notification: { title, body },
+        data: {
+          type: "listing_status",
+          listingId,
+          screen: "my_listings",
+        },
+        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+      });
+    } catch (error) {
+      logger.warn(`Failed to send listing status notification for ${listingId}:`, error);
+    }
+  }
+);
+
+// ============================================================================
+// PURCHASE NOTIFICATIONS
+// ============================================================================
+
+/**
+ * Trigger: VAS Purchase status changes → notify buyer
+ */
+export const onPurchaseStatusChanged = onDocumentUpdated(
+  { document: "purchases/{purchaseId}", retry: true, labels: { area: "buy" } },
+  async (event) => {
+    if (!event.data) return;
+
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const purchaseId = event.data.after.id;
+
+    if (before.status === after.status) return;
+
+    const fcmToken = await getFcmToken(after.userId);
+    if (!fcmToken) return;
+
+    let title = "";
+    let body = "";
+
+    if (after.status === "completed") {
+      title = "Purchase successful";
+      body = `Your ${after.productName || "purchase"} for ${after.recipientNumber || ""} is ready. Ref: #PUR-${purchaseId.substring(0, 8)}`;
+    } else if (after.status === "failed") {
+      title = "Purchase failed";
+      body = `Your ${after.productName || "purchase"} failed. Your ${after.amountTokens || 0} tokens have been refunded.`;
+    } else if (after.status === "processing" && before.status === "pending") {
+      // Don't send notification for processing — too noisy
+      return;
+    } else {
+      return;
+    }
+
+    try {
+      await admin.messaging().send({
+        token: fcmToken,
+        notification: { title, body },
+        data: {
+          type: "purchase_status",
+          purchaseId,
+          screen: "buy_purchase_history",
+        },
+        android: { priority: "high", notification: { channelId: "buy", sound: "default" } },
+        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+      });
+    } catch (error) {
+      logger.warn(`Failed to send purchase notification for ${purchaseId}:`, error);
     }
   }
 );
@@ -347,6 +622,51 @@ async function notifyGroupBuyParticipants(
 
   await Promise.allSettled(sendPromises);
 }
+
+/**
+ * Trigger: New contribution → notify organizer
+ */
+export const onGroupBuyContributionCreated = onDocumentCreated(
+  { document: "groupBuys/{groupBuyId}/contributions/{contribId}", retry: true, labels: { area: "group_buy" } },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const contrib = snap.data();
+    const groupBuyId = event.params.groupBuyId;
+
+    // Get group buy to find organizer
+    const groupBuyDoc = await db.collection("groupBuys").doc(groupBuyId).get();
+    if (!groupBuyDoc.exists) return;
+
+    const groupBuy = groupBuyDoc.data()!;
+
+    // Don't notify organizer about their own contribution
+    if (contrib.userId === groupBuy.organizerId) return;
+
+    const fcmToken = await getFcmToken(groupBuy.organizerId);
+    if (!fcmToken) return;
+
+    try {
+      await admin.messaging().send({
+        token: fcmToken,
+        notification: {
+          title: "Someone joined your group buy!",
+          body: `${contrib.userName || "A user"} contributed ${contrib.amount} tokens to "${groupBuy.title}"`,
+        },
+        data: {
+          type: "group_buy_join",
+          groupBuyId,
+          screen: "group_buy_detail",
+        },
+        android: { priority: "high", notification: { channelId: "group_buy", sound: "default" } },
+        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+      });
+    } catch (error) {
+      logger.warn(`Failed to send join notification to organizer ${groupBuy.organizerId}:`, error);
+    }
+  }
+);
 
 /**
  * Trigger: Group buy status changes → notify participants

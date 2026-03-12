@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GooiMember {
 
- String get id; String get userId; String get displayName; String? get avatarUrl; int get position; GooiMemberRole get role; GooiMemberStatus get status; int get contributedCycles; int get missedCycles; int get outstandingDebt; bool get autoContribute; String? get autoContributeSubAccountId; String? get preferredSubAccountId; DateTime? get delegationExpiresAt; DateTime? get joinedAt; DateTime get invitedAt;
+ String get id; String get userId; String get displayName; String? get avatarUrl; int get position; GooiMemberRole get role; GooiMemberStatus get status; int get contributedCycles; int get missedCycles; int get outstandingDebt; bool get autoContribute; String? get autoContributeSubAccountId; String? get preferredSubAccountId; String? get delegateTriggerTo; DateTime? get delegationExpiresAt; DateTime? get joinedAt; DateTime get invitedAt; DateTime? get removedAt;
 /// Create a copy of GooiMember
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $GooiMemberCopyWith<GooiMember> get copyWith => _$GooiMemberCopyWithImpl<GooiMem
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GooiMember&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.position, position) || other.position == position)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.contributedCycles, contributedCycles) || other.contributedCycles == contributedCycles)&&(identical(other.missedCycles, missedCycles) || other.missedCycles == missedCycles)&&(identical(other.outstandingDebt, outstandingDebt) || other.outstandingDebt == outstandingDebt)&&(identical(other.autoContribute, autoContribute) || other.autoContribute == autoContribute)&&(identical(other.autoContributeSubAccountId, autoContributeSubAccountId) || other.autoContributeSubAccountId == autoContributeSubAccountId)&&(identical(other.preferredSubAccountId, preferredSubAccountId) || other.preferredSubAccountId == preferredSubAccountId)&&(identical(other.delegationExpiresAt, delegationExpiresAt) || other.delegationExpiresAt == delegationExpiresAt)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt)&&(identical(other.invitedAt, invitedAt) || other.invitedAt == invitedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GooiMember&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.position, position) || other.position == position)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.contributedCycles, contributedCycles) || other.contributedCycles == contributedCycles)&&(identical(other.missedCycles, missedCycles) || other.missedCycles == missedCycles)&&(identical(other.outstandingDebt, outstandingDebt) || other.outstandingDebt == outstandingDebt)&&(identical(other.autoContribute, autoContribute) || other.autoContribute == autoContribute)&&(identical(other.autoContributeSubAccountId, autoContributeSubAccountId) || other.autoContributeSubAccountId == autoContributeSubAccountId)&&(identical(other.preferredSubAccountId, preferredSubAccountId) || other.preferredSubAccountId == preferredSubAccountId)&&(identical(other.delegateTriggerTo, delegateTriggerTo) || other.delegateTriggerTo == delegateTriggerTo)&&(identical(other.delegationExpiresAt, delegationExpiresAt) || other.delegationExpiresAt == delegationExpiresAt)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt)&&(identical(other.invitedAt, invitedAt) || other.invitedAt == invitedAt)&&(identical(other.removedAt, removedAt) || other.removedAt == removedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,displayName,avatarUrl,position,role,status,contributedCycles,missedCycles,outstandingDebt,autoContribute,autoContributeSubAccountId,preferredSubAccountId,delegationExpiresAt,joinedAt,invitedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,displayName,avatarUrl,position,role,status,contributedCycles,missedCycles,outstandingDebt,autoContribute,autoContributeSubAccountId,preferredSubAccountId,delegateTriggerTo,delegationExpiresAt,joinedAt,invitedAt,removedAt);
 
 @override
 String toString() {
-  return 'GooiMember(id: $id, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, position: $position, role: $role, status: $status, contributedCycles: $contributedCycles, missedCycles: $missedCycles, outstandingDebt: $outstandingDebt, autoContribute: $autoContribute, autoContributeSubAccountId: $autoContributeSubAccountId, preferredSubAccountId: $preferredSubAccountId, delegationExpiresAt: $delegationExpiresAt, joinedAt: $joinedAt, invitedAt: $invitedAt)';
+  return 'GooiMember(id: $id, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, position: $position, role: $role, status: $status, contributedCycles: $contributedCycles, missedCycles: $missedCycles, outstandingDebt: $outstandingDebt, autoContribute: $autoContribute, autoContributeSubAccountId: $autoContributeSubAccountId, preferredSubAccountId: $preferredSubAccountId, delegateTriggerTo: $delegateTriggerTo, delegationExpiresAt: $delegationExpiresAt, joinedAt: $joinedAt, invitedAt: $invitedAt, removedAt: $removedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $GooiMemberCopyWith<$Res>  {
   factory $GooiMemberCopyWith(GooiMember value, $Res Function(GooiMember) _then) = _$GooiMemberCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String displayName, String? avatarUrl, int position, GooiMemberRole role, GooiMemberStatus status, int contributedCycles, int missedCycles, int outstandingDebt, bool autoContribute, String? autoContributeSubAccountId, String? preferredSubAccountId, DateTime? delegationExpiresAt, DateTime? joinedAt, DateTime invitedAt
+ String id, String userId, String displayName, String? avatarUrl, int position, GooiMemberRole role, GooiMemberStatus status, int contributedCycles, int missedCycles, int outstandingDebt, bool autoContribute, String? autoContributeSubAccountId, String? preferredSubAccountId, String? delegateTriggerTo, DateTime? delegationExpiresAt, DateTime? joinedAt, DateTime invitedAt, DateTime? removedAt
 });
 
 
@@ -65,7 +65,7 @@ class _$GooiMemberCopyWithImpl<$Res>
 
 /// Create a copy of GooiMember
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? displayName = null,Object? avatarUrl = freezed,Object? position = null,Object? role = null,Object? status = null,Object? contributedCycles = null,Object? missedCycles = null,Object? outstandingDebt = null,Object? autoContribute = null,Object? autoContributeSubAccountId = freezed,Object? preferredSubAccountId = freezed,Object? delegationExpiresAt = freezed,Object? joinedAt = freezed,Object? invitedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? displayName = null,Object? avatarUrl = freezed,Object? position = null,Object? role = null,Object? status = null,Object? contributedCycles = null,Object? missedCycles = null,Object? outstandingDebt = null,Object? autoContribute = null,Object? autoContributeSubAccountId = freezed,Object? preferredSubAccountId = freezed,Object? delegateTriggerTo = freezed,Object? delegationExpiresAt = freezed,Object? joinedAt = freezed,Object? invitedAt = null,Object? removedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -80,10 +80,12 @@ as int,outstandingDebt: null == outstandingDebt ? _self.outstandingDebt : outsta
 as int,autoContribute: null == autoContribute ? _self.autoContribute : autoContribute // ignore: cast_nullable_to_non_nullable
 as bool,autoContributeSubAccountId: freezed == autoContributeSubAccountId ? _self.autoContributeSubAccountId : autoContributeSubAccountId // ignore: cast_nullable_to_non_nullable
 as String?,preferredSubAccountId: freezed == preferredSubAccountId ? _self.preferredSubAccountId : preferredSubAccountId // ignore: cast_nullable_to_non_nullable
+as String?,delegateTriggerTo: freezed == delegateTriggerTo ? _self.delegateTriggerTo : delegateTriggerTo // ignore: cast_nullable_to_non_nullable
 as String?,delegationExpiresAt: freezed == delegationExpiresAt ? _self.delegationExpiresAt : delegationExpiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,joinedAt: freezed == joinedAt ? _self.joinedAt : joinedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,invitedAt: null == invitedAt ? _self.invitedAt : invitedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,removedAt: freezed == removedAt ? _self.removedAt : removedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -168,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  String? delegateTriggerTo,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt,  DateTime? removedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GooiMember() when $default != null:
-return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt);case _:
+return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegateTriggerTo,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt,_that.removedAt);case _:
   return orElse();
 
 }
@@ -189,10 +191,10 @@ return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.po
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  String? delegateTriggerTo,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt,  DateTime? removedAt)  $default,) {final _that = this;
 switch (_that) {
 case _GooiMember():
-return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt);case _:
+return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegateTriggerTo,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt,_that.removedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +211,10 @@ return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.po
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String displayName,  String? avatarUrl,  int position,  GooiMemberRole role,  GooiMemberStatus status,  int contributedCycles,  int missedCycles,  int outstandingDebt,  bool autoContribute,  String? autoContributeSubAccountId,  String? preferredSubAccountId,  String? delegateTriggerTo,  DateTime? delegationExpiresAt,  DateTime? joinedAt,  DateTime invitedAt,  DateTime? removedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _GooiMember() when $default != null:
-return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt);case _:
+return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.position,_that.role,_that.status,_that.contributedCycles,_that.missedCycles,_that.outstandingDebt,_that.autoContribute,_that.autoContributeSubAccountId,_that.preferredSubAccountId,_that.delegateTriggerTo,_that.delegationExpiresAt,_that.joinedAt,_that.invitedAt,_that.removedAt);case _:
   return null;
 
 }
@@ -224,7 +226,7 @@ return $default(_that.id,_that.userId,_that.displayName,_that.avatarUrl,_that.po
 @JsonSerializable()
 
 class _GooiMember extends GooiMember {
-  const _GooiMember({required this.id, required this.userId, required this.displayName, this.avatarUrl, this.position = 0, required this.role, required this.status, this.contributedCycles = 0, this.missedCycles = 0, this.outstandingDebt = 0, this.autoContribute = false, this.autoContributeSubAccountId, this.preferredSubAccountId, this.delegationExpiresAt, this.joinedAt, required this.invitedAt}): super._();
+  const _GooiMember({required this.id, required this.userId, required this.displayName, this.avatarUrl, this.position = 0, required this.role, required this.status, this.contributedCycles = 0, this.missedCycles = 0, this.outstandingDebt = 0, this.autoContribute = false, this.autoContributeSubAccountId, this.preferredSubAccountId, this.delegateTriggerTo, this.delegationExpiresAt, this.joinedAt, required this.invitedAt, this.removedAt}): super._();
   factory _GooiMember.fromJson(Map<String, dynamic> json) => _$GooiMemberFromJson(json);
 
 @override final  String id;
@@ -240,9 +242,11 @@ class _GooiMember extends GooiMember {
 @override@JsonKey() final  bool autoContribute;
 @override final  String? autoContributeSubAccountId;
 @override final  String? preferredSubAccountId;
+@override final  String? delegateTriggerTo;
 @override final  DateTime? delegationExpiresAt;
 @override final  DateTime? joinedAt;
 @override final  DateTime invitedAt;
+@override final  DateTime? removedAt;
 
 /// Create a copy of GooiMember
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GooiMember&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.position, position) || other.position == position)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.contributedCycles, contributedCycles) || other.contributedCycles == contributedCycles)&&(identical(other.missedCycles, missedCycles) || other.missedCycles == missedCycles)&&(identical(other.outstandingDebt, outstandingDebt) || other.outstandingDebt == outstandingDebt)&&(identical(other.autoContribute, autoContribute) || other.autoContribute == autoContribute)&&(identical(other.autoContributeSubAccountId, autoContributeSubAccountId) || other.autoContributeSubAccountId == autoContributeSubAccountId)&&(identical(other.preferredSubAccountId, preferredSubAccountId) || other.preferredSubAccountId == preferredSubAccountId)&&(identical(other.delegationExpiresAt, delegationExpiresAt) || other.delegationExpiresAt == delegationExpiresAt)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt)&&(identical(other.invitedAt, invitedAt) || other.invitedAt == invitedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GooiMember&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.position, position) || other.position == position)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.contributedCycles, contributedCycles) || other.contributedCycles == contributedCycles)&&(identical(other.missedCycles, missedCycles) || other.missedCycles == missedCycles)&&(identical(other.outstandingDebt, outstandingDebt) || other.outstandingDebt == outstandingDebt)&&(identical(other.autoContribute, autoContribute) || other.autoContribute == autoContribute)&&(identical(other.autoContributeSubAccountId, autoContributeSubAccountId) || other.autoContributeSubAccountId == autoContributeSubAccountId)&&(identical(other.preferredSubAccountId, preferredSubAccountId) || other.preferredSubAccountId == preferredSubAccountId)&&(identical(other.delegateTriggerTo, delegateTriggerTo) || other.delegateTriggerTo == delegateTriggerTo)&&(identical(other.delegationExpiresAt, delegationExpiresAt) || other.delegationExpiresAt == delegationExpiresAt)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt)&&(identical(other.invitedAt, invitedAt) || other.invitedAt == invitedAt)&&(identical(other.removedAt, removedAt) || other.removedAt == removedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,displayName,avatarUrl,position,role,status,contributedCycles,missedCycles,outstandingDebt,autoContribute,autoContributeSubAccountId,preferredSubAccountId,delegationExpiresAt,joinedAt,invitedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,displayName,avatarUrl,position,role,status,contributedCycles,missedCycles,outstandingDebt,autoContribute,autoContributeSubAccountId,preferredSubAccountId,delegateTriggerTo,delegationExpiresAt,joinedAt,invitedAt,removedAt);
 
 @override
 String toString() {
-  return 'GooiMember(id: $id, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, position: $position, role: $role, status: $status, contributedCycles: $contributedCycles, missedCycles: $missedCycles, outstandingDebt: $outstandingDebt, autoContribute: $autoContribute, autoContributeSubAccountId: $autoContributeSubAccountId, preferredSubAccountId: $preferredSubAccountId, delegationExpiresAt: $delegationExpiresAt, joinedAt: $joinedAt, invitedAt: $invitedAt)';
+  return 'GooiMember(id: $id, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, position: $position, role: $role, status: $status, contributedCycles: $contributedCycles, missedCycles: $missedCycles, outstandingDebt: $outstandingDebt, autoContribute: $autoContribute, autoContributeSubAccountId: $autoContributeSubAccountId, preferredSubAccountId: $preferredSubAccountId, delegateTriggerTo: $delegateTriggerTo, delegationExpiresAt: $delegationExpiresAt, joinedAt: $joinedAt, invitedAt: $invitedAt, removedAt: $removedAt)';
 }
 
 
@@ -277,7 +281,7 @@ abstract mixin class _$GooiMemberCopyWith<$Res> implements $GooiMemberCopyWith<$
   factory _$GooiMemberCopyWith(_GooiMember value, $Res Function(_GooiMember) _then) = __$GooiMemberCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String displayName, String? avatarUrl, int position, GooiMemberRole role, GooiMemberStatus status, int contributedCycles, int missedCycles, int outstandingDebt, bool autoContribute, String? autoContributeSubAccountId, String? preferredSubAccountId, DateTime? delegationExpiresAt, DateTime? joinedAt, DateTime invitedAt
+ String id, String userId, String displayName, String? avatarUrl, int position, GooiMemberRole role, GooiMemberStatus status, int contributedCycles, int missedCycles, int outstandingDebt, bool autoContribute, String? autoContributeSubAccountId, String? preferredSubAccountId, String? delegateTriggerTo, DateTime? delegationExpiresAt, DateTime? joinedAt, DateTime invitedAt, DateTime? removedAt
 });
 
 
@@ -294,7 +298,7 @@ class __$GooiMemberCopyWithImpl<$Res>
 
 /// Create a copy of GooiMember
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? displayName = null,Object? avatarUrl = freezed,Object? position = null,Object? role = null,Object? status = null,Object? contributedCycles = null,Object? missedCycles = null,Object? outstandingDebt = null,Object? autoContribute = null,Object? autoContributeSubAccountId = freezed,Object? preferredSubAccountId = freezed,Object? delegationExpiresAt = freezed,Object? joinedAt = freezed,Object? invitedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? displayName = null,Object? avatarUrl = freezed,Object? position = null,Object? role = null,Object? status = null,Object? contributedCycles = null,Object? missedCycles = null,Object? outstandingDebt = null,Object? autoContribute = null,Object? autoContributeSubAccountId = freezed,Object? preferredSubAccountId = freezed,Object? delegateTriggerTo = freezed,Object? delegationExpiresAt = freezed,Object? joinedAt = freezed,Object? invitedAt = null,Object? removedAt = freezed,}) {
   return _then(_GooiMember(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -309,10 +313,12 @@ as int,outstandingDebt: null == outstandingDebt ? _self.outstandingDebt : outsta
 as int,autoContribute: null == autoContribute ? _self.autoContribute : autoContribute // ignore: cast_nullable_to_non_nullable
 as bool,autoContributeSubAccountId: freezed == autoContributeSubAccountId ? _self.autoContributeSubAccountId : autoContributeSubAccountId // ignore: cast_nullable_to_non_nullable
 as String?,preferredSubAccountId: freezed == preferredSubAccountId ? _self.preferredSubAccountId : preferredSubAccountId // ignore: cast_nullable_to_non_nullable
+as String?,delegateTriggerTo: freezed == delegateTriggerTo ? _self.delegateTriggerTo : delegateTriggerTo // ignore: cast_nullable_to_non_nullable
 as String?,delegationExpiresAt: freezed == delegationExpiresAt ? _self.delegationExpiresAt : delegationExpiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,joinedAt: freezed == joinedAt ? _self.joinedAt : joinedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,invitedAt: null == invitedAt ? _self.invitedAt : invitedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,removedAt: freezed == removedAt ? _self.removedAt : removedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

@@ -43,6 +43,36 @@ _BuyOrder _$BuyOrderFromJson(Map<String, dynamic> json) => _BuyOrder(
   cancelledAt: json['cancelledAt'] == null
       ? null
       : DateTime.parse(json['cancelledAt'] as String),
+  deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
+  totalAmount: (json['totalAmount'] as num?)?.toInt() ?? 0,
+  deliveryMethod: json['deliveryMethod'] as String?,
+  deliveredVia: json['deliveredVia'] as String?,
+  trackingInfo: json['trackingInfo'] as String?,
+  deliveryDeadline: json['deliveryDeadline'] == null
+      ? null
+      : DateTime.parse(json['deliveryDeadline'] as String),
+  buyerConfirmationDeadline: json['buyerConfirmationDeadline'] == null
+      ? null
+      : DateTime.parse(json['buyerConfirmationDeadline'] as String),
+  refundType: json['refundType'] as String?,
+  disputeDetails: json['disputeDetails'] as String?,
+  disputePhotos:
+      (json['disputePhotos'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  sellerDisputeResponse: json['sellerDisputeResponse'] as String?,
+  sellerDisputePhotos:
+      (json['sellerDisputePhotos'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  sellerProposedResolution: json['sellerProposedResolution'] as String?,
+  disputeResolutionAmount: (json['disputeResolutionAmount'] as num?)?.toInt(),
+  disputeResolutionNote: json['disputeResolutionNote'] as String?,
+  refundedAt: json['refundedAt'] == null
+      ? null
+      : DateTime.parse(json['refundedAt'] as String),
 );
 
 Map<String, dynamic> _$BuyOrderToJson(_BuyOrder instance) => <String, dynamic>{
@@ -70,6 +100,23 @@ Map<String, dynamic> _$BuyOrderToJson(_BuyOrder instance) => <String, dynamic>{
   'disputedAt': instance.disputedAt?.toIso8601String(),
   'resolvedAt': instance.resolvedAt?.toIso8601String(),
   'cancelledAt': instance.cancelledAt?.toIso8601String(),
+  'deliveryFee': instance.deliveryFee,
+  'totalAmount': instance.totalAmount,
+  'deliveryMethod': instance.deliveryMethod,
+  'deliveredVia': instance.deliveredVia,
+  'trackingInfo': instance.trackingInfo,
+  'deliveryDeadline': instance.deliveryDeadline?.toIso8601String(),
+  'buyerConfirmationDeadline': instance.buyerConfirmationDeadline
+      ?.toIso8601String(),
+  'refundType': instance.refundType,
+  'disputeDetails': instance.disputeDetails,
+  'disputePhotos': instance.disputePhotos,
+  'sellerDisputeResponse': instance.sellerDisputeResponse,
+  'sellerDisputePhotos': instance.sellerDisputePhotos,
+  'sellerProposedResolution': instance.sellerProposedResolution,
+  'disputeResolutionAmount': instance.disputeResolutionAmount,
+  'disputeResolutionNote': instance.disputeResolutionNote,
+  'refundedAt': instance.refundedAt?.toIso8601String(),
 };
 
 const _$OrderStatusEnumMap = {

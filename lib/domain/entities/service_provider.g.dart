@@ -45,6 +45,13 @@ const _$PurchaseCategoryEnumMap = {
   PurchaseCategory.data: 'data',
   PurchaseCategory.electricity: 'electricity',
   PurchaseCategory.voucher: 'voucher',
+  PurchaseCategory.marketplace: 'marketplace',
+  PurchaseCategory.school: 'school',
+  PurchaseCategory.municipal: 'municipal',
+  PurchaseCategory.insurance: 'insurance',
+  PurchaseCategory.funeral: 'funeral',
+  PurchaseCategory.stokvel: 'stokvel',
+  PurchaseCategory.gaming: 'gaming',
   PurchaseCategory.other: 'other',
 };
 

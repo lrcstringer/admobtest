@@ -22,4 +22,19 @@ class BrandStorefrontEvent with _$BrandStorefrontEvent {
     required int serviceRating,
     String? comment,
   }) = _SubmitReview;
+
+  /// Claim a coupon from the storefront
+  const factory BrandStorefrontEvent.claimCoupon({
+    required String storefrontId,
+    required String couponId,
+    String? couponCode,
+  }) = _ClaimCoupon;
+
+  /// Record a storefront view (fire-and-forget)
+  const factory BrandStorefrontEvent.recordView(String storefrontId) =
+      _RecordView;
+
+  /// Toggle follow/unfollow for this brand
+  const factory BrandStorefrontEvent.toggleFollow(String brandId) =
+      _ToggleFollow;
 }

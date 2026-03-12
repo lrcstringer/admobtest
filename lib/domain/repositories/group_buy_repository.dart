@@ -58,4 +58,23 @@ abstract class GroupBuyRepository {
     String? imageUrl,
     bool wantsToJoin = true,
   });
+
+  /// Confirm collection of a physical item
+  Future<Either<Failure, void>> confirmCollection({
+    required String groupBuyId,
+    required String contributionId,
+  });
+
+  /// Cancel a community group buy (organizer only)
+  Future<Either<Failure, void>> cancelGroupBuy({
+    required String groupBuyId,
+    String? reason,
+  });
+
+  /// Update delivery status (organizer only)
+  Future<Either<Failure, void>> updateDeliveryStatus({
+    required String groupBuyId,
+    required String deliveryStatus,
+    String? trackingInfo,
+  });
 }

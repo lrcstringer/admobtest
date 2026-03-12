@@ -20,6 +20,7 @@ _GooiMember _$GooiMemberFromJson(Map<String, dynamic> json) => _GooiMember(
   autoContribute: json['autoContribute'] as bool? ?? false,
   autoContributeSubAccountId: json['autoContributeSubAccountId'] as String?,
   preferredSubAccountId: json['preferredSubAccountId'] as String?,
+  delegateTriggerTo: json['delegateTriggerTo'] as String?,
   delegationExpiresAt: json['delegationExpiresAt'] == null
       ? null
       : DateTime.parse(json['delegationExpiresAt'] as String),
@@ -27,6 +28,9 @@ _GooiMember _$GooiMemberFromJson(Map<String, dynamic> json) => _GooiMember(
       ? null
       : DateTime.parse(json['joinedAt'] as String),
   invitedAt: DateTime.parse(json['invitedAt'] as String),
+  removedAt: json['removedAt'] == null
+      ? null
+      : DateTime.parse(json['removedAt'] as String),
 );
 
 Map<String, dynamic> _$GooiMemberToJson(_GooiMember instance) =>
@@ -44,9 +48,11 @@ Map<String, dynamic> _$GooiMemberToJson(_GooiMember instance) =>
       'autoContribute': instance.autoContribute,
       'autoContributeSubAccountId': instance.autoContributeSubAccountId,
       'preferredSubAccountId': instance.preferredSubAccountId,
+      'delegateTriggerTo': instance.delegateTriggerTo,
       'delegationExpiresAt': instance.delegationExpiresAt?.toIso8601String(),
       'joinedAt': instance.joinedAt?.toIso8601String(),
       'invitedAt': instance.invitedAt.toIso8601String(),
+      'removedAt': instance.removedAt?.toIso8601String(),
     };
 
 const _$GooiMemberRoleEnumMap = {

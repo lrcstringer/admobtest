@@ -14,7 +14,6 @@ _MarketplaceProvider _$MarketplaceProviderFromJson(Map<String, dynamic> json) =>
       bio: json['bio'] as String?,
       photoUrl: json['photoUrl'] as String?,
       communityId: json['communityId'] as String?,
-      servicesDescription: json['servicesDescription'] as String?,
       status: $enumDecode(_$ProviderStatusEnumMap, json['status']),
       trustScore: (json['trustScore'] as num?)?.toDouble() ?? 0.0,
       vouchCount: (json['vouchCount'] as num?)?.toInt() ?? 0,
@@ -27,6 +26,35 @@ _MarketplaceProvider _$MarketplaceProviderFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       createdAt: DateTime.parse(json['createdAt'] as String),
+      categories:
+          (json['categories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      subCategories: (json['subCategories'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      sellerLevel:
+          $enumDecodeNullable(_$SellerLevelEnumMap, json['sellerLevel']) ??
+          SellerLevel.newSeller,
+      avgResponseTimeHrs: (json['avgResponseTimeHrs'] as num?)?.toDouble(),
+      warningCount: (json['warningCount'] as num?)?.toInt() ?? 0,
+      reportCount: (json['reportCount'] as num?)?.toInt() ?? 0,
+      disputeRate: (json['disputeRate'] as num?)?.toDouble() ?? 0.0,
+      cancellationRate: (json['cancellationRate'] as num?)?.toDouble() ?? 0.0,
+      suspensionReason: json['suspensionReason'] as String?,
+      suspensionTrigger: json['suspensionTrigger'] as String?,
+      suspendedAt: json['suspendedAt'] == null
+          ? null
+          : DateTime.parse(json['suspendedAt'] as String),
+      bannedAt: json['bannedAt'] == null
+          ? null
+          : DateTime.parse(json['bannedAt'] as String),
+      profileLocation: json['profileLocation'] == null
+          ? null
+          : LocationData.fromJson(
+              json['profileLocation'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$MarketplaceProviderToJson(
@@ -38,7 +66,6 @@ Map<String, dynamic> _$MarketplaceProviderToJson(
   'bio': instance.bio,
   'photoUrl': instance.photoUrl,
   'communityId': instance.communityId,
-  'servicesDescription': instance.servicesDescription,
   'status': _$ProviderStatusEnumMap[instance.status]!,
   'trustScore': instance.trustScore,
   'vouchCount': instance.vouchCount,
@@ -47,11 +74,30 @@ Map<String, dynamic> _$MarketplaceProviderToJson(
   'isVerifiedOverride': instance.isVerifiedOverride,
   'customerIds': instance.customerIds,
   'createdAt': instance.createdAt.toIso8601String(),
+  'categories': instance.categories,
+  'subCategories': instance.subCategories,
+  'sellerLevel': _$SellerLevelEnumMap[instance.sellerLevel]!,
+  'avgResponseTimeHrs': instance.avgResponseTimeHrs,
+  'warningCount': instance.warningCount,
+  'reportCount': instance.reportCount,
+  'disputeRate': instance.disputeRate,
+  'cancellationRate': instance.cancellationRate,
+  'suspensionReason': instance.suspensionReason,
+  'suspensionTrigger': instance.suspensionTrigger,
+  'suspendedAt': instance.suspendedAt?.toIso8601String(),
+  'bannedAt': instance.bannedAt?.toIso8601String(),
+  'profileLocation': instance.profileLocation,
 };
 
 const _$ProviderStatusEnumMap = {
-  ProviderStatus.pending: 'pending',
-  ProviderStatus.approved: 'approved',
+  ProviderStatus.active: 'active',
   ProviderStatus.suspended: 'suspended',
-  ProviderStatus.rejected: 'rejected',
+  ProviderStatus.banned: 'banned',
+};
+
+const _$SellerLevelEnumMap = {
+  SellerLevel.newSeller: 'newSeller',
+  SellerLevel.active: 'active',
+  SellerLevel.trusted: 'trusted',
+  SellerLevel.star: 'star',
 };

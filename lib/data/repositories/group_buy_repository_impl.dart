@@ -154,4 +154,54 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> confirmCollection({
+    required String groupBuyId,
+    required String contributionId,
+  }) async {
+    try {
+      await _remoteDataSource.confirmCollection(
+        groupBuyId: groupBuyId,
+        contributionId: contributionId,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> cancelGroupBuy({
+    required String groupBuyId,
+    String? reason,
+  }) async {
+    try {
+      await _remoteDataSource.cancelGroupBuy(
+        groupBuyId: groupBuyId,
+        reason: reason,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateDeliveryStatus({
+    required String groupBuyId,
+    required String deliveryStatus,
+    String? trackingInfo,
+  }) async {
+    try {
+      await _remoteDataSource.updateDeliveryStatus(
+        groupBuyId: groupBuyId,
+        deliveryStatus: deliveryStatus,
+        trackingInfo: trackingInfo,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

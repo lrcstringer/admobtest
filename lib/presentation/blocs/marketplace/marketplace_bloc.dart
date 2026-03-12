@@ -27,6 +27,12 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<_ReportListing>(_onReportListing);
     on<_ReportProvider>(_onReportProvider);
     on<_CreateListing>(_onCreateListing);
+    on<_UpdateListing>(_onUpdateListing);
+    on<_ToggleListingStatus>(_onToggleListingStatus);
+    on<_RenewListing>(_onRenewListing);
+    on<_MakeOffer>(_onMakeOffer);
+    on<_RespondToOffer>(_onRespondToOffer);
+    on<_SellerRefund>(_onSellerRefund);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -269,6 +275,151 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     );
   }
 
+  Future<void> _onUpdateListing(
+    _UpdateListing event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isUpdating) return;
+    emit(state.copyWith(isUpdating: true, errorMessage: null));
+
+    final result = await _repository.updateListing(
+      listingId: event.listingId,
+      title: event.title,
+      description: event.description,
+      category: event.category,
+      priceTokens: event.priceTokens,
+      imageUrls: event.imageUrls,
+      location: event.location,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isUpdating: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isUpdating: false,
+        successMessage: 'Listing updated successfully',
+      )),
+    );
+  }
+
+  Future<void> _onToggleListingStatus(
+    _ToggleListingStatus event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isTogglingStatus) return;
+    emit(state.copyWith(isTogglingStatus: true, errorMessage: null));
+
+    final result = await _repository.toggleListingStatus(
+      listingId: event.listingId,
+      action: event.action,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isTogglingStatus: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isTogglingStatus: false,
+        successMessage: 'Listing status updated',
+      )),
+    );
+  }
+
+  Future<void> _onRenewListing(
+    _RenewListing event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    emit(state.copyWith(errorMessage: null));
+
+    final result = await _repository.renewListing(event.listingId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        successMessage: 'Listing renewed successfully',
+      )),
+    );
+  }
+
+  Future<void> _onMakeOffer(
+    _MakeOffer event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isMakingOffer) return;
+    emit(state.copyWith(isMakingOffer: true, errorMessage: null));
+
+    final result = await _repository.makeOffer(
+      listingId: event.listingId,
+      offerAmount: event.offerAmount,
+      message: event.message,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isMakingOffer: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isMakingOffer: false,
+        successMessage: 'Offer submitted',
+      )),
+    );
+  }
+
+  Future<void> _onRespondToOffer(
+    _RespondToOffer event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isRespondingToOffer) return;
+    emit(state.copyWith(isRespondingToOffer: true, errorMessage: null));
+
+    final result = await _repository.respondToOffer(
+      offerId: event.offerId,
+      action: event.action,
+      counterAmount: event.counterAmount,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isRespondingToOffer: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isRespondingToOffer: false,
+        successMessage: 'Offer response sent',
+      )),
+    );
+  }
+
+  Future<void> _onSellerRefund(
+    _SellerRefund event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isRefunding) return;
+    emit(state.copyWith(isRefunding: true, errorMessage: null));
+
+    final result = await _repository.sellerRefund(
+      orderId: event.orderId,
+      reason: event.reason,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isRefunding: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isRefunding: false,
+        successMessage: 'Refund initiated successfully',
+      )),
+    );
+  }
+
   Future<void> _onClearMessages(
     _ClearMessages event,
     Emitter<MarketplaceState> emit,
@@ -277,6 +428,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       errorMessage: null,
       reportSuccessMessage: null,
       createSuccessId: null,
+      successMessage: null,
     ));
   }
 

@@ -55,4 +55,45 @@ class MarketplaceEvent with _$MarketplaceEvent {
 
   /// Clear success/error messages
   const factory MarketplaceEvent.clearMessages() = _ClearMessages;
+
+  /// Update an existing listing
+  const factory MarketplaceEvent.updateListing({
+    required String listingId,
+    String? title,
+    String? description,
+    String? category,
+    int? priceTokens,
+    List<String>? imageUrls,
+    String? location,
+  }) = _UpdateListing;
+
+  /// Toggle listing status (pause/unpause/markSold)
+  const factory MarketplaceEvent.toggleListingStatus({
+    required String listingId,
+    required String action,
+  }) = _ToggleListingStatus;
+
+  /// Renew an expired listing
+  const factory MarketplaceEvent.renewListing(String listingId) =
+      _RenewListing;
+
+  /// Make an offer on a listing
+  const factory MarketplaceEvent.makeOffer({
+    required String listingId,
+    required int offerAmount,
+    String? message,
+  }) = _MakeOffer;
+
+  /// Respond to an offer (accept/decline/counter)
+  const factory MarketplaceEvent.respondToOffer({
+    required String offerId,
+    required String action,
+    int? counterAmount,
+  }) = _RespondToOffer;
+
+  /// Seller-initiated refund
+  const factory MarketplaceEvent.sellerRefund({
+    required String orderId,
+    String? reason,
+  }) = _SellerRefund;
 }

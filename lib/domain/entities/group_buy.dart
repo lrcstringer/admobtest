@@ -66,6 +66,15 @@ class GroupBuy with _$GroupBuy {
     /// Original price before group buy discount (for strikethrough display)
     int? originalPrice,
 
+    // ── New fields (Spec §9.16) ──
+    DateTime? collectionDeadline,
+    String? deliveryStatus,
+    String? fulfilmentInstructions,
+    @Default(0) int collectedCount,
+    String? category,
+    int? deliveryFee,
+    double? organizerSuccessRate,
+
     required DateTime createdAt,
     DateTime? updatedAt,
   }) = _GroupBuy;

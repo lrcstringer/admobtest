@@ -1,6 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../enums/provider_status.dart';
+import '../enums/seller_level.dart';
+import 'location_data.dart';
 
 part 'marketplace_provider.freezed.dart';
 part 'marketplace_provider.g.dart';
@@ -14,7 +16,6 @@ class MarketplaceProvider with _$MarketplaceProvider {
     String? bio,
     String? photoUrl,
     String? communityId,
-    String? servicesDescription,
     required ProviderStatus status,
     @Default(0.0) double trustScore,
     @Default(0) int vouchCount,
@@ -23,6 +24,20 @@ class MarketplaceProvider with _$MarketplaceProvider {
     bool? isVerifiedOverride,
     @Default([]) List<String> customerIds,
     required DateTime createdAt,
+    // ── New fields (Spec §8.25) ──
+    @Default([]) List<String> categories,
+    List<String>? subCategories,
+    @Default(SellerLevel.newSeller) SellerLevel sellerLevel,
+    double? avgResponseTimeHrs,
+    @Default(0) int warningCount,
+    @Default(0) int reportCount,
+    @Default(0.0) double disputeRate,
+    @Default(0.0) double cancellationRate,
+    String? suspensionReason,
+    String? suspensionTrigger,
+    DateTime? suspendedAt,
+    DateTime? bannedAt,
+    LocationData? profileLocation,
   }) = _MarketplaceProvider;
 
   const MarketplaceProvider._();
@@ -35,5 +50,11 @@ class MarketplaceProvider with _$MarketplaceProvider {
       isVerifiedOverride ?? (vouchCount >= 5 && trustScore >= 4.0);
 
   /// Whether provider is active and can create listings
-  bool get isActive => status == ProviderStatus.approved;
+  bool get isActive => status == ProviderStatus.active;
+
+  /// Whether provider is banned permanently
+  bool get isBanned => status == ProviderStatus.banned;
+
+  /// Whether provider is suspended
+  bool get isSuspended => status == ProviderStatus.suspended;
 }

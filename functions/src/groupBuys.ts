@@ -584,3 +584,321 @@ export const checkExpiredGroupBuys = onSchedule(
     }
   }
 );
+
+// ============================================================================
+// CONFIRM COLLECTION (Physical Fulfilment)
+// ============================================================================
+
+/**
+ * Confirm that a participant has collected their physical item.
+ * Can be called by the organizer or the participant themselves.
+ */
+export const confirmGroupBuyCollection = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "confirmGroupBuyCollection");
+
+    const userId = request.auth.uid;
+    const { groupBuyId, contributionId } = request.data;
+
+    if (!groupBuyId || !contributionId) {
+      throw new HttpsError("invalid-argument", "groupBuyId and contributionId are required");
+    }
+
+    const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
+    const contribRef = groupBuyRef.collection("contributions").doc(contributionId);
+
+    await db.runTransaction(async (tx) => {
+      const [groupBuyDoc, contribDoc] = await Promise.all([
+        tx.get(groupBuyRef),
+        tx.get(contribRef),
+      ]);
+
+      if (!groupBuyDoc.exists) {
+        throw new HttpsError("not-found", "Group buy not found");
+      }
+      if (!contribDoc.exists) {
+        throw new HttpsError("not-found", "Contribution not found");
+      }
+
+      const groupBuy = groupBuyDoc.data()!;
+      const contrib = contribDoc.data()!;
+
+      // Only organizer or the contributor can confirm
+      if (userId !== groupBuy.organizerId && userId !== contrib.userId) {
+        throw new HttpsError("permission-denied", "Only the organizer or contributor can confirm collection");
+      }
+
+      if (contrib.hasCollected) {
+        throw new HttpsError("failed-precondition", "Already marked as collected");
+      }
+
+      if (!["completed", "targetMet"].includes(groupBuy.status)) {
+        throw new HttpsError("failed-precondition", "Group buy must be completed or target met");
+      }
+
+      tx.update(contribRef, {
+        hasCollected: true,
+        collectedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Increment collectedCount on the group buy
+      tx.update(groupBuyRef, {
+        collectedCount: admin.firestore.FieldValue.increment(1),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    logger.info(`Collection confirmed for contribution ${contributionId} in group buy ${groupBuyId}`);
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// CANCEL COMMUNITY GROUP BUY
+// ============================================================================
+
+/**
+ * Community organizer cancels their own group buy.
+ * Refunds all contributions.
+ */
+export const cancelCommunityGroupBuy = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "cancelCommunityGroupBuy");
+
+    const userId = request.auth.uid;
+    const { groupBuyId, reason } = request.data;
+
+    if (!groupBuyId || typeof groupBuyId !== "string") {
+      throw new HttpsError("invalid-argument", "groupBuyId is required");
+    }
+
+    const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
+
+    // Verify ownership and status in transaction
+    const groupBuyData = await db.runTransaction(async (tx) => {
+      const doc = await tx.get(groupBuyRef);
+      if (!doc.exists) {
+        throw new HttpsError("not-found", "Group buy not found");
+      }
+      const data = doc.data()!;
+
+      if (data.organizerId !== userId) {
+        throw new HttpsError("permission-denied", "Only the organizer can cancel this group buy");
+      }
+      if (!["open", "targetMet"].includes(data.status)) {
+        throw new HttpsError("failed-precondition", `Cannot cancel a group buy with status: ${data.status}`);
+      }
+
+      tx.update(groupBuyRef, {
+        status: "cancelling",
+        cancelReason: reason?.trim() || "Cancelled by organizer",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return data;
+    });
+
+    // Refund all contributions
+    const contribs = await groupBuyRef.collection("contributions").get();
+    let refunded = 0;
+    let failed = 0;
+
+    for (const contribDoc of contribs.docs) {
+      const contrib = contribDoc.data();
+      try {
+        await refundGroupBuyContribution(
+          contrib.userId,
+          contrib.amount,
+          groupBuyId,
+          `Group buy cancelled: ${groupBuyData.title}`
+        );
+        refunded++;
+      } catch (err) {
+        failed++;
+        logger.error(`Failed to refund ${contrib.userId} for cancelled group buy ${groupBuyId}`, err);
+      }
+    }
+
+    await groupBuyRef.update({
+      status: "cancelled",
+      refundedCount: refunded,
+      failedRefundCount: failed,
+      cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    logger.info(`Group buy ${groupBuyId} cancelled by organizer ${userId}. Refunded ${refunded}/${contribs.size}`);
+    return { success: true, refundedCount: refunded, failedCount: failed };
+  }
+);
+
+// ============================================================================
+// UPDATE DELIVERY STATUS
+// ============================================================================
+
+/**
+ * Update the delivery status of a group buy (Preparing/Shipped/Delivered).
+ * Only organizer or admin can update.
+ */
+export const updateGroupBuyDeliveryStatus = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "updateGroupBuyDeliveryStatus");
+
+    const userId = request.auth.uid;
+    const { groupBuyId, deliveryStatus, trackingInfo } = request.data;
+
+    if (!groupBuyId || typeof groupBuyId !== "string") {
+      throw new HttpsError("invalid-argument", "groupBuyId is required");
+    }
+    const validStatuses = ["preparing", "shipped", "delivered"];
+    if (!validStatuses.includes(deliveryStatus)) {
+      throw new HttpsError("invalid-argument", `deliveryStatus must be one of: ${validStatuses.join(", ")}`);
+    }
+
+    const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
+    const groupBuyDoc = await groupBuyRef.get();
+    if (!groupBuyDoc.exists) {
+      throw new HttpsError("not-found", "Group buy not found");
+    }
+    const groupBuy = groupBuyDoc.data()!;
+
+    if (groupBuy.organizerId !== userId) {
+      throw new HttpsError("permission-denied", "Only the organizer can update delivery status");
+    }
+
+    if (!["completed", "targetMet"].includes(groupBuy.status)) {
+      throw new HttpsError("failed-precondition", "Group buy must be completed or target met to update delivery");
+    }
+
+    const updates: Record<string, unknown> = {
+      deliveryStatus,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    if (trackingInfo) {
+      updates.trackingInfo = trackingInfo.trim();
+    }
+
+    await groupBuyRef.update(updates);
+
+    logger.info(`Group buy ${groupBuyId} delivery status updated to ${deliveryStatus} by ${userId}`);
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// SCHEDULED: GROUP BUY REMINDERS
+// ============================================================================
+
+/**
+ * Send reminders for group buys:
+ * - Deals ending in 24 hours
+ * - Collection deadlines approaching (1 day away)
+ * Runs daily at 9:00 AM SAST.
+ */
+export const sendGroupBuyReminders = onSchedule(
+  {
+    schedule: "0 9 * * *",
+    timeZone: "Africa/Johannesburg",
+    region: "europe-west1",
+    labels: { area: "groupbuys" },
+  },
+  async () => {
+    const now = Date.now();
+    const in24Hours = admin.firestore.Timestamp.fromMillis(now + 24 * 60 * 60 * 1000);
+    const nowTs = admin.firestore.Timestamp.now();
+
+    // 1. Deals ending in 24 hours
+    const endingSoon = await db
+      .collection("groupBuys")
+      .where("status", "==", "open")
+      .where("deadline", ">=", nowTs)
+      .where("deadline", "<=", in24Hours)
+      .get();
+
+    let endingReminders = 0;
+    for (const doc of endingSoon.docs) {
+      const groupBuy = doc.data();
+      const contribs = await doc.ref.collection("contributions").get();
+
+      for (const contribDoc of contribs.docs) {
+        const contrib = contribDoc.data();
+        const userDoc = await db.collection("users").doc(contrib.userId).get();
+        const fcmToken = userDoc.data()?.fcmToken;
+        if (!fcmToken) continue;
+
+        try {
+          await admin.messaging().send({
+            token: fcmToken,
+            notification: {
+              title: "Group buy ending soon!",
+              body: `"${groupBuy.title}" ends in 24 hours. Share with friends to reach the target!`,
+            },
+            data: {
+              type: "group_buy_ending_soon",
+              groupBuyId: doc.id,
+              screen: "group_buy_detail",
+            },
+          });
+          endingReminders++;
+        } catch (err) {
+          logger.warn(`Failed to send ending reminder to ${contrib.userId}`, err);
+        }
+      }
+    }
+
+    // 2. Collection deadlines approaching (1 day away)
+    const collectionApproaching = await db
+      .collection("groupBuys")
+      .where("status", "in", ["completed", "targetMet"])
+      .where("collectionDeadline", ">=", nowTs)
+      .where("collectionDeadline", "<=", in24Hours)
+      .get();
+
+    let collectionReminders = 0;
+    for (const doc of collectionApproaching.docs) {
+      const groupBuy = doc.data();
+      const contribs = await doc.ref.collection("contributions").get();
+
+      for (const contribDoc of contribs.docs) {
+        const contrib = contribDoc.data();
+        if (contrib.hasCollected) continue; // Skip already collected
+
+        const userDoc = await db.collection("users").doc(contrib.userId).get();
+        const fcmToken = userDoc.data()?.fcmToken;
+        if (!fcmToken) continue;
+
+        try {
+          await admin.messaging().send({
+            token: fcmToken,
+            notification: {
+              title: "Collection deadline approaching",
+              body: `Collect your "${groupBuy.title}" item within 24 hours!`,
+            },
+            data: {
+              type: "group_buy_collection_deadline",
+              groupBuyId: doc.id,
+              screen: "group_buy_detail",
+            },
+          });
+          collectionReminders++;
+        } catch (err) {
+          logger.warn(`Failed to send collection reminder to ${contrib.userId}`, err);
+        }
+      }
+    }
+
+    logger.info(`Group buy reminders sent: ${endingReminders} ending soon, ${collectionReminders} collection deadlines`);
+  }
+);

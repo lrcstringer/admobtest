@@ -340,6 +340,7 @@ const _$MessageTypeEnumMap = {
   MessageType.groupGift: 'groupGift',
   MessageType.marketplaceShare: 'marketplaceShare',
   MessageType.groupBuyShare: 'groupBuyShare',
+  MessageType.gooiGooiInvite: 'gooiGooiInvite',
 };
 
 const _$MessageStatusEnumMap = {

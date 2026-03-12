@@ -365,4 +365,62 @@ class BuyRepositoryImpl implements BuyRepository {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
+
+  // ============ STOREFRONT INTERACTIONS ============
+
+  FirebaseFunctions get _functions =>
+      FirebaseFunctions.instanceFor(region: 'africa-south1');
+
+  @override
+  Future<Either<Failure, String>> claimStorefrontCoupon({
+    required String storefrontId,
+    required String couponId,
+  }) async {
+    try {
+      final result =
+          await _functions.httpsCallable('claimStorefrontCoupon').call({
+        'storefrontId': storefrontId,
+        'couponId': couponId,
+      });
+      return Right(result.data['couponCode'] as String);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(
+        Failure.serverError(message: e.message ?? 'Failed to claim coupon'),
+      );
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> recordStorefrontView(
+    String storefrontId,
+  ) async {
+    try {
+      await _functions.httpsCallable('recordStorefrontView').call({
+        'storefrontId': storefrontId,
+      });
+      return const Right(null);
+    } catch (_) {
+      // Fire-and-forget — swallow errors to not disrupt UX
+      return const Right(null);
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleBrandFollow(String brandId) async {
+    try {
+      final result =
+          await _functions.httpsCallable('toggleBrandFollow').call({
+        'brandId': brandId,
+      });
+      return Right(result.data['isFollowing'] as bool);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(
+        Failure.serverError(message: e.message ?? 'Failed to toggle follow'),
+      );
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

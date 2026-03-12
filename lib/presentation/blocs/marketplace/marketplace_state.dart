@@ -19,8 +19,14 @@ class MarketplaceState with _$MarketplaceState {
     String? activeCommunityId,
     @Default(false) bool isCreating,
     @Default(false) bool isReporting,
+    @Default(false) bool isUpdating,
+    @Default(false) bool isTogglingStatus,
+    @Default(false) bool isMakingOffer,
+    @Default(false) bool isRespondingToOffer,
+    @Default(false) bool isRefunding,
     String? createSuccessId,
     String? errorMessage,
     String? reportSuccessMessage,
+    String? successMessage,
   }) = _MarketplaceState;
 }

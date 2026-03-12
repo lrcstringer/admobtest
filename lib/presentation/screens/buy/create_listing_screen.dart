@@ -147,8 +147,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                           spacing: 8,
                           runSpacing: 8,
                           children: MarketplaceCategory.values
-                              .where(
-                                  (c) => c != MarketplaceCategory.groupBuys)
                               .map((cat) {
                             final isSelected = _selectedCategory == cat;
                             return ChoiceChip(

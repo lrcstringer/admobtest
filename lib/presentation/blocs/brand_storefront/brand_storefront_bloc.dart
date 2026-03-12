@@ -23,6 +23,9 @@ class BrandStorefrontBloc
     on<_LoadProducts>(_onLoadProducts);
     on<_LoadReviews>(_onLoadReviews);
     on<_SubmitReview>(_onSubmitReview);
+    on<_ClaimCoupon>(_onClaimCoupon);
+    on<_RecordView>(_onRecordView);
+    on<_ToggleFollow>(_onToggleFollow);
   }
 
   Future<void> _onLoadStorefront(
@@ -112,6 +115,61 @@ class BrandStorefrontBloc
         // Reload reviews to reflect the new submission
         add(BrandStorefrontEvent.loadReviews(event.brandId));
       },
+    );
+  }
+
+  Future<void> _onClaimCoupon(
+    _ClaimCoupon event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    if (state.isClaimingCoupon) return;
+    if (state.claimedCouponIds.contains(event.couponId)) return;
+
+    emit(state.copyWith(isClaimingCoupon: true, errorMessage: null));
+
+    final result = await _buyRepository.claimStorefrontCoupon(
+      storefrontId: event.storefrontId,
+      couponId: event.couponId,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isClaimingCoupon: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isClaimingCoupon: false,
+        claimedCouponIds: {...state.claimedCouponIds, event.couponId},
+      )),
+    );
+  }
+
+  Future<void> _onRecordView(
+    _RecordView event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    // Fire-and-forget — no state changes needed
+    await _buyRepository.recordStorefrontView(event.storefrontId);
+  }
+
+  Future<void> _onToggleFollow(
+    _ToggleFollow event,
+    Emitter<BrandStorefrontState> emit,
+  ) async {
+    // Optimistic UI: toggle immediately
+    emit(state.copyWith(isFollowing: !state.isFollowing));
+
+    final result = await _buyRepository.toggleBrandFollow(event.brandId);
+
+    result.fold(
+      (failure) {
+        // Revert on failure
+        emit(state.copyWith(
+          isFollowing: !state.isFollowing,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (isFollowing) => emit(state.copyWith(isFollowing: isFollowing)),
     );
   }
 }

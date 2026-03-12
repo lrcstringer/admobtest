@@ -38,6 +38,19 @@ abstract class GroupBuyRemoteDataSource {
     String? imageUrl,
     bool wantsToJoin,
   });
+  Future<void> confirmCollection({
+    required String groupBuyId,
+    required String contributionId,
+  });
+  Future<void> cancelGroupBuy({
+    required String groupBuyId,
+    String? reason,
+  });
+  Future<void> updateDeliveryStatus({
+    required String groupBuyId,
+    required String deliveryStatus,
+    String? trackingInfo,
+  });
 }
 
 @LazySingleton(as: GroupBuyRemoteDataSource)
@@ -223,5 +236,40 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       if (userClusters.isEmpty) return false;
       return deal.clusters.any((c) => userClusters.contains(c));
     }).toList();
+  }
+
+  @override
+  Future<void> confirmCollection({
+    required String groupBuyId,
+    required String contributionId,
+  }) async {
+    await _functions.httpsCallable('confirmGroupBuyCollection').call({
+      'groupBuyId': groupBuyId,
+      'contributionId': contributionId,
+    });
+  }
+
+  @override
+  Future<void> cancelGroupBuy({
+    required String groupBuyId,
+    String? reason,
+  }) async {
+    await _functions.httpsCallable('cancelCommunityGroupBuy').call({
+      'groupBuyId': groupBuyId,
+      if (reason != null) 'reason': reason,
+    });
+  }
+
+  @override
+  Future<void> updateDeliveryStatus({
+    required String groupBuyId,
+    required String deliveryStatus,
+    String? trackingInfo,
+  }) async {
+    await _functions.httpsCallable('updateGroupBuyDeliveryStatus').call({
+      'groupBuyId': groupBuyId,
+      'deliveryStatus': deliveryStatus,
+      if (trackingInfo != null) 'trackingInfo': trackingInfo,
+    });
   }
 }

@@ -1,7 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/delivery_method.dart';
 import '../enums/listing_status.dart';
 import '../enums/marketplace_category.dart';
+import '../enums/service_area_type.dart';
+import 'location_data.dart';
 
 part 'marketplace_listing.freezed.dart';
 part 'marketplace_listing.g.dart';
@@ -30,6 +33,16 @@ class MarketplaceListing with _$MarketplaceListing {
     @Default(0) int reportCount,
     DateTime? expiresAt,
     required DateTime createdAt,
+    // ── New fields (Spec §8.25) ──
+    LocationData? locationData,
+    @Default(ServiceAreaType.myLocationOnly) ServiceAreaType serviceAreaType,
+    @Default(DeliveryMethod.collection) DeliveryMethod deliveryMethod,
+    int? deliveryFee,
+    String? geohash,
+    @Default(0) int favouriteCount,
+    @Default(0) int renewalCount,
+    @Default(0) int totalPausedDays,
+    DateTime? pausedAt,
   }) = _MarketplaceListing;
 
   const MarketplaceListing._();
@@ -39,6 +52,9 @@ class MarketplaceListing with _$MarketplaceListing {
 
   /// Whether the listing is available for purchase
   bool get isAvailable => status == ListingStatus.active;
+
+  /// Whether listing is paused
+  bool get isPaused => status == ListingStatus.paused;
 
   /// Formatted token price
   String get formattedPrice => '$priceTokens tokens';

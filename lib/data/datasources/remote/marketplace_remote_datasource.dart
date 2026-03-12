@@ -91,6 +91,49 @@ abstract class MarketplaceRemoteDataSource {
     required String reason,
     String? description,
   });
+
+  /// Update an existing listing (calls CF)
+  Future<void> updateListing({
+    required String listingId,
+    String? title,
+    String? description,
+    String? category,
+    int? priceTokens,
+    List<String>? imageUrls,
+    String? location,
+  });
+
+  /// Toggle listing status (calls CF)
+  Future<void> toggleListingStatus({
+    required String listingId,
+    required String action,
+  });
+
+  /// Renew an expired listing (calls CF)
+  Future<void> renewListing({required String listingId});
+
+  /// Make an offer on a listing (calls CF)
+  Future<String> makeOffer({
+    required String listingId,
+    required int offerAmount,
+    String? message,
+  });
+
+  /// Respond to an offer (calls CF)
+  Future<String?> respondToOffer({
+    required String offerId,
+    required String action,
+    int? counterAmount,
+  });
+
+  /// Seller-initiated refund (calls CF)
+  Future<void> sellerRefund({
+    required String orderId,
+    String? reason,
+  });
+
+  /// Get seller dashboard analytics (calls CF)
+  Future<Map<String, dynamic>> getSellerDashboard();
 }
 
 @LazySingleton(as: MarketplaceRemoteDataSource)
@@ -359,5 +402,90 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       'reason': reason,
       if (description != null) 'description': description,
     });
+  }
+
+  @override
+  Future<void> updateListing({
+    required String listingId,
+    String? title,
+    String? description,
+    String? category,
+    int? priceTokens,
+    List<String>? imageUrls,
+    String? location,
+  }) async {
+    await _functions.httpsCallable('updateMarketplaceListing').call({
+      'listingId': listingId,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (category != null) 'category': category,
+      if (priceTokens != null) 'priceTokens': priceTokens,
+      if (imageUrls != null) 'imageUrls': imageUrls,
+      if (location != null) 'location': location,
+    });
+  }
+
+  @override
+  Future<void> toggleListingStatus({
+    required String listingId,
+    required String action,
+  }) async {
+    await _functions.httpsCallable('toggleMarketplaceListingStatus').call({
+      'listingId': listingId,
+      'action': action,
+    });
+  }
+
+  @override
+  Future<void> renewListing({required String listingId}) async {
+    await _functions.httpsCallable('renewMarketplaceListing').call({
+      'listingId': listingId,
+    });
+  }
+
+  @override
+  Future<String> makeOffer({
+    required String listingId,
+    required int offerAmount,
+    String? message,
+  }) async {
+    final result = await _functions.httpsCallable('makeOffer').call({
+      'listingId': listingId,
+      'offerAmount': offerAmount,
+      if (message != null) 'message': message,
+    });
+    return result.data['offerId'] as String;
+  }
+
+  @override
+  Future<String?> respondToOffer({
+    required String offerId,
+    required String action,
+    int? counterAmount,
+  }) async {
+    final result = await _functions.httpsCallable('respondToOffer').call({
+      'offerId': offerId,
+      'action': action,
+      if (counterAmount != null) 'counterAmount': counterAmount,
+    });
+    return result.data['orderId'] as String?;
+  }
+
+  @override
+  Future<void> sellerRefund({
+    required String orderId,
+    String? reason,
+  }) async {
+    await _functions.httpsCallable('sellerInitiatedRefund').call({
+      'orderId': orderId,
+      if (reason != null) 'reason': reason,
+    });
+  }
+
+  @override
+  Future<Map<String, dynamic>> getSellerDashboard() async {
+    final result =
+        await _functions.httpsCallable('getSellerDashboard').call({});
+    return Map<String, dynamic>.from(result.data['dashboard'] as Map);
   }
 }

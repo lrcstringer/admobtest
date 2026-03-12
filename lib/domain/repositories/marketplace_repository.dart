@@ -98,4 +98,47 @@ abstract class MarketplaceRepository {
     required List<File> imageFiles,
     required String listingId,
   });
+
+  /// Update an existing listing
+  Future<Either<Failure, void>> updateListing({
+    required String listingId,
+    String? title,
+    String? description,
+    String? category,
+    int? priceTokens,
+    List<String>? imageUrls,
+    String? location,
+  });
+
+  /// Toggle listing status (pause/unpause/markSold)
+  Future<Either<Failure, void>> toggleListingStatus({
+    required String listingId,
+    required String action,
+  });
+
+  /// Renew an expired listing
+  Future<Either<Failure, void>> renewListing(String listingId);
+
+  /// Make an offer on a listing
+  Future<Either<Failure, String>> makeOffer({
+    required String listingId,
+    required int offerAmount,
+    String? message,
+  });
+
+  /// Respond to an offer (accept/decline/counter)
+  Future<Either<Failure, String?>> respondToOffer({
+    required String offerId,
+    required String action,
+    int? counterAmount,
+  });
+
+  /// Seller-initiated refund
+  Future<Either<Failure, void>> sellerRefund({
+    required String orderId,
+    String? reason,
+  });
+
+  /// Get seller dashboard analytics
+  Future<Either<Failure, Map<String, dynamic>>> getSellerDashboard();
 }

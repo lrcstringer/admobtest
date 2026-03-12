@@ -12,12 +12,19 @@ enum PurchaseStatus {
   refunded,
 }
 
-/// Purchase category
+/// Purchase category (Spec §14.5)
 enum PurchaseCategory {
   airtime,
   data,
   electricity,
   voucher,
+  marketplace,
+  school,
+  municipal,
+  insurance,
+  funeral,
+  stokvel,
+  gaming,
   other,
 }
 
@@ -75,6 +82,20 @@ class Purchase with _$Purchase {
         return 'Electricity';
       case PurchaseCategory.voucher:
         return 'Voucher';
+      case PurchaseCategory.marketplace:
+        return 'Marketplace';
+      case PurchaseCategory.school:
+        return 'School';
+      case PurchaseCategory.municipal:
+        return 'Municipal';
+      case PurchaseCategory.insurance:
+        return 'Insurance';
+      case PurchaseCategory.funeral:
+        return 'Funeral';
+      case PurchaseCategory.stokvel:
+        return 'Stokvel';
+      case PurchaseCategory.gaming:
+        return 'Gaming';
       case PurchaseCategory.other:
         return 'Other';
     }

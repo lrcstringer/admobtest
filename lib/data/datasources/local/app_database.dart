@@ -384,6 +384,116 @@ class LocalFeaturedItems extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// ============ BUY TAB CACHE TABLES (Spec §12.1) ============
+
+/// Offline brand storefront cache, TTL 1hr
+class LocalBrandStorefronts extends Table {
+  TextColumn get id => text()();
+  TextColumn get brandId => text()();
+  TextColumn get brandName => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline brand products cache, TTL 30min
+class LocalBrandProducts extends Table {
+  TextColumn get id => text()();
+  TextColumn get storefrontId => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline brand reviews cache, top 20 per brand, TTL 30min
+class LocalBrandReviews extends Table {
+  TextColumn get id => text()();
+  TextColumn get brandId => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline group buys cache, active only, TTL 15min
+class LocalGroupBuys extends Table {
+  TextColumn get id => text()();
+  TextColumn get dataJson => text()();
+  TextColumn get status => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline group buy requests cache, user's own, TTL 1hr
+class LocalGroupBuyRequests extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline marketplace listings cache, top 50 recent, TTL 30min
+class LocalMarketplaceListings extends Table {
+  TextColumn get id => text()();
+  TextColumn get dataJson => text()();
+  TextColumn get category => text().nullable()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline marketplace orders cache, user's own, TTL 15min
+class LocalMarketplaceOrders extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()();
+  TextColumn get dataJson => text()();
+  DateTimeColumn get syncedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Shipped SA location database (~22K rows)
+class LocalSaLocations extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get type => text()(); // province, city, suburb
+  TextColumn get parentId => text().nullable()();
+  TextColumn get province => text().nullable()();
+  TextColumn get city => text().nullable()();
+  TextColumn get postalCode => text().nullable()();
+  RealColumn get latitude => real().nullable()();
+  RealColumn get longitude => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Offline favourites/saved listings cache
+class LocalSavedListings extends Table {
+  TextColumn get listingId => text()();
+  DateTimeColumn get savedAt => dateTime()();
+  TextColumn get listingTitle => text().nullable()();
+  IntColumn get listingPrice => integer().nullable()();
+  TextColumn get listingThumbnailUrl => text().nullable()();
+  TextColumn get listingStatus => text().nullable()();
+  TextColumn get sellerName => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {listingId};
+}
+
 // ============ DATABASE CLASS ============
 
 @lazySingleton
@@ -403,8 +513,17 @@ class LocalFeaturedItems extends Table {
   LocalCommunities,
   LocalCommunityMembers,
   LocalBuyCategories,
-  LocalBuyRegulars,
   LocalFeaturedItems,
+  // New Buy tab cache tables (Phase 0.9)
+  LocalBrandStorefronts,
+  LocalBrandProducts,
+  LocalBrandReviews,
+  LocalGroupBuys,
+  LocalGroupBuyRequests,
+  LocalMarketplaceListings,
+  LocalMarketplaceOrders,
+  LocalSaLocations,
+  LocalSavedListings,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -422,7 +541,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -503,6 +622,19 @@ class AppDatabase extends _$AppDatabase {
         if (from < 14) {
           await m.addColumn(
               localFeaturedItems, localFeaturedItems.videoUrl);
+        }
+        if (from < 15) {
+          // Phase 0.9: Add 9 new Buy tab cache tables + drop LocalBuyRegulars
+          await m.deleteTable('local_buy_regulars');
+          await m.createTable(localBrandStorefronts);
+          await m.createTable(localBrandProducts);
+          await m.createTable(localBrandReviews);
+          await m.createTable(localGroupBuys);
+          await m.createTable(localGroupBuyRequests);
+          await m.createTable(localMarketplaceListings);
+          await m.createTable(localMarketplaceOrders);
+          await m.createTable(localSaLocations);
+          await m.createTable(localSavedListings);
         }
       },
     );

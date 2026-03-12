@@ -32,6 +32,23 @@ class BuyOrder with _$BuyOrder {
     DateTime? disputedAt,
     DateTime? resolvedAt,
     DateTime? cancelledAt,
+    // ── New fields (Spec §8.25) ──
+    int? deliveryFee,
+    @Default(0) int totalAmount,
+    String? deliveryMethod,
+    String? deliveredVia,
+    String? trackingInfo,
+    DateTime? deliveryDeadline,
+    DateTime? buyerConfirmationDeadline,
+    String? refundType,
+    String? disputeDetails,
+    @Default([]) List<String> disputePhotos,
+    String? sellerDisputeResponse,
+    @Default([]) List<String> sellerDisputePhotos,
+    String? sellerProposedResolution,
+    int? disputeResolutionAmount,
+    String? disputeResolutionNote,
+    DateTime? refundedAt,
   }) = _BuyOrder;
 
   const BuyOrder._();
@@ -55,9 +72,15 @@ class BuyOrder with _$BuyOrder {
   bool get canDispute =>
       status == OrderStatus.escrowed || status == OrderStatus.fulfilled;
 
+  // computedTotal is available after build_runner regenerates freezed code
+
   /// Formatted amount
   String get formattedAmount => '$amount tokens';
 
   /// Formatted ZAR amount
   String get formattedZarAmount => 'R${amountZar.toStringAsFixed(2)}';
+
+  /// Whether dispute has seller response
+  bool get hasSellerDisputeResponse =>
+      sellerDisputeResponse != null && sellerDisputeResponse!.isNotEmpty;
 }

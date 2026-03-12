@@ -49,6 +49,15 @@ _GroupBuy _$GroupBuyFromJson(Map<String, dynamic> json) => _GroupBuy(
       const [],
   imageUrl: json['imageUrl'] as String?,
   originalPrice: (json['originalPrice'] as num?)?.toInt(),
+  collectionDeadline: json['collectionDeadline'] == null
+      ? null
+      : DateTime.parse(json['collectionDeadline'] as String),
+  deliveryStatus: json['deliveryStatus'] as String?,
+  fulfilmentInstructions: json['fulfilmentInstructions'] as String?,
+  collectedCount: (json['collectedCount'] as num?)?.toInt() ?? 0,
+  category: json['category'] as String?,
+  deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
+  organizerSuccessRate: (json['organizerSuccessRate'] as num?)?.toDouble(),
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: json['updatedAt'] == null
       ? null
@@ -83,6 +92,13 @@ Map<String, dynamic> _$GroupBuyToJson(_GroupBuy instance) => <String, dynamic>{
   'voucherCodes': instance.voucherCodes,
   'imageUrl': instance.imageUrl,
   'originalPrice': instance.originalPrice,
+  'collectionDeadline': instance.collectionDeadline?.toIso8601String(),
+  'deliveryStatus': instance.deliveryStatus,
+  'fulfilmentInstructions': instance.fulfilmentInstructions,
+  'collectedCount': instance.collectedCount,
+  'category': instance.category,
+  'deliveryFee': instance.deliveryFee,
+  'organizerSuccessRate': instance.organizerSuccessRate,
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
 };

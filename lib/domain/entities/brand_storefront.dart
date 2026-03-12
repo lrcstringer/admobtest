@@ -20,6 +20,7 @@ enum TrustBadge { verified, topSeller, localBusiness, newBrand }
 /// Sections available on a storefront page.
 /// Visibility + ordering controlled by the `sectionOrder` list.
 enum StorefrontSectionType {
+  // Original 9 sections
   quickActions,
   featuredProducts,
   products,
@@ -29,7 +30,19 @@ enum StorefrontSectionType {
   reviews,
   about,
   socialLinks,
+  // 8 new sections (Spec §4.8)
+  announcementBar,
+  videoShowcase,
+  couponCenter,
+  faq,
+  testimonials,
+  locationCard,
+  divider,
+  richText,
 }
+
+/// Colour mode for per-section styling (Spec §4.7.6)
+enum SectionColourMode { brandLight, brandDark, brandAccent, custom }
 
 // ─── Sub-entities ───────────────────────────────────────
 
@@ -72,6 +85,85 @@ class StorefrontSection with _$StorefrontSection {
 
   factory StorefrontSection.fromJson(Map<String, dynamic> json) =>
       _$StorefrontSectionFromJson(json);
+}
+
+/// Per-section display settings (Spec §4.7.6)
+@freezed
+class SectionSettings with _$SectionSettings {
+  const factory SectionSettings({
+    @Default(SectionColourMode.brandLight) SectionColourMode colourMode,
+    String? customBgColor,
+    String? customTextColor,
+    String? headingOverride,
+    @Default(true) bool isVisible,
+    @Default('center') String contentAlignment,
+    @Default(16.0) double paddingTop,
+    @Default(16.0) double paddingBottom,
+  }) = _SectionSettings;
+
+  factory SectionSettings.fromJson(Map<String, dynamic> json) =>
+      _$SectionSettingsFromJson(json);
+}
+
+/// Showcase video entry (Spec §4.8)
+@freezed
+class ShowcaseVideo with _$ShowcaseVideo {
+  const factory ShowcaseVideo({
+    required String url,
+    String? thumbnailUrl,
+    String? title,
+    @Default(0) int sortOrder,
+  }) = _ShowcaseVideo;
+
+  factory ShowcaseVideo.fromJson(Map<String, dynamic> json) =>
+      _$ShowcaseVideoFromJson(json);
+}
+
+/// Storefront coupon (Spec §4.8.3)
+@freezed
+class StorefrontCoupon with _$StorefrontCoupon {
+  const factory StorefrontCoupon({
+    required String id,
+    required String code,
+    required String title,
+    String? description,
+    int? maxClaims,
+    @Default(0) int claimCount,
+    DateTime? expiresAt,
+    @Default(true) bool isActive,
+  }) = _StorefrontCoupon;
+
+  factory StorefrontCoupon.fromJson(Map<String, dynamic> json) =>
+      _$StorefrontCouponFromJson(json);
+}
+
+/// FAQ item (Spec §4.8)
+@freezed
+class FaqItem with _$FaqItem {
+  const factory FaqItem({
+    required String question,
+    required String answer,
+    @Default(0) int sortOrder,
+  }) = _FaqItem;
+
+  factory FaqItem.fromJson(Map<String, dynamic> json) =>
+      _$FaqItemFromJson(json);
+}
+
+/// Brand physical location (Spec §4.8)
+@freezed
+class BrandLocation with _$BrandLocation {
+  const factory BrandLocation({
+    required String name,
+    required String address,
+    double? latitude,
+    double? longitude,
+    String? phone,
+    String? hours,
+  }) = _BrandLocation;
+
+  factory BrandLocation.fromJson(Map<String, dynamic> json) =>
+      _$BrandLocationFromJson(json);
 }
 
 // ─── Main Entity ────────────────────────────────────────
@@ -139,6 +231,35 @@ class BrandStorefront with _$BrandStorefront {
     // ── Layout ──
     /// Ordered list of section types to display. Sections not in list are hidden.
     @Default([]) List<StorefrontSectionType> sectionOrder,
+
+    // ── New fields (Spec §4.14) ──
+    @Default(true) bool isDraft,
+    DateTime? publishedAt,
+    @Default('standard') String tier,
+    @Default(0.5) double heroFocalPointX,
+    @Default(0.5) double heroFocalPointY,
+    @Default(false) bool showChatButton,
+    String? bannerVideoUrl,
+
+    // Announcement bar
+    String? announcementText,
+    String? announcementDeepLink,
+    @Default(true) bool announcementDismissible,
+
+    // New content sections
+    @Default([]) List<ShowcaseVideo> showcaseVideos,
+    @Default([]) List<StorefrontCoupon> coupons,
+    @Default([]) List<FaqItem> faqItems,
+    @Default([]) List<String> testimonialReviewIds,
+    @Default([]) List<BrandLocation> locations,
+
+    // Rich text blocks keyed by section instance ID
+    @Default({}) Map<String, String> richTextBlocks,
+
+    // Per-section settings keyed by section type or instance ID
+    @Default({}) Map<String, SectionSettings> sectionSettings,
+
+    @Default(0) int totalViews,
   }) = _BrandStorefront;
 
   const BrandStorefront._();
