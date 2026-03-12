@@ -278,7 +278,15 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
               index: entry.key,
             ),
           );
-      final urls = await Future.wait(futures);
+      // eagerError: false — let all uploads finish even if one fails,
+      // so user doesn't lose all images on a single failure
+      final results = await Future.wait(
+        futures.map((f) => f.then<String?>((url) => url).catchError((_) => null)),
+      );
+      final urls = results.whereType<String>().toList();
+      if (urls.isEmpty) {
+        return const Left(ServerFailure(message: 'All image uploads failed'));
+      }
       return Right(urls);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));

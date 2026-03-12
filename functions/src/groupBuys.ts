@@ -160,7 +160,8 @@ export const joinGroupBuy = onCall(
     // Use a Firestore transaction for atomic read-check-write
     // This prevents TOCTOU races: concurrent joins exceeding maxParticipants
     const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
-    const contribRef = groupBuyRef.collection("contributions").doc();
+    // Deterministic ID prevents duplicate contributions on client retry
+    const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
 
     const result = await db.runTransaction(async (tx) => {
       const groupBuyDoc = await tx.get(groupBuyRef);

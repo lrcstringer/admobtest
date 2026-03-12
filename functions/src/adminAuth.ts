@@ -133,6 +133,7 @@ export type AdminPermission =
   | "buy:reinstateListing"
   // Buy marketplace orders & disputes
   | "buy:forceCancelOrder"
+  | "buy:forceCompleteOrder"
   | "buy:resolveDispute"
   // Buy marketplace analytics
   | "buy:getMarketplaceAnalytics"
@@ -185,6 +186,7 @@ export const MAKER_CHECKER_ACTIONS: ReadonlySet<AdminPermission> = new Set([
   "accounts:refundClient",
   "cashout:complete",
   "buy:forceCancelOrder",
+  "buy:forceCompleteOrder",
   "buy:resolveDispute",
   "buy:forceCompleteGroupBuy",
   "buy:forceCancelGroupBuy",
@@ -317,6 +319,7 @@ const financeAdminPerms: AdminPermission[] = [
   "pending:reject",
   "buy:getPurchaseStats",
   "buy:forceCancelOrder",
+  "buy:forceCompleteOrder",
   "buy:resolveDispute",
   "buy:getMarketplaceAnalytics",
   "buy:listGroupBuys",
@@ -1308,6 +1311,10 @@ async function executePendingAction(
       return executeCompleteCashout(action.payload);
     }
     // Buy marketplace force operations
+    case "adminForceCompleteOrder": {
+      const { executeForceCompleteOrder } = await import("./buyAdminExecutors");
+      return executeForceCompleteOrder(action.payload);
+    }
     case "adminForceCancelOrder": {
       const { executeForceCancelOrder } = await import("./buyAdminExecutors");
       return executeForceCancelOrder(action.payload);

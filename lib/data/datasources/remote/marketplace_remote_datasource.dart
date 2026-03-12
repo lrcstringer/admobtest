@@ -170,7 +170,9 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
 
     query = query.orderBy('createdAt', descending: true).limit(limit);
 
-    // Resolve document ID to snapshot for cursor-based pagination
+    // Resolve document ID to snapshot for cursor-based pagination.
+    // If cursor document was deleted, return empty to signal end of data
+    // rather than silently restarting from the beginning.
     if (startAfterId != null) {
       final cursorDoc = await _firestore
           .collection('marketplaceListings')
@@ -178,6 +180,8 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
           .get();
       if (cursorDoc.exists) {
         query = query.startAfterDocument(cursorDoc);
+      } else {
+        return [];
       }
     }
 

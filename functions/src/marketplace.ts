@@ -241,8 +241,8 @@ export const buyMarketplaceItem = onCall(
     const buyerName = buyerDoc.data()?.displayName || "Unknown";
 
     // Deterministic order ID prevents double-charging on client retry.
-    // Hash of buyer + listing + timestamp bucket (1-minute resolution).
-    const timeBucket = Math.floor(Date.now() / 60000).toString();
+    // Uses second-level resolution to avoid collision within same minute.
+    const timeBucket = Math.floor(Date.now() / 1000).toString();
     const deterministicId = `${userId}_${listingId}_${timeBucket}`;
     const orderRef = db.collection("buyOrders").doc(deterministicId);
     const now = admin.firestore.FieldValue.serverTimestamp();

@@ -1239,6 +1239,66 @@ export const adminForceCancelOrder = onCall(
 );
 
 /**
+ * Force-complete an order — release escrow to seller.
+ * Requires maker-checker for escrowed orders.
+ */
+export const adminForceCompleteOrder = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminForceCompleteOrder");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:forceCompleteOrder",
+      "adminForceCompleteOrder"
+    );
+
+    const { orderId } = request.data as { orderId: string };
+    if (!orderId) {
+      throw new HttpsError("invalid-argument", "orderId is required");
+    }
+
+    const ref = db.collection("buyOrders").doc(orderId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", "Order not found");
+    }
+
+    const order = doc.data()!;
+    if (["completed", "cancelled", "refunded"].includes(order.status)) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Order is already in terminal state"
+      );
+    }
+
+    // Financial operation — route through maker-checker
+    const { pendingActionId } = await createPendingAction(
+      adminCtx,
+      "buy:forceCompleteOrder",
+      "adminForceCompleteOrder",
+      {
+        orderId,
+        amount: order.amount,
+        sellerId: order.sellerId,
+        previousStatus: order.status,
+        hasEscrow: !!order.escrowJournalId,
+      },
+      `Force-complete order ${orderId} — release ${order.amount} tokens to seller ${order.sellerId}`
+    );
+
+    logAdminAction(adminCtx.uid, "adminForceCompleteOrder", "pending", {
+      orderId,
+      pendingActionId,
+      previousStatus: order.status,
+      amount: order.amount,
+    }).catch(() => {});
+
+    logger.info(`Force-complete order '${orderId}' pending approval (action ${pendingActionId})`);
+    return { success: true, pendingActionId, requiresApproval: true };
+  }
+);
+
+/**
  * Resolve a disputed order.
  * Resolution: 'refund_buyer' | 'release_seller'
  */
@@ -1252,10 +1312,10 @@ export const adminResolveDispute = onCall(
       "adminResolveDispute"
     );
 
-    const { orderId, resolution, splitPercent } = request.data as {
+    const { orderId, resolution, sellerPercent } = request.data as {
       orderId: string;
       resolution: "refund_buyer" | "release_seller" | "split";
-      splitPercent?: number;
+      sellerPercent?: number;
     };
     if (!orderId || !resolution) {
       throw new HttpsError(
@@ -1270,8 +1330,8 @@ export const adminResolveDispute = onCall(
       );
     }
     if (resolution === "split") {
-      if (splitPercent === undefined || typeof splitPercent !== "number" || splitPercent < 0 || splitPercent > 100) {
-        throw new HttpsError("invalid-argument", "splitPercent must be 0-100 for split resolution");
+      if (sellerPercent === undefined || typeof sellerPercent !== "number" || sellerPercent < 0 || sellerPercent > 100) {
+        throw new HttpsError("invalid-argument", "sellerPercent must be 0-100 for split resolution");
       }
     }
 
@@ -1297,18 +1357,18 @@ export const adminResolveDispute = onCall(
       {
         orderId,
         resolution,
-        splitPercent: splitPercent ?? null,
+        sellerPercent: sellerPercent ?? null,
         amount: order.amount,
         buyerId: order.buyerId,
         sellerId: order.sellerId,
       },
-      `Resolve dispute on order ${orderId}: ${resolution}${resolution === "split" ? ` (${splitPercent}% to seller)` : ""}`
+      `Resolve dispute on order ${orderId}: ${resolution}${resolution === "split" ? ` (${sellerPercent}% to seller)` : ""}`
     );
 
     logAdminAction(adminCtx.uid, "adminResolveDispute", "pending", {
       orderId,
       resolution,
-      splitPercent,
+      sellerPercent,
       pendingActionId,
     }).catch(() => {});
 

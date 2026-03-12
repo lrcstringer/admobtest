@@ -3,7 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../domain/entities/group_buy.dart';
+import '../../../domain/enums/group_buy_type.dart';
 import '../../models/group_buy_contribution_model.dart';
 import '../../models/group_buy_model.dart';
 

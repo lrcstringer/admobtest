@@ -153,6 +153,63 @@ export async function executeForceCancelGroupBuy(
 }
 
 /**
+ * Execute force-complete for a marketplace order.
+ * Releases escrow to seller inside a transaction.
+ */
+export async function executeForceCompleteOrder(
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { orderId } = payload as { orderId: string };
+
+  const txResult = await db.runTransaction(async (tx) => {
+    const docRef = db.collection("buyOrders").doc(orderId);
+    const doc = await tx.get(docRef);
+    if (!doc.exists) {
+      throw new Error("Order not found");
+    }
+
+    const data = doc.data()!;
+    if (["completed", "cancelled", "refunded"].includes(data.status)) {
+      throw new Error(`Cannot force-complete — status is "${data.status}"`);
+    }
+
+    tx.update(docRef, {
+      status: "completed",
+      completedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return {
+      sellerId: data.sellerId as string,
+      amount: data.amount as number,
+      hasEscrow: !!data.escrowJournalId,
+    };
+  });
+
+  // Release escrow to seller. If release fails, revert status so it can be retried.
+  if (txResult.hasEscrow) {
+    try {
+      await releaseMarketplaceEscrow(
+        txResult.sellerId,
+        txResult.amount,
+        orderId,
+        `Admin force-complete: release to seller for order ${orderId}`
+      );
+    } catch (releaseError) {
+      logger.error(`Escrow release failed for force-complete order ${orderId}, reverting to fulfilled`, releaseError);
+      await db.collection("buyOrders").doc(orderId).update({
+        status: "fulfilled",
+        completedAt: null,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      throw releaseError;
+    }
+  }
+
+  return { orderId, released: txResult.hasEscrow };
+}
+
+/**
  * Execute force-cancel for a marketplace order.
  */
 export async function executeForceCancelOrder(
@@ -214,10 +271,10 @@ export async function executeForceCancelOrder(
 export async function executeResolveDispute(
   payload: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
-  const { orderId, resolution, splitPercent } = payload as {
+  const { orderId, resolution, sellerPercent } = payload as {
     orderId: string;
     resolution: string; // "refund_buyer" | "release_seller" | "split"
-    splitPercent?: number;
+    sellerPercent?: number;
   };
 
   const orderRef = db.collection("buyOrders").doc(orderId);
@@ -238,7 +295,7 @@ export async function executeResolveDispute(
     tx.update(orderRef, {
       status: resolvedStatus,
       disputeResolution: resolution,
-      disputeSplitPercent: splitPercent ?? null,
+      disputeSellerPercent: sellerPercent ?? null,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -266,15 +323,15 @@ export async function executeResolveDispute(
         orderId,
         `Dispute resolved: released to seller for order ${orderId}`
       );
-    } else if (resolution === "split" && splitPercent !== undefined) {
-      const sellerAmount = Math.floor(txResult.amount * (splitPercent / 100));
+    } else if (resolution === "split" && sellerPercent !== undefined) {
+      const sellerAmount = Math.floor(txResult.amount * (sellerPercent / 100));
       const buyerAmount = txResult.amount - sellerAmount;
       if (sellerAmount > 0) {
         await releaseMarketplaceEscrow(
           txResult.sellerId,
           sellerAmount,
           orderId,
-          `Dispute resolved: split ${splitPercent}% to seller for order ${orderId}`
+          `Dispute resolved: split ${sellerPercent}% to seller for order ${orderId}`
         );
       }
       if (buyerAmount > 0) {
@@ -282,7 +339,7 @@ export async function executeResolveDispute(
           txResult.buyerId,
           buyerAmount,
           orderId,
-          `Dispute resolved: split ${100 - splitPercent}% refund to buyer for order ${orderId}`
+          `Dispute resolved: split ${100 - sellerPercent}% refund to buyer for order ${orderId}`
         );
       }
     } else {
@@ -293,7 +350,7 @@ export async function executeResolveDispute(
     await orderRef.update({
       status: "disputed",
       disputeResolution: null,
-      disputeSplitPercent: null,
+      disputeSellerPercent: null,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
     throw ledgerError;

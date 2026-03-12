@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/listing_status.dart';
+
 part 'saved_listing.freezed.dart';
 part 'saved_listing.g.dart';
 
@@ -13,7 +15,7 @@ class SavedListing with _$SavedListing {
     String? listingTitle,
     int? listingPrice,
     String? listingThumbnailUrl,
-    String? listingStatus,
+    ListingStatus? listingStatus,
     String? sellerName,
   }) = _SavedListing;
 
@@ -24,5 +26,5 @@ class SavedListing with _$SavedListing {
 
   /// Whether the listing is still available for purchase.
   bool get isStale =>
-      listingStatus != null && listingStatus != 'active';
+      listingStatus != null && listingStatus != ListingStatus.active;
 }

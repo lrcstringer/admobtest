@@ -123,7 +123,8 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       )),
       (id) => emit(state.copyWith(
         isCreating: false,
-        createSuccessId: id,
+        successId: id,
+        successMessage: 'Group buy created!',
       )),
     );
   }
@@ -148,7 +149,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       )),
       (_) => emit(state.copyWith(
         isJoining: false,
-        joinSuccessMessage: 'Successfully joined the group buy!',
+        successMessage: 'Successfully joined the group buy!',
       )),
     );
   }
@@ -190,7 +191,8 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       )),
       (_) => emit(state.copyWith(
         isLeaving: false,
-        leaveSuccessMessage: 'You have left the group buy. Your contribution has been refunded.',
+        successMessage: 'You have left the group buy. Your contribution has been refunded.',
+        shouldPopOnSuccess: true,
       )),
     );
   }
@@ -217,7 +219,8 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       )),
       (id) => emit(state.copyWith(
         isSuggestingDeal: false,
-        suggestSuccessId: id,
+        successId: id,
+        successMessage: 'Deal suggestion submitted!',
       )),
     );
   }
@@ -306,11 +309,9 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
   ) {
     emit(state.copyWith(
       errorMessage: null,
-      createSuccessId: null,
-      joinSuccessMessage: null,
-      leaveSuccessMessage: null,
-      suggestSuccessId: null,
+      successId: null,
       successMessage: null,
+      shouldPopOnSuccess: false,
     ));
   }
 }

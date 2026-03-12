@@ -73,6 +73,7 @@ _BuyOrder _$BuyOrderFromJson(Map<String, dynamic> json) => _BuyOrder(
   refundedAt: json['refundedAt'] == null
       ? null
       : DateTime.parse(json['refundedAt'] as String),
+  version: (json['version'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$BuyOrderToJson(_BuyOrder instance) => <String, dynamic>{
@@ -117,6 +118,7 @@ Map<String, dynamic> _$BuyOrderToJson(_BuyOrder instance) => <String, dynamic>{
   'disputeResolutionAmount': instance.disputeResolutionAmount,
   'disputeResolutionNote': instance.disputeResolutionNote,
   'refundedAt': instance.refundedAt?.toIso8601String(),
+  'version': instance.version,
 };
 
 const _$OrderStatusEnumMap = {

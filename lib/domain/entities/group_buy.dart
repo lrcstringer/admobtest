@@ -1,13 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/group_buy_fulfilment_type.dart';
 import '../enums/group_buy_status.dart';
+import '../enums/group_buy_type.dart';
 
 part 'group_buy.freezed.dart';
 part 'group_buy.g.dart';
-
-enum GroupBuyType { digital, physical }
-
-enum GroupBuyFulfilmentType { digital, physical }
 
 @freezed
 class GroupBuy with _$GroupBuy {

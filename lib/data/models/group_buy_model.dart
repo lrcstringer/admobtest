@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/group_buy.dart';
+import '../../domain/enums/group_buy_fulfilment_type.dart';
 import '../../domain/enums/group_buy_status.dart';
+import '../../domain/enums/group_buy_type.dart';
 
 part 'group_buy_model.freezed.dart';
 

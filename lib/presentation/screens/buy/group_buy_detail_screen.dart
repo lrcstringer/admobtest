@@ -9,6 +9,7 @@ import '../../../domain/entities/group_buy_contribution.dart';
 import '../../../domain/enums/group_buy_status.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/group_buy/group_buy_bloc.dart';
+import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/buy/countdown_timer_widget.dart';
@@ -45,36 +46,28 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<GroupBuyBloc, GroupBuyState>(
       listenWhen: (prev, curr) =>
-          prev.joinSuccessMessage != curr.joinSuccessMessage ||
-          prev.leaveSuccessMessage != curr.leaveSuccessMessage ||
+          prev.successMessage != curr.successMessage ||
           prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
-        if (state.joinSuccessMessage != null) {
+        if (state.successMessage != null) {
+          final shouldPop = state.shouldPopOnSuccess;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.joinSuccessMessage!),
+              content: Text(state.successMessage!),
               backgroundColor: AppColors.success,
             ),
           );
           context
               .read<GroupBuyBloc>()
               .add(const GroupBuyEvent.clearMessages());
-          // Reload to get updated data
-          context
-              .read<GroupBuyBloc>()
-              .add(GroupBuyEvent.loadGroupBuy(widget.groupBuyId));
-        }
-        if (state.leaveSuccessMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.leaveSuccessMessage!),
-              backgroundColor: AppColors.success,
-            ),
-          );
-          context
-              .read<GroupBuyBloc>()
-              .add(const GroupBuyEvent.clearMessages());
-          context.pop();
+          if (shouldPop) {
+            context.pop();
+          } else {
+            // Reload to get updated data
+            context
+                .read<GroupBuyBloc>()
+                .add(GroupBuyEvent.loadGroupBuy(widget.groupBuyId));
+          }
         }
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -609,71 +602,124 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
 
   void _showJoinDialog(GroupBuy groupBuy) {
     final amountController = TextEditingController();
+    final walletState = context.read<WalletBloc>().state;
+    final spendableSubAccounts = walletState.subAccounts
+        .where((sa) => sa.isActive && !sa.isRestricted)
+        .toList();
+    var selectedWalletId = 'primary';
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
-        title: const Text(
-          'Join this deal',
-          style: TextStyle(color: AppColors.textPrimary),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'How many tokens would you like to contribute?',
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Amount in tokens',
-                hintStyle: const TextStyle(color: AppColors.textHint),
-                filled: true,
-                fillColor: AppColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  borderSide: const BorderSide(color: AppColors.border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  borderSide: const BorderSide(color: AppColors.primary),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surfaceElevated,
+          title: const Text(
+            'Join this deal',
+            style: TextStyle(color: AppColors.textPrimary),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'How many tokens would you like to contribute?',
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'Amount in tokens',
+                  hintStyle: const TextStyle(color: AppColors.textHint),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
                 ),
               ),
+              const SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<String>(
+                initialValue: selectedWalletId,
+                dropdownColor: AppColors.surfaceElevated,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  labelText: 'Pay from',
+                  labelStyle: const TextStyle(color: AppColors.textSecondary),
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: 'primary',
+                    child: Text(
+                      'Main Wallet (${walletState.mainWalletAvailable} tokens)',
+                      style: const TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
+                  ...spendableSubAccounts.map(
+                    (sa) => DropdownMenuItem(
+                      value: sa.id,
+                      child: Text(
+                        '${sa.name} (${sa.balance} tokens)',
+                        style: const TextStyle(color: AppColors.textPrimary),
+                      ),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setDialogState(() => selectedWalletId = value);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final amount = int.tryParse(amountController.text);
+                if (amount == null || amount <= 0) return;
+                Navigator.of(ctx).pop();
+                context.read<GroupBuyBloc>().add(
+                      GroupBuyEvent.joinGroupBuy(
+                        groupBuyId: groupBuy.id,
+                        amount: amount,
+                        walletId: selectedWalletId,
+                      ),
+                    );
+              },
+              child: const Text('Join'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final amount = int.tryParse(amountController.text);
-              if (amount == null || amount <= 0) return;
-              Navigator.of(ctx).pop();
-              // TODO: Wallet selection — for now use default wallet
-              context.read<GroupBuyBloc>().add(
-                    GroupBuyEvent.joinGroupBuy(
-                      groupBuyId: groupBuy.id,
-                      amount: amount,
-                      walletId: 'primary',
-                    ),
-                  );
-            },
-            child: const Text('Join'),
-          ),
-        ],
       ),
     );
   }

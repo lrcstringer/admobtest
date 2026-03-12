@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/saved_listing.dart';
+import '../../../domain/enums/listing_status.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -444,11 +445,11 @@ class _SavedItemCard extends StatelessWidget {
 
   String get _staleLabel {
     switch (item.listingStatus) {
-      case 'sold':
+      case ListingStatus.sold:
         return 'Sold';
-      case 'paused':
+      case ListingStatus.paused:
         return 'Paused';
-      case 'expired':
+      case ListingStatus.expired:
         return 'Expired';
       default:
         return 'Unavailable';
@@ -476,7 +477,7 @@ class _SavedItemCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Icon(
+            const Icon(
               Icons.info_outline_rounded,
               size: 40,
               color: AppColors.buyWarning,

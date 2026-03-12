@@ -24,6 +24,7 @@ class MarketplaceState with _$MarketplaceState {
     @Default(false) bool isMakingOffer,
     @Default(false) bool isRespondingToOffer,
     @Default(false) bool isRefunding,
+    @Default(false) bool isRenewing,
     @Default(false) bool isLoadingMyListings,
     @Default(false) bool isLoadingSaved,
     @Default(false) bool isLoadingSellerPortal,

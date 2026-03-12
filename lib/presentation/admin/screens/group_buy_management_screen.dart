@@ -17,10 +17,14 @@ class GroupBuyManagementScreen extends StatefulWidget {
 
 class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     with SingleTickerProviderStateMixin {
+  static const _pageSize = 50;
+
   late final TabController _tabController;
   bool _isLoading = false;
   List<Map<String, dynamic>> _groupBuys = [];
   List<Map<String, dynamic>> _suggestions = [];
+  DocumentSnapshot? _lastDoc;
+  bool _hasMore = true;
 
   @override
   void initState() {
@@ -43,7 +47,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         FirebaseFirestore.instance
             .collection('groupBuys')
             .orderBy('createdAt', descending: true)
-            .limit(200)
+            .limit(_pageSize)
             .get(),
         FirebaseFirestore.instance
             .collection('groupBuyRequests')
@@ -71,6 +75,10 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         setState(() {
           _groupBuys = items;
           _suggestions = suggestionItems;
+          _lastDoc = groupBuySnapshot.docs.isNotEmpty
+              ? groupBuySnapshot.docs.last
+              : null;
+          _hasMore = groupBuySnapshot.docs.length >= _pageSize;
           _isLoading = false;
         });
       }
@@ -79,6 +87,40 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading group buys: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (!_hasMore || _isLoading || _lastDoc == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('groupBuys')
+          .orderBy('createdAt', descending: true)
+          .startAfterDocument(_lastDoc!)
+          .limit(_pageSize)
+          .get();
+      final moreItems = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _groupBuys.addAll(moreItems);
+          _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+          _hasMore = snapshot.docs.length >= _pageSize;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading more group buys: $e')),
         );
       }
     }
@@ -300,12 +342,31 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            itemCount: items.length,
-            itemBuilder: (_, i) => _buildRow(
-              items[i],
-              showActions: showActions,
-              showRetryRefunds: showRetryRefunds,
-            ),
+            itemCount: items.length + (_hasMore ? 1 : 0),
+            itemBuilder: (_, i) {
+              if (i >= items.length) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _loadMore,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Load More'),
+                    ),
+                  ),
+                );
+              }
+              return _buildRow(
+                items[i],
+                showActions: showActions,
+                showRetryRefunds: showRetryRefunds,
+              );
+            },
           ),
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/saved_listing.dart';
+import '../../domain/enums/listing_status.dart';
 
 part 'saved_listing_model.freezed.dart';
 
@@ -51,7 +52,9 @@ class SavedListingModel with _$SavedListingModel {
       listingTitle: listingTitle,
       listingPrice: listingPrice,
       listingThumbnailUrl: listingThumbnailUrl,
-      listingStatus: listingStatus,
+      listingStatus: listingStatus != null
+          ? ListingStatusX.fromString(listingStatus!)
+          : null,
       sellerName: sellerName,
     );
   }
@@ -63,7 +66,7 @@ class SavedListingModel with _$SavedListingModel {
       listingTitle: entity.listingTitle,
       listingPrice: entity.listingPrice,
       listingThumbnailUrl: entity.listingThumbnailUrl,
-      listingStatus: entity.listingStatus,
+      listingStatus: entity.listingStatus?.name,
       sellerName: entity.sellerName,
     );
   }

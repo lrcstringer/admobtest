@@ -49,6 +49,7 @@ class BuyOrder with _$BuyOrder {
     int? disputeResolutionAmount,
     String? disputeResolutionNote,
     DateTime? refundedAt,
+    @Default(0) int version,
   }) = _BuyOrder;
 
   const BuyOrder._();

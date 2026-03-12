@@ -39,13 +39,13 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<GroupBuyBloc, GroupBuyState>(
       listenWhen: (prev, curr) =>
-          prev.suggestSuccessId != curr.suggestSuccessId ||
+          prev.successId != curr.successId ||
           prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
-        if (state.suggestSuccessId != null) {
+        if (state.successId != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Deal suggestion submitted! We\'ll review it shortly.'),
+            SnackBar(
+              content: Text(state.successMessage ?? 'Deal suggestion submitted!'),
               backgroundColor: AppColors.success,
             ),
           );

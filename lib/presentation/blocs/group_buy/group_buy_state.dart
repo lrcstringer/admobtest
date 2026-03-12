@@ -16,11 +16,9 @@ class GroupBuyState with _$GroupBuyState {
     @Default(false) bool isConfirmingCollection,
     @Default(false) bool isCancelling,
     @Default(false) bool isUpdatingDelivery,
-    String? createSuccessId,
-    String? joinSuccessMessage,
-    String? leaveSuccessMessage,
-    String? suggestSuccessId,
+    String? successId,
     String? successMessage,
+    @Default(false) bool shouldPopOnSuccess,
     String? errorMessage,
   }) = _GroupBuyState;
 }

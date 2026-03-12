@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/buy_order.dart';
+import '../../domain/enums/delivery_method.dart';
 import '../../domain/enums/order_status.dart';
+import '../../domain/enums/refund_type.dart';
 
 part 'buy_order_model.freezed.dart';
 
@@ -33,6 +35,24 @@ class BuyOrderModel with _$BuyOrderModel {
     DateTime? disputedAt,
     DateTime? resolvedAt,
     DateTime? cancelledAt,
+    // ── New fields (Spec §8.25) ──
+    int? deliveryFee,
+    @Default(0) int totalAmount,
+    DeliveryMethod? deliveryMethod,
+    String? deliveredVia,
+    String? trackingInfo,
+    DateTime? deliveryDeadline,
+    DateTime? buyerConfirmationDeadline,
+    RefundType? refundType,
+    String? disputeDetails,
+    @Default([]) List<String> disputePhotos,
+    String? sellerDisputeResponse,
+    @Default([]) List<String> sellerDisputePhotos,
+    String? sellerProposedResolution,
+    int? disputeResolutionAmount,
+    String? disputeResolutionNote,
+    DateTime? refundedAt,
+    @Default(0) int version,
   }) = _BuyOrderModel;
 
   const BuyOrderModel._();
@@ -63,6 +83,32 @@ class BuyOrderModel with _$BuyOrderModel {
       disputedAt: _parseDateTimeNullable(json['disputedAt']),
       resolvedAt: _parseDateTimeNullable(json['resolvedAt']),
       cancelledAt: _parseDateTimeNullable(json['cancelledAt']),
+      // New fields (Spec §8.25)
+      deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
+      totalAmount: (json['totalAmount'] as num?)?.toInt() ?? 0,
+      deliveryMethod: _parseDeliveryMethod(json['deliveryMethod'] as String?),
+      deliveredVia: json['deliveredVia'] as String?,
+      trackingInfo: json['trackingInfo'] as String?,
+      deliveryDeadline: _parseDateTimeNullable(json['deliveryDeadline']),
+      buyerConfirmationDeadline:
+          _parseDateTimeNullable(json['buyerConfirmationDeadline']),
+      refundType: _parseRefundType(json['refundType'] as String?),
+      disputeDetails: json['disputeDetails'] as String?,
+      disputePhotos: (json['disputePhotos'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      sellerDisputeResponse: json['sellerDisputeResponse'] as String?,
+      sellerDisputePhotos: (json['sellerDisputePhotos'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      sellerProposedResolution: json['sellerProposedResolution'] as String?,
+      disputeResolutionAmount:
+          (json['disputeResolutionAmount'] as num?)?.toInt(),
+      disputeResolutionNote: json['disputeResolutionNote'] as String?,
+      refundedAt: _parseDateTimeNullable(json['refundedAt']),
+      version: (json['version'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -91,6 +137,32 @@ class BuyOrderModel with _$BuyOrderModel {
       if (disputedAt != null) 'disputedAt': Timestamp.fromDate(disputedAt!),
       if (resolvedAt != null) 'resolvedAt': Timestamp.fromDate(resolvedAt!),
       if (cancelledAt != null) 'cancelledAt': Timestamp.fromDate(cancelledAt!),
+      // New fields (Spec §8.25)
+      if (deliveryFee != null) 'deliveryFee': deliveryFee,
+      if (totalAmount > 0) 'totalAmount': totalAmount,
+      if (deliveryMethod != null) 'deliveryMethod': deliveryMethod!.name,
+      if (deliveredVia != null) 'deliveredVia': deliveredVia,
+      if (trackingInfo != null) 'trackingInfo': trackingInfo,
+      if (deliveryDeadline != null)
+        'deliveryDeadline': Timestamp.fromDate(deliveryDeadline!),
+      if (buyerConfirmationDeadline != null)
+        'buyerConfirmationDeadline':
+            Timestamp.fromDate(buyerConfirmationDeadline!),
+      if (refundType != null) 'refundType': refundType!.name,
+      if (disputeDetails != null) 'disputeDetails': disputeDetails,
+      if (disputePhotos.isNotEmpty) 'disputePhotos': disputePhotos,
+      if (sellerDisputeResponse != null)
+        'sellerDisputeResponse': sellerDisputeResponse,
+      if (sellerDisputePhotos.isNotEmpty)
+        'sellerDisputePhotos': sellerDisputePhotos,
+      if (sellerProposedResolution != null)
+        'sellerProposedResolution': sellerProposedResolution,
+      if (disputeResolutionAmount != null)
+        'disputeResolutionAmount': disputeResolutionAmount,
+      if (disputeResolutionNote != null)
+        'disputeResolutionNote': disputeResolutionNote,
+      if (refundedAt != null) 'refundedAt': Timestamp.fromDate(refundedAt!),
+      'version': version,
     };
   }
 
@@ -120,6 +192,23 @@ class BuyOrderModel with _$BuyOrderModel {
       disputedAt: disputedAt,
       resolvedAt: resolvedAt,
       cancelledAt: cancelledAt,
+      deliveryFee: deliveryFee,
+      totalAmount: totalAmount,
+      deliveryMethod: deliveryMethod?.name,
+      deliveredVia: deliveredVia,
+      trackingInfo: trackingInfo,
+      deliveryDeadline: deliveryDeadline,
+      buyerConfirmationDeadline: buyerConfirmationDeadline,
+      refundType: refundType?.name,
+      disputeDetails: disputeDetails,
+      disputePhotos: disputePhotos,
+      sellerDisputeResponse: sellerDisputeResponse,
+      sellerDisputePhotos: sellerDisputePhotos,
+      sellerProposedResolution: sellerProposedResolution,
+      disputeResolutionAmount: disputeResolutionAmount,
+      disputeResolutionNote: disputeResolutionNote,
+      refundedAt: refundedAt,
+      version: version,
     );
   }
 
@@ -149,6 +238,23 @@ class BuyOrderModel with _$BuyOrderModel {
       disputedAt: entity.disputedAt,
       resolvedAt: entity.resolvedAt,
       cancelledAt: entity.cancelledAt,
+      deliveryFee: entity.deliveryFee,
+      totalAmount: entity.totalAmount,
+      deliveryMethod: _parseDeliveryMethod(entity.deliveryMethod),
+      deliveredVia: entity.deliveredVia,
+      trackingInfo: entity.trackingInfo,
+      deliveryDeadline: entity.deliveryDeadline,
+      buyerConfirmationDeadline: entity.buyerConfirmationDeadline,
+      refundType: _parseRefundType(entity.refundType),
+      disputeDetails: entity.disputeDetails,
+      disputePhotos: entity.disputePhotos,
+      sellerDisputeResponse: entity.sellerDisputeResponse,
+      sellerDisputePhotos: entity.sellerDisputePhotos,
+      sellerProposedResolution: entity.sellerProposedResolution,
+      disputeResolutionAmount: entity.disputeResolutionAmount,
+      disputeResolutionNote: entity.disputeResolutionNote,
+      refundedAt: entity.refundedAt,
+      version: entity.version,
     );
   }
 }
@@ -174,13 +280,33 @@ OrderStatus _parseOrderStatus(String? value) {
 
 DateTime _parseDateTime(dynamic value) {
   if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.parse(value);
-  return DateTime.now();
+  if (value is String) {
+    final parsed = DateTime.tryParse(value);
+    if (parsed != null) return parsed;
+  }
+  // Fail loudly for required fields — callers must provide valid data
+  throw FormatException('Cannot parse DateTime from: $value');
 }
 
 DateTime? _parseDateTimeNullable(dynamic value) {
   if (value == null) return null;
   if (value is Timestamp) return value.toDate();
-  if (value is String) return DateTime.parse(value);
+  if (value is String) return DateTime.tryParse(value);
   return null;
+}
+
+DeliveryMethod? _parseDeliveryMethod(String? value) {
+  if (value == null) return null;
+  return DeliveryMethod.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => DeliveryMethod.collection,
+  );
+}
+
+RefundType? _parseRefundType(String? value) {
+  if (value == null) return null;
+  return RefundType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => RefundType.buyerDispute,
+  );
 }

@@ -17,9 +17,13 @@ class MarketplaceOrderManagementScreen extends StatefulWidget {
 class _MarketplaceOrderManagementScreenState
     extends State<MarketplaceOrderManagementScreen>
     with SingleTickerProviderStateMixin {
+  static const _pageSize = 50;
+
   late final TabController _tabController;
   bool _isLoading = false;
   List<Map<String, dynamic>> _orders = [];
+  DocumentSnapshot? _lastDoc;
+  bool _hasMore = true;
 
   @override
   void initState() {
@@ -40,7 +44,7 @@ class _MarketplaceOrderManagementScreenState
       final snapshot = await FirebaseFirestore.instance
           .collection('buyOrders')
           .orderBy('createdAt', descending: true)
-          .limit(200)
+          .limit(_pageSize)
           .get();
       final orders = snapshot.docs.map((doc) {
         final data = doc.data();
@@ -51,6 +55,8 @@ class _MarketplaceOrderManagementScreenState
       if (mounted) {
         setState(() {
           _orders = orders;
+          _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+          _hasMore = snapshot.docs.length >= _pageSize;
           _isLoading = false;
         });
       }
@@ -59,6 +65,40 @@ class _MarketplaceOrderManagementScreenState
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading orders: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (!_hasMore || _isLoading || _lastDoc == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('buyOrders')
+          .orderBy('createdAt', descending: true)
+          .startAfterDocument(_lastDoc!)
+          .limit(_pageSize)
+          .get();
+      final moreOrders = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _orders.addAll(moreOrders);
+          _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+          _hasMore = snapshot.docs.length >= _pageSize;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading more orders: $e')),
         );
       }
     }
@@ -228,12 +268,31 @@ class _MarketplaceOrderManagementScreenState
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            itemCount: orders.length,
-            itemBuilder: (_, i) => _buildOrderRow(
-              orders[i],
-              showForceCancel: showForceCancel,
-              showResolve: showResolve,
-            ),
+            itemCount: orders.length + (_hasMore ? 1 : 0),
+            itemBuilder: (_, i) {
+              if (i >= orders.length) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _loadMore,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Load More'),
+                    ),
+                  ),
+                );
+              }
+              return _buildOrderRow(
+                orders[i],
+                showForceCancel: showForceCancel,
+                showResolve: showResolve,
+              );
+            },
           ),
         ),
       ],

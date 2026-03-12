@@ -13,7 +13,10 @@ _SavedListing _$SavedListingFromJson(Map<String, dynamic> json) =>
       listingTitle: json['listingTitle'] as String?,
       listingPrice: (json['listingPrice'] as num?)?.toInt(),
       listingThumbnailUrl: json['listingThumbnailUrl'] as String?,
-      listingStatus: json['listingStatus'] as String?,
+      listingStatus: $enumDecodeNullable(
+        _$ListingStatusEnumMap,
+        json['listingStatus'],
+      ),
       sellerName: json['sellerName'] as String?,
     );
 
@@ -24,6 +27,15 @@ Map<String, dynamic> _$SavedListingToJson(_SavedListing instance) =>
       'listingTitle': instance.listingTitle,
       'listingPrice': instance.listingPrice,
       'listingThumbnailUrl': instance.listingThumbnailUrl,
-      'listingStatus': instance.listingStatus,
+      'listingStatus': _$ListingStatusEnumMap[instance.listingStatus],
       'sellerName': instance.sellerName,
     };
+
+const _$ListingStatusEnumMap = {
+  ListingStatus.active: 'active',
+  ListingStatus.paused: 'paused',
+  ListingStatus.expired: 'expired',
+  ListingStatus.flagged: 'flagged',
+  ListingStatus.removed: 'removed',
+  ListingStatus.sold: 'sold',
+};

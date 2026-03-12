@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../domain/entities/saved_listing.dart' as domain;
+import '../../../domain/enums/listing_status.dart';
 import 'app_database.dart';
 
 /// Drift DAO for the local SavedListings table.
@@ -44,7 +45,7 @@ class SavedListingDatasource {
             listingTitle: Value(listing.listingTitle),
             listingPrice: Value(listing.listingPrice),
             listingThumbnailUrl: Value(listing.listingThumbnailUrl),
-            listingStatus: Value(listing.listingStatus),
+            listingStatus: Value(listing.listingStatus?.name),
             sellerName: Value(listing.sellerName),
           ),
         );
@@ -83,7 +84,7 @@ class SavedListingDatasource {
                     listingTitle: Value(l.listingTitle),
                     listingPrice: Value(l.listingPrice),
                     listingThumbnailUrl: Value(l.listingThumbnailUrl),
-                    listingStatus: Value(l.listingStatus),
+                    listingStatus: Value(l.listingStatus?.name),
                     sellerName: Value(l.sellerName),
                   ))
               .toList(),
@@ -107,7 +108,9 @@ class SavedListingDatasource {
       listingTitle: row.listingTitle,
       listingPrice: row.listingPrice,
       listingThumbnailUrl: row.listingThumbnailUrl,
-      listingStatus: row.listingStatus,
+      listingStatus: row.listingStatus != null
+          ? ListingStatusX.fromString(row.listingStatus!)
+          : null,
       sellerName: row.sellerName,
     );
   }

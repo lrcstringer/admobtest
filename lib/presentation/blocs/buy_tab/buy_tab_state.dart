@@ -12,7 +12,6 @@ class BuyTabState with _$BuyTabState {
     @Default(0) int marketplaceListingCount,
     @Default(0) int marketplaceSellerCount,
     @Default([]) List<String> trendingThumbnails,
-    @Default([]) List<String> userClusters,
     @Default(false) bool isOffline,
     DateTime? lastSyncedAt,
     String? errorMessage,

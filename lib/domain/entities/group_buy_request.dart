@@ -1,10 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/group_buy_request_status.dart';
+
 part 'group_buy_request.freezed.dart';
 part 'group_buy_request.g.dart';
-
-/// Status of a user-submitted group buy suggestion.
-enum GroupBuyRequestStatus { pending, approved, declined }
 
 /// A user-submitted suggestion for a group buy deal.
 @freezed

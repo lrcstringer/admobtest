@@ -81,10 +81,10 @@ class _CommunityGroupBuyCreateScreenState
 
     return BlocListener<GroupBuyBloc, GroupBuyState>(
       listenWhen: (prev, curr) =>
-          prev.createSuccessId != curr.createSuccessId ||
+          prev.successId != curr.successId ||
           prev.errorMessage != curr.errorMessage,
       listener: (context, state) {
-        if (state.createSuccessId != null) {
+        if (state.successId != null) {
           context
               .read<GroupBuyBloc>()
               .add(const GroupBuyEvent.clearMessages());

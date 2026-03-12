@@ -17,9 +17,13 @@ class MarketplaceProviderManagementScreen extends StatefulWidget {
 class _MarketplaceProviderManagementScreenState
     extends State<MarketplaceProviderManagementScreen>
     with SingleTickerProviderStateMixin {
+  static const _pageSize = 50;
+
   late final TabController _tabController;
   bool _isLoading = false;
   List<Map<String, dynamic>> _providers = [];
+  DocumentSnapshot? _lastDoc;
+  bool _hasMore = true;
 
   @override
   void initState() {
@@ -40,7 +44,7 @@ class _MarketplaceProviderManagementScreenState
       final snapshot = await FirebaseFirestore.instance
           .collection('providers')
           .orderBy('createdAt', descending: true)
-          .limit(200)
+          .limit(_pageSize)
           .get();
       final providers = snapshot.docs.map((doc) {
         final data = doc.data();
@@ -51,6 +55,8 @@ class _MarketplaceProviderManagementScreenState
       if (mounted) {
         setState(() {
           _providers = providers;
+          _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+          _hasMore = snapshot.docs.length >= _pageSize;
           _isLoading = false;
         });
       }
@@ -59,6 +65,40 @@ class _MarketplaceProviderManagementScreenState
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading providers: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (!_hasMore || _isLoading || _lastDoc == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('providers')
+          .orderBy('createdAt', descending: true)
+          .startAfterDocument(_lastDoc!)
+          .limit(_pageSize)
+          .get();
+      final moreProviders = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          _providers.addAll(moreProviders);
+          _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+          _hasMore = snapshot.docs.length >= _pageSize;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading more providers: $e')),
         );
       }
     }
@@ -213,13 +253,32 @@ class _MarketplaceProviderManagementScreenState
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            itemCount: providers.length,
-            itemBuilder: (_, i) => _buildProviderRow(
-              providers[i],
-              showApproveReject: showApproveReject,
-              showSuspend: showSuspend,
-              showUnsuspend: showUnsuspend,
-            ),
+            itemCount: providers.length + (_hasMore ? 1 : 0),
+            itemBuilder: (_, i) {
+              if (i >= providers.length) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: OutlinedButton(
+                      onPressed: _isLoading ? null : _loadMore,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Load More'),
+                    ),
+                  ),
+                );
+              }
+              return _buildProviderRow(
+                providers[i],
+                showApproveReject: showApproveReject,
+                showSuspend: showSuspend,
+                showUnsuspend: showUnsuspend,
+              );
+            },
           ),
         ),
       ],

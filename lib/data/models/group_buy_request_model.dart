@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/group_buy_request.dart';
+import '../../domain/enums/group_buy_request_status.dart';
 
 part 'group_buy_request_model.freezed.dart';
 

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SavedListing {
 
- String get listingId; DateTime get savedAt; String? get listingTitle; int? get listingPrice; String? get listingThumbnailUrl; String? get listingStatus; String? get sellerName;
+ String get listingId; DateTime get savedAt; String? get listingTitle; int? get listingPrice; String? get listingThumbnailUrl; ListingStatus? get listingStatus; String? get sellerName;
 /// Create a copy of SavedListing
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $SavedListingCopyWith<$Res>  {
   factory $SavedListingCopyWith(SavedListing value, $Res Function(SavedListing) _then) = _$SavedListingCopyWithImpl;
 @useResult
 $Res call({
- String listingId, DateTime savedAt, String? listingTitle, int? listingPrice, String? listingThumbnailUrl, String? listingStatus, String? sellerName
+ String listingId, DateTime savedAt, String? listingTitle, int? listingPrice, String? listingThumbnailUrl, ListingStatus? listingStatus, String? sellerName
 });
 
 
@@ -73,7 +73,7 @@ as DateTime,listingTitle: freezed == listingTitle ? _self.listingTitle : listing
 as String?,listingPrice: freezed == listingPrice ? _self.listingPrice : listingPrice // ignore: cast_nullable_to_non_nullable
 as int?,listingThumbnailUrl: freezed == listingThumbnailUrl ? _self.listingThumbnailUrl : listingThumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,listingStatus: freezed == listingStatus ? _self.listingStatus : listingStatus // ignore: cast_nullable_to_non_nullable
-as String?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
+as ListingStatus?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -159,7 +159,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  String? listingStatus,  String? sellerName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  ListingStatus? listingStatus,  String? sellerName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SavedListing() when $default != null:
 return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPrice,_that.listingThumbnailUrl,_that.listingStatus,_that.sellerName);case _:
@@ -180,7 +180,7 @@ return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  String? listingStatus,  String? sellerName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  ListingStatus? listingStatus,  String? sellerName)  $default,) {final _that = this;
 switch (_that) {
 case _SavedListing():
 return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPrice,_that.listingThumbnailUrl,_that.listingStatus,_that.sellerName);case _:
@@ -200,7 +200,7 @@ return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  String? listingStatus,  String? sellerName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String listingId,  DateTime savedAt,  String? listingTitle,  int? listingPrice,  String? listingThumbnailUrl,  ListingStatus? listingStatus,  String? sellerName)?  $default,) {final _that = this;
 switch (_that) {
 case _SavedListing() when $default != null:
 return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPrice,_that.listingThumbnailUrl,_that.listingStatus,_that.sellerName);case _:
@@ -223,7 +223,7 @@ class _SavedListing extends SavedListing {
 @override final  String? listingTitle;
 @override final  int? listingPrice;
 @override final  String? listingThumbnailUrl;
-@override final  String? listingStatus;
+@override final  ListingStatus? listingStatus;
 @override final  String? sellerName;
 
 /// Create a copy of SavedListing
@@ -259,7 +259,7 @@ abstract mixin class _$SavedListingCopyWith<$Res> implements $SavedListingCopyWi
   factory _$SavedListingCopyWith(_SavedListing value, $Res Function(_SavedListing) _then) = __$SavedListingCopyWithImpl;
 @override @useResult
 $Res call({
- String listingId, DateTime savedAt, String? listingTitle, int? listingPrice, String? listingThumbnailUrl, String? listingStatus, String? sellerName
+ String listingId, DateTime savedAt, String? listingTitle, int? listingPrice, String? listingThumbnailUrl, ListingStatus? listingStatus, String? sellerName
 });
 
 
@@ -284,7 +284,7 @@ as DateTime,listingTitle: freezed == listingTitle ? _self.listingTitle : listing
 as String?,listingPrice: freezed == listingPrice ? _self.listingPrice : listingPrice // ignore: cast_nullable_to_non_nullable
 as int?,listingThumbnailUrl: freezed == listingThumbnailUrl ? _self.listingThumbnailUrl : listingThumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,listingStatus: freezed == listingStatus ? _self.listingStatus : listingStatus // ignore: cast_nullable_to_non_nullable
-as String?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
+as ListingStatus?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
