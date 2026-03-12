@@ -185,6 +185,14 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
       return;
     }
 
+    // Block purchase if recipient hasn't been validated yet
+    if (state.isRecipientValid != true) {
+      emit(state.copyWith(
+        errorMessage: 'Please validate the recipient number before purchasing',
+      ));
+      return;
+    }
+
     emit(state.copyWith(isPurchasing: true));
 
     final result = await _purchaseRepository.makePurchase(

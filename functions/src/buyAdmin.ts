@@ -3214,6 +3214,63 @@ export const adminDeleteBrandProduct = onCall(
 // ============================================================================
 
 /**
+ * List all VAS providers with optional category filter.
+ * Includes product counts per provider.
+ */
+export const adminListVasProviders = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminListVasProviders");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:listVasProviders",
+      "adminListVasProviders"
+    );
+
+    const { category, includeInactive } = request.data || {};
+
+    let query: admin.firestore.Query = db.collection("serviceProviders");
+
+    if (category && typeof category === "string") {
+      query = query.where("category", "==", category);
+    }
+
+    if (!includeInactive) {
+      query = query.where("isActive", "==", true);
+    }
+
+    query = query.orderBy("sortOrder");
+
+    const snapshot = await query.get();
+
+    const providers = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        // Count products for this provider
+        const productsSnap = await db
+          .collection("serviceProducts")
+          .where("providerId", "==", doc.id)
+          .count()
+          .get();
+
+        return {
+          id: doc.id,
+          ...data,
+          productCount: productsSnap.data().count,
+        };
+      })
+    );
+
+    await logAdminAction(adminCtx.uid, "buy:listVasProviders", "adminListVasProviders", {
+      category: category || "all",
+      count: providers.length,
+    });
+
+    return { success: true, providers };
+  }
+);
+
+/**
  * Create a VAS provider (e.g., Eskom for electricity, Vodacom for airtime).
  */
 export const adminCreateVasProvider = onCall(
@@ -3390,6 +3447,46 @@ export const adminDeleteVasProvider = onCall(
 
     logger.info(`VAS provider ${providerId} deleted by ${adminCtx.email}`);
     return { success: true };
+  }
+);
+
+/**
+ * List VAS products for a specific provider. Admin-only.
+ */
+export const adminListVasProducts = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminListVasProducts");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:listVasProducts",
+      "adminListVasProducts"
+    );
+
+    const { providerId, includeInactive } = request.data;
+    if (!providerId || typeof providerId !== "string") {
+      throw new HttpsError("invalid-argument", "providerId is required");
+    }
+
+    let query: admin.firestore.Query = db
+      .collection("serviceProducts")
+      .where("providerId", "==", providerId)
+      .where("isDeleted", "==", false);
+
+    if (!includeInactive) {
+      query = query.where("isActive", "==", true);
+    }
+
+    const snapshot = await query.orderBy("sortOrder").get();
+    const products = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() ?? null,
+      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() ?? null,
+    }));
+
+    logger.info(`Admin ${adminCtx.email} listed ${products.length} VAS products for provider ${providerId}`);
+    return { success: true, products };
   }
 );
 

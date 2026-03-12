@@ -106,11 +106,8 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
               ?.map((e) => e as String)
               .toList() ??
           [],
-      sections: (json['sections'] as List<dynamic>?)
-              ?.map((e) =>
-                  StorefrontSection.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      sections: _safeParseList(
+          json['sections'], StorefrontSection.fromJson),
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : null,
@@ -152,11 +149,7 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       ratingCount: (json['ratingCount'] as num?)?.toInt(),
 
       // Quick Actions
-      quickActions: (json['quickActions'] as List<dynamic>?)
-              ?.map(
-                  (e) => QuickAction.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      quickActions: _safeParseList(json['quickActions'], QuickAction.fromJson),
 
       // Gallery
       galleryImageUrls: (json['galleryImageUrls'] as List<dynamic>?)
@@ -165,11 +158,7 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
           [],
 
       // Promotions
-      promotions: (json['promotions'] as List<dynamic>?)
-              ?.map((e) =>
-                  StorefrontPromo.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      promotions: _safeParseList(json['promotions'], StorefrontPromo.fromJson),
 
       // Layout
       sectionOrder: (json['sectionOrder'] as List<dynamic>?)
@@ -196,29 +185,15 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
           json['announcementDismissible'] as bool? ?? true,
 
       // New content sections
-      showcaseVideos: (json['showcaseVideos'] as List<dynamic>?)
-              ?.map((e) =>
-                  ShowcaseVideo.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      coupons: (json['coupons'] as List<dynamic>?)
-              ?.map((e) =>
-                  StorefrontCoupon.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      faqItems: (json['faqItems'] as List<dynamic>?)
-              ?.map((e) => FaqItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      showcaseVideos:
+          _safeParseList(json['showcaseVideos'], ShowcaseVideo.fromJson),
+      coupons: _safeParseList(json['coupons'], StorefrontCoupon.fromJson),
+      faqItems: _safeParseList(json['faqItems'], FaqItem.fromJson),
       testimonialReviewIds: (json['testimonialReviewIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      locations: (json['locations'] as List<dynamic>?)
-              ?.map((e) =>
-                  BrandLocation.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      locations: _safeParseList(json['locations'], BrandLocation.fromJson),
       richTextBlocks: (json['richTextBlocks'] as Map<String, dynamic>?)
               ?.map((k, v) => MapEntry(k, v as String)) ??
           {},
@@ -499,5 +474,22 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       (e) => e.name == value,
       orElse: () => fallback,
     );
+  }
+
+  /// Safely parse a JSON list of sub-entities, skipping malformed entries.
+  static List<T> _safeParseList<T>(
+      dynamic jsonList, T Function(Map<String, dynamic>) parser) {
+    if (jsonList is! List) return [];
+    final result = <T>[];
+    for (final item in jsonList) {
+      if (item is Map<String, dynamic>) {
+        try {
+          result.add(parser(item));
+        } catch (_) {
+          // Skip malformed entries rather than crashing the entire model
+        }
+      }
+    }
+    return result;
   }
 }

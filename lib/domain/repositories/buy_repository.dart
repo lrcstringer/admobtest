@@ -58,6 +58,10 @@ abstract class BuyRepository {
     required String couponId,
   });
 
+  /// Get coupon IDs the current user has already claimed for a storefront
+  Future<Either<Failure, Set<String>>> getClaimedCouponIds(
+      String storefrontId);
+
   /// Record a storefront view (fire-and-forget analytics)
   Future<Either<Failure, void>> recordStorefrontView(String storefrontId);
 

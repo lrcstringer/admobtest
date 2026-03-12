@@ -24,7 +24,8 @@ class BrandStorefrontScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GetIt.I<BrandStorefrontBloc>()
-        ..add(BrandStorefrontEvent.loadStorefront(storefrontId)),
+        ..add(BrandStorefrontEvent.loadStorefront(storefrontId))
+        ..add(BrandStorefrontEvent.recordView(storefrontId)),
       child: const _BrandStorefrontBody(),
     );
   }
@@ -54,6 +55,24 @@ class _BrandStorefrontBody extends StatelessWidget {
             ),
             backgroundColor: AppColors.background,
             elevation: 0,
+            actions: [
+              if (storefront != null)
+                IconButton(
+                  icon: Icon(
+                    state.isFollowing
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: state.isFollowing
+                        ? AppColors.error
+                        : AppColors.textSecondary,
+                  ),
+                  onPressed: () => context
+                      .read<BrandStorefrontBloc>()
+                      .add(BrandStorefrontEvent.toggleFollow(
+                        storefront.brandId,
+                      )),
+                ),
+            ],
           ),
           backgroundColor: AppColors.background,
           body: state.isLoading
@@ -1257,14 +1276,27 @@ class _BrandStorefrontBody extends StatelessWidget {
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // TODO: Wire to BLoC claimCoupon event
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Coupon claimed!')),
+                  BlocBuilder<BrandStorefrontBloc, BrandStorefrontState>(
+                    buildWhen: (prev, curr) =>
+                        prev.isClaimingCoupon != curr.isClaimingCoupon ||
+                        prev.claimedCouponIds != curr.claimedCouponIds,
+                    builder: (context, state) {
+                      final isClaimed = state.claimedCouponIds.contains(coupon.id);
+                      return TextButton(
+                        onPressed: isClaimed || state.isClaimingCoupon
+                            ? null
+                            : () {
+                                context.read<BrandStorefrontBloc>().add(
+                                      BrandStorefrontEvent.claimCoupon(
+                                        storefrontId: storefront.id,
+                                        couponId: coupon.id,
+                                        couponCode: coupon.code,
+                                      ),
+                                    );
+                              },
+                        child: Text(isClaimed ? 'Claimed' : 'Claim'),
                       );
                     },
-                    child: const Text('Claim'),
                   ),
                 ],
               ),

@@ -15,6 +15,9 @@ import '../screens/client_management_screen.dart';
 import '../screens/buy_category_management_screen.dart';
 import '../screens/buy_purchase_monitoring_screen.dart';
 import '../screens/brand_storefront_management_screen.dart';
+import '../screens/brand_storefront_builder_screen.dart';
+import '../screens/vas_provider_management_screen.dart';
+import '../screens/vas_product_management_screen.dart';
 import '../screens/marketplace_provider_management_screen.dart';
 import '../screens/marketplace_listing_moderation_screen.dart';
 import '../screens/marketplace_order_management_screen.dart';
@@ -230,6 +233,40 @@ class AdminRouter {
             name: 'adminBuyBrandStorefronts',
             builder: (context, state) =>
                 const BrandStorefrontManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-storefront-builder',
+            name: 'adminStorefrontBuilder',
+            builder: (context, state) {
+              final storefrontId =
+                  state.uri.queryParameters['storefrontId'];
+              return BrandStorefrontBuilderScreen(
+                storefrontId: storefrontId,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/buy-vas-providers',
+            name: 'adminBuyVasProviders',
+            builder: (context, state) =>
+                const VasProviderManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-vas-products',
+            name: 'adminBuyVasProducts',
+            builder: (context, state) {
+              final providerId =
+                  state.uri.queryParameters['providerId'] ?? '';
+              return VasProductManagementScreen(
+                providerId: providerId,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/buy-purchase-monitoring',
+            name: 'adminBuyPurchaseMonitoring',
+            builder: (context, state) =>
+                const BuyPurchaseMonitoringScreen(),
           ),
           GoRoute(
             path: '/buy-providers',

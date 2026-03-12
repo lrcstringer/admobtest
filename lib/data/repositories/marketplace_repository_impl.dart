@@ -127,6 +127,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     String? photoUrl,
     String? servicesDescription,
     String? communityId,
+    String? category,
   }) async {
     try {
       final providerId = await _remoteDataSource.registerProvider(
@@ -135,6 +136,7 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
         photoUrl: photoUrl,
         servicesDescription: servicesDescription,
         communityId: communityId,
+        category: category,
       );
       return Right(providerId);
     } catch (e) {

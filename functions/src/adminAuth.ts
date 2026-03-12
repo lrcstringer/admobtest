@@ -163,10 +163,12 @@ export type AdminPermission =
   | "buy:updateBrandProduct"
   | "buy:deleteBrandProduct"
   // Buy VAS management
+  | "buy:listVasProviders"
   | "buy:createVasProvider"
   | "buy:updateVasProvider"
   | "buy:toggleVasProvider"
   | "buy:deleteVasProvider"
+  | "buy:listVasProducts"
   | "buy:createVasProduct"
   | "buy:updateVasProduct"
   | "buy:toggleVasProduct"
@@ -273,10 +275,12 @@ const platformAdminPerms: AdminPermission[] = [
   "buy:updateBrandProduct",
   "buy:deleteBrandProduct",
   // Buy VAS management
+  "buy:listVasProviders",
   "buy:createVasProvider",
   "buy:updateVasProvider",
   "buy:toggleVasProvider",
   "buy:deleteVasProvider",
+  "buy:listVasProducts",
   "buy:createVasProduct",
   "buy:updateVasProduct",
   "buy:toggleVasProduct",
@@ -400,6 +404,8 @@ const auditorPerms: AdminPermission[] = [
   "buy:listGroupBuys",
   "buy:getGroupBuyDetails",
   "buy:getEscrowOverview",
+  "buy:listVasProviders",
+  "buy:listVasProducts",
 ];
 
 export const AdminRolePermissions: Record<AdminRole, Set<AdminPermission>> = {

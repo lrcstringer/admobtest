@@ -45,6 +45,7 @@ abstract class MarketplaceRemoteDataSource {
     String? photoUrl,
     String? servicesDescription,
     String? communityId,
+    String? category,
   });
 
   /// Create a marketplace listing (calls CF)
@@ -300,6 +301,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     String? photoUrl,
     String? servicesDescription,
     String? communityId,
+    String? category,
   }) async {
     final result =
         await _functions.httpsCallable('registerMarketplaceProvider').call({
@@ -309,6 +311,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       if (servicesDescription != null)
         'servicesDescription': servicesDescription,
       if (communityId != null) 'communityId': communityId,
+      if (category != null) 'category': category,
     });
     return result.data['providerId'] as String;
   }

@@ -7,6 +7,7 @@ import '../../../core/error/failures.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/entities/marketplace_provider.dart';
 import '../../../domain/entities/saved_listing.dart';
+import '../../../domain/enums/provider_status.dart';
 import '../../../domain/entities/vouch.dart';
 import '../../../domain/repositories/marketplace_repository.dart';
 import '../../../domain/repositories/saved_listing_repository.dart';
@@ -510,7 +511,33 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         isLoadingSellerPortal: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) => emit(state.copyWith(isLoadingSellerPortal: false)),
+      (dashboard) {
+        // Extract provider profile from dashboard if present
+        final providerData = dashboard['provider'];
+        MarketplaceProvider? sellerProfile;
+        if (providerData is Map<String, dynamic>) {
+          sellerProfile = MarketplaceProvider(
+            id: providerData['id'] as String? ?? '',
+            userId: providerData['userId'] as String? ?? '',
+            displayName: providerData['displayName'] as String? ?? '',
+            bio: providerData['bio'] as String?,
+            photoUrl: providerData['photoUrl'] as String?,
+            status: ProviderStatus.active,
+            trustScore: (providerData['trustScore'] as num?)?.toDouble() ?? 0,
+            isVerified: providerData['isVerified'] as bool? ?? false,
+            vouchCount: providerData['vouchCount'] as int? ?? 0,
+            completedOrders: providerData['completedOrders'] as int? ?? 0,
+            createdAt: DateTime.tryParse(
+                    providerData['createdAt'] as String? ?? '') ??
+                DateTime.now(),
+          );
+        }
+
+        emit(state.copyWith(
+          isLoadingSellerPortal: false,
+          currentSellerProfile: sellerProfile ?? state.currentSellerProfile,
+        ));
+      },
     );
   }
 
@@ -531,18 +558,22 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       ));
     }
 
-    toggleResult.fold(
-      (failure) => emit(state.copyWith(
-        errorMessage: failure.displayMessage,
-      )),
-      (_) async {
-        // Refresh the full list from the source of truth
-        final refreshResult = await _savedListingRepository.getAll();
-        refreshResult.fold(
-          (_) {}, // Non-critical — keep existing list
-          (items) => emit(state.copyWith(savedItems: items)),
-        );
-      },
+    // Handle result synchronously — no async in fold callback
+    final failure = toggleResult.fold<Failure?>(
+      (failure) => failure,
+      (_) => null,
+    );
+
+    if (failure != null) {
+      emit(state.copyWith(errorMessage: failure.displayMessage));
+      return;
+    }
+
+    // Refresh the full list from the source of truth
+    final refreshResult = await _savedListingRepository.getAll();
+    refreshResult.fold(
+      (_) {}, // Non-critical — keep existing list
+      (items) => emit(state.copyWith(savedItems: items)),
     );
   }
 

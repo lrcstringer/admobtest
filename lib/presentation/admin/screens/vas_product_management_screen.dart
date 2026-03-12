@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
@@ -53,16 +52,13 @@ class _VasProductManagementScreenState
 
       List<Map<String, dynamic>> products = [];
       try {
-        final snapshot = await FirebaseFirestore.instance
-            .collection('serviceProducts')
-            .where('providerId', isEqualTo: widget.providerId)
-            .orderBy('sortOrder')
-            .get();
-        products = snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          return data;
-        }).toList();
+        final prodResult =
+            await _functions.httpsCallable('adminListVasProducts').call({
+          'providerId': widget.providerId,
+          'includeInactive': true,
+        });
+        products = (prodResult.data['products'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
       } catch (_) {
         // Fallback: products may be embedded in provider doc
         if (provider['products'] is List) {

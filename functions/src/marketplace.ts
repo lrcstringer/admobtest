@@ -12,6 +12,7 @@ import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
+import { requireAdminPermission } from "./adminAuth";
 import {
   processMarketplaceEscrow,
   releaseMarketplaceEscrow,
@@ -194,30 +195,7 @@ export const buyMarketplaceItem = onCall(
       throw new HttpsError("invalid-argument", "Listing ID is required");
     }
 
-    // Get listing
-    const listingDoc = await db.collection("marketplaceListings").doc(listingId).get();
-    if (!listingDoc.exists) {
-      throw new HttpsError("not-found", "Listing not found");
-    }
-    const listing = listingDoc.data()!;
-
-    if (listing.status !== "active") {
-      throw new HttpsError("failed-precondition", "This listing is no longer available");
-    }
-
-    // Get provider to find seller userId
-    const providerDoc = await db.collection("providers").doc(listing.providerId).get();
-    if (!providerDoc.exists) {
-      throw new HttpsError("not-found", "Seller not found");
-    }
-    const provider = providerDoc.data()!;
-
-    // Can't buy your own listing
-    if (provider.userId === userId) {
-      throw new HttpsError("failed-precondition", "You cannot buy your own listing");
-    }
-
-    // Validate balance (walletId must belong to the authenticated user)
+    // Pre-validate balance before entering the listing-reservation transaction
     if (walletId) {
       if (typeof walletId !== "string") {
         throw new HttpsError("invalid-argument", "Invalid wallet ID");
@@ -226,12 +204,10 @@ export const buyMarketplaceItem = onCall(
       if (!subAccount) {
         throw new HttpsError("not-found", "Wallet not found or does not belong to you");
       }
-      if (subAccount.balance < listing.priceTokens) {
-        throw new HttpsError("failed-precondition", "Insufficient balance");
-      }
     } else {
-      const balanceCheck = await validateMainWalletBalance(userId, listing.priceTokens);
-      if (!balanceCheck.sufficient) {
+      // Quick pre-check (authoritative check happens during escrow)
+      const balanceCheck = await validateMainWalletBalance(userId, 0);
+      if (!balanceCheck.sufficient && balanceCheck.available === 0) {
         throw new HttpsError("failed-precondition", "Insufficient balance");
       }
     }
@@ -240,60 +216,129 @@ export const buyMarketplaceItem = onCall(
     const buyerDoc = await db.collection("users").doc(userId).get();
     const buyerName = buyerDoc.data()?.displayName || "Unknown";
 
-    // Deterministic order ID prevents double-charging on client retry.
-    // Uses second-level resolution to avoid collision within same minute.
-    const timeBucket = Math.floor(Date.now() / 1000).toString();
-    const deterministicId = `${userId}_${listingId}_${timeBucket}`;
+    // Deterministic order ID: userId + listingId guarantees one active order per buyer per listing.
+    const deterministicId = `${userId}_${listingId}`;
     const orderRef = db.collection("buyOrders").doc(deterministicId);
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const listingRef = db.collection("marketplaceListings").doc(listingId);
 
-    await orderRef.set({
-      id: orderRef.id,
-      buyerId: userId,
-      buyerName,
-      sellerId: provider.userId,
-      sellerName: provider.displayName,
-      listingId,
-      listingTitle: listing.title,
-      amount: listing.priceTokens,
-      amountZar: listing.priceZar,
-      status: "pending",
-      escrowJournalId: null,
-      releaseJournalId: null,
-      refundJournalId: null,
-      disputeReason: null,
-      disputeResolution: null,
-      chatConversationId: null,
-      thumbnailUrl: listing.thumbnailUrl || null,
-      createdAt: now,
-      escrowedAt: null,
-      fulfilledAt: null,
-      completedAt: null,
-      disputedAt: null,
-      resolvedAt: null,
-      cancelledAt: null,
+    // Transaction: atomically check listing is active, reserve it, and create order.
+    // Prevents two concurrent buyers from both ordering the same single item.
+    const txData = await db.runTransaction(async (tx) => {
+      const [listingDoc, existingOrder] = await Promise.all([
+        tx.get(listingRef),
+        tx.get(orderRef),
+      ]);
+
+      if (!listingDoc.exists) {
+        throw new HttpsError("not-found", "Listing not found");
+      }
+      const listing = listingDoc.data()!;
+
+      if (listing.status !== "active") {
+        throw new HttpsError("failed-precondition", "This listing is no longer available");
+      }
+
+      // If an order already exists for this buyer+listing, check its state
+      if (existingOrder.exists) {
+        const existingStatus = existingOrder.data()!.status;
+        if (existingStatus === "escrowed" || existingStatus === "completed") {
+          throw new HttpsError("already-exists", "You already have an active order for this listing");
+        }
+        // If previous order failed/cancelled, allow re-purchase by overwriting
+      }
+
+      // Get provider to find seller userId
+      const providerDoc = await tx.get(db.collection("providers").doc(listing.providerId));
+      if (!providerDoc.exists) {
+        throw new HttpsError("not-found", "Seller not found");
+      }
+      const provider = providerDoc.data()!;
+
+      if (provider.userId === userId) {
+        throw new HttpsError("failed-precondition", "You cannot buy your own listing");
+      }
+
+      // Validate balance inside transaction
+      if (walletId) {
+        const subAccount = await getSubAccount(userId, walletId);
+        if (!subAccount || subAccount.balance < listing.priceTokens) {
+          throw new HttpsError("failed-precondition", "Insufficient balance");
+        }
+      } else {
+        const mainCheck = await validateMainWalletBalance(userId, listing.priceTokens);
+        if (!mainCheck.sufficient) {
+          throw new HttpsError("failed-precondition", "Insufficient balance");
+        }
+      }
+
+      const now = admin.firestore.FieldValue.serverTimestamp();
+
+      // Reserve listing — mark as pending so no concurrent buyer can purchase
+      tx.update(listingRef, {
+        status: "pending",
+        updatedAt: now,
+      });
+
+      // Create order
+      tx.set(orderRef, {
+        id: orderRef.id,
+        buyerId: userId,
+        buyerName,
+        sellerId: provider.userId,
+        sellerName: provider.displayName,
+        listingId,
+        listingTitle: listing.title,
+        amount: listing.priceTokens,
+        amountZar: listing.priceZar,
+        status: "pending",
+        escrowJournalId: null,
+        releaseJournalId: null,
+        refundJournalId: null,
+        disputeReason: null,
+        disputeResolution: null,
+        chatConversationId: null,
+        thumbnailUrl: listing.thumbnailUrl || null,
+        createdAt: now,
+        escrowedAt: null,
+        fulfilledAt: null,
+        completedAt: null,
+        disputedAt: null,
+        resolvedAt: null,
+        cancelledAt: null,
+      });
+
+      return {
+        priceTokens: listing.priceTokens,
+        title: listing.title,
+      };
     });
 
-    // Process escrow — if this fails, order stays "pending" (safe state)
+    // Process escrow AFTER transaction succeeds — if escrow fails, revert listing + order
     let journalId: string;
     try {
       journalId = await processMarketplaceEscrow(
         userId,
-        listing.priceTokens,
+        txData.priceTokens,
         orderRef.id,
-        `Marketplace purchase: ${listing.title}`
+        `Marketplace purchase: ${txData.title}`
       );
     } catch (escrowError) {
-      // Clean up the pending order so it doesn't linger
-      await orderRef.update({
-        status: "failed",
-        cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      // Revert: re-activate listing and mark order as failed
+      await db.runTransaction(async (tx) => {
+        tx.update(listingRef, {
+          status: "active",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.update(orderRef, {
+          status: "failed",
+          cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
       });
       logger.error(`Escrow failed for order ${orderRef.id}`, escrowError);
       throw new HttpsError("internal", "Payment processing failed. Please try again.");
     }
 
-    // Escrow succeeded — atomically mark order as escrowed
+    // Escrow succeeded — mark order as escrowed
     await orderRef.update({
       status: "escrowed",
       escrowJournalId: journalId,
@@ -612,56 +657,59 @@ export const vouchForProvider = onCall(
     // If orderId is provided, key on userId_orderId; otherwise userId_providerId.
     const vouchDocId = orderId ? `${userId}_${orderId}` : `${userId}_${providerId}`;
     const vouchRef = db.collection("vouches").doc(vouchDocId);
-
-    // Check for existing vouch (deterministic ID makes this a simple get)
-    const existingVouch = await vouchRef.get();
-    if (existingVouch.exists) {
-      throw new HttpsError("already-exists", "You already vouched for this order");
-    }
-
-    await vouchRef.set({
-      id: vouchRef.id,
-      voucherId: userId,
-      providerId,
-      orderId: orderId || null,
-      rating,
-      comment: comment?.trim() || null,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    // Recalculate provider trust score inside a transaction to prevent
-    // stale reads from concurrent vouch submissions.
     const providerRef = db.collection("providers").doc(providerId);
+
+    // Single transaction: create vouch + recalculate trust score atomically.
+    // Uses counter-based approach — the provider doc stores ratingSum and vouchCount,
+    // which are incremented atomically. This avoids the stale-query race where
+    // a non-transactional vouches query reads stale data.
     const txResult = await db.runTransaction(async (tx) => {
-      const [allVouches, providerDoc] = await Promise.all([
-        db.collection("vouches").where("providerId", "==", providerId).get(),
+      const [existingVouch, providerDoc] = await Promise.all([
+        tx.get(vouchRef),
         tx.get(providerRef),
       ]);
 
-      if (!providerDoc.exists) return { trustScore: 0, vouchCount: 0 };
+      if (existingVouch.exists) {
+        throw new HttpsError("already-exists", "You already vouched for this order");
+      }
+      if (!providerDoc.exists) {
+        throw new HttpsError("not-found", "Provider not found");
+      }
 
-      const totalRating = allVouches.docs.reduce(
-        (sum, d) => sum + (d.data().rating || 0),
-        0
-      );
-      const vouchCount = allVouches.size;
-      const trustScore = vouchCount > 0 ? totalRating / vouchCount : 0;
-      const isVerified = vouchCount >= 5 && trustScore >= 4.0;
+      // Create vouch doc
+      tx.set(vouchRef, {
+        id: vouchRef.id,
+        voucherId: userId,
+        providerId,
+        orderId: orderId || null,
+        rating,
+        comment: comment?.trim() || null,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
 
+      // Use counter-based trust score: increment ratingSum + vouchCount atomically
       const providerData = providerDoc.data()!;
+      const oldRatingSum = providerData.ratingSum || 0;
+      const oldVouchCount = providerData.vouchCount || 0;
+      const newRatingSum = oldRatingSum + rating;
+      const newVouchCount = oldVouchCount + 1;
+      const newTrustScore = newVouchCount > 0 ? newRatingSum / newVouchCount : 0;
+      const isVerified = newVouchCount >= 5 && newTrustScore >= 4.0;
+
       const effectiveVerified =
         providerData.isVerifiedOverride !== null && providerData.isVerifiedOverride !== undefined
           ? providerData.isVerifiedOverride
           : isVerified;
 
       tx.update(providerRef, {
-        trustScore: Math.round(trustScore * 10) / 10,
-        vouchCount,
+        ratingSum: newRatingSum,
+        vouchCount: newVouchCount,
+        trustScore: Math.round(newTrustScore * 10) / 10,
         isVerified: effectiveVerified,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      return { trustScore, vouchCount };
+      return { trustScore: newTrustScore, vouchCount: newVouchCount };
     });
 
     logger.info(
@@ -1551,6 +1599,14 @@ export const suspendProviderCascade = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
+    requireAppCheck(request, "suspendProviderCascade");
+
+    // Admin-only operation — prevents any authenticated user from suspending providers
+    await requireAdminPermission(
+      request,
+      "buy:suspendProvider",
+      "suspendProviderCascade"
+    );
 
     const { providerId, reason, trigger } = request.data;
 

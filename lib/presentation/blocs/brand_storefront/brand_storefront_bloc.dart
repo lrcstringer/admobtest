@@ -35,21 +35,36 @@ class BrandStorefrontBloc
     emit(state.copyWith(isLoading: true, errorMessage: null));
 
     final result = await _buyRepository.getBrandStorefront(event.id);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        isLoading: false,
-        errorMessage: failure.displayMessage,
-      )),
+
+    final storefront = result.fold<BrandStorefront?>(
+      (failure) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: failure.displayMessage,
+        ));
+        return null;
+      },
       (storefront) {
         emit(state.copyWith(
           isLoading: false,
           storefront: storefront,
         ));
-        // Auto-load products and reviews
+        // Auto-load products and reviews via events
         add(BrandStorefrontEvent.loadProducts(storefront.brandId));
         add(BrandStorefrontEvent.loadReviews(storefront.brandId));
+        return storefront;
       },
     );
+
+    // Hydrate claimed coupons after fold completes — keeps emit valid
+    if (storefront != null) {
+      final claimedResult =
+          await _buyRepository.getClaimedCouponIds(event.id);
+      claimedResult.fold(
+        (_) {}, // Non-critical — keep empty set
+        (ids) => emit(state.copyWith(claimedCouponIds: ids)),
+      );
+    }
   }
 
   Future<void> _onLoadProducts(
@@ -88,6 +103,16 @@ class BrandStorefrontBloc
     _SubmitReview event,
     Emitter<BrandStorefrontState> emit,
   ) async {
+    if (state.isSubmittingReview) return;
+
+    // Prevent double-submit within the same session
+    if (state.reviewSubmitSuccess) {
+      emit(state.copyWith(
+        errorMessage: 'You have already submitted a review',
+      ));
+      return;
+    }
+
     emit(state.copyWith(
       isSubmittingReview: true,
       reviewSubmitSuccess: false,

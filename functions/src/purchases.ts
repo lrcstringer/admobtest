@@ -102,8 +102,11 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
     }
   }
 
-  // Create purchase document first
-  const purchaseRef = db.collection("purchases").doc();
+  // Deterministic purchase ID prevents duplicate charges on client retry.
+  // Uses second-level bucket so same user+product within 1s is idempotent.
+  const timeBucket = Math.floor(Date.now() / 1000).toString();
+  const deterministicId = `${userId}_${productId}_${timeBucket}`;
+  const purchaseRef = db.collection("purchases").doc(deterministicId);
 
   try {
     // Create initial purchase record
@@ -270,8 +273,9 @@ export const getPurchaseDetails = onCall({ labels: { area: "wallet" } }, async (
 });
 
 /**
- * Simulate VAS provider API call
- * In production, replace with actual API integration
+ * Simulate VAS provider API call.
+ * TODO: Replace with actual VAS API integration before production launch.
+ * Always succeeds — real provider failures will be handled by the actual API.
  */
 interface PurchaseRequest {
   category: string;
@@ -289,40 +293,28 @@ async function simulateVasProviderCall(purchase: PurchaseRequest): Promise<{
   error?: string;
 }> {
   // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
-  // Simulate success (95% success rate for demo)
-  const isSuccess = Math.random() > 0.05;
+  // Deterministic success — no random failures that cost users real money.
+  const category = purchase.category;
 
-  if (isSuccess) {
-    const category = purchase.category;
-
-    if (category === "electricity") {
-      // Electricity returns a token
-      return {
-        success: true,
-        voucherCode: generateElectricityToken(),
-        reference: `EL${Date.now()}`,
-      };
-    } else if (category === "voucher") {
-      // Vouchers return code and PIN
-      return {
-        success: true,
-        voucherCode: generateVoucherCode(),
-        voucherPin: generateVoucherPin(),
-        reference: `VC${Date.now()}`,
-      };
-    } else {
-      // Airtime/data just needs reference
-      return {
-        success: true,
-        reference: `TX${Date.now()}`,
-      };
-    }
+  if (category === "electricity") {
+    return {
+      success: true,
+      voucherCode: generateElectricityToken(),
+      reference: `EL${Date.now()}`,
+    };
+  } else if (category === "voucher") {
+    return {
+      success: true,
+      voucherCode: generateVoucherCode(),
+      voucherPin: generateVoucherPin(),
+      reference: `VC${Date.now()}`,
+    };
   } else {
     return {
-      success: false,
-      error: "Provider unavailable. Please try again.",
+      success: true,
+      reference: `TX${Date.now()}`,
     };
   }
 }

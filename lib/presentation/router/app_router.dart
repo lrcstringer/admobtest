@@ -38,6 +38,9 @@ import '../screens/buy/provider_registration_screen.dart';
 import '../screens/buy/group_buy_list_screen.dart';
 import '../screens/buy/group_buy_detail_screen.dart';
 import '../screens/buy/create_group_buy_screen.dart';
+import '../screens/buy/group_buy_voucher_screen.dart';
+import '../screens/buy/group_buy_collection_screen.dart';
+import '../screens/buy/community_group_buy_create_screen.dart';
 
 // Chat screens (legacy — kept for backward compat until cleanup)
 import '../screens/chat/chat_bonus_network_invite_screen.dart';
@@ -1264,7 +1267,14 @@ class AppRouter {
                         builder: (context, state) =>
                             const CreateGroupBuyScreen(),
                       ),
-                      // 10.7.2) Group buy detail
+                      // 10.7.2) Community group buy create
+                      GoRoute(
+                        path: 'community-create',
+                        name: 'communityGroupBuyCreate',
+                        builder: (context, state) =>
+                            const CommunityGroupBuyCreateScreen(),
+                      ),
+                      // 10.7.3) Group buy detail
                       GoRoute(
                         path: ':groupBuyId',
                         name: 'groupBuyDetail',
@@ -1275,6 +1285,32 @@ class AppRouter {
                             groupBuyId: groupBuyId,
                           );
                         },
+                        routes: [
+                          // 10.7.3a) Voucher redemption
+                          GoRoute(
+                            path: 'voucher',
+                            name: 'groupBuyVoucher',
+                            builder: (context, state) {
+                              final groupBuyId =
+                                  state.pathParameters['groupBuyId']!;
+                              return GroupBuyVoucherScreen(
+                                groupBuyId: groupBuyId,
+                              );
+                            },
+                          ),
+                          // 10.7.3b) Collection confirmation
+                          GoRoute(
+                            path: 'collection',
+                            name: 'groupBuyCollection',
+                            builder: (context, state) {
+                              final groupBuyId =
+                                  state.pathParameters['groupBuyId']!;
+                              return GroupBuyCollectionScreen(
+                                groupBuyId: groupBuyId,
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),

@@ -46,6 +46,7 @@ abstract class MarketplaceRepository {
     String? photoUrl,
     String? servicesDescription,
     String? communityId,
+    String? category,
   });
 
   /// Create a marketplace listing

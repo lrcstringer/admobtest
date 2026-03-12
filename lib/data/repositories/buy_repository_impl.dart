@@ -393,6 +393,30 @@ class BuyRepositoryImpl implements BuyRepository {
   }
 
   @override
+  Future<Either<Failure, Set<String>>> getClaimedCouponIds(
+    String storefrontId,
+  ) async {
+    try {
+      final result =
+          await _functions.httpsCallable('getClaimedCoupons').call({
+        'storefrontId': storefrontId,
+      });
+      final couponIds = (result.data['couponIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toSet() ??
+          {};
+      return Right(couponIds);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(
+        Failure.serverError(
+            message: e.message ?? 'Failed to load claimed coupons'),
+      );
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> recordStorefrontView(
     String storefrontId,
   ) async {

@@ -39,16 +39,17 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     super.dispose();
   }
 
+  final _functions =
+      FirebaseFunctions.instanceFor(region: 'africa-south1');
+
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      // Load group buys and suggestions in parallel
-      final results = await Future.wait([
-        FirebaseFirestore.instance
-            .collection('groupBuys')
-            .orderBy('createdAt', descending: true)
-            .limit(_pageSize)
-            .get(),
+      // Load group buys via admin CF (enforces permissions) + suggestions in parallel
+      final results = await Future.wait<dynamic>([
+        _functions.httpsCallable('adminListGroupBuys').call<dynamic>({
+          'limit': _pageSize,
+        }),
         FirebaseFirestore.instance
             .collection('groupBuyRequests')
             .orderBy('createdAt', descending: true)
@@ -56,14 +57,14 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
             .get(),
       ]);
 
-      final groupBuySnapshot = results[0];
-      final suggestionsSnapshot = results[1];
+      final groupBuyResult = results[0] as HttpsCallableResult<dynamic>;
+      final suggestionsSnapshot =
+          results[1] as QuerySnapshot<Map<String, dynamic>>;
 
-      final items = groupBuySnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
+      final resultData = groupBuyResult.data as Map<String, dynamic>? ?? {};
+      final items = ((resultData['groupBuys'] ?? []) as List<dynamic>)
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
 
       final suggestionItems = suggestionsSnapshot.docs.map((doc) {
         final data = doc.data();
@@ -75,10 +76,8 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         setState(() {
           _groupBuys = items;
           _suggestions = suggestionItems;
-          _lastDoc = groupBuySnapshot.docs.isNotEmpty
-              ? groupBuySnapshot.docs.last
-              : null;
-          _hasMore = groupBuySnapshot.docs.length >= _pageSize;
+          _lastDoc = null; // CF-based pagination uses cursors, not doc refs
+          _hasMore = items.length >= _pageSize;
           _isLoading = false;
         });
       }

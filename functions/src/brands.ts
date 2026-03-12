@@ -255,32 +255,64 @@ export const claimStorefrontCoupon = onCall(
     // Deterministic doc ID prevents duplicate claims
     const claimDocId = `${storefrontId}_${userId}_${couponId}`;
     const claimRef = db.collection("storefrontCoupons").doc(claimDocId);
+    const storefrontRef = db.collection("brandStorefronts").doc(storefrontId);
 
-    const existing = await claimRef.get();
-    if (existing.exists) {
-      throw new HttpsError("already-exists", "You have already claimed this coupon");
-    }
+    // Transaction: atomic check-and-claim prevents race between existence check and set
+    await db.runTransaction(async (tx) => {
+      const [existingClaim, storefrontDoc] = await Promise.all([
+        tx.get(claimRef),
+        tx.get(storefrontRef),
+      ]);
 
-    // Verify storefront exists
-    const storefrontDoc = await db.collection("brandStorefronts").doc(storefrontId).get();
-    if (!storefrontDoc.exists) {
-      throw new HttpsError("not-found", "Storefront not found");
-    }
+      if (existingClaim.exists) {
+        throw new HttpsError("already-exists", "You have already claimed this coupon");
+      }
+      if (!storefrontDoc.exists) {
+        throw new HttpsError("not-found", "Storefront not found");
+      }
 
-    await claimRef.set({
-      id: claimDocId,
-      storefrontId,
-      userId,
-      couponId,
-      couponCode: couponCode || null,
-      brandId: storefrontDoc.data()!.brandId || storefrontId,
-      claimedAt: admin.firestore.FieldValue.serverTimestamp(),
-      isRedeemed: false,
-      redeemedAt: null,
+      tx.set(claimRef, {
+        id: claimDocId,
+        storefrontId,
+        userId,
+        couponId,
+        couponCode: couponCode || null,
+        brandId: storefrontDoc.data()!.brandId || storefrontId,
+        claimedAt: admin.firestore.FieldValue.serverTimestamp(),
+        isRedeemed: false,
+        redeemedAt: null,
+      });
     });
 
     logger.info(`Coupon ${couponId} claimed by ${userId} from storefront ${storefrontId}`);
     return { success: true, couponCode: couponCode || couponId };
+  }
+);
+
+/**
+ * Get all coupon IDs the current user has claimed for a given storefront.
+ * Used to hydrate the UI on screen revisit so claimed coupons stay greyed out.
+ */
+export const getClaimedCoupons = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "getClaimedCoupons");
+
+    const { storefrontId } = request.data;
+    if (!storefrontId || typeof storefrontId !== "string") {
+      throw new HttpsError("invalid-argument", "storefrontId is required");
+    }
+
+    const snapshot = await db
+      .collection("storefrontCoupons")
+      .where("storefrontId", "==", storefrontId)
+      .where("userId", "==", userId)
+      .select("couponId")
+      .get();
+
+    const couponIds = snapshot.docs.map((doc) => doc.data().couponId as string);
+    return { success: true, couponIds };
   }
 );
 
@@ -296,6 +328,7 @@ export const recordStorefrontView = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
+    requireAppCheck(request, "recordStorefrontView");
 
     const { storefrontId } = request.data;
     if (!storefrontId || typeof storefrontId !== "string") {
@@ -313,7 +346,8 @@ export const recordStorefrontView = onCall(
       totalViews: admin.firestore.FieldValue.increment(1),
     });
 
-    // Record daily analytics
+    // Record daily analytics — use deterministic visitor doc instead of
+    // unbounded array to avoid hitting Firestore's 1MB doc limit on popular brands.
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
     const dailyRef = db
       .collection("brandAnalytics")
@@ -321,16 +355,27 @@ export const recordStorefrontView = onCall(
       .collection("daily")
       .doc(today);
 
+    // Always increment total views
     await dailyRef.set(
       {
         date: today,
         brandId,
         storefrontViews: admin.firestore.FieldValue.increment(1),
-        uniqueVisitors: admin.firestore.FieldValue.arrayUnion(userId),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
+
+    // Track unique visitors via deterministic subcollection doc (bounded per-user)
+    const visitorRef = dailyRef.collection("visitors").doc(userId);
+    const visitorDoc = await visitorRef.get();
+    if (!visitorDoc.exists) {
+      await visitorRef.set({ visitedAt: admin.firestore.FieldValue.serverTimestamp() });
+      // Increment unique visitor counter
+      await dailyRef.update({
+        uniqueVisitorCount: admin.firestore.FieldValue.increment(1),
+      });
+    }
 
     return { success: true };
   }
@@ -347,6 +392,7 @@ export const getBrandAnalytics = onCall(
   { labels: { area: "social" } },
   async (request) => {
     requireAuth(request);
+    requireAppCheck(request, "getBrandAnalytics");
 
     const { brandId, startDate, endDate } = request.data;
     if (!brandId || typeof brandId !== "string") {
@@ -366,16 +412,16 @@ export const getBrandAnalytics = onCall(
       .get();
 
     let totalViews = 0;
-    const totalUniqueVisitors = new Set<string>();
+    let totalUniqueVisitors = 0;
     const dailyData = dailySnap.docs.map((doc) => {
       const data = doc.data();
       totalViews += data.storefrontViews || 0;
-      const visitors = data.uniqueVisitors || [];
-      visitors.forEach((v: string) => totalUniqueVisitors.add(v));
+      const dayUniqueCount = data.uniqueVisitorCount || 0;
+      totalUniqueVisitors += dayUniqueCount;
       return {
         date: data.date,
         storefrontViews: data.storefrontViews || 0,
-        uniqueVisitorCount: visitors.length,
+        uniqueVisitorCount: dayUniqueCount,
       };
     });
 
@@ -389,7 +435,7 @@ export const getBrandAnalytics = onCall(
         brandId,
         period: { start, end },
         totalViews,
-        totalUniqueVisitors: totalUniqueVisitors.size,
+        totalUniqueVisitors,
         followerCount,
         daily: dailyData,
       },
@@ -429,8 +475,9 @@ export const getBrandMutualFollowers = onCall(
     // Check which contacts also follow this brand
     const mutualFollowers: Array<{ userId: string; displayName: string; photoUrl: string | null }> = [];
 
-    // Process in batches of 10
-    for (let i = 0; i < userContacts.length && mutualFollowers.length < resultLimit; i += 10) {
+    // Process in batches of 10 — check which contacts follow the brand
+    const matchedContactIds: string[] = [];
+    for (let i = 0; i < userContacts.length && matchedContactIds.length < resultLimit; i += 10) {
       const batchIds = userContacts.slice(i, i + 10);
       const followersSnap = await db
         .collection("brandFollowers")
@@ -440,13 +487,20 @@ export const getBrandMutualFollowers = onCall(
         .get();
 
       for (const doc of followersSnap.docs) {
-        if (mutualFollowers.length >= resultLimit) break;
-        const contactDoc = await db.collection("users").doc(doc.id).get();
+        if (matchedContactIds.length >= resultLimit) break;
+        matchedContactIds.push(doc.id);
+      }
+    }
+
+    // Batch-fetch all matched contact profiles in one getAll() call
+    if (matchedContactIds.length > 0) {
+      const contactRefs = matchedContactIds.map((id) => db.collection("users").doc(id));
+      const contactDocs = await db.getAll(...contactRefs);
+      for (const contactDoc of contactDocs) {
         const contactData = contactDoc.data();
-        // Skip deleted or inactive users
         if (!contactData || contactData.isDeleted === true) continue;
         mutualFollowers.push({
-          userId: doc.id,
+          userId: contactDoc.id,
           displayName: contactData.displayName || "User",
           photoUrl: contactData.photoUrl || null,
         });

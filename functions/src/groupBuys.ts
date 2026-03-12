@@ -81,7 +81,11 @@ export const createGroupBuy = onCall(
     const organizerName = userData?.displayName || "Unknown";
     const communityId = userData?.communityId || null;
 
-    const groupBuyRef = db.collection("groupBuys").doc();
+    // Deterministic ID prevents duplicate creation on client retry.
+    // Uses userId + title hash + date bucket.
+    const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
+    const dateBucket = new Date().toISOString().split("T")[0];
+    const groupBuyRef = db.collection("groupBuys").doc(`${userId}_${titleHash}_${dateBucket}`);
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     await groupBuyRef.set({
@@ -185,14 +189,9 @@ export const joinGroupBuy = onCall(
         throw new HttpsError("failed-precondition", "This group buy is full");
       }
 
-      // Check duplicate contribution within transaction
-      const existingContrib = await tx.get(
-        groupBuyRef
-          .collection("contributions")
-          .where("userId", "==", userId)
-          .limit(1)
-      );
-      if (!existingContrib.empty) {
+      // Check duplicate via deterministic doc ID (cheaper than a query)
+      const existingContrib = await tx.get(contribRef);
+      if (existingContrib.exists) {
         throw new HttpsError("already-exists", "You have already joined this group buy");
       }
 
@@ -399,23 +398,18 @@ export const leaveGroupBuy = onCall(
         );
       }
 
-      // Find user's contribution within transaction
-      const contribSnapshot = await tx.get(
-        groupBuyRef
-          .collection("contributions")
-          .where("userId", "==", userId)
-          .limit(1)
-      );
+      // Find user's contribution via deterministic doc ID (cheaper than query)
+      const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
+      const contribDoc = await tx.get(contribRef);
 
-      if (contribSnapshot.empty) {
+      if (!contribDoc.exists) {
         throw new HttpsError("not-found", "You have not joined this group buy");
       }
 
-      const contribDoc = contribSnapshot.docs[0];
-      const contrib = contribDoc.data();
+      const contrib = contribDoc.data()!;
 
       // Delete contribution and update group buy atomically
-      tx.delete(contribDoc.ref);
+      tx.delete(contribRef);
       tx.update(groupBuyRef, {
         currentAmount: admin.firestore.FieldValue.increment(-contrib.amount),
         participantCount: admin.firestore.FieldValue.increment(-1),
