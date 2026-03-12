@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -82,23 +83,28 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
   Future<void> _loadGroupData(Emitter<GooiDashboardState> emit) async {
     final groupId = _groupId!;
 
+    final groupFuture = _repository.getGroup(groupId);
+    final membersFuture = _repository.getMembers(groupId);
+    final cyclesFuture = _repository.getCycles(groupId);
+    final payoutsFuture = _repository.getPayouts(groupId);
+
     final results = await Future.wait([
-      _repository.getGroup(groupId),
-      _repository.getMembers(groupId),
-      _repository.getCycles(groupId),
-      _repository.getPayouts(groupId),
+      groupFuture,
+      membersFuture,
+      cyclesFuture,
+      payoutsFuture,
     ]);
 
-    final groupResult = results[0] as dynamic;
-    final membersResult = results[1] as dynamic;
-    final cyclesResult = results[2] as dynamic;
-    final payoutsResult = results[3] as dynamic;
+    final groupResult = results[0] as Either<Failure, GooiGroup>;
+    final membersResult = results[1] as Either<Failure, List<GooiMember>>;
+    final cyclesResult = results[2] as Either<Failure, List<GooiCycle>>;
+    final payoutsResult = results[3] as Either<Failure, List<GooiPayout>>;
 
     var newState = state.copyWith(isLoading: false, isRefreshing: false);
 
     groupResult.fold(
       (failure) => newState = newState.copyWith(
-        errorMessage: (failure as Failure).displayMessage,
+        errorMessage: failure.displayMessage,
       ),
       (group) => newState = newState.copyWith(group: group),
     );
@@ -112,7 +118,7 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       (_) {},
       (cycles) {
         newState = newState.copyWith(cycles: cycles);
-        final activeCycle = (cycles as List<GooiCycle>).cast<GooiCycle>().where(
+        final activeCycle = cycles.where(
           (c) => c.status.isActive,
         );
         if (activeCycle.isNotEmpty) {

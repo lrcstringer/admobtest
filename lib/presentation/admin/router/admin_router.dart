@@ -21,6 +21,9 @@ import '../screens/marketplace_order_management_screen.dart';
 import '../screens/marketplace_analytics_screen.dart';
 import '../screens/group_buy_management_screen.dart';
 import '../screens/escrow_overview_screen.dart';
+import '../screens/gooi_management_screen.dart';
+import '../screens/gooi_config_screen.dart';
+import '../screens/gooi_debt_screen.dart';
 import '../screens/earn_management_screen.dart';
 import '../screens/feature_flag_management_screen.dart';
 import '../screens/featured_content_management_screen.dart';
@@ -263,6 +266,26 @@ class AdminRouter {
             name: 'adminBuyEscrow',
             builder: (context, state) =>
                 const EscrowOverviewScreen(),
+          ),
+
+          // Gooi-Gooi Management
+          GoRoute(
+            path: '/gooi-management',
+            name: 'adminGooiManagement',
+            builder: (context, state) =>
+                const GooiManagementScreen(),
+          ),
+          GoRoute(
+            path: '/gooi-config',
+            name: 'adminGooiConfig',
+            builder: (context, state) =>
+                const GooiConfigScreen(),
+          ),
+          GoRoute(
+            path: '/gooi-debts',
+            name: 'adminGooiDebts',
+            builder: (context, state) =>
+                const GooiDebtScreen(),
           ),
         ],
       ),

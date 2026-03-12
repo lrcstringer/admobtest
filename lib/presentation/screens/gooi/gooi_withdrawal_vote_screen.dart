@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../blocs/gooi/gooi_dashboard_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -29,7 +30,7 @@ class GooiWithdrawalVoteScreen extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.actionSuccess!)),
             );
-            Navigator.pop(context);
+            context.pop();
           }
           if (state.actionError != null) {
             ScaffoldMessenger.of(context).showSnackBar(

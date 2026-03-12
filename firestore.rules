@@ -953,6 +953,81 @@ service cloud.firestore {
     }
 
     // =========================================================================
+    // GOOI-GOOI ROTATING SAVINGS
+    // Group members can read; all writes via Cloud Functions
+    // =========================================================================
+
+    function isGooiGroupMember(groupId) {
+      return request.auth.uid in get(/databases/$(database)/documents/gooiGroups/$(groupId)).data.memberUserIds;
+    }
+
+    match /gooiGroups/{groupId} {
+      // Members can read their group; admins can read all
+      allow read: if isAuthenticated()
+        && (request.auth.uid in resource.data.memberUserIds || isAdmin());
+
+      // All writes via Cloud Functions only
+      allow create, update, delete: if false;
+
+      // Members subcollection
+      match /members/{memberId} {
+        allow read: if isAuthenticated()
+          && (isGooiGroupMember(groupId) || isAdmin());
+        allow create, update, delete: if false;
+      }
+
+      // Cycles subcollection
+      match /cycles/{cycleId} {
+        allow read: if isAuthenticated()
+          && (isGooiGroupMember(groupId) || isAdmin());
+        allow create, update, delete: if false;
+      }
+
+      // Contributions subcollection
+      match /contributions/{contributionId} {
+        allow read: if isAuthenticated()
+          && (isGooiGroupMember(groupId) || isAdmin());
+        allow create, update, delete: if false;
+      }
+
+      // Payouts subcollection
+      match /payouts/{payoutId} {
+        allow read: if isAuthenticated()
+          && (isGooiGroupMember(groupId) || isAdmin());
+        allow create, update, delete: if false;
+      }
+
+      // Bids subcollection (BIDDING roster method)
+      match /bids/{bidId} {
+        allow read: if isAuthenticated()
+          && (isGooiGroupMember(groupId) || isAdmin());
+        allow create, update, delete: if false;
+      }
+
+      // Audit log subcollection
+      match /auditLog/{logId} {
+        allow read: if isAdmin();
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Gooi-Gooi debts collection
+    match /gooiGooiDebts/{debtId} {
+      // Users can read their own debts; admins can read all
+      allow read: if isAuthenticated()
+        && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // All writes via Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
+    // Gooi-Gooi platform config
+    match /gooiGooiConfig/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
     // COLLECTION GROUP: members
     // Allows collectionGroup('members') queries for pending invitations.
     // A user can read any member doc where they are the member (userId match).

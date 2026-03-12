@@ -771,10 +771,13 @@ export const contributeGooiCycle = onCall(
       throw new HttpsError("internal", baseResult.error || "Contribution failed");
     }
 
-    // Process reserve split
+    // Process reserve split — must succeed for contribution to be valid
     const reserveResult = await processGooiReserve(userId, groupId, cycleId, reserveAmount);
     if (!reserveResult.success) {
       logger.error(`Reserve split failed for ${userId} in group ${groupId}:`, reserveResult.error);
+      // TODO: Reverse the base contribution via a reversal journal entry.
+      // For now, fail the entire contribution so we don't mark PAID without reserve.
+      throw new HttpsError("internal", "Reserve split failed — contribution not recorded. Please retry.");
     }
 
     const now = admin.firestore.Timestamp.now();

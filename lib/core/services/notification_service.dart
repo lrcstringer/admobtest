@@ -28,6 +28,11 @@ const _groupBuyChannelId = 'group_buy';
 const _groupBuyChannelName = 'Group Buys';
 const _groupBuyChannelDesc = 'Notifications for group buy milestones';
 
+const _gooiGooiChannelId = 'gooi_gooi';
+const _gooiGooiChannelName = 'Gooi-Gooi';
+const _gooiGooiChannelDesc =
+    'Notifications for Gooi-Gooi rotating savings groups';
+
 const _defaultChannelId = 'high_importance_channel';
 const _defaultChannelName = 'General';
 const _defaultChannelDesc = 'General notifications';
@@ -133,6 +138,14 @@ class NotificationService {
           _groupBuyChannelId,
           _groupBuyChannelName,
           description: _groupBuyChannelDesc,
+          importance: Importance.high,
+        ),
+      );
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          _gooiGooiChannelId,
+          _gooiGooiChannelName,
+          description: _gooiGooiChannelDesc,
           importance: Importance.high,
         ),
       );
@@ -294,6 +307,13 @@ class NotificationService {
       case 'group_buy_milestone':
         channelId = _groupBuyChannelId;
         channelName = _groupBuyChannelName;
+      case 'gooi_contribution_due':
+      case 'gooi_payout':
+      case 'gooi_invite':
+      case 'gooi_grace_closing':
+      case 'gooi_cycle_complete':
+        channelId = _gooiGooiChannelId;
+        channelName = _gooiGooiChannelName;
       default:
         channelId = _defaultChannelId;
         channelName = _defaultChannelName;
@@ -396,6 +416,18 @@ class NotificationService {
         } else {
           router.go('/buy/group-buys');
         }
+      case 'gooi_contribution_due':
+      case 'gooi_payout':
+      case 'gooi_grace_closing':
+      case 'gooi_cycle_complete':
+        final gooiGroupId = data['groupId'] as String?;
+        if (gooiGroupId != null) {
+          router.go('/chat/gooi/$gooiGroupId');
+        } else {
+          router.go('/chat/gooi');
+        }
+      case 'gooi_invite':
+        router.go('/chat/gooi');
       default:
         router.go('/chat');
     }
