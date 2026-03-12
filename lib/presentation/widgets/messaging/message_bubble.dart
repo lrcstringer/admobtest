@@ -87,6 +87,7 @@ class MessageBubble extends StatelessWidget {
     if (message.isGift && message.gift != null) return _buildGiftBubble(context);
     if (message.isGroupGift && message.groupGift != null) return _buildGroupGiftBubble(context);
     if (message.isSpray && message.tokenSpray != null) return _buildSprayBubble(context);
+    if (message.isGooiGooiInvite) return _buildGooiInviteCard(context);
     if (message.isMarketplaceShare || message.isGroupBuyShare) return _buildShareableBuyCard(context);
     if (message.isTokenTransfer) return _buildTokenCard(context);
 
@@ -684,6 +685,87 @@ class MessageBubble extends StatelessWidget {
               if (isMe) ...[
                 const SizedBox(width: 4),
                 _buildSquareAvatar(),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGooiInviteCard(BuildContext context) {
+    Map<String, dynamic> data = {};
+    if (message.textContent != null) {
+      try {
+        data = Map<String, dynamic>.from(
+          json.decode(message.textContent!) as Map,
+        );
+      } catch (_) {
+        data = {'groupName': message.textContent};
+      }
+    }
+
+    final groupName = data['groupName'] as String? ?? 'Gooi-Gooi Group';
+    final groupId = data['groupId'] as String?;
+    final amount = data['contributionAmount'] as num?;
+    final amountLabel = amount != null
+        ? 'R${(amount / 100).toStringAsFixed(0)}/cycle'
+        : '';
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          constraints: const BoxConstraints(maxWidth: 280),
+          decoration: BoxDecoration(
+            color: AppColors.teal.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.teal.withValues(alpha: 0.3)),
+          ),
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.group, color: AppColors.teal, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      groupName,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.teal,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              if (amountLabel.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(amountLabel, style: Theme.of(context).textTheme.bodySmall),
+              ],
+              const SizedBox(height: 8),
+              Text(
+                'You\'ve been invited to join a Gooi-Gooi savings group.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              if (groupId != null && !isMe) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        // Navigation handled by parent via GoRouter
+                      },
+                      child: const Text('View'),
+                    ),
+                  ],
+                ),
               ],
             ],
           ),

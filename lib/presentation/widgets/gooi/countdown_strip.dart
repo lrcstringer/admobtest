@@ -30,12 +30,15 @@ class _CountdownStripState extends State<CountdownStrip> {
   void initState() {
     super.initState();
     _calculateRemaining();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _calculateRemaining());
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) _calculateRemaining();
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _timer = null;
     super.dispose();
   }
 
@@ -44,10 +47,15 @@ class _CountdownStripState extends State<CountdownStrip> {
     final target = widget.cycleStatus == GooiCycleStatus.collecting
         ? widget.dueDate
         : widget.graceCloseDate;
+    final diff = target.difference(now);
     setState(() {
-      _remaining = target.difference(now);
-      if (_remaining.isNegative) _remaining = Duration.zero;
+      _remaining = diff.isNegative ? Duration.zero : diff;
     });
+    // Stop the timer once countdown is done
+    if (diff.isNegative) {
+      _timer?.cancel();
+      _timer = null;
+    }
   }
 
   @override

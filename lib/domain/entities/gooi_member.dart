@@ -22,9 +22,11 @@ class GooiMember with _$GooiMember {
     @Default(false) bool autoContribute,
     String? autoContributeSubAccountId,
     String? preferredSubAccountId,
+    String? delegateTriggerTo,
     DateTime? delegationExpiresAt,
     DateTime? joinedAt,
     required DateTime invitedAt,
+    DateTime? removedAt,
   }) = _GooiMember;
 
   const GooiMember._();

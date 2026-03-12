@@ -51,6 +51,25 @@ class GooiContributionModel with _$GooiContributionModel {
     return GooiContributionModel.fromJson({...data, 'id': doc.id});
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'cycleId': cycleId,
+      'cycleNumber': cycleNumber,
+      'memberId': memberId,
+      'userId': userId,
+      'amountBase': amountBase,
+      'amountReserve': amountReserve,
+      'amountTotal': amountTotal,
+      if (lateFee != null) 'lateFee': lateFee,
+      'lateFeeWaived': lateFeeWaived,
+      'status': status.name.toUpperCase(),
+      if (journalId != null) 'journalId': journalId,
+      if (paidAt != null) 'paidAt': paidAt!.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
   GooiContribution toEntity() {
     return GooiContribution(
       id: id,

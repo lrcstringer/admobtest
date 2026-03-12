@@ -60,7 +60,9 @@ class GooiRepositoryImpl implements GooiRepository {
   Future<Either<Failure, List<GooiGroup>>> getMyGroups() async {
     try {
       final result = await _remote.getMyGroups();
-      final groups = (result['groups'] as List<dynamic>)
+      final groupsList = result['groups'] as List<dynamic>?;
+      if (groupsList == null) return const Right([]);
+      final groups = groupsList
           .map((g) => GooiGroupModel.fromJson(Map<String, dynamic>.from(g as Map)).toEntity())
           .toList();
       return Right(groups);
@@ -301,7 +303,7 @@ class GooiRepositoryImpl implements GooiRepository {
     try {
       final result = await _remote.extendGracePeriod(groupId, cycleId, extensionHours);
       return Right(GraceExtensionResult(
-        newGraceCloseDate: DateTime.parse(result['newGraceCloseDate'] as String? ?? DateTime.now().toIso8601String()),
+        newGraceCloseDate: DateTime.parse(result['newGraceCloseDate'] as String),
         voteId: result['voteId'] as String?,
       ));
     } catch (e) {

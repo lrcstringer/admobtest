@@ -55,6 +55,27 @@ class GooiPayoutModel with _$GooiPayoutModel {
     return GooiPayoutModel.fromJson({...data, 'id': doc.id});
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'cycleId': cycleId,
+      'cycleNumber': cycleNumber,
+      if (recipientMemberId != null) 'recipientMemberId': recipientMemberId,
+      'recipientUserId': recipientUserId,
+      'amountFromContributions': amountFromContributions,
+      'amountFromReserve': amountFromReserve,
+      'totalPayoutAmount': totalPayoutAmount,
+      'shortfallAmount': shortfallAmount,
+      'status': status.name.toUpperCase(),
+      'retryCount': retryCount,
+      if (journalId != null) 'journalId': journalId,
+      if (triggeredBy != null) 'triggeredBy': triggeredBy,
+      if (triggeredAt != null) 'triggeredAt': triggeredAt!.toIso8601String(),
+      if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
+      'defaulterMemberIds': defaulterMemberIds,
+    };
+  }
+
   GooiPayout toEntity() {
     return GooiPayout(
       id: id,

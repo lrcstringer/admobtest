@@ -72,6 +72,9 @@ export * from "./buyAdmin";
 export * from "./marketplace";
 export * from "./buyNotifications";
 export * from "./groupBuys";
+export * from "./gooiGooi";
+export * from "./gooiGooiScheduled";
+export * from "./gooiGooiNotifications";
 export * from "./migrations/earnOverhaulMigration";
 export { runAdMobSystemMigration, runUpdateAdMobQuestion, adminRunPlatformSetup } from "./migrations/admobSystemThreadMigration";
 

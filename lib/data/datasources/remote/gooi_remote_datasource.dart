@@ -9,6 +9,7 @@ import '../../models/gooi_debt_model.dart';
 import '../../models/gooi_group_model.dart';
 import '../../models/gooi_member_model.dart';
 import '../../models/gooi_payout_model.dart';
+import '../../../domain/enums/gooi_debt_status.dart';
 
 abstract class GooiRemoteDataSource {
   Future<String> createGroup(Map<String, dynamic> data);
@@ -307,7 +308,7 @@ class GooiRemoteDataSourceImpl implements GooiRemoteDataSource {
     final snap = await _firestore
         .collection('gooiGooiDebts')
         .where('userId', isEqualTo: userId)
-        .where('status', isEqualTo: 'OUTSTANDING')
+        .where('status', isEqualTo: GooiDebtStatus.outstanding.name.toUpperCase())
         .get();
     return snap.docs.map((d) => GooiDebtModel.fromFirestore(d)).toList();
   }

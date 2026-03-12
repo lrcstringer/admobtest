@@ -63,6 +63,31 @@ class GooiCycleModel with _$GooiCycleModel {
     return GooiCycleModel.fromJson({...data, 'id': doc.id});
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'cycleNumber': cycleNumber,
+      'rotationNumber': rotationNumber,
+      if (recipientMemberId != null) 'recipientMemberId': recipientMemberId,
+      'recipientUserId': recipientUserId,
+      'dueDate': dueDate.toIso8601String(),
+      'graceCloseDate': graceCloseDate.toIso8601String(),
+      'status': status.name.toUpperCase(),
+      'totalExpected': totalExpected,
+      'totalCollected': totalCollected,
+      'reserveCollected': reserveCollected,
+      'payoutAmount': payoutAmount,
+      'shortfallAmount': shortfallAmount,
+      'defaulterMemberIds': defaulterMemberIds,
+      if (triggeredBy != null) 'triggeredBy': triggeredBy,
+      if (triggeredAt != null) 'triggeredAt': triggeredAt!.toIso8601String(),
+      if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
+      if (autoTriggerAt != null) 'autoTriggerAt': autoTriggerAt!.toIso8601String(),
+      'graceExtendedBy': graceExtendedBy,
+      if (graceExtensionVoteId != null) 'graceExtensionVoteId': graceExtensionVoteId,
+    };
+  }
+
   GooiCycle toEntity() {
     return GooiCycle(
       id: id,

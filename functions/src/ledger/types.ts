@@ -547,7 +547,7 @@ export const IdempotencyKey = {
   // Gooi-Gooi keys
   gooiContribution: (groupId: string, cycleId: string, memberId: string) => `gooi_c:${groupId}:${cycleId}:${memberId}`,
   gooiReserve: (groupId: string, cycleId: string, memberId: string) => `gooi_r:${groupId}:${cycleId}:${memberId}`,
-  gooiPayout: (groupId: string, cycleId: string) => `gooi_p:${groupId}:${cycleId}`,
+  gooiPayout: (groupId: string, cycleId: string, recipientUserId: string) => `gooi_p:${groupId}:${cycleId}:${recipientUserId}`,
   gooiReserveTopup: (groupId: string, cycleId: string) => `gooi_rt:${groupId}:${cycleId}`,
   gooiLateFee: (groupId: string, cycleId: string, memberId: string) => `gooi_lf:${groupId}:${cycleId}:${memberId}`,
   gooiRefund: (groupId: string, memberId: string) => `gooi_ref:${groupId}:${memberId}`,

@@ -39,6 +39,19 @@ class GooiDebtModel with _$GooiDebtModel {
     return GooiDebtModel.fromJson({...data, 'id': doc.id});
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'groupId': groupId,
+      'amount': amount,
+      'reason': reason,
+      'status': status.name.toUpperCase(),
+      'createdAt': createdAt.toIso8601String(),
+      if (resolvedAt != null) 'resolvedAt': resolvedAt!.toIso8601String(),
+    };
+  }
+
   GooiDebt toEntity() {
     return GooiDebt(
       id: id,

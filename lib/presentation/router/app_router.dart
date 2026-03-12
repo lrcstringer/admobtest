@@ -102,6 +102,20 @@ import '../screens/home/upgrade_status_screen.dart';
 import '../screens/home/what_is_emalichat_screen.dart';
 
 
+// Gooi-Gooi screens
+import '../screens/gooi/gooi_list_screen.dart';
+import '../screens/gooi/gooi_onboarding_screen.dart';
+import '../screens/gooi/gooi_create_screen.dart';
+import '../screens/gooi/gooi_invite_screen.dart';
+import '../screens/gooi/gooi_roster_screen.dart';
+import '../screens/gooi/gooi_bidding_screen.dart';
+import '../screens/gooi/gooi_confirm_screen.dart';
+import '../screens/gooi/gooi_dashboard_screen.dart';
+import '../screens/gooi/gooi_delegate_screen.dart';
+import '../screens/gooi/gooi_history_screen.dart';
+import '../screens/gooi/gooi_withdrawal_vote_screen.dart';
+import '../screens/gooi/gooi_round_complete_screen.dart';
+
 // Main shell
 import '../screens/main/main_shell.dart';
 
@@ -955,6 +969,106 @@ class AppRouter {
                           state.pathParameters['poolId'] ?? '';
                       return CollectionRoomScreen(poolId: poolId);
                     },
+                  ),
+
+                  // ── Gooi-Gooi routes ──
+                  GoRoute(
+                    path: 'gooi',
+                    name: 'gooiList',
+                    builder: (context, state) => const GooiListScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'onboarding',
+                        name: 'gooiOnboarding',
+                        builder: (context, state) => const GooiOnboardingScreen(),
+                      ),
+                      GoRoute(
+                        path: 'create',
+                        name: 'gooiCreate',
+                        builder: (context, state) => const GooiCreateScreen(),
+                      ),
+                      GoRoute(
+                        path: ':groupId',
+                        name: 'gooiDashboard',
+                        builder: (context, state) {
+                          final groupId = state.pathParameters['groupId'] ?? '';
+                          return GooiDashboardScreen(groupId: groupId);
+                        },
+                        routes: [
+                          GoRoute(
+                            path: 'invite',
+                            name: 'gooiInvite',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiInviteScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'roster',
+                            name: 'gooiRoster',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiRosterScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'bidding',
+                            name: 'gooiBidding',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiBiddingScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'confirm',
+                            name: 'gooiConfirm',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiConfirmScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'delegate',
+                            name: 'gooiDelegate',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiDelegateScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'history',
+                            name: 'gooiHistory',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiHistoryScreen(groupId: groupId);
+                            },
+                          ),
+                          GoRoute(
+                            path: 'withdrawal-vote/:withdrawalId',
+                            name: 'gooiWithdrawalVote',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              final withdrawalId = state.pathParameters['withdrawalId'] ?? '';
+                              final extra = state.extra as Map<String, dynamic>? ?? {};
+                              return GooiWithdrawalVoteScreen(
+                                groupId: groupId,
+                                withdrawalId: withdrawalId,
+                                memberName: extra['memberName'] as String? ?? '',
+                                reason: extra['reason'] as String?,
+                              );
+                            },
+                          ),
+                          GoRoute(
+                            path: 'round-complete',
+                            name: 'gooiRoundComplete',
+                            builder: (context, state) {
+                              final groupId = state.pathParameters['groupId'] ?? '';
+                              return GooiRoundCompleteScreen(groupId: groupId);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),

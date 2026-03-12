@@ -301,7 +301,7 @@ export async function processGooiPayout(
   ];
 
   const result = await postJournal({
-    idempotencyKey: IdempotencyKey.gooiPayout(groupId, cycleId),
+    idempotencyKey: IdempotencyKey.gooiPayout(groupId, cycleId, recipientUserId),
     type: "gooi_payout",
     description: `Gooi-Gooi payout: ${amount} tokens from group ${groupId} to ${recipientUserId}`,
     entries,

@@ -112,7 +112,6 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       (_) {},
       (cycles) {
         newState = newState.copyWith(cycles: cycles);
-        // Find the current active cycle
         final activeCycle = (cycles as List<GooiCycle>).cast<GooiCycle>().where(
           (c) => c.status.isActive,
         );
@@ -167,19 +166,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       subAccountId: event.subAccountId,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Contribution successful!',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Contribution successful!',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onTriggerPayout(
@@ -195,19 +193,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       cycleId: state.currentCycle!.id,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Payout triggered!',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Payout triggered!',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onToggleAutoContribute(
@@ -224,19 +221,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       walletSubAccountId: event.walletSubAccountId,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: event.enabled ? 'Auto-contribute enabled' : 'Auto-contribute disabled',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: event.enabled ? 'Auto-contribute enabled' : 'Auto-contribute disabled',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onDelegateTrigger(
@@ -253,19 +249,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       durationDays: event.durationDays,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Trigger delegated',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Trigger delegated',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onRevokeDelegation(
@@ -278,19 +273,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
 
     final result = await _repository.revokeDelegation(_groupId!);
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Delegation revoked',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Delegation revoked',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onExtendGracePeriod(
@@ -307,19 +301,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       extensionHours: event.extensionHours,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Grace period extended by ${event.extensionHours}h',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Grace period extended by ${event.extensionHours}h',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onApplyLateFee(
@@ -335,19 +328,19 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       contributionId: event.contributionId,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (amount) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Late fee of R${(amount / 100).toStringAsFixed(2)} applied',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      final amount = result.getOrElse(() => 0);
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Late fee of R${(amount / 100).toStringAsFixed(2)} applied',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onWaiveLateFee(
@@ -363,19 +356,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       contributionId: event.contributionId,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Late fee waived',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Late fee waived',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   // ===========================================================================
@@ -396,19 +388,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       action: event.action,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Penalty applied',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Penalty applied',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onRequestWithdrawal(
@@ -424,19 +415,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       reason: event.reason,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (withdrawalId) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Withdrawal request submitted',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Withdrawal request submitted',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onVoteWithdrawal(
@@ -453,19 +443,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       approve: event.approve,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: event.approve ? 'Vote: approved' : 'Vote: rejected',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: event.approve ? 'Vote: approved' : 'Vote: rejected',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onVoteGraceExtension(
@@ -483,19 +472,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
       approve: event.approve,
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: event.approve ? 'Vote: extend grace' : 'Vote: no extension',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: event.approve ? 'Vote: extend grace' : 'Vote: no extension',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 
   Future<void> _onDissolveGroup(
@@ -508,18 +496,17 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
 
     final result = await _repository.dissolveGroup(_groupId!);
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (_) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Group dissolved',
-        ));
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Group dissolved',
+      ));
+    }
   }
 
   Future<void> _onWriteOffBadDebt(
@@ -532,18 +519,18 @@ class GooiDashboardBloc extends Bloc<GooiDashboardEvent, GooiDashboardState> {
 
     final result = await _repository.writeOffBadDebt(_groupId!);
 
-    result.fold(
-      (failure) => emit(state.copyWith(
+    if (result.isLeft()) {
+      emit(state.copyWith(
         isActionInProgress: false,
-        actionError: failure.displayMessage,
-      )),
-      (amount) {
-        emit(state.copyWith(
-          isActionInProgress: false,
-          actionSuccess: 'Bad debt of R${(amount / 100).toStringAsFixed(2)} written off',
-        ));
-        add(const GooiDashboardEvent.refreshGroup());
-      },
-    );
+        actionError: result.fold((f) => f.displayMessage, (_) => ''),
+      ));
+    } else {
+      final amount = result.getOrElse(() => 0);
+      emit(state.copyWith(
+        isActionInProgress: false,
+        actionSuccess: 'Bad debt of R${(amount / 100).toStringAsFixed(2)} written off',
+      ));
+      await _loadGroupData(emit);
+    }
   }
 }

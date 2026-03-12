@@ -824,17 +824,24 @@ export const toggleAutoContribute = onCall(
     const userId = request.auth.uid;
     const { groupId, enabled, walletSubAccountId } = request.data;
 
-    const member = await getGooiMember(groupId, userId);
-    if (!member) throw new HttpsError("permission-denied", GooiErrorCodes.NOT_MEMBER);
+    const db = admin.firestore();
+    await db.runTransaction(async (t) => {
+      const memberSnap = await t.get(
+        db.collection("gooiGroups").doc(groupId).collection("members")
+          .where("userId", "==", userId).where("isActive", "==", true).limit(1)
+      );
+      if (memberSnap.empty) throw new HttpsError("permission-denied", GooiErrorCodes.NOT_MEMBER);
 
-    await member.ref.update({
-      autoContribute: !!enabled,
-      autoContributeSubAccountId: walletSubAccountId || null,
+      const memberRef = memberSnap.docs[0].ref;
+      t.update(memberRef, {
+        autoContribute: !!enabled,
+        autoContributeSubAccountId: walletSubAccountId || null,
+      });
     });
 
     await writeGooiAuditLog(groupId, "AUTO_CONTRIBUTE_TOGGLED", userId, {
       entityType: "MEMBER",
-      entityId: member.id,
+      entityId: userId,
       afterState: { autoContribute: !!enabled, walletSubAccountId },
     });
 

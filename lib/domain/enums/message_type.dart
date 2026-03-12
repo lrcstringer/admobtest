@@ -38,6 +38,9 @@ enum MessageType {
 
   /// Group buy shared to chat
   groupBuyShare,
+
+  /// Gooi-Gooi group invitation
+  gooiGooiInvite,
 }
 
 extension MessageTypeX on MessageType {
@@ -52,6 +55,7 @@ extension MessageTypeX on MessageType {
   bool get isSpray => this == MessageType.tokenSpray;
   bool get isMarketplaceShare => this == MessageType.marketplaceShare;
   bool get isGroupBuyShare => this == MessageType.groupBuyShare;
+  bool get isGooiGooiInvite => this == MessageType.gooiGooiInvite;
 
   String get displayName {
     switch (this) {
@@ -81,6 +85,8 @@ extension MessageTypeX on MessageType {
         return 'Marketplace Listing';
       case MessageType.groupBuyShare:
         return 'Group Buy';
+      case MessageType.gooiGooiInvite:
+        return 'Gooi-Gooi Invite';
     }
   }
 }

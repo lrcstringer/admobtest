@@ -397,6 +397,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                         builder: (_) => const TokenActionsSheet(),
                       );
                     },
+                    onGooiGooi: () => context.push('/chat/gooi'),
                   ),
                   Expanded(
                     child: _buildConversationList(

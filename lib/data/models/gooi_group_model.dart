@@ -72,6 +72,32 @@ class GooiGroupModel with _$GooiGroupModel {
     return GooiGroupModel.fromJson({...data, 'id': doc.id});
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'contributionAmount': contributionAmount,
+      'cycleFrequency': cycleFrequency.name.toUpperCase(),
+      'memberCount': memberCount,
+      'totalCycles': totalCycles,
+      'currentCycleNumber': currentCycleNumber,
+      'status': status.name.toUpperCase(),
+      'rosterMethod': rosterMethod.name.toUpperCase(),
+      'reserveRate': reserveRate,
+      'gracePeriodHours': gracePeriodHours,
+      'recipientContributes': recipientContributes,
+      'lateFeePercent': lateFeePercent,
+      'initiatorUserId': initiatorUserId,
+      if (conversationId != null) 'conversationId': conversationId,
+      'rosterOrder': rosterOrder,
+      'memberUserIds': memberUserIds,
+      'biddingDiscountPool': biddingDiscountPool,
+      'createdAt': createdAt.toIso8601String(),
+      if (activatedAt != null) 'activatedAt': activatedAt!.toIso8601String(),
+      if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
+    };
+  }
+
   GooiGroup toEntity() {
     return GooiGroup(
       id: id,

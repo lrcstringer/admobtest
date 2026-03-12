@@ -23,9 +23,11 @@ class GooiMemberModel with _$GooiMemberModel {
     @Default(false) bool autoContribute,
     String? autoContributeSubAccountId,
     String? preferredSubAccountId,
+    String? delegateTriggerTo,
     DateTime? delegationExpiresAt,
     DateTime? joinedAt,
     required DateTime invitedAt,
+    DateTime? removedAt,
   }) = _GooiMemberModel;
 
   const GooiMemberModel._();
@@ -45,15 +47,40 @@ class GooiMemberModel with _$GooiMemberModel {
       autoContribute: json['autoContribute'] as bool? ?? false,
       autoContributeSubAccountId: json['autoContributeSubAccountId'] as String?,
       preferredSubAccountId: json['preferredSubAccountId'] as String?,
+      delegateTriggerTo: json['delegateTriggerTo'] as String?,
       delegationExpiresAt: _parseDateTime(json['delegationExpiresAt']),
       joinedAt: _parseDateTime(json['joinedAt']),
       invitedAt: _parseDateTime(json['invitedAt']) ?? DateTime.now(),
+      removedAt: _parseDateTime(json['removedAt']),
     );
   }
 
   factory GooiMemberModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return GooiMemberModel.fromJson({...data, 'id': doc.id});
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'displayName': displayName,
+      if (avatarUrl != null) 'avatarUrl': avatarUrl,
+      'position': position,
+      'role': role.name.toUpperCase(),
+      'status': status.name.toUpperCase(),
+      'contributedCycles': contributedCycles,
+      'missedCycles': missedCycles,
+      'outstandingDebt': outstandingDebt,
+      'autoContribute': autoContribute,
+      if (autoContributeSubAccountId != null) 'autoContributeSubAccountId': autoContributeSubAccountId,
+      if (preferredSubAccountId != null) 'preferredSubAccountId': preferredSubAccountId,
+      if (delegateTriggerTo != null) 'delegateTriggerTo': delegateTriggerTo,
+      if (delegationExpiresAt != null) 'delegationExpiresAt': delegationExpiresAt!.toIso8601String(),
+      if (joinedAt != null) 'joinedAt': joinedAt!.toIso8601String(),
+      'invitedAt': invitedAt.toIso8601String(),
+      if (removedAt != null) 'removedAt': removedAt!.toIso8601String(),
+    };
   }
 
   GooiMember toEntity() {
@@ -71,9 +98,11 @@ class GooiMemberModel with _$GooiMemberModel {
       autoContribute: autoContribute,
       autoContributeSubAccountId: autoContributeSubAccountId,
       preferredSubAccountId: preferredSubAccountId,
+      delegateTriggerTo: delegateTriggerTo,
       delegationExpiresAt: delegationExpiresAt,
       joinedAt: joinedAt,
       invitedAt: invitedAt,
+      removedAt: removedAt,
     );
   }
 }

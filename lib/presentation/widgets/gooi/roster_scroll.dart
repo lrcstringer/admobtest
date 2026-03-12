@@ -25,6 +25,20 @@ class RosterScroll extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (members.isEmpty) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Text(
+            'No members yet',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey,
+                ),
+          ),
+        ),
+      );
+    }
+
     final sortedMembers = List<GooiMember>.from(members)
       ..sort((a, b) => a.position.compareTo(b.position));
 

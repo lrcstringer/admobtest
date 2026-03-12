@@ -11,6 +11,7 @@ class QuickActionStrip extends StatelessWidget {
   final VoidCallback onSasaza;
   final VoidCallback onGroupSave;
   final VoidCallback onTokens;
+  final VoidCallback onGooiGooi;
 
   const QuickActionStrip({
     super.key,
@@ -18,6 +19,7 @@ class QuickActionStrip extends StatelessWidget {
     required this.onSasaza,
     required this.onGroupSave,
     required this.onTokens,
+    required this.onGooiGooi,
   });
 
   @override
@@ -55,6 +57,13 @@ class QuickActionStrip extends StatelessWidget {
                   color: AppColors.accent,
                   onTap: onTokens,
                   imageScale: 1.2,
+                ),
+                _ActionButton(
+                  imageAsset: 'assets/images/gooigooi.png',
+                  label: 'Gooi-Gooi',
+                  color: AppColors.teal,
+                  onTap: onGooiGooi,
+                  imageScale: 1.0,
                 ),
               ],
             ),
