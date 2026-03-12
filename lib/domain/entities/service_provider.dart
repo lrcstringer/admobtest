@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'purchase.dart';
 
 part 'service_provider.freezed.dart';
-part 'service_provider.g.dart';
 
 /// Service provider entity for Buy Services
 @freezed
@@ -23,8 +22,6 @@ class ServiceProvider with _$ServiceProvider {
 
   const ServiceProvider._();
 
-  factory ServiceProvider.fromJson(Map<String, dynamic> json) =>
-      _$ServiceProviderFromJson(json);
 
   /// Get active products only
   List<ServiceProduct> get activeProducts =>
@@ -60,8 +57,6 @@ class ServiceProduct with _$ServiceProduct {
 
   const ServiceProduct._();
 
-  factory ServiceProduct.fromJson(Map<String, dynamic> json) =>
-      _$ServiceProductFromJson(json);
 
   /// Get formatted ZAR price
   String get formattedPrice => 'R${priceZar.toStringAsFixed(2)}';

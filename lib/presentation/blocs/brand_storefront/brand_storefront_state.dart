@@ -14,8 +14,6 @@ class BrandStorefrontState with _$BrandStorefrontState {
     @Default(false) bool isClaimingCoupon,
     @Default({}) Set<String> claimedCouponIds,
     @Default(false) bool isFollowing,
-    @Default([]) List<String> mutualFollowers,
-    @Default(0) int mutualFollowerCount,
     String? errorMessage,
   }) = _BrandStorefrontState;
 }

@@ -405,8 +405,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         // The Cloud Function may assign a final ID, but these URLs remain valid.
         final tempId = DateTime.now().millisecondsSinceEpoch.toString();
 
+        final imageData = await Future.wait(
+          _selectedImages.map((f) => f.readAsBytes()),
+        );
         final result = await repo.uploadListingImages(
-          imageFiles: _selectedImages,
+          imageData: imageData,
           listingId: tempId,
         );
 

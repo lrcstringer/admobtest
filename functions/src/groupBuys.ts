@@ -390,6 +390,10 @@ export const leaveGroupBuy = onCall(
 
       const groupBuy = groupBuyDoc.data()!;
 
+      if (userId === groupBuy.organizerId) {
+        throw new HttpsError("failed-precondition", "Organizers must cancel the group buy instead of leaving");
+      }
+
       // Only allow leaving when status is "open"
       if (groupBuy.status !== "open") {
         throw new HttpsError(
@@ -433,7 +437,7 @@ export const leaveGroupBuy = onCall(
       const userDoc = await db.collection("users").doc(userId).get();
       const userName = userDoc.data()?.displayName || "Unknown";
       await db.runTransaction(async (tx) => {
-        const contribRef = groupBuyRef.collection("contributions").doc();
+        const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
         tx.set(contribRef, {
           id: contribRef.id,
           userId,
@@ -455,6 +459,29 @@ export const leaveGroupBuy = onCall(
       `User ${userId} left group buy ${groupBuyId}. ` +
       `Refunded ${result.amount} tokens.`
     );
+
+    // Notify organizer about member leaving (non-critical)
+    try {
+      const groupBuyDoc = await db.collection("groupBuys").doc(groupBuyId).get();
+      const groupBuy = groupBuyDoc.data();
+      if (groupBuy && groupBuy.organizerId && groupBuy.organizerId !== userId) {
+        const organizerDoc = await db.collection("users").doc(groupBuy.organizerId).get();
+        const organizerToken = organizerDoc.data()?.fcmToken;
+        if (organizerToken) {
+          await admin.messaging().send({
+            token: organizerToken,
+            notification: {
+              title: "Member left group buy",
+              body: `A participant has left "${groupBuy.title}"`,
+            },
+            data: { type: "groupBuyLeave", groupBuyId },
+          });
+        }
+      }
+    } catch (e) {
+      // Notification failures are non-critical — don't block the response
+      logger.warn(`Failed to send leave notification for group buy ${groupBuyId}`, e);
+    }
 
     return { success: true, refundedAmount: result.amount };
   }
@@ -497,7 +524,9 @@ export const suggestGroupBuyDeal = onCall(
     const userDoc = await db.collection("users").doc(userId).get();
     const userName = userDoc.data()?.displayName || "Unknown";
 
-    const requestRef = db.collection("groupBuyRequests").doc();
+    const descHash = (brandOrStore || description || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
+    const dateBucket = new Date().toISOString().split("T")[0];
+    const requestRef = db.collection("groupBuyRequests").doc(`${userId}_${descHash}_${dateBucket}`);
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     await requestRef.set({
@@ -542,6 +571,7 @@ export const checkExpiredGroupBuys = onSchedule(
       .collection("groupBuys")
       .where("status", "in", ["open", "targetMet"])
       .where("deadline", "<=", now)
+      .orderBy("deadline")
       .get();
 
     if (expiredSnapshot.empty) {

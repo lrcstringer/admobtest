@@ -11,7 +11,6 @@ part of 'group_buy.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$GroupBuy {
 
@@ -35,8 +34,6 @@ mixin _$GroupBuy {
 @pragma('vm:prefer-inline')
 $GroupBuyCopyWith<GroupBuy> get copyWith => _$GroupBuyCopyWithImpl<GroupBuy>(this as GroupBuy, _$identity);
 
-  /// Serializes this GroupBuy to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -44,7 +41,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuy&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.linkedListingId, linkedListingId) || other.linkedListingId == linkedListingId)&&(identical(other.organizerId, organizerId) || other.organizerId == organizerId)&&(identical(other.organizerName, organizerName) || other.organizerName == organizerName)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.currentAmount, currentAmount) || other.currentAmount == currentAmount)&&(identical(other.minParticipants, minParticipants) || other.minParticipants == minParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.status, status) || other.status == status)&&(identical(other.participantCount, participantCount) || other.participantCount == participantCount)&&(identical(other.sponsorType, sponsorType) || other.sponsorType == sponsorType)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.brandLogoUrl, brandLogoUrl) || other.brandLogoUrl == brandLogoUrl)&&(identical(other.discountPercent, discountPercent) || other.discountPercent == discountPercent)&&(identical(other.createdByAdmin, createdByAdmin) || other.createdByAdmin == createdByAdmin)&&(identical(other.type, type) || other.type == type)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&const DeepCollectionEquality().equals(other.clusters, clusters)&&const DeepCollectionEquality().equals(other.addresses, addresses)&&const DeepCollectionEquality().equals(other.voucherCodes, voucherCodes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.collectionDeadline, collectionDeadline) || other.collectionDeadline == collectionDeadline)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.fulfilmentInstructions, fulfilmentInstructions) || other.fulfilmentInstructions == fulfilmentInstructions)&&(identical(other.collectedCount, collectedCount) || other.collectedCount == collectedCount)&&(identical(other.category, category) || other.category == category)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.organizerSuccessRate, organizerSuccessRate) || other.organizerSuccessRate == organizerSuccessRate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,description,linkedListingId,organizerId,organizerName,communityId,targetAmount,currentAmount,minParticipants,maxParticipants,deadline,status,participantCount,sponsorType,brandId,brandName,brandLogoUrl,discountPercent,createdByAdmin,type,fulfilmentType,const DeepCollectionEquality().hash(clusters),const DeepCollectionEquality().hash(addresses),const DeepCollectionEquality().hash(voucherCodes),imageUrl,originalPrice,collectionDeadline,deliveryStatus,fulfilmentInstructions,collectedCount,category,deliveryFee,organizerSuccessRate,createdAt,updatedAt]);
 
@@ -254,11 +251,11 @@ return $default(_that.id,_that.title,_that.description,_that.linkedListingId,_th
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GroupBuy extends GroupBuy {
   const _GroupBuy({required this.id, required this.title, required this.description, this.linkedListingId, this.organizerId, this.organizerName, this.communityId, required this.targetAmount, this.currentAmount = 0, this.minParticipants = 1, this.maxParticipants, required this.deadline, required this.status, this.participantCount = 0, this.sponsorType = 'community', this.brandId, this.brandName, this.brandLogoUrl, this.discountPercent, this.createdByAdmin = false, this.type = GroupBuyType.digital, this.fulfilmentType = GroupBuyFulfilmentType.digital, final  List<String> clusters = const [], final  List<String> addresses = const [], final  List<String> voucherCodes = const [], this.imageUrl, this.originalPrice, this.collectionDeadline, this.deliveryStatus, this.fulfilmentInstructions, this.collectedCount = 0, this.category, this.deliveryFee, this.organizerSuccessRate, required this.createdAt, this.updatedAt}): _clusters = clusters,_addresses = addresses,_voucherCodes = voucherCodes,super._();
-  factory _GroupBuy.fromJson(Map<String, dynamic> json) => _$GroupBuyFromJson(json);
+  
 
 @override final  String id;
 @override final  String title;
@@ -337,17 +334,14 @@ class _GroupBuy extends GroupBuy {
 @pragma('vm:prefer-inline')
 _$GroupBuyCopyWith<_GroupBuy> get copyWith => __$GroupBuyCopyWithImpl<_GroupBuy>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GroupBuyToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuy&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.linkedListingId, linkedListingId) || other.linkedListingId == linkedListingId)&&(identical(other.organizerId, organizerId) || other.organizerId == organizerId)&&(identical(other.organizerName, organizerName) || other.organizerName == organizerName)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.targetAmount, targetAmount) || other.targetAmount == targetAmount)&&(identical(other.currentAmount, currentAmount) || other.currentAmount == currentAmount)&&(identical(other.minParticipants, minParticipants) || other.minParticipants == minParticipants)&&(identical(other.maxParticipants, maxParticipants) || other.maxParticipants == maxParticipants)&&(identical(other.deadline, deadline) || other.deadline == deadline)&&(identical(other.status, status) || other.status == status)&&(identical(other.participantCount, participantCount) || other.participantCount == participantCount)&&(identical(other.sponsorType, sponsorType) || other.sponsorType == sponsorType)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.brandLogoUrl, brandLogoUrl) || other.brandLogoUrl == brandLogoUrl)&&(identical(other.discountPercent, discountPercent) || other.discountPercent == discountPercent)&&(identical(other.createdByAdmin, createdByAdmin) || other.createdByAdmin == createdByAdmin)&&(identical(other.type, type) || other.type == type)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&const DeepCollectionEquality().equals(other._clusters, _clusters)&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&const DeepCollectionEquality().equals(other._voucherCodes, _voucherCodes)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.collectionDeadline, collectionDeadline) || other.collectionDeadline == collectionDeadline)&&(identical(other.deliveryStatus, deliveryStatus) || other.deliveryStatus == deliveryStatus)&&(identical(other.fulfilmentInstructions, fulfilmentInstructions) || other.fulfilmentInstructions == fulfilmentInstructions)&&(identical(other.collectedCount, collectedCount) || other.collectedCount == collectedCount)&&(identical(other.category, category) || other.category == category)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.organizerSuccessRate, organizerSuccessRate) || other.organizerSuccessRate == organizerSuccessRate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,description,linkedListingId,organizerId,organizerName,communityId,targetAmount,currentAmount,minParticipants,maxParticipants,deadline,status,participantCount,sponsorType,brandId,brandName,brandLogoUrl,discountPercent,createdByAdmin,type,fulfilmentType,const DeepCollectionEquality().hash(_clusters),const DeepCollectionEquality().hash(_addresses),const DeepCollectionEquality().hash(_voucherCodes),imageUrl,originalPrice,collectionDeadline,deliveryStatus,fulfilmentInstructions,collectedCount,category,deliveryFee,organizerSuccessRate,createdAt,updatedAt]);
 

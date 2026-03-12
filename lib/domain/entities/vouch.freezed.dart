@@ -11,7 +11,6 @@ part of 'vouch.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Vouch {
 
@@ -22,8 +21,6 @@ mixin _$Vouch {
 @pragma('vm:prefer-inline')
 $VouchCopyWith<Vouch> get copyWith => _$VouchCopyWithImpl<Vouch>(this as Vouch, _$identity);
 
-  /// Serializes this Vouch to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Vouch&&(identical(other.id, id) || other.id == id)&&(identical(other.voucherId, voucherId) || other.voucherId == voucherId)&&(identical(other.voucherName, voucherName) || other.voucherName == voucherName)&&(identical(other.voucherPhotoUrl, voucherPhotoUrl) || other.voucherPhotoUrl == voucherPhotoUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,voucherId,voucherName,voucherPhotoUrl,providerId,orderId,rating,comment,createdAt);
 
@@ -214,11 +211,11 @@ return $default(_that.id,_that.voucherId,_that.voucherName,_that.voucherPhotoUrl
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Vouch extends Vouch {
   const _Vouch({required this.id, required this.voucherId, required this.voucherName, this.voucherPhotoUrl, required this.providerId, this.orderId, required this.rating, this.comment, required this.createdAt}): super._();
-  factory _Vouch.fromJson(Map<String, dynamic> json) => _$VouchFromJson(json);
+  
 
 @override final  String id;
 @override final  String voucherId;
@@ -236,17 +233,14 @@ class _Vouch extends Vouch {
 @pragma('vm:prefer-inline')
 _$VouchCopyWith<_Vouch> get copyWith => __$VouchCopyWithImpl<_Vouch>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$VouchToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Vouch&&(identical(other.id, id) || other.id == id)&&(identical(other.voucherId, voucherId) || other.voucherId == voucherId)&&(identical(other.voucherName, voucherName) || other.voucherName == voucherName)&&(identical(other.voucherPhotoUrl, voucherPhotoUrl) || other.voucherPhotoUrl == voucherPhotoUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,voucherId,voucherName,voucherPhotoUrl,providerId,orderId,rating,comment,createdAt);
 

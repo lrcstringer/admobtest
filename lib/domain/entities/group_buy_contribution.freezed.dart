@@ -11,7 +11,6 @@ part of 'group_buy_contribution.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$GroupBuyContribution {
 
@@ -24,8 +23,6 @@ mixin _$GroupBuyContribution {
 @pragma('vm:prefer-inline')
 $GroupBuyContributionCopyWith<GroupBuyContribution> get copyWith => _$GroupBuyContributionCopyWithImpl<GroupBuyContribution>(this as GroupBuyContribution, _$identity);
 
-  /// Serializes this GroupBuyContribution to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -33,7 +30,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyContribution&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.hasCollected, hasCollected) || other.hasCollected == hasCollected)&&(identical(other.collectedAt, collectedAt) || other.collectedAt == collectedAt)&&(identical(other.walletId, walletId) || other.walletId == walletId));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt,voucherCode,hasCollected,collectedAt,walletId);
 
@@ -218,11 +215,11 @@ return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalI
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GroupBuyContribution implements GroupBuyContribution {
   const _GroupBuyContribution({required this.id, required this.userId, required this.userName, required this.amount, this.journalId, this.deliveryAddress, required this.contributedAt, this.voucherCode, this.hasCollected = false, this.collectedAt, this.walletId = 'primary'});
-  factory _GroupBuyContribution.fromJson(Map<String, dynamic> json) => _$GroupBuyContributionFromJson(json);
+  
 
 @override final  String id;
 @override final  String userId;
@@ -244,17 +241,14 @@ class _GroupBuyContribution implements GroupBuyContribution {
 @pragma('vm:prefer-inline')
 _$GroupBuyContributionCopyWith<_GroupBuyContribution> get copyWith => __$GroupBuyContributionCopyWithImpl<_GroupBuyContribution>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GroupBuyContributionToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyContribution&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.hasCollected, hasCollected) || other.hasCollected == hasCollected)&&(identical(other.collectedAt, collectedAt) || other.collectedAt == collectedAt)&&(identical(other.walletId, walletId) || other.walletId == walletId));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt,voucherCode,hasCollected,collectedAt,walletId);
 

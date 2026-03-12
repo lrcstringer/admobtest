@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'purchase.freezed.dart';
-part 'purchase.g.dart';
 
 /// Purchase status
 enum PurchaseStatus {
@@ -56,8 +55,6 @@ class Purchase with _$Purchase {
 
   const Purchase._();
 
-  factory Purchase.fromJson(Map<String, dynamic> json) =>
-      _$PurchaseFromJson(json);
 
   /// Check if purchase is pending
   bool get isPending => status == PurchaseStatus.pending;

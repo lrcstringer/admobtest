@@ -34,6 +34,9 @@ abstract class BuyRemoteDataSource {
   /// Submit a review for a brand
   Future<void> submitBrandReview(BrandReviewModel review);
 
+  /// Check if the current user is following a brand
+  Future<bool> isFollowingBrand(String brandId);
+
   /// Get marketplace stats (listing count, seller count, trending thumbnails)
   Future<({int listingCount, int sellerCount, List<String> thumbnails})>
       getMarketplaceStats();
@@ -179,6 +182,20 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .collection('brandReviews')
         .doc(review.id)
         .set(review.toFirestoreJson());
+  }
+
+  @override
+  Future<bool> isFollowingBrand(String brandId) async {
+    final uid = _firebaseAuth.currentUser?.uid;
+    if (uid == null) return false;
+
+    final doc = await _firestore
+        .collection('brandStorefronts')
+        .doc(brandId)
+        .collection('followers')
+        .doc(uid)
+        .get();
+    return doc.exists;
   }
 
   @override

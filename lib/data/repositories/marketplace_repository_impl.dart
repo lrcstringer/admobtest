@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
@@ -269,13 +269,13 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
   @override
   Future<Either<Failure, List<String>>> uploadListingImages({
-    required List<File> imageFiles,
+    required List<Uint8List> imageData,
     required String listingId,
   }) async {
     try {
-      final futures = imageFiles.asMap().entries.map(
-            (entry) => _mediaUploadDatasource.uploadListingImage(
-              imageFile: entry.value,
+      final futures = imageData.asMap().entries.map(
+            (entry) => _mediaUploadDatasource.uploadListingImageBytes(
+              imageBytes: entry.value,
               listingId: listingId,
               index: entry.key,
             ),

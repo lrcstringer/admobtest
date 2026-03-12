@@ -11,7 +11,6 @@ part of 'marketplace_listing.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$MarketplaceListing {
 
@@ -23,8 +22,6 @@ mixin _$MarketplaceListing {
 @pragma('vm:prefer-inline')
 $MarketplaceListingCopyWith<MarketplaceListing> get copyWith => _$MarketplaceListingCopyWithImpl<MarketplaceListing>(this as MarketplaceListing, _$identity);
 
-  /// Serializes this MarketplaceListing to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -32,7 +29,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceListing&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.subCategory, subCategory) || other.subCategory == subCategory)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.providerPhotoUrl, providerPhotoUrl) || other.providerPhotoUrl == providerPhotoUrl)&&(identical(other.providerTrustScore, providerTrustScore) || other.providerTrustScore == providerTrustScore)&&(identical(other.providerIsVerified, providerIsVerified) || other.providerIsVerified == providerIsVerified)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.location, location) || other.location == location)&&(identical(other.status, status) || other.status == status)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount)&&(identical(other.reportCount, reportCount) || other.reportCount == reportCount)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.locationData, locationData) || other.locationData == locationData)&&(identical(other.serviceAreaType, serviceAreaType) || other.serviceAreaType == serviceAreaType)&&(identical(other.deliveryMethod, deliveryMethod) || other.deliveryMethod == deliveryMethod)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.geohash, geohash) || other.geohash == geohash)&&(identical(other.favouriteCount, favouriteCount) || other.favouriteCount == favouriteCount)&&(identical(other.renewalCount, renewalCount) || other.renewalCount == renewalCount)&&(identical(other.totalPausedDays, totalPausedDays) || other.totalPausedDays == totalPausedDays)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,description,category,subCategory,priceTokens,priceZar,const DeepCollectionEquality().hash(images),thumbnailUrl,providerId,providerName,providerPhotoUrl,providerTrustScore,providerIsVerified,communityId,location,status,viewCount,reportCount,expiresAt,createdAt,locationData,serviceAreaType,deliveryMethod,deliveryFee,geohash,favouriteCount,renewalCount,totalPausedDays,pausedAt]);
 
@@ -248,11 +245,11 @@ return $default(_that.id,_that.title,_that.description,_that.category,_that.subC
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _MarketplaceListing extends MarketplaceListing {
   const _MarketplaceListing({required this.id, required this.title, required this.description, required this.category, this.subCategory, required this.priceTokens, required this.priceZar, final  List<String> images = const [], this.thumbnailUrl, required this.providerId, required this.providerName, this.providerPhotoUrl, this.providerTrustScore, this.providerIsVerified, this.communityId, this.location, required this.status, this.viewCount = 0, this.reportCount = 0, this.expiresAt, required this.createdAt, this.locationData, this.serviceAreaType = ServiceAreaType.myLocationOnly, this.deliveryMethod = DeliveryMethod.collection, this.deliveryFee, this.geohash, this.favouriteCount = 0, this.renewalCount = 0, this.totalPausedDays = 0, this.pausedAt}): _images = images,super._();
-  factory _MarketplaceListing.fromJson(Map<String, dynamic> json) => _$MarketplaceListingFromJson(json);
+  
 
 @override final  String id;
 @override final  String title;
@@ -298,17 +295,14 @@ class _MarketplaceListing extends MarketplaceListing {
 @pragma('vm:prefer-inline')
 _$MarketplaceListingCopyWith<_MarketplaceListing> get copyWith => __$MarketplaceListingCopyWithImpl<_MarketplaceListing>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$MarketplaceListingToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceListing&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.subCategory, subCategory) || other.subCategory == subCategory)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.providerPhotoUrl, providerPhotoUrl) || other.providerPhotoUrl == providerPhotoUrl)&&(identical(other.providerTrustScore, providerTrustScore) || other.providerTrustScore == providerTrustScore)&&(identical(other.providerIsVerified, providerIsVerified) || other.providerIsVerified == providerIsVerified)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.location, location) || other.location == location)&&(identical(other.status, status) || other.status == status)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount)&&(identical(other.reportCount, reportCount) || other.reportCount == reportCount)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.locationData, locationData) || other.locationData == locationData)&&(identical(other.serviceAreaType, serviceAreaType) || other.serviceAreaType == serviceAreaType)&&(identical(other.deliveryMethod, deliveryMethod) || other.deliveryMethod == deliveryMethod)&&(identical(other.deliveryFee, deliveryFee) || other.deliveryFee == deliveryFee)&&(identical(other.geohash, geohash) || other.geohash == geohash)&&(identical(other.favouriteCount, favouriteCount) || other.favouriteCount == favouriteCount)&&(identical(other.renewalCount, renewalCount) || other.renewalCount == renewalCount)&&(identical(other.totalPausedDays, totalPausedDays) || other.totalPausedDays == totalPausedDays)&&(identical(other.pausedAt, pausedAt) || other.pausedAt == pausedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,description,category,subCategory,priceTokens,priceZar,const DeepCollectionEquality().hash(_images),thumbnailUrl,providerId,providerName,providerPhotoUrl,providerTrustScore,providerIsVerified,communityId,location,status,viewCount,reportCount,expiresAt,createdAt,locationData,serviceAreaType,deliveryMethod,deliveryFee,geohash,favouriteCount,renewalCount,totalPausedDays,pausedAt]);
 

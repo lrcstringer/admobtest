@@ -120,6 +120,18 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
   }
 
   @override
+  Future<Either<Failure, void>> completeGroupBuy({
+    required String groupBuyId,
+  }) async {
+    try {
+      await _remoteDataSource.completeGroupBuy(groupBuyId: groupBuyId);
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> leaveGroupBuy({
     required String groupBuyId,
   }) async {

@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'brand_storefront.freezed.dart';
-part 'brand_storefront.g.dart';
 
 // ─── Enums ──────────────────────────────────────────────
 
@@ -55,8 +54,6 @@ class QuickAction with _$QuickAction {
     @Default(0) int sortOrder,
   }) = _QuickAction;
 
-  factory QuickAction.fromJson(Map<String, dynamic> json) =>
-      _$QuickActionFromJson(json);
 }
 
 @freezed
@@ -68,8 +65,6 @@ class StorefrontPromo with _$StorefrontPromo {
     String? deepLink,
   }) = _StorefrontPromo;
 
-  factory StorefrontPromo.fromJson(Map<String, dynamic> json) =>
-      _$StorefrontPromoFromJson(json);
 }
 
 /// Legacy section model — kept for backward compat reads only.
@@ -83,8 +78,6 @@ class StorefrontSection with _$StorefrontSection {
     @Default(true) bool isVisible,
   }) = _StorefrontSection;
 
-  factory StorefrontSection.fromJson(Map<String, dynamic> json) =>
-      _$StorefrontSectionFromJson(json);
 }
 
 /// Per-section display settings (Spec §4.7.6)
@@ -101,8 +94,6 @@ class SectionSettings with _$SectionSettings {
     @Default(16.0) double paddingBottom,
   }) = _SectionSettings;
 
-  factory SectionSettings.fromJson(Map<String, dynamic> json) =>
-      _$SectionSettingsFromJson(json);
 }
 
 /// Showcase video entry (Spec §4.8)
@@ -115,8 +106,6 @@ class ShowcaseVideo with _$ShowcaseVideo {
     @Default(0) int sortOrder,
   }) = _ShowcaseVideo;
 
-  factory ShowcaseVideo.fromJson(Map<String, dynamic> json) =>
-      _$ShowcaseVideoFromJson(json);
 }
 
 /// Storefront coupon (Spec §4.8.3)
@@ -133,8 +122,6 @@ class StorefrontCoupon with _$StorefrontCoupon {
     @Default(true) bool isActive,
   }) = _StorefrontCoupon;
 
-  factory StorefrontCoupon.fromJson(Map<String, dynamic> json) =>
-      _$StorefrontCouponFromJson(json);
 }
 
 /// FAQ item (Spec §4.8)
@@ -146,8 +133,6 @@ class FaqItem with _$FaqItem {
     @Default(0) int sortOrder,
   }) = _FaqItem;
 
-  factory FaqItem.fromJson(Map<String, dynamic> json) =>
-      _$FaqItemFromJson(json);
 }
 
 /// Brand physical location (Spec §4.8)
@@ -162,8 +147,6 @@ class BrandLocation with _$BrandLocation {
     String? hours,
   }) = _BrandLocation;
 
-  factory BrandLocation.fromJson(Map<String, dynamic> json) =>
-      _$BrandLocationFromJson(json);
 }
 
 // ─── Main Entity ────────────────────────────────────────
@@ -264,6 +247,4 @@ class BrandStorefront with _$BrandStorefront {
 
   const BrandStorefront._();
 
-  factory BrandStorefront.fromJson(Map<String, dynamic> json) =>
-      _$BrandStorefrontFromJson(json);
 }

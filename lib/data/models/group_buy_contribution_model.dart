@@ -15,6 +15,10 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
     String? journalId,
     String? deliveryAddress,
     required DateTime contributedAt,
+    String? voucherCode,
+    @Default(false) bool hasCollected,
+    DateTime? collectedAt,
+    @Default('primary') String walletId,
   }) = _GroupBuyContributionModel;
 
   const GroupBuyContributionModel._();
@@ -32,6 +36,14 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
           : json['contributedAt'] is String
               ? DateTime.parse(json['contributedAt'] as String)
               : DateTime.now(),
+      voucherCode: json['voucherCode'] as String?,
+      hasCollected: json['hasCollected'] as bool? ?? false,
+      collectedAt: json['collectedAt'] is Timestamp
+          ? (json['collectedAt'] as Timestamp).toDate()
+          : json['collectedAt'] is String
+              ? DateTime.parse(json['collectedAt'] as String)
+              : null,
+      walletId: json['walletId'] as String? ?? 'primary',
     );
   }
 
@@ -49,6 +61,10 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       journalId: journalId,
       deliveryAddress: deliveryAddress,
       contributedAt: contributedAt,
+      voucherCode: voucherCode,
+      hasCollected: hasCollected,
+      collectedAt: collectedAt,
+      walletId: walletId,
     );
   }
 
@@ -61,6 +77,10 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       journalId: entity.journalId,
       deliveryAddress: entity.deliveryAddress,
       contributedAt: entity.contributedAt,
+      voucherCode: entity.voucherCode,
+      hasCollected: entity.hasCollected,
+      collectedAt: entity.collectedAt,
+      walletId: entity.walletId,
     );
   }
 }

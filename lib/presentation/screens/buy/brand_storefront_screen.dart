@@ -165,7 +165,7 @@ class _BrandStorefrontBody extends StatelessWidget {
 
         // Brand header with tagline + trust badges
         SliverToBoxAdapter(
-          child: _buildBrandHeader(storefront),
+          child: _buildBrandHeader(context, storefront),
         ),
 
         // Dynamic sections
@@ -258,7 +258,7 @@ class _BrandStorefrontBody extends StatelessWidget {
 
   // ─── Brand Header ────────────────────────────────────────
 
-  Widget _buildBrandHeader(BrandStorefront storefront) {
+  Widget _buildBrandHeader(BuildContext context, BrandStorefront storefront) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -355,6 +355,28 @@ class _BrandStorefrontBody extends StatelessWidget {
                   ),
                 ],
               ],
+            ),
+          ],
+          // Chat button — visible only when brand enables it
+          if (storefront.showChatButton) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.push(
+                  '/chat/brand/${storefront.brandId}',
+                ),
+                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                label: const Text('Chat with Brand'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
             ),
           ],
         ],
@@ -932,7 +954,11 @@ class _BrandStorefrontBody extends StatelessWidget {
     );
   }
 
-  void _showReviewBottomSheet(BuildContext context, String brandId) {
+  void _showReviewBottomSheet(
+    BuildContext context,
+    String brandId, {
+    String? orderId,
+  }) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -942,7 +968,10 @@ class _BrandStorefrontBody extends StatelessWidget {
       ),
       builder: (_) => BlocProvider.value(
         value: context.read<BrandStorefrontBloc>(),
-        child: _ReviewSubmissionSheet(brandId: brandId),
+        child: _ReviewSubmissionSheet(
+          brandId: brandId,
+          orderId: orderId,
+        ),
       ),
     );
   }
@@ -1219,7 +1248,9 @@ class _BrandStorefrontBody extends StatelessWidget {
   // ─── Coupon Center ───────────────────────────────────────
 
   Widget _buildCouponCenter(BuildContext context, BrandStorefront storefront) {
-    final coupons = storefront.coupons;
+    final coupons = storefront.coupons
+        .where((c) => c.expiresAt == null || c.expiresAt!.isAfter(DateTime.now()))
+        .toList();
     if (coupons.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -1961,8 +1992,12 @@ class _StorefrontAboutLegacy extends StatelessWidget {
 
 class _ReviewSubmissionSheet extends StatefulWidget {
   final String brandId;
+  final String? orderId;
 
-  const _ReviewSubmissionSheet({required this.brandId});
+  const _ReviewSubmissionSheet({
+    required this.brandId,
+    this.orderId,
+  });
 
   @override
   State<_ReviewSubmissionSheet> createState() => _ReviewSubmissionSheetState();
@@ -2198,6 +2233,7 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
     context.read<BrandStorefrontBloc>().add(
           BrandStorefrontEvent.submitReview(
             brandId: widget.brandId,
+            orderId: widget.orderId,
             qualityRating: _qualityRating,
             valueRating: _valueRating,
             serviceRating: _serviceRating,

@@ -7,7 +7,6 @@ import '../enums/service_area_type.dart';
 import 'location_data.dart';
 
 part 'marketplace_listing.freezed.dart';
-part 'marketplace_listing.g.dart';
 
 @freezed
 class MarketplaceListing with _$MarketplaceListing {
@@ -47,8 +46,6 @@ class MarketplaceListing with _$MarketplaceListing {
 
   const MarketplaceListing._();
 
-  factory MarketplaceListing.fromJson(Map<String, dynamic> json) =>
-      _$MarketplaceListingFromJson(json);
 
   /// Whether the listing is available for purchase
   bool get isAvailable => status == ListingStatus.active;

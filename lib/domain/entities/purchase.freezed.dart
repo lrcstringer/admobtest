@@ -11,7 +11,6 @@ part of 'purchase.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Purchase {
 
@@ -22,8 +21,6 @@ mixin _$Purchase {
 @pragma('vm:prefer-inline')
 $PurchaseCopyWith<Purchase> get copyWith => _$PurchaseCopyWithImpl<Purchase>(this as Purchase, _$identity);
 
-  /// Serializes this Purchase to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(metadata),createdAt,processedAt,completedAt]);
 
@@ -225,11 +222,11 @@ return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.prov
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Purchase extends Purchase {
   const _Purchase({required this.id, required this.walletId, required this.userId, required this.providerId, required this.providerName, required this.category, required this.tokenAmount, required this.zarAmount, required this.status, required this.productCode, required this.productName, this.recipientNumber, this.voucherCode, this.voucherPin, this.reference, this.failureReason, final  Map<String, dynamic>? metadata, required this.createdAt, this.processedAt, this.completedAt}): _metadata = metadata,super._();
-  factory _Purchase.fromJson(Map<String, dynamic> json) => _$PurchaseFromJson(json);
+  
 
 @override final  String id;
 @override final  String walletId;
@@ -266,17 +263,14 @@ class _Purchase extends Purchase {
 @pragma('vm:prefer-inline')
 _$PurchaseCopyWith<_Purchase> get copyWith => __$PurchaseCopyWithImpl<_Purchase>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$PurchaseToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(_metadata),createdAt,processedAt,completedAt]);
 

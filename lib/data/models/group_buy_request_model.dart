@@ -76,6 +76,7 @@ GroupBuyRequestStatus _parseStatus(String? value) {
     case 'approved':
       return GroupBuyRequestStatus.approved;
     case 'declined':
+    case 'rejected':
       return GroupBuyRequestStatus.declined;
     default:
       return GroupBuyRequestStatus.pending;

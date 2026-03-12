@@ -11,7 +11,6 @@ part of 'brand_review.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$BrandReview {
 
@@ -27,8 +26,6 @@ mixin _$BrandReview {
 @pragma('vm:prefer-inline')
 $BrandReviewCopyWith<BrandReview> get copyWith => _$BrandReviewCopyWithImpl<BrandReview>(this as BrandReview, _$identity);
 
-  /// Serializes this BrandReview to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -36,7 +33,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandReview&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.qualityRating, qualityRating) || other.qualityRating == qualityRating)&&(identical(other.valueRating, valueRating) || other.valueRating == valueRating)&&(identical(other.serviceRating, serviceRating) || other.serviceRating == serviceRating)&&(identical(other.overallRating, overallRating) || other.overallRating == overallRating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.isFiltered, isFiltered) || other.isFiltered == isFiltered)&&(identical(other.isRemovedByAdmin, isRemovedByAdmin) || other.isRemovedByAdmin == isRemovedByAdmin)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,brandId,userId,userName,orderId,qualityRating,valueRating,serviceRating,overallRating,comment,isFiltered,isRemovedByAdmin,createdAt,updatedAt);
 
@@ -224,11 +221,11 @@ return $default(_that.id,_that.brandId,_that.userId,_that.userName,_that.orderId
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BrandReview extends BrandReview {
   const _BrandReview({required this.id, required this.brandId, required this.userId, required this.userName, required this.orderId, required this.qualityRating, required this.valueRating, required this.serviceRating, required this.overallRating, this.comment, this.isFiltered = false, this.isRemovedByAdmin = false, required this.createdAt, this.updatedAt}): super._();
-  factory _BrandReview.fromJson(Map<String, dynamic> json) => _$BrandReviewFromJson(json);
+  
 
 @override final  String id;
 @override final  String brandId;
@@ -256,17 +253,14 @@ class _BrandReview extends BrandReview {
 @pragma('vm:prefer-inline')
 _$BrandReviewCopyWith<_BrandReview> get copyWith => __$BrandReviewCopyWithImpl<_BrandReview>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BrandReviewToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandReview&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.qualityRating, qualityRating) || other.qualityRating == qualityRating)&&(identical(other.valueRating, valueRating) || other.valueRating == valueRating)&&(identical(other.serviceRating, serviceRating) || other.serviceRating == serviceRating)&&(identical(other.overallRating, overallRating) || other.overallRating == overallRating)&&(identical(other.comment, comment) || other.comment == comment)&&(identical(other.isFiltered, isFiltered) || other.isFiltered == isFiltered)&&(identical(other.isRemovedByAdmin, isRemovedByAdmin) || other.isRemovedByAdmin == isRemovedByAdmin)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,brandId,userId,userName,orderId,qualityRating,valueRating,serviceRating,overallRating,comment,isFiltered,isRemovedByAdmin,createdAt,updatedAt);
 

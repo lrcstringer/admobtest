@@ -44,6 +44,11 @@ abstract class GroupBuyRepository {
     List<String> userClusters = const [],
   });
 
+  /// Complete a group buy (organizer only, releases escrow)
+  Future<Either<Failure, void>> completeGroupBuy({
+    required String groupBuyId,
+  });
+
   /// Leave a group buy (refunds contribution)
   Future<Either<Failure, void>> leaveGroupBuy({
     required String groupBuyId,

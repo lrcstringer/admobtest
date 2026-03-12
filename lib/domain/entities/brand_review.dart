@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'brand_review.freezed.dart';
-part 'brand_review.g.dart';
 
 @freezed
 class BrandReview with _$BrandReview {
@@ -36,8 +35,6 @@ class BrandReview with _$BrandReview {
 
   const BrandReview._();
 
-  factory BrandReview.fromJson(Map<String, dynamic> json) =>
-      _$BrandReviewFromJson(json);
 
   /// Whether this review should be shown publicly
   bool get isVisible => !isFiltered && !isRemovedByAdmin;

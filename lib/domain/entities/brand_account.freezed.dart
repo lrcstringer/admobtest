@@ -11,7 +11,6 @@ part of 'brand_account.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$BrandAccount {
 
@@ -22,8 +21,6 @@ mixin _$BrandAccount {
 @pragma('vm:prefer-inline')
 $BrandAccountCopyWith<BrandAccount> get copyWith => _$BrandAccountCopyWithImpl<BrandAccount>(this as BrandAccount, _$identity);
 
-  /// Serializes this BrandAccount to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandAccount&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor)&&(identical(other.isFollowed, isFollowed) || other.isFollowed == isFollowed)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.followerCount, followerCount) || other.followerCount == followerCount));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,logoUrl,description,avatarColor,isFollowed,followedAt,followerCount);
 
@@ -213,11 +210,11 @@ return $default(_that.id,_that.name,_that.logoUrl,_that.description,_that.avatar
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BrandAccount extends BrandAccount {
   const _BrandAccount({required this.id, required this.name, this.logoUrl, this.description, this.avatarColor, required this.isFollowed, this.followedAt, this.followerCount = 0}): super._();
-  factory _BrandAccount.fromJson(Map<String, dynamic> json) => _$BrandAccountFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -234,17 +231,14 @@ class _BrandAccount extends BrandAccount {
 @pragma('vm:prefer-inline')
 _$BrandAccountCopyWith<_BrandAccount> get copyWith => __$BrandAccountCopyWithImpl<_BrandAccount>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BrandAccountToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandAccount&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor)&&(identical(other.isFollowed, isFollowed) || other.isFollowed == isFollowed)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.followerCount, followerCount) || other.followerCount == followerCount));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,logoUrl,description,avatarColor,isFollowed,followedAt,followerCount);
 

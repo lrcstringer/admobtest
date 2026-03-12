@@ -11,7 +11,6 @@ part of 'marketplace_provider.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$MarketplaceProvider {
 
@@ -23,8 +22,6 @@ mixin _$MarketplaceProvider {
 @pragma('vm:prefer-inline')
 $MarketplaceProviderCopyWith<MarketplaceProvider> get copyWith => _$MarketplaceProviderCopyWithImpl<MarketplaceProvider>(this as MarketplaceProvider, _$identity);
 
-  /// Serializes this MarketplaceProvider to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -32,7 +29,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceProvider&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.status, status) || other.status == status)&&(identical(other.trustScore, trustScore) || other.trustScore == trustScore)&&(identical(other.vouchCount, vouchCount) || other.vouchCount == vouchCount)&&(identical(other.completedOrders, completedOrders) || other.completedOrders == completedOrders)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.isVerifiedOverride, isVerifiedOverride) || other.isVerifiedOverride == isVerifiedOverride)&&const DeepCollectionEquality().equals(other.customerIds, customerIds)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.categories, categories)&&const DeepCollectionEquality().equals(other.subCategories, subCategories)&&(identical(other.sellerLevel, sellerLevel) || other.sellerLevel == sellerLevel)&&(identical(other.avgResponseTimeHrs, avgResponseTimeHrs) || other.avgResponseTimeHrs == avgResponseTimeHrs)&&(identical(other.warningCount, warningCount) || other.warningCount == warningCount)&&(identical(other.reportCount, reportCount) || other.reportCount == reportCount)&&(identical(other.disputeRate, disputeRate) || other.disputeRate == disputeRate)&&(identical(other.cancellationRate, cancellationRate) || other.cancellationRate == cancellationRate)&&(identical(other.suspensionReason, suspensionReason) || other.suspensionReason == suspensionReason)&&(identical(other.suspensionTrigger, suspensionTrigger) || other.suspensionTrigger == suspensionTrigger)&&(identical(other.suspendedAt, suspendedAt) || other.suspendedAt == suspendedAt)&&(identical(other.bannedAt, bannedAt) || other.bannedAt == bannedAt)&&(identical(other.profileLocation, profileLocation) || other.profileLocation == profileLocation)&&(identical(other.servicesDescription, servicesDescription) || other.servicesDescription == servicesDescription));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,userId,displayName,bio,photoUrl,communityId,status,trustScore,vouchCount,completedOrders,isVerified,isVerifiedOverride,const DeepCollectionEquality().hash(customerIds),createdAt,const DeepCollectionEquality().hash(categories),const DeepCollectionEquality().hash(subCategories),sellerLevel,avgResponseTimeHrs,warningCount,reportCount,disputeRate,cancellationRate,suspensionReason,suspensionTrigger,suspendedAt,bannedAt,profileLocation,servicesDescription]);
 
@@ -246,11 +243,11 @@ return $default(_that.id,_that.userId,_that.displayName,_that.bio,_that.photoUrl
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _MarketplaceProvider extends MarketplaceProvider {
   const _MarketplaceProvider({required this.id, required this.userId, required this.displayName, this.bio, this.photoUrl, this.communityId, required this.status, this.trustScore = 0.0, this.vouchCount = 0, this.completedOrders = 0, this.isVerified = false, this.isVerifiedOverride, final  List<String> customerIds = const [], required this.createdAt, final  List<String> categories = const [], final  List<String>? subCategories, this.sellerLevel = SellerLevel.newSeller, this.avgResponseTimeHrs, this.warningCount = 0, this.reportCount = 0, this.disputeRate = 0.0, this.cancellationRate = 0.0, this.suspensionReason, this.suspensionTrigger, this.suspendedAt, this.bannedAt, this.profileLocation, this.servicesDescription}): _customerIds = customerIds,_categories = categories,_subCategories = subCategories,super._();
-  factory _MarketplaceProvider.fromJson(Map<String, dynamic> json) => _$MarketplaceProviderFromJson(json);
+  
 
 @override final  String id;
 @override final  String userId;
@@ -309,17 +306,14 @@ class _MarketplaceProvider extends MarketplaceProvider {
 @pragma('vm:prefer-inline')
 _$MarketplaceProviderCopyWith<_MarketplaceProvider> get copyWith => __$MarketplaceProviderCopyWithImpl<_MarketplaceProvider>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$MarketplaceProviderToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceProvider&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.status, status) || other.status == status)&&(identical(other.trustScore, trustScore) || other.trustScore == trustScore)&&(identical(other.vouchCount, vouchCount) || other.vouchCount == vouchCount)&&(identical(other.completedOrders, completedOrders) || other.completedOrders == completedOrders)&&(identical(other.isVerified, isVerified) || other.isVerified == isVerified)&&(identical(other.isVerifiedOverride, isVerifiedOverride) || other.isVerifiedOverride == isVerifiedOverride)&&const DeepCollectionEquality().equals(other._customerIds, _customerIds)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._categories, _categories)&&const DeepCollectionEquality().equals(other._subCategories, _subCategories)&&(identical(other.sellerLevel, sellerLevel) || other.sellerLevel == sellerLevel)&&(identical(other.avgResponseTimeHrs, avgResponseTimeHrs) || other.avgResponseTimeHrs == avgResponseTimeHrs)&&(identical(other.warningCount, warningCount) || other.warningCount == warningCount)&&(identical(other.reportCount, reportCount) || other.reportCount == reportCount)&&(identical(other.disputeRate, disputeRate) || other.disputeRate == disputeRate)&&(identical(other.cancellationRate, cancellationRate) || other.cancellationRate == cancellationRate)&&(identical(other.suspensionReason, suspensionReason) || other.suspensionReason == suspensionReason)&&(identical(other.suspensionTrigger, suspensionTrigger) || other.suspensionTrigger == suspensionTrigger)&&(identical(other.suspendedAt, suspendedAt) || other.suspendedAt == suspendedAt)&&(identical(other.bannedAt, bannedAt) || other.bannedAt == bannedAt)&&(identical(other.profileLocation, profileLocation) || other.profileLocation == profileLocation)&&(identical(other.servicesDescription, servicesDescription) || other.servicesDescription == servicesDescription));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,userId,displayName,bio,photoUrl,communityId,status,trustScore,vouchCount,completedOrders,isVerified,isVerifiedOverride,const DeepCollectionEquality().hash(_customerIds),createdAt,const DeepCollectionEquality().hash(_categories),const DeepCollectionEquality().hash(_subCategories),sellerLevel,avgResponseTimeHrs,warningCount,reportCount,disputeRate,cancellationRate,suspensionReason,suspensionTrigger,suspendedAt,bannedAt,profileLocation,servicesDescription]);
 

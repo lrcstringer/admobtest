@@ -448,7 +448,7 @@ export const onPurchaseStatusChanged = onDocumentUpdated(
       body = `Your ${after.productName || "purchase"} for ${after.recipientNumber || ""} is ready. Ref: #PUR-${purchaseId.substring(0, 8)}`;
     } else if (after.status === "failed") {
       title = "Purchase failed";
-      body = `Your ${after.productName || "purchase"} failed. Your ${after.amountTokens || 0} tokens have been refunded.`;
+      body = `Your ${after.productName || "purchase"} failed. Your ${after.tokenAmount || 0} tokens have been refunded.`;
     } else if (after.status === "processing" && before.status === "pending") {
       // Don't send notification for processing — too noisy
       return;

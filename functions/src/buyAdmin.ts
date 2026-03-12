@@ -382,6 +382,8 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity,
       imageOpacity,
       imageLayout,
+      scheduledStart,
+      scheduledEnd,
     } = request.data as {
       title: string;
       subtitle?: string;
@@ -400,13 +402,15 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity?: number;
       imageOpacity?: number;
       imageLayout?: string;
+      scheduledStart?: string;
+      scheduledEnd?: string;
     };
 
     if (!title || title.trim().length === 0) {
       throw new HttpsError("invalid-argument", "title is required");
     }
 
-    const data = {
+    const data: Record<string, unknown> = {
       title: title.trim(),
       subtitle: subtitle || null,
       imageUrl: imageUrl || null,
@@ -424,6 +428,8 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity: colorIntensity ?? 0.4,
       imageOpacity: imageOpacity ?? 0.3,
       imageLayout: imageLayout || "right",
+      scheduledStart: scheduledStart ? admin.firestore.Timestamp.fromDate(new Date(scheduledStart)) : null,
+      scheduledEnd: scheduledEnd ? admin.firestore.Timestamp.fromDate(new Date(scheduledEnd)) : null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -453,7 +459,7 @@ export const adminUpdateFeaturedItem = onCall(
       "adminUpdateFeaturedItem"
     );
 
-    const { itemId, ...fields } = request.data as {
+    const { itemId, scheduledStart, scheduledEnd, ...fields } = request.data as {
       itemId: string;
       title?: string;
       subtitle?: string;
@@ -472,6 +478,8 @@ export const adminUpdateFeaturedItem = onCall(
       colorIntensity?: number;
       imageOpacity?: number;
       imageLayout?: string;
+      scheduledStart?: string;
+      scheduledEnd?: string;
     };
 
     if (!itemId) {
@@ -489,6 +497,12 @@ export const adminUpdateFeaturedItem = onCall(
     };
     for (const [key, value] of Object.entries(fields)) {
       if (value !== undefined) updates[key] = value;
+    }
+    if (scheduledStart !== undefined) {
+      updates.scheduledStart = scheduledStart ? admin.firestore.Timestamp.fromDate(new Date(scheduledStart)) : null;
+    }
+    if (scheduledEnd !== undefined) {
+      updates.scheduledEnd = scheduledEnd ? admin.firestore.Timestamp.fromDate(new Date(scheduledEnd)) : null;
     }
 
     await ref.update(updates);

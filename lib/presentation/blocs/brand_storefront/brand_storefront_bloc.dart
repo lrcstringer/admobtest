@@ -56,13 +56,21 @@ class BrandStorefrontBloc
       },
     );
 
-    // Hydrate claimed coupons after fold completes — keeps emit valid
+    // Hydrate claimed coupons and follow status after fold completes
     if (storefront != null) {
       final claimedResult =
           await _buyRepository.getClaimedCouponIds(event.id);
       claimedResult.fold(
         (_) {}, // Non-critical — keep empty set
         (ids) => emit(state.copyWith(claimedCouponIds: ids)),
+      );
+
+      // Hydrate follow status from server
+      final followResult =
+          await _buyRepository.isFollowingBrand(storefront.brandId);
+      followResult.fold(
+        (_) {}, // Non-critical — default false
+        (isFollowing) => emit(state.copyWith(isFollowing: isFollowing)),
       );
     }
   }
@@ -121,6 +129,7 @@ class BrandStorefrontBloc
 
     final result = await _buyRepository.submitBrandReview(
       brandId: event.brandId,
+      orderId: event.orderId,
       qualityRating: event.qualityRating,
       valueRating: event.valueRating,
       serviceRating: event.serviceRating,

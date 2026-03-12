@@ -4,14 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:imalichat/core/error/failures.dart';
+import 'package:imalichat/core/security/step_up_auth_service.dart';
 import 'package:imalichat/domain/entities/purchase.dart';
 import 'package:imalichat/domain/repositories/purchase_repository.dart';
 import 'package:imalichat/presentation/blocs/purchase/purchase_bloc.dart';
 
 class MockPurchaseRepository extends Mock implements PurchaseRepository {}
+class MockStepUpAuthService extends Mock implements StepUpAuthService {}
 
 void main() {
   late MockPurchaseRepository mockPurchaseRepository;
+  late MockStepUpAuthService mockStepUpAuthService;
 
   setUpAll(() {
     registerFallbackValue(PurchaseCategory.airtime);
@@ -19,11 +22,12 @@ void main() {
 
   setUp(() {
     mockPurchaseRepository = MockPurchaseRepository();
+    mockStepUpAuthService = MockStepUpAuthService();
   });
 
   group('PurchaseBloc', () {
     test('initial state is correct', () {
-      final bloc = PurchaseBloc(mockPurchaseRepository);
+      final bloc = PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
       expect(bloc.state.providers, isEmpty);
       expect(bloc.state.selectedProvider, isNull);
       expect(bloc.state.selectedProduct, isNull);
@@ -37,7 +41,7 @@ void main() {
         build: () {
           when(() => mockPurchaseRepository.getServiceProviders())
               .thenAnswer((_) async => const Right([]));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.loadProviders()),
         expect: () => [
@@ -53,7 +57,7 @@ void main() {
         build: () {
           when(() => mockPurchaseRepository.getServiceProviders())
               .thenAnswer((_) async => const Left(Failure.network()));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.loadProviders()),
         expect: () => [
@@ -71,7 +75,7 @@ void main() {
         build: () {
           when(() => mockPurchaseRepository.getProvidersByCategory(any()))
               .thenAnswer((_) async => const Right([]));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.loadProvidersByCategory(PurchaseCategory.airtime)),
         expect: () => [
@@ -89,7 +93,7 @@ void main() {
         build: () {
           when(() => mockPurchaseRepository.getProvidersByCategory(any()))
               .thenAnswer((_) async => const Right([]));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.selectCategory(PurchaseCategory.electricity)),
         expect: () => [
@@ -107,7 +111,7 @@ void main() {
         build: () {
           when(() => mockPurchaseRepository.getServiceProviders())
               .thenAnswer((_) async => const Right([]));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.selectCategory(null)),
         expect: () => [
@@ -121,7 +125,7 @@ void main() {
     group('SetRecipientNumber', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'sets recipient number and clears validation',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         act: (bloc) => bloc.add(const PurchaseEvent.setRecipientNumber('0612345678')),
         expect: () => [
           isA<PurchaseState>()
@@ -134,7 +138,7 @@ void main() {
     group('ValidateRecipient', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'returns false for empty recipient',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         seed: () => const PurchaseState(recipientNumber: null),
         act: (bloc) => bloc.add(const PurchaseEvent.validateRecipient()),
         expect: () => [
@@ -149,7 +153,7 @@ void main() {
                 number: any(named: 'number'),
                 category: any(named: 'category'),
               )).thenAnswer((_) async => const Right(true));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         seed: () => const PurchaseState(recipientNumber: '0612345678'),
         act: (bloc) => bloc.add(const PurchaseEvent.validateRecipient()),
@@ -171,7 +175,7 @@ void main() {
                 limit: any(named: 'limit'),
                 startAfter: any(named: 'startAfter'),
               )).thenAnswer((_) async => const Right([]));
-          return PurchaseBloc(mockPurchaseRepository);
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
         },
         act: (bloc) => bloc.add(const PurchaseEvent.loadHistory()),
         expect: () => [
@@ -186,7 +190,7 @@ void main() {
     group('SelectRecentRecipient', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'selects recent recipient and marks as valid',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         act: (bloc) => bloc.add(const PurchaseEvent.selectRecentRecipient('0712345678')),
         expect: () => [
           isA<PurchaseState>()
@@ -199,7 +203,7 @@ void main() {
     group('ResetSelection', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'resets all selection state',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         seed: () => const PurchaseState(
           recipientNumber: '0612345678',
           isRecipientValid: true,
@@ -218,7 +222,7 @@ void main() {
     group('ClearError', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'clears error message',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         seed: () => const PurchaseState(errorMessage: 'Some error'),
         act: (bloc) => bloc.add(const PurchaseEvent.clearError()),
         expect: () => [
@@ -230,7 +234,7 @@ void main() {
     group('ClearSuccess', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'clears success message',
-        build: () => PurchaseBloc(mockPurchaseRepository),
+        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
         seed: () => const PurchaseState(successMessage: 'Purchase successful!'),
         act: (bloc) => bloc.add(const PurchaseEvent.clearSuccess()),
         expect: () => [

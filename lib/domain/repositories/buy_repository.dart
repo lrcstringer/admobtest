@@ -42,6 +42,7 @@ abstract class BuyRepository {
   /// Submit a review for a brand (delegates to Cloud Function)
   Future<Either<Failure, void>> submitBrandReview({
     required String brandId,
+    String? orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -64,6 +65,9 @@ abstract class BuyRepository {
 
   /// Record a storefront view (fire-and-forget analytics)
   Future<Either<Failure, void>> recordStorefrontView(String storefrontId);
+
+  /// Check if the current user is following a brand
+  Future<Either<Failure, bool>> isFollowingBrand(String brandId);
 
   /// Toggle follow/unfollow for a brand
   Future<Either<Failure, bool>> toggleBrandFollow(String brandId);

@@ -11,7 +11,6 @@ part of 'saved_listing.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$SavedListing {
 
@@ -22,8 +21,6 @@ mixin _$SavedListing {
 @pragma('vm:prefer-inline')
 $SavedListingCopyWith<SavedListing> get copyWith => _$SavedListingCopyWithImpl<SavedListing>(this as SavedListing, _$identity);
 
-  /// Serializes this SavedListing to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is SavedListing&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.savedAt, savedAt) || other.savedAt == savedAt)&&(identical(other.listingTitle, listingTitle) || other.listingTitle == listingTitle)&&(identical(other.listingPrice, listingPrice) || other.listingPrice == listingPrice)&&(identical(other.listingThumbnailUrl, listingThumbnailUrl) || other.listingThumbnailUrl == listingThumbnailUrl)&&(identical(other.listingStatus, listingStatus) || other.listingStatus == listingStatus)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,listingId,savedAt,listingTitle,listingPrice,listingThumbnailUrl,listingStatus,sellerName);
 
@@ -212,11 +209,11 @@ return $default(_that.listingId,_that.savedAt,_that.listingTitle,_that.listingPr
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _SavedListing extends SavedListing {
   const _SavedListing({required this.listingId, required this.savedAt, this.listingTitle, this.listingPrice, this.listingThumbnailUrl, this.listingStatus, this.sellerName}): super._();
-  factory _SavedListing.fromJson(Map<String, dynamic> json) => _$SavedListingFromJson(json);
+  
 
 @override final  String listingId;
 @override final  DateTime savedAt;
@@ -232,17 +229,14 @@ class _SavedListing extends SavedListing {
 @pragma('vm:prefer-inline')
 _$SavedListingCopyWith<_SavedListing> get copyWith => __$SavedListingCopyWithImpl<_SavedListing>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SavedListingToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _SavedListing&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.savedAt, savedAt) || other.savedAt == savedAt)&&(identical(other.listingTitle, listingTitle) || other.listingTitle == listingTitle)&&(identical(other.listingPrice, listingPrice) || other.listingPrice == listingPrice)&&(identical(other.listingThumbnailUrl, listingThumbnailUrl) || other.listingThumbnailUrl == listingThumbnailUrl)&&(identical(other.listingStatus, listingStatus) || other.listingStatus == listingStatus)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,listingId,savedAt,listingTitle,listingPrice,listingThumbnailUrl,listingStatus,sellerName);
 

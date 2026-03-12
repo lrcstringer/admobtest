@@ -11,7 +11,6 @@ part of 'brand_product.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$BrandProduct {
 
@@ -27,8 +26,6 @@ mixin _$BrandProduct {
 @pragma('vm:prefer-inline')
 $BrandProductCopyWith<BrandProduct> get copyWith => _$BrandProductCopyWithImpl<BrandProduct>(this as BrandProduct, _$identity);
 
-  /// Serializes this BrandProduct to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -36,7 +33,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.stockCount, stockCount) || other.stockCount == stockCount)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&(identical(other.contactMethod, contactMethod) || other.contactMethod == contactMethod)&&(identical(other.voucherInstructions, voucherInstructions) || other.voucherInstructions == voucherInstructions)&&(identical(other.collectionAddress, collectionAddress) || other.collectionAddress == collectionAddress)&&(identical(other.deliveryInfo, deliveryInfo) || other.deliveryInfo == deliveryInfo)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,brandId,name,description,priceZar,priceTokens,imageUrl,category,isActive,isFeatured,sortOrder,stockCount,fulfilmentType,contactMethod,voucherInstructions,collectionAddress,deliveryInfo,createdAt);
 
@@ -228,11 +225,11 @@ return $default(_that.id,_that.brandId,_that.name,_that.description,_that.priceZ
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BrandProduct extends BrandProduct {
   const _BrandProduct({required this.id, required this.brandId, required this.name, this.description, required this.priceZar, required this.priceTokens, this.imageUrl, this.category, this.isActive = true, this.isFeatured = false, this.sortOrder = 0, this.stockCount, required this.fulfilmentType, this.contactMethod, this.voucherInstructions, this.collectionAddress, this.deliveryInfo, required this.createdAt}): super._();
-  factory _BrandProduct.fromJson(Map<String, dynamic> json) => _$BrandProductFromJson(json);
+  
 
 @override final  String id;
 @override final  String brandId;
@@ -264,17 +261,14 @@ class _BrandProduct extends BrandProduct {
 @pragma('vm:prefer-inline')
 _$BrandProductCopyWith<_BrandProduct> get copyWith => __$BrandProductCopyWithImpl<_BrandProduct>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BrandProductToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.category, category) || other.category == category)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.stockCount, stockCount) || other.stockCount == stockCount)&&(identical(other.fulfilmentType, fulfilmentType) || other.fulfilmentType == fulfilmentType)&&(identical(other.contactMethod, contactMethod) || other.contactMethod == contactMethod)&&(identical(other.voucherInstructions, voucherInstructions) || other.voucherInstructions == voucherInstructions)&&(identical(other.collectionAddress, collectionAddress) || other.collectionAddress == collectionAddress)&&(identical(other.deliveryInfo, deliveryInfo) || other.deliveryInfo == deliveryInfo)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,brandId,name,description,priceZar,priceTokens,imageUrl,category,isActive,isFeatured,sortOrder,stockCount,fulfilmentType,contactMethod,voucherInstructions,collectionAddress,deliveryInfo,createdAt);
 

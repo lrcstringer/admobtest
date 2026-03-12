@@ -5,7 +5,6 @@ import '../enums/group_buy_status.dart';
 import '../enums/group_buy_type.dart';
 
 part 'group_buy.freezed.dart';
-part 'group_buy.g.dart';
 
 @freezed
 class GroupBuy with _$GroupBuy {
@@ -78,9 +77,6 @@ class GroupBuy with _$GroupBuy {
   }) = _GroupBuy;
 
   const GroupBuy._();
-
-  factory GroupBuy.fromJson(Map<String, dynamic> json) =>
-      _$GroupBuyFromJson(json);
 
   /// Progress as fraction 0.0 – 1.0
   double get progress =>

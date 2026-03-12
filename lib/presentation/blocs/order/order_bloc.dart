@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/entities/buy_order.dart';
 import '../../../domain/repositories/marketplace_repository.dart';
 
@@ -13,8 +14,10 @@ part 'order_state.dart';
 @injectable
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final MarketplaceRepository _repository;
+  final StepUpAuthService _stepUpAuthService;
 
-  OrderBloc(this._repository) : super(const OrderState()) {
+  OrderBloc(this._repository, this._stepUpAuthService)
+      : super(const OrderState()) {
     on<_LoadBuyerOrders>(_onLoadBuyerOrders);
     on<_LoadSellerOrders>(_onLoadSellerOrders);
     on<_SelectOrder>(_onSelectOrder);
@@ -95,6 +98,23 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     if (state.isProcessing) return;
 
     emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    // Step-up auth before marketplace purchase
+    final stepUpRequired = _stepUpAuthService.evaluateRequired(
+      actionType: 'marketplace_purchase',
+    );
+    if (stepUpRequired == StepUpResult.biometricVerified ||
+        stepUpRequired == StepUpResult.otpRequired) {
+      final authResult = await _stepUpAuthService.performBiometricStepUp();
+      if (authResult == StepUpResult.cancelled ||
+          authResult == StepUpResult.failed) {
+        emit(state.copyWith(
+          isProcessing: false,
+          errorMessage: 'Authentication required',
+        ));
+        return;
+      }
+    }
 
     final result = await _repository.buyItem(
       listingId: event.listingId,

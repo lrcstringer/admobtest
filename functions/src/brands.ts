@@ -13,6 +13,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import { requireAppCheck } from "./security";
+import { requireAdminPermission } from "./adminAuth";
 
 const db = admin.firestore();
 
@@ -26,212 +27,6 @@ function requireAuth(request: { auth?: { uid: string } }): string {
   }
   return request.auth.uid;
 }
-
-// ============================================================================
-// BRAND ACCOUNTS
-// ============================================================================
-
-/**
- * Follow a brand. Adds clientId to user's followedBrands array
- * and creates a brandFollowers/{clientId}/followers/{userId} doc.
- * Uses idempotency check to prevent double-increment of followerCount.
- */
-export const followBrand = onCall(
-  { labels: { area: "social" } },
-  async (request) => {
-    const userId = requireAuth(request);
-    requireAppCheck(request, "followBrand");
-
-    const { clientId } = request.data;
-
-    if (!clientId || typeof clientId !== "string") {
-      throw new HttpsError("invalid-argument", "clientId is required");
-    }
-
-    const followerRef = db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId);
-    const clientRef = db.collection("clients").doc(clientId);
-
-    // Transaction: check brand exists + check not already following + atomic writes
-    await db.runTransaction(async (tx) => {
-      const [clientDoc, followerDoc] = await Promise.all([
-        tx.get(clientRef),
-        tx.get(followerRef),
-      ]);
-
-      if (!clientDoc.exists || clientDoc.data()?.isActive !== true) {
-        throw new HttpsError("not-found", "Brand not found");
-      }
-      if (followerDoc.exists) {
-        throw new HttpsError("already-exists", "Already following this brand");
-      }
-
-      tx.update(db.collection("users").doc(userId), {
-        followedBrands: admin.firestore.FieldValue.arrayUnion(clientId),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      tx.set(followerRef, {
-        userId,
-        followedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      tx.update(clientRef, {
-        followerCount: admin.firestore.FieldValue.increment(1),
-      });
-    });
-
-    logger.info(`followBrand: user ${userId} followed brand ${clientId}`);
-    return { success: true };
-  }
-);
-
-/**
- * Unfollow a brand. Removes clientId from user's followedBrands array
- * and deletes the brandFollowers doc.
- * Uses idempotency check to prevent double-decrement of followerCount.
- */
-export const unfollowBrand = onCall(
-  { labels: { area: "social" } },
-  async (request) => {
-    const userId = requireAuth(request);
-    requireAppCheck(request, "unfollowBrand");
-
-    const { clientId } = request.data;
-
-    if (!clientId || typeof clientId !== "string") {
-      throw new HttpsError("invalid-argument", "clientId is required");
-    }
-
-    const followerRef = db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId);
-    const clientRef = db.collection("clients").doc(clientId);
-
-    // Transaction: check actually following before decrement
-    await db.runTransaction(async (tx) => {
-      const [clientDoc, followerDoc] = await Promise.all([
-        tx.get(clientRef),
-        tx.get(followerRef),
-      ]);
-
-      if (!followerDoc.exists) {
-        // Already unfollowed — idempotent, just clean up user array
-        tx.update(db.collection("users").doc(userId), {
-          followedBrands: admin.firestore.FieldValue.arrayRemove(clientId),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-        return;
-      }
-
-      tx.update(db.collection("users").doc(userId), {
-        followedBrands: admin.firestore.FieldValue.arrayRemove(clientId),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      tx.delete(followerRef);
-
-      // Only decrement if brand doc exists and count > 0
-      if (clientDoc.exists) {
-        const currentCount = clientDoc.data()?.followerCount || 0;
-        if (currentCount > 0) {
-          tx.update(clientRef, {
-            followerCount: admin.firestore.FieldValue.increment(-1),
-          });
-        }
-      }
-    });
-
-    logger.info(`unfollowBrand: user ${userId} unfollowed brand ${clientId}`);
-    return { success: true };
-  }
-);
-
-/**
- * Get user's followed brands with full client profile data.
- */
-export const getFollowedBrands = onCall(
-  { labels: { area: "social" } },
-  async (request) => {
-    const userId = requireAuth(request);
-    requireAppCheck(request, "getFollowedBrands");
-
-    const userDoc = await db.collection("users").doc(userId).get();
-    const followedBrandIds: string[] = userDoc.data()?.followedBrands || [];
-
-    if (followedBrandIds.length === 0) {
-      return { success: true, brands: [] };
-    }
-
-    // Fetch brand details in batches of 30
-    const brands: Array<Record<string, unknown>> = [];
-    const batchSize = 30;
-
-    for (let i = 0; i < followedBrandIds.length; i += batchSize) {
-      const batchIds = followedBrandIds.slice(i, i + batchSize);
-
-      // Firestore __name__ whereIn for doc IDs
-      const snap = await db
-        .collection("clients")
-        .where(admin.firestore.FieldPath.documentId(), "in", batchIds)
-        .get();
-
-      for (const doc of snap.docs) {
-        const data = doc.data();
-        if (data.isActive !== true || data.isDeleted === true) continue;
-
-        brands.push({
-          id: doc.id,
-          name: data.displayName || data.companyName || "Brand",
-          logoUrl: data.avatarImage || null,
-          avatarColor: data.avatarColor || null,
-          description: data.industry || null,
-          isFollowed: true,
-          followerCount: data.followerCount || 0,
-        });
-      }
-    }
-
-    return { success: true, brands };
-  }
-);
-
-/**
- * Get available brands that support brand messaging.
- * Returns active clients with isBrandMessagingEnabled = true.
- */
-export const getAvailableBrands = onCall(
-  { labels: { area: "social" } },
-  async (request) => {
-    const userId = requireAuth(request);
-    requireAppCheck(request, "getAvailableBrands");
-
-    const userDoc = await db.collection("users").doc(userId).get();
-    const followedBrandIds: string[] = userDoc.data()?.followedBrands || [];
-    const followedSet = new Set(followedBrandIds);
-
-    // Query active clients with brand messaging enabled
-    const snap = await db
-      .collection("clients")
-      .where("isActive", "==", true)
-      .where("isBrandMessagingEnabled", "==", true)
-      .limit(50)
-      .get();
-
-    const brands: Array<Record<string, unknown>> = [];
-
-    for (const doc of snap.docs) {
-      const data = doc.data();
-      if (data.isDeleted === true) continue;
-
-      brands.push({
-        id: doc.id,
-        name: data.displayName || data.companyName || "Brand",
-        logoUrl: data.avatarImage || null,
-        avatarColor: data.avatarColor || null,
-        description: data.industry || null,
-        isFollowed: followedSet.has(doc.id),
-        followerCount: data.followerCount || 0,
-      });
-    }
-
-    return { success: true, brands };
-  }
-);
 
 // ============================================================================
 // STOREFRONT COUPONS
@@ -366,16 +161,18 @@ export const recordStorefrontView = onCall(
       { merge: true }
     );
 
-    // Track unique visitors via deterministic subcollection doc (bounded per-user)
+    // Track unique visitors via deterministic subcollection doc (bounded per-user).
+    // Transaction prevents race: two concurrent calls could both see !exists and double-increment.
     const visitorRef = dailyRef.collection("visitors").doc(userId);
-    const visitorDoc = await visitorRef.get();
-    if (!visitorDoc.exists) {
-      await visitorRef.set({ visitedAt: admin.firestore.FieldValue.serverTimestamp() });
-      // Increment unique visitor counter
-      await dailyRef.update({
-        uniqueVisitorCount: admin.firestore.FieldValue.increment(1),
-      });
-    }
+    await db.runTransaction(async (tx) => {
+      const visitorDoc = await tx.get(visitorRef);
+      if (!visitorDoc.exists) {
+        tx.set(visitorRef, { viewedAt: admin.firestore.FieldValue.serverTimestamp() });
+        tx.update(dailyRef, {
+          uniqueVisitorCount: admin.firestore.FieldValue.increment(1),
+        });
+      }
+    });
 
     return { success: true };
   }
@@ -393,6 +190,7 @@ export const getBrandAnalytics = onCall(
   async (request) => {
     requireAuth(request);
     requireAppCheck(request, "getBrandAnalytics");
+    await requireAdminPermission(request, "buy:getBrandAnalytics", "getBrandAnalytics");
 
     const { brandId, startDate, endDate } = request.data;
     if (!brandId || typeof brandId !== "string") {
@@ -439,78 +237,6 @@ export const getBrandAnalytics = onCall(
         followerCount,
         daily: dailyData,
       },
-    };
-  }
-);
-
-// ============================================================================
-// MUTUAL FOLLOWERS
-// ============================================================================
-
-/**
- * Get mutual followers between the current user and a brand's followers.
- * Shows which of the user's contacts also follow this brand.
- */
-export const getBrandMutualFollowers = onCall(
-  { labels: { area: "social" } },
-  async (request) => {
-    const userId = requireAuth(request);
-    requireAppCheck(request, "getBrandMutualFollowers");
-
-    const { brandId, limit: maxResults } = request.data;
-    if (!brandId || typeof brandId !== "string") {
-      throw new HttpsError("invalid-argument", "brandId is required");
-    }
-
-    // Get user's contacts
-    const userDoc = await db.collection("users").doc(userId).get();
-    const userContacts: string[] = userDoc.data()?.contacts || [];
-
-    if (userContacts.length === 0) {
-      return { success: true, mutualFollowers: [], count: 0 };
-    }
-
-    const resultLimit = Math.min(maxResults || 10, 30);
-
-    // Check which contacts also follow this brand
-    const mutualFollowers: Array<{ userId: string; displayName: string; photoUrl: string | null }> = [];
-
-    // Process in batches of 10 — check which contacts follow the brand
-    const matchedContactIds: string[] = [];
-    for (let i = 0; i < userContacts.length && matchedContactIds.length < resultLimit; i += 10) {
-      const batchIds = userContacts.slice(i, i + 10);
-      const followersSnap = await db
-        .collection("brandFollowers")
-        .doc(brandId)
-        .collection("followers")
-        .where(admin.firestore.FieldPath.documentId(), "in", batchIds)
-        .get();
-
-      for (const doc of followersSnap.docs) {
-        if (matchedContactIds.length >= resultLimit) break;
-        matchedContactIds.push(doc.id);
-      }
-    }
-
-    // Batch-fetch all matched contact profiles in one getAll() call
-    if (matchedContactIds.length > 0) {
-      const contactRefs = matchedContactIds.map((id) => db.collection("users").doc(id));
-      const contactDocs = await db.getAll(...contactRefs);
-      for (const contactDoc of contactDocs) {
-        const contactData = contactDoc.data();
-        if (!contactData || contactData.isDeleted === true) continue;
-        mutualFollowers.push({
-          userId: contactDoc.id,
-          displayName: contactData.displayName || "User",
-          photoUrl: contactData.photoUrl || null,
-        });
-      }
-    }
-
-    return {
-      success: true,
-      mutualFollowers,
-      count: mutualFollowers.length,
     };
   }
 );

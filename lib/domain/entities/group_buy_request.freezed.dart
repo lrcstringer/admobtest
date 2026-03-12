@@ -11,7 +11,6 @@ part of 'group_buy_request.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$GroupBuyRequest {
 
@@ -30,8 +29,6 @@ mixin _$GroupBuyRequest {
 @pragma('vm:prefer-inline')
 $GroupBuyRequestCopyWith<GroupBuyRequest> get copyWith => _$GroupBuyRequestCopyWithImpl<GroupBuyRequest>(this as GroupBuyRequest, _$identity);
 
-  /// Serializes this GroupBuyRequest to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -39,7 +36,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandOrStore, brandOrStore) || other.brandOrStore == brandOrStore)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.wantsToJoin, wantsToJoin) || other.wantsToJoin == wantsToJoin)&&(identical(other.status, status) || other.status == status)&&(identical(other.adminNotes, adminNotes) || other.adminNotes == adminNotes)&&(identical(other.convertedGroupBuyId, convertedGroupBuyId) || other.convertedGroupBuyId == convertedGroupBuyId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,userId,userName,description,brandOrStore,estimatedPrice,sourceUrl,imageUrl,wantsToJoin,status,adminNotes,convertedGroupBuyId,createdAt,updatedAt);
 
@@ -227,11 +224,11 @@ return $default(_that.id,_that.userId,_that.userName,_that.description,_that.bra
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GroupBuyRequest extends GroupBuyRequest {
   const _GroupBuyRequest({required this.id, required this.userId, required this.userName, required this.description, required this.brandOrStore, this.estimatedPrice, this.sourceUrl, this.imageUrl, this.wantsToJoin = true, required this.status, this.adminNotes, this.convertedGroupBuyId, required this.createdAt, this.updatedAt}): super._();
-  factory _GroupBuyRequest.fromJson(Map<String, dynamic> json) => _$GroupBuyRequestFromJson(json);
+  
 
 @override final  String id;
 @override final  String userId;
@@ -262,17 +259,14 @@ class _GroupBuyRequest extends GroupBuyRequest {
 @pragma('vm:prefer-inline')
 _$GroupBuyRequestCopyWith<_GroupBuyRequest> get copyWith => __$GroupBuyRequestCopyWithImpl<_GroupBuyRequest>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GroupBuyRequestToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandOrStore, brandOrStore) || other.brandOrStore == brandOrStore)&&(identical(other.estimatedPrice, estimatedPrice) || other.estimatedPrice == estimatedPrice)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.wantsToJoin, wantsToJoin) || other.wantsToJoin == wantsToJoin)&&(identical(other.status, status) || other.status == status)&&(identical(other.adminNotes, adminNotes) || other.adminNotes == adminNotes)&&(identical(other.convertedGroupBuyId, convertedGroupBuyId) || other.convertedGroupBuyId == convertedGroupBuyId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,userId,userName,description,brandOrStore,estimatedPrice,sourceUrl,imageUrl,wantsToJoin,status,adminNotes,convertedGroupBuyId,createdAt,updatedAt);
 

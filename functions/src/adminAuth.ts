@@ -137,6 +137,7 @@ export type AdminPermission =
   | "buy:resolveDispute"
   // Buy marketplace analytics
   | "buy:getMarketplaceAnalytics"
+  | "buy:getBrandAnalytics"
   // Buy group buys
   | "buy:listGroupBuys"
   | "buy:getGroupBuyDetails"
@@ -326,6 +327,7 @@ const financeAdminPerms: AdminPermission[] = [
   "buy:forceCompleteOrder",
   "buy:resolveDispute",
   "buy:getMarketplaceAnalytics",
+  "buy:getBrandAnalytics",
   "buy:listGroupBuys",
   "buy:getGroupBuyDetails",
   "buy:forceCompleteGroupBuy",
@@ -401,6 +403,7 @@ const auditorPerms: AdminPermission[] = [
   "buy:listFeaturedItems",
   "buy:listBrandStorefronts",
   "buy:getMarketplaceAnalytics",
+  "buy:getBrandAnalytics",
   "buy:listGroupBuys",
   "buy:getGroupBuyDetails",
   "buy:getEscrowOverview",

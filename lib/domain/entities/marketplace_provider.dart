@@ -5,7 +5,6 @@ import '../enums/seller_level.dart';
 import 'location_data.dart';
 
 part 'marketplace_provider.freezed.dart';
-part 'marketplace_provider.g.dart';
 
 @freezed
 class MarketplaceProvider with _$MarketplaceProvider {
@@ -43,8 +42,6 @@ class MarketplaceProvider with _$MarketplaceProvider {
 
   const MarketplaceProvider._();
 
-  factory MarketplaceProvider.fromJson(Map<String, dynamic> json) =>
-      _$MarketplaceProviderFromJson(json);
 
   /// Computed verified status (admin override takes precedence)
   bool get effectiveVerified =>

@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/entities/purchase.dart';
 import '../../../domain/entities/service_provider.dart';
 import '../../../domain/repositories/purchase_repository.dart';
@@ -14,8 +15,10 @@ part 'purchase_bloc.freezed.dart';
 @injectable
 class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
   final PurchaseRepository _purchaseRepository;
+  final StepUpAuthService _stepUpAuthService;
 
-  PurchaseBloc(this._purchaseRepository) : super(const PurchaseState()) {
+  PurchaseBloc(this._purchaseRepository, this._stepUpAuthService)
+      : super(const PurchaseState()) {
     on<_LoadProviders>(_onLoadProviders);
     on<_LoadProvidersByCategory>(_onLoadProvidersByCategory);
     on<_SelectCategory>(_onSelectCategory);
@@ -194,6 +197,23 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     }
 
     emit(state.copyWith(isPurchasing: true));
+
+    // Step-up auth before VAS purchase
+    final stepUpRequired = _stepUpAuthService.evaluateRequired(
+      actionType: 'vas_purchase',
+    );
+    if (stepUpRequired == StepUpResult.biometricVerified ||
+        stepUpRequired == StepUpResult.otpRequired) {
+      final authResult = await _stepUpAuthService.performBiometricStepUp();
+      if (authResult == StepUpResult.cancelled ||
+          authResult == StepUpResult.failed) {
+        emit(state.copyWith(
+          isPurchasing: false,
+          errorMessage: 'Authentication required',
+        ));
+        return;
+      }
+    }
 
     final result = await _purchaseRepository.makePurchase(
       productId: state.selectedProduct!.id,

@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 
@@ -96,7 +96,7 @@ abstract class MarketplaceRepository {
 
   /// Upload listing images and return their download URLs
   Future<Either<Failure, List<String>>> uploadListingImages({
-    required List<File> imageFiles,
+    required List<Uint8List> imageData,
     required String listingId,
   });
 

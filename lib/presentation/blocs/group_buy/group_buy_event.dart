@@ -50,6 +50,11 @@ class GroupBuyEvent with _$GroupBuyEvent {
     @Default(true) bool wantsToJoin,
   }) = _SuggestDeal;
 
+  /// Complete a group buy (organizer only, releases escrow)
+  const factory GroupBuyEvent.completeGroupBuy({
+    required String groupBuyId,
+  }) = _CompleteGroupBuy;
+
   /// Clear success/error messages
   const factory GroupBuyEvent.clearMessages() = _ClearMessages;
 

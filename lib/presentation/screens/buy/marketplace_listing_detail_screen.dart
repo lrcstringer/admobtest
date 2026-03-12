@@ -9,6 +9,7 @@ import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/buy/payment_protection_explainer.dart';
 import '../../widgets/buy/trust_badge.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/token_display.dart';
@@ -134,6 +135,11 @@ class _MarketplaceListingDetailScreenState
                           height: 1.5,
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Payment protection explainer
+                      const PaymentProtectionExplainer(),
+
                       const SizedBox(height: AppSpacing.lg),
 
                       // Provider card

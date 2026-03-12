@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../enums/group_buy_request_status.dart';
 
 part 'group_buy_request.freezed.dart';
-part 'group_buy_request.g.dart';
 
 /// A user-submitted suggestion for a group buy deal.
 @freezed
@@ -45,8 +44,6 @@ class GroupBuyRequest with _$GroupBuyRequest {
 
   const GroupBuyRequest._();
 
-  factory GroupBuyRequest.fromJson(Map<String, dynamic> json) =>
-      _$GroupBuyRequestFromJson(json);
 
   bool get isPending => status == GroupBuyRequestStatus.pending;
 }

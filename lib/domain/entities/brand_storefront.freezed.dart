@@ -11,7 +11,6 @@ part of 'brand_storefront.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$QuickAction {
 
@@ -22,8 +21,6 @@ mixin _$QuickAction {
 @pragma('vm:prefer-inline')
 $QuickActionCopyWith<QuickAction> get copyWith => _$QuickActionCopyWithImpl<QuickAction>(this as QuickAction, _$identity);
 
-  /// Serializes this QuickAction to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is QuickAction&&(identical(other.label, label) || other.label == label)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,label,iconEmoji,deepLink,sortOrder);
 
@@ -209,11 +206,11 @@ return $default(_that.label,_that.iconEmoji,_that.deepLink,_that.sortOrder);case
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _QuickAction implements QuickAction {
   const _QuickAction({required this.label, required this.iconEmoji, required this.deepLink, this.sortOrder = 0});
-  factory _QuickAction.fromJson(Map<String, dynamic> json) => _$QuickActionFromJson(json);
+  
 
 @override final  String label;
 @override final  String iconEmoji;
@@ -226,17 +223,14 @@ class _QuickAction implements QuickAction {
 @pragma('vm:prefer-inline')
 _$QuickActionCopyWith<_QuickAction> get copyWith => __$QuickActionCopyWithImpl<_QuickAction>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$QuickActionToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuickAction&&(identical(other.label, label) || other.label == label)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,label,iconEmoji,deepLink,sortOrder);
 
@@ -283,7 +277,6 @@ as int,
 
 }
 
-
 /// @nodoc
 mixin _$StorefrontPromo {
 
@@ -294,8 +287,6 @@ mixin _$StorefrontPromo {
 @pragma('vm:prefer-inline')
 $StorefrontPromoCopyWith<StorefrontPromo> get copyWith => _$StorefrontPromoCopyWithImpl<StorefrontPromo>(this as StorefrontPromo, _$identity);
 
-  /// Serializes this StorefrontPromo to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -303,7 +294,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is StorefrontPromo&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,title,description,expiresAt,deepLink);
 
@@ -481,11 +472,11 @@ return $default(_that.title,_that.description,_that.expiresAt,_that.deepLink);ca
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _StorefrontPromo implements StorefrontPromo {
   const _StorefrontPromo({required this.title, this.description, this.expiresAt, this.deepLink});
-  factory _StorefrontPromo.fromJson(Map<String, dynamic> json) => _$StorefrontPromoFromJson(json);
+  
 
 @override final  String title;
 @override final  String? description;
@@ -498,17 +489,14 @@ class _StorefrontPromo implements StorefrontPromo {
 @pragma('vm:prefer-inline')
 _$StorefrontPromoCopyWith<_StorefrontPromo> get copyWith => __$StorefrontPromoCopyWithImpl<_StorefrontPromo>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$StorefrontPromoToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorefrontPromo&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.deepLink, deepLink) || other.deepLink == deepLink));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,title,description,expiresAt,deepLink);
 
@@ -555,7 +543,6 @@ as String?,
 
 }
 
-
 /// @nodoc
 mixin _$StorefrontSection {
 
@@ -566,8 +553,6 @@ mixin _$StorefrontSection {
 @pragma('vm:prefer-inline')
 $StorefrontSectionCopyWith<StorefrontSection> get copyWith => _$StorefrontSectionCopyWithImpl<StorefrontSection>(this as StorefrontSection, _$identity);
 
-  /// Serializes this StorefrontSection to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -575,7 +560,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is StorefrontSection&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other.data, data)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,type,title,const DeepCollectionEquality().hash(data),sortOrder,isVisible);
 
@@ -754,11 +739,11 @@ return $default(_that.type,_that.title,_that.data,_that.sortOrder,_that.isVisibl
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _StorefrontSection implements StorefrontSection {
   const _StorefrontSection({required this.type, this.title, final  Map<String, dynamic> data = const {}, this.sortOrder = 0, this.isVisible = true}): _data = data;
-  factory _StorefrontSection.fromJson(Map<String, dynamic> json) => _$StorefrontSectionFromJson(json);
+  
 
 @override final  String type;
 @override final  String? title;
@@ -778,17 +763,14 @@ class _StorefrontSection implements StorefrontSection {
 @pragma('vm:prefer-inline')
 _$StorefrontSectionCopyWith<_StorefrontSection> get copyWith => __$StorefrontSectionCopyWithImpl<_StorefrontSection>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$StorefrontSectionToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorefrontSection&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&const DeepCollectionEquality().equals(other._data, _data)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,type,title,const DeepCollectionEquality().hash(_data),sortOrder,isVisible);
 
@@ -836,7 +818,6 @@ as bool,
 
 }
 
-
 /// @nodoc
 mixin _$SectionSettings {
 
@@ -847,8 +828,6 @@ mixin _$SectionSettings {
 @pragma('vm:prefer-inline')
 $SectionSettingsCopyWith<SectionSettings> get copyWith => _$SectionSettingsCopyWithImpl<SectionSettings>(this as SectionSettings, _$identity);
 
-  /// Serializes this SectionSettings to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -856,7 +835,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is SectionSettings&&(identical(other.colourMode, colourMode) || other.colourMode == colourMode)&&(identical(other.customBgColor, customBgColor) || other.customBgColor == customBgColor)&&(identical(other.customTextColor, customTextColor) || other.customTextColor == customTextColor)&&(identical(other.headingOverride, headingOverride) || other.headingOverride == headingOverride)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.contentAlignment, contentAlignment) || other.contentAlignment == contentAlignment)&&(identical(other.paddingTop, paddingTop) || other.paddingTop == paddingTop)&&(identical(other.paddingBottom, paddingBottom) || other.paddingBottom == paddingBottom));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,colourMode,customBgColor,customTextColor,headingOverride,isVisible,contentAlignment,paddingTop,paddingBottom);
 
@@ -1038,11 +1017,11 @@ return $default(_that.colourMode,_that.customBgColor,_that.customTextColor,_that
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _SectionSettings implements SectionSettings {
   const _SectionSettings({this.colourMode = SectionColourMode.brandLight, this.customBgColor, this.customTextColor, this.headingOverride, this.isVisible = true, this.contentAlignment = 'center', this.paddingTop = 16.0, this.paddingBottom = 16.0});
-  factory _SectionSettings.fromJson(Map<String, dynamic> json) => _$SectionSettingsFromJson(json);
+  
 
 @override@JsonKey() final  SectionColourMode colourMode;
 @override final  String? customBgColor;
@@ -1059,17 +1038,14 @@ class _SectionSettings implements SectionSettings {
 @pragma('vm:prefer-inline')
 _$SectionSettingsCopyWith<_SectionSettings> get copyWith => __$SectionSettingsCopyWithImpl<_SectionSettings>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SectionSettingsToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _SectionSettings&&(identical(other.colourMode, colourMode) || other.colourMode == colourMode)&&(identical(other.customBgColor, customBgColor) || other.customBgColor == customBgColor)&&(identical(other.customTextColor, customTextColor) || other.customTextColor == customTextColor)&&(identical(other.headingOverride, headingOverride) || other.headingOverride == headingOverride)&&(identical(other.isVisible, isVisible) || other.isVisible == isVisible)&&(identical(other.contentAlignment, contentAlignment) || other.contentAlignment == contentAlignment)&&(identical(other.paddingTop, paddingTop) || other.paddingTop == paddingTop)&&(identical(other.paddingBottom, paddingBottom) || other.paddingBottom == paddingBottom));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,colourMode,customBgColor,customTextColor,headingOverride,isVisible,contentAlignment,paddingTop,paddingBottom);
 
@@ -1120,7 +1096,6 @@ as double,
 
 }
 
-
 /// @nodoc
 mixin _$ShowcaseVideo {
 
@@ -1131,8 +1106,6 @@ mixin _$ShowcaseVideo {
 @pragma('vm:prefer-inline')
 $ShowcaseVideoCopyWith<ShowcaseVideo> get copyWith => _$ShowcaseVideoCopyWithImpl<ShowcaseVideo>(this as ShowcaseVideo, _$identity);
 
-  /// Serializes this ShowcaseVideo to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -1140,7 +1113,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is ShowcaseVideo&&(identical(other.url, url) || other.url == url)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,url,thumbnailUrl,title,sortOrder);
 
@@ -1318,11 +1291,11 @@ return $default(_that.url,_that.thumbnailUrl,_that.title,_that.sortOrder);case _
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _ShowcaseVideo implements ShowcaseVideo {
   const _ShowcaseVideo({required this.url, this.thumbnailUrl, this.title, this.sortOrder = 0});
-  factory _ShowcaseVideo.fromJson(Map<String, dynamic> json) => _$ShowcaseVideoFromJson(json);
+  
 
 @override final  String url;
 @override final  String? thumbnailUrl;
@@ -1335,17 +1308,14 @@ class _ShowcaseVideo implements ShowcaseVideo {
 @pragma('vm:prefer-inline')
 _$ShowcaseVideoCopyWith<_ShowcaseVideo> get copyWith => __$ShowcaseVideoCopyWithImpl<_ShowcaseVideo>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ShowcaseVideoToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _ShowcaseVideo&&(identical(other.url, url) || other.url == url)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,url,thumbnailUrl,title,sortOrder);
 
@@ -1392,7 +1362,6 @@ as int,
 
 }
 
-
 /// @nodoc
 mixin _$StorefrontCoupon {
 
@@ -1403,8 +1372,6 @@ mixin _$StorefrontCoupon {
 @pragma('vm:prefer-inline')
 $StorefrontCouponCopyWith<StorefrontCoupon> get copyWith => _$StorefrontCouponCopyWithImpl<StorefrontCoupon>(this as StorefrontCoupon, _$identity);
 
-  /// Serializes this StorefrontCoupon to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -1412,7 +1379,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is StorefrontCoupon&&(identical(other.id, id) || other.id == id)&&(identical(other.code, code) || other.code == code)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.maxClaims, maxClaims) || other.maxClaims == maxClaims)&&(identical(other.claimCount, claimCount) || other.claimCount == claimCount)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,code,title,description,maxClaims,claimCount,expiresAt,isActive);
 
@@ -1594,11 +1561,11 @@ return $default(_that.id,_that.code,_that.title,_that.description,_that.maxClaim
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _StorefrontCoupon implements StorefrontCoupon {
   const _StorefrontCoupon({required this.id, required this.code, required this.title, this.description, this.maxClaims, this.claimCount = 0, this.expiresAt, this.isActive = true});
-  factory _StorefrontCoupon.fromJson(Map<String, dynamic> json) => _$StorefrontCouponFromJson(json);
+  
 
 @override final  String id;
 @override final  String code;
@@ -1615,17 +1582,14 @@ class _StorefrontCoupon implements StorefrontCoupon {
 @pragma('vm:prefer-inline')
 _$StorefrontCouponCopyWith<_StorefrontCoupon> get copyWith => __$StorefrontCouponCopyWithImpl<_StorefrontCoupon>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$StorefrontCouponToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _StorefrontCoupon&&(identical(other.id, id) || other.id == id)&&(identical(other.code, code) || other.code == code)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.maxClaims, maxClaims) || other.maxClaims == maxClaims)&&(identical(other.claimCount, claimCount) || other.claimCount == claimCount)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.isActive, isActive) || other.isActive == isActive));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,code,title,description,maxClaims,claimCount,expiresAt,isActive);
 
@@ -1676,7 +1640,6 @@ as bool,
 
 }
 
-
 /// @nodoc
 mixin _$FaqItem {
 
@@ -1687,8 +1650,6 @@ mixin _$FaqItem {
 @pragma('vm:prefer-inline')
 $FaqItemCopyWith<FaqItem> get copyWith => _$FaqItemCopyWithImpl<FaqItem>(this as FaqItem, _$identity);
 
-  /// Serializes this FaqItem to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -1696,7 +1657,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is FaqItem&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,question,answer,sortOrder);
 
@@ -1873,11 +1834,11 @@ return $default(_that.question,_that.answer,_that.sortOrder);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _FaqItem implements FaqItem {
   const _FaqItem({required this.question, required this.answer, this.sortOrder = 0});
-  factory _FaqItem.fromJson(Map<String, dynamic> json) => _$FaqItemFromJson(json);
+  
 
 @override final  String question;
 @override final  String answer;
@@ -1889,17 +1850,14 @@ class _FaqItem implements FaqItem {
 @pragma('vm:prefer-inline')
 _$FaqItemCopyWith<_FaqItem> get copyWith => __$FaqItemCopyWithImpl<_FaqItem>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$FaqItemToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _FaqItem&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,question,answer,sortOrder);
 
@@ -1945,7 +1903,6 @@ as int,
 
 }
 
-
 /// @nodoc
 mixin _$BrandLocation {
 
@@ -1956,8 +1913,6 @@ mixin _$BrandLocation {
 @pragma('vm:prefer-inline')
 $BrandLocationCopyWith<BrandLocation> get copyWith => _$BrandLocationCopyWithImpl<BrandLocation>(this as BrandLocation, _$identity);
 
-  /// Serializes this BrandLocation to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -1965,7 +1920,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandLocation&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.hours, hours) || other.hours == hours));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,name,address,latitude,longitude,phone,hours);
 
@@ -2145,11 +2100,11 @@ return $default(_that.name,_that.address,_that.latitude,_that.longitude,_that.ph
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BrandLocation implements BrandLocation {
   const _BrandLocation({required this.name, required this.address, this.latitude, this.longitude, this.phone, this.hours});
-  factory _BrandLocation.fromJson(Map<String, dynamic> json) => _$BrandLocationFromJson(json);
+  
 
 @override final  String name;
 @override final  String address;
@@ -2164,17 +2119,14 @@ class _BrandLocation implements BrandLocation {
 @pragma('vm:prefer-inline')
 _$BrandLocationCopyWith<_BrandLocation> get copyWith => __$BrandLocationCopyWithImpl<_BrandLocation>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BrandLocationToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandLocation&&(identical(other.name, name) || other.name == name)&&(identical(other.address, address) || other.address == address)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.hours, hours) || other.hours == hours));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,name,address,latitude,longitude,phone,hours);
 
@@ -2223,7 +2175,6 @@ as String?,
 
 }
 
-
 /// @nodoc
 mixin _$BrandStorefront {
 
@@ -2252,8 +2203,6 @@ mixin _$BrandStorefront {
 @pragma('vm:prefer-inline')
 $BrandStorefrontCopyWith<BrandStorefront> get copyWith => _$BrandStorefrontCopyWithImpl<BrandStorefront>(this as BrandStorefront, _$identity);
 
-  /// Serializes this BrandStorefront to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -2261,7 +2210,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandStorefront&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.brandLogoUrl, brandLogoUrl) || other.brandLogoUrl == brandLogoUrl)&&(identical(other.brandColor, brandColor) || other.brandColor == brandColor)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.tagline, tagline) || other.tagline == tagline)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&const DeepCollectionEquality().equals(other.communityIds, communityIds)&&const DeepCollectionEquality().equals(other.sections, sections)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.heroStyle, heroStyle) || other.heroStyle == heroStyle)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&(identical(other.heroVideoUrl, heroVideoUrl) || other.heroVideoUrl == heroVideoUrl)&&(identical(other.accentColor, accentColor) || other.accentColor == accentColor)&&(identical(other.secondaryColor, secondaryColor) || other.secondaryColor == secondaryColor)&&(identical(other.logoPlacement, logoPlacement) || other.logoPlacement == logoPlacement)&&(identical(other.fontStyle, fontStyle) || other.fontStyle == fontStyle)&&(identical(other.cornerStyle, cornerStyle) || other.cornerStyle == cornerStyle)&&(identical(other.themePreference, themePreference) || other.themePreference == themePreference)&&(identical(other.description, description) || other.description == description)&&(identical(other.bannerImageUrl, bannerImageUrl) || other.bannerImageUrl == bannerImageUrl)&&(identical(other.bannerDeepLink, bannerDeepLink) || other.bannerDeepLink == bannerDeepLink)&&(identical(other.establishedYear, establishedYear) || other.establishedYear == establishedYear)&&const DeepCollectionEquality().equals(other.socialLinks, socialLinks)&&const DeepCollectionEquality().equals(other.trustBadges, trustBadges)&&(identical(other.averageRating, averageRating) || other.averageRating == averageRating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&const DeepCollectionEquality().equals(other.quickActions, quickActions)&&const DeepCollectionEquality().equals(other.galleryImageUrls, galleryImageUrls)&&const DeepCollectionEquality().equals(other.promotions, promotions)&&const DeepCollectionEquality().equals(other.sectionOrder, sectionOrder)&&(identical(other.isDraft, isDraft) || other.isDraft == isDraft)&&(identical(other.publishedAt, publishedAt) || other.publishedAt == publishedAt)&&(identical(other.tier, tier) || other.tier == tier)&&(identical(other.heroFocalPointX, heroFocalPointX) || other.heroFocalPointX == heroFocalPointX)&&(identical(other.heroFocalPointY, heroFocalPointY) || other.heroFocalPointY == heroFocalPointY)&&(identical(other.showChatButton, showChatButton) || other.showChatButton == showChatButton)&&(identical(other.bannerVideoUrl, bannerVideoUrl) || other.bannerVideoUrl == bannerVideoUrl)&&(identical(other.announcementText, announcementText) || other.announcementText == announcementText)&&(identical(other.announcementDeepLink, announcementDeepLink) || other.announcementDeepLink == announcementDeepLink)&&(identical(other.announcementDismissible, announcementDismissible) || other.announcementDismissible == announcementDismissible)&&const DeepCollectionEquality().equals(other.showcaseVideos, showcaseVideos)&&const DeepCollectionEquality().equals(other.coupons, coupons)&&const DeepCollectionEquality().equals(other.faqItems, faqItems)&&const DeepCollectionEquality().equals(other.testimonialReviewIds, testimonialReviewIds)&&const DeepCollectionEquality().equals(other.locations, locations)&&const DeepCollectionEquality().equals(other.richTextBlocks, richTextBlocks)&&const DeepCollectionEquality().equals(other.sectionSettings, sectionSettings)&&(identical(other.totalViews, totalViews) || other.totalViews == totalViews));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,brandId,brandName,brandLogoUrl,brandColor,coverImageUrl,tagline,isActive,isPremium,const DeepCollectionEquality().hash(communityIds),const DeepCollectionEquality().hash(sections),createdAt,heroStyle,heroImageUrl,heroVideoUrl,accentColor,secondaryColor,logoPlacement,fontStyle,cornerStyle,themePreference,description,bannerImageUrl,bannerDeepLink,establishedYear,const DeepCollectionEquality().hash(socialLinks),const DeepCollectionEquality().hash(trustBadges),averageRating,ratingCount,const DeepCollectionEquality().hash(quickActions),const DeepCollectionEquality().hash(galleryImageUrls),const DeepCollectionEquality().hash(promotions),const DeepCollectionEquality().hash(sectionOrder),isDraft,publishedAt,tier,heroFocalPointX,heroFocalPointY,showChatButton,bannerVideoUrl,announcementText,announcementDeepLink,announcementDismissible,const DeepCollectionEquality().hash(showcaseVideos),const DeepCollectionEquality().hash(coupons),const DeepCollectionEquality().hash(faqItems),const DeepCollectionEquality().hash(testimonialReviewIds),const DeepCollectionEquality().hash(locations),const DeepCollectionEquality().hash(richTextBlocks),const DeepCollectionEquality().hash(sectionSettings),totalViews]);
 
@@ -2486,11 +2435,11 @@ return $default(_that.id,_that.brandId,_that.brandName,_that.brandLogoUrl,_that.
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BrandStorefront extends BrandStorefront {
   const _BrandStorefront({required this.id, required this.brandId, required this.brandName, this.brandLogoUrl, this.brandColor, this.coverImageUrl, this.tagline, this.isActive = true, this.isPremium = false, final  List<String> communityIds = const [], final  List<StorefrontSection> sections = const [], this.createdAt, this.heroStyle = HeroStyle.gradient, this.heroImageUrl, this.heroVideoUrl, this.accentColor, this.secondaryColor, this.logoPlacement = LogoPlacement.centered, this.fontStyle = StorefrontFontStyle.modern, this.cornerStyle = StorefrontCornerStyle.rounded, this.themePreference = StorefrontThemePreference.auto, this.description, this.bannerImageUrl, this.bannerDeepLink, this.establishedYear, final  Map<String, String> socialLinks = const {}, final  List<TrustBadge> trustBadges = const [], this.averageRating, this.ratingCount, final  List<QuickAction> quickActions = const [], final  List<String> galleryImageUrls = const [], final  List<StorefrontPromo> promotions = const [], final  List<StorefrontSectionType> sectionOrder = const [], this.isDraft = true, this.publishedAt, this.tier = 'standard', this.heroFocalPointX = 0.5, this.heroFocalPointY = 0.5, this.showChatButton = false, this.bannerVideoUrl, this.announcementText, this.announcementDeepLink, this.announcementDismissible = true, final  List<ShowcaseVideo> showcaseVideos = const [], final  List<StorefrontCoupon> coupons = const [], final  List<FaqItem> faqItems = const [], final  List<String> testimonialReviewIds = const [], final  List<BrandLocation> locations = const [], final  Map<String, String> richTextBlocks = const {}, final  Map<String, SectionSettings> sectionSettings = const {}, this.totalViews = 0}): _communityIds = communityIds,_sections = sections,_socialLinks = socialLinks,_trustBadges = trustBadges,_quickActions = quickActions,_galleryImageUrls = galleryImageUrls,_promotions = promotions,_sectionOrder = sectionOrder,_showcaseVideos = showcaseVideos,_coupons = coupons,_faqItems = faqItems,_testimonialReviewIds = testimonialReviewIds,_locations = locations,_richTextBlocks = richTextBlocks,_sectionSettings = sectionSettings,super._();
-  factory _BrandStorefront.fromJson(Map<String, dynamic> json) => _$BrandStorefrontFromJson(json);
+  
 
 @override final  String id;
 @override final  String brandId;
@@ -2670,17 +2619,14 @@ class _BrandStorefront extends BrandStorefront {
 @pragma('vm:prefer-inline')
 _$BrandStorefrontCopyWith<_BrandStorefront> get copyWith => __$BrandStorefrontCopyWithImpl<_BrandStorefront>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BrandStorefrontToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandStorefront&&(identical(other.id, id) || other.id == id)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.brandLogoUrl, brandLogoUrl) || other.brandLogoUrl == brandLogoUrl)&&(identical(other.brandColor, brandColor) || other.brandColor == brandColor)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.tagline, tagline) || other.tagline == tagline)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isPremium, isPremium) || other.isPremium == isPremium)&&const DeepCollectionEquality().equals(other._communityIds, _communityIds)&&const DeepCollectionEquality().equals(other._sections, _sections)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.heroStyle, heroStyle) || other.heroStyle == heroStyle)&&(identical(other.heroImageUrl, heroImageUrl) || other.heroImageUrl == heroImageUrl)&&(identical(other.heroVideoUrl, heroVideoUrl) || other.heroVideoUrl == heroVideoUrl)&&(identical(other.accentColor, accentColor) || other.accentColor == accentColor)&&(identical(other.secondaryColor, secondaryColor) || other.secondaryColor == secondaryColor)&&(identical(other.logoPlacement, logoPlacement) || other.logoPlacement == logoPlacement)&&(identical(other.fontStyle, fontStyle) || other.fontStyle == fontStyle)&&(identical(other.cornerStyle, cornerStyle) || other.cornerStyle == cornerStyle)&&(identical(other.themePreference, themePreference) || other.themePreference == themePreference)&&(identical(other.description, description) || other.description == description)&&(identical(other.bannerImageUrl, bannerImageUrl) || other.bannerImageUrl == bannerImageUrl)&&(identical(other.bannerDeepLink, bannerDeepLink) || other.bannerDeepLink == bannerDeepLink)&&(identical(other.establishedYear, establishedYear) || other.establishedYear == establishedYear)&&const DeepCollectionEquality().equals(other._socialLinks, _socialLinks)&&const DeepCollectionEquality().equals(other._trustBadges, _trustBadges)&&(identical(other.averageRating, averageRating) || other.averageRating == averageRating)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&const DeepCollectionEquality().equals(other._quickActions, _quickActions)&&const DeepCollectionEquality().equals(other._galleryImageUrls, _galleryImageUrls)&&const DeepCollectionEquality().equals(other._promotions, _promotions)&&const DeepCollectionEquality().equals(other._sectionOrder, _sectionOrder)&&(identical(other.isDraft, isDraft) || other.isDraft == isDraft)&&(identical(other.publishedAt, publishedAt) || other.publishedAt == publishedAt)&&(identical(other.tier, tier) || other.tier == tier)&&(identical(other.heroFocalPointX, heroFocalPointX) || other.heroFocalPointX == heroFocalPointX)&&(identical(other.heroFocalPointY, heroFocalPointY) || other.heroFocalPointY == heroFocalPointY)&&(identical(other.showChatButton, showChatButton) || other.showChatButton == showChatButton)&&(identical(other.bannerVideoUrl, bannerVideoUrl) || other.bannerVideoUrl == bannerVideoUrl)&&(identical(other.announcementText, announcementText) || other.announcementText == announcementText)&&(identical(other.announcementDeepLink, announcementDeepLink) || other.announcementDeepLink == announcementDeepLink)&&(identical(other.announcementDismissible, announcementDismissible) || other.announcementDismissible == announcementDismissible)&&const DeepCollectionEquality().equals(other._showcaseVideos, _showcaseVideos)&&const DeepCollectionEquality().equals(other._coupons, _coupons)&&const DeepCollectionEquality().equals(other._faqItems, _faqItems)&&const DeepCollectionEquality().equals(other._testimonialReviewIds, _testimonialReviewIds)&&const DeepCollectionEquality().equals(other._locations, _locations)&&const DeepCollectionEquality().equals(other._richTextBlocks, _richTextBlocks)&&const DeepCollectionEquality().equals(other._sectionSettings, _sectionSettings)&&(identical(other.totalViews, totalViews) || other.totalViews == totalViews));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,brandId,brandName,brandLogoUrl,brandColor,coverImageUrl,tagline,isActive,isPremium,const DeepCollectionEquality().hash(_communityIds),const DeepCollectionEquality().hash(_sections),createdAt,heroStyle,heroImageUrl,heroVideoUrl,accentColor,secondaryColor,logoPlacement,fontStyle,cornerStyle,themePreference,description,bannerImageUrl,bannerDeepLink,establishedYear,const DeepCollectionEquality().hash(_socialLinks),const DeepCollectionEquality().hash(_trustBadges),averageRating,ratingCount,const DeepCollectionEquality().hash(_quickActions),const DeepCollectionEquality().hash(_galleryImageUrls),const DeepCollectionEquality().hash(_promotions),const DeepCollectionEquality().hash(_sectionOrder),isDraft,publishedAt,tier,heroFocalPointX,heroFocalPointY,showChatButton,bannerVideoUrl,announcementText,announcementDeepLink,announcementDismissible,const DeepCollectionEquality().hash(_showcaseVideos),const DeepCollectionEquality().hash(_coupons),const DeepCollectionEquality().hash(_faqItems),const DeepCollectionEquality().hash(_testimonialReviewIds),const DeepCollectionEquality().hash(_locations),const DeepCollectionEquality().hash(_richTextBlocks),const DeepCollectionEquality().hash(_sectionSettings),totalViews]);
 

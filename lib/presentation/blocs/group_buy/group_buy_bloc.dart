@@ -27,6 +27,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     on<_SuggestDeal>(_onSuggestDeal);
     on<_ConfirmCollection>(_onConfirmCollection);
     on<_CancelGroupBuy>(_onCancelGroupBuy);
+    on<_CompleteGroupBuy>(_onCompleteGroupBuy);
     on<_UpdateDeliveryStatus>(_onUpdateDeliveryStatus);
     on<_ClearMessages>(_onClearMessages);
   }
@@ -272,6 +273,33 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
         isCancelling: false,
         successMessage: 'Group buy cancelled. Contributions will be refunded.',
       )),
+    );
+  }
+
+  Future<void> _onCompleteGroupBuy(
+    _CompleteGroupBuy event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    // Double-submit guard
+    if (state.isCompleting) return;
+
+    emit(state.copyWith(isCompleting: true, errorMessage: null));
+    final result = await _repository.completeGroupBuy(
+      groupBuyId: event.groupBuyId,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isCompleting: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isCompleting: false,
+          successMessage: 'Group buy completed! Funds released.',
+        ));
+        // Reload to reflect updated status
+        add(GroupBuyEvent.loadGroupBuy(event.groupBuyId));
+      },
     );
   }
 

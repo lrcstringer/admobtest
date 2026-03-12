@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'vouch.freezed.dart';
-part 'vouch.g.dart';
 
 @freezed
 class Vouch with _$Vouch {
@@ -19,5 +18,5 @@ class Vouch with _$Vouch {
 
   const Vouch._();
 
-  factory Vouch.fromJson(Map<String, dynamic> json) => _$VouchFromJson(json);
+
 }

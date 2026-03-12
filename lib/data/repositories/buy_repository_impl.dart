@@ -320,6 +320,7 @@ class BuyRepositoryImpl implements BuyRepository {
   @override
   Future<Either<Failure, void>> submitBrandReview({
     required String brandId,
+    String? orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -332,6 +333,7 @@ class BuyRepositoryImpl implements BuyRepository {
 
       await callable.call<dynamic>({
         'brandId': brandId,
+        if (orderId != null) 'orderId': orderId,
         'qualityRating': qualityRating,
         'valueRating': valueRating,
         'serviceRating': serviceRating,
@@ -428,6 +430,16 @@ class BuyRepositoryImpl implements BuyRepository {
     } catch (_) {
       // Fire-and-forget — swallow errors to not disrupt UX
       return const Right(null);
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isFollowingBrand(String brandId) async {
+    try {
+      final isFollowing = await _remoteDataSource.isFollowingBrand(brandId);
+      return Right(isFollowing);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
     }
   }
 

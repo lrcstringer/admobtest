@@ -1,9 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/delivery_method.dart';
 import '../enums/order_status.dart';
+import '../enums/refund_type.dart';
 
 part 'buy_order.freezed.dart';
-part 'buy_order.g.dart';
 
 @freezed
 class BuyOrder with _$BuyOrder {
@@ -35,12 +36,12 @@ class BuyOrder with _$BuyOrder {
     // ── New fields (Spec §8.25) ──
     int? deliveryFee,
     @Default(0) int totalAmount,
-    String? deliveryMethod,
+    DeliveryMethod? deliveryMethod,
     String? deliveredVia,
     String? trackingInfo,
     DateTime? deliveryDeadline,
     DateTime? buyerConfirmationDeadline,
-    String? refundType,
+    RefundType? refundType,
     String? disputeDetails,
     @Default([]) List<String> disputePhotos,
     String? sellerDisputeResponse,
@@ -54,8 +55,6 @@ class BuyOrder with _$BuyOrder {
 
   const BuyOrder._();
 
-  factory BuyOrder.fromJson(Map<String, dynamic> json) =>
-      _$BuyOrderFromJson(json);
 
   /// Whether the order is active (not in a terminal state)
   bool get isActive => status.isActive;

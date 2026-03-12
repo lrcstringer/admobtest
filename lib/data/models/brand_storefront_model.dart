@@ -107,7 +107,7 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
               .toList() ??
           [],
       sections: _safeParseList(
-          json['sections'], StorefrontSection.fromJson),
+          json['sections'], _parseStorefrontSection),
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : null,
@@ -149,7 +149,7 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       ratingCount: (json['ratingCount'] as num?)?.toInt(),
 
       // Quick Actions
-      quickActions: _safeParseList(json['quickActions'], QuickAction.fromJson),
+      quickActions: _safeParseList(json['quickActions'], _parseQuickAction),
 
       // Gallery
       galleryImageUrls: (json['galleryImageUrls'] as List<dynamic>?)
@@ -158,7 +158,7 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
           [],
 
       // Promotions
-      promotions: _safeParseList(json['promotions'], StorefrontPromo.fromJson),
+      promotions: _safeParseList(json['promotions'], _parseStorefrontPromo),
 
       // Layout
       sectionOrder: (json['sectionOrder'] as List<dynamic>?)
@@ -186,20 +186,20 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
 
       // New content sections
       showcaseVideos:
-          _safeParseList(json['showcaseVideos'], ShowcaseVideo.fromJson),
-      coupons: _safeParseList(json['coupons'], StorefrontCoupon.fromJson),
-      faqItems: _safeParseList(json['faqItems'], FaqItem.fromJson),
+          _safeParseList(json['showcaseVideos'], _parseShowcaseVideo),
+      coupons: _safeParseList(json['coupons'], _parseStorefrontCoupon),
+      faqItems: _safeParseList(json['faqItems'], _parseFaqItem),
       testimonialReviewIds: (json['testimonialReviewIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      locations: _safeParseList(json['locations'], BrandLocation.fromJson),
+      locations: _safeParseList(json['locations'], _parseBrandLocation),
       richTextBlocks: (json['richTextBlocks'] as Map<String, dynamic>?)
               ?.map((k, v) => MapEntry(k, v as String)) ??
           {},
       sectionSettings: (json['sectionSettings'] as Map<String, dynamic>?)
               ?.map((k, v) => MapEntry(
-                  k, SectionSettings.fromJson(v as Map<String, dynamic>))) ??
+                  k, _parseSectionSettings(v as Map<String, dynamic>))) ??
           {},
       totalViews: (json['totalViews'] as num?)?.toInt() ?? 0,
     );
@@ -491,5 +491,94 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       }
     }
     return result;
+  }
+
+  // ── Sub-entity parsers (inline replacements for removed .fromJson) ──
+
+  static StorefrontSection _parseStorefrontSection(Map<String, dynamic> json) {
+    return StorefrontSection(
+      type: json['type'] as String? ?? '',
+      title: json['title'] as String?,
+      data: (json['data'] as Map<String, dynamic>?) ?? {},
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+      isVisible: json['isVisible'] as bool? ?? true,
+    );
+  }
+
+  static QuickAction _parseQuickAction(Map<String, dynamic> json) {
+    return QuickAction(
+      label: json['label'] as String? ?? '',
+      iconEmoji: json['iconEmoji'] as String? ?? '',
+      deepLink: json['deepLink'] as String? ?? '',
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static StorefrontPromo _parseStorefrontPromo(Map<String, dynamic> json) {
+    return StorefrontPromo(
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String?,
+      expiresAt: json['expiresAt'] is Timestamp
+          ? (json['expiresAt'] as Timestamp).toDate()
+          : null,
+      deepLink: json['deepLink'] as String?,
+    );
+  }
+
+  static ShowcaseVideo _parseShowcaseVideo(Map<String, dynamic> json) {
+    return ShowcaseVideo(
+      url: json['url'] as String? ?? '',
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+      title: json['title'] as String?,
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static StorefrontCoupon _parseStorefrontCoupon(Map<String, dynamic> json) {
+    return StorefrontCoupon(
+      id: json['id'] as String? ?? '',
+      code: json['code'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String?,
+      maxClaims: (json['maxClaims'] as num?)?.toInt(),
+      claimCount: (json['claimCount'] as num?)?.toInt() ?? 0,
+      expiresAt: json['expiresAt'] is Timestamp
+          ? (json['expiresAt'] as Timestamp).toDate()
+          : null,
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
+
+  static FaqItem _parseFaqItem(Map<String, dynamic> json) {
+    return FaqItem(
+      question: json['question'] as String? ?? '',
+      answer: json['answer'] as String? ?? '',
+      sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static BrandLocation _parseBrandLocation(Map<String, dynamic> json) {
+    return BrandLocation(
+      name: json['name'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      phone: json['phone'] as String?,
+      hours: json['hours'] as String?,
+    );
+  }
+
+  static SectionSettings _parseSectionSettings(Map<String, dynamic> json) {
+    return SectionSettings(
+      colourMode: _parseEnum(json['colourMode'] as String?,
+          SectionColourMode.values, SectionColourMode.brandLight),
+      customBgColor: json['customBgColor'] as String?,
+      customTextColor: json['customTextColor'] as String?,
+      headingOverride: json['headingOverride'] as String?,
+      isVisible: json['isVisible'] as bool? ?? true,
+      contentAlignment: json['contentAlignment'] as String? ?? 'center',
+      paddingTop: (json['paddingTop'] as num?)?.toDouble() ?? 16.0,
+      paddingBottom: (json['paddingBottom'] as num?)?.toDouble() ?? 16.0,
+    );
   }
 }

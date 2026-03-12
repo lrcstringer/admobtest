@@ -11,7 +11,6 @@ part of 'service_provider.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$ServiceProvider {
 
@@ -22,8 +21,6 @@ mixin _$ServiceProvider {
 @pragma('vm:prefer-inline')
 $ServiceProviderCopyWith<ServiceProvider> get copyWith => _$ServiceProviderCopyWithImpl<ServiceProvider>(this as ServiceProvider, _$identity);
 
-  /// Serializes this ServiceProvider to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProvider&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&const DeepCollectionEquality().equals(other.products, products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,const DeepCollectionEquality().hash(products),sortOrder,createdAt,updatedAt);
 
@@ -216,11 +213,11 @@ return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_tha
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _ServiceProvider extends ServiceProvider {
   const _ServiceProvider({required this.id, required this.name, required this.code, required this.category, this.logoUrl, this.description, required this.isActive, required final  List<ServiceProduct> products, this.sortOrder, required this.createdAt, this.updatedAt}): _products = products,super._();
-  factory _ServiceProvider.fromJson(Map<String, dynamic> json) => _$ServiceProviderFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -246,17 +243,14 @@ class _ServiceProvider extends ServiceProvider {
 @pragma('vm:prefer-inline')
 _$ServiceProviderCopyWith<_ServiceProvider> get copyWith => __$ServiceProviderCopyWithImpl<_ServiceProvider>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ServiceProviderToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProvider&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&const DeepCollectionEquality().equals(other._products, _products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,const DeepCollectionEquality().hash(_products),sortOrder,createdAt,updatedAt);
 
@@ -310,7 +304,6 @@ as DateTime?,
 
 }
 
-
 /// @nodoc
 mixin _$ServiceProduct {
 
@@ -321,8 +314,6 @@ mixin _$ServiceProduct {
 @pragma('vm:prefer-inline')
 $ServiceProductCopyWith<ServiceProduct> get copyWith => _$ServiceProductCopyWithImpl<ServiceProduct>(this as ServiceProduct, _$identity);
 
-  /// Serializes this ServiceProduct to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -330,7 +321,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other.metadata, metadata));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,sortOrder,const DeepCollectionEquality().hash(metadata));
 
@@ -515,11 +506,11 @@ return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceToken
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _ServiceProduct extends ServiceProduct {
   const _ServiceProduct({required this.id, required this.providerId, required this.name, required this.code, required this.priceTokens, required this.priceZar, this.description, this.validity, required this.isActive, this.sortOrder, final  Map<String, dynamic>? metadata}): _metadata = metadata,super._();
-  factory _ServiceProduct.fromJson(Map<String, dynamic> json) => _$ServiceProductFromJson(json);
+  
 
 @override final  String id;
 @override final  String providerId;
@@ -547,17 +538,14 @@ class _ServiceProduct extends ServiceProduct {
 @pragma('vm:prefer-inline')
 _$ServiceProductCopyWith<_ServiceProduct> get copyWith => __$ServiceProductCopyWithImpl<_ServiceProduct>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$ServiceProductToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProduct&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other._metadata, _metadata));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,sortOrder,const DeepCollectionEquality().hash(_metadata));
 

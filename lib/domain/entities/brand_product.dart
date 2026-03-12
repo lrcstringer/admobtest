@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'brand_product.freezed.dart';
-part 'brand_product.g.dart';
 
 enum FulfilmentType { digital, physical, catalog }
 
@@ -41,8 +40,6 @@ class BrandProduct with _$BrandProduct {
 
   const BrandProduct._();
 
-  factory BrandProduct.fromJson(Map<String, dynamic> json) =>
-      _$BrandProductFromJson(json);
 
   bool get isInStock => stockCount == null || stockCount! > 0;
 }

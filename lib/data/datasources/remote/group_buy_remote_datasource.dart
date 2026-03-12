@@ -29,6 +29,7 @@ abstract class GroupBuyRemoteDataSource {
   Future<List<GroupBuyModel>> getHubGroupBuys({
     List<String> userClusters = const [],
   });
+  Future<void> completeGroupBuy({required String groupBuyId});
   Future<void> leaveGroupBuy({required String groupBuyId});
   Future<String> suggestGroupBuyDeal({
     required String description,
@@ -181,6 +182,13 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       'amount': amount,
       'walletId': walletId,
     });
+  }
+
+  @override
+  Future<void> completeGroupBuy({required String groupBuyId}) async {
+    await _functions
+        .httpsCallable('completeGroupBuy')
+        .call({'groupBuyId': groupBuyId});
   }
 
   @override

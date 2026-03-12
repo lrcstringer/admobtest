@@ -55,7 +55,7 @@ extension GroupBuyEventPatterns on GroupBuyEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult Function( _LoadGroupBuy value)?  loadGroupBuy,TResult Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult Function( _CreateGroupBuy value)?  createGroupBuy,TResult Function( _JoinGroupBuy value)?  joinGroupBuy,TResult Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult Function( _SuggestDeal value)?  suggestDeal,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _ConfirmCollection value)?  confirmCollection,TResult Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult Function( _LoadGroupBuy value)?  loadGroupBuy,TResult Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult Function( _CreateGroupBuy value)?  createGroupBuy,TResult Function( _JoinGroupBuy value)?  joinGroupBuy,TResult Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult Function( _SuggestDeal value)?  suggestDeal,TResult Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _ConfirmCollection value)?  confirmCollection,TResult Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
@@ -66,7 +66,8 @@ return createGroupBuy(_that);case _JoinGroupBuy() when joinGroupBuy != null:
 return joinGroupBuy(_that);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that);case _SuggestDeal() when suggestDeal != null:
-return suggestDeal(_that);case _ClearMessages() when clearMessages != null:
+return suggestDeal(_that);case _CompleteGroupBuy() when completeGroupBuy != null:
+return completeGroupBuy(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
@@ -88,7 +89,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadActiveGroupBuys value)  loadActiveGroupBuys,required TResult Function( _LoadGroupBuy value)  loadGroupBuy,required TResult Function( _LoadMyGroupBuys value)  loadMyGroupBuys,required TResult Function( _CreateGroupBuy value)  createGroupBuy,required TResult Function( _JoinGroupBuy value)  joinGroupBuy,required TResult Function( _LoadHubGroupBuys value)  loadHubGroupBuys,required TResult Function( _LeaveGroupBuy value)  leaveGroupBuy,required TResult Function( _SuggestDeal value)  suggestDeal,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _ConfirmCollection value)  confirmCollection,required TResult Function( _CancelGroupBuy value)  cancelGroupBuy,required TResult Function( _UpdateDeliveryStatus value)  updateDeliveryStatus,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadActiveGroupBuys value)  loadActiveGroupBuys,required TResult Function( _LoadGroupBuy value)  loadGroupBuy,required TResult Function( _LoadMyGroupBuys value)  loadMyGroupBuys,required TResult Function( _CreateGroupBuy value)  createGroupBuy,required TResult Function( _JoinGroupBuy value)  joinGroupBuy,required TResult Function( _LoadHubGroupBuys value)  loadHubGroupBuys,required TResult Function( _LeaveGroupBuy value)  leaveGroupBuy,required TResult Function( _SuggestDeal value)  suggestDeal,required TResult Function( _CompleteGroupBuy value)  completeGroupBuy,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _ConfirmCollection value)  confirmCollection,required TResult Function( _CancelGroupBuy value)  cancelGroupBuy,required TResult Function( _UpdateDeliveryStatus value)  updateDeliveryStatus,}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys():
@@ -99,7 +100,8 @@ return createGroupBuy(_that);case _JoinGroupBuy():
 return joinGroupBuy(_that);case _LoadHubGroupBuys():
 return loadHubGroupBuys(_that);case _LeaveGroupBuy():
 return leaveGroupBuy(_that);case _SuggestDeal():
-return suggestDeal(_that);case _ClearMessages():
+return suggestDeal(_that);case _CompleteGroupBuy():
+return completeGroupBuy(_that);case _ClearMessages():
 return clearMessages(_that);case _ConfirmCollection():
 return confirmCollection(_that);case _CancelGroupBuy():
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus():
@@ -120,7 +122,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult? Function( _LoadGroupBuy value)?  loadGroupBuy,TResult? Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult? Function( _CreateGroupBuy value)?  createGroupBuy,TResult? Function( _JoinGroupBuy value)?  joinGroupBuy,TResult? Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult? Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult? Function( _SuggestDeal value)?  suggestDeal,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _ConfirmCollection value)?  confirmCollection,TResult? Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult? Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult? Function( _LoadGroupBuy value)?  loadGroupBuy,TResult? Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult? Function( _CreateGroupBuy value)?  createGroupBuy,TResult? Function( _JoinGroupBuy value)?  joinGroupBuy,TResult? Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult? Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult? Function( _SuggestDeal value)?  suggestDeal,TResult? Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _ConfirmCollection value)?  confirmCollection,TResult? Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult? Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
@@ -131,7 +133,8 @@ return createGroupBuy(_that);case _JoinGroupBuy() when joinGroupBuy != null:
 return joinGroupBuy(_that);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that);case _SuggestDeal() when suggestDeal != null:
-return suggestDeal(_that);case _ClearMessages() when clearMessages != null:
+return suggestDeal(_that);case _CompleteGroupBuy() when completeGroupBuy != null:
+return completeGroupBuy(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
@@ -152,7 +155,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function( String groupBuyId)?  completeGroupBuy,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
@@ -162,7 +165,8 @@ return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.dea
 return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal() when suggestDeal != null:
-return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _ClearMessages() when clearMessages != null:
+return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy() when completeGroupBuy != null:
+return completeGroupBuy(_that.groupBuyId);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
@@ -184,7 +188,7 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function( String groupBuyId)  completeGroupBuy,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys():
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy():
@@ -194,7 +198,8 @@ return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.dea
 return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys():
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy():
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal():
-return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _ClearMessages():
+return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy():
+return completeGroupBuy(_that.groupBuyId);case _ClearMessages():
 return clearMessages();case _ConfirmCollection():
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy():
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus():
@@ -215,7 +220,7 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function( String groupBuyId)?  completeGroupBuy,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
@@ -225,7 +230,8 @@ return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.dea
 return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal() when suggestDeal != null:
-return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _ClearMessages() when clearMessages != null:
+return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy() when completeGroupBuy != null:
+return completeGroupBuy(_that.groupBuyId);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
@@ -766,6 +772,72 @@ as bool,
 /// @nodoc
 
 
+class _CompleteGroupBuy implements GroupBuyEvent {
+  const _CompleteGroupBuy({required this.groupBuyId});
+  
+
+ final  String groupBuyId;
+
+/// Create a copy of GroupBuyEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CompleteGroupBuyCopyWith<_CompleteGroupBuy> get copyWith => __$CompleteGroupBuyCopyWithImpl<_CompleteGroupBuy>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CompleteGroupBuy&&(identical(other.groupBuyId, groupBuyId) || other.groupBuyId == groupBuyId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,groupBuyId);
+
+@override
+String toString() {
+  return 'GroupBuyEvent.completeGroupBuy(groupBuyId: $groupBuyId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CompleteGroupBuyCopyWith<$Res> implements $GroupBuyEventCopyWith<$Res> {
+  factory _$CompleteGroupBuyCopyWith(_CompleteGroupBuy value, $Res Function(_CompleteGroupBuy) _then) = __$CompleteGroupBuyCopyWithImpl;
+@useResult
+$Res call({
+ String groupBuyId
+});
+
+
+
+
+}
+/// @nodoc
+class __$CompleteGroupBuyCopyWithImpl<$Res>
+    implements _$CompleteGroupBuyCopyWith<$Res> {
+  __$CompleteGroupBuyCopyWithImpl(this._self, this._then);
+
+  final _CompleteGroupBuy _self;
+  final $Res Function(_CompleteGroupBuy) _then;
+
+/// Create a copy of GroupBuyEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? groupBuyId = null,}) {
+  return _then(_CompleteGroupBuy(
+groupBuyId: null == groupBuyId ? _self.groupBuyId : groupBuyId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class _ClearMessages implements GroupBuyEvent {
   const _ClearMessages();
   
@@ -1004,7 +1076,7 @@ as String?,
 /// @nodoc
 mixin _$GroupBuyState {
 
- bool get isLoading; List<GroupBuy> get activeGroupBuys; List<GroupBuy> get myGroupBuys; List<GroupBuy> get hubGroupBuys; GroupBuy? get selectedGroupBuy; List<GroupBuyContribution> get contributions; bool get isCreating; bool get isJoining; bool get isLeaving; bool get isSuggestingDeal; bool get isConfirmingCollection; bool get isCancelling; bool get isUpdatingDelivery; String? get successId; String? get successMessage; bool get shouldPopOnSuccess; String? get errorMessage;
+ bool get isLoading; List<GroupBuy> get activeGroupBuys; List<GroupBuy> get myGroupBuys; List<GroupBuy> get hubGroupBuys; GroupBuy? get selectedGroupBuy; List<GroupBuyContribution> get contributions; bool get isCreating; bool get isJoining; bool get isLeaving; bool get isSuggestingDeal; bool get isConfirmingCollection; bool get isCancelling; bool get isCompleting; bool get isUpdatingDelivery; String? get successId; String? get successMessage; bool get shouldPopOnSuccess; String? get errorMessage;
 /// Create a copy of GroupBuyState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1015,16 +1087,16 @@ $GroupBuyStateCopyWith<GroupBuyState> get copyWith => _$GroupBuyStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other.activeGroupBuys, activeGroupBuys)&&const DeepCollectionEquality().equals(other.myGroupBuys, myGroupBuys)&&const DeepCollectionEquality().equals(other.hubGroupBuys, hubGroupBuys)&&(identical(other.selectedGroupBuy, selectedGroupBuy) || other.selectedGroupBuy == selectedGroupBuy)&&const DeepCollectionEquality().equals(other.contributions, contributions)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isJoining, isJoining) || other.isJoining == isJoining)&&(identical(other.isLeaving, isLeaving) || other.isLeaving == isLeaving)&&(identical(other.isSuggestingDeal, isSuggestingDeal) || other.isSuggestingDeal == isSuggestingDeal)&&(identical(other.isConfirmingCollection, isConfirmingCollection) || other.isConfirmingCollection == isConfirmingCollection)&&(identical(other.isCancelling, isCancelling) || other.isCancelling == isCancelling)&&(identical(other.isUpdatingDelivery, isUpdatingDelivery) || other.isUpdatingDelivery == isUpdatingDelivery)&&(identical(other.successId, successId) || other.successId == successId)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.shouldPopOnSuccess, shouldPopOnSuccess) || other.shouldPopOnSuccess == shouldPopOnSuccess)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other.activeGroupBuys, activeGroupBuys)&&const DeepCollectionEquality().equals(other.myGroupBuys, myGroupBuys)&&const DeepCollectionEquality().equals(other.hubGroupBuys, hubGroupBuys)&&(identical(other.selectedGroupBuy, selectedGroupBuy) || other.selectedGroupBuy == selectedGroupBuy)&&const DeepCollectionEquality().equals(other.contributions, contributions)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isJoining, isJoining) || other.isJoining == isJoining)&&(identical(other.isLeaving, isLeaving) || other.isLeaving == isLeaving)&&(identical(other.isSuggestingDeal, isSuggestingDeal) || other.isSuggestingDeal == isSuggestingDeal)&&(identical(other.isConfirmingCollection, isConfirmingCollection) || other.isConfirmingCollection == isConfirmingCollection)&&(identical(other.isCancelling, isCancelling) || other.isCancelling == isCancelling)&&(identical(other.isCompleting, isCompleting) || other.isCompleting == isCompleting)&&(identical(other.isUpdatingDelivery, isUpdatingDelivery) || other.isUpdatingDelivery == isUpdatingDelivery)&&(identical(other.successId, successId) || other.successId == successId)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.shouldPopOnSuccess, shouldPopOnSuccess) || other.shouldPopOnSuccess == shouldPopOnSuccess)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(activeGroupBuys),const DeepCollectionEquality().hash(myGroupBuys),const DeepCollectionEquality().hash(hubGroupBuys),selectedGroupBuy,const DeepCollectionEquality().hash(contributions),isCreating,isJoining,isLeaving,isSuggestingDeal,isConfirmingCollection,isCancelling,isUpdatingDelivery,successId,successMessage,shouldPopOnSuccess,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(activeGroupBuys),const DeepCollectionEquality().hash(myGroupBuys),const DeepCollectionEquality().hash(hubGroupBuys),selectedGroupBuy,const DeepCollectionEquality().hash(contributions),isCreating,isJoining,isLeaving,isSuggestingDeal,isConfirmingCollection,isCancelling,isCompleting,isUpdatingDelivery,successId,successMessage,shouldPopOnSuccess,errorMessage);
 
 @override
 String toString() {
-  return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, hubGroupBuys: $hubGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, isLeaving: $isLeaving, isSuggestingDeal: $isSuggestingDeal, isConfirmingCollection: $isConfirmingCollection, isCancelling: $isCancelling, isUpdatingDelivery: $isUpdatingDelivery, successId: $successId, successMessage: $successMessage, shouldPopOnSuccess: $shouldPopOnSuccess, errorMessage: $errorMessage)';
+  return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, hubGroupBuys: $hubGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, isLeaving: $isLeaving, isSuggestingDeal: $isSuggestingDeal, isConfirmingCollection: $isConfirmingCollection, isCancelling: $isCancelling, isCompleting: $isCompleting, isUpdatingDelivery: $isUpdatingDelivery, successId: $successId, successMessage: $successMessage, shouldPopOnSuccess: $shouldPopOnSuccess, errorMessage: $errorMessage)';
 }
 
 
@@ -1035,7 +1107,7 @@ abstract mixin class $GroupBuyStateCopyWith<$Res>  {
   factory $GroupBuyStateCopyWith(GroupBuyState value, $Res Function(GroupBuyState) _then) = _$GroupBuyStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, List<GroupBuy> activeGroupBuys, List<GroupBuy> myGroupBuys, List<GroupBuy> hubGroupBuys, GroupBuy? selectedGroupBuy, List<GroupBuyContribution> contributions, bool isCreating, bool isJoining, bool isLeaving, bool isSuggestingDeal, bool isConfirmingCollection, bool isCancelling, bool isUpdatingDelivery, String? successId, String? successMessage, bool shouldPopOnSuccess, String? errorMessage
+ bool isLoading, List<GroupBuy> activeGroupBuys, List<GroupBuy> myGroupBuys, List<GroupBuy> hubGroupBuys, GroupBuy? selectedGroupBuy, List<GroupBuyContribution> contributions, bool isCreating, bool isJoining, bool isLeaving, bool isSuggestingDeal, bool isConfirmingCollection, bool isCancelling, bool isCompleting, bool isUpdatingDelivery, String? successId, String? successMessage, bool shouldPopOnSuccess, String? errorMessage
 });
 
 
@@ -1052,7 +1124,7 @@ class _$GroupBuyStateCopyWithImpl<$Res>
 
 /// Create a copy of GroupBuyState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? activeGroupBuys = null,Object? myGroupBuys = null,Object? hubGroupBuys = null,Object? selectedGroupBuy = freezed,Object? contributions = null,Object? isCreating = null,Object? isJoining = null,Object? isLeaving = null,Object? isSuggestingDeal = null,Object? isConfirmingCollection = null,Object? isCancelling = null,Object? isUpdatingDelivery = null,Object? successId = freezed,Object? successMessage = freezed,Object? shouldPopOnSuccess = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? activeGroupBuys = null,Object? myGroupBuys = null,Object? hubGroupBuys = null,Object? selectedGroupBuy = freezed,Object? contributions = null,Object? isCreating = null,Object? isJoining = null,Object? isLeaving = null,Object? isSuggestingDeal = null,Object? isConfirmingCollection = null,Object? isCancelling = null,Object? isCompleting = null,Object? isUpdatingDelivery = null,Object? successId = freezed,Object? successMessage = freezed,Object? shouldPopOnSuccess = null,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,activeGroupBuys: null == activeGroupBuys ? _self.activeGroupBuys : activeGroupBuys // ignore: cast_nullable_to_non_nullable
@@ -1066,6 +1138,7 @@ as bool,isLeaving: null == isLeaving ? _self.isLeaving : isLeaving // ignore: ca
 as bool,isSuggestingDeal: null == isSuggestingDeal ? _self.isSuggestingDeal : isSuggestingDeal // ignore: cast_nullable_to_non_nullable
 as bool,isConfirmingCollection: null == isConfirmingCollection ? _self.isConfirmingCollection : isConfirmingCollection // ignore: cast_nullable_to_non_nullable
 as bool,isCancelling: null == isCancelling ? _self.isCancelling : isCancelling // ignore: cast_nullable_to_non_nullable
+as bool,isCompleting: null == isCompleting ? _self.isCompleting : isCompleting // ignore: cast_nullable_to_non_nullable
 as bool,isUpdatingDelivery: null == isUpdatingDelivery ? _self.isUpdatingDelivery : isUpdatingDelivery // ignore: cast_nullable_to_non_nullable
 as bool,successId: freezed == successId ? _self.successId : successId // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
@@ -1168,10 +1241,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isCompleting,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupBuyState() when $default != null:
-return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isCompleting,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -1189,10 +1262,10 @@ return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isCompleting,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _GroupBuyState():
-return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isCompleting,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1209,10 +1282,10 @@ return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  List<GroupBuy> activeGroupBuys,  List<GroupBuy> myGroupBuys,  List<GroupBuy> hubGroupBuys,  GroupBuy? selectedGroupBuy,  List<GroupBuyContribution> contributions,  bool isCreating,  bool isJoining,  bool isLeaving,  bool isSuggestingDeal,  bool isConfirmingCollection,  bool isCancelling,  bool isCompleting,  bool isUpdatingDelivery,  String? successId,  String? successMessage,  bool shouldPopOnSuccess,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupBuyState() when $default != null:
-return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hubGroupBuys,_that.selectedGroupBuy,_that.contributions,_that.isCreating,_that.isJoining,_that.isLeaving,_that.isSuggestingDeal,_that.isConfirmingCollection,_that.isCancelling,_that.isCompleting,_that.isUpdatingDelivery,_that.successId,_that.successMessage,_that.shouldPopOnSuccess,_that.errorMessage);case _:
   return null;
 
 }
@@ -1224,7 +1297,7 @@ return $default(_that.isLoading,_that.activeGroupBuys,_that.myGroupBuys,_that.hu
 
 
 class _GroupBuyState implements GroupBuyState {
-  const _GroupBuyState({this.isLoading = false, final  List<GroupBuy> activeGroupBuys = const [], final  List<GroupBuy> myGroupBuys = const [], final  List<GroupBuy> hubGroupBuys = const [], this.selectedGroupBuy, final  List<GroupBuyContribution> contributions = const [], this.isCreating = false, this.isJoining = false, this.isLeaving = false, this.isSuggestingDeal = false, this.isConfirmingCollection = false, this.isCancelling = false, this.isUpdatingDelivery = false, this.successId, this.successMessage, this.shouldPopOnSuccess = false, this.errorMessage}): _activeGroupBuys = activeGroupBuys,_myGroupBuys = myGroupBuys,_hubGroupBuys = hubGroupBuys,_contributions = contributions;
+  const _GroupBuyState({this.isLoading = false, final  List<GroupBuy> activeGroupBuys = const [], final  List<GroupBuy> myGroupBuys = const [], final  List<GroupBuy> hubGroupBuys = const [], this.selectedGroupBuy, final  List<GroupBuyContribution> contributions = const [], this.isCreating = false, this.isJoining = false, this.isLeaving = false, this.isSuggestingDeal = false, this.isConfirmingCollection = false, this.isCancelling = false, this.isCompleting = false, this.isUpdatingDelivery = false, this.successId, this.successMessage, this.shouldPopOnSuccess = false, this.errorMessage}): _activeGroupBuys = activeGroupBuys,_myGroupBuys = myGroupBuys,_hubGroupBuys = hubGroupBuys,_contributions = contributions;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -1263,6 +1336,7 @@ class _GroupBuyState implements GroupBuyState {
 @override@JsonKey() final  bool isSuggestingDeal;
 @override@JsonKey() final  bool isConfirmingCollection;
 @override@JsonKey() final  bool isCancelling;
+@override@JsonKey() final  bool isCompleting;
 @override@JsonKey() final  bool isUpdatingDelivery;
 @override final  String? successId;
 @override final  String? successMessage;
@@ -1279,16 +1353,16 @@ _$GroupBuyStateCopyWith<_GroupBuyState> get copyWith => __$GroupBuyStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other._activeGroupBuys, _activeGroupBuys)&&const DeepCollectionEquality().equals(other._myGroupBuys, _myGroupBuys)&&const DeepCollectionEquality().equals(other._hubGroupBuys, _hubGroupBuys)&&(identical(other.selectedGroupBuy, selectedGroupBuy) || other.selectedGroupBuy == selectedGroupBuy)&&const DeepCollectionEquality().equals(other._contributions, _contributions)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isJoining, isJoining) || other.isJoining == isJoining)&&(identical(other.isLeaving, isLeaving) || other.isLeaving == isLeaving)&&(identical(other.isSuggestingDeal, isSuggestingDeal) || other.isSuggestingDeal == isSuggestingDeal)&&(identical(other.isConfirmingCollection, isConfirmingCollection) || other.isConfirmingCollection == isConfirmingCollection)&&(identical(other.isCancelling, isCancelling) || other.isCancelling == isCancelling)&&(identical(other.isUpdatingDelivery, isUpdatingDelivery) || other.isUpdatingDelivery == isUpdatingDelivery)&&(identical(other.successId, successId) || other.successId == successId)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.shouldPopOnSuccess, shouldPopOnSuccess) || other.shouldPopOnSuccess == shouldPopOnSuccess)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&const DeepCollectionEquality().equals(other._activeGroupBuys, _activeGroupBuys)&&const DeepCollectionEquality().equals(other._myGroupBuys, _myGroupBuys)&&const DeepCollectionEquality().equals(other._hubGroupBuys, _hubGroupBuys)&&(identical(other.selectedGroupBuy, selectedGroupBuy) || other.selectedGroupBuy == selectedGroupBuy)&&const DeepCollectionEquality().equals(other._contributions, _contributions)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isJoining, isJoining) || other.isJoining == isJoining)&&(identical(other.isLeaving, isLeaving) || other.isLeaving == isLeaving)&&(identical(other.isSuggestingDeal, isSuggestingDeal) || other.isSuggestingDeal == isSuggestingDeal)&&(identical(other.isConfirmingCollection, isConfirmingCollection) || other.isConfirmingCollection == isConfirmingCollection)&&(identical(other.isCancelling, isCancelling) || other.isCancelling == isCancelling)&&(identical(other.isCompleting, isCompleting) || other.isCompleting == isCompleting)&&(identical(other.isUpdatingDelivery, isUpdatingDelivery) || other.isUpdatingDelivery == isUpdatingDelivery)&&(identical(other.successId, successId) || other.successId == successId)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.shouldPopOnSuccess, shouldPopOnSuccess) || other.shouldPopOnSuccess == shouldPopOnSuccess)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(_activeGroupBuys),const DeepCollectionEquality().hash(_myGroupBuys),const DeepCollectionEquality().hash(_hubGroupBuys),selectedGroupBuy,const DeepCollectionEquality().hash(_contributions),isCreating,isJoining,isLeaving,isSuggestingDeal,isConfirmingCollection,isCancelling,isUpdatingDelivery,successId,successMessage,shouldPopOnSuccess,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,const DeepCollectionEquality().hash(_activeGroupBuys),const DeepCollectionEquality().hash(_myGroupBuys),const DeepCollectionEquality().hash(_hubGroupBuys),selectedGroupBuy,const DeepCollectionEquality().hash(_contributions),isCreating,isJoining,isLeaving,isSuggestingDeal,isConfirmingCollection,isCancelling,isCompleting,isUpdatingDelivery,successId,successMessage,shouldPopOnSuccess,errorMessage);
 
 @override
 String toString() {
-  return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, hubGroupBuys: $hubGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, isLeaving: $isLeaving, isSuggestingDeal: $isSuggestingDeal, isConfirmingCollection: $isConfirmingCollection, isCancelling: $isCancelling, isUpdatingDelivery: $isUpdatingDelivery, successId: $successId, successMessage: $successMessage, shouldPopOnSuccess: $shouldPopOnSuccess, errorMessage: $errorMessage)';
+  return 'GroupBuyState(isLoading: $isLoading, activeGroupBuys: $activeGroupBuys, myGroupBuys: $myGroupBuys, hubGroupBuys: $hubGroupBuys, selectedGroupBuy: $selectedGroupBuy, contributions: $contributions, isCreating: $isCreating, isJoining: $isJoining, isLeaving: $isLeaving, isSuggestingDeal: $isSuggestingDeal, isConfirmingCollection: $isConfirmingCollection, isCancelling: $isCancelling, isCompleting: $isCompleting, isUpdatingDelivery: $isUpdatingDelivery, successId: $successId, successMessage: $successMessage, shouldPopOnSuccess: $shouldPopOnSuccess, errorMessage: $errorMessage)';
 }
 
 
@@ -1299,7 +1373,7 @@ abstract mixin class _$GroupBuyStateCopyWith<$Res> implements $GroupBuyStateCopy
   factory _$GroupBuyStateCopyWith(_GroupBuyState value, $Res Function(_GroupBuyState) _then) = __$GroupBuyStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, List<GroupBuy> activeGroupBuys, List<GroupBuy> myGroupBuys, List<GroupBuy> hubGroupBuys, GroupBuy? selectedGroupBuy, List<GroupBuyContribution> contributions, bool isCreating, bool isJoining, bool isLeaving, bool isSuggestingDeal, bool isConfirmingCollection, bool isCancelling, bool isUpdatingDelivery, String? successId, String? successMessage, bool shouldPopOnSuccess, String? errorMessage
+ bool isLoading, List<GroupBuy> activeGroupBuys, List<GroupBuy> myGroupBuys, List<GroupBuy> hubGroupBuys, GroupBuy? selectedGroupBuy, List<GroupBuyContribution> contributions, bool isCreating, bool isJoining, bool isLeaving, bool isSuggestingDeal, bool isConfirmingCollection, bool isCancelling, bool isCompleting, bool isUpdatingDelivery, String? successId, String? successMessage, bool shouldPopOnSuccess, String? errorMessage
 });
 
 
@@ -1316,7 +1390,7 @@ class __$GroupBuyStateCopyWithImpl<$Res>
 
 /// Create a copy of GroupBuyState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? activeGroupBuys = null,Object? myGroupBuys = null,Object? hubGroupBuys = null,Object? selectedGroupBuy = freezed,Object? contributions = null,Object? isCreating = null,Object? isJoining = null,Object? isLeaving = null,Object? isSuggestingDeal = null,Object? isConfirmingCollection = null,Object? isCancelling = null,Object? isUpdatingDelivery = null,Object? successId = freezed,Object? successMessage = freezed,Object? shouldPopOnSuccess = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? activeGroupBuys = null,Object? myGroupBuys = null,Object? hubGroupBuys = null,Object? selectedGroupBuy = freezed,Object? contributions = null,Object? isCreating = null,Object? isJoining = null,Object? isLeaving = null,Object? isSuggestingDeal = null,Object? isConfirmingCollection = null,Object? isCancelling = null,Object? isCompleting = null,Object? isUpdatingDelivery = null,Object? successId = freezed,Object? successMessage = freezed,Object? shouldPopOnSuccess = null,Object? errorMessage = freezed,}) {
   return _then(_GroupBuyState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,activeGroupBuys: null == activeGroupBuys ? _self._activeGroupBuys : activeGroupBuys // ignore: cast_nullable_to_non_nullable
@@ -1330,6 +1404,7 @@ as bool,isLeaving: null == isLeaving ? _self.isLeaving : isLeaving // ignore: ca
 as bool,isSuggestingDeal: null == isSuggestingDeal ? _self.isSuggestingDeal : isSuggestingDeal // ignore: cast_nullable_to_non_nullable
 as bool,isConfirmingCollection: null == isConfirmingCollection ? _self.isConfirmingCollection : isConfirmingCollection // ignore: cast_nullable_to_non_nullable
 as bool,isCancelling: null == isCancelling ? _self.isCancelling : isCancelling // ignore: cast_nullable_to_non_nullable
+as bool,isCompleting: null == isCompleting ? _self.isCompleting : isCompleting // ignore: cast_nullable_to_non_nullable
 as bool,isUpdatingDelivery: null == isUpdatingDelivery ? _self.isUpdatingDelivery : isUpdatingDelivery // ignore: cast_nullable_to_non_nullable
 as bool,successId: freezed == successId ? _self.successId : successId // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable

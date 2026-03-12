@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'featured_item.freezed.dart';
-part 'featured_item.g.dart';
 
 /// A featured/promoted item in the Buy tab carousel.
 @freezed
@@ -48,14 +47,11 @@ class FeaturedItem with _$FeaturedItem {
 
   const FeaturedItem._();
 
-  factory FeaturedItem.fromJson(Map<String, dynamic> json) =>
-      _$FeaturedItemFromJson(json);
-
   bool get isScheduled => scheduledStart != null || scheduledEnd != null;
 
   bool get isCurrentlyActive {
     if (!isActive) return false;
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     if (scheduledStart != null && now.isBefore(scheduledStart!)) return false;
     if (scheduledEnd != null && now.isAfter(scheduledEnd!)) return false;
     return true;

@@ -133,8 +133,11 @@ export const createMarketplaceListing = onCall(
       );
     }
     const provider = providerSnap.docs[0].data();
+    const providerId = providerSnap.docs[0].id;
 
-    const listingRef = db.collection("marketplaceListings").doc();
+    const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
+    const dateBucket = new Date().toISOString().split("T")[0];
+    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}`);
     const now = admin.firestore.Timestamp.now();
     const expiresAt = admin.firestore.Timestamp.fromMillis(
       now.toMillis() + 90 * 24 * 60 * 60 * 1000
@@ -152,7 +155,7 @@ export const createMarketplaceListing = onCall(
       priceZar,
       images: imageUrls || [],
       thumbnailUrl: imageUrls?.[0] || null,
-      providerId: providerSnap.docs[0].id,
+      providerId,
       providerName: provider.displayName,
       providerPhotoUrl: provider.photoUrl || null,
       providerTrustScore: provider.trustScore || 0,
@@ -167,7 +170,7 @@ export const createMarketplaceListing = onCall(
       updatedAt: now,
     });
 
-    logger.info(`Listing created: ${listingRef.id} by provider ${providerSnap.docs[0].id}`);
+    logger.info(`Listing created: ${listingRef.id} by provider ${providerId}`);
 
     return { success: true, listingId: listingRef.id };
   }
@@ -1036,32 +1039,36 @@ export const renewMarketplaceListing = onCall(
     }
 
     const listingRef = db.collection("marketplaceListings").doc(listingId);
-    const listingDoc = await listingRef.get();
-    if (!listingDoc.exists) {
-      throw new HttpsError("not-found", "Listing not found");
-    }
-    const listing = listingDoc.data()!;
 
-    // Verify ownership
-    const providerDoc = await db.collection("providers").doc(listing.providerId).get();
-    if (!providerDoc.exists || providerDoc.data()!.userId !== userId) {
-      throw new HttpsError("permission-denied", "Only the listing owner can renew it");
-    }
+    // Transaction: atomic read + status check + update prevents TOCTOU race
+    await db.runTransaction(async (tx) => {
+      const listingDoc = await tx.get(listingRef);
+      if (!listingDoc.exists) {
+        throw new HttpsError("not-found", "Listing not found");
+      }
+      const listing = listingDoc.data()!;
 
-    if (listing.status !== "expired") {
-      throw new HttpsError("failed-precondition", "Only expired listings can be renewed");
-    }
+      // Verify ownership
+      const providerDoc = await tx.get(db.collection("providers").doc(listing.providerId));
+      if (!providerDoc.exists || providerDoc.data()!.userId !== userId) {
+        throw new HttpsError("permission-denied", "Only the listing owner can renew it");
+      }
 
-    const now = admin.firestore.Timestamp.now();
-    const newExpiry = admin.firestore.Timestamp.fromMillis(
-      now.toMillis() + 90 * 24 * 60 * 60 * 1000
-    );
+      if (listing.status !== "expired") {
+        throw new HttpsError("failed-precondition", "Only expired listings can be renewed");
+      }
 
-    await listingRef.update({
-      status: "active",
-      expiresAt: newExpiry,
-      renewalCount: admin.firestore.FieldValue.increment(1),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      const now = admin.firestore.Timestamp.now();
+      const newExpiry = admin.firestore.Timestamp.fromMillis(
+        now.toMillis() + 90 * 24 * 60 * 60 * 1000
+      );
+
+      tx.update(listingRef, {
+        status: "active",
+        expiresAt: newExpiry,
+        renewalCount: admin.firestore.FieldValue.increment(1),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
     });
 
     logger.info(`Listing ${listingId} renewed by ${userId}`);
@@ -1195,16 +1202,9 @@ export const makeOffer = onCall(
       throw new HttpsError("failed-precondition", "You cannot make an offer on your own listing");
     }
 
-    // Check for existing pending offer from same user on same listing
-    const existingOffer = await db
-      .collection("marketplaceOffers")
-      .where("listingId", "==", listingId)
-      .where("buyerId", "==", userId)
-      .where("status", "==", "pending")
-      .limit(1)
-      .get();
-    if (!existingOffer.empty) {
-      throw new HttpsError("already-exists", "You already have a pending offer on this listing");
+    // Offer amount must be less than listing price (use Buy Now for full price)
+    if (offerAmount >= listing.priceTokens) {
+      throw new HttpsError("invalid-argument", "Offer amount must be less than the listing price. Use Buy Now for full price purchases.");
     }
 
     // Validate balance
@@ -1216,26 +1216,35 @@ export const makeOffer = onCall(
     const buyerDoc = await db.collection("users").doc(userId).get();
     const buyerName = buyerDoc.data()?.displayName || "Unknown";
 
-    const offerRef = db.collection("marketplaceOffers").doc();
+    // Deterministic ID prevents duplicate offers from same user on same listing
+    const offerRef = db.collection("marketplaceOffers").doc(`${userId}_${listingId}`);
     const expiresAt = admin.firestore.Timestamp.fromMillis(
       Date.now() + 48 * 60 * 60 * 1000 // 48 hours
     );
 
-    await offerRef.set({
-      id: offerRef.id,
-      listingId,
-      listingTitle: listing.title,
-      buyerId: userId,
-      buyerName,
-      sellerId: providerDoc.exists ? providerDoc.data()!.userId : null,
-      offerAmount,
-      offerZar: offerAmount / LedgerConfig.TOKENS_PER_ZAR,
-      originalPrice: listing.priceTokens,
-      message: message?.trim() || null,
-      status: "pending",
-      expiresAt,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      respondedAt: null,
+    // Transaction: check for existing pending offer + create atomically
+    await db.runTransaction(async (tx) => {
+      const existingOffer = await tx.get(offerRef);
+      if (existingOffer.exists && existingOffer.data()!.status === "pending") {
+        throw new HttpsError("already-exists", "You already have a pending offer on this listing");
+      }
+
+      tx.set(offerRef, {
+        id: offerRef.id,
+        listingId,
+        listingTitle: listing.title,
+        buyerId: userId,
+        buyerName,
+        sellerId: providerDoc.exists ? providerDoc.data()!.userId : null,
+        offerAmount,
+        offerZar: offerAmount / LedgerConfig.TOKENS_PER_ZAR,
+        originalPrice: listing.priceTokens,
+        message: message?.trim() || null,
+        status: "pending",
+        expiresAt,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        respondedAt: null,
+      });
     });
 
     logger.info(`Offer ${offerRef.id} made on listing ${listingId} by ${userId}: ${offerAmount} tokens`);
@@ -1301,6 +1310,12 @@ export const respondToOffer = onCall(
         if (!counterAmount || typeof counterAmount !== "number" || counterAmount <= 0) {
           throw new HttpsError("invalid-argument", "Counter amount must be a positive integer");
         }
+        // Read listing to enforce upper bound on counter offers
+        const listingDoc = await tx.get(db.collection("marketplaceListings").doc(offer.listingId));
+        const listingPrice = listingDoc.exists ? listingDoc.data()!.priceTokens : offer.originalPrice;
+        if (counterAmount > listingPrice * 2) {
+          throw new HttpsError("invalid-argument", "Counter offer cannot exceed twice the listing price");
+        }
         tx.update(offerRef, {
           status: "countered",
           counterAmount,
@@ -1319,6 +1334,10 @@ export const respondToOffer = onCall(
       }
 
       tx.update(offerRef, { status: "accepted", respondedAt: now });
+
+      // Mark listing as pending so no concurrent buyer can purchase
+      const listingRef = db.collection("marketplaceListings").doc(offer.listingId);
+      tx.update(listingRef, { status: "pending" });
 
       // Create order at offer price (escrow done outside transaction)
       const orderRef = db.collection("buyOrders").doc();
@@ -1390,112 +1409,6 @@ export const respondToOffer = onCall(
 
     logger.info(`Offer ${offerId} responded with action=${action}`);
     return { success: true, orderId: result.orderId };
-  }
-);
-
-// ============================================================================
-// DISCOVERY
-// ============================================================================
-
-/**
- * Get similar listings based on category and price range.
- */
-export const getSimilarListings = onCall(
-  { labels: { area: "marketplace" } },
-  async (request) => {
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "User must be authenticated");
-    }
-
-    const { listingId, limit: maxResults } = request.data;
-
-    if (!listingId || typeof listingId !== "string") {
-      throw new HttpsError("invalid-argument", "Listing ID is required");
-    }
-
-    const listingDoc = await db.collection("marketplaceListings").doc(listingId).get();
-    if (!listingDoc.exists) {
-      throw new HttpsError("not-found", "Listing not found");
-    }
-    const listing = listingDoc.data()!;
-    const resultLimit = Math.min(maxResults || 6, 20);
-
-    // Find listings in same category, excluding the source listing
-    const similarSnap = await db
-      .collection("marketplaceListings")
-      .where("category", "==", listing.category)
-      .where("status", "==", "active")
-      .orderBy("createdAt", "desc")
-      .limit(resultLimit + 1) // +1 to account for self-exclusion
-      .get();
-
-    const results = similarSnap.docs
-      .filter((doc) => doc.id !== listingId)
-      .slice(0, resultLimit)
-      .map((doc) => {
-        const d = doc.data();
-        return {
-          id: doc.id,
-          title: d.title,
-          priceTokens: d.priceTokens,
-          priceZar: d.priceZar,
-          thumbnailUrl: d.thumbnailUrl,
-          providerName: d.providerName,
-          category: d.category,
-          location: d.location,
-          createdAt: d.createdAt,
-        };
-      });
-
-    return { success: true, listings: results };
-  }
-);
-
-/**
- * Get price suggestion for a category based on recent listings.
- */
-export const getPriceSuggestion = onCall(
-  { labels: { area: "marketplace" } },
-  async (request) => {
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "User must be authenticated");
-    }
-
-    const { category } = request.data;
-    if (!category || typeof category !== "string") {
-      throw new HttpsError("invalid-argument", "Category is required");
-    }
-
-    // Get recent completed orders in this category to determine price range
-    const recentListings = await db
-      .collection("marketplaceListings")
-      .where("category", "==", category)
-      .where("status", "in", ["active", "sold"])
-      .orderBy("createdAt", "desc")
-      .limit(50)
-      .get();
-
-    if (recentListings.empty) {
-      return { success: true, suggestion: null };
-    }
-
-    const prices = recentListings.docs.map((doc) => doc.data().priceTokens as number);
-    const sortedPrices = [...prices].sort((a, b) => a - b);
-    const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
-    const min = sortedPrices[0];
-    const max = sortedPrices[sortedPrices.length - 1];
-    const avg = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
-
-    return {
-      success: true,
-      suggestion: {
-        median,
-        min,
-        max,
-        average: avg,
-        sampleSize: prices.length,
-      },
-    };
   }
 );
 

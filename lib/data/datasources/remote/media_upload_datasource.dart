@@ -227,6 +227,35 @@ class MediaUploadDatasource {
     return _uploadBytes(jpeg, storagePath, 'image/jpeg');
   }
 
+  /// Upload marketplace listing image from raw bytes (cross-platform).
+  ///
+  /// Compresses to max 1920px and uploads to
+  /// `marketplace/listings/{listingId}/{index}.jpg`.
+  /// Returns the download URL.
+  Future<String> uploadListingImageBytes({
+    required Uint8List imageBytes,
+    required String listingId,
+    required int index,
+  }) async {
+    if (imageBytes.length > _maxImageBytes) {
+      throw Exception(
+          'Image exceeds ${_maxImageBytes ~/ (1024 * 1024)} MB limit');
+    }
+
+    final decoded = img.decodeImage(imageBytes);
+    if (decoded == null) {
+      throw Exception('Unable to decode image');
+    }
+
+    final resized = _resizeToMax(decoded, _fullImageMaxDimension);
+    final jpeg = Uint8List.fromList(
+      img.encodeJpg(resized, quality: _jpegQuality),
+    );
+
+    final storagePath = 'marketplace/listings/$listingId/$index.jpg';
+    return _uploadBytes(jpeg, storagePath, 'image/jpeg');
+  }
+
   // =========================================================================
   // ENCRYPTED UPLOADS (E2EE)
   // =========================================================================

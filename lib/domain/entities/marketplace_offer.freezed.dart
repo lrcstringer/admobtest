@@ -11,7 +11,6 @@ part of 'marketplace_offer.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$MarketplaceOffer {
 
@@ -22,8 +21,6 @@ mixin _$MarketplaceOffer {
 @pragma('vm:prefer-inline')
 $MarketplaceOfferCopyWith<MarketplaceOffer> get copyWith => _$MarketplaceOfferCopyWithImpl<MarketplaceOffer>(this as MarketplaceOffer, _$identity);
 
-  /// Serializes this MarketplaceOffer to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt);
 
@@ -217,11 +214,11 @@ return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offe
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _MarketplaceOffer extends MarketplaceOffer {
   const _MarketplaceOffer({required this.id, required this.listingId, required this.buyerId, required this.sellerId, required this.offerAmount, required this.originalPrice, required this.status, this.counterAmount, this.chatConversationId, this.expiresAt, required this.createdAt, this.respondedAt}): super._();
-  factory _MarketplaceOffer.fromJson(Map<String, dynamic> json) => _$MarketplaceOfferFromJson(json);
+  
 
 @override final  String id;
 @override final  String listingId;
@@ -242,17 +239,14 @@ class _MarketplaceOffer extends MarketplaceOffer {
 @pragma('vm:prefer-inline')
 _$MarketplaceOfferCopyWith<_MarketplaceOffer> get copyWith => __$MarketplaceOfferCopyWithImpl<_MarketplaceOffer>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$MarketplaceOfferToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt);
 

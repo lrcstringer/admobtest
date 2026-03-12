@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'brand_account.freezed.dart';
-part 'brand_account.g.dart';
 
 /// Brand account entity representing a client brand that users can follow.
 @freezed
@@ -19,8 +18,6 @@ class BrandAccount with _$BrandAccount {
 
   const BrandAccount._();
 
-  factory BrandAccount.fromJson(Map<String, dynamic> json) =>
-      _$BrandAccountFromJson(json);
 
   /// Get initials for avatar
   String get initials {

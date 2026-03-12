@@ -59,7 +59,10 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   const zarAmount = product.priceZar || 0;
   const purchaseCategory = provider.category || "airtime";
 
-  // Validate balance — either sub-account or main wallet
+  // Pre-validate balance — fast-fail optimization only.
+  // The authoritative balance check happens inside processPurchaseTransaction(),
+  // which runs atomically within the ledger's double-entry transaction.
+  // This pre-check is NOT relied upon for correctness (no TOCTOU risk).
   let resolvedAccountTypeId: string | null = null;
 
   if (subAccountId) {
@@ -234,42 +237,6 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new HttpsError("internal", `Purchase failed: ${errorMessage}`);
   }
-});
-
-/**
- * Get purchase details by ID
- */
-export const getPurchaseDetails = onCall({ labels: { area: "wallet" } }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "User must be authenticated");
-  }
-  requireAppCheck(request, "getPurchaseDetails");
-
-  const userId = request.auth.uid;
-  const { purchaseId } = request.data;
-
-  if (!purchaseId) {
-    throw new HttpsError("invalid-argument", "Purchase ID is required");
-  }
-
-  const purchaseDoc = await db.collection("purchases").doc(purchaseId).get();
-
-  if (!purchaseDoc.exists) {
-    throw new HttpsError("not-found", "Purchase not found");
-  }
-
-  const purchase = purchaseDoc.data()!;
-
-  if (purchase.userId !== userId) {
-    throw new HttpsError("permission-denied", "Not authorized to view this purchase");
-  }
-
-  return {
-    ...purchase,
-    createdAt: purchase.createdAt?.toDate?.()?.toISOString() || null,
-    processedAt: purchase.processedAt?.toDate?.()?.toISOString() || null,
-    completedAt: purchase.completedAt?.toDate?.()?.toISOString() || null,
-  };
 });
 
 /**

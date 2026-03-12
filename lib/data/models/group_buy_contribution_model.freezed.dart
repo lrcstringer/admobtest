@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GroupBuyContributionModel {
 
- String get id; String get userId; String get userName; int get amount; String? get journalId; String? get deliveryAddress; DateTime get contributedAt;
+ String get id; String get userId; String get userName; int get amount; String? get journalId; String? get deliveryAddress; DateTime get contributedAt; String? get voucherCode; bool get hasCollected; DateTime? get collectedAt; String get walletId;
 /// Create a copy of GroupBuyContributionModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $GroupBuyContributionModelCopyWith<GroupBuyContributionModel> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.hasCollected, hasCollected) || other.hasCollected == hasCollected)&&(identical(other.collectedAt, collectedAt) || other.collectedAt == collectedAt)&&(identical(other.walletId, walletId) || other.walletId == walletId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt,voucherCode,hasCollected,collectedAt,walletId);
 
 @override
 String toString() {
-  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
+  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt, voucherCode: $voucherCode, hasCollected: $hasCollected, collectedAt: $collectedAt, walletId: $walletId)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $GroupBuyContributionModelCopyWith<$Res>  {
   factory $GroupBuyContributionModelCopyWith(GroupBuyContributionModel value, $Res Function(GroupBuyContributionModel) _then) = _$GroupBuyContributionModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt
+ String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt, String? voucherCode, bool hasCollected, DateTime? collectedAt, String walletId
 });
 
 
@@ -62,7 +62,7 @@ class _$GroupBuyContributionModelCopyWithImpl<$Res>
 
 /// Create a copy of GroupBuyContributionModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,Object? voucherCode = freezed,Object? hasCollected = null,Object? collectedAt = freezed,Object? walletId = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -71,7 +71,11 @@ as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullabl
 as int,journalId: freezed == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
 as String?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as String?,contributedAt: null == contributedAt ? _self.contributedAt : contributedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,hasCollected: null == hasCollected ? _self.hasCollected : hasCollected // ignore: cast_nullable_to_non_nullable
+as bool,collectedAt: freezed == collectedAt ? _self.collectedAt : collectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -156,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt,  String? voucherCode,  bool hasCollected,  DateTime? collectedAt,  String walletId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GroupBuyContributionModel() when $default != null:
-return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt,_that.voucherCode,_that.hasCollected,_that.collectedAt,_that.walletId);case _:
   return orElse();
 
 }
@@ -177,10 +181,10 @@ return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt,  String? voucherCode,  bool hasCollected,  DateTime? collectedAt,  String walletId)  $default,) {final _that = this;
 switch (_that) {
 case _GroupBuyContributionModel():
-return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt,_that.voucherCode,_that.hasCollected,_that.collectedAt,_that.walletId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +201,10 @@ return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String userName,  int amount,  String? journalId,  String? deliveryAddress,  DateTime contributedAt,  String? voucherCode,  bool hasCollected,  DateTime? collectedAt,  String walletId)?  $default,) {final _that = this;
 switch (_that) {
 case _GroupBuyContributionModel() when $default != null:
-return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalId,_that.deliveryAddress,_that.contributedAt,_that.voucherCode,_that.hasCollected,_that.collectedAt,_that.walletId);case _:
   return null;
 
 }
@@ -212,7 +216,7 @@ return $default(_that.id,_that.userId,_that.userName,_that.amount,_that.journalI
 
 
 class _GroupBuyContributionModel extends GroupBuyContributionModel {
-  const _GroupBuyContributionModel({required this.id, required this.userId, required this.userName, required this.amount, this.journalId, this.deliveryAddress, required this.contributedAt}): super._();
+  const _GroupBuyContributionModel({required this.id, required this.userId, required this.userName, required this.amount, this.journalId, this.deliveryAddress, required this.contributedAt, this.voucherCode, this.hasCollected = false, this.collectedAt, this.walletId = 'primary'}): super._();
   
 
 @override final  String id;
@@ -222,6 +226,10 @@ class _GroupBuyContributionModel extends GroupBuyContributionModel {
 @override final  String? journalId;
 @override final  String? deliveryAddress;
 @override final  DateTime contributedAt;
+@override final  String? voucherCode;
+@override@JsonKey() final  bool hasCollected;
+@override final  DateTime? collectedAt;
+@override@JsonKey() final  String walletId;
 
 /// Create a copy of GroupBuyContributionModel
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +241,16 @@ _$GroupBuyContributionModelCopyWith<_GroupBuyContributionModel> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GroupBuyContributionModel&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.journalId, journalId) || other.journalId == journalId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress)&&(identical(other.contributedAt, contributedAt) || other.contributedAt == contributedAt)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.hasCollected, hasCollected) || other.hasCollected == hasCollected)&&(identical(other.collectedAt, collectedAt) || other.collectedAt == collectedAt)&&(identical(other.walletId, walletId) || other.walletId == walletId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt);
+int get hashCode => Object.hash(runtimeType,id,userId,userName,amount,journalId,deliveryAddress,contributedAt,voucherCode,hasCollected,collectedAt,walletId);
 
 @override
 String toString() {
-  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt)';
+  return 'GroupBuyContributionModel(id: $id, userId: $userId, userName: $userName, amount: $amount, journalId: $journalId, deliveryAddress: $deliveryAddress, contributedAt: $contributedAt, voucherCode: $voucherCode, hasCollected: $hasCollected, collectedAt: $collectedAt, walletId: $walletId)';
 }
 
 
@@ -253,7 +261,7 @@ abstract mixin class _$GroupBuyContributionModelCopyWith<$Res> implements $Group
   factory _$GroupBuyContributionModelCopyWith(_GroupBuyContributionModel value, $Res Function(_GroupBuyContributionModel) _then) = __$GroupBuyContributionModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt
+ String id, String userId, String userName, int amount, String? journalId, String? deliveryAddress, DateTime contributedAt, String? voucherCode, bool hasCollected, DateTime? collectedAt, String walletId
 });
 
 
@@ -270,7 +278,7 @@ class __$GroupBuyContributionModelCopyWithImpl<$Res>
 
 /// Create a copy of GroupBuyContributionModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? amount = null,Object? journalId = freezed,Object? deliveryAddress = freezed,Object? contributedAt = null,Object? voucherCode = freezed,Object? hasCollected = null,Object? collectedAt = freezed,Object? walletId = null,}) {
   return _then(_GroupBuyContributionModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
@@ -279,7 +287,11 @@ as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullabl
 as int,journalId: freezed == journalId ? _self.journalId : journalId // ignore: cast_nullable_to_non_nullable
 as String?,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as String?,contributedAt: null == contributedAt ? _self.contributedAt : contributedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,voucherCode: freezed == voucherCode ? _self.voucherCode : voucherCode // ignore: cast_nullable_to_non_nullable
+as String?,hasCollected: null == hasCollected ? _self.hasCollected : hasCollected // ignore: cast_nullable_to_non_nullable
+as bool,collectedAt: freezed == collectedAt ? _self.collectedAt : collectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

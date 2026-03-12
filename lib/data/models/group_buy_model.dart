@@ -246,6 +246,8 @@ GroupBuyStatus _parseGroupBuyStatus(String? value) {
       return GroupBuyStatus.expired;
     case 'completed':
       return GroupBuyStatus.completed;
+    case 'cancelling':
+      return GroupBuyStatus.cancelling;
     case 'cancelled':
       return GroupBuyStatus.cancelled;
     default:

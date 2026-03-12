@@ -11,7 +11,6 @@ part of 'featured_item.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$FeaturedItem {
 
@@ -35,8 +34,6 @@ mixin _$FeaturedItem {
 @pragma('vm:prefer-inline')
 $FeaturedItemCopyWith<FeaturedItem> get copyWith => _$FeaturedItemCopyWithImpl<FeaturedItem>(this as FeaturedItem, _$identity);
 
-  /// Serializes this FeaturedItem to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -44,7 +41,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is FeaturedItem&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other.communityIds, communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout]);
 
@@ -238,11 +235,11 @@ return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUr
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _FeaturedItem extends FeaturedItem {
   const _FeaturedItem({required this.id, required this.title, this.subtitle, this.imageUrl, this.videoUrl, this.type = 'campaign', this.deepLinkRoute, this.brandId, final  List<String> communityIds = const [], this.isActive = true, this.sortOrder = 0, this.scheduledStart, this.scheduledEnd, this.bgGradientType = 'goldOrange', this.brandName, this.ctaText, this.bgColorHex, this.colorIntensity = 0.4, this.imageOpacity = 0.3, this.imageLayout = 'right'}): _communityIds = communityIds,super._();
-  factory _FeaturedItem.fromJson(Map<String, dynamic> json) => _$FeaturedItemFromJson(json);
+  
 
 @override final  String id;
 @override final  String title;
@@ -291,17 +288,14 @@ class _FeaturedItem extends FeaturedItem {
 @pragma('vm:prefer-inline')
 _$FeaturedItemCopyWith<_FeaturedItem> get copyWith => __$FeaturedItemCopyWithImpl<_FeaturedItem>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$FeaturedItemToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeaturedItem&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other._communityIds, _communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(_communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout]);
 

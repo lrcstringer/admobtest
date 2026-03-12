@@ -4,6 +4,7 @@ enum GroupBuyStatus {
   targetMet,
   expired,
   completed,
+  cancelling,
   cancelled,
 }
 
@@ -18,6 +19,8 @@ extension GroupBuyStatusX on GroupBuyStatus {
         return 'Expired';
       case GroupBuyStatus.completed:
         return 'Completed';
+      case GroupBuyStatus.cancelling:
+        return 'Cancelling';
       case GroupBuyStatus.cancelled:
         return 'Cancelled';
     }
@@ -29,6 +32,7 @@ extension GroupBuyStatusX on GroupBuyStatus {
   bool get isTerminal =>
       this == GroupBuyStatus.expired ||
       this == GroupBuyStatus.completed ||
+      this == GroupBuyStatus.cancelling ||
       this == GroupBuyStatus.cancelled;
 
   bool get isJoinable => this == GroupBuyStatus.open;

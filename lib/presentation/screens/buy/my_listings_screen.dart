@@ -184,6 +184,8 @@ class _FilterChips extends StatelessWidget {
     switch (status) {
       case ListingStatus.active:
         return AppColors.buySuccess;
+      case ListingStatus.pending:
+        return AppColors.buyWarning;
       case ListingStatus.paused:
         return AppColors.buyWarning;
       case ListingStatus.expired:
@@ -453,6 +455,8 @@ class _StatusPill extends StatelessWidget {
     switch (status) {
       case ListingStatus.active:
         return AppColors.buySuccess;
+      case ListingStatus.pending:
+        return AppColors.buyWarning;
       case ListingStatus.paused:
         return AppColors.buyWarning;
       case ListingStatus.expired:
@@ -639,6 +643,22 @@ class _ActionButtons extends StatelessWidget {
               'This listing has been removed',
               style: TextStyle(
                 color: AppColors.buyError,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ];
+
+      case ListingStatus.pending:
+        return [
+          const Icon(Icons.hourglass_empty_rounded,
+              size: 16, color: AppColors.buyWarning),
+          const SizedBox(width: 4),
+          const Expanded(
+            child: Text(
+              'This listing is pending review',
+              style: TextStyle(
+                color: AppColors.buyWarning,
                 fontSize: 11,
               ),
             ),
