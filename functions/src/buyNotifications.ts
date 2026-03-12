@@ -12,10 +12,32 @@ import * as admin from "firebase-admin";
 
 const db = admin.firestore();
 
-/** Get a user's FCM token from their profile document. */
+/**
+ * Send an FCM notification. Re-throws non-token errors so Firebase retries the trigger.
+ * Silently ignores stale/unregistered tokens (no point retrying those).
+ */
+async function sendFcm(message: admin.messaging.Message, context: string): Promise<void> {
+  try {
+    await admin.messaging().send(message);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    // Stale/invalid token — don't retry, just log
+    if (msg.includes("not-registered") || msg.includes("invalid-registration-token")) {
+      logger.warn(`${context}: token invalid/unregistered, skipping`);
+      return;
+    }
+    logger.error(`${context}:`, error);
+    throw error;
+  }
+}
+
+/** Get a user's FCM token from their profile document. Skips soft-deleted users. */
 async function getFcmToken(userId: string): Promise<string | null> {
   const doc = await db.collection("users").doc(userId).get();
-  return doc.data()?.fcmToken || null;
+  if (!doc.exists) return null;
+  const data = doc.data();
+  if (data?.isDeleted === true) return null;
+  return data?.fcmToken || null;
 }
 
 // ============================================================================
@@ -36,29 +58,25 @@ export const onMarketplaceOrderCreated = onDocumentCreated(
     const fcmToken = await getFcmToken(order.sellerId);
     if (!fcmToken) return;
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: {
-          title: "New order received!",
-          body: `${order.buyerName || "A buyer"} ordered "${order.listingTitle}"`,
-        },
-        data: {
-          type: "marketplace_order",
-          orderId: snap.id,
-        },
-        android: {
-          priority: "high",
-          notification: { channelId: "marketplace", sound: "default" },
-        },
-        apns: {
-          headers: { "apns-priority": "10" },
-          payload: { aps: { sound: "default", badge: 1 } },
-        },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send order created notification to seller ${order.sellerId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: {
+        title: "New order received!",
+        body: `${order.buyerName || "A buyer"} ordered "${order.listingTitle}"`,
+      },
+      data: {
+        type: "marketplace_order",
+        orderId: snap.id,
+      },
+      android: {
+        priority: "high",
+        notification: { channelId: "marketplace", sound: "default" },
+      },
+      apns: {
+        headers: { "apns-priority": "10" },
+        payload: { aps: { sound: "default", badge: 1 } },
+      },
+    }, `Order created notification to seller ${order.sellerId}`);
   }
 );
 
@@ -77,6 +95,8 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
     if (before.status === after.status) return;
 
     const orderId = event.data.after.id;
+    const androidMp = { priority: "high" as const, notification: { channelId: "marketplace", sound: "default" } };
+    const apnsMp = { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } };
 
     // escrowed → notify buyer + seller that payment is held
     if (after.status === "escrowed" && before.status !== "escrowed") {
@@ -86,37 +106,27 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
       ]);
 
       if (buyerToken) {
-        try {
-          await admin.messaging().send({
-            token: buyerToken,
-            notification: {
-              title: "Payment held safely",
-              body: `Your ${after.amount} token payment for "${after.listingTitle}" is in escrow`,
-            },
-            data: { type: "marketplace_order", orderId },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send escrow notification to buyer ${after.buyerId}:`, error);
-        }
+        await sendFcm({
+          token: buyerToken,
+          notification: {
+            title: "Payment held safely",
+            body: `Your ${after.amount} token payment for "${after.listingTitle}" is in escrow`,
+          },
+          data: { type: "marketplace_order", orderId },
+          android: androidMp, apns: apnsMp,
+        }, `Escrow notification to buyer ${after.buyerId}`);
       }
 
       if (sellerToken) {
-        try {
-          await admin.messaging().send({
-            token: sellerToken,
-            notification: {
-              title: "Payment secured",
-              body: `Buyer's payment for "${after.listingTitle}" is in escrow. Fulfil the order to proceed.`,
-            },
-            data: { type: "marketplace_order", orderId },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send escrow notification to seller ${after.sellerId}:`, error);
-        }
+        await sendFcm({
+          token: sellerToken,
+          notification: {
+            title: "Payment secured",
+            body: `Buyer's payment for "${after.listingTitle}" is in escrow. Fulfil the order to proceed.`,
+          },
+          data: { type: "marketplace_order", orderId },
+          android: androidMp, apns: apnsMp,
+        }, `Escrow notification to seller ${after.sellerId}`);
       }
     }
 
@@ -124,20 +134,15 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
     if (after.status === "fulfilled" && before.status !== "fulfilled") {
       const fcmToken = await getFcmToken(after.buyerId);
       if (fcmToken) {
-        try {
-          await admin.messaging().send({
-            token: fcmToken,
-            notification: {
-              title: "Your order is ready!",
-              body: `"${after.listingTitle}" has been marked as fulfilled. Confirm receipt to release payment.`,
-            },
-            data: { type: "marketplace_order", orderId },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send fulfilled notification to buyer ${after.buyerId}:`, error);
-        }
+        await sendFcm({
+          token: fcmToken,
+          notification: {
+            title: "Your order is ready!",
+            body: `"${after.listingTitle}" has been marked as fulfilled. Confirm receipt to release payment.`,
+          },
+          data: { type: "marketplace_order", orderId },
+          android: androidMp, apns: apnsMp,
+        }, `Fulfilled notification to buyer ${after.buyerId}`);
       }
     }
 
@@ -145,49 +150,52 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
     if (after.status === "completed" && before.status !== "completed") {
       const fcmToken = await getFcmToken(after.sellerId);
       if (fcmToken) {
-        try {
-          await admin.messaging().send({
-            token: fcmToken,
-            notification: {
-              title: "Payment released!",
-              body: `You received ${after.amount} tokens for "${after.listingTitle}"`,
-            },
-            data: { type: "marketplace_order", orderId },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send payment released notification to seller ${after.sellerId}:`, error);
-        }
+        await sendFcm({
+          token: fcmToken,
+          notification: {
+            title: "Payment released!",
+            body: `You received ${after.amount} tokens for "${after.listingTitle}"`,
+          },
+          data: { type: "marketplace_order", orderId },
+          android: androidMp, apns: apnsMp,
+        }, `Payment released notification to seller ${after.sellerId}`);
       }
     }
 
-    // disputed → notify other party
+    // failed → notify buyer (H13: missing trigger)
+    if (after.status === "failed" && before.status !== "failed") {
+      const fcmToken = await getFcmToken(after.buyerId);
+      if (fcmToken) {
+        await sendFcm({
+          token: fcmToken,
+          notification: {
+            title: "Order failed",
+            body: `Your order for "${after.listingTitle}" could not be processed. Your tokens have been refunded.`,
+          },
+          data: { type: "marketplace_order", orderId, screen: "buy_order_detail" },
+          android: androidMp, apns: apnsMp,
+        }, `Order failed notification to buyer ${after.buyerId}`);
+      }
+    }
+
+    // disputed → notify both parties
     if (after.status === "disputed" && before.status !== "disputed") {
-      // Determine who raised the dispute (the party whose action changed status)
-      // Notify the other party
       const [buyerToken, sellerToken] = await Promise.all([
         getFcmToken(after.buyerId),
         getFcmToken(after.sellerId),
       ]);
 
-      // Notify both parties about the dispute
       for (const [token, label] of [[buyerToken, "buyer"], [sellerToken, "seller"]] as const) {
         if (token) {
-          try {
-            await admin.messaging().send({
-              token,
-              notification: {
-                title: "Dispute raised",
-                body: `A dispute has been raised on order "${after.listingTitle}"`,
-              },
-              data: { type: "marketplace_dispute", orderId },
-              android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-              apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-            });
-          } catch (error) {
-            logger.warn(`Failed to send dispute notification to ${label}:`, error);
-          }
+          await sendFcm({
+            token,
+            notification: {
+              title: "Dispute raised",
+              body: `A dispute has been raised on order "${after.listingTitle}"`,
+            },
+            data: { type: "marketplace_dispute", orderId },
+            android: androidMp, apns: apnsMp,
+          }, `Dispute notification to ${label}`);
         }
       }
     }
@@ -200,42 +208,30 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
         getFcmToken(after.sellerId),
       ]);
 
-      // Notify buyer about refund
       if (buyerToken) {
-        try {
-          await admin.messaging().send({
-            token: buyerToken,
-            notification: {
-              title: after.status === "refunded" ? "Refund processed" : "Order cancelled",
-              body: after.status === "refunded"
-                ? `Your ${after.amount} tokens for "${after.listingTitle}" have been refunded`
-                : `Your order for "${after.listingTitle}" has been cancelled. Tokens refunded.`,
-            },
-            data: { type: "marketplace_order", orderId, screen: "buy_order_detail" },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send refund notification to buyer ${after.buyerId}:`, error);
-        }
+        await sendFcm({
+          token: buyerToken,
+          notification: {
+            title: after.status === "refunded" ? "Refund processed" : "Order cancelled",
+            body: after.status === "refunded"
+              ? `Your ${after.amount} tokens for "${after.listingTitle}" have been refunded`
+              : `Your order for "${after.listingTitle}" has been cancelled. Tokens refunded.`,
+          },
+          data: { type: "marketplace_order", orderId, screen: "buy_order_detail" },
+          android: androidMp, apns: apnsMp,
+        }, `Refund notification to buyer ${after.buyerId}`);
       }
 
-      // Notify seller about cancellation
       if (sellerToken) {
-        try {
-          await admin.messaging().send({
-            token: sellerToken,
-            notification: {
-              title: "Order cancelled",
-              body: `Order for "${after.listingTitle}" has been cancelled`,
-            },
-            data: { type: "marketplace_order", orderId, screen: "seller_orders" },
-            android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-            apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-          });
-        } catch (error) {
-          logger.warn(`Failed to send cancellation notification to seller ${after.sellerId}:`, error);
-        }
+        await sendFcm({
+          token: sellerToken,
+          notification: {
+            title: "Order cancelled",
+            body: `Order for "${after.listingTitle}" has been cancelled`,
+          },
+          data: { type: "marketplace_order", orderId, screen: "seller_orders" },
+          android: androidMp, apns: apnsMp,
+        }, `Cancellation notification to seller ${after.sellerId}`);
       }
     }
 
@@ -255,20 +251,15 @@ export const onMarketplaceOrderUpdated = onDocumentUpdated(
 
       for (const [token, label] of [[buyerToken, "buyer"], [sellerToken, "seller"]] as const) {
         if (token) {
-          try {
-            await admin.messaging().send({
-              token,
-              notification: {
-                title: "Dispute resolved",
-                body: `"${after.listingTitle}": ${resolutionText}`,
-              },
-              data: { type: "marketplace_dispute_resolved", orderId, screen: "buy_order_detail" },
-              android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-              apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-            });
-          } catch (error) {
-            logger.warn(`Failed to send dispute resolved notification to ${label}:`, error);
-          }
+          await sendFcm({
+            token,
+            notification: {
+              title: "Dispute resolved",
+              body: `"${after.listingTitle}": ${resolutionText}`,
+            },
+            data: { type: "marketplace_dispute_resolved", orderId, screen: "buy_order_detail" },
+            android: androidMp, apns: apnsMp,
+          }, `Dispute resolved notification to ${label}`);
         }
       }
     }
@@ -294,25 +285,21 @@ export const onMarketplaceOfferCreated = onDocumentCreated(
     const fcmToken = await getFcmToken(offer.sellerId);
     if (!fcmToken) return;
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: {
-          title: "New offer received!",
-          body: `${offer.buyerName || "A buyer"} offered ${offer.offerAmount} tokens for "${offer.listingTitle}"`,
-        },
-        data: {
-          type: "marketplace_offer",
-          offerId: snap.id,
-          listingId: offer.listingId || "",
-          screen: "seller_offers",
-        },
-        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send offer notification to seller ${offer.sellerId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: {
+        title: "New offer received!",
+        body: `${offer.buyerName || "A buyer"} offered ${offer.offerAmount} tokens for "${offer.listingTitle}"`,
+      },
+      data: {
+        type: "marketplace_offer",
+        offerId: snap.id,
+        listingId: offer.listingId || "",
+        screen: "seller_offers",
+      },
+      android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+      apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+    }, `Offer notification to seller ${offer.sellerId}`);
   }
 );
 
@@ -359,22 +346,18 @@ export const onMarketplaceOfferUpdated = onDocumentUpdated(
         return;
     }
 
-    try {
-      await admin.messaging().send({
-        token: buyerToken,
-        notification: { title, body },
-        data: {
-          type: "marketplace_offer_response",
-          offerId,
-          listingId: after.listingId || "",
-          screen: "marketplace_listing_detail",
-        },
-        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send offer response notification to buyer ${after.buyerId}:`, error);
-    }
+    await sendFcm({
+      token: buyerToken,
+      notification: { title, body },
+      data: {
+        type: "marketplace_offer_response",
+        offerId,
+        listingId: after.listingId || "",
+        screen: "marketplace_listing_detail",
+      },
+      android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+      apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+    }, `Offer response notification to buyer ${after.buyerId}`);
   }
 );
 
@@ -415,25 +398,24 @@ export const onListingStatusChanged = onDocumentUpdated(
     } else if (after.status === "expired") {
       title = "Listing expired";
       body = `Your listing "${after.title}" has expired. Renew it to keep selling!`;
+    } else if (after.status === "paused") {
+      title = "Listing paused";
+      body = `Your listing "${after.title}" has been paused by an admin`;
     } else {
       return; // Don't notify for other status changes
     }
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: { title, body },
-        data: {
-          type: "listing_status",
-          listingId,
-          screen: "my_listings",
-        },
-        android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send listing status notification for ${listingId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: { title, body },
+      data: {
+        type: "listing_status",
+        listingId,
+        screen: "my_listings",
+      },
+      android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
+      apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+    }, `Listing status notification for ${listingId}`);
   }
 );
 
@@ -474,21 +456,17 @@ export const onPurchaseStatusChanged = onDocumentUpdated(
       return;
     }
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: { title, body },
-        data: {
-          type: "purchase_status",
-          purchaseId,
-          screen: "buy_purchase_history",
-        },
-        android: { priority: "high", notification: { channelId: "buy", sound: "default" } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send purchase notification for ${purchaseId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: { title, body },
+      data: {
+        type: "purchase_status",
+        purchaseId,
+        screen: "buy_purchase_history",
+      },
+      android: { priority: "high", notification: { channelId: "buy", sound: "default" } },
+      apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+    }, `Purchase notification for ${purchaseId}`);
   }
 );
 
@@ -513,58 +491,47 @@ export const onProviderStatusChanged = onDocumentUpdated(
     const fcmToken = await getFcmToken(after.userId);
     if (!fcmToken) return;
 
+    const providerId = event.data.after.id;
+    const androidMp = { priority: "high" as const, notification: { channelId: "marketplace", sound: "default" } };
+    const apnsMp = { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } };
+
     // Approved
     if (after.status === "approved" && before.status === "pending") {
-      try {
-        await admin.messaging().send({
-          token: fcmToken,
-          notification: {
-            title: "You're approved to sell!",
-            body: "Your marketplace seller registration has been approved. Start listing your products!",
-          },
-          data: { type: "provider_status", providerId: event.data.after.id },
-          android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-          apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-        });
-      } catch (error) {
-        logger.warn(`Failed to send provider approved notification to ${after.userId}:`, error);
-      }
+      await sendFcm({
+        token: fcmToken,
+        notification: {
+          title: "You're approved to sell!",
+          body: "Your marketplace seller registration has been approved. Start listing your products!",
+        },
+        data: { type: "provider_status", providerId },
+        android: androidMp, apns: apnsMp,
+      }, `Provider approved notification to ${after.userId}`);
     }
 
     // Rejected
     if (after.status === "rejected" && before.status === "pending") {
-      try {
-        await admin.messaging().send({
-          token: fcmToken,
-          notification: {
-            title: "Registration not approved",
-            body: "Your marketplace seller registration was not approved. Please contact support for details.",
-          },
-          data: { type: "provider_status", providerId: event.data.after.id },
-          android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-          apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-        });
-      } catch (error) {
-        logger.warn(`Failed to send provider rejected notification to ${after.userId}:`, error);
-      }
+      await sendFcm({
+        token: fcmToken,
+        notification: {
+          title: "Registration not approved",
+          body: "Your marketplace seller registration was not approved. Please contact support for details.",
+        },
+        data: { type: "provider_status", providerId },
+        android: androidMp, apns: apnsMp,
+      }, `Provider rejected notification to ${after.userId}`);
     }
 
     // Suspended
     if (after.status === "suspended") {
-      try {
-        await admin.messaging().send({
-          token: fcmToken,
-          notification: {
-            title: "Account suspended",
-            body: "Your marketplace seller account has been suspended. Please contact support.",
-          },
-          data: { type: "provider_status", providerId: event.data.after.id },
-          android: { priority: "high", notification: { channelId: "marketplace", sound: "default" } },
-          apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-        });
-      } catch (error) {
-        logger.warn(`Failed to send provider suspended notification to ${after.userId}:`, error);
-      }
+      await sendFcm({
+        token: fcmToken,
+        notification: {
+          title: "Account suspended",
+          body: "Your marketplace seller account has been suspended. Please contact support.",
+        },
+        data: { type: "provider_status", providerId },
+        android: androidMp, apns: apnsMp,
+      }, `Provider suspended notification to ${after.userId}`);
     }
   }
 );
@@ -601,23 +568,19 @@ async function notifyGroupBuyParticipants(
     const fcmToken = await getFcmToken(userId);
     if (!fcmToken) return;
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: { title, body },
-        data: { type: "group_buy_milestone", groupBuyId },
-        android: {
-          priority: "high",
-          notification: { channelId: "group_buy", sound: "default" },
-        },
-        apns: {
-          headers: { "apns-priority": "10" },
-          payload: { aps: { sound: "default", badge: 1 } },
-        },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send group buy notification to ${userId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: { title, body },
+      data: { type: "group_buy_milestone", groupBuyId },
+      android: {
+        priority: "high",
+        notification: { channelId: "group_buy", sound: "default" },
+      },
+      apns: {
+        headers: { "apns-priority": "10" },
+        payload: { aps: { sound: "default", badge: 1 } },
+      },
+    }, `Group buy notification to ${userId}`);
   });
 
   await Promise.allSettled(sendPromises);
@@ -647,24 +610,20 @@ export const onGroupBuyContributionCreated = onDocumentCreated(
     const fcmToken = await getFcmToken(groupBuy.organizerId);
     if (!fcmToken) return;
 
-    try {
-      await admin.messaging().send({
-        token: fcmToken,
-        notification: {
-          title: "Someone joined your group buy!",
-          body: `${contrib.userName || "A user"} contributed ${contrib.amount} tokens to "${groupBuy.title}"`,
-        },
-        data: {
-          type: "group_buy_join",
-          groupBuyId,
-          screen: "group_buy_detail",
-        },
-        android: { priority: "high", notification: { channelId: "group_buy", sound: "default" } },
-        apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
-      });
-    } catch (error) {
-      logger.warn(`Failed to send join notification to organizer ${groupBuy.organizerId}:`, error);
-    }
+    await sendFcm({
+      token: fcmToken,
+      notification: {
+        title: "Someone joined your group buy!",
+        body: `${contrib.userName || "A user"} contributed ${contrib.amount} tokens to "${groupBuy.title}"`,
+      },
+      data: {
+        type: "group_buy_join",
+        groupBuyId,
+        screen: "group_buy_detail",
+      },
+      android: { priority: "high", notification: { channelId: "group_buy", sound: "default" } },
+      apns: { headers: { "apns-priority": "10" }, payload: { aps: { sound: "default", badge: 1 } } },
+    }, `Join notification to organizer ${groupBuy.organizerId}`);
   }
 );
 

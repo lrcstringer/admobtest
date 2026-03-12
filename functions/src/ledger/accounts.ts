@@ -302,12 +302,22 @@ export async function initializeSystemAccounts(): Promise<void> {
       type: "system",
       name: "Token Spray Escrow Holding",
     },
+    {
+      id: SystemAccounts.MARKETPLACE_ESCROW,
+      type: "system",
+      name: "Marketplace Buy/Sell Escrow",
+    },
+    {
+      id: SystemAccounts.GROUP_BUY_ESCROW,
+      type: "system",
+      name: "Group Buy Contribution Escrow",
+    },
   ];
 
   const now = admin.firestore.Timestamp.now();
 
-  // Read all 10 system accounts in parallel instead of sequentially.
-  // Sequential reads: 10 × ~150ms = ~1.5s. Parallel: ~150ms total.
+  // Read all 12 system accounts in parallel instead of sequentially.
+  // Sequential reads: 12 × ~150ms = ~1.8s. Parallel: ~150ms total.
   const refs = systemAccountsToCreate.map((a) =>
     db.collection(LedgerConfig.COLLECTION_ACCOUNTS).doc(a.id)
   );

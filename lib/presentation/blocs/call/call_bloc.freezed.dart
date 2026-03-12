@@ -61,7 +61,7 @@ extension CallEventPatterns on CallEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _InitiateCall value)?  initiateCall,TResult Function( _IncomingCall value)?  incomingCall,TResult Function( _AcceptCall value)?  acceptCall,TResult Function( _RejectCall value)?  rejectCall,TResult Function( _EndCall value)?  endCall,TResult Function( _ToggleMute value)?  toggleMute,TResult Function( _ToggleSpeaker value)?  toggleSpeaker,TResult Function( _ToggleVideo value)?  toggleVideo,TResult Function( _SwitchCamera value)?  switchCamera,TResult Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult Function( _CallDocUpdated value)?  callDocUpdated,TResult Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult Function( _CallTimerTick value)?  callTimerTick,TResult Function( _QualityChanged value)?  qualityChanged,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _InitiateCall value)?  initiateCall,TResult Function( _IncomingCall value)?  incomingCall,TResult Function( _AcceptCall value)?  acceptCall,TResult Function( _RejectCall value)?  rejectCall,TResult Function( _EndCall value)?  endCall,TResult Function( _ToggleMute value)?  toggleMute,TResult Function( _ToggleSpeaker value)?  toggleSpeaker,TResult Function( _ToggleVideo value)?  toggleVideo,TResult Function( _SwitchCamera value)?  switchCamera,TResult Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult Function( _CallDocUpdated value)?  callDocUpdated,TResult Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult Function( _CallTimerTick value)?  callTimerTick,TResult Function( _QualityChanged value)?  qualityChanged,TResult Function( _PerformIceRestart value)?  performIceRestart,TResult Function( _NetworkChanged value)?  networkChanged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
@@ -79,7 +79,9 @@ return respondVideoUpgrade(_that);case _CallDocUpdated() when callDocUpdated != 
 return callDocUpdated(_that);case _IceConnectionStateChanged() when iceConnectionStateChanged != null:
 return iceConnectionStateChanged(_that);case _CallTimerTick() when callTimerTick != null:
 return callTimerTick(_that);case _QualityChanged() when qualityChanged != null:
-return qualityChanged(_that);case _:
+return qualityChanged(_that);case _PerformIceRestart() when performIceRestart != null:
+return performIceRestart(_that);case _NetworkChanged() when networkChanged != null:
+return networkChanged(_that);case _:
   return orElse();
 
 }
@@ -97,7 +99,7 @@ return qualityChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _InitiateCall value)  initiateCall,required TResult Function( _IncomingCall value)  incomingCall,required TResult Function( _AcceptCall value)  acceptCall,required TResult Function( _RejectCall value)  rejectCall,required TResult Function( _EndCall value)  endCall,required TResult Function( _ToggleMute value)  toggleMute,required TResult Function( _ToggleSpeaker value)  toggleSpeaker,required TResult Function( _ToggleVideo value)  toggleVideo,required TResult Function( _SwitchCamera value)  switchCamera,required TResult Function( _RequestVideoUpgrade value)  requestVideoUpgrade,required TResult Function( _RespondVideoUpgrade value)  respondVideoUpgrade,required TResult Function( _CallDocUpdated value)  callDocUpdated,required TResult Function( _IceConnectionStateChanged value)  iceConnectionStateChanged,required TResult Function( _CallTimerTick value)  callTimerTick,required TResult Function( _QualityChanged value)  qualityChanged,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _InitiateCall value)  initiateCall,required TResult Function( _IncomingCall value)  incomingCall,required TResult Function( _AcceptCall value)  acceptCall,required TResult Function( _RejectCall value)  rejectCall,required TResult Function( _EndCall value)  endCall,required TResult Function( _ToggleMute value)  toggleMute,required TResult Function( _ToggleSpeaker value)  toggleSpeaker,required TResult Function( _ToggleVideo value)  toggleVideo,required TResult Function( _SwitchCamera value)  switchCamera,required TResult Function( _RequestVideoUpgrade value)  requestVideoUpgrade,required TResult Function( _RespondVideoUpgrade value)  respondVideoUpgrade,required TResult Function( _CallDocUpdated value)  callDocUpdated,required TResult Function( _IceConnectionStateChanged value)  iceConnectionStateChanged,required TResult Function( _CallTimerTick value)  callTimerTick,required TResult Function( _QualityChanged value)  qualityChanged,required TResult Function( _PerformIceRestart value)  performIceRestart,required TResult Function( _NetworkChanged value)  networkChanged,}){
 final _that = this;
 switch (_that) {
 case _InitiateCall():
@@ -115,7 +117,9 @@ return respondVideoUpgrade(_that);case _CallDocUpdated():
 return callDocUpdated(_that);case _IceConnectionStateChanged():
 return iceConnectionStateChanged(_that);case _CallTimerTick():
 return callTimerTick(_that);case _QualityChanged():
-return qualityChanged(_that);case _:
+return qualityChanged(_that);case _PerformIceRestart():
+return performIceRestart(_that);case _NetworkChanged():
+return networkChanged(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -132,7 +136,7 @@ return qualityChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _InitiateCall value)?  initiateCall,TResult? Function( _IncomingCall value)?  incomingCall,TResult? Function( _AcceptCall value)?  acceptCall,TResult? Function( _RejectCall value)?  rejectCall,TResult? Function( _EndCall value)?  endCall,TResult? Function( _ToggleMute value)?  toggleMute,TResult? Function( _ToggleSpeaker value)?  toggleSpeaker,TResult? Function( _ToggleVideo value)?  toggleVideo,TResult? Function( _SwitchCamera value)?  switchCamera,TResult? Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult? Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult? Function( _CallDocUpdated value)?  callDocUpdated,TResult? Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult? Function( _CallTimerTick value)?  callTimerTick,TResult? Function( _QualityChanged value)?  qualityChanged,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _InitiateCall value)?  initiateCall,TResult? Function( _IncomingCall value)?  incomingCall,TResult? Function( _AcceptCall value)?  acceptCall,TResult? Function( _RejectCall value)?  rejectCall,TResult? Function( _EndCall value)?  endCall,TResult? Function( _ToggleMute value)?  toggleMute,TResult? Function( _ToggleSpeaker value)?  toggleSpeaker,TResult? Function( _ToggleVideo value)?  toggleVideo,TResult? Function( _SwitchCamera value)?  switchCamera,TResult? Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult? Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult? Function( _CallDocUpdated value)?  callDocUpdated,TResult? Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult? Function( _CallTimerTick value)?  callTimerTick,TResult? Function( _QualityChanged value)?  qualityChanged,TResult? Function( _PerformIceRestart value)?  performIceRestart,TResult? Function( _NetworkChanged value)?  networkChanged,}){
 final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
@@ -150,7 +154,9 @@ return respondVideoUpgrade(_that);case _CallDocUpdated() when callDocUpdated != 
 return callDocUpdated(_that);case _IceConnectionStateChanged() when iceConnectionStateChanged != null:
 return iceConnectionStateChanged(_that);case _CallTimerTick() when callTimerTick != null:
 return callTimerTick(_that);case _QualityChanged() when qualityChanged != null:
-return qualityChanged(_that);case _:
+return qualityChanged(_that);case _PerformIceRestart() when performIceRestart != null:
+return performIceRestart(_that);case _NetworkChanged() when networkChanged != null:
+return networkChanged(_that);case _:
   return null;
 
 }
@@ -167,7 +173,7 @@ return qualityChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult Function()?  acceptCall,TResult Function()?  rejectCall,TResult Function()?  endCall,TResult Function()?  toggleMute,TResult Function()?  toggleSpeaker,TResult Function()?  toggleVideo,TResult Function()?  switchCamera,TResult Function()?  requestVideoUpgrade,TResult Function( bool accepted)?  respondVideoUpgrade,TResult Function( CallSession session)?  callDocUpdated,TResult Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult Function()?  callTimerTick,TResult Function( ConnectionQuality quality)?  qualityChanged,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult Function()?  acceptCall,TResult Function()?  rejectCall,TResult Function()?  endCall,TResult Function()?  toggleMute,TResult Function()?  toggleSpeaker,TResult Function()?  toggleVideo,TResult Function()?  switchCamera,TResult Function()?  requestVideoUpgrade,TResult Function( bool accepted)?  respondVideoUpgrade,TResult Function( CallSession session)?  callDocUpdated,TResult Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult Function()?  callTimerTick,TResult Function( ConnectionQuality quality)?  qualityChanged,TResult Function()?  performIceRestart,TResult Function( bool isConnected)?  networkChanged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall() when incomingCall != null:
@@ -184,7 +190,9 @@ return respondVideoUpgrade(_that.accepted);case _CallDocUpdated() when callDocUp
 return callDocUpdated(_that.session);case _IceConnectionStateChanged() when iceConnectionStateChanged != null:
 return iceConnectionStateChanged(_that.state);case _CallTimerTick() when callTimerTick != null:
 return callTimerTick();case _QualityChanged() when qualityChanged != null:
-return qualityChanged(_that.quality);case _:
+return qualityChanged(_that.quality);case _PerformIceRestart() when performIceRestart != null:
+return performIceRestart();case _NetworkChanged() when networkChanged != null:
+return networkChanged(_that.isConnected);case _:
   return orElse();
 
 }
@@ -202,7 +210,7 @@ return qualityChanged(_that.quality);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)  initiateCall,required TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)  incomingCall,required TResult Function()  acceptCall,required TResult Function()  rejectCall,required TResult Function()  endCall,required TResult Function()  toggleMute,required TResult Function()  toggleSpeaker,required TResult Function()  toggleVideo,required TResult Function()  switchCamera,required TResult Function()  requestVideoUpgrade,required TResult Function( bool accepted)  respondVideoUpgrade,required TResult Function( CallSession session)  callDocUpdated,required TResult Function( RTCIceConnectionState state)  iceConnectionStateChanged,required TResult Function()  callTimerTick,required TResult Function( ConnectionQuality quality)  qualityChanged,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)  initiateCall,required TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)  incomingCall,required TResult Function()  acceptCall,required TResult Function()  rejectCall,required TResult Function()  endCall,required TResult Function()  toggleMute,required TResult Function()  toggleSpeaker,required TResult Function()  toggleVideo,required TResult Function()  switchCamera,required TResult Function()  requestVideoUpgrade,required TResult Function( bool accepted)  respondVideoUpgrade,required TResult Function( CallSession session)  callDocUpdated,required TResult Function( RTCIceConnectionState state)  iceConnectionStateChanged,required TResult Function()  callTimerTick,required TResult Function( ConnectionQuality quality)  qualityChanged,required TResult Function()  performIceRestart,required TResult Function( bool isConnected)  networkChanged,}) {final _that = this;
 switch (_that) {
 case _InitiateCall():
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall():
@@ -219,7 +227,9 @@ return respondVideoUpgrade(_that.accepted);case _CallDocUpdated():
 return callDocUpdated(_that.session);case _IceConnectionStateChanged():
 return iceConnectionStateChanged(_that.state);case _CallTimerTick():
 return callTimerTick();case _QualityChanged():
-return qualityChanged(_that.quality);case _:
+return qualityChanged(_that.quality);case _PerformIceRestart():
+return performIceRestart();case _NetworkChanged():
+return networkChanged(_that.isConnected);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -236,7 +246,7 @@ return qualityChanged(_that.quality);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult? Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult? Function()?  acceptCall,TResult? Function()?  rejectCall,TResult? Function()?  endCall,TResult? Function()?  toggleMute,TResult? Function()?  toggleSpeaker,TResult? Function()?  toggleVideo,TResult? Function()?  switchCamera,TResult? Function()?  requestVideoUpgrade,TResult? Function( bool accepted)?  respondVideoUpgrade,TResult? Function( CallSession session)?  callDocUpdated,TResult? Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult? Function()?  callTimerTick,TResult? Function( ConnectionQuality quality)?  qualityChanged,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult? Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult? Function()?  acceptCall,TResult? Function()?  rejectCall,TResult? Function()?  endCall,TResult? Function()?  toggleMute,TResult? Function()?  toggleSpeaker,TResult? Function()?  toggleVideo,TResult? Function()?  switchCamera,TResult? Function()?  requestVideoUpgrade,TResult? Function( bool accepted)?  respondVideoUpgrade,TResult? Function( CallSession session)?  callDocUpdated,TResult? Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult? Function()?  callTimerTick,TResult? Function( ConnectionQuality quality)?  qualityChanged,TResult? Function()?  performIceRestart,TResult? Function( bool isConnected)?  networkChanged,}) {final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall() when incomingCall != null:
@@ -253,7 +263,9 @@ return respondVideoUpgrade(_that.accepted);case _CallDocUpdated() when callDocUp
 return callDocUpdated(_that.session);case _IceConnectionStateChanged() when iceConnectionStateChanged != null:
 return iceConnectionStateChanged(_that.state);case _CallTimerTick() when callTimerTick != null:
 return callTimerTick();case _QualityChanged() when qualityChanged != null:
-return qualityChanged(_that.quality);case _:
+return qualityChanged(_that.quality);case _PerformIceRestart() when performIceRestart != null:
+return performIceRestart();case _NetworkChanged() when networkChanged != null:
+return networkChanged(_that.isConnected);case _:
   return null;
 
 }
@@ -1056,6 +1068,116 @@ class __$QualityChangedCopyWithImpl<$Res>
   return _then(_QualityChanged(
 null == quality ? _self.quality : quality // ignore: cast_nullable_to_non_nullable
 as ConnectionQuality,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _PerformIceRestart with DiagnosticableTreeMixin implements CallEvent {
+  const _PerformIceRestart();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CallEvent.performIceRestart'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PerformIceRestart);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CallEvent.performIceRestart()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _NetworkChanged with DiagnosticableTreeMixin implements CallEvent {
+  const _NetworkChanged({required this.isConnected});
+  
+
+ final  bool isConnected;
+
+/// Create a copy of CallEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NetworkChangedCopyWith<_NetworkChanged> get copyWith => __$NetworkChangedCopyWithImpl<_NetworkChanged>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CallEvent.networkChanged'))
+    ..add(DiagnosticsProperty('isConnected', isConnected));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkChanged&&(identical(other.isConnected, isConnected) || other.isConnected == isConnected));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isConnected);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CallEvent.networkChanged(isConnected: $isConnected)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NetworkChangedCopyWith<$Res> implements $CallEventCopyWith<$Res> {
+  factory _$NetworkChangedCopyWith(_NetworkChanged value, $Res Function(_NetworkChanged) _then) = __$NetworkChangedCopyWithImpl;
+@useResult
+$Res call({
+ bool isConnected
+});
+
+
+
+
+}
+/// @nodoc
+class __$NetworkChangedCopyWithImpl<$Res>
+    implements _$NetworkChangedCopyWith<$Res> {
+  __$NetworkChangedCopyWithImpl(this._self, this._then);
+
+  final _NetworkChanged _self;
+  final $Res Function(_NetworkChanged) _then;
+
+/// Create a copy of CallEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? isConnected = null,}) {
+  return _then(_NetworkChanged(
+isConnected: null == isConnected ? _self.isConnected : isConnected // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -37,6 +37,14 @@ class GroupBuyModel with _$GroupBuyModel {
     @Default([]) List<String> voucherCodes,
     String? imageUrl,
     int? originalPrice,
+    // ── New fields (Spec §9.16) ──
+    DateTime? collectionDeadline,
+    String? deliveryStatus,
+    String? fulfilmentInstructions,
+    @Default(0) int collectedCount,
+    String? category,
+    int? deliveryFee,
+    double? organizerSuccessRate,
     required DateTime createdAt,
     DateTime? updatedAt,
   }) = _GroupBuyModel;
@@ -82,6 +90,15 @@ class GroupBuyModel with _$GroupBuyModel {
           [],
       imageUrl: json['imageUrl'] as String?,
       originalPrice: (json['originalPrice'] as num?)?.toInt(),
+      // New fields (Spec §9.16)
+      collectionDeadline: _parseDateTime(json['collectionDeadline']),
+      deliveryStatus: json['deliveryStatus'] as String?,
+      fulfilmentInstructions: json['fulfilmentInstructions'] as String?,
+      collectedCount: (json['collectedCount'] as num?)?.toInt() ?? 0,
+      category: json['category'] as String?,
+      deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
+      organizerSuccessRate:
+          (json['organizerSuccessRate'] as num?)?.toDouble(),
       createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDateTime(json['updatedAt']),
     );
@@ -120,6 +137,17 @@ class GroupBuyModel with _$GroupBuyModel {
       if (voucherCodes.isNotEmpty) 'voucherCodes': voucherCodes,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (originalPrice != null) 'originalPrice': originalPrice,
+      // New fields (Spec §9.16)
+      if (collectionDeadline != null)
+        'collectionDeadline': Timestamp.fromDate(collectionDeadline!),
+      if (deliveryStatus != null) 'deliveryStatus': deliveryStatus,
+      if (fulfilmentInstructions != null)
+        'fulfilmentInstructions': fulfilmentInstructions,
+      'collectedCount': collectedCount,
+      if (category != null) 'category': category,
+      if (deliveryFee != null) 'deliveryFee': deliveryFee,
+      if (organizerSuccessRate != null)
+        'organizerSuccessRate': organizerSuccessRate,
       'createdAt': Timestamp.fromDate(createdAt),
       if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
     };
@@ -154,6 +182,13 @@ class GroupBuyModel with _$GroupBuyModel {
       voucherCodes: voucherCodes,
       imageUrl: imageUrl,
       originalPrice: originalPrice,
+      collectionDeadline: collectionDeadline,
+      deliveryStatus: deliveryStatus,
+      fulfilmentInstructions: fulfilmentInstructions,
+      collectedCount: collectedCount,
+      category: category,
+      deliveryFee: deliveryFee,
+      organizerSuccessRate: organizerSuccessRate,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -188,6 +223,13 @@ class GroupBuyModel with _$GroupBuyModel {
       voucherCodes: entity.voucherCodes,
       imageUrl: entity.imageUrl,
       originalPrice: entity.originalPrice,
+      collectionDeadline: entity.collectionDeadline,
+      deliveryStatus: entity.deliveryStatus,
+      fulfilmentInstructions: entity.fulfilmentInstructions,
+      collectedCount: entity.collectedCount,
+      category: entity.category,
+      deliveryFee: entity.deliveryFee,
+      organizerSuccessRate: entity.organizerSuccessRate,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );

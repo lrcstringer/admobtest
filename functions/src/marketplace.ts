@@ -46,34 +46,36 @@ export const registerMarketplaceProvider = onCall(
       throw new HttpsError("invalid-argument", "Display name must be at least 2 characters");
     }
 
-    // Use userId as doc ID — deterministic, prevents duplicate registrations
-    // even under concurrent requests (Firestore set will simply overwrite,
-    // but we check existence first within a transaction-like pattern).
+    // Use userId as doc ID — deterministic. Transaction prevents duplicate
+    // registrations under concurrent requests.
     const providerRef = db.collection("providers").doc(userId);
-    const existingDoc = await providerRef.get();
-    if (existingDoc.exists) {
-      throw new HttpsError("already-exists", "You are already registered as a provider");
-    }
 
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    await db.runTransaction(async (tx) => {
+      const existingDoc = await tx.get(providerRef);
+      if (existingDoc.exists) {
+        throw new HttpsError("already-exists", "You are already registered as a provider");
+      }
 
-    await providerRef.set({
-      id: providerRef.id,
-      userId,
-      displayName: displayName.trim(),
-      bio: bio?.trim() || null,
-      servicesDescription: servicesDescription?.trim() || null,
-      photoUrl: photoUrl || null,
-      communityId: communityId || null,
-      status: "pending",
-      trustScore: 0,
-      vouchCount: 0,
-      completedOrders: 0,
-      isVerified: false,
-      isVerifiedOverride: null,
-      customerIds: [],
-      createdAt: now,
-      updatedAt: now,
+      const now = admin.firestore.FieldValue.serverTimestamp();
+
+      tx.set(providerRef, {
+        id: providerRef.id,
+        userId,
+        displayName: displayName.trim(),
+        bio: bio?.trim() || null,
+        servicesDescription: servicesDescription?.trim() || null,
+        photoUrl: photoUrl || null,
+        communityId: communityId || null,
+        status: "pending",
+        trustScore: 0,
+        vouchCount: 0,
+        completedOrders: 0,
+        isVerified: false,
+        isVerifiedOverride: null,
+        customerIds: [],
+        createdAt: now,
+        updatedAt: now,
+      });
     });
 
     logger.info(`Provider registered: ${providerRef.id} by user ${userId}`);
@@ -215,10 +217,16 @@ export const buyMarketplaceItem = onCall(
       throw new HttpsError("failed-precondition", "You cannot buy your own listing");
     }
 
-    // Validate balance
+    // Validate balance (walletId must belong to the authenticated user)
     if (walletId) {
+      if (typeof walletId !== "string") {
+        throw new HttpsError("invalid-argument", "Invalid wallet ID");
+      }
       const subAccount = await getSubAccount(userId, walletId);
-      if (!subAccount || subAccount.balance < listing.priceTokens) {
+      if (!subAccount) {
+        throw new HttpsError("not-found", "Wallet not found or does not belong to you");
+      }
+      if (subAccount.balance < listing.priceTokens) {
         throw new HttpsError("failed-precondition", "Insufficient balance");
       }
     } else {
@@ -232,9 +240,11 @@ export const buyMarketplaceItem = onCall(
     const buyerDoc = await db.collection("users").doc(userId).get();
     const buyerName = buyerDoc.data()?.displayName || "Unknown";
 
-    // Create order with "pending" status — only set to "escrowed" after
-    // escrow succeeds, preventing orphaned orders if escrow processing fails.
-    const orderRef = db.collection("buyOrders").doc();
+    // Deterministic order ID prevents double-charging on client retry.
+    // Hash of buyer + listing + timestamp bucket (1-minute resolution).
+    const timeBucket = Math.floor(Date.now() / 60000).toString();
+    const deterministicId = `${userId}_${listingId}_${timeBucket}`;
+    const orderRef = db.collection("buyOrders").doc(deterministicId);
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     await orderRef.set({
@@ -619,41 +629,44 @@ export const vouchForProvider = onCall(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Recalculate provider trust score
-    const allVouches = await db
-      .collection("vouches")
-      .where("providerId", "==", providerId)
-      .get();
-
-    const totalRating = allVouches.docs.reduce(
-      (sum, doc) => sum + (doc.data().rating || 0),
-      0
-    );
-    const vouchCount = allVouches.size;
-    const trustScore = vouchCount > 0 ? totalRating / vouchCount : 0;
-    const isVerified = vouchCount >= 5 && trustScore >= 4.0;
-
+    // Recalculate provider trust score inside a transaction to prevent
+    // stale reads from concurrent vouch submissions.
     const providerRef = db.collection("providers").doc(providerId);
-    const providerDoc = await providerRef.get();
-    if (providerDoc.exists) {
+    const txResult = await db.runTransaction(async (tx) => {
+      const [allVouches, providerDoc] = await Promise.all([
+        db.collection("vouches").where("providerId", "==", providerId).get(),
+        tx.get(providerRef),
+      ]);
+
+      if (!providerDoc.exists) return { trustScore: 0, vouchCount: 0 };
+
+      const totalRating = allVouches.docs.reduce(
+        (sum, d) => sum + (d.data().rating || 0),
+        0
+      );
+      const vouchCount = allVouches.size;
+      const trustScore = vouchCount > 0 ? totalRating / vouchCount : 0;
+      const isVerified = vouchCount >= 5 && trustScore >= 4.0;
+
       const providerData = providerDoc.data()!;
-      // Respect admin override
       const effectiveVerified =
         providerData.isVerifiedOverride !== null && providerData.isVerifiedOverride !== undefined
           ? providerData.isVerifiedOverride
           : isVerified;
 
-      await providerRef.update({
+      tx.update(providerRef, {
         trustScore: Math.round(trustScore * 10) / 10,
         vouchCount,
         isVerified: effectiveVerified,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-    }
+
+      return { trustScore, vouchCount };
+    });
 
     logger.info(
       `Vouch ${vouchRef.id} for provider ${providerId}: rating ${rating}, ` +
-        `new trust ${trustScore.toFixed(1)} (${vouchCount} vouches)`
+        `new trust ${txResult.trustScore.toFixed(1)} (${txResult.vouchCount} vouches)`
     );
 
     return { success: true };
@@ -686,9 +699,9 @@ export const reportMarketplaceItem = onCall(
       throw new HttpsError("invalid-argument", "Target type must be 'listing' or 'provider'");
     }
 
-    // Rate limit: max 3 reports per user per day
+    // Rate limit: max 3 reports per user per day (UTC midnight boundary)
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setUTCHours(0, 0, 0, 0);
     const recentReports = await db
       .collection("marketplaceReports")
       .where("reporterId", "==", userId)
@@ -701,8 +714,14 @@ export const reportMarketplaceItem = onCall(
       );
     }
 
-    // Create report
-    const reportRef = db.collection("marketplaceReports").doc();
+    // Deterministic report ID prevents duplicate reports on retry
+    const reportDocId = `${userId}_${targetId}_${targetType}`;
+    const reportRef = db.collection("marketplaceReports").doc(reportDocId);
+    const existingReport = await reportRef.get();
+    if (existingReport.exists) {
+      throw new HttpsError("already-exists", "You have already reported this item");
+    }
+
     await reportRef.set({
       id: reportRef.id,
       reporterId: userId,
@@ -714,24 +733,24 @@ export const reportMarketplaceItem = onCall(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Increment report count and auto-flag if threshold reached
+    // Increment report count and auto-flag if threshold reached (transaction)
     if (targetType === "listing") {
       const listingRef = db.collection("marketplaceListings").doc(targetId);
-      await listingRef.update({
-        reportCount: admin.firestore.FieldValue.increment(1),
-      });
+      await db.runTransaction(async (tx) => {
+        const listingDoc = await tx.get(listingRef);
+        if (!listingDoc.exists) return;
 
-      // Check if should auto-flag (3+ unique reporters)
-      const allReports = await db
-        .collection("marketplaceReports")
-        .where("targetId", "==", targetId)
-        .where("targetType", "==", "listing")
-        .get();
-      const uniqueReporters = new Set(allReports.docs.map((d) => d.data().reporterId));
-      if (uniqueReporters.size >= 3) {
-        await listingRef.update({ status: "flagged" });
-        logger.warn(`Listing ${targetId} auto-flagged: ${uniqueReporters.size} unique reporters`);
-      }
+        const currentCount = (listingDoc.data()!.reportCount || 0) + 1;
+        tx.update(listingRef, {
+          reportCount: currentCount,
+        });
+
+        // Auto-flag at 3+ unique reporters
+        if (currentCount >= 3 && listingDoc.data()!.status === "active") {
+          tx.update(listingRef, { status: "flagged" });
+          logger.warn(`Listing ${targetId} auto-flagged: ${currentCount} reports`);
+        }
+      });
     }
 
     logger.info(`Report ${reportRef.id}: ${targetType} ${targetId} by ${userId}`);
@@ -1286,7 +1305,8 @@ export const respondToOffer = onCall(
       return { orderId: orderRef.id };
     });
 
-    // If accepted, process escrow outside the transaction
+    // If accepted, process escrow outside the transaction.
+    // On failure, revert BOTH order and offer so the flow can be retried.
     if (result.orderId) {
       const offerDoc = await offerRef.get();
       const offer = offerDoc.data()!;
@@ -1304,12 +1324,19 @@ export const respondToOffer = onCall(
           escrowedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       } catch (escrowError) {
-        await orderRef.update({
+        // Revert both order AND offer so seller can retry
+        const revertBatch = db.batch();
+        revertBatch.update(orderRef, {
           status: "failed",
           cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        logger.error(`Escrow failed for offer-order ${result.orderId}`, escrowError);
-        throw new HttpsError("internal", "Payment processing failed");
+        revertBatch.update(offerRef, {
+          status: "pending",
+          respondedAt: null,
+        });
+        await revertBatch.commit();
+        logger.error(`Escrow failed for offer-order ${result.orderId}, reverted offer to pending`, escrowError);
+        throw new HttpsError("internal", "Payment processing failed. Please try again.");
       }
     }
 
@@ -1645,8 +1672,14 @@ export const checkDeliveryTimers = onSchedule(
     }
 
     let released = 0;
+    let skipped = 0;
     for (const doc of overdueOrders.docs) {
       const order = doc.data();
+      // Guard: skip if escrow was never processed or already released
+      if (!order.escrowJournalId || order.releaseJournalId) {
+        skipped++;
+        continue;
+      }
       try {
         const journalId = await releaseMarketplaceEscrow(
           order.sellerId,
@@ -1666,7 +1699,7 @@ export const checkDeliveryTimers = onSchedule(
       }
     }
 
-    logger.info(`Auto-released ${released}/${overdueOrders.size} overdue orders`);
+    logger.info(`Auto-released ${released}/${overdueOrders.size} overdue orders (${skipped} skipped)`);
   }
 );
 
@@ -1698,8 +1731,14 @@ export const checkBuyerConfirmationWindows = onSchedule(
     }
 
     let released = 0;
+    let skipped = 0;
     for (const doc of staleOrders.docs) {
       const order = doc.data();
+      // Guard: skip if escrow was never processed or already released
+      if (!order.escrowJournalId || order.releaseJournalId) {
+        skipped++;
+        continue;
+      }
       try {
         const journalId = await releaseMarketplaceEscrow(
           order.sellerId,
@@ -1719,7 +1758,7 @@ export const checkBuyerConfirmationWindows = onSchedule(
       }
     }
 
-    logger.info(`Auto-completed ${released}/${staleOrders.size} stale confirmation orders`);
+    logger.info(`Auto-completed ${released}/${staleOrders.size} stale confirmation orders (${skipped} skipped)`);
   }
 );
 
@@ -1754,8 +1793,19 @@ export const autoRefundUnresponsiveSeller = onSchedule(
     }
 
     let refunded = 0;
+    let skipped = 0;
     for (const doc of staleOrders.docs) {
       const order = doc.data();
+      // Guard: skip if escrow was never processed or already refunded
+      if (!order.escrowJournalId || order.refundJournalId) {
+        skipped++;
+        continue;
+      }
+      if (!order.buyerId) {
+        logger.error(`Order ${doc.id} missing buyerId, skipping auto-refund`);
+        skipped++;
+        continue;
+      }
       try {
         const journalId = await refundMarketplaceEscrow(
           order.buyerId,
@@ -1776,7 +1826,7 @@ export const autoRefundUnresponsiveSeller = onSchedule(
       }
     }
 
-    logger.info(`Auto-refunded ${refunded}/${staleOrders.size} unresponsive seller orders`);
+    logger.info(`Auto-refunded ${refunded}/${staleOrders.size} unresponsive seller orders (${skipped} skipped)`);
   }
 );
 

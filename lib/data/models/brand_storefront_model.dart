@@ -58,6 +58,35 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
 
     // ── Layout ──
     @Default([]) List<StorefrontSectionType> sectionOrder,
+
+    // ── New fields (Spec §4.14) ──
+    @Default(true) bool isDraft,
+    DateTime? publishedAt,
+    @Default('standard') String tier,
+    @Default(0.5) double heroFocalPointX,
+    @Default(0.5) double heroFocalPointY,
+    @Default(false) bool showChatButton,
+    String? bannerVideoUrl,
+
+    // Announcement bar
+    String? announcementText,
+    String? announcementDeepLink,
+    @Default(true) bool announcementDismissible,
+
+    // New content sections
+    @Default([]) List<ShowcaseVideo> showcaseVideos,
+    @Default([]) List<StorefrontCoupon> coupons,
+    @Default([]) List<FaqItem> faqItems,
+    @Default([]) List<String> testimonialReviewIds,
+    @Default([]) List<BrandLocation> locations,
+
+    // Rich text blocks keyed by section instance ID
+    @Default({}) Map<String, String> richTextBlocks,
+
+    // Per-section settings keyed by section type or instance ID
+    @Default({}) Map<String, SectionSettings> sectionSettings,
+
+    @Default(0) int totalViews,
   }) = _BrandStorefrontModel;
 
   const BrandStorefrontModel._();
@@ -148,6 +177,56 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
                   StorefrontSectionType.values, StorefrontSectionType.about))
               .toList() ??
           [],
+
+      // New fields (Spec §4.14)
+      isDraft: json['isDraft'] as bool? ?? true,
+      publishedAt: json['publishedAt'] is Timestamp
+          ? (json['publishedAt'] as Timestamp).toDate()
+          : null,
+      tier: json['tier'] as String? ?? 'standard',
+      heroFocalPointX: (json['heroFocalPointX'] as num?)?.toDouble() ?? 0.5,
+      heroFocalPointY: (json['heroFocalPointY'] as num?)?.toDouble() ?? 0.5,
+      showChatButton: json['showChatButton'] as bool? ?? false,
+      bannerVideoUrl: json['bannerVideoUrl'] as String?,
+
+      // Announcement bar
+      announcementText: json['announcementText'] as String?,
+      announcementDeepLink: json['announcementDeepLink'] as String?,
+      announcementDismissible:
+          json['announcementDismissible'] as bool? ?? true,
+
+      // New content sections
+      showcaseVideos: (json['showcaseVideos'] as List<dynamic>?)
+              ?.map((e) =>
+                  ShowcaseVideo.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      coupons: (json['coupons'] as List<dynamic>?)
+              ?.map((e) =>
+                  StorefrontCoupon.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      faqItems: (json['faqItems'] as List<dynamic>?)
+              ?.map((e) => FaqItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      testimonialReviewIds: (json['testimonialReviewIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      locations: (json['locations'] as List<dynamic>?)
+              ?.map((e) =>
+                  BrandLocation.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      richTextBlocks: (json['richTextBlocks'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(k, v as String)) ??
+          {},
+      sectionSettings: (json['sectionSettings'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(
+                  k, SectionSettings.fromJson(v as Map<String, dynamic>))) ??
+          {},
+      totalViews: (json['totalViews'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -219,6 +298,82 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       if (sectionOrder.isNotEmpty)
         'sectionOrder': sectionOrder.map((s) => s.name).toList(),
 
+      // New fields (Spec §4.14)
+      'isDraft': isDraft,
+      if (publishedAt != null) 'publishedAt': Timestamp.fromDate(publishedAt!),
+      'tier': tier,
+      'heroFocalPointX': heroFocalPointX,
+      'heroFocalPointY': heroFocalPointY,
+      'showChatButton': showChatButton,
+      if (bannerVideoUrl != null) 'bannerVideoUrl': bannerVideoUrl,
+
+      // Announcement bar
+      if (announcementText != null) 'announcementText': announcementText,
+      if (announcementDeepLink != null)
+        'announcementDeepLink': announcementDeepLink,
+      'announcementDismissible': announcementDismissible,
+
+      // New content sections
+      if (showcaseVideos.isNotEmpty)
+        'showcaseVideos': showcaseVideos
+            .map((v) => {
+                  'url': v.url,
+                  if (v.thumbnailUrl != null) 'thumbnailUrl': v.thumbnailUrl,
+                  if (v.title != null) 'title': v.title,
+                  'sortOrder': v.sortOrder,
+                })
+            .toList(),
+      if (coupons.isNotEmpty)
+        'coupons': coupons
+            .map((c) => {
+                  'id': c.id,
+                  'code': c.code,
+                  'title': c.title,
+                  if (c.description != null) 'description': c.description,
+                  if (c.maxClaims != null) 'maxClaims': c.maxClaims,
+                  'claimCount': c.claimCount,
+                  if (c.expiresAt != null)
+                    'expiresAt': Timestamp.fromDate(c.expiresAt!),
+                  'isActive': c.isActive,
+                })
+            .toList(),
+      if (faqItems.isNotEmpty)
+        'faqItems': faqItems
+            .map((f) => {
+                  'question': f.question,
+                  'answer': f.answer,
+                  'sortOrder': f.sortOrder,
+                })
+            .toList(),
+      if (testimonialReviewIds.isNotEmpty)
+        'testimonialReviewIds': testimonialReviewIds,
+      if (locations.isNotEmpty)
+        'locations': locations
+            .map((l) => {
+                  'name': l.name,
+                  'address': l.address,
+                  if (l.latitude != null) 'latitude': l.latitude,
+                  if (l.longitude != null) 'longitude': l.longitude,
+                  if (l.phone != null) 'phone': l.phone,
+                  if (l.hours != null) 'hours': l.hours,
+                })
+            .toList(),
+      if (richTextBlocks.isNotEmpty) 'richTextBlocks': richTextBlocks,
+      if (sectionSettings.isNotEmpty)
+        'sectionSettings': sectionSettings.map((k, v) => MapEntry(k, {
+              'colourMode': v.colourMode.name,
+              if (v.customBgColor != null) 'customBgColor': v.customBgColor,
+              if (v.customTextColor != null)
+                'customTextColor': v.customTextColor,
+              if (v.headingOverride != null)
+                'headingOverride': v.headingOverride,
+              'isVisible': v.isVisible,
+              'contentAlignment': v.contentAlignment,
+              'paddingTop': v.paddingTop,
+              'paddingBottom': v.paddingBottom,
+            })),
+      'totalViews': totalViews,
+
       // Preserve createdAt when writing back
       if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
     };
@@ -259,6 +414,24 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       galleryImageUrls: galleryImageUrls,
       promotions: promotions,
       sectionOrder: sectionOrder,
+      isDraft: isDraft,
+      publishedAt: publishedAt,
+      tier: tier,
+      heroFocalPointX: heroFocalPointX,
+      heroFocalPointY: heroFocalPointY,
+      showChatButton: showChatButton,
+      bannerVideoUrl: bannerVideoUrl,
+      announcementText: announcementText,
+      announcementDeepLink: announcementDeepLink,
+      announcementDismissible: announcementDismissible,
+      showcaseVideos: showcaseVideos,
+      coupons: coupons,
+      faqItems: faqItems,
+      testimonialReviewIds: testimonialReviewIds,
+      locations: locations,
+      richTextBlocks: richTextBlocks,
+      sectionSettings: sectionSettings,
+      totalViews: totalViews,
     );
   }
 
@@ -297,6 +470,24 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       galleryImageUrls: entity.galleryImageUrls,
       promotions: entity.promotions,
       sectionOrder: entity.sectionOrder,
+      isDraft: entity.isDraft,
+      publishedAt: entity.publishedAt,
+      tier: entity.tier,
+      heroFocalPointX: entity.heroFocalPointX,
+      heroFocalPointY: entity.heroFocalPointY,
+      showChatButton: entity.showChatButton,
+      bannerVideoUrl: entity.bannerVideoUrl,
+      announcementText: entity.announcementText,
+      announcementDeepLink: entity.announcementDeepLink,
+      announcementDismissible: entity.announcementDismissible,
+      showcaseVideos: entity.showcaseVideos,
+      coupons: entity.coupons,
+      faqItems: entity.faqItems,
+      testimonialReviewIds: entity.testimonialReviewIds,
+      locations: entity.locations,
+      richTextBlocks: entity.richTextBlocks,
+      sectionSettings: entity.sectionSettings,
+      totalViews: entity.totalViews,
     );
   }
 

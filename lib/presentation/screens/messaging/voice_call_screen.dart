@@ -109,9 +109,16 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
           _videoUpgradeDialogShown = false;
         }
 
-        // Init renderers when upgraded to video
-        if (state.callType == CallType.video && !_renderersReady) {
-          _initRenderers();
+        // Navigate to VideoCallScreen when upgraded to video.
+        // Replace this route so pressing back doesn't return to voice screen.
+        if (state.callType == CallType.video &&
+            state.callId != null &&
+            state.conversationId != null) {
+          context.pushReplacement(
+            '/chat/conversation/${state.conversationId}/call/${state.callId}',
+            extra: {'isVideo': true},
+          );
+          return; // Don't process further — we're navigating away
         }
       },
       builder: (context, state) {

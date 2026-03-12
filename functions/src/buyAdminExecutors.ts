@@ -61,13 +61,23 @@ export async function executeForceCompleteGroupBuy(
     };
   });
 
-  // Release escrow outside transaction using live transactional amount
-  await releaseGroupBuyEscrow(
-    txResult.organizerId,
-    txResult.currentAmount,
-    groupBuyId,
-    `Admin force-complete for group buy ${groupBuyId}`
-  );
+  // Release escrow outside transaction using live transactional amount.
+  // If release fails, revert status so it can be retried.
+  try {
+    await releaseGroupBuyEscrow(
+      txResult.organizerId,
+      txResult.currentAmount,
+      groupBuyId,
+      `Admin force-complete for group buy ${groupBuyId}`
+    );
+  } catch (releaseError) {
+    logger.error(`Escrow release failed for force-complete ${groupBuyId}, reverting to targetMet`, releaseError);
+    await db.collection("groupBuys").doc(groupBuyId).update({
+      status: "targetMet",
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    throw releaseError;
+  }
 
   logger.info(
     `Force-completed group buy ${groupBuyId}: ${txResult.currentAmount} tokens released to ${txResult.organizerId}`
@@ -175,14 +185,24 @@ export async function executeForceCancelOrder(
     };
   });
 
-  // Refund buyer if escrowed (outside transaction — ledger has idempotency)
+  // Refund buyer if escrowed (outside transaction — ledger has idempotency).
+  // If refund fails, revert status so it can be retried.
   if (txResult.hasEscrow) {
-    await refundMarketplaceEscrow(
-      txResult.buyerId,
-      txResult.amount,
-      orderId,
-      `Admin force-cancel refund for order ${orderId}`
-    );
+    try {
+      await refundMarketplaceEscrow(
+        txResult.buyerId,
+        txResult.amount,
+        orderId,
+        `Admin force-cancel refund for order ${orderId}`
+      );
+    } catch (refundError) {
+      logger.error(`Refund failed for force-cancel order ${orderId}, reverting to disputed`, refundError);
+      await db.collection("buyOrders").doc(orderId).update({
+        status: "disputed",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      throw refundError;
+    }
   }
 
   return { orderId, refunded: txResult.hasEscrow };
@@ -229,42 +249,54 @@ export async function executeResolveDispute(
     };
   });
 
-  // Execute ledger operations outside transaction (ledger has its own idempotency)
-  if (resolution === "refund_buyer") {
-    await refundMarketplaceEscrow(
-      txResult.buyerId,
-      txResult.amount,
-      orderId,
-      `Dispute resolved: full refund to buyer for order ${orderId}`
-    );
-  } else if (resolution === "release_seller") {
-    await releaseMarketplaceEscrow(
-      txResult.sellerId,
-      txResult.amount,
-      orderId,
-      `Dispute resolved: released to seller for order ${orderId}`
-    );
-  } else if (resolution === "split" && splitPercent !== undefined) {
-    const sellerAmount = Math.floor(txResult.amount * (splitPercent / 100));
-    const buyerAmount = txResult.amount - sellerAmount;
-    if (sellerAmount > 0) {
-      await releaseMarketplaceEscrow(
-        txResult.sellerId,
-        sellerAmount,
-        orderId,
-        `Dispute resolved: split ${splitPercent}% to seller for order ${orderId}`
-      );
-    }
-    if (buyerAmount > 0) {
+  // Execute ledger operations outside transaction (ledger has its own idempotency).
+  // If ledger fails, revert status to "disputed" so it can be retried.
+  try {
+    if (resolution === "refund_buyer") {
       await refundMarketplaceEscrow(
         txResult.buyerId,
-        buyerAmount,
+        txResult.amount,
         orderId,
-        `Dispute resolved: split ${100 - splitPercent}% refund to buyer for order ${orderId}`
+        `Dispute resolved: full refund to buyer for order ${orderId}`
       );
+    } else if (resolution === "release_seller") {
+      await releaseMarketplaceEscrow(
+        txResult.sellerId,
+        txResult.amount,
+        orderId,
+        `Dispute resolved: released to seller for order ${orderId}`
+      );
+    } else if (resolution === "split" && splitPercent !== undefined) {
+      const sellerAmount = Math.floor(txResult.amount * (splitPercent / 100));
+      const buyerAmount = txResult.amount - sellerAmount;
+      if (sellerAmount > 0) {
+        await releaseMarketplaceEscrow(
+          txResult.sellerId,
+          sellerAmount,
+          orderId,
+          `Dispute resolved: split ${splitPercent}% to seller for order ${orderId}`
+        );
+      }
+      if (buyerAmount > 0) {
+        await refundMarketplaceEscrow(
+          txResult.buyerId,
+          buyerAmount,
+          orderId,
+          `Dispute resolved: split ${100 - splitPercent}% refund to buyer for order ${orderId}`
+        );
+      }
+    } else {
+      throw new Error(`Invalid resolution: ${resolution}`);
     }
-  } else {
-    throw new Error(`Invalid resolution: ${resolution}`);
+  } catch (ledgerError) {
+    logger.error(`Ledger operation failed for dispute resolution on order ${orderId}, reverting to disputed`, ledgerError);
+    await orderRef.update({
+      status: "disputed",
+      disputeResolution: null,
+      disputeSplitPercent: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    throw ledgerError;
   }
 
   return { orderId, resolution };

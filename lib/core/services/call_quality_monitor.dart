@@ -168,7 +168,8 @@ class CallQualityMonitor {
     try {
       final senders = await _pc.getSenders();
       for (final sender in senders) {
-        if (sender.track?.kind == 'video') {
+        final kind = sender.track?.kind;
+        if (kind == 'video') {
           final params = sender.parameters;
           if (params.encodings != null && params.encodings!.isNotEmpty) {
             final encoding = params.encodings!.first;
@@ -181,6 +182,25 @@ class CallQualityMonitor {
                 encoding.maxBitrate = 400000; // 400 kbps
               case ConnectionQuality.poor:
                 encoding.maxBitrate = 150000; // 150 kbps
+            }
+            await sender.setParameters(params);
+          }
+        } else if (kind == 'audio') {
+          // Adapt audio bitrate on poor connections. Opus supports 6-510 kbps;
+          // voice is intelligible down to ~8 kbps. Audio bandwidth is small
+          // relative to video, but on voice-only calls this is the only lever.
+          final params = sender.parameters;
+          if (params.encodings != null && params.encodings!.isNotEmpty) {
+            final encoding = params.encodings!.first;
+            switch (quality) {
+              case ConnectionQuality.excellent:
+                encoding.maxBitrate = 32000; // 32 kbps — high quality mono
+              case ConnectionQuality.good:
+                encoding.maxBitrate = 24000; // 24 kbps
+              case ConnectionQuality.fair:
+                encoding.maxBitrate = 16000; // 16 kbps
+              case ConnectionQuality.poor:
+                encoding.maxBitrate = 8000; // 8 kbps — still intelligible
             }
             await sender.setParameters(params);
           }

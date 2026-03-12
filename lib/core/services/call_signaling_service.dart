@@ -37,20 +37,25 @@ class CallSignalingService {
   //   calleeDescription — written by callee, watched by caller
 
   /// Send an SDP description (offer or answer) to our own RTDB node.
+  /// Retries once on failure — SDP delivery is critical for call setup.
   Future<void> sendDescription(
     String callId,
     RTCSessionDescription desc, {
     required bool isCaller,
   }) async {
     final node = isCaller ? 'callerDescription' : 'calleeDescription';
+    final data = {'sdp': desc.sdp, 'type': desc.type};
     try {
-      await _signalingRef(callId).child(node).set({
-        'sdp': desc.sdp,
-        'type': desc.type,
-      });
+      await _signalingRef(callId).child(node).set(data);
     } catch (e) {
-      debugPrint('CallSignaling: sendDescription ($node) failed: $e');
-      rethrow;
+      debugPrint('CallSignaling: sendDescription ($node) failed, retrying: $e');
+      try {
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _signalingRef(callId).child(node).set(data);
+      } catch (e2) {
+        debugPrint('CallSignaling: sendDescription retry failed: $e2');
+        rethrow;
+      }
     }
   }
 
@@ -94,19 +99,25 @@ class CallSignalingService {
 
   // ── ICE Candidates (via RTDB — no batching needed, fast enough) ──
 
-  /// Send a local ICE candidate via RTDB push. Fire-and-forget.
+  /// Send a local ICE candidate via RTDB push. Fire-and-forget with retry.
+  /// A single dropped candidate is recoverable via ICE restart, but retrying
+  /// once is cheap and improves reliability on flaky networks.
   void sendIceCandidate(
     String callId,
     RTCIceCandidate candidate, {
     required bool isCaller,
   }) {
     final subcol = isCaller ? 'callerCandidates' : 'calleeCandidates';
-    _signalingRef(callId).child(subcol).push().set({
+    final data = {
       'candidate': candidate.candidate,
       'sdpMid': candidate.sdpMid,
       'sdpMLineIndex': candidate.sdpMLineIndex,
-    }).catchError((e) {
-      debugPrint('CallSignaling: sendIceCandidate failed: $e');
+    };
+    _signalingRef(callId).child(subcol).push().set(data).catchError((Object e) {
+      debugPrint('CallSignaling: sendIceCandidate failed, retrying: $e');
+      _signalingRef(callId).child(subcol).push().set(data).catchError((Object e2) {
+        debugPrint('CallSignaling: sendIceCandidate retry failed: $e2');
+      });
     });
   }
 

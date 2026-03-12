@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/marketplace_provider.dart';
+import '../../domain/entities/location_data.dart';
 import '../../domain/enums/provider_status.dart';
+import '../../domain/enums/seller_level.dart';
 
 part 'marketplace_provider_model.freezed.dart';
 
@@ -24,6 +26,20 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
     bool? isVerifiedOverride,
     @Default([]) List<String> customerIds,
     required DateTime createdAt,
+    // ── New fields (Spec §8.25) ──
+    @Default([]) List<String> categories,
+    List<String>? subCategories,
+    @Default(SellerLevel.newSeller) SellerLevel sellerLevel,
+    double? avgResponseTimeHrs,
+    @Default(0) int warningCount,
+    @Default(0) int reportCount,
+    @Default(0.0) double disputeRate,
+    @Default(0.0) double cancellationRate,
+    String? suspensionReason,
+    String? suspensionTrigger,
+    DateTime? suspendedAt,
+    DateTime? bannedAt,
+    LocationData? profileLocation,
   }) = _MarketplaceProviderModel;
 
   const MarketplaceProviderModel._();
@@ -52,6 +68,34 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
           : json['createdAt'] is String
               ? (DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now())
               : DateTime.now(),
+      // New fields (Spec §8.25)
+      categories: (json['categories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      subCategories: (json['subCategories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList(),
+      sellerLevel: _parseSellerLevel(json['sellerLevel'] as String?),
+      avgResponseTimeHrs:
+          (json['avgResponseTimeHrs'] as num?)?.toDouble(),
+      warningCount: (json['warningCount'] as num?)?.toInt() ?? 0,
+      reportCount: (json['reportCount'] as num?)?.toInt() ?? 0,
+      disputeRate: (json['disputeRate'] as num?)?.toDouble() ?? 0.0,
+      cancellationRate:
+          (json['cancellationRate'] as num?)?.toDouble() ?? 0.0,
+      suspensionReason: json['suspensionReason'] as String?,
+      suspensionTrigger: json['suspensionTrigger'] as String?,
+      suspendedAt: json['suspendedAt'] is Timestamp
+          ? (json['suspendedAt'] as Timestamp).toDate()
+          : null,
+      bannedAt: json['bannedAt'] is Timestamp
+          ? (json['bannedAt'] as Timestamp).toDate()
+          : null,
+      profileLocation: json['profileLocation'] is Map<String, dynamic>
+          ? LocationData.fromJson(
+              json['profileLocation'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -72,6 +116,23 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       if (isVerifiedOverride != null) 'isVerifiedOverride': isVerifiedOverride,
       'customerIds': customerIds,
       'createdAt': Timestamp.fromDate(createdAt),
+      // New fields (Spec §8.25)
+      if (categories.isNotEmpty) 'categories': categories,
+      if (subCategories != null) 'subCategories': subCategories,
+      'sellerLevel': sellerLevel.name,
+      if (avgResponseTimeHrs != null)
+        'avgResponseTimeHrs': avgResponseTimeHrs,
+      'warningCount': warningCount,
+      'reportCount': reportCount,
+      'disputeRate': disputeRate,
+      'cancellationRate': cancellationRate,
+      if (suspensionReason != null) 'suspensionReason': suspensionReason,
+      if (suspensionTrigger != null) 'suspensionTrigger': suspensionTrigger,
+      if (suspendedAt != null)
+        'suspendedAt': Timestamp.fromDate(suspendedAt!),
+      if (bannedAt != null) 'bannedAt': Timestamp.fromDate(bannedAt!),
+      if (profileLocation != null)
+        'profileLocation': profileLocation!.toJson(),
     };
   }
 
@@ -83,7 +144,6 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       bio: bio,
       photoUrl: photoUrl,
       communityId: communityId,
-      servicesDescription: servicesDescription,
       status: status,
       trustScore: trustScore,
       vouchCount: vouchCount,
@@ -92,6 +152,19 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       isVerifiedOverride: isVerifiedOverride,
       customerIds: customerIds,
       createdAt: createdAt,
+      categories: categories,
+      subCategories: subCategories,
+      sellerLevel: sellerLevel,
+      avgResponseTimeHrs: avgResponseTimeHrs,
+      warningCount: warningCount,
+      reportCount: reportCount,
+      disputeRate: disputeRate,
+      cancellationRate: cancellationRate,
+      suspensionReason: suspensionReason,
+      suspensionTrigger: suspensionTrigger,
+      suspendedAt: suspendedAt,
+      bannedAt: bannedAt,
+      profileLocation: profileLocation,
     );
   }
 
@@ -103,7 +176,6 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       bio: entity.bio,
       photoUrl: entity.photoUrl,
       communityId: entity.communityId,
-      servicesDescription: entity.servicesDescription,
       status: entity.status,
       trustScore: entity.trustScore,
       vouchCount: entity.vouchCount,
@@ -112,10 +184,31 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       isVerifiedOverride: entity.isVerifiedOverride,
       customerIds: entity.customerIds,
       createdAt: entity.createdAt,
+      categories: entity.categories,
+      subCategories: entity.subCategories,
+      sellerLevel: entity.sellerLevel,
+      avgResponseTimeHrs: entity.avgResponseTimeHrs,
+      warningCount: entity.warningCount,
+      reportCount: entity.reportCount,
+      disputeRate: entity.disputeRate,
+      cancellationRate: entity.cancellationRate,
+      suspensionReason: entity.suspensionReason,
+      suspensionTrigger: entity.suspensionTrigger,
+      suspendedAt: entity.suspendedAt,
+      bannedAt: entity.bannedAt,
+      profileLocation: entity.profileLocation,
     );
   }
 }
 
 ProviderStatus _parseProviderStatus(String? value) {
   return ProviderStatusX.fromString(value ?? 'active');
+}
+
+SellerLevel _parseSellerLevel(String? value) {
+  if (value == null) return SellerLevel.newSeller;
+  return SellerLevel.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => SellerLevel.newSeller,
+  );
 }

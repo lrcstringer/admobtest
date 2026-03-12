@@ -8,6 +8,7 @@ import '../../../core/services/notification_service.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
 import '../../widgets/common/bottom_nav_bar.dart';
+import '../../widgets/messaging/active_call_overlay.dart';
 
 /// Main shell scaffold used by all primary app screens.
 /// Provides the background color and custom bottom nav bar.
@@ -40,7 +41,12 @@ class MainShell extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: navigationShell,
+      body: Column(
+        children: [
+          const ActiveCallOverlay(),
+          Expanded(child: navigationShell),
+        ],
+      ),
       bottomNavigationBar: BottomNavBar(
         currentIndex: navigationShell.currentIndex,
         chatUnreadCount: totalUnread,

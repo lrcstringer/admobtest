@@ -41,4 +41,7 @@ class CallEvent with _$CallEvent {
   const factory CallEvent.callTimerTick() = _CallTimerTick;
   const factory CallEvent.qualityChanged(ConnectionQuality quality) =
       _QualityChanged;
+  const factory CallEvent.performIceRestart() = _PerformIceRestart;
+  const factory CallEvent.networkChanged({required bool isConnected}) =
+      _NetworkChanged;
 }

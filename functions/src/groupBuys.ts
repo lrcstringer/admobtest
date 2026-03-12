@@ -424,13 +424,37 @@ export const leaveGroupBuy = onCall(
       return { amount: contrib.amount, title: groupBuy.title };
     });
 
-    // Refund escrow AFTER transaction succeeds (ledger has its own idempotency)
-    await refundGroupBuyContribution(
-      userId,
-      result.amount,
-      groupBuyId,
-      `User left group buy: ${result.title}`
-    );
+    // Refund escrow AFTER transaction succeeds (ledger has its own idempotency).
+    // If refund fails, run a compensating transaction to re-add the contribution.
+    try {
+      await refundGroupBuyContribution(
+        userId,
+        result.amount,
+        groupBuyId,
+        `User left group buy: ${result.title}`
+      );
+    } catch (refundError) {
+      logger.error(`Refund failed for leaveGroupBuy ${groupBuyId}, reverting removal`, refundError);
+      const userDoc = await db.collection("users").doc(userId).get();
+      const userName = userDoc.data()?.displayName || "Unknown";
+      await db.runTransaction(async (tx) => {
+        const contribRef = groupBuyRef.collection("contributions").doc();
+        tx.set(contribRef, {
+          id: contribRef.id,
+          userId,
+          userName,
+          amount: result.amount,
+          journalId: "",
+          contributedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.update(groupBuyRef, {
+          currentAmount: admin.firestore.FieldValue.increment(result.amount),
+          participantCount: admin.firestore.FieldValue.increment(1),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+      throw new HttpsError("internal", "Refund processing failed. Please try again.");
+    }
 
     logger.info(
       `User ${userId} left group buy ${groupBuyId}. ` +
@@ -768,29 +792,32 @@ export const updateGroupBuyDeliveryStatus = onCall(
     }
 
     const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
-    const groupBuyDoc = await groupBuyRef.get();
-    if (!groupBuyDoc.exists) {
-      throw new HttpsError("not-found", "Group buy not found");
-    }
-    const groupBuy = groupBuyDoc.data()!;
 
-    if (groupBuy.organizerId !== userId) {
-      throw new HttpsError("permission-denied", "Only the organizer can update delivery status");
-    }
+    await db.runTransaction(async (tx) => {
+      const groupBuyDoc = await tx.get(groupBuyRef);
+      if (!groupBuyDoc.exists) {
+        throw new HttpsError("not-found", "Group buy not found");
+      }
+      const groupBuy = groupBuyDoc.data()!;
 
-    if (!["completed", "targetMet"].includes(groupBuy.status)) {
-      throw new HttpsError("failed-precondition", "Group buy must be completed or target met to update delivery");
-    }
+      if (groupBuy.organizerId !== userId) {
+        throw new HttpsError("permission-denied", "Only the organizer can update delivery status");
+      }
 
-    const updates: Record<string, unknown> = {
-      deliveryStatus,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-    if (trackingInfo) {
-      updates.trackingInfo = trackingInfo.trim();
-    }
+      if (!["completed", "targetMet"].includes(groupBuy.status)) {
+        throw new HttpsError("failed-precondition", "Group buy must be completed or target met to update delivery");
+      }
 
-    await groupBuyRef.update(updates);
+      const updates: Record<string, unknown> = {
+        deliveryStatus,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+      if (trackingInfo) {
+        updates.trackingInfo = trackingInfo.trim();
+      }
+
+      tx.update(groupBuyRef, updates);
+    });
 
     logger.info(`Group buy ${groupBuyId} delivery status updated to ${deliveryStatus} by ${userId}`);
     return { success: true };

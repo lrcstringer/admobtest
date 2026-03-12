@@ -527,14 +527,20 @@ export const adminDeleteFeaturedItem = onCall(
       throw new HttpsError("not-found", `Featured item '${itemId}' not found`);
     }
 
-    await ref.delete();
+    // Soft-delete (consistent with other delete operations)
+    await ref.update({
+      isDeleted: true,
+      isActive: false,
+      deletedAt: admin.firestore.FieldValue.serverTimestamp(),
+      deletedBy: adminCtx.uid,
+    });
 
     logAdminAction(adminCtx.uid, "adminDeleteFeaturedItem", "success", {
       itemId,
       title: doc.data()?.title,
     }).catch(() => {});
 
-    logger.info(`Featured item '${itemId}' deleted by ${adminCtx.email}`);
+    logger.info(`Featured item '${itemId}' soft-deleted by ${adminCtx.email}`);
     return { success: true };
   }
 );
@@ -858,33 +864,36 @@ export const adminSuspendProvider = onCall(
       throw new HttpsError("not-found", "Provider not found");
     }
 
-    const batch = db.batch();
-
     // Suspend the provider
-    batch.update(providerRef, {
+    await providerRef.update({
       status: "suspended",
       suspendedAt: admin.firestore.FieldValue.serverTimestamp(),
       suspendedBy: adminCtx.uid,
       suspensionReason: reason || null,
     });
 
-    // Cascade: remove all active listings
+    // Cascade: remove all active listings (batch-size safe: chunks of 499)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
       .where("status", "==", "active")
       .get();
-    for (const listingDoc of listingsSnap.docs) {
-      batch.update(listingDoc.ref, {
-        status: "removed",
-        removedAt: admin.firestore.FieldValue.serverTimestamp(),
-        removedReason: "Provider suspended",
-      });
+
+    const listingDocs = listingsSnap.docs;
+    for (let i = 0; i < listingDocs.length; i += 499) {
+      const chunk = listingDocs.slice(i, i + 499);
+      const batch = db.batch();
+      for (const listingDoc of chunk) {
+        batch.update(listingDoc.ref, {
+          status: "removed",
+          removedAt: admin.firestore.FieldValue.serverTimestamp(),
+          removedReason: "Provider suspended",
+        });
+      }
+      await batch.commit();
     }
 
-    await batch.commit();
-
-    // Cancel pending orders (non-batched due to potential escrow refunds)
+    // Cancel pending orders — track failures for admin visibility
     const pendingOrders = await db
       .collection("buyOrders")
       .where("sellerId", "==", providerDoc.data()?.userId)
@@ -892,31 +901,45 @@ export const adminSuspendProvider = onCall(
       .get();
 
     let cancelledCount = 0;
+    const failedOrderIds: string[] = [];
     for (const orderDoc of pendingOrders.docs) {
       const orderData = orderDoc.data();
       try {
         if (orderData.status === "escrowed" && orderData.escrowJournalId) {
+          if (!orderData.buyerId) {
+            logger.error(`Order ${orderDoc.id} missing buyerId, skipping refund`);
+            failedOrderIds.push(orderDoc.id);
+            continue;
+          }
           const { refundMarketplaceEscrow } = await import(
             "./ledger/marketplaceEscrow"
           );
-          await refundMarketplaceEscrow(
+          const journalId = await refundMarketplaceEscrow(
             orderData.buyerId,
             orderData.amount,
             orderDoc.id,
             `Refund: provider suspended`
           );
+          await orderDoc.ref.update({
+            status: "refunded",
+            refundJournalId: journalId,
+            cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+            cancelReason: "Provider suspended by admin",
+          });
+        } else {
+          await orderDoc.ref.update({
+            status: "cancelled",
+            cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+            cancelReason: "Provider suspended by admin",
+          });
         }
-        await orderDoc.ref.update({
-          status: "cancelled",
-          cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
-          cancelReason: "Provider suspended by admin",
-        });
         cancelledCount++;
       } catch (err) {
         logger.error(
           `Failed to cancel order ${orderDoc.id} during provider suspension:`,
           err
         );
+        failedOrderIds.push(orderDoc.id);
       }
     }
 
@@ -925,17 +948,19 @@ export const adminSuspendProvider = onCall(
       reason,
       listingsRemoved: listingsSnap.size,
       ordersCancelled: cancelledCount,
+      failedOrderIds,
     }).catch(() => {});
 
     logger.info(
       `Provider '${providerId}' suspended by ${adminCtx.email}: ` +
-        `${listingsSnap.size} listings removed, ${cancelledCount} orders cancelled`
+        `${listingsSnap.size} listings removed, ${cancelledCount} orders cancelled, ${failedOrderIds.length} failed`
     );
     return {
       success: true,
       providerId,
       listingsRemoved: listingsSnap.size,
       ordersCancelled: cancelledCount,
+      failedOrderIds,
     };
   }
 );
@@ -2139,6 +2164,27 @@ export const editBrandReview = onCall(
 
     await reviewRef.update(updates);
 
+    // Recalculate aggregate rating after edit (consistent with submitBrandReview)
+    const brandId = reviewData.brandId;
+    try {
+      const allReviews = await db
+        .collection("brandReviews")
+        .where("brandId", "==", brandId)
+        .where("isRemovedByAdmin", "==", false)
+        .get();
+
+      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
+      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
+
+      await db.collection("brandStorefronts").doc(brandId).update({
+        averageRating: avgRating,
+        totalReviews: allReviews.size,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (err) {
+      logger.warn("Failed to update brand aggregate rating after edit:", err);
+    }
+
     logger.info(`Brand review ${reviewId} updated by ${userId}`);
     return { success: true };
   }
@@ -2524,25 +2570,27 @@ export const adminBanProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Remove all active/paused listings
+    // Remove all active/paused listings (batch-size safe: chunks of 499)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
       .where("status", "in", ["active", "paused"])
       .get();
 
-    if (!listingsSnap.empty) {
-      const batch = db.batch();
-      for (const doc of listingsSnap.docs) {
-        batch.update(doc.ref, {
+    const listingDocs = listingsSnap.docs;
+    for (let i = 0; i < listingDocs.length; i += 499) {
+      const chunk = listingDocs.slice(i, i + 499);
+      const listBatch = db.batch();
+      for (const doc of chunk) {
+        listBatch.update(doc.ref, {
           status: "removed",
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
-      await batch.commit();
+      await listBatch.commit();
     }
 
-    // Refund open orders (escrowed/fulfilled)
+    // Refund open orders (escrowed/fulfilled) — track failures
     const openOrders = await db
       .collection("buyOrders")
       .where("sellerId", "==", provider.userId)
@@ -2550,9 +2598,24 @@ export const adminBanProvider = onCall(
       .get();
 
     let refundedCount = 0;
+    const failedOrderIds: string[] = [];
     for (const doc of openOrders.docs) {
       const order = doc.data();
       try {
+        if (!order.buyerId) {
+          logger.error(`Order ${doc.id} missing buyerId, skipping refund`);
+          failedOrderIds.push(doc.id);
+          continue;
+        }
+        if (!order.escrowJournalId) {
+          // No escrow was processed — just cancel
+          await doc.ref.update({
+            status: "cancelled",
+            cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          refundedCount++;
+          continue;
+        }
         const journalId = await refundMarketplaceEscrow(
           order.buyerId,
           order.amount,
@@ -2569,6 +2632,7 @@ export const adminBanProvider = onCall(
         refundedCount++;
       } catch (err) {
         logger.error(`Failed to refund order ${doc.id} during provider ban`, err);
+        failedOrderIds.push(doc.id);
       }
     }
 
@@ -2577,12 +2641,13 @@ export const adminBanProvider = onCall(
       reason,
       listingsRemoved: listingsSnap.size,
       ordersRefunded: refundedCount,
+      failedOrderIds,
     });
 
     logger.info(
-      `Provider ${providerId} banned by ${adminCtx.email}: ${listingsSnap.size} listings removed, ${refundedCount} orders refunded`
+      `Provider ${providerId} banned by ${adminCtx.email}: ${listingsSnap.size} listings removed, ${refundedCount} orders refunded, ${failedOrderIds.length} failed`
     );
-    return { success: true, listingsRemoved: listingsSnap.size, ordersRefunded: refundedCount };
+    return { success: true, listingsRemoved: listingsSnap.size, ordersRefunded: refundedCount, failedOrderIds };
   }
 );
 
@@ -2621,7 +2686,7 @@ export const adminReinstateProvider = onCall(
       suspensionTrigger: null,
       suspendedAt: null,
       bannedAt: null,
-      warningCount: 0,
+      // Preserve warningCount for audit trail — don't reset to 0
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -2656,19 +2721,32 @@ export const adminPartialRefund = onCall(
       throw new HttpsError("invalid-argument", "Refund amount must be a positive integer");
     }
 
+    // Use transaction to prevent concurrent double-refund
     const orderRef = db.collection("buyOrders").doc(orderId);
-    const orderDoc = await orderRef.get();
-    if (!orderDoc.exists) {
-      throw new HttpsError("not-found", "Order not found");
-    }
-    const order = orderDoc.data()!;
+    const order = await db.runTransaction(async (tx) => {
+      const orderDoc = await tx.get(orderRef);
+      if (!orderDoc.exists) {
+        throw new HttpsError("not-found", "Order not found");
+      }
+      const data = orderDoc.data()!;
 
-    if (!["escrowed", "fulfilled", "disputed", "completed"].includes(order.status)) {
-      throw new HttpsError("failed-precondition", `Cannot refund order with status: ${order.status}`);
-    }
-    if (refundAmount > order.amount) {
-      throw new HttpsError("invalid-argument", "Refund amount exceeds order total");
-    }
+      if (!["escrowed", "fulfilled", "disputed", "completed"].includes(data.status)) {
+        throw new HttpsError("failed-precondition", `Cannot refund order with status: ${data.status}`);
+      }
+      if (data.refundJournalId) {
+        throw new HttpsError("failed-precondition", "This order has already been refunded");
+      }
+      if (!data.buyerId) {
+        throw new HttpsError("failed-precondition", "Order is missing buyer ID");
+      }
+      if (refundAmount > data.amount) {
+        throw new HttpsError("invalid-argument", "Refund amount exceeds order total");
+      }
+
+      // Mark as processing to prevent concurrent refund
+      tx.update(orderRef, { disputeResolution: "partial_refund_processing" });
+      return data;
+    });
 
     const journalId = await refundMarketplaceEscrow(
       order.buyerId,
@@ -2759,8 +2837,14 @@ export const adminEscalateToSms = onCall(
     );
 
     const { orderId, recipientUserId, message } = request.data;
-    if (!orderId || !recipientUserId || !message) {
-      throw new HttpsError("invalid-argument", "orderId, recipientUserId, and message are required");
+    if (!orderId || typeof orderId !== "string") {
+      throw new HttpsError("invalid-argument", "orderId must be a non-empty string");
+    }
+    if (!recipientUserId || typeof recipientUserId !== "string") {
+      throw new HttpsError("invalid-argument", "recipientUserId must be a non-empty string");
+    }
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      throw new HttpsError("invalid-argument", "message must be a non-empty string");
     }
 
     const userDoc = await db.collection("users").doc(recipientUserId).get();
@@ -3276,8 +3360,10 @@ export const adminCreateVasProduct = onCall(
       throw new HttpsError("not-found", "VAS provider not found");
     }
 
+    // Batch: create product + increment counter atomically
     const productRef = db.collection("serviceProducts").doc();
-    await productRef.set({
+    const batch = db.batch();
+    batch.set(productRef, {
       id: productRef.id,
       providerId,
       providerCode: providerDoc.data()!.code,
@@ -3293,11 +3379,10 @@ export const adminCreateVasProduct = onCall(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    // Update provider product count
-    await db.collection("serviceProviders").doc(providerId).update({
+    batch.update(db.collection("serviceProviders").doc(providerId), {
       productsCount: admin.firestore.FieldValue.increment(1),
     });
+    await batch.commit();
 
     await logAdminAction(adminCtx.uid, "buy:createVasProduct", "adminCreateVasProduct", {
       productId: productRef.id,
@@ -3425,18 +3510,19 @@ export const adminDeleteVasProduct = onCall(
 
     const providerId = doc.data()!.providerId;
 
-    await ref.update({
+    // Batch: soft-delete product + decrement counter atomically
+    const batch = db.batch();
+    batch.update(ref, {
       isActive: false,
       isDeleted: true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-
-    // Decrement provider product count
     if (providerId) {
-      await db.collection("serviceProviders").doc(providerId).update({
+      batch.update(db.collection("serviceProviders").doc(providerId), {
         productsCount: admin.firestore.FieldValue.increment(-1),
       });
     }
+    await batch.commit();
 
     await logAdminAction(adminCtx.uid, "buy:deleteVasProduct", "adminDeleteVasProduct", {
       productId,
@@ -3481,8 +3567,8 @@ export const adminBulkUpdateVasProductPrices = onCall(
       return { success: true, updatedCount: 0 };
     }
 
-    const batch = db.batch();
-    let updatedCount = 0;
+    // Build updates first, then commit in batch-size-safe chunks of 499
+    const updates: Array<{ ref: FirebaseFirestore.DocumentReference; newPrice: number }> = [];
     for (const doc of productsSnap.docs) {
       const currentPrice = doc.data().priceZar;
       if (typeof currentPrice !== "number") continue;
@@ -3495,16 +3581,23 @@ export const adminBulkUpdateVasProductPrices = onCall(
       }
 
       if (newPrice <= 0) continue; // Skip if adjustment would make price negative
-
-      batch.update(doc.ref, {
-        priceZar: newPrice,
-        priceTokens: Math.round(newPrice * 100),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      updatedCount++;
+      updates.push({ ref: doc.ref, newPrice });
     }
 
-    await batch.commit();
+    let updatedCount = 0;
+    for (let i = 0; i < updates.length; i += 499) {
+      const chunk = updates.slice(i, i + 499);
+      const batch = db.batch();
+      for (const { ref, newPrice } of chunk) {
+        batch.update(ref, {
+          priceZar: newPrice,
+          priceTokens: Math.round(newPrice * 100),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+      updatedCount += chunk.length;
+    }
 
     await logAdminAction(adminCtx.uid, "buy:bulkUpdateVasProductPrices", "adminBulkUpdateVasProductPrices", {
       providerId,

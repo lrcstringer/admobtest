@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import 'webrtc_service.dart';
+
 /// W3C Perfect Negotiation pattern for glare-free SDP exchange.
 ///
 /// Caller is "impolite" (ignores colliding offers when making one).
@@ -10,6 +12,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 ///
 /// All SDP exchange goes through this handler — no manual createOffer/createAnswer
 /// anywhere else in the codebase.
+///
+/// Applies Opus codec optimizations (FEC, DTX, bitrate cap) to all outgoing SDPs.
 ///
 /// Reference: https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
 class PerfectNegotiationHandler {
@@ -19,7 +23,7 @@ class PerfectNegotiationHandler {
   final bool polite;
 
   /// Callback to send a description (offer or answer) to the remote peer
-  /// via Firestore signaling.
+  /// via RTDB signaling.
   final Future<void> Function(RTCSessionDescription desc) sendDescription;
 
   bool _makingOffer = false;
@@ -41,7 +45,9 @@ class PerfectNegotiationHandler {
     try {
       _makingOffer = true;
       final offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
+      // Apply Opus optimizations (FEC, DTX, bitrate cap) before setting local
+      final optimizedOffer = WebRtcService.optimizeSdp(offer);
+      await pc.setLocalDescription(optimizedOffer);
       final localDesc = await pc.getLocalDescription();
       if (localDesc != null) {
         await sendDescription(localDesc);
@@ -81,7 +87,8 @@ class PerfectNegotiationHandler {
 
       if (description.type == 'offer') {
         final answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
+        final optimizedAnswer = WebRtcService.optimizeSdp(answer);
+        await pc.setLocalDescription(optimizedAnswer);
         final localDesc = await pc.getLocalDescription();
         if (localDesc != null) {
           await sendDescription(localDesc);

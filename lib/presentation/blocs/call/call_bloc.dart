@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,6 +48,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   StreamSubscription<RTCIceConnectionState>? _iceStateSub;
   StreamSubscription<ConnectionQuality>? _qualitySub;
   StreamSubscription<RTCSessionDescription>? _sdpSub;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
   Timer? _callTimer;
   Timer? _heartbeatTimer;
   Timer? _ringTimer;
@@ -114,6 +116,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     on<_IceConnectionStateChanged>(_onIceConnectionStateChanged);
     on<_CallTimerTick>(_onCallTimerTick);
     on<_QualityChanged>(_onQualityChanged);
+    on<_PerformIceRestart>(_onPerformIceRestart);
+    on<_NetworkChanged>(_onNetworkChanged);
   }
 
   // ── TURN Retry Helper ──
@@ -148,6 +152,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     }
 
     try {
+      // Network connectivity check — fail fast if offline
+      final connectivity = await Connectivity().checkConnectivity();
+      if (connectivity.every((r) => r == ConnectivityResult.none)) {
+        emit(const CallState().copyWith(
+          status: CallStatus.failed,
+          errorMessage: 'No network connection',
+        ));
+        return;
+      }
+
       _callSetupStartedAt = DateTime.now();
 
       // Start from a clean state to avoid stale callId from prior attempts
@@ -445,7 +459,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       await pc.setRemoteDescription(resolvedOffer);
       debugPrint('CallBloc: [accept] step 6 — createAnswer');
       final answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
+      final optimizedAnswer = WebRtcService.optimizeSdp(answer);
+      await pc.setLocalDescription(optimizedAnswer);
       final localDesc = await pc.getLocalDescription();
       if (localDesc != null) {
         debugPrint('CallBloc: [accept] step 7 — sendAnswer');
@@ -543,7 +558,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   ) async {
     if (state.callId == null) return;
     try {
-      await _callRepository.endCall(state.callId!, reason: 'declined');
+      await _callRepository
+          .endCall(state.callId!, reason: 'declined')
+          .timeout(const Duration(seconds: 5));
     } catch (e) {
       debugPrint('CallBloc: rejectCall error: $e');
     }
@@ -578,7 +595,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     );
 
     try {
-      await _callRepository.endCall(state.callId!, reason: reason);
+      await _callRepository
+          .endCall(state.callId!, reason: reason)
+          .timeout(const Duration(seconds: 5));
     } catch (e) {
       debugPrint('CallBloc: endCall error: $e');
     }
@@ -628,6 +647,25 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     Emitter<CallState> emit,
   ) async {
     if (state.callId == null || state.remoteUserId == null) return;
+
+    // Optimistically upgrade our own media immediately (requester starts camera
+    // now, so video is ready to flow as soon as the responder accepts).
+    // This avoids the race where both peers upgrade simultaneously on 'accepted'.
+    try {
+      await _webRtcService?.upgradeToVideo();
+      emit(state.copyWith(
+        callType: CallType.video,
+        isVideoEnabled: true,
+        isSpeakerOn: true,
+      ));
+    } catch (e) {
+      debugPrint('CallBloc: requestVideoUpgrade — upgradeToVideo failed: $e');
+      emit(state.copyWith(
+        errorMessage: 'Camera unavailable. Check permissions.',
+      ));
+      return; // Don't send the request if our own camera failed
+    }
+
     await _signalingService.requestVideoUpgrade(
       state.callId!,
       state.isCaller ? 'caller' : 'callee',
@@ -649,15 +687,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         emit(state.copyWith(
           callType: CallType.video,
           isVideoEnabled: true,
+          isSpeakerOn: true,
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
         ));
       } catch (e) {
         debugPrint('CallBloc: upgradeToVideo error: $e');
-        // Clear upgrade flags so UI doesn't stay stuck
         emit(state.copyWith(
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
+          errorMessage: 'Camera unavailable. Check permissions.',
         ));
       }
     } else {
@@ -716,7 +755,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       }
     }
 
-    // Handle video upgrade accepted by remote peer
+    // Handle video upgrade accepted by remote peer.
+    // Only the RESPONDER needs to upgrade here — the requester already upgraded
+    // optimistically in _onRequestVideoUpgrade to avoid both sides renegotiating
+    // simultaneously.
     if (session.videoUpgradeRequest == 'accepted' &&
         state.callType == CallType.voice) {
       try {
@@ -724,14 +766,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         emit(state.copyWith(
           callType: CallType.video,
           isVideoEnabled: true,
+          isSpeakerOn: true,
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
         ));
       } catch (e) {
-        debugPrint('CallBloc: upgrade accepted but failed: $e');
+        debugPrint('CallBloc: upgrade accepted but camera failed: $e');
         emit(state.copyWith(
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
+          errorMessage: 'Camera unavailable. Check permissions.',
         ));
       }
     }
@@ -799,6 +843,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           }
         });
 
+        // Start network monitoring for proactive ICE restart on WiFi↔cellular
+        _startNetworkMonitoring();
+
         // Start quality monitoring
         if (_qualityMonitor == null && _webRtcService?.peerConnection != null) {
           _qualityMonitor =
@@ -810,7 +857,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         }
 
       case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-        // Temporary disconnection — try ICE restart with exponential backoff
+        // Temporary disconnection — try ICE restart with exponential backoff.
+        // The actual restart is dispatched as a BLoC event so it runs within
+        // the event queue, avoiding races with cleanup/endCall.
         if (_iceRestartAttempts < _maxIceRestarts) {
           emit(state.copyWith(status: CallStatus.reconnecting));
           _iceRestartAttempts++;
@@ -826,12 +875,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
             attempt: _iceRestartAttempts,
           );
           Future.delayed(delay, () {
-            if (!isClosed && state.status == CallStatus.reconnecting) {
-              _webRtcService?.peerConnection?.restartIce();
-              if (state.callId != null) {
-                _signalingService.updateIceRestartCount(
-                    state.callId!, _iceRestartAttempts);
-              }
+            if (!isClosed) {
+              add(const CallEvent.performIceRestart());
             }
           });
         }
@@ -876,6 +921,58 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     emit(state.copyWith(connectionQuality: event.quality));
   }
 
+  // ── ICE Restart (runs inside BLoC event queue — safe from races) ──
+
+  Future<void> _onPerformIceRestart(
+    _PerformIceRestart event,
+    Emitter<CallState> emit,
+  ) async {
+    // Guard: cleanup may have run between the delayed dispatch and now
+    if (state.callId == null ||
+        state.status != CallStatus.reconnecting ||
+        _webRtcService == null ||
+        _webRtcService!.isDisposed) {
+      return;
+    }
+    _webRtcService!.peerConnection?.restartIce();
+    _signalingService.updateIceRestartCount(
+        state.callId!, _iceRestartAttempts);
+  }
+
+  // ── Network Change Detection ──
+
+  void _startNetworkMonitoring() {
+    _connectivitySub?.cancel();
+    _connectivitySub = Connectivity().onConnectivityChanged.listen(
+      (results) {
+        final isConnected =
+            results.any((r) => r != ConnectivityResult.none);
+        add(CallEvent.networkChanged(isConnected: isConnected));
+      },
+    );
+  }
+
+  Future<void> _onNetworkChanged(
+    _NetworkChanged event,
+    Emitter<CallState> emit,
+  ) async {
+    if (state.callId == null) return;
+
+    if (event.isConnected &&
+        state.status == CallStatus.active &&
+        _webRtcService?.peerConnection != null) {
+      // Network came back — proactively restart ICE instead of waiting for
+      // the 15-30s WebRTC timeout to detect the dead path.
+      debugPrint('CallBloc: network changed while active — '
+          'proactive ICE restart');
+      _webRtcService!.peerConnection!.restartIce();
+    }
+
+    if (!event.isConnected && state.status == CallStatus.active) {
+      emit(state.copyWith(status: CallStatus.reconnecting));
+    }
+  }
+
   // ── Cleanup ──
 
   Future<void> _cleanup() async {
@@ -901,6 +998,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _iceStateSub = null;
     await _qualitySub?.cancel();
     _qualitySub = null;
+    await _connectivitySub?.cancel();
+    _connectivitySub = null;
 
     _negotiationHandler?.dispose();
     _negotiationHandler = null;

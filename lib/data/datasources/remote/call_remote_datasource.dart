@@ -60,8 +60,9 @@ class CallRemoteDatasource {
         .call<Map<String, dynamic>>({});
 
     final data = Map<String, dynamic>.from(result.data);
-    // Detect TURN presence: ttl > 0 means TURN creds were generated
-    data['hasTurn'] = (data['ttl'] as int? ?? 0) > 0;
+    // Server now returns hasTurn directly; fall back to ttl heuristic
+    data['hasTurn'] = data['hasTurn'] == true ||
+        (data['ttl'] as int? ?? 0) > 0;
     _cachedTurnCredentials = data;
     _turnCredentialsCachedAt = DateTime.now();
     return data;

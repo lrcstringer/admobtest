@@ -45,7 +45,7 @@ export const getTurnCredentials = onCall(
 
     // Gracefully fall back to STUN-only when TURN is not configured
     if (!keyId || !apiToken) {
-      return { iceServers: stunServers, ttl: 0 };
+      return { iceServers: stunServers, ttl: 0, hasTurn: false };
     }
 
     try {
@@ -63,20 +63,49 @@ export const getTurnCredentials = onCall(
 
       if (!response.ok) {
         // TURN failed — fall back to STUN-only rather than crashing the call
-        return { iceServers: stunServers, ttl: 0 };
+        return { iceServers: stunServers, ttl: 0, hasTurn: false };
       }
 
-      const turnCreds = await response.json() as { iceServers: unknown[] };
+      const turnCreds = await response.json() as { iceServers: Array<{ urls: string | string[]; username?: string; credential?: string }> };
+
+      // Add TCP TURN fallback for restrictive firewalls that block UDP.
+      // Cloudflare returns UDP-only servers by default; we derive TCP
+      // variants on port 443 so the ICE agent tries them as a last resort.
+      const tcpFallbackServers: typeof turnCreds.iceServers = [];
+      for (const server of turnCreds.iceServers) {
+        const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
+        const tcpUrls: string[] = [];
+        for (const url of urls) {
+          // turn:host:port?transport=udp → turn:host:443?transport=tcp
+          if (url.startsWith("turn:") && !url.includes("transport=tcp")) {
+            const tcpUrl = url
+              .replace(/:\d+\??/, ":443?")
+              .replace(/transport=udp/, "transport=tcp");
+            // Only add if it actually changed (avoid duplicates)
+            if (tcpUrl !== url) tcpUrls.push(tcpUrl);
+          }
+        }
+        if (tcpUrls.length > 0) {
+          tcpFallbackServers.push({
+            urls: tcpUrls,
+            username: server.username,
+            credential: server.credential,
+          });
+        }
+      }
+
       return {
         iceServers: [
           ...stunServers,
           ...turnCreds.iceServers,
+          ...tcpFallbackServers,
         ],
         ttl: 7200,
+        hasTurn: true,
       };
     } catch {
       // Network error fetching TURN creds — fall back to STUN-only
-      return { iceServers: stunServers, ttl: 0 };
+      return { iceServers: stunServers, ttl: 0, hasTurn: false };
     }
   },
 );
@@ -166,17 +195,26 @@ export const initiateCall = onCall(
 
     // Pre-create RTDB signaling node with participant UIDs for security rules.
     // The rules require auth.uid to be in participants/ for read/write access.
+    // Retry once on failure — without this node, client writes are rejected
+    // by security rules.
+    const signalingData = {
+      createdAt: admin.database.ServerValue.TIMESTAMP,
+      participants: {
+        [userId]: true,
+        [recipientId]: true,
+      },
+    };
     try {
-      await rtdb.ref(`callSignaling/${callRef.id}`).set({
-        createdAt: admin.database.ServerValue.TIMESTAMP,
-        participants: {
-          [userId]: true,
-          [recipientId]: true,
-        },
-      });
+      await rtdb.ref(`callSignaling/${callRef.id}`).set(signalingData);
     } catch (e) {
-      console.error("RTDB signaling node creation failed:", e);
-      // Non-fatal — client writes will create the node on first use
+      console.error("RTDB signaling node creation failed, retrying:", e);
+      try {
+        await rtdb.ref(`callSignaling/${callRef.id}`).set(signalingData);
+      } catch (e2) {
+        console.error("RTDB signaling node retry failed:", e2);
+        // Still non-fatal — stale call scheduler will clean up if the call
+        // can't proceed. Throwing here would leave a dangling Firestore doc.
+      }
     }
 
     // ── Send push notifications (outside transaction — fire and forget) ──

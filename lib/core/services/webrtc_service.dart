@@ -96,9 +96,14 @@ class WebRtcService {
       debugPrint('WebRtcService: audio config timeout/error (non-fatal): $e');
     }
 
-    // Create peer connection
+    // Create peer connection with ICE candidate pooling for faster setup.
+    // iceCandidatePoolSize pre-gathers candidates before createOffer(),
+    // saving ~200-500ms from the offer creation path.
     _peerConnection = await createPeerConnection(
-      iceServers,
+      {
+        ...iceServers,
+        'iceCandidatePoolSize': 1,
+      },
       {
         'optional': [
           {'DtlsSrtpKeyAgreement': true},
@@ -173,6 +178,58 @@ class WebRtcService {
             direction: TransceiverDirection.RecvOnly),
       );
     }
+  }
+
+  // ── SDP Optimization ──
+
+  /// Optimize Opus codec parameters in the SDP for voice calls:
+  /// - useinbandfec=1: Forward Error Correction for lossy networks
+  /// - usedtx=1: Discontinuous Transmission — saves bandwidth during silence
+  /// - maxaveragebitrate=32000: Cap bandwidth for voice (32 kbps is high quality mono)
+  /// - stereo=0: Mono for voice calls (saves bandwidth)
+  static RTCSessionDescription optimizeSdp(RTCSessionDescription desc) {
+    if (desc.sdp == null) return desc;
+    var sdp = desc.sdp!;
+
+    // Find the Opus fmtp line and append parameters
+    final opusPayloadRegex = RegExp(r'a=rtpmap:(\d+) opus/48000/2');
+    final match = opusPayloadRegex.firstMatch(sdp);
+    if (match != null) {
+      final payloadType = match.group(1);
+      final fmtpPrefix = 'a=fmtp:$payloadType';
+      if (sdp.contains(fmtpPrefix)) {
+        // Append to existing fmtp line if params not already present
+        sdp = sdp.replaceAllMapped(
+          RegExp('($fmtpPrefix [^\r\n]*)'),
+          (m) {
+            var line = m.group(1)!;
+            if (!line.contains('useinbandfec')) {
+              line += ';useinbandfec=1';
+            }
+            if (!line.contains('usedtx')) {
+              line += ';usedtx=1';
+            }
+            if (!line.contains('maxaveragebitrate')) {
+              line += ';maxaveragebitrate=32000';
+            }
+            if (!line.contains('stereo')) {
+              line += ';stereo=0';
+            }
+            return line;
+          },
+        );
+      } else {
+        // No fmtp line for Opus — add one after the rtpmap line
+        sdp = sdp.replaceFirst(
+          match.group(0)!,
+          '${match.group(0)}\r\n$fmtpPrefix '
+              'minptime=10;useinbandfec=1;usedtx=1;'
+              'maxaveragebitrate=32000;stereo=0',
+        );
+      }
+    }
+
+    return RTCSessionDescription(sdp, desc.type);
   }
 
   // ── Media Controls ──

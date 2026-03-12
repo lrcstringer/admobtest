@@ -34,6 +34,7 @@ function requireAuth(request: { auth?: { uid: string } }): string {
 /**
  * Follow a brand. Adds clientId to user's followedBrands array
  * and creates a brandFollowers/{clientId}/followers/{userId} doc.
+ * Uses idempotency check to prevent double-increment of followerCount.
  */
 export const followBrand = onCall(
   { labels: { area: "social" } },
@@ -47,35 +48,35 @@ export const followBrand = onCall(
       throw new HttpsError("invalid-argument", "clientId is required");
     }
 
-    // Verify client exists and is active
-    const clientDoc = await db.collection("clients").doc(clientId).get();
-    if (!clientDoc.exists || clientDoc.data()?.isActive !== true) {
-      throw new HttpsError("not-found", "Brand not found");
-    }
+    const followerRef = db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId);
+    const clientRef = db.collection("clients").doc(clientId);
 
-    const batch = db.batch();
+    // Transaction: check brand exists + check not already following + atomic writes
+    await db.runTransaction(async (tx) => {
+      const [clientDoc, followerDoc] = await Promise.all([
+        tx.get(clientRef),
+        tx.get(followerRef),
+      ]);
 
-    // Add to user's followedBrands array
-    batch.update(db.collection("users").doc(userId), {
-      followedBrands: admin.firestore.FieldValue.arrayUnion(clientId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+      if (!clientDoc.exists || clientDoc.data()?.isActive !== true) {
+        throw new HttpsError("not-found", "Brand not found");
+      }
+      if (followerDoc.exists) {
+        throw new HttpsError("already-exists", "Already following this brand");
+      }
 
-    // Create follower document
-    batch.set(
-      db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId),
-      {
+      tx.update(db.collection("users").doc(userId), {
+        followedBrands: admin.firestore.FieldValue.arrayUnion(clientId),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      tx.set(followerRef, {
         userId,
         followedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }
-    );
-
-    // Increment follower count on client doc
-    batch.update(db.collection("clients").doc(clientId), {
-      followerCount: admin.firestore.FieldValue.increment(1),
+      });
+      tx.update(clientRef, {
+        followerCount: admin.firestore.FieldValue.increment(1),
+      });
     });
-
-    await batch.commit();
 
     logger.info(`followBrand: user ${userId} followed brand ${clientId}`);
     return { success: true };
@@ -85,6 +86,7 @@ export const followBrand = onCall(
 /**
  * Unfollow a brand. Removes clientId from user's followedBrands array
  * and deletes the brandFollowers doc.
+ * Uses idempotency check to prevent double-decrement of followerCount.
  */
 export const unfollowBrand = onCall(
   { labels: { area: "social" } },
@@ -98,25 +100,41 @@ export const unfollowBrand = onCall(
       throw new HttpsError("invalid-argument", "clientId is required");
     }
 
-    const batch = db.batch();
+    const followerRef = db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId);
+    const clientRef = db.collection("clients").doc(clientId);
 
-    // Remove from user's followedBrands array
-    batch.update(db.collection("users").doc(userId), {
-      followedBrands: admin.firestore.FieldValue.arrayRemove(clientId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    // Transaction: check actually following before decrement
+    await db.runTransaction(async (tx) => {
+      const [clientDoc, followerDoc] = await Promise.all([
+        tx.get(clientRef),
+        tx.get(followerRef),
+      ]);
+
+      if (!followerDoc.exists) {
+        // Already unfollowed — idempotent, just clean up user array
+        tx.update(db.collection("users").doc(userId), {
+          followedBrands: admin.firestore.FieldValue.arrayRemove(clientId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return;
+      }
+
+      tx.update(db.collection("users").doc(userId), {
+        followedBrands: admin.firestore.FieldValue.arrayRemove(clientId),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      tx.delete(followerRef);
+
+      // Only decrement if brand doc exists and count > 0
+      if (clientDoc.exists) {
+        const currentCount = clientDoc.data()?.followerCount || 0;
+        if (currentCount > 0) {
+          tx.update(clientRef, {
+            followerCount: admin.firestore.FieldValue.increment(-1),
+          });
+        }
+      }
     });
-
-    // Delete follower document
-    batch.delete(
-      db.collection("brandFollowers").doc(clientId).collection("followers").doc(userId)
-    );
-
-    // Decrement follower count on client doc
-    batch.update(db.collection("clients").doc(clientId), {
-      followerCount: admin.firestore.FieldValue.increment(-1),
-    });
-
-    await batch.commit();
 
     logger.info(`unfollowBrand: user ${userId} unfollowed brand ${clientId}`);
     return { success: true };
@@ -425,10 +443,12 @@ export const getBrandMutualFollowers = onCall(
         if (mutualFollowers.length >= resultLimit) break;
         const contactDoc = await db.collection("users").doc(doc.id).get();
         const contactData = contactDoc.data();
+        // Skip deleted or inactive users
+        if (!contactData || contactData.isDeleted === true) continue;
         mutualFollowers.push({
           userId: doc.id,
-          displayName: contactData?.displayName || "User",
-          photoUrl: contactData?.photoUrl || null,
+          displayName: contactData.displayName || "User",
+          photoUrl: contactData.photoUrl || null,
         });
       }
     }
@@ -447,7 +467,8 @@ export const getBrandMutualFollowers = onCall(
 
 /**
  * Toggle follow/unfollow for a brand.
- * Checks current state and performs the opposite action atomically.
+ * Uses transaction to atomically check state and toggle, preventing
+ * followerCount race conditions under concurrent calls.
  */
 export const toggleBrandFollow = onCall(
   { labels: { area: "social" } },
@@ -460,56 +481,54 @@ export const toggleBrandFollow = onCall(
       throw new HttpsError("invalid-argument", "brandId is required");
     }
 
-    // Check if user currently follows this brand
-    const followerDoc = await db
-      .collection("brandFollowers")
-      .doc(brandId)
-      .collection("followers")
-      .doc(userId)
-      .get();
+    const followerRef = db.collection("brandFollowers").doc(brandId).collection("followers").doc(userId);
+    const clientRef = db.collection("clients").doc(brandId);
+    const userRef = db.collection("users").doc(userId);
 
-    const isCurrentlyFollowing = followerDoc.exists;
-    const batch = db.batch();
+    const isFollowing = await db.runTransaction(async (tx) => {
+      const [followerDoc, clientDoc] = await Promise.all([
+        tx.get(followerRef),
+        tx.get(clientRef),
+      ]);
 
-    if (isCurrentlyFollowing) {
-      // Unfollow
-      batch.update(db.collection("users").doc(userId), {
-        followedBrands: admin.firestore.FieldValue.arrayRemove(brandId),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      batch.delete(
-        db.collection("brandFollowers").doc(brandId).collection("followers").doc(userId)
-      );
-      batch.update(db.collection("clients").doc(brandId), {
-        followerCount: admin.firestore.FieldValue.increment(-1),
-      });
-    } else {
-      // Verify brand exists and is active
-      const clientDoc = await db.collection("clients").doc(brandId).get();
-      if (!clientDoc.exists || clientDoc.data()?.isActive !== true) {
-        throw new HttpsError("not-found", "Brand not found");
-      }
+      const isCurrentlyFollowing = followerDoc.exists;
 
-      // Follow
-      batch.update(db.collection("users").doc(userId), {
-        followedBrands: admin.firestore.FieldValue.arrayUnion(brandId),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      batch.set(
-        db.collection("brandFollowers").doc(brandId).collection("followers").doc(userId),
-        {
+      if (isCurrentlyFollowing) {
+        // Unfollow
+        tx.update(userRef, {
+          followedBrands: admin.firestore.FieldValue.arrayRemove(brandId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.delete(followerRef);
+        if (clientDoc.exists) {
+          const currentCount = clientDoc.data()?.followerCount || 0;
+          if (currentCount > 0) {
+            tx.update(clientRef, {
+              followerCount: admin.firestore.FieldValue.increment(-1),
+            });
+          }
+        }
+        return false;
+      } else {
+        // Follow — verify brand is active
+        if (!clientDoc.exists || clientDoc.data()?.isActive !== true) {
+          throw new HttpsError("not-found", "Brand not found");
+        }
+        tx.update(userRef, {
+          followedBrands: admin.firestore.FieldValue.arrayUnion(brandId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.set(followerRef, {
           userId,
           followedAt: admin.firestore.FieldValue.serverTimestamp(),
-        }
-      );
-      batch.update(db.collection("clients").doc(brandId), {
-        followerCount: admin.firestore.FieldValue.increment(1),
-      });
-    }
+        });
+        tx.update(clientRef, {
+          followerCount: admin.firestore.FieldValue.increment(1),
+        });
+        return true;
+      }
+    });
 
-    await batch.commit();
-
-    const isFollowing = !isCurrentlyFollowing;
     logger.info(`toggleBrandFollow: user ${userId} ${isFollowing ? "followed" : "unfollowed"} brand ${brandId}`);
     return { success: true, isFollowing };
   }

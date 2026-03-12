@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/marketplace_listing.dart';
+import '../../domain/entities/location_data.dart';
+import '../../domain/enums/delivery_method.dart';
 import '../../domain/enums/listing_status.dart';
 import '../../domain/enums/marketplace_category.dart';
+import '../../domain/enums/service_area_type.dart';
 
 part 'marketplace_listing_model.freezed.dart';
 
@@ -31,6 +34,16 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
     @Default(0) int reportCount,
     DateTime? expiresAt,
     required DateTime createdAt,
+    // ── New fields (Spec §8.25) ──
+    LocationData? locationData,
+    @Default(ServiceAreaType.myLocationOnly) ServiceAreaType serviceAreaType,
+    @Default(DeliveryMethod.collection) DeliveryMethod deliveryMethod,
+    int? deliveryFee,
+    String? geohash,
+    @Default(0) int favouriteCount,
+    @Default(0) int renewalCount,
+    @Default(0) int totalPausedDays,
+    DateTime? pausedAt,
   }) = _MarketplaceListingModel;
 
   const MarketplaceListingModel._();
@@ -69,6 +82,21 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
           : json['createdAt'] is String
               ? DateTime.parse(json['createdAt'] as String)
               : DateTime.now(),
+      // New fields (Spec §8.25)
+      locationData: json['locationData'] is Map<String, dynamic>
+          ? LocationData.fromJson(
+              json['locationData'] as Map<String, dynamic>)
+          : null,
+      serviceAreaType: _parseServiceAreaType(json['serviceAreaType'] as String?),
+      deliveryMethod: _parseDeliveryMethod(json['deliveryMethod'] as String?),
+      deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
+      geohash: json['geohash'] as String?,
+      favouriteCount: (json['favouriteCount'] as num?)?.toInt() ?? 0,
+      renewalCount: (json['renewalCount'] as num?)?.toInt() ?? 0,
+      totalPausedDays: (json['totalPausedDays'] as num?)?.toInt() ?? 0,
+      pausedAt: json['pausedAt'] is Timestamp
+          ? (json['pausedAt'] as Timestamp).toDate()
+          : null,
     );
   }
 
@@ -94,6 +122,16 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
       'reportCount': reportCount,
       if (expiresAt != null) 'expiresAt': Timestamp.fromDate(expiresAt!),
       'createdAt': Timestamp.fromDate(createdAt),
+      // New fields (Spec §8.25)
+      if (locationData != null) 'locationData': locationData!.toJson(),
+      'serviceAreaType': serviceAreaType.name,
+      'deliveryMethod': deliveryMethod.name,
+      if (deliveryFee != null) 'deliveryFee': deliveryFee,
+      if (geohash != null) 'geohash': geohash,
+      'favouriteCount': favouriteCount,
+      'renewalCount': renewalCount,
+      'totalPausedDays': totalPausedDays,
+      if (pausedAt != null) 'pausedAt': Timestamp.fromDate(pausedAt!),
     };
   }
 
@@ -120,6 +158,15 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
       reportCount: reportCount,
       expiresAt: expiresAt,
       createdAt: createdAt,
+      locationData: locationData,
+      serviceAreaType: serviceAreaType,
+      deliveryMethod: deliveryMethod,
+      deliveryFee: deliveryFee,
+      geohash: geohash,
+      favouriteCount: favouriteCount,
+      renewalCount: renewalCount,
+      totalPausedDays: totalPausedDays,
+      pausedAt: pausedAt,
     );
   }
 
@@ -146,6 +193,15 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
       reportCount: entity.reportCount,
       expiresAt: entity.expiresAt,
       createdAt: entity.createdAt,
+      locationData: entity.locationData,
+      serviceAreaType: entity.serviceAreaType,
+      deliveryMethod: entity.deliveryMethod,
+      deliveryFee: entity.deliveryFee,
+      geohash: entity.geohash,
+      favouriteCount: entity.favouriteCount,
+      renewalCount: entity.renewalCount,
+      totalPausedDays: entity.totalPausedDays,
+      pausedAt: entity.pausedAt,
     );
   }
 }
@@ -156,4 +212,20 @@ MarketplaceCategory _parseMarketplaceCategory(String? value) {
 
 ListingStatus _parseListingStatus(String? value) {
   return ListingStatusX.fromString(value ?? 'active');
+}
+
+ServiceAreaType _parseServiceAreaType(String? value) {
+  if (value == null) return ServiceAreaType.myLocationOnly;
+  return ServiceAreaType.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => ServiceAreaType.myLocationOnly,
+  );
+}
+
+DeliveryMethod _parseDeliveryMethod(String? value) {
+  if (value == null) return DeliveryMethod.collection;
+  return DeliveryMethod.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => DeliveryMethod.collection,
+  );
 }
