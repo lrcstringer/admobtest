@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketplace Hub Screen — Spec Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #1A1A2E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+/* Phone frame */
+.phone-frame {
+  width: 390px;
+  height: 780px;
+  background: #F5F7FA;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dark AppBar */
+.appbar {
+  background: linear-gradient(135deg, #0C1124 0%, #13161D 100%);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.appbar-back {
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+.appbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  flex: 1;
+}
+
+/* Trending strip */
+.trending-section {
+  padding: 12px 0 8px;
+  flex-shrink: 0;
+  background: #F5F7FA;
+}
+.trending-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94A3B8;
+  padding: 0 16px 6px;
+}
+.trending-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+  overflow-x: auto;
+}
+.trending-scroll::-webkit-scrollbar { display: none; }
+
+.trending-card {
+  width: 160px;
+  min-width: 160px;
+  background: #FFFFFF;
+  border: 1px solid #E8ECF1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.trending-img {
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(135deg, #E2E8F0 0%, #F1F5F9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  font-size: 20px;
+}
+.trending-info {
+  padding: 6px;
+}
+.trending-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1A1A2E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trending-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFB82C;
+  margin-top: 2px;
+}
+
+/* Category tabs */
+.tab-bar {
+  display: flex;
+  background: #FFFFFF;
+  border-bottom: 1px solid #EAECF0;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  white-space: nowrap;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab-item.active {
+  color: #08C2F4;
+  border-bottom-color: #08C2F4;
+}
+
+/* Search bar */
+.search-bar {
+  margin: 10px 16px;
+  padding: 10px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E8ECF1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.search-icon {
+  color: #94A3B8;
+  font-size: 16px;
+}
+.search-text {
+  font-size: 13px;
+  color: #94A3B8;
+  flex: 1;
+}
+
+/* Listing grid */
+.listing-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-content: start;
+}
+
+.listing-card {
+  background: #FFFFFF;
+  border: 1px solid #E8ECF1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+}
+.listing-img {
+  width: 100%;
+  height: 110px;
+  background: linear-gradient(135deg, #E2E8F0 0%, #F1F5F9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  font-size: 28px;
+}
+.listing-img.img-a { background: linear-gradient(135deg, #FFF0E6, #FFE4CC); }
+.listing-img.img-b { background: linear-gradient(135deg, #E6F7FF, #CCE9FF); }
+.listing-img.img-c { background: linear-gradient(135deg, #F0FFF4, #D4EDDA); }
+.listing-img.img-d { background: linear-gradient(135deg, #FFF5F5, #FFE0E0); }
+.listing-img.img-e { background: linear-gradient(135deg, #F5F0FF, #E8DEFF); }
+.listing-img.img-f { background: linear-gradient(135deg, #FFFFF0, #FFF8CC); }
+
+.listing-info {
+  padding: 10px;
+}
+.listing-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.listing-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FFB82C;
+  margin-bottom: 4px;
+}
+.listing-seller {
+  font-size: 11px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.verified-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #059669;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  color: white;
+}
+
+/* Sell FAB */
+.sell-fab {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #08C2F4, #0974FF);
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(8,194,244,0.3);
+  cursor: pointer;
+}
+.sell-fab-icon {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Container for FAB positioning */
+.phone-wrapper {
+  position: relative;
+  width: 390px;
+}
+
+/* Legend */
+.legend {
+  width: 390px;
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  color: #94A3B8;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.legend h3 {
+  color: #FFFFFF;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.legend .spec-val {
+  color: #08C2F4;
+  font-weight: 600;
+}
+.legend .section-label {
+  color: #FFB82C;
+  font-weight: 700;
+  display: block;
+  margin-top: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="phone-wrapper">
+  <div class="phone-frame">
+
+    <!-- Dark AppBar -->
+    <div class="appbar">
+      <span class="appbar-back">&#x2039;</span>
+      <span class="appbar-title">Intengiso</span>
+    </div>
+
+    <!-- Trending Strip (NEW) -->
+    <div class="trending-section">
+      <div class="trending-label">Trending</div>
+      <div class="trending-scroll">
+        <div class="trending-card">
+          <div class="trending-img">👟</div>
+          <div class="trending-info">
+            <div class="trending-title">Nike Air Max 90 (size 9)</div>
+            <div class="trending-price">1,200 tokens</div>
+          </div>
+        </div>
+        <div class="trending-card">
+          <div class="trending-img">📱</div>
+          <div class="trending-info">
+            <div class="trending-title">iPhone 12 case — clear</div>
+            <div class="trending-price">350 tokens</div>
+          </div>
+        </div>
+        <div class="trending-card">
+          <div class="trending-img">🧁</div>
+          <div class="trending-info">
+            <div class="trending-title">Homemade cupcakes (12pk)</div>
+            <div class="trending-price">800 tokens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="tab-bar">
+      <div class="tab-item active">🔧 Services</div>
+      <div class="tab-item">📦 Goods</div>
+      <div class="tab-item">🍲 Food</div>
+      <div class="tab-item">💼 Gigs</div>
+      <div class="tab-item">🤝 Group Buys</div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <span class="search-text">Search listings...</span>
+    </div>
+
+    <!-- Listing Grid -->
+    <div class="listing-grid">
+      <div class="listing-card">
+        <div class="listing-img img-a">🔧</div>
+        <div class="listing-info">
+          <div class="listing-title">Plumbing repairs — Soweto area</div>
+          <div class="listing-price">500 tokens</div>
+          <div class="listing-seller"><span class="verified-dot">✓</span> Thabo M.</div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img img-b">💇</div>
+        <div class="listing-info">
+          <div class="listing-title">Hair braiding at your location</div>
+          <div class="listing-price">800 tokens</div>
+          <div class="listing-seller"><span class="verified-dot">✓</span> Lindiwe K.</div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img img-c">🧹</div>
+        <div class="listing-info">
+          <div class="listing-title">Deep cleaning service (half day)</div>
+          <div class="listing-price">1,500 tokens</div>
+          <div class="listing-seller">Sipho N.</div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img img-d">📐</div>
+        <div class="listing-info">
+          <div class="listing-title">Maths tutoring Gr 10-12</div>
+          <div class="listing-price">400 tokens/hr</div>
+          <div class="listing-seller"><span class="verified-dot">✓</span> Nomsa D.</div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img img-e">🎨</div>
+        <div class="listing-info">
+          <div class="listing-title">Custom portraits — digital</div>
+          <div class="listing-price">600 tokens</div>
+          <div class="listing-seller">Bongani T.</div>
+        </div>
+      </div>
+      <div class="listing-card">
+        <div class="listing-img img-f">🚗</div>
+        <div class="listing-info">
+          <div class="listing-title">Car wash mobile service</div>
+          <div class="listing-price">350 tokens</div>
+          <div class="listing-seller"><span class="verified-dot">✓</span> Mandla Z.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sell FAB -->
+  <div class="sell-fab">
+    <span class="sell-fab-icon">+</span>
+    Sell
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <h3>MarketplaceHubScreen — Layout Breakdown</h3>
+
+  <span class="section-label">1. Dark AppBar</span>
+  Title: <span class="spec-val">"Intengiso"</span> — stays dark (IMaliAppBar)<br>
+
+  <span class="section-label">2. Trending Strip (NEW)</span>
+  Horizontal scroll of top listings — <span class="spec-val">160px wide cards</span>, 48px image + title + price<br>
+  Label: <span class="spec-val">"TRENDING" 9px uppercase #94A3B8</span><br>
+  Hidden if no trending data<br>
+
+  <span class="section-label">3. Category Tabs (5)</span>
+  <span class="spec-val">🔧 Services | 📦 Goods | 🍲 Food | 💼 Gigs | 🤝 Group Buys</span><br>
+  Active: <span class="spec-val">#08C2F4 cyan</span> label + indicator<br>
+  White bg, scrollable, <span class="spec-val">#EAECF0</span> bottom border<br>
+
+  <span class="section-label">4. Search Bar</span>
+  Client-side filtering — <span class="spec-val">white bg, #E8ECF1 border, cyan focus</span><br>
+
+  <span class="section-label">5. Listing Grid</span>
+  <span class="spec-val">2 columns</span>, 0.7 aspect ratio — white cards with image, title, price, seller<br>
+  Verified sellers: <span class="spec-val">#059669 green</span> checkmark dot<br>
+  Prices in <span class="spec-val">#FFB82C gold</span> tokens<br>
+  Infinite scroll — loads more at bottom<br>
+
+  <span class="section-label">6. Sell FAB</span>
+  <span class="spec-val">Cyan→blue gradient</span>, white text, "+" icon + "Sell"<br>
+  → Provider registration flow (if not yet a provider) or create listing
+</div>
+
+</body>
+</html>

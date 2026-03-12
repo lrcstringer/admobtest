@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMaliChat — Buy Tab Mockup (Light Commerce)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ───────────────────── RESET & BASE ───────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #1A1A2E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 0 40px;
+  color: #1A1A2E;
+}
+
+/* ───────────────────── CSS VARIABLES ───────────────────── */
+:root {
+  --buy-bg: #F5F7FA;
+  --buy-card: #FFFFFF;
+  --buy-card-border: #E8ECF1;
+  --buy-divider: #EAECF0;
+  --buy-text-primary: #1A1A2E;
+  --buy-text-secondary: #64748B;
+  --buy-text-tertiary: #94A3B8;
+  --buy-chip-bg: #F1F5F9;
+  --buy-chip-border: #E2E8F0;
+  --buy-shadow: rgba(0,0,0,0.05);
+  --gold: #FFB82C;
+  --orange: #FF6429;
+  --pink: #FF328C;
+  --purple: #A011FF;
+  --cyan: #08C2F4;
+  --blue: #0974FF;
+  --warning: #FF9900;
+  --error: #FF5252;
+  --success: #00E676;
+  --success-dark: #059669;
+  --dark-bg: #0C1124;
+  --dark-surface: #13161D;
+  --dark-elevated: #1A1E2A;
+  --dark-border: #2A2E3D;
+  --dark-gradient-start: #142978;
+}
+
+/* ───────────────────── TAB SWITCHER ───────────────────── */
+.tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 820px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+.tab-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border: 1px solid #2A2E3D;
+  border-radius: 20px;
+  background: #13161D;
+  color: #94A3B8;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: #08C2F4; color: #fff; }
+.tab-btn.active { background: #08C2F4; border-color: #08C2F4; color: #fff; }
+.tab-btn.offline-toggle {
+  border-style: dashed;
+  border-color: #FF9900;
+  color: #FF9900;
+}
+.tab-btn.offline-toggle:hover { background: rgba(255,153,0,0.15); }
+.tab-btn.offline-toggle.active-offline { background: rgba(255,153,0,0.2); color: #FFB82C; }
+
+/* ───────────────────── PHONE FRAME ───────────────────── */
+.phone {
+  width: 393px;
+  height: 852px;
+  border-radius: 44px;
+  background: #000;
+  box-shadow: 0 0 0 2px #333, 0 24px 80px rgba(0,0,0,0.6);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 36px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+/* Status bar */
+.status-bar {
+  height: 54px;
+  background: var(--dark-bg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.status-bar .time { visibility: hidden; }
+.status-bar .icons { display: flex; gap: 5px; font-size: 12px; }
+
+/* App bar */
+.app-bar {
+  height: 52px;
+  background: var(--dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+.app-bar .title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+.app-bar .actions { display: flex; gap: 12px; }
+.app-bar .action-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--dark-elevated);
+  border: 1px solid var(--dark-border);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; cursor: pointer;
+}
+.app-bar .back-btn {
+  background: none; border: none; color: #fff;
+  font-size: 22px; cursor: pointer; margin-right: 8px;
+  display: flex; align-items: center;
+}
+
+/* Content area */
+.content {
+  flex: 1;
+  background: var(--buy-bg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+.content::-webkit-scrollbar { width: 0; }
+
+/* Bottom nav */
+.bottom-nav {
+  height: 68px;
+  background: var(--dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-shrink: 0;
+  border-top: 1px solid var(--dark-border);
+  padding-bottom: 6px;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+}
+.nav-item .nav-icon { font-size: 22px; }
+.nav-item.active { color: var(--gold); }
+
+/* Screen visibility */
+.screen { display: none; height: 100%; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ───────────────────── OFFLINE BANNER ───────────────────── */
+.offline-el { display: none; }
+.offline-el.visible { display: flex !important; }
+.offline-banner {
+  background: #FFF8E1;
+  border-bottom: 1px solid #FFE082;
+  padding: 8px 16px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #7B6100;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* ───────────────────── COMMON COMPONENTS ───────────────────── */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.section-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cyan);
+  cursor: pointer;
+}
+.divider {
+  height: 1px;
+  background: var(--buy-divider);
+  margin: 16px 16px;
+}
+
+.fab {
+  position: sticky;
+  bottom: 0;
+  left: 0; right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(to top, var(--buy-bg) 80%, transparent);
+}
+.fab-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  background: var(--cyan);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(8,194,244,0.3);
+}
+.fab-btn.green { background: var(--success-dark); box-shadow: 0 4px 16px rgba(5,150,105,0.3); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--buy-chip-bg);
+  border: 1px solid var(--buy-chip-border);
+  color: var(--buy-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip.active { background: var(--cyan); border-color: var(--cyan); color: #fff; }
+
+.card {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--buy-shadow);
+}
+
+.token-price {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* ───────────────────── SCREEN 1: BUY MAIN ───────────────────── */
+
+/* Carousel */
+.carousel-wrapper { padding: 16px; }
+.carousel-card {
+  width: 100%;
+  height: 180px;
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.carousel-card.gold-gradient {
+  background: linear-gradient(135deg, #1A1A2E 0%, #2D1810 50%, #3D2008 100%);
+}
+.carousel-card .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,100,41,0.2);
+  border: 1px solid rgba(255,100,41,0.4);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--orange);
+  width: fit-content;
+}
+.carousel-card .hero-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+  max-width: 240px;
+}
+.carousel-card .brand-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.carousel-card .cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--gold);
+  color: #1A1A2E;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  width: fit-content;
+  cursor: pointer;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.carousel-card .deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(255,184,44,0.15);
+}
+.carousel-card .deco-circle.c1 { width: 120px; height: 120px; top: -20px; right: -20px; }
+.carousel-card .deco-circle.c2 { width: 80px; height: 80px; top: 10px; right: 10px; }
+.carousel-card .deco-circle.c3 { width: 60px; height: 60px; bottom: -10px; right: 40px; }
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.carousel-dots .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--buy-text-tertiary);
+}
+.carousel-dots .dot.active { background: var(--pink); width: 20px; border-radius: 4px; }
+
+/* Brand Partners strip */
+.brand-strip {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.brand-strip::-webkit-scrollbar { display: none; }
+.brand-card {
+  min-width: 140px;
+  max-width: 140px;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  scroll-snap-align: start;
+  border: 1px solid var(--buy-card-border);
+  position: relative;
+  overflow: hidden;
+}
+.brand-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.brand-card.vodacom {
+  background: rgba(46,125,50,0.06);
+  box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+}
+.brand-card.vodacom::before { background: #2E7D32; }
+.brand-card.pep {
+  background: rgba(245,127,23,0.06);
+  box-shadow: 0 2px 8px rgba(245,127,23,0.08);
+}
+.brand-card.pep::before { background: #F57F17; }
+.brand-card.mtn {
+  background: rgba(230,81,0,0.06);
+  box-shadow: 0 2px 8px rgba(230,81,0,0.08);
+}
+.brand-card.mtn::before { background: #E65100; }
+.brand-card.dstv {
+  background: rgba(21,101,192,0.06);
+  box-shadow: 0 2px 8px rgba(21,101,192,0.08);
+}
+.brand-card.dstv::before { background: #1565C0; }
+.brand-logo {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800;
+  color: #fff;
+}
+.brand-card .brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.brand-card .brand-desc {
+  font-size: 11px;
+  color: var(--buy-text-secondary);
+  line-height: 1.3;
+}
+
+/* Utilities - Dense Chip Grid */
+.category-groups { padding: 0 16px 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+.category-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 5px;
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px var(--buy-shadow);
+  transition: border-color 0.15s;
+}
+.category-item:hover { border-color: var(--cyan); }
+.category-item img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.category-item .cat-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+  white-space: nowrap;
+}
+
+/* New Drop card */
+.new-drop-card {
+  margin: 0 16px;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 100%);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+.new-drop-avatar {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--gold), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.new-drop-info { flex: 1; }
+.new-drop-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.new-drop-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.pill-badge.pink { background: rgba(255,50,140,0.12); color: var(--pink); }
+.pill-badge.cyan { background: rgba(8,194,244,0.12); color: var(--cyan); }
+.new-drop-subtitle {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+  margin-bottom: 2px;
+}
+.new-drop-timer {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pink);
+}
+
+/* Marketplace entry card */
+.marketplace-entry-card {
+  margin: 10px 16px 0;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFFFFF 100%);
+  border: 1px solid var(--buy-card-border);
+  border-left: 4px solid var(--cyan);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+.marketplace-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), #06A5D0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.marketplace-info { flex: 1; }
+.marketplace-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.marketplace-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.marketplace-subtitle {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+.arrow-icon {
+  font-size: 20px;
+  color: var(--buy-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* Hlangana section */
+.hlangana-section { padding: 0 16px; margin-top: 4px; }
+.hlangana-card {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-left: 4px solid var(--success-dark);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px var(--buy-shadow);
+}
+.hlangana-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.hlangana-avatar {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.hlangana-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.hlangana-prices {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.price-original {
+  font-size: 13px;
+  color: var(--buy-text-tertiary);
+  text-decoration: line-through;
+}
+.price-deal {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--success-dark);
+}
+.price-tokens {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+.progress-section { margin: 10px 0; }
+.progress-bar-bg {
+  height: 8px;
+  background: #E8ECF1;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--success-dark), #10B981);
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+}
+.progress-count { color: var(--buy-text-secondary); }
+.spots-left { font-weight: 700; }
+.spots-left.green { color: var(--success-dark); }
+.spots-left.orange { color: var(--orange); }
+.hlangana-cta {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 12px;
+  background: var(--success-dark);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* ───────────────────── SCREEN 2: CATEGORY/PRODUCTS ───────────────────── */
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+.provider-card {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 16px 10px;
+  text-align: center;
+  cursor: pointer;
+}
+.provider-card.selected { border-color: var(--cyan); border-width: 2px; }
+.provider-logo {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 8px;
+}
+.provider-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.product-list { padding: 0 16px; }
+.product-item {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.product-item.selected { border-color: var(--cyan); border-width: 2px; background: rgba(8,194,244,0.03); }
+.product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.product-price {
+  font-size: 13px;
+  color: var(--buy-text-secondary);
+}
+.product-tokens {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.input-field {
+  margin: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  background: var(--buy-card);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: var(--buy-text-primary);
+  width: calc(100% - 32px);
+  outline: none;
+}
+.input-field::placeholder { color: var(--buy-text-tertiary); }
+.input-field:focus { border-color: var(--cyan); }
+
+/* ───────────────────── SCREEN 3: CHECKOUT ───────────────────── */
+.summary-card {
+  margin: 16px;
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 18px;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+.summary-row:not(:last-child) { border-bottom: 1px solid var(--buy-divider); }
+.summary-label {
+  font-size: 13px;
+  color: var(--buy-text-secondary);
+}
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.summary-value.gold { color: var(--gold); }
+
+.wallet-options { padding: 0 16px; }
+.wallet-option {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.wallet-option.selected { border-color: var(--cyan); border-width: 2px; }
+.wallet-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.wallet-icon.gold-bg { background: linear-gradient(135deg, #FFFBEB, #FEF3C7); }
+.wallet-icon.cyan-bg { background: linear-gradient(135deg, #ECFEFF, #CFFAFE); }
+.wallet-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.wallet-balance {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+.check-mark {
+  margin-left: auto;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--cyan);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ───────────────────── SCREEN 4: SUCCESS ───────────────────── */
+.success-screen { text-align: center; padding: 32px 16px; }
+.success-icon { font-size: 64px; margin-bottom: 12px; }
+.success-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--success-dark);
+  margin-bottom: 6px;
+}
+.success-subtitle {
+  font-size: 14px;
+  color: var(--buy-text-secondary);
+  margin-bottom: 24px;
+}
+.voucher-box {
+  border: 2px dashed var(--success-dark);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 0 auto 20px;
+  max-width: 300px;
+  background: rgba(5,150,105,0.04);
+}
+.voucher-label {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+  margin-bottom: 8px;
+}
+.voucher-code {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--buy-text-primary);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.voucher-copy {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cyan);
+  cursor: pointer;
+}
+.receipt-card {
+  margin: 0 auto;
+  max-width: 300px;
+  text-align: left;
+}
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+}
+.btn-primary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-primary.cyan-fill { background: var(--cyan); color: #fff; }
+.btn-primary.outline { background: none; border: 2px solid var(--buy-card-border); color: var(--buy-text-primary); }
+
+/* ───────────────────── SCREEN 5: HISTORY ───────────────────── */
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+.history-list { padding: 0 16px; }
+.history-item {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.history-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.history-info { flex: 1; }
+.history-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.history-recipient {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+.history-right { text-align: right; }
+.history-amount {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.history-date {
+  font-size: 11px;
+  color: var(--buy-text-tertiary);
+}
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.status-badge.delivered { background: rgba(5,150,105,0.1); color: var(--success-dark); }
+.status-badge.pending { background: rgba(255,153,0,0.1); color: var(--warning); }
+
+/* ───────────────────── SCREEN 6: BRAND STOREFRONT ───────────────────── */
+.brand-hero {
+  background: linear-gradient(135deg, #1565C0, #0D47A1);
+  padding: 28px 20px;
+  text-align: center;
+  color: #fff;
+}
+.brand-hero-logo {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800;
+  margin: 0 auto 10px;
+  border: 2px solid rgba(255,255,255,0.4);
+}
+.brand-hero-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.brand-hero-tagline { font-size: 13px; opacity: 0.8; }
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 16px;
+}
+.quick-action {
+  text-align: center;
+  cursor: pointer;
+}
+.quick-action-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 6px;
+  box-shadow: 0 2px 6px var(--buy-shadow);
+}
+.quick-action-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+
+.storefront-list { padding: 0 16px; }
+.storefront-item {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.storefront-item-info { flex: 1; }
+.storefront-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.storefront-item-price {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+.buy-small-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--cyan);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ───────────────────── SCREEN 7: MARKETPLACE HUB ───────────────────── */
+.search-bar {
+  margin: 12px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  background: var(--buy-card);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--buy-text-tertiary);
+}
+.search-icon { font-size: 18px; }
+
+.market-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 12px;
+  overflow-x: auto;
+}
+.market-tabs::-webkit-scrollbar { display: none; }
+
+.trending-strip {
+  padding: 0 16px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.trending-strip::-webkit-scrollbar { display: none; }
+.trending-card {
+  min-width: 130px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--buy-shadow);
+}
+.trending-img {
+  width: 130px; height: 100px;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+}
+.trending-info { padding: 8px; }
+.trending-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+  margin-bottom: 2px;
+}
+.trending-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--orange);
+}
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+.listing-card {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--buy-shadow);
+}
+.listing-img {
+  width: 100%; height: 120px;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+}
+.listing-info { padding: 10px; }
+.listing-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+  margin-bottom: 4px;
+}
+.listing-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.listing-seller {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--buy-text-secondary);
+}
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+/* ───────────────────── SCREEN 8: LISTING DETAIL ───────────────────── */
+.listing-hero {
+  width: 100%; height: 240px;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 72px;
+  position: relative;
+}
+.listing-hero .img-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+.listing-hero .img-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.2);
+}
+.listing-hero .img-dot.active { background: var(--cyan); }
+
+.listing-detail-info { padding: 16px; }
+.listing-detail-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--buy-text-primary);
+  margin-bottom: 6px;
+}
+.listing-detail-seller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.seller-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--buy-chip-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--buy-text-secondary);
+}
+.seller-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--buy-text-primary);
+}
+.rating {
+  font-size: 13px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.price-card-detail {
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 0 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.price-zar {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--buy-text-primary);
+}
+.price-tokens-detail {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.add-cart-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: var(--cyan);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.description-section { padding: 0 16px 12px; }
+.desc-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+  margin-bottom: 6px;
+}
+.desc-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--buy-text-secondary);
+}
+
+.seller-info-card {
+  margin: 0 16px 16px;
+  background: var(--buy-card);
+  border: 1px solid var(--buy-card-border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.seller-info-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  color: #fff;
+  font-weight: 800;
+}
+.seller-info-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--buy-text-primary);
+}
+.seller-info-detail {
+  font-size: 12px;
+  color: var(--buy-text-secondary);
+}
+
+/* ───────────────────── SCREEN 9: ORDER DETAIL ───────────────────── */
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 16px 16px 12px;
+}
+.order-status-badge.escrow { background: rgba(255,184,44,0.12); color: #B8860B; }
+.order-status-badge.shipped { background: rgba(8,194,244,0.12); color: var(--cyan); }
+.order-status-badge.complete { background: rgba(5,150,105,0.12); color: var(--success-dark); }
+
+.timeline {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+.timeline-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 8px;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  background: var(--buy-card-border);
+  z-index: 0;
+}
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+}
+.timeline-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--buy-card-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 700;
+}
+.timeline-dot.done { background: var(--success-dark); }
+.timeline-dot.active { background: var(--gold); }
+.timeline-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--buy-text-tertiary);
+}
+.timeline-label.done { color: var(--success-dark); }
+.timeline-label.active { color: var(--gold); }
+
+.order-action-btns {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+.order-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+.order-btn.confirm { background: var(--cyan); color: #fff; border: none; }
+.order-btn.dispute { background: none; border: 2px solid var(--error); color: var(--error); }
+</style>
+</head>
+<body>
+
+<!-- ───────────────────── TAB SWITCHER ───────────────────── -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showScreen('buy-main')">Buy Tab</button>
+  <button class="tab-btn" onclick="showScreen('category')">Category / Products</button>
+  <button class="tab-btn" onclick="showScreen('checkout')">Checkout</button>
+  <button class="tab-btn" onclick="showScreen('success')">Success</button>
+  <button class="tab-btn" onclick="showScreen('history')">Purchase History</button>
+  <button class="tab-btn" onclick="showScreen('storefront')">Brand Storefront</button>
+  <button class="tab-btn" onclick="showScreen('marketplace')">Marketplace Hub</button>
+  <button class="tab-btn" onclick="showScreen('listing')">Listing Detail</button>
+  <button class="tab-btn" onclick="showScreen('order')">Order Detail</button>
+  <button class="tab-btn offline-toggle" onclick="toggleOffline(this)">Toggle Offline</button>
+</div>
+
+<!-- ───────────────────── PHONE FRAME ───────────────────── -->
+<div class="phone">
+  <div class="dynamic-island"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <span>&#x1F4F6;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 1: BUY MAIN ═══════════════════ -->
+  <div id="screen-buy-main" class="screen active">
+    <div class="app-bar">
+      <span class="title">Buy</span>
+      <div class="actions">
+        <div class="action-btn">&#x1F50D;</div>
+        <div class="action-btn">&#x1F556;</div>
+      </div>
+    </div>
+    <div class="content">
+      <!-- Offline Banner -->
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <!-- Layer 1: Featured Carousel -->
+      <div class="carousel-wrapper">
+        <div class="carousel-card gold-gradient">
+          <div class="deco-circle c1"></div>
+          <div class="deco-circle c2"></div>
+          <div class="deco-circle c3"></div>
+          <div>
+            <div class="badge">&#x1F525; LIMITED OFFER</div>
+            <div class="hero-title" style="margin-top:8px;">Buy data.<br>Earn 50 bonus tokens.</div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div class="brand-label">VODACOM</div>
+            <button class="cta-btn">Claim with Sasaza &#x203A;</button>
+          </div>
+        </div>
+        <div class="carousel-dots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+
+      <!-- Brand Partners Strip -->
+      <div class="brand-strip">
+        <div class="brand-card vodacom">
+          <div class="brand-logo" style="background:#2E7D32;">V</div>
+          <div class="brand-name">Vodacom</div>
+          <div class="brand-desc">Airtime, data &amp; bundles</div>
+        </div>
+        <div class="brand-card pep">
+          <div class="brand-logo" style="background:#F57F17;">P</div>
+          <div class="brand-name">PEP</div>
+          <div class="brand-desc">Vouchers &amp; deals</div>
+        </div>
+        <div class="brand-card mtn">
+          <div class="brand-logo" style="background:#E65100;">M</div>
+          <div class="brand-name">MTN</div>
+          <div class="brand-desc">Airtime &amp; bundles</div>
+        </div>
+        <div class="brand-card dstv">
+          <div class="brand-logo" style="background:#1565C0;">D</div>
+          <div class="brand-name">DStv</div>
+          <div class="brand-desc">Subscriptions</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Layer 2: Utilities -->
+      <div class="section-header">
+        <span class="section-title">Utilities</span>
+        <span class="section-link">See All &#x2192;</span>
+      </div>
+
+      <div class="category-groups">
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/lightning_48.png" alt=""><span class="cat-name">Electricity</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/phone_48.png" alt=""><span class="cat-name">Airtime</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/wifi_48.png" alt=""><span class="cat-name">Data</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/ticket_48.png" alt=""><span class="cat-name">Vouchers</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/cap_48.png" alt=""><span class="cat-name">School</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/bank_48.png" alt=""><span class="cat-name">Municipal</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/insurance_48.png" alt=""><span class="cat-name">Insurance</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/funeral_48.png" alt=""><span class="cat-name">Funeral</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/users_48.png" alt=""><span class="cat-name">Stokvel</span></div>
+        <div class="category-item"><img src="fintech_icons_light_dark_pack/gaming_48.png" alt=""><span class="cat-name">Gaming</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Layer 3: Marketplace & Deals -->
+      <div class="section-header">
+        <span class="section-title">Marketplace &amp; Deals</span>
+      </div>
+
+      <!-- New Drop Card -->
+      <div class="new-drop-card">
+        <div class="new-drop-avatar">&#x1F981;</div>
+        <div class="new-drop-info">
+          <div class="new-drop-title-row">
+            <span class="new-drop-title">Heritage Series #04</span>
+            <span class="pill-badge pink">NEW</span>
+          </div>
+          <div class="new-drop-subtitle">Only 47 remaining</div>
+          <div class="new-drop-timer">02:14 hours left</div>
+        </div>
+      </div>
+
+      <!-- Intengiso Marketplace Entry -->
+      <div class="marketplace-entry-card">
+        <div class="marketplace-icon">&#x1F3EA;</div>
+        <div class="marketplace-info">
+          <div class="marketplace-title-row">
+            <span class="marketplace-title">Intengiso Marketplace</span>
+            <span class="pill-badge cyan">EXPLORE</span>
+          </div>
+          <div class="marketplace-subtitle">Buy &amp; sell in your community &mdash; with trust</div>
+        </div>
+        <span class="arrow-icon">&#x203A;</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Hlangana Near You -->
+      <div class="section-header">
+        <span class="section-title">&#x1F91D; Active Hlangana Near You</span>
+      </div>
+
+      <div class="hlangana-section">
+        <!-- Card 1 -->
+        <div class="hlangana-card">
+          <div class="hlangana-header">
+            <div class="hlangana-avatar">&#x1F33D;</div>
+            <div>
+              <div class="hlangana-title">5kg Mealie Meal &mdash; Bulk Deal</div>
+              <div class="hlangana-prices">
+                <span class="price-original">R65</span>
+                <span class="price-deal">R45</span>
+                <span class="price-tokens">(310 tokens)</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:70%;"></div>
+            </div>
+            <div class="progress-label">
+              <span class="progress-count">14 of 20 joined</span>
+              <span class="spots-left green">6 spots left!</span>
+            </div>
+          </div>
+          <button class="hlangana-cta">Join Group Buy &middot; 310 tokens</button>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="hlangana-card">
+          <div class="hlangana-header">
+            <div class="hlangana-avatar">&#x1FAD2;</div>
+            <div>
+              <div class="hlangana-title">Sunflower Oil 5L &mdash; Group Price</div>
+              <div class="hlangana-prices">
+                <span class="price-original">R89</span>
+                <span class="price-deal">R62</span>
+                <span class="price-tokens">(430 tokens)</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-section">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:85%;"></div>
+            </div>
+            <div class="progress-label">
+              <span class="progress-count">17 of 20 joined</span>
+              <span class="spots-left orange">3 spots left!</span>
+            </div>
+          </div>
+          <button class="hlangana-cta">Join Group Buy &middot; 430 tokens</button>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 2: CATEGORY / PRODUCTS ═══════════════════ -->
+  <div id="screen-category" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('buy-main')">&#x2190;</span>
+        <span class="title">Electricity</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div style="padding:16px 16px 8px;">
+        <span class="section-title">Choose Provider</span>
+      </div>
+
+      <div class="provider-grid">
+        <div class="provider-card selected">
+          <div class="provider-logo">&#x26A1;</div>
+          <div class="provider-name">Eskom</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-logo">&#x1F3D7;</div>
+          <div class="provider-name">City Power</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-logo">&#x1F50C;</div>
+          <div class="provider-name">Prepaid24</div>
+        </div>
+      </div>
+
+      <div style="padding:0 16px 8px;">
+        <span class="section-title">Select Amount</span>
+      </div>
+
+      <div class="product-list">
+        <div class="product-item">
+          <div>
+            <div class="product-name">50 Units</div>
+            <div class="product-price">R60</div>
+          </div>
+          <div class="product-tokens">415 tokens</div>
+        </div>
+        <div class="product-item selected">
+          <div>
+            <div class="product-name">100 Units</div>
+            <div class="product-price">R120</div>
+          </div>
+          <div class="product-tokens">830 tokens</div>
+        </div>
+        <div class="product-item">
+          <div>
+            <div class="product-name">200 Units</div>
+            <div class="product-price">R230</div>
+          </div>
+          <div class="product-tokens">1,590 tokens</div>
+        </div>
+        <div class="product-item">
+          <div>
+            <div class="product-name">500 Units</div>
+            <div class="product-price">R550</div>
+          </div>
+          <div class="product-tokens">3,800 tokens</div>
+        </div>
+      </div>
+
+      <input class="input-field" type="text" placeholder="Enter meter number" />
+
+      <div class="fab">
+        <button class="fab-btn">Continue &middot; 830 tokens</button>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 3: CHECKOUT ═══════════════════ -->
+  <div id="screen-checkout" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('category')">&#x2190;</span>
+        <span class="title">Checkout</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div style="padding:16px 16px 8px;">
+        <span class="section-title">Order Summary</span>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">Product</span>
+          <span class="summary-value">Electricity &mdash; 100 Units</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Provider</span>
+          <span class="summary-value">Eskom</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Amount</span>
+          <span class="summary-value">R120.00</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Meter Number</span>
+          <span class="summary-value">0412 5589 8832</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tokens</span>
+          <span class="summary-value gold">830 tokens</span>
+        </div>
+      </div>
+
+      <div style="padding:8px 16px;">
+        <span class="section-title">Pay From</span>
+      </div>
+
+      <div class="wallet-options">
+        <div class="wallet-option selected">
+          <div class="wallet-icon gold-bg">&#x1F4B0;</div>
+          <div>
+            <div class="wallet-name">Main Wallet</div>
+            <div class="wallet-balance">Balance: 2,450 tokens</div>
+          </div>
+          <div class="check-mark">&#x2713;</div>
+        </div>
+        <div class="wallet-option">
+          <div class="wallet-icon cyan-bg">&#x1F3AF;</div>
+          <div>
+            <div class="wallet-name">Brand Wallet (Vodacom)</div>
+            <div class="wallet-balance">Balance: 500 tokens</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fab">
+        <button class="fab-btn">Pay 830 tokens</button>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 4: SUCCESS ═══════════════════ -->
+  <div id="screen-success" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="title">Purchase Complete</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="success-screen">
+        <div class="success-icon">&#x2705;</div>
+        <div class="success-title">Purchase Successful!</div>
+        <div class="success-subtitle">Your electricity voucher is ready</div>
+
+        <div class="voucher-box">
+          <div class="voucher-label">Your Voucher Code</div>
+          <div class="voucher-code">8847-2291-5563</div>
+          <div class="voucher-copy">&#x1F4CB; Copy to clipboard</div>
+        </div>
+
+        <div class="receipt-card card">
+          <div class="summary-row">
+            <span class="summary-label">Product</span>
+            <span class="summary-value">Electricity &mdash; 100 Units</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Amount</span>
+            <span class="summary-value">R120.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Wallet</span>
+            <span class="summary-value">Main Wallet</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Date</span>
+            <span class="summary-value">9 Mar 2026, 14:32</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Reference</span>
+            <span class="summary-value">#BUY-28A7F3</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary cyan-fill">Buy Again</button>
+          <button class="btn-primary outline" onclick="showScreen('buy-main')">Back to Buy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 5: PURCHASE HISTORY ═══════════════════ -->
+  <div id="screen-history" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('buy-main')">&#x2190;</span>
+        <span class="title">Purchase History</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="filter-chips">
+        <span class="chip active">All</span>
+        <span class="chip">Airtime</span>
+        <span class="chip">Electricity</span>
+        <span class="chip">DStv</span>
+        <span class="chip">Vouchers</span>
+        <span class="chip">Data</span>
+      </div>
+
+      <div class="history-list">
+        <div class="history-item">
+          <div class="history-icon">&#x26A1;</div>
+          <div class="history-info">
+            <div class="history-name">Electricity &mdash; 100 Units</div>
+            <div class="history-recipient">Meter: 0412 5589 8832</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">830 tokens</div>
+            <div class="history-date">9 Mar 2026</div>
+            <span class="status-badge delivered">Delivered</span>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-icon">&#x1F4F1;</div>
+          <div class="history-info">
+            <div class="history-name">Vodacom Airtime &mdash; R29</div>
+            <div class="history-recipient">072 841 9923</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">200 tokens</div>
+            <div class="history-date">8 Mar 2026</div>
+            <span class="status-badge delivered">Delivered</span>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-icon">&#x1F4F6;</div>
+          <div class="history-info">
+            <div class="history-name">MTN 5GB Weekly</div>
+            <div class="history-recipient">083 229 1047</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">340 tokens</div>
+            <div class="history-date">7 Mar 2026</div>
+            <span class="status-badge delivered">Delivered</span>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-icon">&#x1F4FA;</div>
+          <div class="history-info">
+            <div class="history-name">DStv Compact &mdash; R449</div>
+            <div class="history-recipient">Smartcard: 1029 8843 221</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">3,110 tokens</div>
+            <div class="history-date">5 Mar 2026</div>
+            <span class="status-badge pending">Pending</span>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-icon">&#x1F3AB;</div>
+          <div class="history-info">
+            <div class="history-name">PEP Gift Voucher &mdash; R50</div>
+            <div class="history-recipient">Self</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">345 tokens</div>
+            <div class="history-date">3 Mar 2026</div>
+            <span class="status-badge delivered">Delivered</span>
+          </div>
+        </div>
+
+        <div class="history-item">
+          <div class="history-icon">&#x26A1;</div>
+          <div class="history-info">
+            <div class="history-name">Electricity &mdash; 200 Units</div>
+            <div class="history-recipient">Meter: 0412 5589 8832</div>
+          </div>
+          <div class="history-right">
+            <div class="history-amount">1,590 tokens</div>
+            <div class="history-date">28 Feb 2026</div>
+            <span class="status-badge delivered">Delivered</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 6: BRAND STOREFRONT ═══════════════════ -->
+  <div id="screen-storefront" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('buy-main')">&#x2190;</span>
+        <span class="title">Brand Store</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="brand-hero">
+        <div class="brand-hero-logo">V</div>
+        <div class="brand-hero-name">Vodacom</div>
+        <div class="brand-hero-tagline">South Africa's leading network &mdash; airtime, data &amp; more</div>
+      </div>
+
+      <div style="padding:16px 16px 4px;">
+        <span class="section-title">Quick Actions</span>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-action">
+          <div class="quick-action-icon">&#x1F4F1;</div>
+          <div class="quick-action-label">Airtime</div>
+        </div>
+        <div class="quick-action">
+          <div class="quick-action-icon">&#x1F4F6;</div>
+          <div class="quick-action-label">Data</div>
+        </div>
+        <div class="quick-action">
+          <div class="quick-action-icon">&#x1F4E6;</div>
+          <div class="quick-action-label">Bundles</div>
+        </div>
+        <div class="quick-action">
+          <div class="quick-action-icon">&#x1F381;</div>
+          <div class="quick-action-label">Gift</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-header">
+        <span class="section-title">Featured Products</span>
+        <span class="section-link">See All &#x2192;</span>
+      </div>
+
+      <div class="storefront-list">
+        <div class="storefront-item">
+          <div class="storefront-item-info">
+            <div class="storefront-item-name">1GB Daily Data</div>
+            <div class="storefront-item-price">R12 &middot; <span class="token-price">83 tokens</span></div>
+          </div>
+          <button class="buy-small-btn">Buy</button>
+        </div>
+        <div class="storefront-item">
+          <div class="storefront-item-info">
+            <div class="storefront-item-name">5GB Weekly Data</div>
+            <div class="storefront-item-price">R49 &middot; <span class="token-price">340 tokens</span></div>
+          </div>
+          <button class="buy-small-btn">Buy</button>
+        </div>
+        <div class="storefront-item">
+          <div class="storefront-item-info">
+            <div class="storefront-item-name">R29 Airtime</div>
+            <div class="storefront-item-price">R29 &middot; <span class="token-price">200 tokens</span></div>
+          </div>
+          <button class="buy-small-btn">Buy</button>
+        </div>
+        <div class="storefront-item">
+          <div class="storefront-item-info">
+            <div class="storefront-item-name">10GB Monthly + 60min</div>
+            <div class="storefront-item-price">R149 &middot; <span class="token-price">1,030 tokens</span></div>
+          </div>
+          <button class="buy-small-btn">Buy</button>
+        </div>
+        <div class="storefront-item">
+          <div class="storefront-item-info">
+            <div class="storefront-item-name">R55 Airtime</div>
+            <div class="storefront-item-price">R55 &middot; <span class="token-price">380 tokens</span></div>
+          </div>
+          <button class="buy-small-btn">Buy</button>
+        </div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 7: MARKETPLACE HUB ═══════════════════ -->
+  <div id="screen-marketplace" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('buy-main')">&#x2190;</span>
+        <span class="title">Intengiso Marketplace</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">&#x1F50D;</span>
+        <span>Search products, sellers...</span>
+      </div>
+
+      <div class="market-tabs">
+        <span class="chip active">All</span>
+        <span class="chip">Food</span>
+        <span class="chip">Crafts</span>
+        <span class="chip">Services</span>
+        <span class="chip">Electronics</span>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Trending Now</span>
+      </div>
+
+      <div class="trending-strip">
+        <div class="trending-card">
+          <div class="trending-img">&#x1F9F6;</div>
+          <div class="trending-info">
+            <div class="trending-name">Hand-knit Beanie</div>
+            <div class="trending-tag">&#x1F525; 12 sold today</div>
+          </div>
+        </div>
+        <div class="trending-card">
+          <div class="trending-img">&#x1F36F;</div>
+          <div class="trending-info">
+            <div class="trending-name">Raw Honey 500ml</div>
+            <div class="trending-tag">&#x1F525; 8 sold today</div>
+          </div>
+        </div>
+        <div class="trending-card">
+          <div class="trending-img">&#x1F9F4;</div>
+          <div class="trending-info">
+            <div class="trending-name">Shea Butter Cream</div>
+            <div class="trending-tag">&#x1F525; 6 sold today</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Browse Listings</span>
+        <span class="section-link">Filter &#x2192;</span>
+      </div>
+
+      <div class="listing-grid">
+        <div class="listing-card" onclick="showScreen('listing')">
+          <div class="listing-img">&#x1F9F6;</div>
+          <div class="listing-info">
+            <div class="listing-title">Hand-knit Beanie</div>
+            <div class="listing-price">85 tokens</div>
+            <div class="listing-seller">
+              <span>Nomsa M.</span>
+              <span class="verified-badge">&#x2713; Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img">&#x1F36F;</div>
+          <div class="listing-info">
+            <div class="listing-title">Raw Honey 500ml</div>
+            <div class="listing-price">420 tokens</div>
+            <div class="listing-seller">
+              <span>Sipho K.</span>
+              <span class="verified-badge">&#x2713; Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img">&#x1F9F4;</div>
+          <div class="listing-info">
+            <div class="listing-title">Shea Butter Cream</div>
+            <div class="listing-price">210 tokens</div>
+            <div class="listing-seller">
+              <span>Thandi L.</span>
+              <span class="verified-badge">&#x2713; Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="listing-card">
+          <div class="listing-img">&#x1F9FA;</div>
+          <div class="listing-info">
+            <div class="listing-title">Woven Basket (Large)</div>
+            <div class="listing-price">550 tokens</div>
+            <div class="listing-seller">
+              <span>Grace N.</span>
+              <span class="verified-badge">&#x2713; Verified</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="height:16px;"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 8: LISTING DETAIL ═══════════════════ -->
+  <div id="screen-listing" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('marketplace')">&#x2190;</span>
+        <span class="title">Listing</span>
+      </div>
+      <div class="actions">
+        <div class="action-btn">&#x2764;</div>
+        <div class="action-btn">&#x2197;</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="listing-hero">
+        &#x1F9F6;
+        <div class="img-dots">
+          <div class="img-dot active"></div>
+          <div class="img-dot"></div>
+          <div class="img-dot"></div>
+        </div>
+      </div>
+
+      <div class="listing-detail-info">
+        <div class="listing-detail-title">Hand-knit Beanie</div>
+        <div class="listing-detail-seller">
+          <div class="seller-avatar">N</div>
+          <span class="seller-name">Nomsa M.</span>
+          <span class="verified-badge">&#x2713; Verified</span>
+        </div>
+        <div class="rating">&#x2605;&#x2605;&#x2605;&#x2605;&#x2606; 4.2 (18 reviews)</div>
+      </div>
+
+      <div class="price-card-detail">
+        <div>
+          <div class="price-zar">R12.50</div>
+          <div class="price-tokens-detail">85 tokens</div>
+        </div>
+        <button class="add-cart-btn">Add to Cart</button>
+      </div>
+
+      <div class="description-section">
+        <div class="desc-title">Description</div>
+        <div class="desc-text">
+          Handmade with love using 100% acrylic yarn. Available in multiple colours.
+          Perfect for the winter months ahead. Machine washable. One size fits most adults.
+          Each beanie is unique and crafted by hand in Khayelitsha, Cape Town.
+        </div>
+      </div>
+
+      <div class="seller-info-card">
+        <div class="seller-info-avatar">NM</div>
+        <div>
+          <div class="seller-info-name">Nomsa Mkhize</div>
+          <div class="seller-info-detail">Khayelitsha &middot; 47 sales &middot; Joined Jan 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ SCREEN 9: ORDER DETAIL ═══════════════════ -->
+  <div id="screen-order" class="screen">
+    <div class="app-bar">
+      <div style="display:flex;align-items:center;">
+        <span class="back-btn" onclick="showScreen('history')">&#x2190;</span>
+        <span class="title">Order Detail</span>
+      </div>
+      <div class="actions"></div>
+    </div>
+    <div class="content">
+      <div class="offline-el offline-banner">
+        &#x1F4F4;&nbsp; You're offline &middot; Showing saved data &middot; Updated 2 min ago
+      </div>
+
+      <div class="order-status-badge escrow">&#x1F512; In Escrow</div>
+
+      <div class="timeline">
+        <div class="timeline-track">
+          <div class="timeline-step">
+            <div class="timeline-dot done">&#x2713;</div>
+            <div class="timeline-label done">Paid</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot active">2</div>
+            <div class="timeline-label active">Shipped</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot">3</div>
+            <div class="timeline-label">Delivered</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-dot">4</div>
+            <div class="timeline-label">Complete</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 16px 8px;">
+        <span class="section-title">Order Details</span>
+      </div>
+
+      <div class="card" style="margin:0 16px 12px;">
+        <div class="summary-row">
+          <span class="summary-label">Product</span>
+          <span class="summary-value">Hand-knit Beanie</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Seller</span>
+          <span class="summary-value">Nomsa Mkhize</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Amount</span>
+          <span class="summary-value gold">85 tokens</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Order Date</span>
+          <span class="summary-value">7 Mar 2026</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Order ID</span>
+          <span class="summary-value">#MKT-9C2E1A</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Escrow Status</span>
+          <span class="summary-value" style="color:var(--warning);">Held in escrow</span>
+        </div>
+      </div>
+
+      <div style="padding:4px 16px 8px;">
+        <span class="section-title">Seller Note</span>
+      </div>
+      <div class="card" style="margin:0 16px 16px;">
+        <div class="desc-text" style="font-style:italic;">
+          "Shipped via PostNet on 8 Mar. Tracking: PN-882441. Expected delivery within 3&ndash;5 working days. Thank you for your order!"
+        </div>
+      </div>
+
+      <div class="order-action-btns">
+        <button class="order-btn confirm">Confirm Receipt</button>
+        <button class="order-btn dispute">Open Dispute</button>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span>Chat</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span>Earn</div>
+      <div class="nav-item active"><span class="nav-icon">&#x1F6D2;</span>Buy</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F4B3;</span>Wallet</div>
+      <div class="nav-item"><span class="nav-icon">&#x1F464;</span>Profile</div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  var target = document.getElementById('screen-' + id);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.tab-btn:not(.offline-toggle)').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  var tabs = ['buy-main', 'category', 'checkout', 'success', 'history', 'storefront', 'marketplace', 'listing', 'order'];
+  var idx = tabs.indexOf(id);
+  var tabBtns = document.querySelectorAll('.tab-btn:not(.offline-toggle)');
+  if (idx >= 0 && tabBtns[idx]) {
+    tabBtns[idx].classList.add('active');
+  }
+}
+
+function toggleOffline(btn) {
+  var els = document.querySelectorAll('.offline-el');
+  var isVisible = els.length > 0 && els[0].classList.contains('visible');
+  els.forEach(function(el) {
+    if (isVisible) {
+      el.classList.remove('visible');
+    } else {
+      el.classList.add('visible');
+    }
+  });
+  btn.classList.toggle('active-offline', !isVisible);
+}
+</script>
+
+</body>
+</html>

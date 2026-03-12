@@ -1,0 +1,2791 @@
+Good. I now have a complete picture of every relevant piece. Here is the full, definitive implementation plan.
+
+---
+
+# iMaliChat Buy Tab -- Complete Phased Implementation Plan
+
+## Preface: What Exists Today
+
+The Buy Tab is the 5th tab in the app's bottom navigation. It has working plumbing at every layer but the main screen shows a placeholder image. Here is a precise inventory:
+
+**Flutter Domain Layer:**
+- `lib/domain/entities/purchase.dart` -- `Purchase` entity (Freezed) with `PurchaseCategory` enum (airtime, data, electricity, voucher, other) and `PurchaseStatus` enum (pending, processing, completed, failed, refunded)
+- `lib/domain/entities/service_provider.dart` -- `ServiceProvider` entity (Freezed) with embedded `ServiceProduct` value object (id, name, code, priceTokens, priceZar, validity, etc.)
+- `lib/domain/repositories/purchase_repository.dart` -- Abstract interface with methods: `getServiceProviders`, `getProvidersByCategory`, `getProviderById`, `getProducts`, `getProductById`, `makePurchase`, `getPurchaseHistory`, `getPurchaseById`, `getRecentRecipients`, `validateRecipientNumber`
+
+**Flutter Data Layer:**
+- `lib/data/models/purchase_model.dart` -- Freezed model with manual `fromJson` (handles Timestamp), `toFirestoreJson`, `toEntity`, `fromEntity`. Note: models embed conversion methods directly; there are no separate mapper classes.
+- `lib/data/models/service_provider_model.dart` -- Same pattern, includes `ServiceProductModel`
+- `lib/data/datasources/remote/purchase_remote_datasource.dart` -- Reads from Firestore collections `serviceProviders`, `serviceProducts`, `purchases`. Calls `processPurchase` Cloud Function for VAS purchases. Uses `PlayIntegrityService` for security.
+- `lib/data/repositories/purchase_repository_impl.dart` -- `@LazySingleton(as: PurchaseRepository)` implementation
+
+**Flutter Presentation Layer:**
+- `lib/presentation/blocs/purchase/purchase_bloc.dart` -- `@injectable` BLoC with 14 event handlers covering the full VAS purchase lifecycle
+- `lib/presentation/blocs/purchase/purchase_event.dart` -- 13 Freezed events (loadProviders, loadProvidersByCategory, selectCategory, selectProvider, loadProducts, selectProduct, setRecipientNumber, validateRecipient, makePurchase, loadHistory, loadRecentRecipients, selectRecentRecipient, resetSelection, clearError, clearSuccess)
+- `lib/presentation/blocs/purchase/purchase_state.dart` -- Freezed state with fields for loading states, providers list, products list, history, selection, recipient validation, purchase status
+- `lib/presentation/screens/buy/buy_services_screen.dart` -- Shows `dragons.jpg`; the full VAS UI is in commented-out `_buildOriginal` method (category chips, provider grid, product list, recipient input)
+- `lib/presentation/screens/buy/buy_wallet_selection_screen.dart` -- Working wallet/sub-account selector with purchase confirmation
+- `lib/presentation/screens/buy/buy_success_screen.dart` -- Full success screen with voucher code display and clipboard copy
+- `lib/presentation/screens/buy/buy_failure_screen.dart` -- Full failure screen with retry flow
+- `lib/presentation/screens/buy/buy_transactions_screen.dart` -- Placeholder "Coming Soon"
+
+**Router** (`lib/presentation/router/app_router.dart`):
+```
+/buy (BuyServicesScreen)
+  /buy/wallet-selection (BuyWalletSelectionScreen)
+    /buy/wallet-selection/success (BuySuccessScreen)
+    /buy/wallet-selection/failure (BuyFailureScreen)
+  /buy/transactions (BuyTransactionsScreen)
+```
+
+**Cloud Functions:**
+- `functions/src/purchases.ts` -- `processPurchase` (onCall) and `getPurchaseDetails` (onCall). `processPurchase` validates balance (main wallet or sub-account), creates purchase doc, calls `processPurchaseTransaction` from the ledger, simulates VAS provider API, handles failure reversal with `reverseJournal`.
+- Exported in `functions/src/index.ts` via `export * from "./purchases"`
+
+**Ledger System:**
+- `functions/src/ledger/index.ts` -- `processPurchaseTransaction(userId, providerId, providerName, amount, purchaseId, subAccountId?, accountTypeId?, metadata?)` creates a double-entry journal: debit user account, credit supplier account. Uses `createTransferEntries`, `postJournal`, `debitSubAccount` inside a Firestore transaction.
+- `functions/src/ledger/types.ts` -- JournalType includes `"purchase"`, IdempotencyKey has `purchase(purchaseId)`, AccountId has `supplier(providerId)`, SystemAccounts has gift/spray escrow accounts as reference pattern
+- `functions/src/ledger/giftSprayEscrow.ts` -- `processGiftDebit`, `processGiftCredit`, `processGiftRefund` provide the exact pattern to follow for marketplace escrow (debit user -> credit escrow; debit escrow -> credit recipient/refund)
+
+**BLoC Provision Pattern** (`lib/app.dart`):
+- All BLoCs are resolved from GetIt in `initState()`: `_purchaseBloc = getIt<PurchaseBloc>()`
+- Provided via `MultiBlocProvider` with `BlocProvider<PurchaseBloc>.value(value: _purchaseBloc)`
+
+**Key Convention Notes:**
+- Entities use `@freezed`, NOT Equatable
+- Models use `@freezed` with manual `fromJson`/`toFirestoreJson` (NOT `@JsonSerializable` in practice)
+- Conversion is `toEntity()` / `fromEntity()` on the model class itself, not separate mapper files
+- BLoCs use `@injectable`, NOT Cubits
+- All navigation uses GoRouter, never `Navigator.push()`
+- DI: `@LazySingleton(as: RepositoryInterface)` for repos, `@LazySingleton(as: DatasourceInterface)` for datasources
+- Firestore write collections are locked (`allow write: if false`) and managed exclusively via Cloud Functions
+- Consumer-facing Cloud Functions use `onCall` with `requireAppCheck` and `requirePlayIntegrity`
+
+---
+
+## PHASE 1: Foundation -- Buy Tab Shell, Feature Flags, VAS Utilities Hub
+**Estimated effort: 3 weeks. Independently testable.**
+
+### 1.1 Feature Flag System
+
+The spec requires per-community feature toggling so marketplace features can roll out to anchor communities (Khayelitsha, Soweto, Umlazi, Mamelodi, Mitchells Plain) independently.
+
+#### New Entity
+
+**File:** `lib/domain/entities/feature_flag.dart`
+```dart
+@freezed
+class FeatureFlag with _$FeatureFlag {
+  const factory FeatureFlag({
+    required String id,
+    required String featureKey,       // "buy_vas", "buy_marketplace", "buy_group_buys"
+    required bool isEnabled,
+    required List<String> enabledCommunityIds,
+    @Default(false) bool isGlobal,    // true = enabled for all communities
+    DateTime? enabledAt,
+    DateTime? disabledAt,
+  }) = _FeatureFlag;
+
+  const FeatureFlag._();
+}
+```
+
+#### New Model
+
+**File:** `lib/data/models/feature_flag_model.dart`
+```dart
+@freezed
+class FeatureFlagModel with _$FeatureFlagModel {
+  const factory FeatureFlagModel({
+    required String id,
+    required String featureKey,
+    required bool isEnabled,
+    required List<String> enabledCommunityIds,
+    @Default(false) bool isGlobal,
+    DateTime? enabledAt,
+    DateTime? disabledAt,
+  }) = _FeatureFlagModel;
+
+  const FeatureFlagModel._();
+
+  factory FeatureFlagModel.fromJson(Map<String, dynamic> json) { ... }
+  Map<String, dynamic> toFirestoreJson() { ... }
+  FeatureFlag toEntity() { ... }
+  factory FeatureFlagModel.fromEntity(FeatureFlag entity) { ... }
+}
+```
+
+#### New Datasource
+
+**File:** `lib/data/datasources/remote/feature_flag_remote_datasource.dart`
+
+Abstract interface:
+```dart
+abstract class FeatureFlagRemoteDataSource {
+  Future<List<FeatureFlagModel>> getFeatureFlags();
+  Future<bool> isFeatureEnabled(String featureKey, {String? communityId});
+}
+```
+
+Implementation: `@LazySingleton(as: FeatureFlagRemoteDataSource)`
+- Reads from Firestore collection `featureFlags`
+- Implements 30-minute in-memory cache (`_cache` Map with `_lastFetchTime` DateTime)
+- `isFeatureEnabled` checks: `isGlobal == true` OR `communityId` in `enabledCommunityIds`
+
+#### New Repository
+
+**File:** `lib/domain/repositories/feature_flag_repository.dart`
+```dart
+abstract class FeatureFlagRepository {
+  Future<Either<Failure, List<FeatureFlag>>> getFeatureFlags();
+  Future<Either<Failure, bool>> isFeatureEnabled(String featureKey, {String? communityId});
+}
+```
+
+**File:** `lib/data/repositories/feature_flag_repository_impl.dart`
+- `@LazySingleton(as: FeatureFlagRepository)`
+
+#### New BLoC
+
+**File:** `lib/presentation/blocs/feature_flag/feature_flag_bloc.dart`
+**File:** `lib/presentation/blocs/feature_flag/feature_flag_event.dart` (part file)
+**File:** `lib/presentation/blocs/feature_flag/feature_flag_state.dart` (part file)
+
+```dart
+// Events:
+@freezed
+class FeatureFlagEvent with _$FeatureFlagEvent {
+  const factory FeatureFlagEvent.loadFlags() = _LoadFlags;
+  const factory FeatureFlagEvent.checkFeature(String featureKey, {String? communityId}) = _CheckFeature;
+  const factory FeatureFlagEvent.refreshFlags() = _RefreshFlags;
+}
+
+// State:
+@freezed
+class FeatureFlagState with _$FeatureFlagState {
+  const factory FeatureFlagState({
+    @Default(false) bool isLoading,
+    @Default({}) Map<String, bool> enabledFeatures, // featureKey -> isEnabled
+    @Default([]) List<FeatureFlag> flags,
+    String? errorMessage,
+  }) = _FeatureFlagState;
+}
+```
+
+BLoC: `@injectable` with `FeatureFlagRepository` dependency.
+
+#### Firestore Collection
+
+**Collection:** `featureFlags`
+```json
+{
+  "featureKey": "buy_vas_utilities",
+  "isEnabled": true,
+  "isGlobal": true,
+  "enabledCommunityIds": [],
+  "enabledAt": "<Timestamp>"
+}
+```
+
+Seed documents:
+- `buy_vas_utilities` (isGlobal: true, isEnabled: true)
+- `buy_my_regulars` (isGlobal: true, isEnabled: false -- Phase 2)
+- `buy_featured_carousel` (isGlobal: false, isEnabled: false -- Phase 2)
+- `buy_marketplace` (isGlobal: false, isEnabled: false -- Phase 3)
+- `buy_group_buys` (isGlobal: false, isEnabled: false -- Phase 4)
+
+#### No Cloud Functions needed -- feature flags are admin-written, client-read.
+
+---
+
+### 1.2 Buy Category Entity (Grid Categories)
+
+The current `PurchaseCategory` enum has 5 values (airtime, data, electricity, voucher, other). The spec requires 7+ grid categories (Airtime & Data, Electricity, DStv, School Fees, Funeral Policy, Stokvel, Municipal). Rather than polluting the existing enum, create a Firestore-backed `BuyCategory` entity for the grid display. Categories that map to VAS will link to the existing provider/product flow; "coming soon" categories will show a placeholder.
+
+#### New Entity
+
+**File:** `lib/domain/entities/buy_category.dart`
+```dart
+@freezed
+class BuyCategory with _$BuyCategory {
+  const factory BuyCategory({
+    required String id,
+    required String name,
+    required String iconName,             // Material icon name or asset path
+    required int sortOrder,
+    required bool isActive,
+    @Default(false) bool isComingSoon,
+    String? purchaseCategoryMapping,       // "airtime", "data", "electricity", "voucher" for VAS
+    String? routePath,                     // deep link override
+    String? featureFlagKey,               // feature flag that gates this category
+    String? description,
+  }) = _BuyCategory;
+
+  const BuyCategory._();
+
+  bool get isVasCategory => purchaseCategoryMapping != null;
+}
+```
+
+#### New Model
+
+**File:** `lib/data/models/buy_category_model.dart`
+- Follows exact same pattern as `PurchaseModel`: manual `fromJson` handling Timestamps, `toFirestoreJson`, `toEntity`, `fromEntity`
+
+#### Firestore Collection
+
+**Collection:** `buyCategories`
+
+Seed documents (7):
+| id | name | iconName | sortOrder | purchaseCategoryMapping | isComingSoon |
+|---|---|---|---|---|---|
+| airtime_data | Airtime & Data | phone_android | 1 | airtime | false |
+| electricity | Electricity | bolt | 2 | electricity | false |
+| dstv | DStv | tv | 3 | voucher | false |
+| school_fees | School Fees | school | 4 | null | true |
+| funeral_policy | Funeral Policy | volunteer_activism | 5 | null | true |
+| stokvel | Stokvel | groups | 6 | null | true |
+| municipal | Municipal | account_balance | 7 | null | true |
+
+---
+
+### 1.3 Extend Existing Purchase Data Layer
+
+#### Modified: `lib/data/datasources/remote/purchase_remote_datasource.dart`
+
+Add to abstract class:
+```dart
+Future<List<BuyCategoryModel>> getBuyCategories();
+```
+
+Add to implementation:
+```dart
+@override
+Future<List<BuyCategoryModel>> getBuyCategories() async {
+  final snapshot = await _firestore.collection('buyCategories')
+      .where('isActive', isEqualTo: true)
+      .orderBy('sortOrder')
+      .get();
+  return snapshot.docs.map((doc) {
+    final data = doc.data();
+    data['id'] = doc.id;
+    return BuyCategoryModel.fromJson(sanitizeFirestoreData(data));
+  }).toList();
+}
+```
+
+#### Modified: `lib/domain/repositories/purchase_repository.dart`
+
+Add:
+```dart
+Future<Either<Failure, List<BuyCategory>>> getBuyCategories();
+```
+
+#### Modified: `lib/data/repositories/purchase_repository_impl.dart`
+
+Add implementation of `getBuyCategories()`.
+
+---
+
+### 1.4 Extend PurchaseBloc
+
+#### Modified: `lib/presentation/blocs/purchase/purchase_event.dart`
+
+Add:
+```dart
+const factory PurchaseEvent.loadBuyCategories() = _LoadBuyCategories;
+```
+
+#### Modified: `lib/presentation/blocs/purchase/purchase_state.dart`
+
+Add fields:
+```dart
+@Default([]) List<BuyCategory> buyCategories,
+@Default(false) bool isLoadingCategories,
+```
+
+#### Modified: `lib/presentation/blocs/purchase/purchase_bloc.dart`
+
+Add in constructor:
+```dart
+on<_LoadBuyCategories>(_onLoadBuyCategories);
+```
+
+Add handler:
+```dart
+Future<void> _onLoadBuyCategories(
+  _LoadBuyCategories event,
+  Emitter<PurchaseState> emit,
+) async {
+  emit(state.copyWith(isLoadingCategories: true));
+  final result = await _purchaseRepository.getBuyCategories();
+  result.fold(
+    (failure) => emit(state.copyWith(
+      isLoadingCategories: false,
+      errorMessage: failure.displayMessage,
+    )),
+    (categories) => emit(state.copyWith(
+      isLoadingCategories: false,
+      buyCategories: categories,
+    )),
+  );
+}
+```
+
+---
+
+### 1.5 Rewrite Buy Tab Shell Screen
+
+#### Modified: `lib/presentation/screens/buy/buy_services_screen.dart` -- FULL REWRITE
+
+Replace the `dragons.jpg` placeholder and the commented-out `_buildOriginal` with the 3-layer Buy Tab shell:
+
+```dart
+class BuyServicesScreen extends StatefulWidget { ... }
+
+class _BuyServicesScreenState extends State<BuyServicesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<PurchaseBloc>().add(const PurchaseEvent.loadBuyCategories());
+    // Phase 2: context.read<PurchaseBloc>().add(const PurchaseEvent.loadRegulars());
+    // Phase 2: context.read<PurchaseBloc>().add(const PurchaseEvent.loadFeaturedItems());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const IMaliAppBar(title: 'Buy'),
+      body: WaveBackground(
+        child: BlocBuilder<PurchaseBloc, PurchaseState>(
+          builder: (context, state) {
+            return CustomScrollView(
+              slivers: [
+                // LAYER 1: Featured Carousel (Phase 2 placeholder)
+                SliverToBoxAdapter(child: _buildFeaturedPlaceholder()),
+
+                // LAYER 2: My Regulars Dock (Phase 2 placeholder)
+                // SliverToBoxAdapter(child: MyRegularsDock(regulars: state.regulars)),
+
+                // LAYER 2: Utilities Hub
+                SliverToBoxAdapter(child: BuySectionHeader(title: 'Utilities')),
+                SliverToBoxAdapter(
+                  child: state.isLoadingCategories
+                    ? const Center(child: CircularProgressIndicator())
+                    : BuyCategoryGrid(
+                        categories: state.buyCategories,
+                        onCategoryTap: (category) => _onCategoryTap(context, category),
+                      ),
+                ),
+
+                // LAYER 3: Marketplace entry (Phase 3 placeholder)
+                SliverToBoxAdapter(child: _buildMarketplacePlaceholder()),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _onCategoryTap(BuildContext context, BuyCategory category) {
+    if (category.isComingSoon) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${category.name} coming soon!')),
+      );
+      return;
+    }
+    if (category.isVasCategory) {
+      context.go('/buy/category/${category.id}');
+    } else if (category.routePath != null) {
+      context.go(category.routePath!);
+    }
+  }
+}
+```
+
+#### New Widgets
+
+**File:** `lib/presentation/widgets/buy/buy_category_grid.dart`
+```dart
+class BuyCategoryGrid extends StatelessWidget {
+  final List<BuyCategory> categories;
+  final ValueChanged<BuyCategory> onCategoryTap;
+  // Renders a 4-column grid using GridView.count
+  // Each cell is a BuyCategoryTile
+}
+```
+
+**File:** `lib/presentation/widgets/buy/buy_category_tile.dart`
+```dart
+class BuyCategoryTile extends StatelessWidget {
+  final BuyCategory category;
+  final VoidCallback onTap;
+  // Circle icon + label underneath
+  // Greyed out with "Coming Soon" badge if category.isComingSoon
+}
+```
+
+**File:** `lib/presentation/widgets/buy/buy_section_header.dart`
+```dart
+class BuySectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onSeeAll;
+  // Row with title text and optional "See All" button
+}
+```
+
+---
+
+### 1.6 VAS Category Drill-Down Screen
+
+When a user taps a VAS category (e.g., "Airtime & Data"), they navigate to a screen that shows providers for that category, then products, then recipient input. This extracts the existing `_buildOriginal` logic into a proper screen.
+
+#### New Screen
+
+**File:** `lib/presentation/screens/buy/buy_category_screen.dart`
+```dart
+class BuyCategoryScreen extends StatefulWidget {
+  final String categoryId;
+  const BuyCategoryScreen({super.key, required this.categoryId});
+  ...
+}
+```
+
+This screen:
+1. Resolves `categoryId` to a `PurchaseCategory` via the `BuyCategory.purchaseCategoryMapping`
+2. Dispatches `PurchaseEvent.loadProvidersByCategory(category)`
+3. Shows provider grid (extracted from old `_buildProvidersView`)
+4. On provider tap, dispatches `PurchaseEvent.selectProvider(provider)` which triggers `loadProducts`
+5. Shows product list (extracted from old `_buildProductsView`)
+6. Shows recipient input (extracted from old `_buildRecipientInput`)
+7. FAB navigates to `/buy/wallet-selection` (existing flow)
+
+This reuses all existing PurchaseBloc handlers -- no new events needed for the VAS flow itself.
+
+#### Router Changes
+
+**Modified:** `lib/presentation/router/app_router.dart`
+
+Add under the `/buy` route's `routes:` list:
+```dart
+GoRoute(
+  path: 'category/:categoryId',
+  name: 'buyCategory',
+  builder: (context, state) => BuyCategoryScreen(
+    categoryId: state.pathParameters['categoryId']!,
+  ),
+),
+```
+
+The existing sub-routes (wallet-selection, success, failure, transactions) remain unchanged. The wallet-selection route continues to work because it reads from `PurchaseBloc` state (selectedProduct, recipientNumber) which the category screen populates.
+
+---
+
+### 1.7 BLoC Provision for Phase 1
+
+**Modified:** `lib/app.dart`
+
+Add in field declarations:
+```dart
+late final FeatureFlagBloc _featureFlagBloc;
+```
+
+Add in `initState()`:
+```dart
+_featureFlagBloc = getIt<FeatureFlagBloc>();
+```
+
+Add in `MultiBlocProvider`:
+```dart
+BlocProvider<FeatureFlagBloc>.value(value: _featureFlagBloc),
+```
+
+Add import:
+```dart
+import 'presentation/blocs/feature_flag/feature_flag_bloc.dart';
+```
+
+---
+
+### 1.8 Firestore Rules for Phase 1
+
+**Modified:** `firestore.rules`
+
+Add after existing rules:
+```
+// Feature flags - read-only for authenticated users
+match /featureFlags/{flagId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+}
+
+// Buy categories - read-only for authenticated users
+match /buyCategories/{catId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+}
+```
+
+---
+
+### 1.9 Firestore Indexes for Phase 1
+
+**Modified:** `firestore.indexes.json`
+
+Add composite index:
+```json
+{
+  "collectionGroup": "buyCategories",
+  "queryScope": "COLLECTION",
+  "fields": [
+    { "fieldPath": "isActive", "order": "ASCENDING" },
+    { "fieldPath": "sortOrder", "order": "ASCENDING" }
+  ]
+}
+```
+
+---
+
+### 1.10 Phase 1 Cloud Functions
+
+No new Cloud Functions. The existing `processPurchase` in `functions/src/purchases.ts` handles all VAS purchases. In production, `simulateVasProviderCall` would be replaced with a real Freepaid/Prepaid24 API integration, but that is an external integration concern.
+
+---
+
+### 1.11 Phase 1 Build Runner
+
+After all entity/model/BLoC changes:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+This regenerates:
+- `feature_flag.freezed.dart`
+- `buy_category.freezed.dart`
+- `feature_flag_model.freezed.dart`
+- `buy_category_model.freezed.dart`
+- `feature_flag_bloc.freezed.dart`
+- `purchase_bloc.freezed.dart` (updated events/state)
+- `injection.config.dart` (new injectable registrations)
+
+---
+
+### 1.12 Phase 1 Testing
+
+**New test files:**
+- `test/presentation/blocs/feature_flag/feature_flag_bloc_test.dart` -- `blocTest` for loadFlags, checkFeature
+- `test/data/datasources/remote/feature_flag_remote_datasource_test.dart` -- Mock Firestore reads
+- `test/presentation/blocs/purchase/purchase_bloc_categories_test.dart` -- `blocTest` for loadBuyCategories event
+- `test/presentation/widgets/buy/buy_category_grid_test.dart` -- Widget test: correct tile count, tap handler
+- `test/presentation/screens/buy/buy_category_screen_test.dart` -- Widget test: provider loading, product selection
+
+All tests use `mocktail` for mocking (NOT mockito), following project convention.
+
+---
+
+### Phase 1 Complete File Summary
+
+| Action | File Path | Description |
+|--------|-----------|-------------|
+| CREATE | `lib/domain/entities/feature_flag.dart` | Feature flag entity |
+| CREATE | `lib/domain/entities/buy_category.dart` | Buy grid category entity |
+| CREATE | `lib/data/models/feature_flag_model.dart` | Feature flag model |
+| CREATE | `lib/data/models/buy_category_model.dart` | Buy category model |
+| CREATE | `lib/data/datasources/remote/feature_flag_remote_datasource.dart` | Feature flag datasource |
+| CREATE | `lib/domain/repositories/feature_flag_repository.dart` | Feature flag repo interface |
+| CREATE | `lib/data/repositories/feature_flag_repository_impl.dart` | Feature flag repo impl |
+| CREATE | `lib/presentation/blocs/feature_flag/feature_flag_bloc.dart` | Feature flag BLoC |
+| CREATE | `lib/presentation/blocs/feature_flag/feature_flag_event.dart` | Feature flag events (part) |
+| CREATE | `lib/presentation/blocs/feature_flag/feature_flag_state.dart` | Feature flag state (part) |
+| CREATE | `lib/presentation/screens/buy/buy_category_screen.dart` | VAS category drill-down |
+| CREATE | `lib/presentation/widgets/buy/buy_category_grid.dart` | 4-column grid widget |
+| CREATE | `lib/presentation/widgets/buy/buy_category_tile.dart` | Individual tile widget |
+| CREATE | `lib/presentation/widgets/buy/buy_section_header.dart` | Section header widget |
+| MODIFY | `lib/presentation/screens/buy/buy_services_screen.dart` | Full rewrite: 3-layer shell |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_event.dart` | Add loadBuyCategories |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_state.dart` | Add buyCategories, isLoadingCategories |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_bloc.dart` | Add _onLoadBuyCategories handler |
+| MODIFY | `lib/domain/repositories/purchase_repository.dart` | Add getBuyCategories() |
+| MODIFY | `lib/data/repositories/purchase_repository_impl.dart` | Implement getBuyCategories() |
+| MODIFY | `lib/data/datasources/remote/purchase_remote_datasource.dart` | Add getBuyCategories() |
+| MODIFY | `lib/presentation/router/app_router.dart` | Add /buy/category/:categoryId route |
+| MODIFY | `lib/app.dart` | Add FeatureFlagBloc provision |
+| MODIFY | `firestore.rules` | Add featureFlags, buyCategories rules |
+| MODIFY | `firestore.indexes.json` | Add buyCategories index |
+| CREATE | 4-5 test files | BLoC, datasource, widget tests |
+
+---
+
+## PHASE 2: My Regulars Dock + Layer 1 Featured Carousel
+**Estimated effort: 2 weeks. Independently testable.**
+
+### 2.1 My Regulars (Pinned Utility Shortcuts)
+
+"My Regulars" shows the user's most-used purchase shortcuts (e.g., "Vodacom R29 Airtime to ...5678"). These are auto-populated from purchase history and can be pinned/unpinned.
+
+#### New Entity
+
+**File:** `lib/domain/entities/buy_regular.dart`
+```dart
+@freezed
+class BuyRegular with _$BuyRegular {
+  const factory BuyRegular({
+    required String id,
+    required String userId,
+    required String providerId,
+    required String providerName,
+    required String productId,
+    required String productName,
+    required String productCode,
+    required String recipientNumber,
+    required PurchaseCategory category,
+    required int priceTokens,
+    required double priceZar,
+    String? providerLogoUrl,
+    required bool isPinned,
+    required int usageCount,
+    required DateTime lastUsedAt,
+    required DateTime createdAt,
+  }) = _BuyRegular;
+
+  const BuyRegular._();
+
+  /// Display-friendly short recipient (last 4 digits)
+  String get recipientShort => recipientNumber.length >= 4
+      ? '...${recipientNumber.substring(recipientNumber.length - 4)}'
+      : recipientNumber;
+
+  /// Combined dedup key
+  String get deduplicationKey => '${productId}_${recipientNumber}';
+}
+```
+
+#### New Model
+
+**File:** `lib/data/models/buy_regular_model.dart`
+- Standard pattern: `fromJson`, `toFirestoreJson`, `toEntity`, `fromEntity`
+- Handles Timestamp conversion for `lastUsedAt`, `createdAt`
+
+#### Firestore Storage
+
+**Subcollection:** `users/{userId}/buyRegulars/{regularId}`
+
+Document structure:
+```json
+{
+  "providerId": "vodacom",
+  "providerName": "Vodacom",
+  "productId": "voda_airtime_29",
+  "productName": "Airtime R29",
+  "productCode": "VODA_29",
+  "recipientNumber": "0812345678",
+  "category": "airtime",
+  "priceTokens": 2900,
+  "priceZar": 29.0,
+  "providerLogoUrl": null,
+  "isPinned": false,
+  "usageCount": 3,
+  "lastUsedAt": "<Timestamp>",
+  "createdAt": "<Timestamp>"
+}
+```
+
+#### Cloud Function Trigger
+
+**Modified:** `functions/src/purchases.ts`
+
+Add Firestore trigger (this does NOT require a new file since it is purchase-related):
+
+```typescript
+import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+
+export const onPurchaseCompleted = onDocumentUpdated(
+  { document: "purchases/{purchaseId}", region: "africa-south1", labels: { area: "wallet" } },
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    if (!before || !after) return;
+
+    // Only process status transitions to "completed"
+    if (before.status === "completed" || after.status !== "completed") return;
+
+    const userId = after.userId;
+    const deduplicationKey = `${after.productId}_${after.recipientNumber}`;
+
+    const regularsRef = db.collection("users").doc(userId).collection("buyRegulars");
+
+    // Check for existing regular with same product + recipient
+    const existing = await regularsRef
+      .where("productId", "isEqualTo", after.productId)
+      .where("recipientNumber", "isEqualTo", after.recipientNumber)
+      .limit(1)
+      .get();
+
+    if (!existing.empty) {
+      // Update usage count and lastUsedAt
+      await existing.docs[0].ref.update({
+        usageCount: admin.firestore.FieldValue.increment(1),
+        lastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
+        priceTokens: after.tokenAmount,
+        priceZar: after.zarAmount,
+      });
+    } else {
+      // Create new regular
+      await regularsRef.add({
+        providerId: after.providerId,
+        providerName: after.providerName,
+        productId: after.productId,
+        productName: after.productName,
+        productCode: after.productCode,
+        recipientNumber: after.recipientNumber,
+        category: after.category,
+        priceTokens: after.tokenAmount,
+        priceZar: after.zarAmount,
+        providerLogoUrl: null,
+        isPinned: false,
+        usageCount: 1,
+        lastUsedAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+```
+
+#### Modified Datasource
+
+**Modified:** `lib/data/datasources/remote/purchase_remote_datasource.dart`
+
+Add to abstract class:
+```dart
+Future<List<BuyRegularModel>> getBuyRegulars({int? limit});
+Future<void> pinBuyRegular(String regularId, bool isPinned);
+```
+
+Add to implementation:
+```dart
+@override
+Future<List<BuyRegularModel>> getBuyRegulars({int? limit}) async {
+  final query = _firestore
+      .collection('users')
+      .doc(_userId)
+      .collection('buyRegulars')
+      .orderBy('isPinned', descending: true)
+      .orderBy('usageCount', descending: true);
+  final snapshot = await (limit != null ? query.limit(limit) : query).get();
+  return snapshot.docs.map((doc) {
+    final data = doc.data();
+    data['id'] = doc.id;
+    return BuyRegularModel.fromJson(sanitizeFirestoreData(data));
+  }).toList();
+}
+
+@override
+Future<void> pinBuyRegular(String regularId, bool isPinned) async {
+  await _firestore
+      .collection('users')
+      .doc(_userId)
+      .collection('buyRegulars')
+      .doc(regularId)
+      .update({'isPinned': isPinned});
+}
+```
+
+#### Modified Repository
+
+**Modified:** `lib/domain/repositories/purchase_repository.dart` -- Add:
+```dart
+Future<Either<Failure, List<BuyRegular>>> getBuyRegulars({int? limit});
+Future<Either<Failure, void>> pinBuyRegular(String regularId, bool isPinned);
+```
+
+**Modified:** `lib/data/repositories/purchase_repository_impl.dart` -- Implement both.
+
+#### Modified BLoC
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_event.dart` -- Add:
+```dart
+const factory PurchaseEvent.loadRegulars({int? limit}) = _LoadRegulars;
+const factory PurchaseEvent.pinRegular(String regularId, bool isPinned) = _PinRegular;
+const factory PurchaseEvent.quickPurchase(BuyRegular regular) = _QuickPurchase;
+```
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_state.dart` -- Add:
+```dart
+@Default([]) List<BuyRegular> regulars,
+@Default(false) bool isLoadingRegulars,
+```
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_bloc.dart` -- Add handlers:
+- `_onLoadRegulars`: Fetches from repository, emits regulars list
+- `_onPinRegular`: Calls repository, reloads regulars
+- `_onQuickPurchase`: Pre-populates `selectedProvider`, `selectedProduct`, `recipientNumber` from the regular, then navigates user to wallet selection
+
+#### New Widget
+
+**File:** `lib/presentation/widgets/buy/my_regulars_dock.dart`
+```dart
+class MyRegularsDock extends StatelessWidget {
+  final List<BuyRegular> regulars;
+  final ValueChanged<BuyRegular> onRegularTap;
+  final ValueChanged<BuyRegular> onRegularLongPress;
+
+  // Horizontal ScrollView of chips
+  // Each chip: CircleAvatar (provider logo or initials) + short label + recipient short
+  // Tap triggers onRegularTap (-> quickPurchase event)
+  // Long press shows pin/unpin bottom sheet
+}
+```
+
+#### Modified Screen
+
+**Modified:** `lib/presentation/screens/buy/buy_services_screen.dart`
+
+Uncomment the My Regulars slot in the `CustomScrollView`:
+```dart
+// After Layer 1 featured section:
+if (state.regulars.isNotEmpty)
+  SliverToBoxAdapter(
+    child: Column(
+      children: [
+        const BuySectionHeader(title: 'My Regulars'),
+        MyRegularsDock(
+          regulars: state.regulars,
+          onRegularTap: (regular) {
+            context.read<PurchaseBloc>().add(PurchaseEvent.quickPurchase(regular));
+            context.go('/buy/wallet-selection');
+          },
+          onRegularLongPress: (regular) => _showPinSheet(context, regular),
+        ),
+      ],
+    ),
+  ),
+```
+
+Add `loadRegulars` to `initState()`.
+
+#### Firestore Rules
+
+**Modified:** `firestore.rules` -- Add:
+```
+// Buy regulars - user can read/update their own
+match /users/{userId}/buyRegulars/{regularId} {
+  allow read: if isOwner(userId);
+  allow update: if isOwner(userId)
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isPinned']);
+  allow create, delete: if false;
+}
+```
+
+#### Firestore Indexes
+
+**Modified:** `firestore.indexes.json` -- Add:
+```json
+{
+  "collectionGroup": "buyRegulars",
+  "queryScope": "COLLECTION",
+  "fields": [
+    { "fieldPath": "isPinned", "order": "DESCENDING" },
+    { "fieldPath": "usageCount", "order": "DESCENDING" }
+  ]
+}
+```
+
+Also, composite index for the Cloud Function query:
+```json
+{
+  "collectionGroup": "buyRegulars",
+  "queryScope": "COLLECTION",
+  "fields": [
+    { "fieldPath": "productId", "order": "ASCENDING" },
+    { "fieldPath": "recipientNumber", "order": "ASCENDING" }
+  ]
+}
+```
+
+---
+
+### 2.2 Layer 1: Featured Surface (Sponsored Campaigns Carousel)
+
+#### New Entity
+
+**File:** `lib/domain/entities/featured_item.dart`
+```dart
+@freezed
+class FeaturedItem with _$FeaturedItem {
+  const factory FeaturedItem({
+    required String id,
+    required String title,
+    required String subtitle,
+    required String imageUrl,
+    required String type,          // "sponsored", "collectible", "trending"
+    String? deepLinkRoute,         // GoRouter path
+    String? externalUrl,           // external browser URL
+    String? brandId,
+    String? brandName,
+    String? brandLogoUrl,
+    required int sortOrder,
+    required bool isActive,
+    DateTime? startsAt,
+    DateTime? endsAt,
+    List<String>? communityIds,    // geo-contextual targeting
+    Map<String, dynamic>? metadata,
+  }) = _FeaturedItem;
+
+  const FeaturedItem._();
+
+  bool get isExpired => endsAt != null && DateTime.now().isAfter(endsAt!);
+  bool get isScheduled => startsAt != null && DateTime.now().isBefore(startsAt!);
+  bool get isLive => isActive && !isExpired && !isScheduled;
+}
+```
+
+#### New Model
+
+**File:** `lib/data/models/featured_item_model.dart`
+- Standard pattern with Timestamp handling for `startsAt`, `endsAt`
+
+#### Firestore Collection
+
+**Collection:** `featuredItems`
+```json
+{
+  "title": "Earn 500 tokens with Shoprite",
+  "subtitle": "Complete 3 surveys this week",
+  "imageUrl": "https://...",
+  "type": "sponsored",
+  "deepLinkRoute": "/earn",
+  "brandId": "shoprite",
+  "brandName": "Shoprite",
+  "sortOrder": 1,
+  "isActive": true,
+  "startsAt": "<Timestamp>",
+  "endsAt": "<Timestamp>",
+  "communityIds": ["khayelitsha", "mitchells_plain"]
+}
+```
+
+#### Modified Datasource
+
+**Modified:** `lib/data/datasources/remote/purchase_remote_datasource.dart`
+
+Add to abstract class:
+```dart
+Future<List<FeaturedItemModel>> getFeaturedItems({String? communityId, int? limit});
+```
+
+Add to implementation -- reads from `featuredItems` collection, filters by `isActive == true`, orders by `sortOrder`, optionally filters by communityId.
+
+#### Modified Repository/BLoC
+
+**Modified:** `lib/domain/repositories/purchase_repository.dart` -- Add:
+```dart
+Future<Either<Failure, List<FeaturedItem>>> getFeaturedItems({String? communityId, int? limit});
+```
+
+**Modified:** `lib/data/repositories/purchase_repository_impl.dart` -- Implement.
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_event.dart` -- Add:
+```dart
+const factory PurchaseEvent.loadFeaturedItems({String? communityId}) = _LoadFeaturedItems;
+```
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_state.dart` -- Add:
+```dart
+@Default([]) List<FeaturedItem> featuredItems,
+@Default(false) bool isLoadingFeatured,
+```
+
+**Modified:** `lib/presentation/blocs/purchase/purchase_bloc.dart` -- Add handler.
+
+#### New Widget
+
+**File:** `lib/presentation/widgets/buy/featured_carousel.dart`
+```dart
+class FeaturedCarousel extends StatefulWidget {
+  final List<FeaturedItem> items;
+
+  // PageView.builder with auto-scroll (5s interval timer)
+  // Each page: ClipRRect card with background image, gradient overlay,
+  //   brand logo, title, subtitle, CTA button
+  // Dots indicator at bottom
+  // Tap navigates to deepLinkRoute or opens externalUrl
+}
+```
+
+#### Modified Screen
+
+**Modified:** `lib/presentation/screens/buy/buy_services_screen.dart`
+
+Replace `_buildFeaturedPlaceholder()` with:
+```dart
+if (state.featuredItems.isNotEmpty)
+  SliverToBoxAdapter(
+    child: FeaturedCarousel(items: state.featuredItems),
+  ),
+```
+
+Add `loadFeaturedItems` to `initState()`.
+
+#### Firestore Rules
+
+**Modified:** `firestore.rules` -- Add:
+```
+match /featuredItems/{itemId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+}
+```
+
+#### Firestore Indexes
+
+```json
+{
+  "collectionGroup": "featuredItems",
+  "queryScope": "COLLECTION",
+  "fields": [
+    { "fieldPath": "isActive", "order": "ASCENDING" },
+    { "fieldPath": "sortOrder", "order": "ASCENDING" }
+  ]
+}
+```
+
+---
+
+### Phase 2 Complete File Summary
+
+| Action | File Path | Description |
+|--------|-----------|-------------|
+| CREATE | `lib/domain/entities/buy_regular.dart` | Buy regular entity |
+| CREATE | `lib/data/models/buy_regular_model.dart` | Buy regular model |
+| CREATE | `lib/domain/entities/featured_item.dart` | Featured item entity |
+| CREATE | `lib/data/models/featured_item_model.dart` | Featured item model |
+| CREATE | `lib/presentation/widgets/buy/my_regulars_dock.dart` | Regulars dock widget |
+| CREATE | `lib/presentation/widgets/buy/featured_carousel.dart` | Featured carousel widget |
+| MODIFY | `lib/data/datasources/remote/purchase_remote_datasource.dart` | Add regulars + featured methods |
+| MODIFY | `lib/domain/repositories/purchase_repository.dart` | Add regulars + featured interfaces |
+| MODIFY | `lib/data/repositories/purchase_repository_impl.dart` | Implement regulars + featured |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_event.dart` | Add 4 events |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_state.dart` | Add 4 state fields |
+| MODIFY | `lib/presentation/blocs/purchase/purchase_bloc.dart` | Add 4 handlers |
+| MODIFY | `lib/presentation/screens/buy/buy_services_screen.dart` | Integrate regulars + carousel |
+| MODIFY | `functions/src/purchases.ts` | Add onPurchaseCompleted trigger |
+| MODIFY | `firestore.rules` | Add buyRegulars, featuredItems rules |
+| MODIFY | `firestore.indexes.json` | Add 3 indexes |
+| CREATE | 3-4 test files | BLoC, trigger, widget tests |
+
+---
+
+## PHASE 3: Intengiso Marketplace
+**Estimated effort: 4 weeks. This is the largest phase.**
+
+This phase introduces the peer-to-peer marketplace with 5 sub-markets (Services Board, Second-Hand Goods, Food & Home-Cooked, Sebenza/Skills & Gigs, Hlangana/Group Buys), provider registration, social trust, and escrow transactions.
+
+### 3.1 Domain Enums
+
+**File:** `lib/domain/enums/marketplace_category.dart`
+```dart
+enum MarketplaceCategory {
+  services,     // Services Board
+  goods,        // Second-Hand Goods
+  food,         // Food & Home-Cooked
+  gigs,         // Sebenza (Skills & Gigs)
+  groupBuys,    // Hlangana (Group Buys) -- Phase 4 content, tab visible
+}
+```
+
+**File:** `lib/domain/enums/order_status.dart`
+```dart
+enum OrderStatus {
+  pending,      // Order created, awaiting escrow
+  escrowed,     // Tokens held in escrow
+  fulfilled,    // Seller marked as fulfilled, awaiting buyer confirmation
+  completed,    // Buyer confirmed, escrow released to seller
+  disputed,     // Buyer raised dispute
+  refunded,     // Escrow returned to buyer
+  cancelled,    // Order cancelled before fulfilment
+}
+```
+
+---
+
+### 3.2 New Entities
+
+**File:** `lib/domain/entities/marketplace_provider.dart`
+```dart
+@freezed
+class MarketplaceProvider with _$MarketplaceProvider {
+  const factory MarketplaceProvider({
+    required String id,
+    required String userId,
+    required String displayName,
+    required String description,
+    required String category,        // MarketplaceCategory.name
+    String? avatarUrl,
+    String? bannerUrl,
+    String? location,
+    String? communityId,
+    required double trustScore,       // 0.0 - 5.0
+    required int vouchCount,
+    required int completedOrders,
+    required int totalRatings,
+    required double averageRating,
+    required bool isVerified,
+    required bool isActive,
+    @Default(false) bool isDeleted,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _MarketplaceProvider;
+
+  const MarketplaceProvider._();
+
+  String get trustLevel {
+    if (trustScore >= 4.0) return 'Highly Trusted';
+    if (trustScore >= 3.0) return 'Trusted';
+    if (trustScore >= 2.0) return 'Building Trust';
+    return 'New';
+  }
+}
+```
+
+**File:** `lib/domain/entities/marketplace_listing.dart`
+```dart
+@freezed
+class MarketplaceListing with _$MarketplaceListing {
+  const factory MarketplaceListing({
+    required String id,
+    required String providerId,
+    required String providerName,
+    String? providerAvatarUrl,
+    required String title,
+    required String description,
+    required String category,          // MarketplaceCategory.name
+    required int priceTokens,
+    required double priceZar,
+    required List<String> imageUrls,
+    String? location,
+    String? communityId,
+    required bool isActive,
+    required bool isNegotiable,
+    String? condition,                 // "new", "like_new", "good", "fair" (goods only)
+    int? quantityAvailable,
+    Map<String, dynamic>? attributes,  // category-specific fields
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _MarketplaceListing;
+
+  const MarketplaceListing._();
+
+  String get formattedPrice => 'R${priceZar.toStringAsFixed(2)}';
+  String get formattedTokenPrice => '$priceTokens tokens';
+  bool get hasImages => imageUrls.isNotEmpty;
+  String? get primaryImageUrl => imageUrls.isNotEmpty ? imageUrls.first : null;
+}
+```
+
+**File:** `lib/domain/entities/buy_order.dart`
+```dart
+@freezed
+class BuyOrder with _$BuyOrder {
+  const factory BuyOrder({
+    required String id,
+    required String buyerId,
+    required String buyerDisplayName,
+    required String sellerId,
+    required String sellerDisplayName,
+    required String listingId,
+    required String listingTitle,
+    required int tokenAmount,
+    required double zarAmount,
+    required OrderStatus status,
+    String? escrowJournalId,
+    String? releaseJournalId,
+    String? refundJournalId,
+    String? buyerNote,
+    String? fulfilmentProof,          // URL to proof image/document
+    String? disputeReason,
+    String? subAccountId,
+    required DateTime createdAt,
+    DateTime? escrowedAt,
+    DateTime? fulfilledAt,
+    DateTime? completedAt,
+    DateTime? cancelledAt,
+    DateTime? disputedAt,
+  }) = _BuyOrder;
+
+  const BuyOrder._();
+
+  bool get canConfirmFulfilment => status == OrderStatus.fulfilled;
+  bool get canCancel => status == OrderStatus.pending || status == OrderStatus.escrowed;
+  bool get canDispute => status == OrderStatus.fulfilled;
+  bool get isTerminal => status == OrderStatus.completed ||
+      status == OrderStatus.refunded ||
+      status == OrderStatus.cancelled;
+}
+```
+
+**File:** `lib/domain/entities/vouch.dart`
+```dart
+@freezed
+class Vouch with _$Vouch {
+  const factory Vouch({
+    required String id,
+    required String voucherId,           // user who vouches
+    required String voucherDisplayName,
+    String? voucherAvatarUrl,
+    required String providerId,          // marketplace provider being vouched for
+    required String comment,
+    required int rating,                 // 1-5 stars
+    required DateTime createdAt,
+  }) = _Vouch;
+
+  const Vouch._();
+}
+```
+
+---
+
+### 3.3 New Models
+
+**File:** `lib/data/models/marketplace_provider_model.dart`
+**File:** `lib/data/models/marketplace_listing_model.dart`
+**File:** `lib/data/models/buy_order_model.dart`
+**File:** `lib/data/models/vouch_model.dart`
+
+Each follows the established pattern:
+- `@freezed` class with `const factory` constructor
+- `const Model._()` private constructor for custom methods
+- `factory Model.fromJson(Map<String, dynamic> json)` with manual Timestamp handling
+- `Map<String, dynamic> toFirestoreJson()`
+- `Entity toEntity()`
+- `factory Model.fromEntity(Entity entity)`
+
+---
+
+### 3.4 New Datasource
+
+**File:** `lib/data/datasources/remote/marketplace_remote_datasource.dart`
+
+```dart
+abstract class MarketplaceRemoteDataSource {
+  // Provider registration
+  Future<MarketplaceProviderModel> registerProvider({
+    required String displayName,
+    required String description,
+    required String category,
+    String? avatarUrl,
+    String? location,
+    String? communityId,
+  });
+  Future<MarketplaceProviderModel> getProvider(String providerId);
+  Future<MarketplaceProviderModel> getMyProviderProfile();
+  Future<MarketplaceProviderModel> updateProvider(String providerId, Map<String, dynamic> updates);
+
+  // Listings
+  Future<List<MarketplaceListingModel>> getListings({
+    String? category,
+    String? communityId,
+    int? limit,
+    String? startAfterId,
+  });
+  Future<MarketplaceListingModel> createListing({
+    required String title,
+    required String description,
+    required String category,
+    required int priceTokens,
+    required List<String> imageUrls,
+    bool isNegotiable = false,
+    String? condition,
+    int? quantityAvailable,
+    Map<String, dynamic>? attributes,
+  });
+  Future<MarketplaceListingModel> getListing(String listingId);
+  Future<List<MarketplaceListingModel>> getProviderListings(String providerId);
+  Future<List<MarketplaceListingModel>> searchListings(String query, {String? category});
+
+  // Orders
+  Future<BuyOrderModel> createOrder({
+    required String listingId,
+    String? buyerNote,
+    String? subAccountId,
+  });
+  Future<BuyOrderModel> confirmFulfilment(String orderId, {String? proof});
+  Future<BuyOrderModel> confirmReceipt(String orderId);
+  Future<BuyOrderModel> cancelOrder(String orderId);
+  Future<BuyOrderModel> disputeOrder(String orderId, String reason);
+  Future<List<BuyOrderModel>> getMyBuyerOrders({String? status, int? limit});
+  Future<List<BuyOrderModel>> getMySellerOrders({String? status, int? limit});
+  Future<BuyOrderModel> getOrder(String orderId);
+
+  // Vouching
+  Future<VouchModel> createVouch({
+    required String providerId,
+    required int rating,
+    required String comment,
+  });
+  Future<List<VouchModel>> getProviderVouches(String providerId, {int? limit});
+}
+```
+
+Implementation: `@LazySingleton(as: MarketplaceRemoteDataSource)`
+
+Key implementation details:
+- `registerProvider` calls `_functions.httpsCallable('registerMarketplaceProvider')`
+- `createListing` calls `_functions.httpsCallable('createMarketplaceListing')`
+- `createOrder` calls `_functions.httpsCallable('buyMarketplaceItem')` with PlayIntegrity
+- `confirmFulfilment` calls `_functions.httpsCallable('confirmMarketplaceFulfilment')`
+- `confirmReceipt` calls `_functions.httpsCallable('confirmMarketplaceReceipt')`
+- `cancelOrder` calls `_functions.httpsCallable('cancelMarketplaceOrder')`
+- Read operations (getListings, searchListings, etc.) read directly from Firestore collections
+
+---
+
+### 3.5 New Repository
+
+**File:** `lib/domain/repositories/marketplace_repository.dart`
+```dart
+abstract class MarketplaceRepository {
+  // Provider
+  Future<Either<Failure, MarketplaceProvider>> registerProvider({...});
+  Future<Either<Failure, MarketplaceProvider>> getProvider(String providerId);
+  Future<Either<Failure, MarketplaceProvider>> getMyProviderProfile();
+  Future<Either<Failure, MarketplaceProvider>> updateProvider(String providerId, Map<String, dynamic> updates);
+
+  // Listings
+  Future<Either<Failure, List<MarketplaceListing>>> getListings({String? category, String? communityId, int? limit, String? startAfterId});
+  Future<Either<Failure, MarketplaceListing>> createListing({...});
+  Future<Either<Failure, MarketplaceListing>> getListing(String listingId);
+  Future<Either<Failure, List<MarketplaceListing>>> getProviderListings(String providerId);
+  Future<Either<Failure, List<MarketplaceListing>>> searchListings(String query, {String? category});
+
+  // Orders
+  Future<Either<Failure, BuyOrder>> createOrder({required String listingId, String? buyerNote, String? subAccountId});
+  Future<Either<Failure, BuyOrder>> confirmFulfilment(String orderId, {String? proof});
+  Future<Either<Failure, BuyOrder>> confirmReceipt(String orderId);
+  Future<Either<Failure, BuyOrder>> cancelOrder(String orderId);
+  Future<Either<Failure, BuyOrder>> disputeOrder(String orderId, String reason);
+  Future<Either<Failure, List<BuyOrder>>> getMyBuyerOrders({String? status, int? limit});
+  Future<Either<Failure, List<BuyOrder>>> getMySellerOrders({String? status, int? limit});
+  Future<Either<Failure, BuyOrder>> getOrder(String orderId);
+
+  // Vouching
+  Future<Either<Failure, Vouch>> createVouch({required String providerId, required int rating, required String comment});
+  Future<Either<Failure, List<Vouch>>> getProviderVouches(String providerId, {int? limit});
+}
+```
+
+**File:** `lib/data/repositories/marketplace_repository_impl.dart`
+- `@LazySingleton(as: MarketplaceRepository)`
+
+---
+
+### 3.6 New BLoCs
+
+#### MarketplaceBloc (browsing listings)
+
+**File:** `lib/presentation/blocs/marketplace/marketplace_bloc.dart`
+**File:** `lib/presentation/blocs/marketplace/marketplace_event.dart` (part)
+**File:** `lib/presentation/blocs/marketplace/marketplace_state.dart` (part)
+
+```dart
+@freezed
+class MarketplaceEvent with _$MarketplaceEvent {
+  const factory MarketplaceEvent.loadListings({String? category, String? communityId}) = _LoadListings;
+  const factory MarketplaceEvent.loadMore() = _LoadMore;
+  const factory MarketplaceEvent.searchListings(String query) = _SearchListings;
+  const factory MarketplaceEvent.selectCategory(String? category) = _SelectCategory;
+  const factory MarketplaceEvent.loadListing(String listingId) = _LoadListing;
+  const factory MarketplaceEvent.loadProviderProfile(String providerId) = _LoadProviderProfile;
+  const factory MarketplaceEvent.loadProviderVouches(String providerId) = _LoadProviderVouches;
+  const factory MarketplaceEvent.clearError() = _ClearError;
+}
+
+@freezed
+class MarketplaceState with _$MarketplaceState {
+  const factory MarketplaceState({
+    @Default(false) bool isLoading,
+    @Default(false) bool isLoadingMore,
+    @Default(false) bool isLoadingDetail,
+    @Default([]) List<MarketplaceListing> listings,
+    @Default(false) bool hasMore,
+    String? lastListingId,
+    String? selectedCategory,
+    String? searchQuery,
+    MarketplaceListing? selectedListing,
+    MarketplaceProvider? selectedProvider,
+    @Default([]) List<Vouch> providerVouches,
+    String? errorMessage,
+  }) = _MarketplaceState;
+}
+```
+
+#### OrderBloc (order lifecycle)
+
+**File:** `lib/presentation/blocs/marketplace/order_bloc.dart`
+**File:** `lib/presentation/blocs/marketplace/order_event.dart` (part)
+**File:** `lib/presentation/blocs/marketplace/order_state.dart` (part)
+
+```dart
+@freezed
+class OrderEvent with _$OrderEvent {
+  const factory OrderEvent.createOrder({
+    required String listingId,
+    String? buyerNote,
+    String? subAccountId,
+  }) = _CreateOrder;
+  const factory OrderEvent.confirmFulfilment(String orderId, {String? proof}) = _ConfirmFulfilment;
+  const factory OrderEvent.confirmReceipt(String orderId) = _ConfirmReceipt;
+  const factory OrderEvent.cancelOrder(String orderId) = _CancelOrder;
+  const factory OrderEvent.disputeOrder(String orderId, String reason) = _DisputeOrder;
+  const factory OrderEvent.loadMyBuyerOrders({String? status}) = _LoadMyBuyerOrders;
+  const factory OrderEvent.loadMySellerOrders({String? status}) = _LoadMySellerOrders;
+  const factory OrderEvent.loadOrder(String orderId) = _LoadOrder;
+  const factory OrderEvent.clearError() = _ClearError;
+  const factory OrderEvent.clearSuccess() = _ClearSuccess;
+}
+
+@freezed
+class OrderState with _$OrderState {
+  const factory OrderState({
+    @Default(false) bool isLoading,
+    @Default(false) bool isProcessing,
+    @Default([]) List<BuyOrder> buyerOrders,
+    @Default([]) List<BuyOrder> sellerOrders,
+    BuyOrder? selectedOrder,
+    BuyOrder? lastCreatedOrder,
+    String? errorMessage,
+    String? successMessage,
+  }) = _OrderState;
+}
+```
+
+#### ProviderRegistrationBloc (seller registration flow)
+
+**File:** `lib/presentation/blocs/marketplace/provider_registration_bloc.dart`
+**File:** `lib/presentation/blocs/marketplace/provider_registration_event.dart` (part)
+**File:** `lib/presentation/blocs/marketplace/provider_registration_state.dart` (part)
+
+```dart
+@freezed
+class ProviderRegistrationEvent with _$ProviderRegistrationEvent {
+  const factory ProviderRegistrationEvent.updateStep1({
+    required String displayName,
+    required String description,
+    required String category,
+  }) = _UpdateStep1;
+  const factory ProviderRegistrationEvent.updateStep2({
+    String? avatarUrl,
+    String? location,
+    String? communityId,
+  }) = _UpdateStep2;
+  const factory ProviderRegistrationEvent.submitRegistration() = _SubmitRegistration;
+  const factory ProviderRegistrationEvent.goToStep(int step) = _GoToStep;
+}
+
+@freezed
+class ProviderRegistrationState with _$ProviderRegistrationState {
+  const factory ProviderRegistrationState({
+    @Default(0) int currentStep,         // 0, 1, 2 (3-step flow)
+    @Default(false) bool isSubmitting,
+    @Default(false) bool isComplete,
+    String? displayName,
+    String? description,
+    String? category,
+    String? avatarUrl,
+    String? location,
+    String? communityId,
+    MarketplaceProvider? registeredProvider,
+    String? errorMessage,
+  }) = _ProviderRegistrationState;
+}
+```
+
+Note: `ProviderRegistrationBloc` is `@injectable` but NOT provided globally in `app.dart`. It is provided locally at the registration screen level using `BlocProvider(create: ...)` since it is a scoped, short-lived flow.
+
+---
+
+### 3.7 New Screens
+
+**File:** `lib/presentation/screens/buy/marketplace_hub_screen.dart`
+- Tab bar with 5 tabs: Services, Goods, Food, Gigs, Group Buys
+- Each tab shows a grid of `MarketplaceListingCard` widgets
+- Search bar at top
+- FAB: "Sell Something" (navigates to create listing or registration if not registered)
+
+**File:** `lib/presentation/screens/buy/marketplace_listing_detail_screen.dart`
+- Image carousel (PageView)
+- Title, price, description
+- Provider trust badge + link to provider profile
+- "Buy Now" button (navigates to order creation with wallet selection)
+- "Contact Seller" button
+
+**File:** `lib/presentation/screens/buy/marketplace_provider_profile_screen.dart`
+- Provider avatar, name, trust score, vouch count, completed orders
+- List of their active listings
+- Vouch list
+- "Vouch for this provider" button
+
+**File:** `lib/presentation/screens/buy/provider_registration_screen.dart`
+- 3-step PageView:
+  - Step 1: Name, description, category selection
+  - Step 2: Avatar upload, location, community
+  - Step 3: Review and submit
+- Uses `ProviderRegistrationBloc` (provided locally)
+
+**File:** `lib/presentation/screens/buy/create_listing_screen.dart`
+- Multi-field form: title, description, category, price, images, condition, quantity, negotiable toggle
+- Category-specific attribute fields
+
+**File:** `lib/presentation/screens/buy/my_orders_screen.dart`
+- Two tabs: "My Purchases" (buyer orders) and "My Sales" (seller orders)
+- Each shows list of `BuyOrder` cards with status indicators
+
+**File:** `lib/presentation/screens/buy/order_detail_screen.dart`
+- Full order info: listing title, buyer/seller, amount, status timeline
+- Action buttons based on status:
+  - Buyer: "Confirm Receipt" (if fulfilled), "Cancel" (if escrowed), "Dispute" (if fulfilled)
+  - Seller: "Mark as Fulfilled" (if escrowed), with optional proof upload
+
+---
+
+### 3.8 New Widgets
+
+**File:** `lib/presentation/widgets/buy/marketplace_listing_card.dart`
+- Card with image thumbnail, title, price, provider name, trust badge
+- Tap navigates to listing detail
+
+**File:** `lib/presentation/widgets/buy/trust_badge.dart`
+- Shows trust score as colored badge with icon and level text
+- Color coding: green (4+), blue (3+), orange (2+), grey (new)
+
+**File:** `lib/presentation/widgets/buy/vouch_list.dart`
+- ListView of vouch cards: avatar, name, rating stars, comment, date
+
+**File:** `lib/presentation/widgets/buy/escrow_status_indicator.dart`
+- Horizontal step indicator showing: Ordered -> Escrowed -> Fulfilled -> Completed
+- Current step highlighted, completed steps checked
+
+**File:** `lib/presentation/widgets/buy/marketplace_search_bar.dart`
+- TextField with search icon, category filter chips below
+
+---
+
+### 3.9 Router Changes
+
+**Modified:** `lib/presentation/router/app_router.dart`
+
+Add under `/buy` route's `routes:` list:
+```dart
+GoRoute(
+  path: 'marketplace',
+  name: 'marketplace',
+  builder: (context, state) => const MarketplaceHubScreen(),
+  routes: [
+    GoRoute(
+      path: 'listing/:listingId',
+      name: 'marketplaceListing',
+      builder: (context, state) => MarketplaceListingDetailScreen(
+        listingId: state.pathParameters['listingId']!,
+      ),
+    ),
+    GoRoute(
+      path: 'provider/:providerId',
+      name: 'marketplaceProvider',
+      builder: (context, state) => MarketplaceProviderProfileScreen(
+        providerId: state.pathParameters['providerId']!,
+      ),
+    ),
+    GoRoute(
+      path: 'register',
+      name: 'providerRegistration',
+      builder: (context, state) => const ProviderRegistrationScreen(),
+    ),
+    GoRoute(
+      path: 'create-listing',
+      name: 'createListing',
+      builder: (context, state) => const CreateListingScreen(),
+    ),
+    GoRoute(
+      path: 'orders',
+      name: 'myOrders',
+      builder: (context, state) => const MyOrdersScreen(),
+    ),
+    GoRoute(
+      path: 'order/:orderId',
+      name: 'orderDetail',
+      builder: (context, state) => OrderDetailScreen(
+        orderId: state.pathParameters['orderId']!,
+      ),
+    ),
+  ],
+),
+```
+
+---
+
+### 3.10 Cloud Functions
+
+**New File:** `functions/src/marketplace.ts`
+
+(Consumer-facing marketplace functions go in a new top-level file, following the same pattern as `gifts.ts`, `tokenPools.ts`. This does NOT violate the CLAUDE.md rule about not creating new top-level files for admin functions -- these are consumer functions.)
+
+```typescript
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
+import {
+  processMarketplaceEscrow,
+  releaseMarketplaceEscrow,
+  refundMarketplaceEscrow,
+} from "./ledger";
+
+const db = admin.firestore();
+
+/**
+ * Register as a marketplace provider (seller)
+ */
+export const registerMarketplaceProvider = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate input (displayName, description, category)
+    // Check if user already has a provider profile
+    // Create provider document in 'providers' collection
+    // Return provider data
+  }
+);
+
+/**
+ * Create a marketplace listing
+ */
+export const createMarketplaceListing = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Verify user has a provider profile
+    // Validate listing data
+    // Create listing in 'marketplaceListings' collection
+    // Return listing data
+  }
+);
+
+/**
+ * Buy a marketplace item - create order and escrow tokens
+ */
+export const buyMarketplaceItem = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck, requirePlayIntegrity (HIGH)
+    // Get listing details, validate active
+    // Validate buyer != seller
+    // Validate balance (main wallet or sub-account)
+    // Create order document in 'buyOrders'
+    // Process escrow: buyer -> MARKETPLACE_ESCROW via processMarketplaceEscrow()
+    // Update order status to 'escrowed'
+    // Return order data
+  }
+);
+
+/**
+ * Seller marks order as fulfilled
+ */
+export const confirmMarketplaceFulfilment = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate orderId, verify caller is seller
+    // Verify order status is 'escrowed'
+    // Update order status to 'fulfilled' with optional proof URL
+    // Return updated order
+  }
+);
+
+/**
+ * Buyer confirms receipt - releases escrow to seller
+ */
+export const confirmMarketplaceReceipt = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate orderId, verify caller is buyer
+    // Verify order status is 'fulfilled'
+    // Release escrow: MARKETPLACE_ESCROW -> seller via releaseMarketplaceEscrow()
+    // Update order status to 'completed'
+    // Update seller's completedOrders count
+    // Return updated order
+  }
+);
+
+/**
+ * Cancel order - refund escrow to buyer
+ */
+export const cancelMarketplaceOrder = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate orderId, verify caller is buyer or seller
+    // Verify order status is 'pending' or 'escrowed'
+    // If escrowed: refund via refundMarketplaceEscrow()
+    // Update order status to 'cancelled'
+    // Return updated order
+  }
+);
+
+/**
+ * Create a vouch for a marketplace provider
+ */
+export const vouchForProvider = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate providerId, rating (1-5), comment
+    // Verify user has completed at least one order with this provider
+    // Verify user hasn't already vouched for this provider
+    // Create vouch document in 'vouches'
+    // Return vouch data
+  }
+);
+
+/**
+ * Firestore trigger: recalculate trust score when vouch is created
+ */
+export const onVouchCreated = onDocumentCreated(
+  { document: "vouches/{vouchId}", region: "africa-south1", labels: { area: "marketplace" } },
+  async (event) => {
+    const vouch = event.data?.data();
+    if (!vouch) return;
+
+    const providerId = vouch.providerId;
+
+    // Aggregate all vouches for this provider
+    const vouchesSnap = await db.collection("vouches")
+      .where("providerId", "==", providerId)
+      .get();
+
+    const totalVouches = vouchesSnap.size;
+    const avgRating = vouchesSnap.docs.reduce((sum, doc) => sum + (doc.data().rating || 0), 0) / totalVouches;
+
+    // Trust score = weighted average: 60% vouch rating + 40% order completion rate
+    const providerDoc = await db.collection("providers").doc(providerId).get();
+    const completedOrders = providerDoc.data()?.completedOrders || 0;
+    const orderFactor = Math.min(completedOrders / 10, 1.0); // cap at 10 orders
+    const trustScore = (avgRating * 0.6) + (orderFactor * 5 * 0.4);
+
+    await db.collection("providers").doc(providerId).update({
+      trustScore: Math.round(trustScore * 100) / 100,
+      vouchCount: totalVouches,
+      averageRating: Math.round(avgRating * 100) / 100,
+      totalRatings: totalVouches,
+    });
+  }
+);
+```
+
+**Modified:** `functions/src/index.ts` -- Add:
+```typescript
+export * from "./marketplace";
+```
+
+---
+
+### 3.11 Ledger Additions for Marketplace Escrow
+
+**Modified:** `functions/src/ledger/types.ts`
+
+Add to `JournalType` union:
+```typescript
+| "marketplace_escrow"    // Buyer -> marketplace escrow
+| "marketplace_release"   // Marketplace escrow -> seller
+| "marketplace_refund"    // Marketplace escrow -> buyer
+```
+
+Add to `SystemAccounts`:
+```typescript
+MARKETPLACE_ESCROW: "system:marketplace_escrow",
+```
+
+Add to `IdempotencyKey`:
+```typescript
+marketplaceEscrow: (orderId: string) => `mkt_escrow:${orderId}`,
+marketplaceRelease: (orderId: string) => `mkt_release:${orderId}`,
+marketplaceRefund: (orderId: string) => `mkt_refund:${orderId}`,
+```
+
+Add to `LedgerJournal.referenceType` union:
+```typescript
+| "marketplace_order"
+```
+
+**New File:** `functions/src/ledger/marketplaceEscrow.ts`
+
+Follows the exact pattern of `functions/src/ledger/giftSprayEscrow.ts`:
+
+```typescript
+import { SystemAccounts, AccountId, IdempotencyKey } from "./types";
+import { postJournal } from "./journals";
+import { ensureSystemAccounts, getOrCreateUserAccount } from "./accounts";
+import { debitSubAccount } from "./subAccounts";
+import * as admin from "firebase-admin";
+
+const db = admin.firestore();
+
+/**
+ * Escrow buyer tokens for marketplace purchase.
+ * Debit buyer, credit MARKETPLACE_ESCROW.
+ */
+export async function processMarketplaceEscrow(
+  buyerId: string,
+  amount: number,
+  orderId: string,
+  subAccountId?: string,
+  description?: string
+): Promise<string> {
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(buyerId)]);
+
+  const buyerAccountId = AccountId.user(buyerId);
+  const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
+
+  const result = await db.runTransaction(async (tx) => {
+    const journalResult = await postJournal({
+      idempotencyKey: IdempotencyKey.marketplaceEscrow(orderId),
+      type: "marketplace_escrow",
+      description: description || `Marketplace escrow for order ${orderId}`,
+      entries: [
+        { accountId: buyerAccountId, entryType: "debit", amount },
+        { accountId: escrowAccountId, entryType: "credit", amount },
+      ],
+      referenceType: "marketplace_order",
+      referenceId: orderId,
+      initiatedBy: buyerId,
+      subAccountId: subAccountId || null,
+    }, tx);
+
+    if (journalResult.success && !journalResult.isDuplicate && subAccountId) {
+      await debitSubAccount(buyerId, subAccountId, amount, tx);
+    }
+
+    return journalResult;
+  });
+
+  if (!result.success) {
+    throw new Error(result.error || "Failed to escrow marketplace tokens");
+  }
+  return result.journalId!;
+}
+
+/**
+ * Release escrowed tokens to seller.
+ * Debit MARKETPLACE_ESCROW, credit seller.
+ */
+export async function releaseMarketplaceEscrow(
+  sellerId: string,
+  amount: number,
+  orderId: string,
+  description?: string
+): Promise<string> {
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(sellerId)]);
+
+  const sellerAccountId = AccountId.user(sellerId);
+  const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
+
+  const result = await postJournal({
+    idempotencyKey: IdempotencyKey.marketplaceRelease(orderId),
+    type: "marketplace_release",
+    description: description || `Marketplace release for order ${orderId}`,
+    entries: [
+      { accountId: escrowAccountId, entryType: "debit", amount },
+      { accountId: sellerAccountId, entryType: "credit", amount },
+    ],
+    referenceType: "marketplace_order",
+    referenceId: orderId,
+    initiatedBy: "system",
+  });
+
+  if (!result.success) {
+    throw new Error(result.error || "Failed to release marketplace escrow");
+  }
+  return result.journalId!;
+}
+
+/**
+ * Refund escrowed tokens to buyer.
+ * Debit MARKETPLACE_ESCROW, credit buyer.
+ */
+export async function refundMarketplaceEscrow(
+  buyerId: string,
+  amount: number,
+  orderId: string,
+  subAccountId?: string,
+  description?: string
+): Promise<string> {
+  await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(buyerId)]);
+
+  const buyerAccountId = AccountId.user(buyerId);
+  const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
+
+  const result = await postJournal({
+    idempotencyKey: IdempotencyKey.marketplaceRefund(orderId),
+    type: "marketplace_refund",
+    description: description || `Marketplace refund for order ${orderId}`,
+    entries: [
+      { accountId: escrowAccountId, entryType: "debit", amount },
+      { accountId: buyerAccountId, entryType: "credit", amount },
+    ],
+    referenceType: "marketplace_order",
+    referenceId: orderId,
+    initiatedBy: "system",
+    subAccountId: subAccountId || null,
+  });
+
+  if (!result.success) {
+    throw new Error(result.error || "Failed to refund marketplace escrow");
+  }
+  return result.journalId!;
+}
+```
+
+**Modified:** `functions/src/ledger/index.ts` -- Add exports:
+```typescript
+export {
+  processMarketplaceEscrow,
+  releaseMarketplaceEscrow,
+  refundMarketplaceEscrow,
+} from "./marketplaceEscrow";
+```
+
+---
+
+### 3.12 Firestore Collections for Phase 3
+
+**Collection:** `providers`
+```json
+{
+  "userId": "uid123",
+  "displayName": "Nomsa's Kitchen",
+  "description": "Home-cooked meals in Khayelitsha",
+  "category": "food",
+  "avatarUrl": null,
+  "location": "Khayelitsha",
+  "communityId": "khayelitsha",
+  "trustScore": 3.5,
+  "vouchCount": 7,
+  "completedOrders": 12,
+  "totalRatings": 7,
+  "averageRating": 4.2,
+  "isVerified": false,
+  "isActive": true,
+  "isDeleted": false,
+  "createdAt": "<Timestamp>",
+  "updatedAt": "<Timestamp>"
+}
+```
+
+**Collection:** `marketplaceListings`
+```json
+{
+  "providerId": "prov123",
+  "providerName": "Nomsa's Kitchen",
+  "title": "Bunny Chow - Mutton",
+  "description": "Traditional Durban bunny chow...",
+  "category": "food",
+  "priceTokens": 5000,
+  "priceZar": 50.0,
+  "imageUrls": ["https://..."],
+  "location": "Khayelitsha",
+  "communityId": "khayelitsha",
+  "isActive": true,
+  "isNegotiable": false,
+  "condition": null,
+  "quantityAvailable": null,
+  "attributes": {},
+  "createdAt": "<Timestamp>"
+}
+```
+
+**Collection:** `buyOrders`
+```json
+{
+  "buyerId": "uid456",
+  "buyerDisplayName": "Thabo M.",
+  "sellerId": "uid123",
+  "sellerDisplayName": "Nomsa's Kitchen",
+  "listingId": "list789",
+  "listingTitle": "Bunny Chow - Mutton",
+  "tokenAmount": 5000,
+  "zarAmount": 50.0,
+  "status": "escrowed",
+  "escrowJournalId": "jrnl_abc",
+  "releaseJournalId": null,
+  "refundJournalId": null,
+  "buyerNote": "Extra hot please",
+  "subAccountId": null,
+  "createdAt": "<Timestamp>",
+  "escrowedAt": "<Timestamp>"
+}
+```
+
+**Collection:** `vouches`
+```json
+{
+  "voucherId": "uid456",
+  "voucherDisplayName": "Thabo M.",
+  "providerId": "prov123",
+  "comment": "Best bunny chow in Khayelitsha!",
+  "rating": 5,
+  "createdAt": "<Timestamp>"
+}
+```
+
+---
+
+### 3.13 Firestore Rules for Phase 3
+
+**Modified:** `firestore.rules` -- Add:
+```
+// Marketplace providers - read-only for authenticated users
+match /providers/{providerId} {
+  allow read: if isAuthenticated();
+  allow write: if false; // via Cloud Functions only
+}
+
+// Marketplace listings
+match /marketplaceListings/{listingId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+}
+
+// Buy orders - buyer and seller can read their own orders
+match /buyOrders/{orderId} {
+  allow read: if isAuthenticated()
+    && (resource.data.buyerId == request.auth.uid
+        || resource.data.sellerId == request.auth.uid);
+  allow write: if false;
+}
+
+// Vouches
+match /vouches/{vouchId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+}
+```
+
+---
+
+### 3.14 Firestore Indexes for Phase 3
+
+Add to `firestore.indexes.json`:
+```json
+[
+  {
+    "collectionGroup": "marketplaceListings",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "category", "order": "ASCENDING" },
+      { "fieldPath": "isActive", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "marketplaceListings",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "communityId", "order": "ASCENDING" },
+      { "fieldPath": "isActive", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "marketplaceListings",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "providerId", "order": "ASCENDING" },
+      { "fieldPath": "isActive", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "buyOrders",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "buyerId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "buyOrders",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "sellerId", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "vouches",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "providerId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "providers",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "category", "order": "ASCENDING" },
+      { "fieldPath": "isActive", "order": "ASCENDING" },
+      { "fieldPath": "trustScore", "order": "DESCENDING" }
+    ]
+  }
+]
+```
+
+---
+
+### 3.15 BLoC Provision for Phase 3
+
+**Modified:** `lib/app.dart`
+
+Add fields, getIt resolution, and MultiBlocProvider entries for:
+```dart
+late final MarketplaceBloc _marketplaceBloc;
+late final OrderBloc _orderBloc;
+```
+
+`ProviderRegistrationBloc` is NOT added globally -- it is provided locally at the `ProviderRegistrationScreen` with `BlocProvider(create: (_) => getIt<ProviderRegistrationBloc>())`.
+
+---
+
+### 3.16 Modified Buy Tab Shell
+
+**Modified:** `lib/presentation/screens/buy/buy_services_screen.dart`
+
+Replace `_buildMarketplacePlaceholder()` with an actual marketplace entry section:
+```dart
+SliverToBoxAdapter(
+  child: BlocBuilder<FeatureFlagBloc, FeatureFlagState>(
+    builder: (context, flagState) {
+      if (flagState.enabledFeatures['buy_marketplace'] != true) {
+        return const SizedBox.shrink();
+      }
+      return Column(
+        children: [
+          BuySectionHeader(
+            title: 'Intengiso Marketplace',
+            onSeeAll: () => context.go('/buy/marketplace'),
+          ),
+          _buildMarketplaceEntryCards(context),
+        ],
+      );
+    },
+  ),
+),
+```
+
+Five entry cards for the 5 sub-markets, each navigating to the marketplace hub with a category pre-selected.
+
+---
+
+### Phase 3 Complete File Summary
+
+| Action | File Path | Description |
+|--------|-----------|-------------|
+| CREATE | `lib/domain/enums/marketplace_category.dart` | Marketplace category enum |
+| CREATE | `lib/domain/enums/order_status.dart` | Order status enum |
+| CREATE | `lib/domain/entities/marketplace_provider.dart` | Provider entity |
+| CREATE | `lib/domain/entities/marketplace_listing.dart` | Listing entity |
+| CREATE | `lib/domain/entities/buy_order.dart` | Order entity |
+| CREATE | `lib/domain/entities/vouch.dart` | Vouch entity |
+| CREATE | `lib/data/models/marketplace_provider_model.dart` | Provider model |
+| CREATE | `lib/data/models/marketplace_listing_model.dart` | Listing model |
+| CREATE | `lib/data/models/buy_order_model.dart` | Order model |
+| CREATE | `lib/data/models/vouch_model.dart` | Vouch model |
+| CREATE | `lib/data/datasources/remote/marketplace_remote_datasource.dart` | Marketplace datasource |
+| CREATE | `lib/domain/repositories/marketplace_repository.dart` | Marketplace repo interface |
+| CREATE | `lib/data/repositories/marketplace_repository_impl.dart` | Marketplace repo impl |
+| CREATE | `lib/presentation/blocs/marketplace/marketplace_bloc.dart` | Marketplace BLoC |
+| CREATE | `lib/presentation/blocs/marketplace/marketplace_event.dart` | Marketplace events |
+| CREATE | `lib/presentation/blocs/marketplace/marketplace_state.dart` | Marketplace state |
+| CREATE | `lib/presentation/blocs/marketplace/order_bloc.dart` | Order BLoC |
+| CREATE | `lib/presentation/blocs/marketplace/order_event.dart` | Order events |
+| CREATE | `lib/presentation/blocs/marketplace/order_state.dart` | Order state |
+| CREATE | `lib/presentation/blocs/marketplace/provider_registration_bloc.dart` | Registration BLoC |
+| CREATE | `lib/presentation/blocs/marketplace/provider_registration_event.dart` | Registration events |
+| CREATE | `lib/presentation/blocs/marketplace/provider_registration_state.dart` | Registration state |
+| CREATE | `lib/presentation/screens/buy/marketplace_hub_screen.dart` | Marketplace hub |
+| CREATE | `lib/presentation/screens/buy/marketplace_listing_detail_screen.dart` | Listing detail |
+| CREATE | `lib/presentation/screens/buy/marketplace_provider_profile_screen.dart` | Provider profile |
+| CREATE | `lib/presentation/screens/buy/provider_registration_screen.dart` | 3-step registration |
+| CREATE | `lib/presentation/screens/buy/create_listing_screen.dart` | Create listing form |
+| CREATE | `lib/presentation/screens/buy/my_orders_screen.dart` | Orders list |
+| CREATE | `lib/presentation/screens/buy/order_detail_screen.dart` | Order detail |
+| CREATE | `lib/presentation/widgets/buy/marketplace_listing_card.dart` | Listing card widget |
+| CREATE | `lib/presentation/widgets/buy/trust_badge.dart` | Trust score badge |
+| CREATE | `lib/presentation/widgets/buy/vouch_list.dart` | Vouch list widget |
+| CREATE | `lib/presentation/widgets/buy/escrow_status_indicator.dart` | Escrow flow indicator |
+| CREATE | `lib/presentation/widgets/buy/marketplace_search_bar.dart` | Search bar widget |
+| CREATE | `functions/src/marketplace.ts` | Marketplace Cloud Functions |
+| CREATE | `functions/src/ledger/marketplaceEscrow.ts` | Marketplace escrow ledger ops |
+| MODIFY | `functions/src/index.ts` | Add marketplace export |
+| MODIFY | `functions/src/ledger/index.ts` | Export marketplace escrow functions |
+| MODIFY | `functions/src/ledger/types.ts` | Add journal types, system accounts, idempotency keys |
+| MODIFY | `lib/presentation/router/app_router.dart` | Add marketplace routes |
+| MODIFY | `lib/app.dart` | Add MarketplaceBloc, OrderBloc provision |
+| MODIFY | `lib/presentation/screens/buy/buy_services_screen.dart` | Integrate marketplace section |
+| MODIFY | `firestore.rules` | Add providers, listings, orders, vouches rules |
+| MODIFY | `firestore.indexes.json` | Add 7 indexes |
+| CREATE | 8-10 test files | CF tests, BLoC tests, widget tests |
+
+---
+
+## PHASE 4: Hlangana Group Buys
+**Estimated effort: 3 weeks. Independently testable.**
+
+### 4.1 New Entities
+
+**File:** `lib/domain/enums/group_buy_status.dart`
+```dart
+enum GroupBuyStatus {
+  open,           // Accepting contributions
+  targetMet,      // Target quantity/participants reached, awaiting completion
+  expired,        // Deadline passed without meeting target
+  completed,      // Escrow released to seller, deal done
+  cancelled,      // Organizer cancelled
+}
+```
+
+**File:** `lib/domain/entities/group_buy.dart`
+```dart
+@freezed
+class GroupBuy with _$GroupBuy {
+  const factory GroupBuy({
+    required String id,
+    required String organizerId,
+    required String organizerName,
+    String? organizerAvatarUrl,
+    required String title,
+    required String description,
+    required String listingId,         // linked marketplace listing
+    required String listingTitle,
+    required int pricePerUnitTokens,
+    required double pricePerUnitZar,
+    required int targetQuantity,
+    required int currentQuantity,
+    required int minParticipants,
+    required int maxParticipants,
+    required int currentParticipants,
+    required GroupBuyStatus status,
+    required List<String> participantIds,
+    required DateTime createdAt,
+    required DateTime expiresAt,
+    DateTime? completedAt,
+    DateTime? cancelledAt,
+    String? communityId,
+    String? imageUrl,
+    Map<String, dynamic>? metadata,
+  }) = _GroupBuy;
+
+  const GroupBuy._();
+
+  double get progressPercent => targetQuantity > 0
+      ? (currentQuantity / targetQuantity).clamp(0.0, 1.0)
+      : 0.0;
+
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
+  bool get isTargetMet => currentQuantity >= targetQuantity;
+  bool get canJoin => status == GroupBuyStatus.open && !isExpired && currentParticipants < maxParticipants;
+
+  Duration get timeRemaining => expiresAt.difference(DateTime.now());
+}
+```
+
+**File:** `lib/domain/entities/group_buy_contribution.dart`
+```dart
+@freezed
+class GroupBuyContribution with _$GroupBuyContribution {
+  const factory GroupBuyContribution({
+    required String id,
+    required String groupBuyId,
+    required String userId,
+    required String displayName,
+    String? avatarUrl,
+    required int quantity,
+    required int tokenAmount,
+    required String status,          // "escrowed", "refunded", "released"
+    String? escrowJournalId,
+    String? subAccountId,
+    required DateTime createdAt,
+  }) = _GroupBuyContribution;
+
+  const GroupBuyContribution._();
+}
+```
+
+### 4.2 New Models
+
+**File:** `lib/data/models/group_buy_model.dart`
+**File:** `lib/data/models/group_buy_contribution_model.dart`
+
+Both follow established pattern.
+
+### 4.3 New Datasource
+
+**File:** `lib/data/datasources/remote/group_buy_remote_datasource.dart`
+
+```dart
+abstract class GroupBuyRemoteDataSource {
+  Future<GroupBuyModel> createGroupBuy({
+    required String listingId,
+    required String title,
+    required String description,
+    required int targetQuantity,
+    required int pricePerUnitTokens,
+    required int minParticipants,
+    required int maxParticipants,
+    required DateTime expiresAt,
+    String? communityId,
+    String? imageUrl,
+  });
+  Future<List<GroupBuyModel>> getActiveGroupBuys({String? communityId, int? limit});
+  Future<GroupBuyModel> getGroupBuy(String groupBuyId);
+  Future<GroupBuyContributionModel> joinGroupBuy({
+    required String groupBuyId,
+    required int quantity,
+    String? subAccountId,
+  });
+  Future<List<GroupBuyContributionModel>> getGroupBuyContributions(String groupBuyId);
+  Future<List<GroupBuyModel>> getMyGroupBuys({int? limit});
+}
+```
+
+Implementation: `@LazySingleton(as: GroupBuyRemoteDataSource)`
+- `createGroupBuy` calls `_functions.httpsCallable('createGroupBuy')`
+- `joinGroupBuy` calls `_functions.httpsCallable('joinGroupBuy')` with PlayIntegrity
+- Read operations read directly from Firestore
+
+### 4.4 New Repository
+
+**File:** `lib/domain/repositories/group_buy_repository.dart`
+**File:** `lib/data/repositories/group_buy_repository_impl.dart`
+- `@LazySingleton(as: GroupBuyRepository)`
+
+### 4.5 New BLoC
+
+**File:** `lib/presentation/blocs/group_buy/group_buy_bloc.dart`
+**File:** `lib/presentation/blocs/group_buy/group_buy_event.dart` (part)
+**File:** `lib/presentation/blocs/group_buy/group_buy_state.dart` (part)
+
+```dart
+@freezed
+class GroupBuyEvent with _$GroupBuyEvent {
+  const factory GroupBuyEvent.loadActiveGroupBuys({String? communityId}) = _LoadActiveGroupBuys;
+  const factory GroupBuyEvent.loadGroupBuy(String groupBuyId) = _LoadGroupBuy;
+  const factory GroupBuyEvent.loadContributions(String groupBuyId) = _LoadContributions;
+  const factory GroupBuyEvent.createGroupBuy({
+    required String listingId,
+    required String title,
+    required String description,
+    required int targetQuantity,
+    required int pricePerUnitTokens,
+    required int minParticipants,
+    required int maxParticipants,
+    required DateTime expiresAt,
+    String? communityId,
+    String? imageUrl,
+  }) = _CreateGroupBuy;
+  const factory GroupBuyEvent.joinGroupBuy({
+    required String groupBuyId,
+    required int quantity,
+    String? subAccountId,
+  }) = _JoinGroupBuy;
+  const factory GroupBuyEvent.loadMyGroupBuys() = _LoadMyGroupBuys;
+  const factory GroupBuyEvent.clearError() = _ClearError;
+  const factory GroupBuyEvent.clearSuccess() = _ClearSuccess;
+}
+
+@freezed
+class GroupBuyState with _$GroupBuyState {
+  const factory GroupBuyState({
+    @Default(false) bool isLoading,
+    @Default(false) bool isJoining,
+    @Default(false) bool isCreating,
+    @Default([]) List<GroupBuy> activeGroupBuys,
+    @Default([]) List<GroupBuy> myGroupBuys,
+    GroupBuy? selectedGroupBuy,
+    @Default([]) List<GroupBuyContribution> contributions,
+    String? errorMessage,
+    String? successMessage,
+  }) = _GroupBuyState;
+}
+```
+
+### 4.6 New Screens
+
+**File:** `lib/presentation/screens/buy/group_buy_list_screen.dart`
+- Browse active group buys
+- Each card shows: title, image, progress bar, participant count, countdown timer, "Join" button
+- Filter by community
+
+**File:** `lib/presentation/screens/buy/group_buy_detail_screen.dart`
+- Full group buy details: title, description, linked listing
+- Progress bar with current/target quantity
+- Countdown timer to expiry
+- Participant list
+- "Join this deal" button with quantity selector and wallet selection
+- Contribution history
+
+**File:** `lib/presentation/screens/buy/create_group_buy_screen.dart`
+- Form: select listing, title, description, target quantity, price, min/max participants, expiry date
+- Preview card before submission
+
+### 4.7 New Widgets
+
+**File:** `lib/presentation/widgets/buy/group_buy_card.dart`
+- Card with image, title, progress bar, timer, participant count
+
+**File:** `lib/presentation/widgets/buy/group_buy_progress_bar.dart`
+- Animated linear progress indicator with labels (current/target)
+
+**File:** `lib/presentation/widgets/buy/countdown_timer_widget.dart`
+- `StatefulWidget` with `Timer.periodic` that counts down to expiry
+- Shows days/hours/minutes/seconds
+- Red when < 1 hour remaining
+
+### 4.8 Router Changes
+
+**Modified:** `lib/presentation/router/app_router.dart`
+
+Add under `/buy/marketplace` routes:
+```dart
+GoRoute(
+  path: 'group-buys',
+  name: 'groupBuys',
+  builder: (context, state) => const GroupBuyListScreen(),
+  routes: [
+    GoRoute(
+      path: ':groupBuyId',
+      name: 'groupBuyDetail',
+      builder: (context, state) => GroupBuyDetailScreen(
+        groupBuyId: state.pathParameters['groupBuyId']!,
+      ),
+    ),
+    GoRoute(
+      path: 'create',
+      name: 'createGroupBuy',
+      builder: (context, state) => const CreateGroupBuyScreen(),
+    ),
+  ],
+),
+```
+
+### 4.9 Cloud Functions
+
+**New File:** `functions/src/groupBuys.ts`
+
+(Separate from `marketplace.ts` because group buys have their own escrow logic, scheduled cleanup, and the file would get too large combined.)
+
+```typescript
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import * as admin from "firebase-admin";
+import { requireAppCheck, requirePlayIntegrity } from "./security";
+
+const db = admin.firestore();
+
+/**
+ * Create a new group buy deal
+ */
+export const createGroupBuy = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck
+    // Validate listing exists and is active
+    // Create groupBuy document
+    // Return group buy data
+  }
+);
+
+/**
+ * Join a group buy - contribute tokens into escrow
+ */
+export const joinGroupBuy = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth, requireAppCheck, requirePlayIntegrity
+    // Validate group buy is open and not expired
+    // Validate participant hasn't already joined (or allow multiple contributions)
+    // Validate balance
+    // Escrow tokens: buyer -> GROUP_BUY_ESCROW
+    // Create contribution subcollection doc
+    // Update group buy counters (currentQuantity, currentParticipants, participantIds)
+    // If target met, update status to 'targetMet'
+    // Return contribution data
+  }
+);
+
+/**
+ * Complete a group buy when target is met - release escrow to seller
+ */
+export const completeGroupBuy = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    // requireAuth (organizer only), requireAppCheck
+    // Validate group buy status is 'targetMet'
+    // Release all escrowed tokens to seller (single journal entry for total)
+    // Update all contribution statuses to 'released'
+    // Update group buy status to 'completed'
+    // Update seller's completedOrders
+  }
+);
+
+/**
+ * Scheduled: check for expired group buys and refund all contributions
+ */
+export const checkExpiredGroupBuys = onSchedule(
+  {
+    schedule: "*/30 * * * *",  // Every 30 minutes
+    timeZone: "Africa/Johannesburg",
+    region: "europe-west1",
+    timeoutSeconds: 300,
+    memory: "512MiB",
+    labels: { area: "marketplace" },
+  },
+  async () => {
+    const now = admin.firestore.Timestamp.now();
+    const expiredBuys = await db.collection("groupBuys")
+      .where("status", "==", "open")
+      .where("expiresAt", "<=", now)
+      .get();
+
+    for (const doc of expiredBuys.docs) {
+      // Refund each contribution
+      const contributions = await doc.ref.collection("contributions")
+        .where("status", "==", "escrowed")
+        .get();
+
+      for (const contrib of contributions.docs) {
+        // Refund: GROUP_BUY_ESCROW -> contributor
+        await refundGroupBuyContribution(contrib.data());
+        await contrib.ref.update({ status: "refunded" });
+      }
+
+      await doc.ref.update({
+        status: "expired",
+        cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }
+);
+```
+
+**Modified:** `functions/src/index.ts` -- Add:
+```typescript
+export * from "./groupBuys";
+```
+
+### 4.10 Ledger Additions for Group Buys
+
+**Modified:** `functions/src/ledger/types.ts`
+
+Add to `JournalType`:
+```typescript
+| "group_buy_escrow"   // Participant -> group buy escrow
+| "group_buy_release"  // Group buy escrow -> seller
+| "group_buy_refund"   // Group buy escrow -> participant
+```
+
+Add to `SystemAccounts`:
+```typescript
+GROUP_BUY_ESCROW: "system:group_buy_escrow",
+```
+
+Add to `IdempotencyKey`:
+```typescript
+groupBuyEscrow: (groupBuyId: string, userId: string) => `gbuy_escrow:${groupBuyId}:${userId}`,
+groupBuyRelease: (groupBuyId: string) => `gbuy_release:${groupBuyId}`,
+groupBuyRefund: (groupBuyId: string, userId: string) => `gbuy_refund:${groupBuyId}:${userId}`,
+```
+
+**New File:** `functions/src/ledger/groupBuyEscrow.ts`
+- `processGroupBuyEscrow(userId, amount, groupBuyId, subAccountId?)` -- participant -> GROUP_BUY_ESCROW
+- `releaseGroupBuyEscrow(sellerId, totalAmount, groupBuyId)` -- GROUP_BUY_ESCROW -> seller
+- `refundGroupBuyContribution(contributionData)` -- GROUP_BUY_ESCROW -> participant
+
+Follows exact same pattern as `marketplaceEscrow.ts` and `giftSprayEscrow.ts`.
+
+**Modified:** `functions/src/ledger/index.ts` -- Add exports:
+```typescript
+export {
+  processGroupBuyEscrow,
+  releaseGroupBuyEscrow,
+  refundGroupBuyContribution,
+} from "./groupBuyEscrow";
+```
+
+### 4.11 Firestore Collections for Phase 4
+
+**Collection:** `groupBuys`
+```json
+{
+  "organizerId": "uid123",
+  "organizerName": "Thabo M.",
+  "title": "Bulk Chicken - R25/kg",
+  "description": "Group order for wholesale chicken",
+  "listingId": "list789",
+  "listingTitle": "Wholesale Chicken",
+  "pricePerUnitTokens": 2500,
+  "pricePerUnitZar": 25.0,
+  "targetQuantity": 20,
+  "currentQuantity": 8,
+  "minParticipants": 5,
+  "maxParticipants": 30,
+  "currentParticipants": 6,
+  "status": "open",
+  "participantIds": ["uid456", "uid789", ...],
+  "expiresAt": "<Timestamp>",
+  "createdAt": "<Timestamp>",
+  "communityId": "khayelitsha"
+}
+```
+
+**Subcollection:** `groupBuys/{groupBuyId}/contributions/{contributionId}`
+```json
+{
+  "userId": "uid456",
+  "displayName": "Sipho K.",
+  "quantity": 2,
+  "tokenAmount": 5000,
+  "status": "escrowed",
+  "escrowJournalId": "jrnl_xyz",
+  "subAccountId": null,
+  "createdAt": "<Timestamp>"
+}
+```
+
+### 4.12 Firestore Rules for Phase 4
+
+**Modified:** `firestore.rules` -- Add:
+```
+// Group buys
+match /groupBuys/{groupBuyId} {
+  allow read: if isAuthenticated();
+  allow write: if false;
+
+  // Contributions subcollection
+  match /contributions/{contributionId} {
+    allow read: if isAuthenticated();
+    allow write: if false;
+  }
+}
+```
+
+### 4.13 Firestore Indexes for Phase 4
+
+```json
+[
+  {
+    "collectionGroup": "groupBuys",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "expiresAt", "order": "ASCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "groupBuys",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "communityId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  },
+  {
+    "collectionGroup": "groupBuys",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "participantIds", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  }
+]
+```
+
+### 4.14 BLoC Provision for Phase 4
+
+**Modified:** `lib/app.dart` -- Add:
+```dart
+late final GroupBuyBloc _groupBuyBloc;
+// in initState:
+_groupBuyBloc = getIt<GroupBuyBloc>();
+// in MultiBlocProvider:
+BlocProvider<GroupBuyBloc>.value(value: _groupBuyBloc),
+```
+
+### Phase 4 Complete File Summary
+
+| Action | File Path | Description |
+|--------|-----------|-------------|
+| CREATE | `lib/domain/enums/group_buy_status.dart` | Group buy status enum |
+| CREATE | `lib/domain/entities/group_buy.dart` | Group buy entity |
+| CREATE | `lib/domain/entities/group_buy_contribution.dart` | Contribution entity |
+| CREATE | `lib/data/models/group_buy_model.dart` | Group buy model |
+| CREATE | `lib/data/models/group_buy_contribution_model.dart` | Contribution model |
+| CREATE | `lib/data/datasources/remote/group_buy_remote_datasource.dart` | Group buy datasource |
+| CREATE | `lib/domain/repositories/group_buy_repository.dart` | Group buy repo interface |
+| CREATE | `lib/data/repositories/group_buy_repository_impl.dart` | Group buy repo impl |
+| CREATE | `lib/presentation/blocs/group_buy/group_buy_bloc.dart` | Group buy BLoC |
+| CREATE | `lib/presentation/blocs/group_buy/group_buy_event.dart` | Group buy events |
+| CREATE | `lib/presentation/blocs/group_buy/group_buy_state.dart` | Group buy state |
+| CREATE | `lib/presentation/screens/buy/group_buy_list_screen.dart` | Group buy browse screen |
+| CREATE | `lib/presentation/screens/buy/group_buy_detail_screen.dart` | Group buy detail screen |
+| CREATE | `lib/presentation/screens/buy/create_group_buy_screen.dart` | Create group buy screen |
+| CREATE | `lib/presentation/widgets/buy/group_buy_card.dart` | Group buy card widget |
+| CREATE | `lib/presentation/widgets/buy/group_buy_progress_bar.dart` | Progress bar widget |
+| CREATE | `lib/presentation/widgets/buy/countdown_timer_widget.dart` | Countdown timer widget |
+| CREATE | `functions/src/groupBuys.ts` | Group buy Cloud Functions |
+| CREATE | `functions/src/ledger/groupBuyEscrow.ts` | Group buy escrow ledger ops |
+| MODIFY | `functions/src/index.ts` | Add groupBuys export |
+| MODIFY | `functions/src/ledger/index.ts` | Export group buy escrow functions |
+| MODIFY | `functions/src/ledger/types.ts` | Add journal types, system account, idempotency keys |
+| MODIFY | `lib/presentation/router/app_router.dart` | Add group buy routes |
+| MODIFY | `lib/app.dart` | Add GroupBuyBloc provision |
+| MODIFY | `firestore.rules` | Add groupBuys rules |
+| MODIFY | `firestore.indexes.json` | Add 3 indexes |
+| CREATE | 5-7 test files | CF tests, BLoC tests, widget tests |
+
+---
+
+## Cross-Phase: Build Runner Requirements
+
+After EVERY phase, run:
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+This regenerates all `.freezed.dart` files for new/modified entities, models, and BLoCs, and regenerates `injection.config.dart` for new `@injectable`/`@LazySingleton` registrations.
+
+---
+
+## Key Architectural Decisions Summary
+
+1. **BLoCs, not Cubits.** All state management uses `Bloc<Event, State>` with `@freezed` events and states. The spec's Cubit proposals are adapted to BLoCs.
+2. **Existing directory structure, not `features/buy/`.** Domain entities go in `lib/domain/entities/`, models in `lib/data/models/`, etc.
+3. **Extend PurchaseBloc for VAS, new BLoCs for marketplace.** The existing `PurchaseBloc` handles VAS purchases (Phase 1-2). `MarketplaceBloc`, `OrderBloc`, and `GroupBuyBloc` handle marketplace and group buy concerns (Phases 3-4).
+4. **Models embed conversion, no separate mapper classes.** Following the pattern in `PurchaseModel.toEntity()` / `PurchaseModel.fromEntity()`.
+5. **Marketplace Cloud Functions in `functions/src/marketplace.ts`.** This is a consumer-facing file, not an admin file. The CLAUDE.md rule about not creating new top-level files applies only to admin functions.
+6. **Escrow follows the gift/spray escrow pattern.** `processMarketplaceEscrow` / `releaseMarketplaceEscrow` / `refundMarketplaceEscrow` mirror `processGiftDebit` / `processGiftCredit` / `processGiftRefund` in `functions/src/ledger/giftSprayEscrow.ts`.
+7. **Feature flags are Firestore-backed, not Firebase Remote Config.** Per spec requirement, with 30-min client cache.
+8. **`PurchaseCategory` is NOT extended.** The grid display uses a separate `BuyCategory` entity backed by Firestore, decoupling the display taxonomy from the VAS transaction enum.
+9. **Firestore collections are write-locked.** All writes go through Cloud Functions. Client code only reads.
+10. **Each phase is independently deployable and testable.** Phase 1 activates the Buy Tab with VAS. Phase 2 adds UX convenience. Phase 3 is the marketplace. Phase 4 is group buying. No phase depends on a subsequent phase.
+
+### Critical Files for Implementation
+- `C:\Users\lance\Documents\MyFlutterProjects\iMali\imalichat\lib\presentation\screens\buy\buy_services_screen.dart` - The main Buy Tab screen that gets fully rewritten from placeholder to 3-layer shell; all subsequent phases add sections to this screen
+- `C:\Users\lance\Documents\MyFlutterProjects\iMali\imalichat\lib\presentation\blocs\purchase\purchase_bloc.dart` - The existing PurchaseBloc extended with new events/state in Phases 1-2; its Freezed event/state pattern is the template for all new BLoCs
+- `C:\Users\lance\Documents\MyFlutterProjects\iMali\imalichat\functions\src\ledger\giftSprayEscrow.ts` - The exact pattern to follow for marketplace and group buy escrow functions (debit user -> credit escrow, debit escrow -> credit recipient/refund)
+- `C:\Users\lance\Documents\MyFlutterProjects\iMali\imalichat\functions\src\ledger\types.ts` - The ledger type system where all new JournalTypes, IdempotencyKeys, SystemAccounts, and referenceTypes must be added across Phases 3-4
+- `C:\Users\lance\Documents\MyFlutterProjects\iMali\imalichat\lib\presentation\router\app_router.dart` - The GoRouter configuration where all new Buy sub-routes get added under the existing `/buy` StatefulShellBranch across all 4 phases

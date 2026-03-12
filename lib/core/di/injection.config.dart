@@ -26,6 +26,8 @@ import 'package:local_auth/local_auth.dart' as _i152;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../data/datasources/local/app_database.dart' as _i483;
+import '../../data/datasources/local/sa_location_datasource.dart' as _i467;
+import '../../data/datasources/local/saved_listing_datasource.dart' as _i360;
 import '../../data/datasources/remote/admin_earn_remote_datasource.dart'
     as _i48;
 import '../../data/datasources/remote/auth_remote_datasource.dart' as _i1057;
@@ -43,6 +45,7 @@ import '../../data/datasources/remote/feature_flag_remote_datasource.dart'
 import '../../data/datasources/remote/gamification_remote_datasource.dart'
     as _i749;
 import '../../data/datasources/remote/gift_remote_datasource.dart' as _i108;
+import '../../data/datasources/remote/gooi_remote_datasource.dart' as _i1018;
 import '../../data/datasources/remote/group_buy_remote_datasource.dart'
     as _i590;
 import '../../data/datasources/remote/group_remote_datasource.dart' as _i42;
@@ -73,14 +76,17 @@ import '../../data/repositories/earn_repository_impl.dart' as _i965;
 import '../../data/repositories/feature_flag_repository_impl.dart' as _i821;
 import '../../data/repositories/gamification_repository_impl.dart' as _i500;
 import '../../data/repositories/gift_repository_impl.dart' as _i350;
+import '../../data/repositories/gooi_repository_impl.dart' as _i651;
 import '../../data/repositories/group_buy_repository_impl.dart' as _i923;
 import '../../data/repositories/group_repository_impl.dart' as _i654;
+import '../../data/repositories/location_repository_impl.dart' as _i553;
 import '../../data/repositories/marketplace_repository_impl.dart' as _i199;
 import '../../data/repositories/moderation_repository_impl.dart' as _i527;
 import '../../data/repositories/poll_repository_impl.dart' as _i570;
 import '../../data/repositories/purchase_repository_impl.dart' as _i1044;
 import '../../data/repositories/referral_repository_impl.dart' as _i904;
 import '../../data/repositories/reward_repository_impl.dart' as _i905;
+import '../../data/repositories/saved_listing_repository_impl.dart' as _i760;
 import '../../data/repositories/token_pool_repository_impl.dart' as _i889;
 import '../../data/repositories/token_spray_repository_impl.dart' as _i895;
 import '../../data/repositories/user_repository_impl.dart' as _i790;
@@ -99,14 +105,17 @@ import '../../domain/repositories/earn_repository.dart' as _i805;
 import '../../domain/repositories/feature_flag_repository.dart' as _i993;
 import '../../domain/repositories/gamification_repository.dart' as _i1010;
 import '../../domain/repositories/gift_repository.dart' as _i533;
+import '../../domain/repositories/gooi_repository.dart' as _i636;
 import '../../domain/repositories/group_buy_repository.dart' as _i525;
 import '../../domain/repositories/group_repository.dart' as _i708;
+import '../../domain/repositories/location_repository.dart' as _i816;
 import '../../domain/repositories/marketplace_repository.dart' as _i631;
 import '../../domain/repositories/moderation_repository.dart' as _i862;
 import '../../domain/repositories/poll_repository.dart' as _i731;
 import '../../domain/repositories/purchase_repository.dart' as _i742;
 import '../../domain/repositories/referral_repository.dart' as _i633;
 import '../../domain/repositories/reward_repository.dart' as _i191;
+import '../../domain/repositories/saved_listing_repository.dart' as _i989;
 import '../../domain/repositories/token_pool_repository.dart' as _i119;
 import '../../domain/repositories/token_spray_repository.dart' as _i943;
 import '../../domain/repositories/user_repository.dart' as _i271;
@@ -131,6 +140,9 @@ import '../../presentation/blocs/earn/earn_bloc.dart' as _i775;
 import '../../presentation/blocs/earn_inbox/earn_inbox_bloc.dart' as _i480;
 import '../../presentation/blocs/feature_flag/feature_flag_bloc.dart' as _i394;
 import '../../presentation/blocs/gift/gift_bloc.dart' as _i66;
+import '../../presentation/blocs/gooi/gooi_dashboard_bloc.dart' as _i399;
+import '../../presentation/blocs/gooi/gooi_formation_bloc.dart' as _i369;
+import '../../presentation/blocs/gooi/gooi_list_bloc.dart' as _i388;
 import '../../presentation/blocs/group/group_bloc.dart' as _i275;
 import '../../presentation/blocs/group_buy/group_buy_bloc.dart' as _i399;
 import '../../presentation/blocs/home/home_bloc.dart' as _i973;
@@ -162,6 +174,7 @@ import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
 import '../services/audio_playback_service.dart' as _i38;
 import '../services/biometric_login_service.dart' as _i290;
+import '../services/buy_analytics_service.dart' as _i941;
 import '../services/call_analytics_service.dart' as _i108;
 import '../services/call_notification_service.dart' as _i673;
 import '../services/call_signaling_service.dart' as _i846;
@@ -244,12 +257,22 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i383.ErrorHandler>(() => _i383.ErrorHandler());
     gh.lazySingleton<_i483.AppDatabase>(() => _i483.AppDatabase());
+    gh.lazySingleton<_i1018.GooiRemoteDataSource>(
+      () => _i1018.GooiRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i809.FirebaseFunctions>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
     gh.lazySingleton<_i590.GroupBuyRemoteDataSource>(
       () => _i590.GroupBuyRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i809.FirebaseFunctions>(),
         gh<_i59.FirebaseAuth>(),
       ),
+    );
+    gh.lazySingleton<_i636.GooiRepository>(
+      () => _i651.GooiRepositoryImpl(gh<_i1018.GooiRemoteDataSource>()),
     );
     gh.lazySingleton<_i418.KeyManagementService>(
       () => _i418.KeyManagementService(
@@ -290,6 +313,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
       ),
+    );
+    gh.lazySingleton<_i941.BuyAnalyticsService>(
+      () => _i941.BuyAnalyticsService(gh<_i398.FirebaseAnalytics>()),
     );
     gh.lazySingleton<_i108.CallAnalyticsService>(
       () => _i108.CallAnalyticsService(gh<_i398.FirebaseAnalytics>()),
@@ -381,6 +407,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i474.ShareService>(
       () => _i474.ShareService(gh<_i59.FirebaseAuth>()),
     );
+    gh.factory<_i369.GooiFormationBloc>(
+      () => _i369.GooiFormationBloc(gh<_i636.GooiRepository>()),
+    );
+    gh.factory<_i388.GooiListBloc>(
+      () => _i388.GooiListBloc(gh<_i636.GooiRepository>()),
+    );
     gh.lazySingleton<_i267.PurchaseRemoteDataSource>(
       () => _i267.PurchaseRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -398,6 +430,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
       ),
+    );
+    gh.lazySingleton<_i467.SaLocationDatasource>(
+      () => _i467.SaLocationDatasource(gh<_i483.AppDatabase>()),
+    );
+    gh.lazySingleton<_i360.SavedListingDatasource>(
+      () => _i360.SavedListingDatasource(gh<_i483.AppDatabase>()),
     );
     gh.lazySingleton<_i942.SessionLockService>(
       () => _i942.SessionLockService(
@@ -480,6 +518,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i313.ModerationRemoteDatasource>(),
       ),
     );
+    gh.factory<_i399.GooiDashboardBloc>(
+      () => _i399.GooiDashboardBloc(
+        gh<_i636.GooiRepository>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
     gh.lazySingleton<_i946.KeyBackupService>(
       () => _i946.KeyBackupService(
         gh<_i418.KeyManagementService>(),
@@ -513,6 +557,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i654.MediaUploadDatasource>(),
       ),
     );
+    gh.lazySingleton<_i816.LocationRepository>(
+      () => _i553.LocationRepositoryImpl(gh<_i467.SaLocationDatasource>()),
+    );
     gh.lazySingleton<_i454.DeviceRepository>(
       () => _i34.DeviceRepositoryImpl(
         gh<_i433.DeviceRemoteDataSource>(),
@@ -527,6 +574,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1019.WalletBloc>(
       () => _i1019.WalletBloc(gh<_i851.WalletRepository>()),
+    );
+    gh.lazySingleton<_i989.SavedListingRepository>(
+      () =>
+          _i760.SavedListingRepositoryImpl(gh<_i360.SavedListingDatasource>()),
     );
     gh.lazySingleton<_i633.ReferralRepository>(
       () => _i904.ReferralRepositoryImpl(gh<_i9.ReferralRemoteDataSource>()),

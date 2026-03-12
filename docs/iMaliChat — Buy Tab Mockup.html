@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<!-- saved from url=(0075)file:///C:/Users/lance/OneDrive/Desktop/iMaliChat/iMaliChat_Buy_Mockup.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMaliChat — Buy Tab Mockup</title>
+<link href="./iMaliChat — Buy Tab Mockup_files/css2" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:      #1A6B4A;
+    --green-deep: #0F4230;
+    --green-light:#E8F5EE;
+    --gold:       #F4A700;
+    --gold-light: #FFF8E1;
+    --cream:      #FAFAF8;
+    --dark:       #141414;
+    --mid:        #5A5A5A;
+    --soft:       #8A8A8A;
+    --border:     #E4E4E0;
+    --white:      #FFFFFF;
+    --red:        #E53935;
+    --blue:       #1976D2;
+    --purple:     #7B1FA2;
+    --teal:       #00796B;
+  }
+
+  body {
+    background: #1A1A1A;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 390px;
+    background: var(--cream);
+    border-radius: 50px;
+    box-shadow:
+      0 0 0 10px #2A2A2A,
+      0 0 0 12px #444,
+      0 40px 80px rgba(0,0,0,0.7);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--green-deep);
+    padding: 14px 28px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+  }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons svg { fill: var(--white); opacity: 0.9; }
+
+  /* ── Header ── */
+  .header {
+    background: var(--green-deep);
+    padding: 4px 20px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .header-title span { color: var(--gold); }
+  .header-right { display: flex; gap: 12px; align-items: center; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .icon-btn svg { fill: var(--white); }
+
+  /* ── Scrollable content ── */
+  .scroll-body {
+    height: 680px;
+    overflow-y: auto;
+    background: var(--cream);
+    scrollbar-width: none;
+  }
+  .scroll-body::-webkit-scrollbar { display: none; }
+
+  /* ── Layer label ── */
+  .layer-label {
+    padding: 16px 20px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .layer-pill {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--green);
+    color: var(--white);
+  }
+  .layer-pill.gold { background: var(--gold); color: var(--dark); }
+  .layer-pill.blue { background: var(--blue); color: var(--white); }
+  .layer-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  /* ══════════════════════════════
+     LAYER 1 — FEATURED
+  ══════════════════════════════ */
+
+  /* Campaign hero card */
+  .campaign-card {
+    margin: 0 16px 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--green-deep) 0%, #1A5C3A 60%, #22754A 100%);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .campaign-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(244,167,0,0.15);
+  }
+  .campaign-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: 40px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(244,167,0,0.08);
+  }
+  .campaign-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .campaign-brand {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .campaign-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .campaign-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+  }
+  .campaign-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .campaign-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .dot.active { background: var(--green); width: 18px; }
+
+  /* Collectible drop strip */
+  .drop-strip {
+    margin: 0 16px 12px;
+    background: linear-gradient(135deg, #1A0A2E, #2D0F4E);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .drop-strip::before {
+    content: '✦';
+    position: absolute;
+    right: 16px; top: 8px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+  }
+  .drop-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B35, #F7931E);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+  }
+  .drop-info { flex: 1; }
+  .drop-eyebrow { font-size: 9px; font-weight: 800; color: #FF6B35; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .drop-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--white); margin-bottom: 2px; }
+  .drop-count { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .drop-timer {
+    background: rgba(255,107,53,0.2);
+    border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 8px;
+    padding: 6px 10px;
+    text-align: center;
+  }
+  .drop-timer-num { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: #FF6B35; }
+  .drop-timer-label { font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+
+  /* Trending strip */
+  .trending-header {
+    padding: 0 20px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .trending-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #E53935;
+    animation: pulse 1.4s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .see-all { font-size: 11px; font-weight: 700; color: var(--green); }
+  .trending-scroll {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .trending-scroll::-webkit-scrollbar { display: none; }
+  .trend-card {
+    flex-shrink: 0;
+    width: 110px;
+    background: var(--white);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    padding: 10px;
+    cursor: pointer;
+  }
+  .trend-avatar {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .trend-name { font-size: 11px; font-weight: 700; color: var(--dark); margin-bottom: 2px; line-height: 1.2; }
+  .trend-meta { font-size: 10px; color: var(--soft); }
+  .trend-badge {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  /* Divider */
+  .divider {
+    height: 8px;
+    background: #EFEFE9;
+    margin: 4px 0;
+  }
+
+  /* ══════════════════════════════
+     LAYER 2 — UTILITIES
+  ══════════════════════════════ */
+  .utilities-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 0 16px 16px;
+  }
+  .util-item {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .util-item:active { transform: scale(0.96); }
+  .util-icon { font-size: 22px; margin-bottom: 5px; }
+  .util-label { font-size: 10px; font-weight: 700; color: var(--dark); line-height: 1.2; }
+
+  .regulars-bar {
+    margin: 0 16px 12px;
+    background: var(--gold-light);
+    border: 1.5px solid #F4C400;
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .regulars-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #B07B00;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .regulars-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .reg-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--white);
+    border: 1.5px solid #F4C400;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--dark);
+    cursor: pointer;
+  }
+
+  /* ══════════════════════════════
+     LAYER 3 — INTENGISO
+  ══════════════════════════════ */
+  .market-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .market-tabs::-webkit-scrollbar { display: none; }
+  .market-tab {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    color: var(--mid);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .market-tab.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--white);
+  }
+
+  /* Services board cards */
+  .service-card {
+    margin: 0 16px 10px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+  }
+  .service-avatar {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .service-body { flex: 1; }
+  .service-name { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 1px; }
+  .service-category { font-size: 11px; color: var(--soft); margin-bottom: 4px; }
+  .service-footer { display: flex; align-items: center; justify-content: space-between; }
+  .service-price { font-size: 12px; font-weight: 700; color: var(--green); }
+  .service-rating { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; color: var(--dark); }
+  .service-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .badge-verified { background: var(--green-light); color: var(--green); }
+  .badge-fav { background: var(--gold-light); color: #B07B00; }
+  .social-proof {
+    font-size: 10px;
+    color: var(--blue);
+    font-weight: 600;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  /* Hlangana card */
+  .hlangana-card {
+    margin: 0 16px 10px;
+    background: var(--white);
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    padding: 14px;
+    cursor: pointer;
+  }
+  .hlangana-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .hlangana-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .hlangana-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 2px; }
+  .hlangana-price {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .price-was { font-size: 11px; color: var(--soft); text-decoration: line-through; }
+  .price-now { font-size: 13px; font-weight: 800; color: var(--green); }
+  .hlangana-progress { margin-bottom: 8px; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--mid);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #2ECC71);
+    border-radius: 99px;
+  }
+  .hlangana-cta {
+    width: 100%;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 9px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 20px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--soft); }
+  .nav-item.active .nav-label { color: var(--green); }
+  .nav-active-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  /* ── Legend panel ── */
+  .legend {
+    background: #242424;
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 340px;
+    align-self: flex-start;
+    margin-top: 40px;
+  }
+  .legend h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 24px;
+    letter-spacing: -0.3px;
+  }
+  .legend-section { margin-bottom: 24px; }
+  .legend-layer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .legend-pill {
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .l1 { background: #1A6B4A; color: #fff; }
+  .l2 { background: #F4A700; color: #141414; }
+  .l3 { background: #1976D2; color: #fff; }
+  .legend-layer-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--white); }
+  .legend-items { list-style: none; padding-left: 0; }
+  .legend-items li {
+    font-size: 12px;
+    color: #AAA;
+    padding: 4px 0;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .legend-items li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #555;
+    font-size: 10px;
+    top: 5px;
+  }
+  .legend-items li strong { color: #DDD; font-weight: 700; }
+  .legend-divider { height: 1px; background: #333; margin: 16px 0; }
+  .legend-note {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+    padding: 8px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── PHONE ───────────────────────────────────────────────── -->
+<div class="phone">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1"></rect><rect x="4.5" y="2" width="3" height="10" rx="1"></rect><rect x="9" y="0" width="3" height="12" rx="1"></rect><rect x="13.5" y="1" width="2.5" height="11" rx="1" opacity=".3"></rect></svg>
+      <svg width="14" height="12" viewBox="0 0 14 12"><path d="M7 2.5C9.2 2.5 11.2 3.4 12.6 4.9L14 3.5C12.2 1.3 9.8 0 7 0S1.8 1.3 0 3.5L1.4 4.9C2.8 3.4 4.8 2.5 7 2.5z"></path><path d="M7 5.5C8.4 5.5 9.7 6.1 10.6 7L12 5.6C10.7 4.3 8.9 3.5 7 3.5S3.3 4.3 2 5.6L3.4 7C4.3 6.1 5.6 5.5 7 5.5z"></path><circle cx="7" cy="10" r="2"></circle></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none" opacity=".6"></rect><rect x="22" y="3.5" width="2" height="5" rx="1" opacity=".6"></rect><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="white"></rect></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">i<span>Mali</span>Chat</div>
+    <div class="header-right">
+      <div class="icon-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5a6.5 6.5 0 10-6.5 6.5c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+      </div>
+      <div class="icon-btn" style="background: var(--gold); position: relative;">
+        <svg width="18" height="18" viewBox="0 0 24 24" style="fill: #141414;"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63H15.55c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 17.1 6.9 19 9.25 19H19v-2H9.29c-.03 0-.05-.01-.08-.02l-.03-.03c-.01-.02-.01-.04 0-.06l1.17-2.14z"></path></svg>
+        <span style="position:absolute;top:-4px;right:-4px;background:#E53935;color:#fff;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:&#39;Plus Jakarta Sans&#39;,sans-serif;">3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="scroll-body">
+
+    <!-- ═══ LAYER 1 LABEL ═══ -->
+    <div class="layer-label" style="padding-top:14px;">
+      <span class="layer-pill">Layer 1</span>
+      <span class="layer-title">Featured</span>
+    </div>
+
+    <!-- Campaign hero card -->
+    <div class="campaign-card">
+      <div class="campaign-badge">🔥 Limited Offer</div>
+      <div class="campaign-brand">Vodacom</div>
+      <div class="campaign-headline">Buy data. Earn<br>50 bonus tokens.</div>
+      <div class="campaign-sub">R99 bundle — expires midnight Sunday</div>
+      <div class="campaign-cta">
+        <span>Claim with Sasaza</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#141414"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"></path></svg>
+      </div>
+    </div>
+    <div class="campaign-dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <!-- Collectible drop -->
+    <div class="drop-strip">
+      <div class="drop-icon">🦁</div>
+      <div class="drop-info">
+        <div class="drop-eyebrow">✦ New Drop</div>
+        <div class="drop-name">Heritage Series #04</div>
+        <div class="drop-count">Only 47 remaining</div>
+      </div>
+      <div class="drop-timer">
+        <div class="drop-timer-num">02:14</div>
+        <div class="drop-timer-label">Hours left</div>
+      </div>
+    </div>
+
+    <!-- Trending near you -->
+    <div class="trending-header">
+      <div class="trending-label">
+        <div class="live-dot"></div>
+        Trending in Khayelitsha
+      </div>
+      <div class="see-all">See all →</div>
+    </div>
+    <div class="trending-scroll">
+      <div class="trend-card">
+        <div class="trend-avatar" style="background:#FFF3E0;">💇‍♀️</div>
+        <div class="trend-name">Nomsa's Hair</div>
+        <div class="trend-meta">⭐ 4.9 · 3 contacts</div>
+        <div class="trend-badge" style="background:#E8F5EE;color:#1A6B4A;">🔥 Hot</div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-avatar" style="background:#E3F2FD;">🔧</div>
+        <div class="trend-name">Sipho Repairs</div>
+        <div class="trend-meta">⭐ 4.7 · New</div>
+        <div class="trend-badge" style="background:#E3F2FD;color:#1565C0;">New</div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-avatar" style="background:#FFF8E1;">🍲</div>
+        <div class="trend-name">Mama T's Food</div>
+        <div class="trend-meta">Umngqusho today</div>
+        <div class="trend-badge" style="background:#FFF8E1;color:#E65100;">Food</div>
+      </div>
+      <div class="trend-card">
+        <div class="trend-avatar" style="background:#F3E5F5;">🛍️</div>
+        <div class="trend-name">Group Buy</div>
+        <div class="trend-meta">6 spots left!</div>
+        <div class="trend-badge" style="background:#F3E5F5;color:#6A1B9A;">Hlangana</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ═══ LAYER 2 LABEL ═══ -->
+    <div class="layer-label">
+      <span class="layer-pill gold">Layer 2</span>
+      <span class="layer-title">Utilities Hub</span>
+    </div>
+
+    <!-- My Regulars -->
+    <div class="regulars-bar">
+      <div class="regulars-title">⚡ My Regulars</div>
+      <div class="regulars-chips">
+        <div class="reg-chip">📱 MTN R50</div>
+        <div class="reg-chip">💡 Electricity</div>
+        <div class="reg-chip">📺 DStv</div>
+        <div class="reg-chip" style="border-style:dashed;color:var(--soft);">+ Add</div>
+      </div>
+    </div>
+
+    <!-- Utility grid -->
+    <div class="utilities-grid">
+      <div class="util-item">
+        <div class="util-icon">📱</div>
+        <div class="util-label">Airtime &amp; Data</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">💡</div>
+        <div class="util-label">Electricity</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">📺</div>
+        <div class="util-label">DStv</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">🏫</div>
+        <div class="util-label">School Fees</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">⚰️</div>
+        <div class="util-label">Funeral Policy</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">🤝</div>
+        <div class="util-label">Stokvel</div>
+      </div>
+      <div class="util-item">
+        <div class="util-icon">💧</div>
+        <div class="util-label">Municipal</div>
+      </div>
+      <div class="util-item" style="border-style:dashed;background:transparent;">
+        <div class="util-icon">➕</div>
+        <div class="util-label" style="color:var(--soft);">More</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ═══ LAYER 3 LABEL ═══ -->
+    <div class="layer-label">
+      <span class="layer-pill blue">Layer 3</span>
+      <span class="layer-title">Intengiso Marketplace</span>
+    </div>
+
+    <!-- Sub-market tabs -->
+    <div class="market-tabs">
+      <div class="market-tab active">🛎️ Services</div>
+      <div class="market-tab">👗 Second-Hand</div>
+      <div class="market-tab">🍲 Food</div>
+      <div class="market-tab">💼 Sebenza</div>
+      <div class="market-tab">🤝 Hlangana</div>
+    </div>
+
+    <!-- Services Board cards -->
+    <div class="service-card">
+      <div class="service-avatar" style="background:#FFF3E0;">💇‍♀️</div>
+      <div class="service-body">
+        <div class="service-name">Nomsa Dlamini</div>
+        <div class="service-category">Hairdresser · Khayelitsha Section C</div>
+        <div class="social-proof">👥 3 of your contacts use her</div>
+        <div class="service-footer">
+          <div class="service-price">From 150 tokens</div>
+          <div class="service-rating">⭐ 4.9 <span style="color:var(--soft);font-weight:500;">(42)</span></div>
+        </div>
+      </div>
+      <div class="service-badge badge-fav">⭐ Fav</div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-avatar" style="background:#E8F5EE;">🔧</div>
+      <div class="service-body">
+        <div class="service-name">Sipho's Repairs</div>
+        <div class="service-category">General Repairs · Mitchells Plain</div>
+        <div class="social-proof">✓ iMaliChat Verified</div>
+        <div class="service-footer">
+          <div class="service-price">Quote on request</div>
+          <div class="service-rating">⭐ 4.7 <span style="color:var(--soft);font-weight:500;">(18)</span></div>
+        </div>
+      </div>
+      <div class="service-badge badge-verified">✓ Verified</div>
+    </div>
+
+    <!-- Hlangana group buy -->
+    <div style="padding: 0 16px 6px; font-size:12px; font-weight:800; color:var(--mid); text-transform:uppercase; letter-spacing:0.8px;">🤝 Active Hlangana Near You</div>
+    <div class="hlangana-card">
+      <div class="hlangana-header">
+        <div class="hlangana-icon" style="background:#E8F5EE;">🌽</div>
+        <div>
+          <div class="hlangana-title">5kg Mealie Meal — Bulk Deal</div>
+          <div class="hlangana-price">
+            <span class="price-was">R65</span>
+            <span class="price-now">R45 (310 tokens)</span>
+          </div>
+        </div>
+      </div>
+      <div class="hlangana-progress">
+        <div class="progress-label">
+          <span>14 of 20 joined</span>
+          <span style="color:var(--red);font-weight:800;">6 spots left!</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:70%"></div>
+        </div>
+      </div>
+      <button class="hlangana-cta">Join Group Buy · 310 tokens</button>
+    </div>
+
+    <!-- Bottom padding -->
+    <div style="height:16px;"></div>
+
+  </div><!-- /scroll-body -->
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Home</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">💰</div>
+      <div class="nav-label">Earn</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">💬</div>
+      <div class="nav-label">Chat</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">👛</div>
+      <div class="nav-label">Wallet</div>
+    </div>
+    <div class="nav-item active">
+      <div class="nav-icon">🛍️</div>
+      <div class="nav-label" style="color:var(--green);">Buy</div>
+      <div class="nav-active-dot"></div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+
+<!-- ── LEGEND ───────────────────────────────────────────────── -->
+<div class="legend">
+  <h2>Buy Tab — Design Notes</h2>
+
+  <div class="legend-section">
+    <div class="legend-layer">
+      <span class="legend-pill l1">Layer 1</span>
+      <span class="legend-layer-name">Featured Surface</span>
+    </div>
+    <ul class="legend-items">
+      <li><strong>Campaign card</strong> — brand-paid, token-action required. Swipeable carousel (dots shown). Vodacom example shown.</li>
+      <li><strong>Collectible drop</strong> — dark card for visual contrast + urgency. Live countdown. Limited quantity. Shareable into Chat.</li>
+      <li><strong>Trending strip</strong> — horizontal scroll. Live red dot. Community-generated signal (views, shares, chat-initiations). Geo-contextual header.</li>
+    </ul>
+  </div>
+
+  <div class="legend-divider"></div>
+
+  <div class="legend-section">
+    <div class="legend-layer">
+      <span class="legend-pill l2">Layer 2</span>
+      <span class="legend-layer-name">Utilities Hub</span>
+    </div>
+    <ul class="legend-items">
+      <li><strong>My Regulars</strong> — gold-tinted bar at top. Pre-populated from usage history. One-tap reorder chips. Dashed "+ Add" chip.</li>
+      <li><strong>4-column grid</strong> — all 7 categories shown. SA-specific: Funeral Policy, Stokvel, School Fees. Dashed "More" for future additions.</li>
+    </ul>
+  </div>
+
+  <div class="legend-divider"></div>
+
+  <div class="legend-section">
+    <div class="legend-layer">
+      <span class="legend-pill l3">Layer 3</span>
+      <span class="legend-layer-name">Intengiso Marketplace</span>
+    </div>
+    <ul class="legend-items">
+      <li><strong>Sub-market tabs</strong> — horizontal scroll. Active tab is green. All 5 markets accessible: Services, Second-Hand, Food, Sebenza, Hlangana.</li>
+      <li><strong>Services cards</strong> — social proof ("3 of your contacts use her") as primary trust signal. Verified seed badge vs Favourite badge.</li>
+      <li><strong>Hlangana card</strong> — progress bar with live count. Scarcity label in red. Token CTA button.</li>
+    </ul>
+  </div>
+
+  <div class="legend-divider"></div>
+
+  <p class="legend-note">All layers are separated by an 8px grey divider band — a common SA super-app pattern (used in FNB App, Capitec, etc.) that groups content visually without heavy headers. The screen is designed to scroll continuously — Layer 1 is the hook, Layer 2 is the habit, Layer 3 is the destination.</p>
+</div>
+
+
+
+</body></html>
