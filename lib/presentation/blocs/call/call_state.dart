@@ -15,6 +15,7 @@ class CallState with _$CallState {
     @Default(false) bool isVideoEnabled,
     @Default(false) bool isSpeakerOn,
     @Default(true) bool isFrontCamera,
+    @Default(false) bool isRemoteVideoEnabled,
     @Default(Duration.zero) Duration callDuration,
     @Default(ConnectionQuality.excellent) ConnectionQuality connectionQuality,
     // Video upgrade

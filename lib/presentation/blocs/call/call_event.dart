@@ -44,4 +44,6 @@ class CallEvent with _$CallEvent {
   const factory CallEvent.performIceRestart() = _PerformIceRestart;
   const factory CallEvent.networkChanged({required bool isConnected}) =
       _NetworkChanged;
+  const factory CallEvent.remoteVideoStateChanged({required bool enabled}) =
+      _RemoteVideoStateChanged;
 }

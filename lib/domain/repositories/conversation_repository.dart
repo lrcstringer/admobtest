@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../entities/conversation.dart';
 import '../entities/message.dart';
+import '../entities/starred_message.dart';
 import '../value_objects/user_search_result.dart';
 
 /// Parameters for creating a conversation (future-proofing for brand/system types)
@@ -252,4 +253,11 @@ abstract class ConversationRepository {
 
   /// Retry a failed pending message (re-queues for send).
   Future<Either<Failure, void>> retryMessage(String messageId);
+
+  // =========================================================================
+  // STARRED MESSAGES
+  // =========================================================================
+
+  /// Get all starred messages for the current user across all conversations.
+  Future<Either<Failure, List<StarredMessage>>> getAllStarredMessages();
 }

@@ -209,6 +209,41 @@ class AppColors {
   static const Color inputBorderFocused = Color(0xFFFF328C);
   static const Color inputFill = Color(0xFF0C1124);
 
+  // ============ BUY TAB LIGHT THEME TOKENS ============
+  // Backgrounds
+  static const Color buyBackground = Color(0xFFF5F7FA);
+  static const Color buyCard = Color(0xFFFFFFFF);
+  static const Color buyCardBorder = Color(0xFFE8ECF1);
+  static const Color buyDivider = Color(0xFFEAECF0);
+  static const Color buyChipBg = Color(0xFFF1F5F9);
+  static const Color buyChipBorder = Color(0xFFE2E8F0);
+  static const Color buyShadow = Color(0x0D000000); // rgba(0,0,0,0.05)
+
+  // Text
+  static const Color buyTextPrimary = Color(0xFF1A1A2E);
+  static const Color buyTextSecondary = Color(0xFF64748B);
+  static const Color buyTextTertiary = Color(0xFF94A3B8);
+
+  // Status
+  static const Color buyError = Color(0xFFDC2626);
+  static const Color buyWarning = Color(0xFFF59E0B);
+  static const Color buySuccess = Color(0xFF059669);
+
+  // Feature Accents
+  static const Color buyGroupBuyAccent = Color(0xFF059669);
+  static const Color buyGroupBuyAccentLight = Color(0xFF10B981);
+  static const Color buyMarketplaceAccent = Color(0xFF08C2F4);
+  static const Color buyMarketplaceAccentDark = Color(0xFF0974FF);
+
+  // Offline Banner
+  static const Color buyOfflineBg = Color(0xFFFFF8E1);
+  static const Color buyOfflineBorder = Color(0xFFFFE082);
+  static const Color buyOfflineText = Color(0xFFB45309);
+
+  // Shimmer
+  static const Color buyShimmerBase = Color(0xFFE2E8F0);
+  static const Color buyShimmerHigh = Color(0xFFF1F5F9);
+
   /// Safely parses a hex color string (e.g. '#FF328C') to a [Color].
   /// Returns [fallback] if the string is null or malformed.
   static Color parseHex(String? hex, {Color fallback = primary}) {

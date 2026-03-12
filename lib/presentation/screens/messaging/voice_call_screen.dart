@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -27,12 +24,7 @@ class VoiceCallScreen extends StatefulWidget {
 }
 
 class _VoiceCallScreenState extends State<VoiceCallScreen> {
-  RTCVideoRenderer? _localRenderer;
-  RTCVideoRenderer? _remoteRenderer;
-  bool _renderersReady = false;
   bool _videoUpgradeDialogShown = false;
-  StreamSubscription? _localStreamSub;
-  StreamSubscription? _remoteStreamSub;
 
   @override
   void initState() {
@@ -40,51 +32,9 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
     WakelockPlus.enable();
   }
 
-  Future<void> _initRenderers() async {
-    if (_renderersReady) return;
-    _localRenderer = RTCVideoRenderer();
-    _remoteRenderer = RTCVideoRenderer();
-    await _localRenderer!.initialize();
-    await _remoteRenderer!.initialize();
-    if (!mounted) return;
-    setState(() => _renderersReady = true);
-
-    // Try connecting immediately (may be null if accept flow is still running)
-    _connectToStreams();
-  }
-
-  /// Connect renderers to WebRTC media streams.
-  /// Called from [_initRenderers] and from listener when webRtcService is ready.
-  /// Safe to call multiple times — cancels previous subscriptions first.
-  void _connectToStreams() {
-    final webRtc = context.read<CallBloc>().webRtcService;
-    if (webRtc == null) return;
-    if (webRtc.isDisposed) return;
-
-    // Cancel previous subscriptions to prevent stacking
-    _localStreamSub?.cancel();
-    _remoteStreamSub?.cancel();
-
-    if (webRtc.localStream != null) {
-      _localRenderer!.srcObject = webRtc.localStream;
-    }
-    _localStreamSub = webRtc.onLocalStream.listen((stream) {
-      if (mounted) setState(() => _localRenderer?.srcObject = stream);
-    });
-    _remoteStreamSub = webRtc.onRemoteStream.listen((stream) {
-      if (mounted) setState(() => _remoteRenderer?.srcObject = stream);
-    });
-  }
-
   @override
   void dispose() {
     WakelockPlus.disable();
-    _localStreamSub?.cancel();
-    _remoteStreamSub?.cancel();
-    _localRenderer?.srcObject = null;
-    _remoteRenderer?.srcObject = null;
-    _localRenderer?.dispose();
-    _remoteRenderer?.dispose();
     super.dispose();
   }
 

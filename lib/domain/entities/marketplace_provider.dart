@@ -38,6 +38,7 @@ class MarketplaceProvider with _$MarketplaceProvider {
     DateTime? suspendedAt,
     DateTime? bannedAt,
     LocationData? profileLocation,
+    String? servicesDescription,
   }) = _MarketplaceProvider;
 
   const MarketplaceProvider._();

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
@@ -11,6 +12,7 @@ import '../../core/services/offline_action_queue.dart';
 import '../../core/services/outgoing_message_queue.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
+import '../../domain/entities/starred_message.dart';
 import '../../domain/enums/conversation_type.dart';
 import '../../domain/enums/message_status.dart';
 import '../../domain/enums/message_type.dart';
@@ -876,6 +878,26 @@ class ConversationRepositoryImpl implements ConversationRepository {
     try {
       await _outgoingMessageQueue.retryMessage(messageId);
       return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<StarredMessage>>> getAllStarredMessages() async {
+    try {
+      final rawList = await _remoteDataSource.getAllStarredMessages();
+
+      final starred = rawList.map((json) {
+        // Firestore Timestamps → DateTime for Freezed/json_serializable
+        final starredAt = json['starredAt'];
+        if (starredAt is Timestamp) {
+          json['starredAt'] = starredAt.toDate().toIso8601String();
+        }
+        return StarredMessage.fromJson(json);
+      }).toList();
+
+      return Right(starred);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

@@ -5,8 +5,10 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/entities/marketplace_provider.dart';
+import '../../../domain/entities/saved_listing.dart';
 import '../../../domain/entities/vouch.dart';
 import '../../../domain/repositories/marketplace_repository.dart';
+import '../../../domain/repositories/saved_listing_repository.dart';
 
 part 'marketplace_bloc.freezed.dart';
 part 'marketplace_event.dart';
@@ -15,8 +17,10 @@ part 'marketplace_state.dart';
 @injectable
 class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
   final MarketplaceRepository _repository;
+  final SavedListingRepository _savedListingRepository;
 
-  MarketplaceBloc(this._repository) : super(const MarketplaceState()) {
+  MarketplaceBloc(this._repository, this._savedListingRepository)
+      : super(const MarketplaceState()) {
     on<_LoadListings>(_onLoadListings);
     on<_LoadMore>(_onLoadMore);
     on<_SearchListings>(_onSearchListings);
@@ -34,6 +38,10 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<_RespondToOffer>(_onRespondToOffer);
     on<_SellerRefund>(_onSellerRefund);
     on<_ClearMessages>(_onClearMessages);
+    on<_LoadMyListings>(_onLoadMyListings);
+    on<_LoadSavedItems>(_onLoadSavedItems);
+    on<_LoadSellerPortal>(_onLoadSellerPortal);
+    on<_ToggleFavourite>(_onToggleFavourite);
   }
 
   Future<void> _onLoadListings(
@@ -430,6 +438,99 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       createSuccessId: null,
       successMessage: null,
     ));
+  }
+
+  Future<void> _onLoadMyListings(
+    _LoadMyListings event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isLoadingMyListings) return;
+    emit(state.copyWith(isLoadingMyListings: true, errorMessage: null));
+
+    // Use current seller profile's provider ID if available
+    final providerId = state.currentSellerProfile?.id;
+    if (providerId == null) {
+      emit(state.copyWith(
+        isLoadingMyListings: false,
+        myListings: [],
+      ));
+      return;
+    }
+
+    final result = await _repository.getProviderListings(providerId);
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingMyListings: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (listings) => emit(state.copyWith(
+        isLoadingMyListings: false,
+        myListings: listings,
+      )),
+    );
+  }
+
+  Future<void> _onLoadSavedItems(
+    _LoadSavedItems event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingSaved: true, errorMessage: null));
+
+    try {
+      final items = await _savedListingRepository.getAll();
+      emit(state.copyWith(isLoadingSaved: false, savedItems: items));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoadingSaved: false,
+        errorMessage: 'Failed to load saved items: $e',
+      ));
+    }
+  }
+
+  Future<void> _onLoadSellerPortal(
+    _LoadSellerPortal event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isLoadingSellerPortal) return;
+    emit(state.copyWith(isLoadingSellerPortal: true, errorMessage: null));
+
+    final result = await _repository.getSellerDashboard();
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isLoadingSellerPortal: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(isLoadingSellerPortal: false)),
+    );
+  }
+
+  Future<void> _onToggleFavourite(
+    _ToggleFavourite event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    final isSaved =
+        state.savedItems.any((item) => item.listingId == event.listingId);
+
+    try {
+      if (isSaved) {
+        await _savedListingRepository.remove(event.listingId);
+      } else {
+        await _savedListingRepository.save(SavedListing(
+          listingId: event.listingId,
+          savedAt: DateTime.now(),
+        ));
+      }
+
+      // Refresh the full list from the source of truth
+      final items = await _savedListingRepository.getAll();
+      emit(state.copyWith(savedItems: items));
+    } catch (e) {
+      emit(state.copyWith(
+        errorMessage: 'Failed to update favourite: $e',
+      ));
+    }
   }
 
   /// Client-side search filter on title + description

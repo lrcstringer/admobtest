@@ -276,6 +276,9 @@ class ConversationExportService {
         return text != null
             ? '[Shared Group Buy] $text'
             : '[Shared Group Buy]';
+
+      case MessageType.gooiGooiInvite:
+        return msg.textContent ?? '[Gooi-Gooi Invite]';
     }
   }
 

@@ -55,6 +55,7 @@ _MarketplaceProvider _$MarketplaceProviderFromJson(Map<String, dynamic> json) =>
           : LocationData.fromJson(
               json['profileLocation'] as Map<String, dynamic>,
             ),
+      servicesDescription: json['servicesDescription'] as String?,
     );
 
 Map<String, dynamic> _$MarketplaceProviderToJson(
@@ -87,6 +88,7 @@ Map<String, dynamic> _$MarketplaceProviderToJson(
   'suspendedAt': instance.suspendedAt?.toIso8601String(),
   'bannedAt': instance.bannedAt?.toIso8601String(),
   'profileLocation': instance.profileLocation,
+  'servicesDescription': instance.servicesDescription,
 };
 
 const _$ProviderStatusEnumMap = {

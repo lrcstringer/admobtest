@@ -621,6 +621,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i936.PurchaseBloc>(
       () => _i936.PurchaseBloc(gh<_i742.PurchaseRepository>()),
     );
+    gh.factory<_i46.MarketplaceBloc>(
+      () => _i46.MarketplaceBloc(
+        gh<_i631.MarketplaceRepository>(),
+        gh<_i989.SavedListingRepository>(),
+      ),
+    );
     gh.lazySingleton<_i993.FeatureFlagRepository>(
       () => _i821.FeatureFlagRepositoryImpl(
         gh<_i42.FeatureFlagRemoteDataSource>(),
@@ -681,9 +687,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
     );
     gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
-    gh.factory<_i46.MarketplaceBloc>(
-      () => _i46.MarketplaceBloc(gh<_i631.MarketplaceRepository>()),
-    );
     gh.factory<_i25.OrderBloc>(
       () => _i25.OrderBloc(gh<_i631.MarketplaceRepository>()),
     );

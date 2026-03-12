@@ -22,7 +22,7 @@ class SaLocationDatasource {
     int limit = 20,
   }) async {
     final pattern = '%${query.toLowerCase()}%';
-    final rows = await (_db.select(_db.saLocations)
+    final rows = await (_db.select(_db.localSaLocations)
           ..where((t) => t.name.lower().like(pattern))
           ..orderBy([
             // Suburbs first (most specific), then cities, then provinces
@@ -45,7 +45,7 @@ class SaLocationDatasource {
 
   /// Get a single location by its ID.
   Future<domain.SaLocation?> getById(String id) async {
-    final row = await (_db.select(_db.saLocations)
+    final row = await (_db.select(_db.localSaLocations)
           ..where((t) => t.id.equals(id)))
         .getSingleOrNull();
 
@@ -54,7 +54,7 @@ class SaLocationDatasource {
 
   /// Get all provinces (type == 'province'), alphabetically.
   Future<List<domain.SaLocation>> getProvinces() async {
-    final rows = await (_db.select(_db.saLocations)
+    final rows = await (_db.select(_db.localSaLocations)
           ..where((t) => t.type.equals('province'))
           ..orderBy([(t) => OrderingTerm.asc(t.name)]))
         .get();
@@ -65,7 +65,7 @@ class SaLocationDatasource {
   /// Get all cities within a given province (by parentId).
   Future<List<domain.SaLocation>> getCitiesByProvince(
       String provinceId) async {
-    final rows = await (_db.select(_db.saLocations)
+    final rows = await (_db.select(_db.localSaLocations)
           ..where(
               (t) => t.parentId.equals(provinceId) & t.type.equals('city'))
           ..orderBy([(t) => OrderingTerm.asc(t.name)]))
@@ -76,7 +76,7 @@ class SaLocationDatasource {
 
   /// Get all suburbs within a given city (by parentId).
   Future<List<domain.SaLocation>> getSuburbsByCity(String cityId) async {
-    final rows = await (_db.select(_db.saLocations)
+    final rows = await (_db.select(_db.localSaLocations)
           ..where(
               (t) => t.parentId.equals(cityId) & t.type.equals('suburb'))
           ..orderBy([(t) => OrderingTerm.asc(t.name)]))
@@ -87,8 +87,8 @@ class SaLocationDatasource {
 
   /// Count total rows in the table (for seed verification).
   Future<int> count() async {
-    final countExp = _db.saLocations.id.count();
-    final query = _db.selectOnly(_db.saLocations)..addColumns([countExp]);
+    final countExp = _db.localSaLocations.id.count();
+    final query = _db.selectOnly(_db.localSaLocations)..addColumns([countExp]);
     final row = await query.getSingle();
     return row.read(countExp) ?? 0;
   }
@@ -97,9 +97,9 @@ class SaLocationDatasource {
   Future<void> insertAll(List<domain.SaLocation> locations) async {
     await _db.batch((batch) {
       batch.insertAll(
-        _db.saLocations,
+        _db.localSaLocations,
         locations
-            .map((loc) => SaLocationsCompanion.insert(
+            .map((loc) => LocalSaLocationsCompanion.insert(
                   id: loc.id,
                   name: loc.name,
                   type: loc.type,
@@ -123,7 +123,7 @@ class SaLocationDatasource {
   }
 
   /// Convert a Drift data row to a domain entity.
-  domain.SaLocation _rowToEntity(SaLocation row) {
+  domain.SaLocation _rowToEntity(LocalSaLocation row) {
     return domain.SaLocation(
       id: row.id,
       name: row.name,

@@ -141,9 +141,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     ),
                   ),
 
-                // Fallback when no remote video
+                // Fallback when no remote video or remote camera is off
                 if (!_renderersReady ||
-                    state.status != CallStatus.active)
+                    state.status != CallStatus.active ||
+                    !state.isRemoteVideoEnabled)
                   Positioned.fill(
                     child: Container(
                       color: const Color(0xFF1A1A2E),
@@ -173,7 +174,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              _getStatusText(state),
+                              state.status == CallStatus.active &&
+                                      !state.isRemoteVideoEnabled
+                                  ? 'Camera off'
+                                  : _getStatusText(state),
                               style: TextStyle(
                                 color:
                                     Colors.white.withValues(alpha: 0.7),
@@ -186,7 +190,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     ),
                   ),
 
-                // Local PiP (draggable)
+                // Local PiP (draggable, clamped to screen bounds)
                 if (_renderersReady && state.isVideoEnabled)
                   Positioned(
                     left: _pipOffset.dx,
@@ -194,7 +198,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: GestureDetector(
                       onPanUpdate: (details) {
                         setState(() {
-                          _pipOffset += details.delta;
+                          final size = MediaQuery.sizeOf(context);
+                          const pipW = 120.0;
+                          const pipH = 160.0;
+                          final newDx = (_pipOffset.dx + details.delta.dx)
+                              .clamp(0.0, size.width - pipW);
+                          final newDy = (_pipOffset.dy + details.delta.dy)
+                              .clamp(0.0, size.height - pipH);
+                          _pipOffset = Offset(newDx, newDy);
                         });
                       },
                       child: Container(

@@ -513,6 +513,7 @@ class LocalSavedListings extends Table {
   LocalCommunities,
   LocalCommunityMembers,
   LocalBuyCategories,
+  LocalBuyRegulars,
   LocalFeaturedItems,
   // New Buy tab cache tables (Phase 0.9)
   LocalBrandStorefronts,

@@ -11961,6 +11961,815 @@ class LocalBuyCategoriesCompanion extends UpdateCompanion<LocalBuyCategory> {
   }
 }
 
+class $LocalBuyRegularsTable extends LocalBuyRegulars
+    with TableInfo<$LocalBuyRegularsTable, LocalBuyRegular> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalBuyRegularsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerIdMeta = const VerificationMeta(
+    'providerId',
+  );
+  @override
+  late final GeneratedColumn<String> providerId = GeneratedColumn<String>(
+    'provider_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerNameMeta = const VerificationMeta(
+    'providerName',
+  );
+  @override
+  late final GeneratedColumn<String> providerName = GeneratedColumn<String>(
+    'provider_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recipientNumberMeta = const VerificationMeta(
+    'recipientNumber',
+  );
+  @override
+  late final GeneratedColumn<String> recipientNumber = GeneratedColumn<String>(
+    'recipient_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recipientLabelMeta = const VerificationMeta(
+    'recipientLabel',
+  );
+  @override
+  late final GeneratedColumn<String> recipientLabel = GeneratedColumn<String>(
+    'recipient_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isPinnedMeta = const VerificationMeta(
+    'isPinned',
+  );
+  @override
+  late final GeneratedColumn<bool> isPinned = GeneratedColumn<bool>(
+    'is_pinned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_pinned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _usageCountMeta = const VerificationMeta(
+    'usageCount',
+  );
+  @override
+  late final GeneratedColumn<int> usageCount = GeneratedColumn<int>(
+    'usage_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastUsedAtMeta = const VerificationMeta(
+    'lastUsedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUsedAt = GeneratedColumn<DateTime>(
+    'last_used_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryEmojiMeta = const VerificationMeta(
+    'categoryEmoji',
+  );
+  @override
+  late final GeneratedColumn<String> categoryEmoji = GeneratedColumn<String>(
+    'category_emoji',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _purchaseCategoryMappingMeta =
+      const VerificationMeta('purchaseCategoryMapping');
+  @override
+  late final GeneratedColumn<String> purchaseCategoryMapping =
+      GeneratedColumn<String>(
+        'purchase_category_mapping',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _syncedAtMeta = const VerificationMeta(
+    'syncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+    'synced_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    providerId,
+    productId,
+    providerName,
+    productName,
+    recipientNumber,
+    recipientLabel,
+    isPinned,
+    usageCount,
+    lastUsedAt,
+    categoryEmoji,
+    purchaseCategoryMapping,
+    syncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_buy_regulars';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalBuyRegular> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('provider_id')) {
+      context.handle(
+        _providerIdMeta,
+        providerId.isAcceptableOrUnknown(data['provider_id']!, _providerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_providerIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('provider_name')) {
+      context.handle(
+        _providerNameMeta,
+        providerName.isAcceptableOrUnknown(
+          data['provider_name']!,
+          _providerNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_providerNameMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('recipient_number')) {
+      context.handle(
+        _recipientNumberMeta,
+        recipientNumber.isAcceptableOrUnknown(
+          data['recipient_number']!,
+          _recipientNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recipientNumberMeta);
+    }
+    if (data.containsKey('recipient_label')) {
+      context.handle(
+        _recipientLabelMeta,
+        recipientLabel.isAcceptableOrUnknown(
+          data['recipient_label']!,
+          _recipientLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_pinned')) {
+      context.handle(
+        _isPinnedMeta,
+        isPinned.isAcceptableOrUnknown(data['is_pinned']!, _isPinnedMeta),
+      );
+    }
+    if (data.containsKey('usage_count')) {
+      context.handle(
+        _usageCountMeta,
+        usageCount.isAcceptableOrUnknown(data['usage_count']!, _usageCountMeta),
+      );
+    }
+    if (data.containsKey('last_used_at')) {
+      context.handle(
+        _lastUsedAtMeta,
+        lastUsedAt.isAcceptableOrUnknown(
+          data['last_used_at']!,
+          _lastUsedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastUsedAtMeta);
+    }
+    if (data.containsKey('category_emoji')) {
+      context.handle(
+        _categoryEmojiMeta,
+        categoryEmoji.isAcceptableOrUnknown(
+          data['category_emoji']!,
+          _categoryEmojiMeta,
+        ),
+      );
+    }
+    if (data.containsKey('purchase_category_mapping')) {
+      context.handle(
+        _purchaseCategoryMappingMeta,
+        purchaseCategoryMapping.isAcceptableOrUnknown(
+          data['purchase_category_mapping']!,
+          _purchaseCategoryMappingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(
+        _syncedAtMeta,
+        syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalBuyRegular map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalBuyRegular(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      providerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_id'],
+      )!,
+      providerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_name'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      )!,
+      recipientNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_number'],
+      )!,
+      recipientLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipient_label'],
+      ),
+      isPinned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_pinned'],
+      )!,
+      usageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}usage_count'],
+      )!,
+      lastUsedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_used_at'],
+      )!,
+      categoryEmoji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_emoji'],
+      ),
+      purchaseCategoryMapping: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}purchase_category_mapping'],
+      ),
+      syncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}synced_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalBuyRegularsTable createAlias(String alias) {
+    return $LocalBuyRegularsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalBuyRegular extends DataClass implements Insertable<LocalBuyRegular> {
+  final String id;
+  final String providerId;
+  final String productId;
+  final String providerName;
+  final String productName;
+  final String recipientNumber;
+  final String? recipientLabel;
+  final bool isPinned;
+  final int usageCount;
+  final DateTime lastUsedAt;
+  final String? categoryEmoji;
+  final String? purchaseCategoryMapping;
+  final DateTime syncedAt;
+  const LocalBuyRegular({
+    required this.id,
+    required this.providerId,
+    required this.productId,
+    required this.providerName,
+    required this.productName,
+    required this.recipientNumber,
+    this.recipientLabel,
+    required this.isPinned,
+    required this.usageCount,
+    required this.lastUsedAt,
+    this.categoryEmoji,
+    this.purchaseCategoryMapping,
+    required this.syncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['provider_id'] = Variable<String>(providerId);
+    map['product_id'] = Variable<String>(productId);
+    map['provider_name'] = Variable<String>(providerName);
+    map['product_name'] = Variable<String>(productName);
+    map['recipient_number'] = Variable<String>(recipientNumber);
+    if (!nullToAbsent || recipientLabel != null) {
+      map['recipient_label'] = Variable<String>(recipientLabel);
+    }
+    map['is_pinned'] = Variable<bool>(isPinned);
+    map['usage_count'] = Variable<int>(usageCount);
+    map['last_used_at'] = Variable<DateTime>(lastUsedAt);
+    if (!nullToAbsent || categoryEmoji != null) {
+      map['category_emoji'] = Variable<String>(categoryEmoji);
+    }
+    if (!nullToAbsent || purchaseCategoryMapping != null) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping,
+      );
+    }
+    map['synced_at'] = Variable<DateTime>(syncedAt);
+    return map;
+  }
+
+  LocalBuyRegularsCompanion toCompanion(bool nullToAbsent) {
+    return LocalBuyRegularsCompanion(
+      id: Value(id),
+      providerId: Value(providerId),
+      productId: Value(productId),
+      providerName: Value(providerName),
+      productName: Value(productName),
+      recipientNumber: Value(recipientNumber),
+      recipientLabel: recipientLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recipientLabel),
+      isPinned: Value(isPinned),
+      usageCount: Value(usageCount),
+      lastUsedAt: Value(lastUsedAt),
+      categoryEmoji: categoryEmoji == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryEmoji),
+      purchaseCategoryMapping: purchaseCategoryMapping == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseCategoryMapping),
+      syncedAt: Value(syncedAt),
+    );
+  }
+
+  factory LocalBuyRegular.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalBuyRegular(
+      id: serializer.fromJson<String>(json['id']),
+      providerId: serializer.fromJson<String>(json['providerId']),
+      productId: serializer.fromJson<String>(json['productId']),
+      providerName: serializer.fromJson<String>(json['providerName']),
+      productName: serializer.fromJson<String>(json['productName']),
+      recipientNumber: serializer.fromJson<String>(json['recipientNumber']),
+      recipientLabel: serializer.fromJson<String?>(json['recipientLabel']),
+      isPinned: serializer.fromJson<bool>(json['isPinned']),
+      usageCount: serializer.fromJson<int>(json['usageCount']),
+      lastUsedAt: serializer.fromJson<DateTime>(json['lastUsedAt']),
+      categoryEmoji: serializer.fromJson<String?>(json['categoryEmoji']),
+      purchaseCategoryMapping: serializer.fromJson<String?>(
+        json['purchaseCategoryMapping'],
+      ),
+      syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'providerId': serializer.toJson<String>(providerId),
+      'productId': serializer.toJson<String>(productId),
+      'providerName': serializer.toJson<String>(providerName),
+      'productName': serializer.toJson<String>(productName),
+      'recipientNumber': serializer.toJson<String>(recipientNumber),
+      'recipientLabel': serializer.toJson<String?>(recipientLabel),
+      'isPinned': serializer.toJson<bool>(isPinned),
+      'usageCount': serializer.toJson<int>(usageCount),
+      'lastUsedAt': serializer.toJson<DateTime>(lastUsedAt),
+      'categoryEmoji': serializer.toJson<String?>(categoryEmoji),
+      'purchaseCategoryMapping': serializer.toJson<String?>(
+        purchaseCategoryMapping,
+      ),
+      'syncedAt': serializer.toJson<DateTime>(syncedAt),
+    };
+  }
+
+  LocalBuyRegular copyWith({
+    String? id,
+    String? providerId,
+    String? productId,
+    String? providerName,
+    String? productName,
+    String? recipientNumber,
+    Value<String?> recipientLabel = const Value.absent(),
+    bool? isPinned,
+    int? usageCount,
+    DateTime? lastUsedAt,
+    Value<String?> categoryEmoji = const Value.absent(),
+    Value<String?> purchaseCategoryMapping = const Value.absent(),
+    DateTime? syncedAt,
+  }) => LocalBuyRegular(
+    id: id ?? this.id,
+    providerId: providerId ?? this.providerId,
+    productId: productId ?? this.productId,
+    providerName: providerName ?? this.providerName,
+    productName: productName ?? this.productName,
+    recipientNumber: recipientNumber ?? this.recipientNumber,
+    recipientLabel: recipientLabel.present
+        ? recipientLabel.value
+        : this.recipientLabel,
+    isPinned: isPinned ?? this.isPinned,
+    usageCount: usageCount ?? this.usageCount,
+    lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+    categoryEmoji: categoryEmoji.present
+        ? categoryEmoji.value
+        : this.categoryEmoji,
+    purchaseCategoryMapping: purchaseCategoryMapping.present
+        ? purchaseCategoryMapping.value
+        : this.purchaseCategoryMapping,
+    syncedAt: syncedAt ?? this.syncedAt,
+  );
+  LocalBuyRegular copyWithCompanion(LocalBuyRegularsCompanion data) {
+    return LocalBuyRegular(
+      id: data.id.present ? data.id.value : this.id,
+      providerId: data.providerId.present
+          ? data.providerId.value
+          : this.providerId,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      providerName: data.providerName.present
+          ? data.providerName.value
+          : this.providerName,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      recipientNumber: data.recipientNumber.present
+          ? data.recipientNumber.value
+          : this.recipientNumber,
+      recipientLabel: data.recipientLabel.present
+          ? data.recipientLabel.value
+          : this.recipientLabel,
+      isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
+      usageCount: data.usageCount.present
+          ? data.usageCount.value
+          : this.usageCount,
+      lastUsedAt: data.lastUsedAt.present
+          ? data.lastUsedAt.value
+          : this.lastUsedAt,
+      categoryEmoji: data.categoryEmoji.present
+          ? data.categoryEmoji.value
+          : this.categoryEmoji,
+      purchaseCategoryMapping: data.purchaseCategoryMapping.present
+          ? data.purchaseCategoryMapping.value
+          : this.purchaseCategoryMapping,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyRegular(')
+          ..write('id: $id, ')
+          ..write('providerId: $providerId, ')
+          ..write('productId: $productId, ')
+          ..write('providerName: $providerName, ')
+          ..write('productName: $productName, ')
+          ..write('recipientNumber: $recipientNumber, ')
+          ..write('recipientLabel: $recipientLabel, ')
+          ..write('isPinned: $isPinned, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('categoryEmoji: $categoryEmoji, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    providerId,
+    productId,
+    providerName,
+    productName,
+    recipientNumber,
+    recipientLabel,
+    isPinned,
+    usageCount,
+    lastUsedAt,
+    categoryEmoji,
+    purchaseCategoryMapping,
+    syncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalBuyRegular &&
+          other.id == this.id &&
+          other.providerId == this.providerId &&
+          other.productId == this.productId &&
+          other.providerName == this.providerName &&
+          other.productName == this.productName &&
+          other.recipientNumber == this.recipientNumber &&
+          other.recipientLabel == this.recipientLabel &&
+          other.isPinned == this.isPinned &&
+          other.usageCount == this.usageCount &&
+          other.lastUsedAt == this.lastUsedAt &&
+          other.categoryEmoji == this.categoryEmoji &&
+          other.purchaseCategoryMapping == this.purchaseCategoryMapping &&
+          other.syncedAt == this.syncedAt);
+}
+
+class LocalBuyRegularsCompanion extends UpdateCompanion<LocalBuyRegular> {
+  final Value<String> id;
+  final Value<String> providerId;
+  final Value<String> productId;
+  final Value<String> providerName;
+  final Value<String> productName;
+  final Value<String> recipientNumber;
+  final Value<String?> recipientLabel;
+  final Value<bool> isPinned;
+  final Value<int> usageCount;
+  final Value<DateTime> lastUsedAt;
+  final Value<String?> categoryEmoji;
+  final Value<String?> purchaseCategoryMapping;
+  final Value<DateTime> syncedAt;
+  final Value<int> rowid;
+  const LocalBuyRegularsCompanion({
+    this.id = const Value.absent(),
+    this.providerId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.providerName = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.recipientNumber = const Value.absent(),
+    this.recipientLabel = const Value.absent(),
+    this.isPinned = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    this.lastUsedAt = const Value.absent(),
+    this.categoryEmoji = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalBuyRegularsCompanion.insert({
+    required String id,
+    required String providerId,
+    required String productId,
+    required String providerName,
+    required String productName,
+    required String recipientNumber,
+    this.recipientLabel = const Value.absent(),
+    this.isPinned = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    required DateTime lastUsedAt,
+    this.categoryEmoji = const Value.absent(),
+    this.purchaseCategoryMapping = const Value.absent(),
+    required DateTime syncedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       providerId = Value(providerId),
+       productId = Value(productId),
+       providerName = Value(providerName),
+       productName = Value(productName),
+       recipientNumber = Value(recipientNumber),
+       lastUsedAt = Value(lastUsedAt),
+       syncedAt = Value(syncedAt);
+  static Insertable<LocalBuyRegular> custom({
+    Expression<String>? id,
+    Expression<String>? providerId,
+    Expression<String>? productId,
+    Expression<String>? providerName,
+    Expression<String>? productName,
+    Expression<String>? recipientNumber,
+    Expression<String>? recipientLabel,
+    Expression<bool>? isPinned,
+    Expression<int>? usageCount,
+    Expression<DateTime>? lastUsedAt,
+    Expression<String>? categoryEmoji,
+    Expression<String>? purchaseCategoryMapping,
+    Expression<DateTime>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (providerId != null) 'provider_id': providerId,
+      if (productId != null) 'product_id': productId,
+      if (providerName != null) 'provider_name': providerName,
+      if (productName != null) 'product_name': productName,
+      if (recipientNumber != null) 'recipient_number': recipientNumber,
+      if (recipientLabel != null) 'recipient_label': recipientLabel,
+      if (isPinned != null) 'is_pinned': isPinned,
+      if (usageCount != null) 'usage_count': usageCount,
+      if (lastUsedAt != null) 'last_used_at': lastUsedAt,
+      if (categoryEmoji != null) 'category_emoji': categoryEmoji,
+      if (purchaseCategoryMapping != null)
+        'purchase_category_mapping': purchaseCategoryMapping,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalBuyRegularsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? providerId,
+    Value<String>? productId,
+    Value<String>? providerName,
+    Value<String>? productName,
+    Value<String>? recipientNumber,
+    Value<String?>? recipientLabel,
+    Value<bool>? isPinned,
+    Value<int>? usageCount,
+    Value<DateTime>? lastUsedAt,
+    Value<String?>? categoryEmoji,
+    Value<String?>? purchaseCategoryMapping,
+    Value<DateTime>? syncedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalBuyRegularsCompanion(
+      id: id ?? this.id,
+      providerId: providerId ?? this.providerId,
+      productId: productId ?? this.productId,
+      providerName: providerName ?? this.providerName,
+      productName: productName ?? this.productName,
+      recipientNumber: recipientNumber ?? this.recipientNumber,
+      recipientLabel: recipientLabel ?? this.recipientLabel,
+      isPinned: isPinned ?? this.isPinned,
+      usageCount: usageCount ?? this.usageCount,
+      lastUsedAt: lastUsedAt ?? this.lastUsedAt,
+      categoryEmoji: categoryEmoji ?? this.categoryEmoji,
+      purchaseCategoryMapping:
+          purchaseCategoryMapping ?? this.purchaseCategoryMapping,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (providerId.present) {
+      map['provider_id'] = Variable<String>(providerId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<String>(productId.value);
+    }
+    if (providerName.present) {
+      map['provider_name'] = Variable<String>(providerName.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (recipientNumber.present) {
+      map['recipient_number'] = Variable<String>(recipientNumber.value);
+    }
+    if (recipientLabel.present) {
+      map['recipient_label'] = Variable<String>(recipientLabel.value);
+    }
+    if (isPinned.present) {
+      map['is_pinned'] = Variable<bool>(isPinned.value);
+    }
+    if (usageCount.present) {
+      map['usage_count'] = Variable<int>(usageCount.value);
+    }
+    if (lastUsedAt.present) {
+      map['last_used_at'] = Variable<DateTime>(lastUsedAt.value);
+    }
+    if (categoryEmoji.present) {
+      map['category_emoji'] = Variable<String>(categoryEmoji.value);
+    }
+    if (purchaseCategoryMapping.present) {
+      map['purchase_category_mapping'] = Variable<String>(
+        purchaseCategoryMapping.value,
+      );
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalBuyRegularsCompanion(')
+          ..write('id: $id, ')
+          ..write('providerId: $providerId, ')
+          ..write('productId: $productId, ')
+          ..write('providerName: $providerName, ')
+          ..write('productName: $productName, ')
+          ..write('recipientNumber: $recipientNumber, ')
+          ..write('recipientLabel: $recipientLabel, ')
+          ..write('isPinned: $isPinned, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('lastUsedAt: $lastUsedAt, ')
+          ..write('categoryEmoji: $categoryEmoji, ')
+          ..write('purchaseCategoryMapping: $purchaseCategoryMapping, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $LocalFeaturedItemsTable extends LocalFeaturedItems
     with TableInfo<$LocalFeaturedItemsTable, LocalFeaturedItem> {
   @override
@@ -16480,6 +17289,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalCommunityMembersTable(this);
   late final $LocalBuyCategoriesTable localBuyCategories =
       $LocalBuyCategoriesTable(this);
+  late final $LocalBuyRegularsTable localBuyRegulars = $LocalBuyRegularsTable(
+    this,
+  );
   late final $LocalFeaturedItemsTable localFeaturedItems =
       $LocalFeaturedItemsTable(this);
   late final $LocalBrandStorefrontsTable localBrandStorefronts =
@@ -16520,6 +17332,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localCommunities,
     localCommunityMembers,
     localBuyCategories,
+    localBuyRegulars,
     localFeaturedItems,
     localBrandStorefronts,
     localBrandProducts,
@@ -22211,6 +23024,382 @@ typedef $$LocalBuyCategoriesTableProcessedTableManager =
       LocalBuyCategory,
       PrefetchHooks Function()
     >;
+typedef $$LocalBuyRegularsTableCreateCompanionBuilder =
+    LocalBuyRegularsCompanion Function({
+      required String id,
+      required String providerId,
+      required String productId,
+      required String providerName,
+      required String productName,
+      required String recipientNumber,
+      Value<String?> recipientLabel,
+      Value<bool> isPinned,
+      Value<int> usageCount,
+      required DateTime lastUsedAt,
+      Value<String?> categoryEmoji,
+      Value<String?> purchaseCategoryMapping,
+      required DateTime syncedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalBuyRegularsTableUpdateCompanionBuilder =
+    LocalBuyRegularsCompanion Function({
+      Value<String> id,
+      Value<String> providerId,
+      Value<String> productId,
+      Value<String> providerName,
+      Value<String> productName,
+      Value<String> recipientNumber,
+      Value<String?> recipientLabel,
+      Value<bool> isPinned,
+      Value<int> usageCount,
+      Value<DateTime> lastUsedAt,
+      Value<String?> categoryEmoji,
+      Value<String?> purchaseCategoryMapping,
+      Value<DateTime> syncedAt,
+      Value<int> rowid,
+    });
+
+class $$LocalBuyRegularsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPinned => $composableBuilder(
+    column: $table.isPinned,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalBuyRegularsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPinned => $composableBuilder(
+    column: $table.isPinned,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+    column: $table.syncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalBuyRegularsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalBuyRegularsTable> {
+  $$LocalBuyRegularsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get providerId => $composableBuilder(
+    column: $table.providerId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<String> get providerName => $composableBuilder(
+    column: $table.providerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recipientNumber => $composableBuilder(
+    column: $table.recipientNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recipientLabel => $composableBuilder(
+    column: $table.recipientLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isPinned =>
+      $composableBuilder(column: $table.isPinned, builder: (column) => column);
+
+  GeneratedColumn<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastUsedAt => $composableBuilder(
+    column: $table.lastUsedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get categoryEmoji => $composableBuilder(
+    column: $table.categoryEmoji,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get purchaseCategoryMapping => $composableBuilder(
+    column: $table.purchaseCategoryMapping,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$LocalBuyRegularsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalBuyRegularsTable,
+          LocalBuyRegular,
+          $$LocalBuyRegularsTableFilterComposer,
+          $$LocalBuyRegularsTableOrderingComposer,
+          $$LocalBuyRegularsTableAnnotationComposer,
+          $$LocalBuyRegularsTableCreateCompanionBuilder,
+          $$LocalBuyRegularsTableUpdateCompanionBuilder,
+          (
+            LocalBuyRegular,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalBuyRegularsTable,
+              LocalBuyRegular
+            >,
+          ),
+          LocalBuyRegular,
+          PrefetchHooks Function()
+        > {
+  $$LocalBuyRegularsTableTableManager(
+    _$AppDatabase db,
+    $LocalBuyRegularsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalBuyRegularsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalBuyRegularsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalBuyRegularsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> providerId = const Value.absent(),
+                Value<String> productId = const Value.absent(),
+                Value<String> providerName = const Value.absent(),
+                Value<String> productName = const Value.absent(),
+                Value<String> recipientNumber = const Value.absent(),
+                Value<String?> recipientLabel = const Value.absent(),
+                Value<bool> isPinned = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                Value<DateTime> lastUsedAt = const Value.absent(),
+                Value<String?> categoryEmoji = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                Value<DateTime> syncedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyRegularsCompanion(
+                id: id,
+                providerId: providerId,
+                productId: productId,
+                providerName: providerName,
+                productName: productName,
+                recipientNumber: recipientNumber,
+                recipientLabel: recipientLabel,
+                isPinned: isPinned,
+                usageCount: usageCount,
+                lastUsedAt: lastUsedAt,
+                categoryEmoji: categoryEmoji,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String providerId,
+                required String productId,
+                required String providerName,
+                required String productName,
+                required String recipientNumber,
+                Value<String?> recipientLabel = const Value.absent(),
+                Value<bool> isPinned = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                required DateTime lastUsedAt,
+                Value<String?> categoryEmoji = const Value.absent(),
+                Value<String?> purchaseCategoryMapping = const Value.absent(),
+                required DateTime syncedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalBuyRegularsCompanion.insert(
+                id: id,
+                providerId: providerId,
+                productId: productId,
+                providerName: providerName,
+                productName: productName,
+                recipientNumber: recipientNumber,
+                recipientLabel: recipientLabel,
+                isPinned: isPinned,
+                usageCount: usageCount,
+                lastUsedAt: lastUsedAt,
+                categoryEmoji: categoryEmoji,
+                purchaseCategoryMapping: purchaseCategoryMapping,
+                syncedAt: syncedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalBuyRegularsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalBuyRegularsTable,
+      LocalBuyRegular,
+      $$LocalBuyRegularsTableFilterComposer,
+      $$LocalBuyRegularsTableOrderingComposer,
+      $$LocalBuyRegularsTableAnnotationComposer,
+      $$LocalBuyRegularsTableCreateCompanionBuilder,
+      $$LocalBuyRegularsTableUpdateCompanionBuilder,
+      (
+        LocalBuyRegular,
+        BaseReferences<_$AppDatabase, $LocalBuyRegularsTable, LocalBuyRegular>,
+      ),
+      LocalBuyRegular,
+      PrefetchHooks Function()
+    >;
 typedef $$LocalFeaturedItemsTableCreateCompanionBuilder =
     LocalFeaturedItemsCompanion Function({
       required String id,
@@ -24720,6 +25909,8 @@ class $AppDatabaseManager {
       $$LocalCommunityMembersTableTableManager(_db, _db.localCommunityMembers);
   $$LocalBuyCategoriesTableTableManager get localBuyCategories =>
       $$LocalBuyCategoriesTableTableManager(_db, _db.localBuyCategories);
+  $$LocalBuyRegularsTableTableManager get localBuyRegulars =>
+      $$LocalBuyRegularsTableTableManager(_db, _db.localBuyRegulars);
   $$LocalFeaturedItemsTableTableManager get localFeaturedItems =>
       $$LocalFeaturedItemsTableTableManager(_db, _db.localFeaturedItems);
   $$LocalBrandStorefrontsTableTableManager get localBrandStorefronts =>

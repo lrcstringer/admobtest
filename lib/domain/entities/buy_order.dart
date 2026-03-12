@@ -72,7 +72,8 @@ class BuyOrder with _$BuyOrder {
   bool get canDispute =>
       status == OrderStatus.escrowed || status == OrderStatus.fulfilled;
 
-  // computedTotal is available after build_runner regenerates freezed code
+  /// Total including delivery fee
+  int get effectiveTotal => totalAmount > 0 ? totalAmount : amount + (deliveryFee ?? 0);
 
   /// Formatted amount
   String get formattedAmount => '$amount tokens';

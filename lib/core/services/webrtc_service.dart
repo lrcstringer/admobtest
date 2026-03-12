@@ -34,6 +34,7 @@ class WebRtcService {
       StreamController<RTCIceConnectionState>.broadcast();
   final _iceGatheringStateController =
       StreamController<RTCIceGatheringState>.broadcast();
+  final _remoteVideoEnabledController = StreamController<bool>.broadcast();
 
   Stream<MediaStream?> get onRemoteStream => _remoteStreamController.stream;
   Stream<MediaStream?> get onLocalStream => _localStreamController.stream;
@@ -43,6 +44,8 @@ class WebRtcService {
       _iceConnectionStateController.stream;
   Stream<RTCIceGatheringState> get onIceGatheringState =>
       _iceGatheringStateController.stream;
+  Stream<bool> get onRemoteVideoEnabled =>
+      _remoteVideoEnabledController.stream;
 
   RTCPeerConnection? get peerConnection => _peerConnection;
   MediaStream? get localStream => _localStream;
@@ -122,6 +125,21 @@ class WebRtcService {
       if (event.streams.isNotEmpty && !_isDisposed) {
         _remoteStream = event.streams.first;
         _remoteStreamController.add(_remoteStream);
+
+        // Track remote video mute/unmute for avatar fallback
+        final track = event.track;
+        if (track.kind == 'video') {
+          _remoteVideoEnabledController.add(track.enabled && !(track.muted ?? false));
+          track.onMute = () {
+            if (!_isDisposed) _remoteVideoEnabledController.add(false);
+          };
+          track.onUnMute = () {
+            if (!_isDisposed) _remoteVideoEnabledController.add(true);
+          };
+          track.onEnded = () {
+            if (!_isDisposed) _remoteVideoEnabledController.add(false);
+          };
+        }
       }
     };
 
@@ -243,12 +261,55 @@ class WebRtcService {
     _isAudioEnabled = audioTrack.enabled;
   }
 
-  void toggleVideo() {
-    if (_localStream == null) return;
-    final videoTracks = _localStream!.getVideoTracks();
-    if (videoTracks.isEmpty) return;
-    videoTracks.first.enabled = !videoTracks.first.enabled;
-    _isVideoEnabled = videoTracks.first.enabled;
+  /// Toggle video on/off. When turning off, stops the camera track to release
+  /// hardware (turns off camera light, saves battery). When turning back on,
+  /// re-acquires the camera and replaces the sender's track.
+  Future<void> toggleVideo() async {
+    if (_localStream == null || _peerConnection == null) return;
+
+    if (_isVideoEnabled) {
+      // Turn OFF — stop track to release camera hardware
+      final videoTracks = _localStream!.getVideoTracks();
+      for (final track in videoTracks) {
+        await track.stop();
+        _localStream!.removeTrack(track);
+      }
+      // Replace sender track with null so remote sees black/frozen
+      for (final sender in _senders) {
+        if (sender.track?.kind == 'video') {
+          await sender.replaceTrack(null);
+        }
+      }
+      _isVideoEnabled = false;
+      _localStreamController.add(_localStream);
+    } else {
+      // Turn ON — re-acquire camera and replace sender track
+      try {
+        final mediaStream = await navigator.mediaDevices.getUserMedia({
+          'video': {
+            'width': {'ideal': 480},
+            'height': {'ideal': 640},
+            'frameRate': {'ideal': 24},
+            'facingMode': _isFrontCamera ? 'user' : 'environment',
+          },
+        });
+        final newTrack = mediaStream.getVideoTracks().first;
+        _localStream!.addTrack(newTrack);
+
+        // Replace the null track on the sender
+        for (final sender in _senders) {
+          if (sender.track == null || sender.track?.kind == 'video') {
+            await sender.replaceTrack(newTrack);
+            break; // Only one video sender
+          }
+        }
+        _isVideoEnabled = true;
+        _localStreamController.add(_localStream);
+      } catch (e) {
+        debugPrint('WebRtcService: toggleVideo re-acquire failed: $e');
+        // Camera permission denied or hardware error — stay off
+      }
+    }
   }
 
   Future<void> switchCamera() async {
@@ -342,6 +403,7 @@ class WebRtcService {
     _connectionStateController.close();
     _iceConnectionStateController.close();
     _iceGatheringStateController.close();
+    _remoteVideoEnabledController.close();
   }
 }
 

@@ -96,4 +96,17 @@ class MarketplaceEvent with _$MarketplaceEvent {
     required String orderId,
     String? reason,
   }) = _SellerRefund;
+
+  /// Load current user's listings
+  const factory MarketplaceEvent.loadMyListings() = _LoadMyListings;
+
+  /// Load saved/favourite items
+  const factory MarketplaceEvent.loadSavedItems() = _LoadSavedItems;
+
+  /// Load seller portal profile
+  const factory MarketplaceEvent.loadSellerPortal() = _LoadSellerPortal;
+
+  /// Toggle favourite/save on a listing
+  const factory MarketplaceEvent.toggleFavourite(String listingId) =
+      _ToggleFavourite;
 }

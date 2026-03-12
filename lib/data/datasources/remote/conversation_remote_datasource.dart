@@ -161,6 +161,9 @@ abstract class ConversationRemoteDataSource {
 
   // E2EE key lookup
   Future<String?> getUserE2eeIdentityKey(String userId);
+
+  // Starred messages
+  Future<List<Map<String, dynamic>>> getAllStarredMessages();
 }
 
 @LazySingleton(as: ConversationRemoteDataSource)
@@ -1128,6 +1131,27 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       return result.data['messageId'] as String;
     } on FirebaseFunctionsException catch (e) {
       throw ServerException(message: e.message ?? 'Failed to forward message');
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAllStarredMessages() async {
+    final userId = _requireUserId();
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('starredMessages')
+          .orderBy('starredAt', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    } catch (e) {
+      throw ServerException(message: 'Failed to load starred messages: $e');
     }
   }
 }

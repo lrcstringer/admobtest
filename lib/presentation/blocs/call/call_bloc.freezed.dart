@@ -61,7 +61,7 @@ extension CallEventPatterns on CallEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _InitiateCall value)?  initiateCall,TResult Function( _IncomingCall value)?  incomingCall,TResult Function( _AcceptCall value)?  acceptCall,TResult Function( _RejectCall value)?  rejectCall,TResult Function( _EndCall value)?  endCall,TResult Function( _ToggleMute value)?  toggleMute,TResult Function( _ToggleSpeaker value)?  toggleSpeaker,TResult Function( _ToggleVideo value)?  toggleVideo,TResult Function( _SwitchCamera value)?  switchCamera,TResult Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult Function( _CallDocUpdated value)?  callDocUpdated,TResult Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult Function( _CallTimerTick value)?  callTimerTick,TResult Function( _QualityChanged value)?  qualityChanged,TResult Function( _PerformIceRestart value)?  performIceRestart,TResult Function( _NetworkChanged value)?  networkChanged,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _InitiateCall value)?  initiateCall,TResult Function( _IncomingCall value)?  incomingCall,TResult Function( _AcceptCall value)?  acceptCall,TResult Function( _RejectCall value)?  rejectCall,TResult Function( _EndCall value)?  endCall,TResult Function( _ToggleMute value)?  toggleMute,TResult Function( _ToggleSpeaker value)?  toggleSpeaker,TResult Function( _ToggleVideo value)?  toggleVideo,TResult Function( _SwitchCamera value)?  switchCamera,TResult Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult Function( _CallDocUpdated value)?  callDocUpdated,TResult Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult Function( _CallTimerTick value)?  callTimerTick,TResult Function( _QualityChanged value)?  qualityChanged,TResult Function( _PerformIceRestart value)?  performIceRestart,TResult Function( _NetworkChanged value)?  networkChanged,TResult Function( _RemoteVideoStateChanged value)?  remoteVideoStateChanged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
@@ -81,7 +81,8 @@ return iceConnectionStateChanged(_that);case _CallTimerTick() when callTimerTick
 return callTimerTick(_that);case _QualityChanged() when qualityChanged != null:
 return qualityChanged(_that);case _PerformIceRestart() when performIceRestart != null:
 return performIceRestart(_that);case _NetworkChanged() when networkChanged != null:
-return networkChanged(_that);case _:
+return networkChanged(_that);case _RemoteVideoStateChanged() when remoteVideoStateChanged != null:
+return remoteVideoStateChanged(_that);case _:
   return orElse();
 
 }
@@ -99,7 +100,7 @@ return networkChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _InitiateCall value)  initiateCall,required TResult Function( _IncomingCall value)  incomingCall,required TResult Function( _AcceptCall value)  acceptCall,required TResult Function( _RejectCall value)  rejectCall,required TResult Function( _EndCall value)  endCall,required TResult Function( _ToggleMute value)  toggleMute,required TResult Function( _ToggleSpeaker value)  toggleSpeaker,required TResult Function( _ToggleVideo value)  toggleVideo,required TResult Function( _SwitchCamera value)  switchCamera,required TResult Function( _RequestVideoUpgrade value)  requestVideoUpgrade,required TResult Function( _RespondVideoUpgrade value)  respondVideoUpgrade,required TResult Function( _CallDocUpdated value)  callDocUpdated,required TResult Function( _IceConnectionStateChanged value)  iceConnectionStateChanged,required TResult Function( _CallTimerTick value)  callTimerTick,required TResult Function( _QualityChanged value)  qualityChanged,required TResult Function( _PerformIceRestart value)  performIceRestart,required TResult Function( _NetworkChanged value)  networkChanged,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _InitiateCall value)  initiateCall,required TResult Function( _IncomingCall value)  incomingCall,required TResult Function( _AcceptCall value)  acceptCall,required TResult Function( _RejectCall value)  rejectCall,required TResult Function( _EndCall value)  endCall,required TResult Function( _ToggleMute value)  toggleMute,required TResult Function( _ToggleSpeaker value)  toggleSpeaker,required TResult Function( _ToggleVideo value)  toggleVideo,required TResult Function( _SwitchCamera value)  switchCamera,required TResult Function( _RequestVideoUpgrade value)  requestVideoUpgrade,required TResult Function( _RespondVideoUpgrade value)  respondVideoUpgrade,required TResult Function( _CallDocUpdated value)  callDocUpdated,required TResult Function( _IceConnectionStateChanged value)  iceConnectionStateChanged,required TResult Function( _CallTimerTick value)  callTimerTick,required TResult Function( _QualityChanged value)  qualityChanged,required TResult Function( _PerformIceRestart value)  performIceRestart,required TResult Function( _NetworkChanged value)  networkChanged,required TResult Function( _RemoteVideoStateChanged value)  remoteVideoStateChanged,}){
 final _that = this;
 switch (_that) {
 case _InitiateCall():
@@ -119,7 +120,8 @@ return iceConnectionStateChanged(_that);case _CallTimerTick():
 return callTimerTick(_that);case _QualityChanged():
 return qualityChanged(_that);case _PerformIceRestart():
 return performIceRestart(_that);case _NetworkChanged():
-return networkChanged(_that);case _:
+return networkChanged(_that);case _RemoteVideoStateChanged():
+return remoteVideoStateChanged(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -136,7 +138,7 @@ return networkChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _InitiateCall value)?  initiateCall,TResult? Function( _IncomingCall value)?  incomingCall,TResult? Function( _AcceptCall value)?  acceptCall,TResult? Function( _RejectCall value)?  rejectCall,TResult? Function( _EndCall value)?  endCall,TResult? Function( _ToggleMute value)?  toggleMute,TResult? Function( _ToggleSpeaker value)?  toggleSpeaker,TResult? Function( _ToggleVideo value)?  toggleVideo,TResult? Function( _SwitchCamera value)?  switchCamera,TResult? Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult? Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult? Function( _CallDocUpdated value)?  callDocUpdated,TResult? Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult? Function( _CallTimerTick value)?  callTimerTick,TResult? Function( _QualityChanged value)?  qualityChanged,TResult? Function( _PerformIceRestart value)?  performIceRestart,TResult? Function( _NetworkChanged value)?  networkChanged,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _InitiateCall value)?  initiateCall,TResult? Function( _IncomingCall value)?  incomingCall,TResult? Function( _AcceptCall value)?  acceptCall,TResult? Function( _RejectCall value)?  rejectCall,TResult? Function( _EndCall value)?  endCall,TResult? Function( _ToggleMute value)?  toggleMute,TResult? Function( _ToggleSpeaker value)?  toggleSpeaker,TResult? Function( _ToggleVideo value)?  toggleVideo,TResult? Function( _SwitchCamera value)?  switchCamera,TResult? Function( _RequestVideoUpgrade value)?  requestVideoUpgrade,TResult? Function( _RespondVideoUpgrade value)?  respondVideoUpgrade,TResult? Function( _CallDocUpdated value)?  callDocUpdated,TResult? Function( _IceConnectionStateChanged value)?  iceConnectionStateChanged,TResult? Function( _CallTimerTick value)?  callTimerTick,TResult? Function( _QualityChanged value)?  qualityChanged,TResult? Function( _PerformIceRestart value)?  performIceRestart,TResult? Function( _NetworkChanged value)?  networkChanged,TResult? Function( _RemoteVideoStateChanged value)?  remoteVideoStateChanged,}){
 final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
@@ -156,7 +158,8 @@ return iceConnectionStateChanged(_that);case _CallTimerTick() when callTimerTick
 return callTimerTick(_that);case _QualityChanged() when qualityChanged != null:
 return qualityChanged(_that);case _PerformIceRestart() when performIceRestart != null:
 return performIceRestart(_that);case _NetworkChanged() when networkChanged != null:
-return networkChanged(_that);case _:
+return networkChanged(_that);case _RemoteVideoStateChanged() when remoteVideoStateChanged != null:
+return remoteVideoStateChanged(_that);case _:
   return null;
 
 }
@@ -173,7 +176,7 @@ return networkChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult Function()?  acceptCall,TResult Function()?  rejectCall,TResult Function()?  endCall,TResult Function()?  toggleMute,TResult Function()?  toggleSpeaker,TResult Function()?  toggleVideo,TResult Function()?  switchCamera,TResult Function()?  requestVideoUpgrade,TResult Function( bool accepted)?  respondVideoUpgrade,TResult Function( CallSession session)?  callDocUpdated,TResult Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult Function()?  callTimerTick,TResult Function( ConnectionQuality quality)?  qualityChanged,TResult Function()?  performIceRestart,TResult Function( bool isConnected)?  networkChanged,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult Function()?  acceptCall,TResult Function()?  rejectCall,TResult Function()?  endCall,TResult Function()?  toggleMute,TResult Function()?  toggleSpeaker,TResult Function()?  toggleVideo,TResult Function()?  switchCamera,TResult Function()?  requestVideoUpgrade,TResult Function( bool accepted)?  respondVideoUpgrade,TResult Function( CallSession session)?  callDocUpdated,TResult Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult Function()?  callTimerTick,TResult Function( ConnectionQuality quality)?  qualityChanged,TResult Function()?  performIceRestart,TResult Function( bool isConnected)?  networkChanged,TResult Function( bool enabled)?  remoteVideoStateChanged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall() when incomingCall != null:
@@ -192,7 +195,8 @@ return iceConnectionStateChanged(_that.state);case _CallTimerTick() when callTim
 return callTimerTick();case _QualityChanged() when qualityChanged != null:
 return qualityChanged(_that.quality);case _PerformIceRestart() when performIceRestart != null:
 return performIceRestart();case _NetworkChanged() when networkChanged != null:
-return networkChanged(_that.isConnected);case _:
+return networkChanged(_that.isConnected);case _RemoteVideoStateChanged() when remoteVideoStateChanged != null:
+return remoteVideoStateChanged(_that.enabled);case _:
   return orElse();
 
 }
@@ -210,7 +214,7 @@ return networkChanged(_that.isConnected);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)  initiateCall,required TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)  incomingCall,required TResult Function()  acceptCall,required TResult Function()  rejectCall,required TResult Function()  endCall,required TResult Function()  toggleMute,required TResult Function()  toggleSpeaker,required TResult Function()  toggleVideo,required TResult Function()  switchCamera,required TResult Function()  requestVideoUpgrade,required TResult Function( bool accepted)  respondVideoUpgrade,required TResult Function( CallSession session)  callDocUpdated,required TResult Function( RTCIceConnectionState state)  iceConnectionStateChanged,required TResult Function()  callTimerTick,required TResult Function( ConnectionQuality quality)  qualityChanged,required TResult Function()  performIceRestart,required TResult Function( bool isConnected)  networkChanged,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)  initiateCall,required TResult Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)  incomingCall,required TResult Function()  acceptCall,required TResult Function()  rejectCall,required TResult Function()  endCall,required TResult Function()  toggleMute,required TResult Function()  toggleSpeaker,required TResult Function()  toggleVideo,required TResult Function()  switchCamera,required TResult Function()  requestVideoUpgrade,required TResult Function( bool accepted)  respondVideoUpgrade,required TResult Function( CallSession session)  callDocUpdated,required TResult Function( RTCIceConnectionState state)  iceConnectionStateChanged,required TResult Function()  callTimerTick,required TResult Function( ConnectionQuality quality)  qualityChanged,required TResult Function()  performIceRestart,required TResult Function( bool isConnected)  networkChanged,required TResult Function( bool enabled)  remoteVideoStateChanged,}) {final _that = this;
 switch (_that) {
 case _InitiateCall():
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall():
@@ -229,7 +233,8 @@ return iceConnectionStateChanged(_that.state);case _CallTimerTick():
 return callTimerTick();case _QualityChanged():
 return qualityChanged(_that.quality);case _PerformIceRestart():
 return performIceRestart();case _NetworkChanged():
-return networkChanged(_that.isConnected);case _:
+return networkChanged(_that.isConnected);case _RemoteVideoStateChanged():
+return remoteVideoStateChanged(_that.enabled);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -246,7 +251,7 @@ return networkChanged(_that.isConnected);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult? Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult? Function()?  acceptCall,TResult? Function()?  rejectCall,TResult? Function()?  endCall,TResult? Function()?  toggleMute,TResult? Function()?  toggleSpeaker,TResult? Function()?  toggleVideo,TResult? Function()?  switchCamera,TResult? Function()?  requestVideoUpgrade,TResult? Function( bool accepted)?  respondVideoUpgrade,TResult? Function( CallSession session)?  callDocUpdated,TResult? Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult? Function()?  callTimerTick,TResult? Function( ConnectionQuality quality)?  qualityChanged,TResult? Function()?  performIceRestart,TResult? Function( bool isConnected)?  networkChanged,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String conversationId,  String recipientId,  String recipientName,  String? recipientAvatarUrl,  CallType callType)?  initiateCall,TResult? Function( String callId,  String callerName,  String? callerAvatarUrl,  CallType callType,  String conversationId,  String callerId)?  incomingCall,TResult? Function()?  acceptCall,TResult? Function()?  rejectCall,TResult? Function()?  endCall,TResult? Function()?  toggleMute,TResult? Function()?  toggleSpeaker,TResult? Function()?  toggleVideo,TResult? Function()?  switchCamera,TResult? Function()?  requestVideoUpgrade,TResult? Function( bool accepted)?  respondVideoUpgrade,TResult? Function( CallSession session)?  callDocUpdated,TResult? Function( RTCIceConnectionState state)?  iceConnectionStateChanged,TResult? Function()?  callTimerTick,TResult? Function( ConnectionQuality quality)?  qualityChanged,TResult? Function()?  performIceRestart,TResult? Function( bool isConnected)?  networkChanged,TResult? Function( bool enabled)?  remoteVideoStateChanged,}) {final _that = this;
 switch (_that) {
 case _InitiateCall() when initiateCall != null:
 return initiateCall(_that.conversationId,_that.recipientId,_that.recipientName,_that.recipientAvatarUrl,_that.callType);case _IncomingCall() when incomingCall != null:
@@ -265,7 +270,8 @@ return iceConnectionStateChanged(_that.state);case _CallTimerTick() when callTim
 return callTimerTick();case _QualityChanged() when qualityChanged != null:
 return qualityChanged(_that.quality);case _PerformIceRestart() when performIceRestart != null:
 return performIceRestart();case _NetworkChanged() when networkChanged != null:
-return networkChanged(_that.isConnected);case _:
+return networkChanged(_that.isConnected);case _RemoteVideoStateChanged() when remoteVideoStateChanged != null:
+return remoteVideoStateChanged(_that.enabled);case _:
   return null;
 
 }
@@ -1185,9 +1191,81 @@ as bool,
 }
 
 /// @nodoc
+
+
+class _RemoteVideoStateChanged with DiagnosticableTreeMixin implements CallEvent {
+  const _RemoteVideoStateChanged({required this.enabled});
+  
+
+ final  bool enabled;
+
+/// Create a copy of CallEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RemoteVideoStateChangedCopyWith<_RemoteVideoStateChanged> get copyWith => __$RemoteVideoStateChangedCopyWithImpl<_RemoteVideoStateChanged>(this, _$identity);
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CallEvent.remoteVideoStateChanged'))
+    ..add(DiagnosticsProperty('enabled', enabled));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RemoteVideoStateChanged&&(identical(other.enabled, enabled) || other.enabled == enabled));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,enabled);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CallEvent.remoteVideoStateChanged(enabled: $enabled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RemoteVideoStateChangedCopyWith<$Res> implements $CallEventCopyWith<$Res> {
+  factory _$RemoteVideoStateChangedCopyWith(_RemoteVideoStateChanged value, $Res Function(_RemoteVideoStateChanged) _then) = __$RemoteVideoStateChangedCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled
+});
+
+
+
+
+}
+/// @nodoc
+class __$RemoteVideoStateChangedCopyWithImpl<$Res>
+    implements _$RemoteVideoStateChangedCopyWith<$Res> {
+  __$RemoteVideoStateChangedCopyWithImpl(this._self, this._then);
+
+  final _RemoteVideoStateChanged _self;
+  final $Res Function(_RemoteVideoStateChanged) _then;
+
+/// Create a copy of CallEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? enabled = null,}) {
+  return _then(_RemoteVideoStateChanged(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$CallState implements DiagnosticableTreeMixin {
 
- CallStatus get status; String? get callId; String? get conversationId; String? get remoteUserId; String? get remoteUserName; String? get remoteUserAvatarUrl; CallType get callType; bool get isCaller; bool get isAudioEnabled; bool get isVideoEnabled; bool get isSpeakerOn; bool get isFrontCamera; Duration get callDuration; ConnectionQuality get connectionQuality;// Video upgrade
+ CallStatus get status; String? get callId; String? get conversationId; String? get remoteUserId; String? get remoteUserName; String? get remoteUserAvatarUrl; CallType get callType; bool get isCaller; bool get isAudioEnabled; bool get isVideoEnabled; bool get isSpeakerOn; bool get isFrontCamera; bool get isRemoteVideoEnabled; Duration get callDuration; ConnectionQuality get connectionQuality;// Video upgrade
  bool get videoUpgradeRequested; String? get videoUpgradeRequesterId; String? get errorMessage;
 /// Create a copy of CallState
 /// with the given fields replaced by the non-null parameter values.
@@ -1200,21 +1278,21 @@ $CallStateCopyWith<CallState> get copyWith => _$CallStateCopyWithImpl<CallState>
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'CallState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('isRemoteVideoEnabled', isRemoteVideoEnabled))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallState&&(identical(other.status, status) || other.status == status)&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUserName, remoteUserName) || other.remoteUserName == remoteUserName)&&(identical(other.remoteUserAvatarUrl, remoteUserAvatarUrl) || other.remoteUserAvatarUrl == remoteUserAvatarUrl)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.isCaller, isCaller) || other.isCaller == isCaller)&&(identical(other.isAudioEnabled, isAudioEnabled) || other.isAudioEnabled == isAudioEnabled)&&(identical(other.isVideoEnabled, isVideoEnabled) || other.isVideoEnabled == isVideoEnabled)&&(identical(other.isSpeakerOn, isSpeakerOn) || other.isSpeakerOn == isSpeakerOn)&&(identical(other.isFrontCamera, isFrontCamera) || other.isFrontCamera == isFrontCamera)&&(identical(other.callDuration, callDuration) || other.callDuration == callDuration)&&(identical(other.connectionQuality, connectionQuality) || other.connectionQuality == connectionQuality)&&(identical(other.videoUpgradeRequested, videoUpgradeRequested) || other.videoUpgradeRequested == videoUpgradeRequested)&&(identical(other.videoUpgradeRequesterId, videoUpgradeRequesterId) || other.videoUpgradeRequesterId == videoUpgradeRequesterId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CallState&&(identical(other.status, status) || other.status == status)&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUserName, remoteUserName) || other.remoteUserName == remoteUserName)&&(identical(other.remoteUserAvatarUrl, remoteUserAvatarUrl) || other.remoteUserAvatarUrl == remoteUserAvatarUrl)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.isCaller, isCaller) || other.isCaller == isCaller)&&(identical(other.isAudioEnabled, isAudioEnabled) || other.isAudioEnabled == isAudioEnabled)&&(identical(other.isVideoEnabled, isVideoEnabled) || other.isVideoEnabled == isVideoEnabled)&&(identical(other.isSpeakerOn, isSpeakerOn) || other.isSpeakerOn == isSpeakerOn)&&(identical(other.isFrontCamera, isFrontCamera) || other.isFrontCamera == isFrontCamera)&&(identical(other.isRemoteVideoEnabled, isRemoteVideoEnabled) || other.isRemoteVideoEnabled == isRemoteVideoEnabled)&&(identical(other.callDuration, callDuration) || other.callDuration == callDuration)&&(identical(other.connectionQuality, connectionQuality) || other.connectionQuality == connectionQuality)&&(identical(other.videoUpgradeRequested, videoUpgradeRequested) || other.videoUpgradeRequested == videoUpgradeRequested)&&(identical(other.videoUpgradeRequesterId, videoUpgradeRequesterId) || other.videoUpgradeRequesterId == videoUpgradeRequesterId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,isRemoteVideoEnabled,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
+  return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, isRemoteVideoEnabled: $isRemoteVideoEnabled, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
 }
 
 
@@ -1225,7 +1303,7 @@ abstract mixin class $CallStateCopyWith<$Res>  {
   factory $CallStateCopyWith(CallState value, $Res Function(CallState) _then) = _$CallStateCopyWithImpl;
 @useResult
 $Res call({
- CallStatus status, String? callId, String? conversationId, String? remoteUserId, String? remoteUserName, String? remoteUserAvatarUrl, CallType callType, bool isCaller, bool isAudioEnabled, bool isVideoEnabled, bool isSpeakerOn, bool isFrontCamera, Duration callDuration, ConnectionQuality connectionQuality, bool videoUpgradeRequested, String? videoUpgradeRequesterId, String? errorMessage
+ CallStatus status, String? callId, String? conversationId, String? remoteUserId, String? remoteUserName, String? remoteUserAvatarUrl, CallType callType, bool isCaller, bool isAudioEnabled, bool isVideoEnabled, bool isSpeakerOn, bool isFrontCamera, bool isRemoteVideoEnabled, Duration callDuration, ConnectionQuality connectionQuality, bool videoUpgradeRequested, String? videoUpgradeRequesterId, String? errorMessage
 });
 
 
@@ -1242,7 +1320,7 @@ class _$CallStateCopyWithImpl<$Res>
 
 /// Create a copy of CallState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? callId = freezed,Object? conversationId = freezed,Object? remoteUserId = freezed,Object? remoteUserName = freezed,Object? remoteUserAvatarUrl = freezed,Object? callType = null,Object? isCaller = null,Object? isAudioEnabled = null,Object? isVideoEnabled = null,Object? isSpeakerOn = null,Object? isFrontCamera = null,Object? callDuration = null,Object? connectionQuality = null,Object? videoUpgradeRequested = null,Object? videoUpgradeRequesterId = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? callId = freezed,Object? conversationId = freezed,Object? remoteUserId = freezed,Object? remoteUserName = freezed,Object? remoteUserAvatarUrl = freezed,Object? callType = null,Object? isCaller = null,Object? isAudioEnabled = null,Object? isVideoEnabled = null,Object? isSpeakerOn = null,Object? isFrontCamera = null,Object? isRemoteVideoEnabled = null,Object? callDuration = null,Object? connectionQuality = null,Object? videoUpgradeRequested = null,Object? videoUpgradeRequesterId = freezed,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,callId: freezed == callId ? _self.callId : callId // ignore: cast_nullable_to_non_nullable
@@ -1256,6 +1334,7 @@ as bool,isAudioEnabled: null == isAudioEnabled ? _self.isAudioEnabled : isAudioE
 as bool,isVideoEnabled: null == isVideoEnabled ? _self.isVideoEnabled : isVideoEnabled // ignore: cast_nullable_to_non_nullable
 as bool,isSpeakerOn: null == isSpeakerOn ? _self.isSpeakerOn : isSpeakerOn // ignore: cast_nullable_to_non_nullable
 as bool,isFrontCamera: null == isFrontCamera ? _self.isFrontCamera : isFrontCamera // ignore: cast_nullable_to_non_nullable
+as bool,isRemoteVideoEnabled: null == isRemoteVideoEnabled ? _self.isRemoteVideoEnabled : isRemoteVideoEnabled // ignore: cast_nullable_to_non_nullable
 as bool,callDuration: null == callDuration ? _self.callDuration : callDuration // ignore: cast_nullable_to_non_nullable
 as Duration,connectionQuality: null == connectionQuality ? _self.connectionQuality : connectionQuality // ignore: cast_nullable_to_non_nullable
 as ConnectionQuality,videoUpgradeRequested: null == videoUpgradeRequested ? _self.videoUpgradeRequested : videoUpgradeRequested // ignore: cast_nullable_to_non_nullable
@@ -1346,10 +1425,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  bool isRemoteVideoEnabled,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CallState() when $default != null:
-return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
+return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.isRemoteVideoEnabled,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -1367,10 +1446,10 @@ return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  bool isRemoteVideoEnabled,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _CallState():
-return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
+return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.isRemoteVideoEnabled,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1387,10 +1466,10 @@ return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CallStatus status,  String? callId,  String? conversationId,  String? remoteUserId,  String? remoteUserName,  String? remoteUserAvatarUrl,  CallType callType,  bool isCaller,  bool isAudioEnabled,  bool isVideoEnabled,  bool isSpeakerOn,  bool isFrontCamera,  bool isRemoteVideoEnabled,  Duration callDuration,  ConnectionQuality connectionQuality,  bool videoUpgradeRequested,  String? videoUpgradeRequesterId,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _CallState() when $default != null:
-return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
+return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserId,_that.remoteUserName,_that.remoteUserAvatarUrl,_that.callType,_that.isCaller,_that.isAudioEnabled,_that.isVideoEnabled,_that.isSpeakerOn,_that.isFrontCamera,_that.isRemoteVideoEnabled,_that.callDuration,_that.connectionQuality,_that.videoUpgradeRequested,_that.videoUpgradeRequesterId,_that.errorMessage);case _:
   return null;
 
 }
@@ -1402,7 +1481,7 @@ return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserI
 
 
 class _CallState with DiagnosticableTreeMixin implements CallState {
-  const _CallState({this.status = CallStatus.idle, this.callId, this.conversationId, this.remoteUserId, this.remoteUserName, this.remoteUserAvatarUrl, this.callType = CallType.voice, this.isCaller = true, this.isAudioEnabled = true, this.isVideoEnabled = false, this.isSpeakerOn = false, this.isFrontCamera = true, this.callDuration = Duration.zero, this.connectionQuality = ConnectionQuality.excellent, this.videoUpgradeRequested = false, this.videoUpgradeRequesterId, this.errorMessage});
+  const _CallState({this.status = CallStatus.idle, this.callId, this.conversationId, this.remoteUserId, this.remoteUserName, this.remoteUserAvatarUrl, this.callType = CallType.voice, this.isCaller = true, this.isAudioEnabled = true, this.isVideoEnabled = false, this.isSpeakerOn = false, this.isFrontCamera = true, this.isRemoteVideoEnabled = false, this.callDuration = Duration.zero, this.connectionQuality = ConnectionQuality.excellent, this.videoUpgradeRequested = false, this.videoUpgradeRequesterId, this.errorMessage});
   
 
 @override@JsonKey() final  CallStatus status;
@@ -1417,6 +1496,7 @@ class _CallState with DiagnosticableTreeMixin implements CallState {
 @override@JsonKey() final  bool isVideoEnabled;
 @override@JsonKey() final  bool isSpeakerOn;
 @override@JsonKey() final  bool isFrontCamera;
+@override@JsonKey() final  bool isRemoteVideoEnabled;
 @override@JsonKey() final  Duration callDuration;
 @override@JsonKey() final  ConnectionQuality connectionQuality;
 // Video upgrade
@@ -1435,21 +1515,21 @@ _$CallStateCopyWith<_CallState> get copyWith => __$CallStateCopyWithImpl<_CallSt
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'CallState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
+    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('isRemoteVideoEnabled', isRemoteVideoEnabled))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallState&&(identical(other.status, status) || other.status == status)&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUserName, remoteUserName) || other.remoteUserName == remoteUserName)&&(identical(other.remoteUserAvatarUrl, remoteUserAvatarUrl) || other.remoteUserAvatarUrl == remoteUserAvatarUrl)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.isCaller, isCaller) || other.isCaller == isCaller)&&(identical(other.isAudioEnabled, isAudioEnabled) || other.isAudioEnabled == isAudioEnabled)&&(identical(other.isVideoEnabled, isVideoEnabled) || other.isVideoEnabled == isVideoEnabled)&&(identical(other.isSpeakerOn, isSpeakerOn) || other.isSpeakerOn == isSpeakerOn)&&(identical(other.isFrontCamera, isFrontCamera) || other.isFrontCamera == isFrontCamera)&&(identical(other.callDuration, callDuration) || other.callDuration == callDuration)&&(identical(other.connectionQuality, connectionQuality) || other.connectionQuality == connectionQuality)&&(identical(other.videoUpgradeRequested, videoUpgradeRequested) || other.videoUpgradeRequested == videoUpgradeRequested)&&(identical(other.videoUpgradeRequesterId, videoUpgradeRequesterId) || other.videoUpgradeRequesterId == videoUpgradeRequesterId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CallState&&(identical(other.status, status) || other.status == status)&&(identical(other.callId, callId) || other.callId == callId)&&(identical(other.conversationId, conversationId) || other.conversationId == conversationId)&&(identical(other.remoteUserId, remoteUserId) || other.remoteUserId == remoteUserId)&&(identical(other.remoteUserName, remoteUserName) || other.remoteUserName == remoteUserName)&&(identical(other.remoteUserAvatarUrl, remoteUserAvatarUrl) || other.remoteUserAvatarUrl == remoteUserAvatarUrl)&&(identical(other.callType, callType) || other.callType == callType)&&(identical(other.isCaller, isCaller) || other.isCaller == isCaller)&&(identical(other.isAudioEnabled, isAudioEnabled) || other.isAudioEnabled == isAudioEnabled)&&(identical(other.isVideoEnabled, isVideoEnabled) || other.isVideoEnabled == isVideoEnabled)&&(identical(other.isSpeakerOn, isSpeakerOn) || other.isSpeakerOn == isSpeakerOn)&&(identical(other.isFrontCamera, isFrontCamera) || other.isFrontCamera == isFrontCamera)&&(identical(other.isRemoteVideoEnabled, isRemoteVideoEnabled) || other.isRemoteVideoEnabled == isRemoteVideoEnabled)&&(identical(other.callDuration, callDuration) || other.callDuration == callDuration)&&(identical(other.connectionQuality, connectionQuality) || other.connectionQuality == connectionQuality)&&(identical(other.videoUpgradeRequested, videoUpgradeRequested) || other.videoUpgradeRequested == videoUpgradeRequested)&&(identical(other.videoUpgradeRequesterId, videoUpgradeRequesterId) || other.videoUpgradeRequesterId == videoUpgradeRequesterId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,isRemoteVideoEnabled,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
+  return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, isRemoteVideoEnabled: $isRemoteVideoEnabled, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
 }
 
 
@@ -1460,7 +1540,7 @@ abstract mixin class _$CallStateCopyWith<$Res> implements $CallStateCopyWith<$Re
   factory _$CallStateCopyWith(_CallState value, $Res Function(_CallState) _then) = __$CallStateCopyWithImpl;
 @override @useResult
 $Res call({
- CallStatus status, String? callId, String? conversationId, String? remoteUserId, String? remoteUserName, String? remoteUserAvatarUrl, CallType callType, bool isCaller, bool isAudioEnabled, bool isVideoEnabled, bool isSpeakerOn, bool isFrontCamera, Duration callDuration, ConnectionQuality connectionQuality, bool videoUpgradeRequested, String? videoUpgradeRequesterId, String? errorMessage
+ CallStatus status, String? callId, String? conversationId, String? remoteUserId, String? remoteUserName, String? remoteUserAvatarUrl, CallType callType, bool isCaller, bool isAudioEnabled, bool isVideoEnabled, bool isSpeakerOn, bool isFrontCamera, bool isRemoteVideoEnabled, Duration callDuration, ConnectionQuality connectionQuality, bool videoUpgradeRequested, String? videoUpgradeRequesterId, String? errorMessage
 });
 
 
@@ -1477,7 +1557,7 @@ class __$CallStateCopyWithImpl<$Res>
 
 /// Create a copy of CallState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? callId = freezed,Object? conversationId = freezed,Object? remoteUserId = freezed,Object? remoteUserName = freezed,Object? remoteUserAvatarUrl = freezed,Object? callType = null,Object? isCaller = null,Object? isAudioEnabled = null,Object? isVideoEnabled = null,Object? isSpeakerOn = null,Object? isFrontCamera = null,Object? callDuration = null,Object? connectionQuality = null,Object? videoUpgradeRequested = null,Object? videoUpgradeRequesterId = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? callId = freezed,Object? conversationId = freezed,Object? remoteUserId = freezed,Object? remoteUserName = freezed,Object? remoteUserAvatarUrl = freezed,Object? callType = null,Object? isCaller = null,Object? isAudioEnabled = null,Object? isVideoEnabled = null,Object? isSpeakerOn = null,Object? isFrontCamera = null,Object? isRemoteVideoEnabled = null,Object? callDuration = null,Object? connectionQuality = null,Object? videoUpgradeRequested = null,Object? videoUpgradeRequesterId = freezed,Object? errorMessage = freezed,}) {
   return _then(_CallState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as CallStatus,callId: freezed == callId ? _self.callId : callId // ignore: cast_nullable_to_non_nullable
@@ -1491,6 +1571,7 @@ as bool,isAudioEnabled: null == isAudioEnabled ? _self.isAudioEnabled : isAudioE
 as bool,isVideoEnabled: null == isVideoEnabled ? _self.isVideoEnabled : isVideoEnabled // ignore: cast_nullable_to_non_nullable
 as bool,isSpeakerOn: null == isSpeakerOn ? _self.isSpeakerOn : isSpeakerOn // ignore: cast_nullable_to_non_nullable
 as bool,isFrontCamera: null == isFrontCamera ? _self.isFrontCamera : isFrontCamera // ignore: cast_nullable_to_non_nullable
+as bool,isRemoteVideoEnabled: null == isRemoteVideoEnabled ? _self.isRemoteVideoEnabled : isRemoteVideoEnabled // ignore: cast_nullable_to_non_nullable
 as bool,callDuration: null == callDuration ? _self.callDuration : callDuration // ignore: cast_nullable_to_non_nullable
 as Duration,connectionQuality: null == connectionQuality ? _self.connectionQuality : connectionQuality // ignore: cast_nullable_to_non_nullable
 as ConnectionQuality,videoUpgradeRequested: null == videoUpgradeRequested ? _self.videoUpgradeRequested : videoUpgradeRequested // ignore: cast_nullable_to_non_nullable

@@ -176,12 +176,20 @@ class CallQualityMonitor {
             switch (quality) {
               case ConnectionQuality.excellent:
                 encoding.maxBitrate = 1500000; // 1.5 Mbps
+                encoding.maxFramerate = 24;
+                encoding.scaleResolutionDownBy = 1.0; // Native 480p
               case ConnectionQuality.good:
                 encoding.maxBitrate = 800000; // 800 kbps
+                encoding.maxFramerate = 24;
+                encoding.scaleResolutionDownBy = 1.0;
               case ConnectionQuality.fair:
                 encoding.maxBitrate = 400000; // 400 kbps
+                encoding.maxFramerate = 20;
+                encoding.scaleResolutionDownBy = 1.5; // ~320p
               case ConnectionQuality.poor:
                 encoding.maxBitrate = 150000; // 150 kbps
+                encoding.maxFramerate = 15;
+                encoding.scaleResolutionDownBy = 2.0; // 240p
             }
             await sender.setParameters(params);
           }

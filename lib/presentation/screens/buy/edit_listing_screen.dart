@@ -63,9 +63,9 @@ class _EditListingScreenState extends State<EditListingScreen> {
     _descriptionController.text = listing.description;
     _priceController.text = listing.priceTokens.toString();
     _existingImageUrls = List.from(listing.images);
-    if (listing.location?.suburb != null) {
+    if (listing.locationData?.suburb != null) {
       _locationController.text =
-          '${listing.location!.suburb ?? ''}, ${listing.location!.city ?? ''}';
+          '${listing.locationData!.suburb ?? ''}, ${listing.locationData!.city ?? ''}';
     }
     setState(() => _isLoading = false);
   }
@@ -435,9 +435,8 @@ class _EditListingScreenState extends State<EditListingScreen> {
     );
   }
 
-  String _categoryDisplayName(String category) {
-    final cat = MarketplaceCategoryX.tryFromString(category);
-    return cat?.displayName ?? category;
+  String _categoryDisplayName(MarketplaceCategory category) {
+    return category.displayName;
   }
 
   // ─── Image Editor ──────────────────────────────────────────────────

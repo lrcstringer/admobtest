@@ -15,7 +15,7 @@ class SavedListingDatasource {
 
   /// Get all saved listings, ordered by savedAt descending (newest first).
   Future<List<domain.SavedListing>> getAll() async {
-    final rows = await (_db.select(_db.savedListings)
+    final rows = await (_db.select(_db.localSavedListings)
           ..orderBy([(t) => OrderingTerm.desc(t.savedAt)]))
         .get();
     return rows.map(_rowToEntity).toList();
@@ -23,7 +23,7 @@ class SavedListingDatasource {
 
   /// Check if a listing is saved.
   Future<bool> isSaved(String listingId) async {
-    final row = await (_db.select(_db.savedListings)
+    final row = await (_db.select(_db.localSavedListings)
           ..where((t) => t.listingId.equals(listingId)))
         .getSingleOrNull();
     return row != null;
@@ -31,14 +31,14 @@ class SavedListingDatasource {
 
   /// Get all saved listing IDs (for quick lookups).
   Future<Set<String>> getSavedIds() async {
-    final rows = await _db.select(_db.savedListings).get();
+    final rows = await _db.select(_db.localSavedListings).get();
     return rows.map((r) => r.listingId).toSet();
   }
 
   /// Save a listing.
   Future<void> save(domain.SavedListing listing) async {
-    await _db.into(_db.savedListings).insertOnConflictUpdate(
-          SavedListingsCompanion.insert(
+    await _db.into(_db.localSavedListings).insertOnConflictUpdate(
+          LocalSavedListingsCompanion.insert(
             listingId: listing.listingId,
             savedAt: listing.savedAt,
             listingTitle: Value(listing.listingTitle),
@@ -52,7 +52,7 @@ class SavedListingDatasource {
 
   /// Remove a saved listing.
   Future<void> remove(String listingId) async {
-    await (_db.delete(_db.savedListings)
+    await (_db.delete(_db.localSavedListings)
           ..where((t) => t.listingId.equals(listingId)))
         .go();
   }
@@ -72,12 +72,12 @@ class SavedListingDatasource {
   /// Batch replace all saved listings (used during sync from Firestore).
   Future<void> replaceAll(List<domain.SavedListing> listings) async {
     await _db.transaction(() async {
-      await _db.delete(_db.savedListings).go();
+      await _db.delete(_db.localSavedListings).go();
       await _db.batch((batch) {
         batch.insertAll(
-          _db.savedListings,
+          _db.localSavedListings,
           listings
-              .map((l) => SavedListingsCompanion.insert(
+              .map((l) => LocalSavedListingsCompanion.insert(
                     listingId: l.listingId,
                     savedAt: l.savedAt,
                     listingTitle: Value(l.listingTitle),
@@ -94,13 +94,13 @@ class SavedListingDatasource {
 
   /// Count saved listings.
   Future<int> count() async {
-    final countExp = _db.savedListings.listingId.count();
-    final query = _db.selectOnly(_db.savedListings)..addColumns([countExp]);
+    final countExp = _db.localSavedListings.listingId.count();
+    final query = _db.selectOnly(_db.localSavedListings)..addColumns([countExp]);
     final row = await query.getSingle();
     return row.read(countExp) ?? 0;
   }
 
-  domain.SavedListing _rowToEntity(SavedListing row) {
+  domain.SavedListing _rowToEntity(LocalSavedListing row) {
     return domain.SavedListing(
       listingId: row.listingId,
       savedAt: row.savedAt,

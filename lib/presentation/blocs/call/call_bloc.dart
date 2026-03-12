@@ -49,6 +49,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   StreamSubscription<ConnectionQuality>? _qualitySub;
   StreamSubscription<RTCSessionDescription>? _sdpSub;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  StreamSubscription<bool>? _remoteVideoSub;
   Timer? _callTimer;
   Timer? _heartbeatTimer;
   Timer? _ringTimer;
@@ -118,6 +119,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     on<_QualityChanged>(_onQualityChanged);
     on<_PerformIceRestart>(_onPerformIceRestart);
     on<_NetworkChanged>(_onNetworkChanged);
+    on<_RemoteVideoStateChanged>(_onRemoteVideoStateChanged);
   }
 
   // ── TURN Retry Helper ──
@@ -278,6 +280,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
         onError: (e) =>
             debugPrint('CallBloc: onIceConnectionState error: $e'),
+      );
+
+      // Listen for remote video track mute/unmute
+      _remoteVideoSub = _webRtcService!.onRemoteVideoEnabled.listen(
+        (enabled) => add(CallEvent.remoteVideoStateChanged(enabled: enabled)),
       );
 
       // Ring timeout: 30 seconds
@@ -521,6 +528,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
             debugPrint('CallBloc: onIceConnectionState error: $e'),
       );
 
+      // Listen for remote video track mute/unmute
+      _remoteVideoSub = _webRtcService!.onRemoteVideoEnabled.listen(
+        (enabled) => add(CallEvent.remoteVideoStateChanged(enabled: enabled)),
+      );
+
       debugPrint('CallBloc: [accept] setup complete — waiting for ICE');
     } catch (e, stack) {
       debugPrint('CallBloc: [accept] FAILED: $e');
@@ -621,8 +633,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     ));
   }
 
-  void _onToggleVideo(_ToggleVideo event, Emitter<CallState> emit) {
-    _webRtcService?.toggleVideo();
+  Future<void> _onToggleVideo(
+    _ToggleVideo event,
+    Emitter<CallState> emit,
+  ) async {
+    await _webRtcService?.toggleVideo();
     emit(state.copyWith(
       isVideoEnabled:
           _webRtcService?.isVideoEnabled ?? state.isVideoEnabled,
@@ -921,6 +936,15 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     emit(state.copyWith(connectionQuality: event.quality));
   }
 
+  // ── Remote Video State ──
+
+  void _onRemoteVideoStateChanged(
+    _RemoteVideoStateChanged event,
+    Emitter<CallState> emit,
+  ) {
+    emit(state.copyWith(isRemoteVideoEnabled: event.enabled));
+  }
+
   // ── ICE Restart (runs inside BLoC event queue — safe from races) ──
 
   Future<void> _onPerformIceRestart(
@@ -1000,6 +1024,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _qualitySub = null;
     await _connectivitySub?.cancel();
     _connectivitySub = null;
+    await _remoteVideoSub?.cancel();
+    _remoteVideoSub = null;
 
     _negotiationHandler?.dispose();
     _negotiationHandler = null;

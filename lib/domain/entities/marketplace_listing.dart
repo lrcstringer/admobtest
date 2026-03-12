@@ -56,6 +56,21 @@ class MarketplaceListing with _$MarketplaceListing {
   /// Whether listing is paused
   bool get isPaused => status == ListingStatus.paused;
 
+  /// Days until listing expires (null if no expiry set)
+  int? get daysUntilExpiry {
+    if (expiresAt == null) return null;
+    return expiresAt!.difference(DateTime.now()).inDays;
+  }
+
+  /// Whether listing expires within 7 days
+  bool get isExpiringSoon {
+    final days = daysUntilExpiry;
+    return days != null && days <= 7 && days >= 0;
+  }
+
+  /// Whether listing has been renewed more than 3 times without fresh images
+  bool get isStaleRenewal => renewalCount >= 3;
+
   /// Formatted token price
   String get formattedPrice => '$priceTokens tokens';
 

@@ -1381,11 +1381,10 @@ class _BrandStorefrontBody extends StatelessWidget {
                           loc.name,
                           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
-                        if (loc.address != null)
-                          Text(
-                            loc.address!,
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                          ),
+                        Text(
+                          loc.address,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
