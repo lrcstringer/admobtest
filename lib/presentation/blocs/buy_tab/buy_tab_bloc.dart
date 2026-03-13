@@ -240,7 +240,7 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
           errorMessage: failure.displayMessage,
         ));
       },
-      (_) {},
+      (_) => emit(state.copyWith(errorMessage: null)),
     );
   }
 
@@ -265,7 +265,7 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
           errorMessage: failure.displayMessage,
         ));
       },
-      (_) {},
+      (_) => emit(state.copyWith(errorMessage: null)),
     );
   }
 }
