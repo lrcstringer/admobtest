@@ -271,8 +271,8 @@ class BrandStorefrontBloc
       },
       (isFollowing) => emit(state.copyWith(
         isFollowing: isFollowing,
-        // Server is the source of truth; if unfollowed, clear followedAt
-        followedAt: isFollowing ? state.followedAt : null,
+        // If now following, keep the optimistic timestamp; if unfollowed, clear it
+        followedAt: isFollowing ? (originalFollowedAt ?? state.followedAt) : null,
         isTogglingFollow: false,
       )),
     );

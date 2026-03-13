@@ -61,16 +61,29 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   Widget build(BuildContext context) {
     return BlocConsumer<BrandStorefrontBloc, BrandStorefrontState>(
       listenWhen: (prev, curr) =>
-          prev.errorMessage != curr.errorMessage &&
-          curr.errorMessage != null &&
-          curr.storefront != null,
+          (prev.errorMessage != curr.errorMessage &&
+              curr.errorMessage != null &&
+              curr.storefront != null) ||
+          (prev.lastClaimedCouponCode != curr.lastClaimedCouponCode &&
+              curr.lastClaimedCouponCode != null),
       listener: (context, state) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(state.errorMessage!),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        if (state.lastClaimedCouponCode != null &&
+            state.errorMessage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Coupon claimed: ${state.lastClaimedCouponCode}'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        } else if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
       },
       builder: (context, state) {
         final storefront = state.storefront;
