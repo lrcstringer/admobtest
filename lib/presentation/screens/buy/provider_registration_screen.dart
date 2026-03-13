@@ -89,7 +89,7 @@ class _ProviderRegistrationBody extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.symmetric(horizontal: 2),
               decoration: BoxDecoration(
-                color: isActive ? AppColors.primary : AppColors.buyCardBorder,
+                color: isActive ? AppColors.buyMarketplaceAccent : AppColors.buyCardBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -253,10 +253,10 @@ class _StepCategoryServices extends StatelessWidget {
               onSelected: (_) => context
                   .read<ProviderRegistrationBloc>()
                   .add(ProviderRegistrationEvent.updateCategory(cat)),
-              selectedColor: AppColors.primary.withValues(alpha: 0.2),
+              selectedColor: AppColors.buyMarketplaceAccent.withValues(alpha: 0.2),
               backgroundColor: AppColors.buyCard,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : AppColors.buyTextPrimary,
+                color: isSelected ? AppColors.buyMarketplaceAccent : AppColors.buyTextPrimary,
               ),
             );
           }).toList(),
@@ -312,12 +312,12 @@ class _StepConfirm extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.1),
+            color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline, color: AppColors.secondary, size: 18),
+              Icon(Icons.info_outline, color: AppColors.buyMarketplaceAccent, size: 18),
               SizedBox(width: 8),
               Expanded(
                 child: Text(

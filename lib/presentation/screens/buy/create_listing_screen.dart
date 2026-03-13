@@ -154,11 +154,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                               onSelected: (_) =>
                                   setState(() => _selectedCategory = cat),
                               selectedColor:
-                                  AppColors.primary.withValues(alpha: 0.2),
+                                  AppColors.buyMarketplaceAccent.withValues(alpha: 0.2),
                               backgroundColor: AppColors.buyCard,
                               labelStyle: TextStyle(
                                 color: isSelected
-                                    ? AppColors.primary
+                                    ? AppColors.buyMarketplaceAccent
                                     : AppColors.buyTextPrimary,
                               ),
                             );

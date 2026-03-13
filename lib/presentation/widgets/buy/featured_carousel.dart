@@ -518,7 +518,7 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
           width: isActive ? 20 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : AppColors.buyTextTertiary,
+            color: isActive ? AppColors.buyMarketplaceAccent : AppColors.buyTextTertiary,
             borderRadius: BorderRadius.circular(3),
           ),
         );

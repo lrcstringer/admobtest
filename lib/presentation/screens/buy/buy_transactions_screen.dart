@@ -59,7 +59,7 @@ class _BuyTransactionsScreenState extends State<BuyTransactionsScreen> {
                       onTimeout: () => bloc.state,
                     );
               },
-              color: AppColors.primary,
+              color: AppColors.buyMarketplaceAccent,
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount:
@@ -289,7 +289,7 @@ class _BuyTransactionsScreenState extends State<BuyTransactionsScreen> {
       case PurchaseStatus.failed:
         return AppColors.buyError;
       case PurchaseStatus.refunded:
-        return AppColors.secondary;
+        return AppColors.buyMarketplaceAccent;
     }
   }
 }

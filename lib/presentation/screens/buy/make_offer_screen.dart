@@ -156,7 +156,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent),
                   ),
                 ),
                 validator: (value) {
@@ -194,7 +194,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent),
                   ),
                 ),
               ),

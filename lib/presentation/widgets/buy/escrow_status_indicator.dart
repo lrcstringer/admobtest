@@ -53,7 +53,7 @@ class EscrowStatusIndicator extends StatelessWidget {
         label = 'Refunding';
         break;
       case OrderStatus.refunded:
-        color = AppColors.secondary;
+        color = AppColors.buyMarketplaceAccent;
         icon = Icons.replay_rounded;
         label = 'Refunded';
         break;

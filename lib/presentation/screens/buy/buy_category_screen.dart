@@ -305,13 +305,13 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
       height: 48,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.primary.withValues(alpha: 0.15),
+        color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.15),
       ),
       child: Center(
         child: Text(
           provider.initials,
           style: const TextStyle(
-            color: AppColors.primary,
+            color: AppColors.buyMarketplaceAccent,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -477,7 +477,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: AppColors.primary),
+                          const BorderSide(color: AppColors.buyMarketplaceAccent),
                     ),
                   ),
                   keyboardType: _isNumericCategory(
@@ -506,7 +506,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.qr_code_scanner,
-                      color: AppColors.secondary),
+                      color: AppColors.buyMarketplaceAccent),
                   onPressed: () => _openQrScanner(context),
                   tooltip: 'Scan meter barcode',
                 ),
@@ -556,7 +556,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           width: 20,
           height: 20,
           child: CircularProgressIndicator(
-              strokeWidth: 2, color: AppColors.secondary),
+              strokeWidth: 2, color: AppColors.buyMarketplaceAccent),
         ),
       );
     }
@@ -597,7 +597,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             color: AppColors.buyCard,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.buyCardBorder.withValues(alpha: 0.3),
+              color: isSelected ? AppColors.buyMarketplaceAccent : AppColors.buyCardBorder.withValues(alpha: 0.3),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -681,7 +681,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
               ),
               if (isSelected) ...[
                 const SizedBox(width: 12),
-                const Icon(Icons.check_circle, color: AppColors.primary),
+                const Icon(Icons.check_circle, color: AppColors.buyMarketplaceAccent),
               ],
             ],
           ),
@@ -736,7 +736,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             ? 'Processing...'
             : 'Buy for ${state.selectedProduct!.priceTokens} tokens',
       ),
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.buyMarketplaceAccent,
       foregroundColor: Colors.white,
     );
   }

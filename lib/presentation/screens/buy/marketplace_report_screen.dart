@@ -114,13 +114,13 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                     const EdgeInsets.all(AppSpacing.md),
                                 decoration: BoxDecoration(
                                   color: _selectedReason == reason
-                                      ? AppColors.primary
+                                      ? AppColors.buyMarketplaceAccent
                                           .withValues(alpha: 0.1)
                                       : AppColors.buyCard,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: _selectedReason == reason
-                                        ? AppColors.primary
+                                        ? AppColors.buyMarketplaceAccent
                                         : AppColors.buyCardBorder,
                                     width: _selectedReason == reason
                                         ? 1.5
@@ -134,7 +134,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                           ? Icons.radio_button_checked
                                           : Icons.radio_button_unchecked,
                                       color: _selectedReason == reason
-                                          ? AppColors.primary
+                                          ? AppColors.buyMarketplaceAccent
                                           : AppColors.buyTextSecondary,
                                       size: 20,
                                     ),
@@ -143,7 +143,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                       reason,
                                       style: TextStyle(
                                         color: _selectedReason == reason
-                                            ? AppColors.primary
+                                            ? AppColors.buyMarketplaceAccent
                                             : AppColors.buyTextPrimary,
                                         fontSize: 14,
                                       ),

@@ -67,9 +67,9 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
               controller: _tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
-              labelColor: AppColors.primary,
+              labelColor: AppColors.buyMarketplaceAccent,
               unselectedLabelColor: AppColors.buyTextSecondary,
-              indicatorColor: AppColors.primary,
+              indicatorColor: AppColors.buyMarketplaceAccent,
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: const TextStyle(
                 fontSize: 13,
@@ -158,7 +158,7 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/buy/marketplace/create-listing'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.buyMarketplaceAccent,
         icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
         label: const Text(
           'Sell',

@@ -426,8 +426,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: const Text('Chat with Brand'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: AppColors.buyMarketplaceAccent,
+                  side: const BorderSide(color: AppColors.buyMarketplaceAccent),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -447,7 +447,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     switch (badge) {
       case TrustBadge.verified:
         icon = Icons.verified;
-        color = AppColors.primary;
+        color = AppColors.buyMarketplaceAccent;
       case TrustBadge.topSeller:
         icon = Icons.emoji_events;
         color = AppColors.gold;
@@ -770,7 +770,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.secondary,
+                            color: AppColors.buyMarketplaceAccent,
                           ),
                         ),
                         const Spacer(),
@@ -991,13 +991,13 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 CircleAvatar(
                   radius: 14,
                   backgroundColor:
-                      AppColors.secondary.withValues(alpha: 0.15),
+                      AppColors.buyMarketplaceAccent.withValues(alpha: 0.15),
                   child: Text(
                     review.userName.isNotEmpty
                         ? review.userName[0].toUpperCase()
                         : '?',
                     style: const TextStyle(
-                      color: AppColors.secondary,
+                      color: AppColors.buyMarketplaceAccent,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1931,7 +1931,7 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary,
+                                      color: AppColors.buyMarketplaceAccent,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: const Text(
@@ -2128,7 +2128,7 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
                 child: Text(
                   'Show more reviews (${(allVisible.length - _visibleCount).clamp(0, allVisible.length)} remaining)',
                   style: const TextStyle(
-                    color: AppColors.primary,
+                    color: AppColors.buyMarketplaceAccent,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -2149,8 +2149,8 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
                 icon: const Icon(Icons.rate_review_outlined, size: 18),
                 label: const Text('Write a Review'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: AppColors.buyMarketplaceAccent,
+                  side: const BorderSide(color: AppColors.buyMarketplaceAccent),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -2298,7 +2298,7 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.primary),
+                    borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent),
                   ),
                 ),
               ),
@@ -2335,10 +2335,10 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                               ? _onSubmit
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: AppColors.buyMarketplaceAccent,
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
-                                AppColors.primary.withValues(alpha: 0.4),
+                                AppColors.buyMarketplaceAccent.withValues(alpha: 0.4),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius:

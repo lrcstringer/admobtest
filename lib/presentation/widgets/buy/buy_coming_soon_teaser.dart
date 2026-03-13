@@ -35,7 +35,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                   color: AppColors.buyCard,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppColors.secondary, size: 24),
+                child: Icon(icon, color: AppColors.buyMarketplaceAccent, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(

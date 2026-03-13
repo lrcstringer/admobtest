@@ -88,7 +88,7 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
     }
 
     final isUrgent = _remaining.inHours < 24;
-    final color = isUrgent ? AppColors.buyError : AppColors.primary;
+    final color = isUrgent ? AppColors.buyError : AppColors.buyGroupBuyAccent;
 
     return Text(
       _formatDuration(_remaining),

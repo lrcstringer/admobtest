@@ -54,8 +54,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
         backgroundColor: AppColors.buyCard,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
+          indicatorColor: AppColors.buyMarketplaceAccent,
+          labelColor: AppColors.buyMarketplaceAccent,
           unselectedLabelColor: AppColors.buyTextSecondary,
           tabs: const [
             Tab(text: 'My Purchases'),
@@ -245,7 +245,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       case OrderStatus.pending:
         color = AppColors.buyTextSecondary;
       case OrderStatus.escrowed:
-        color = AppColors.secondary;
+        color = AppColors.buyMarketplaceAccent;
       case OrderStatus.fulfilled:
         color = AppColors.buyWarning;
       case OrderStatus.completed:
@@ -255,7 +255,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       case OrderStatus.refunding:
         color = AppColors.buyWarning;
       case OrderStatus.refunded:
-        color = AppColors.secondary;
+        color = AppColors.buyMarketplaceAccent;
       case OrderStatus.cancelled:
         color = AppColors.buyTextTertiary;
       case OrderStatus.failed:

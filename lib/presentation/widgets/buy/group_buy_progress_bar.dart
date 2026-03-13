@@ -42,7 +42,7 @@ class GroupBuyProgressBar extends StatelessWidget {
                 value: value,
                 minHeight: height,
                 backgroundColor: AppColors.buyCardBorder,
-                valueColor: const AlwaysStoppedAnimation(AppColors.buySuccess),
+                valueColor: const AlwaysStoppedAnimation(AppColors.buyGroupBuyAccent),
               );
             },
           ),

@@ -266,7 +266,7 @@ class _MarketplaceProviderProfileScreenState
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, color: AppColors.secondary, size: 20),
+          Icon(icon, color: AppColors.buyMarketplaceAccent, size: 20),
           const SizedBox(height: 4),
           Text(
             value,

@@ -124,7 +124,7 @@ class BuySuccessScreen extends StatelessWidget {
                           valueStyle: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
-                            color: AppColors.primary,
+                            color: AppColors.buyMarketplaceAccent,
                           ),
                         ),
                         const Divider(height: 24),
@@ -225,7 +225,7 @@ class BuySuccessScreen extends StatelessWidget {
 
   Widget _buildVoucherCard(BuildContext context, Purchase purchase) {
     return Card(
-      color: AppColors.primary.withValues(alpha: 0.05),
+      color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.05),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -235,7 +235,7 @@ class BuySuccessScreen extends StatelessWidget {
               children: [
                 Icon(
                   _getVoucherIcon(purchase.category),
-                  color: AppColors.primary,
+                  color: AppColors.buyMarketplaceAccent,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -256,7 +256,7 @@ class BuySuccessScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [

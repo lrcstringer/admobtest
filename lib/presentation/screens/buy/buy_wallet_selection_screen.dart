@@ -337,11 +337,11 @@ class _WalletCard extends StatelessWidget {
           color: effectiveDisabled
               ? AppColors.chatSurface.withValues(alpha: 0.5)
               : isSelected
-                  ? AppColors.primary.withValues(alpha: 0.08)
+                  ? AppColors.buyMarketplaceAccent.withValues(alpha: 0.08)
                   : AppColors.chatSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.buyCardBorder,
+            color: isSelected ? AppColors.buyMarketplaceAccent : AppColors.buyCardBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -353,7 +353,7 @@ class _WalletCard extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.primary.withValues(alpha: 0.15)
+                    ? AppColors.buyMarketplaceAccent.withValues(alpha: 0.15)
                     : AppColors.buyCardBorder.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -365,7 +365,7 @@ class _WalletCard extends StatelessWidget {
                 color: effectiveDisabled
                     ? AppColors.buyTextSecondary
                     : isSelected
-                        ? AppColors.primary
+                        ? AppColors.buyMarketplaceAccent
                         : AppColors.buyTextPrimary,
               ),
             ),
@@ -384,7 +384,7 @@ class _WalletCard extends StatelessWidget {
                       color: effectiveDisabled
                           ? AppColors.buyTextSecondary
                           : isSelected
-                              ? AppColors.primary
+                              ? AppColors.buyMarketplaceAccent
                               : null,
                     ),
                   ),
@@ -429,7 +429,7 @@ class _WalletCard extends StatelessWidget {
               const SizedBox(width: 8),
               Icon(
                 Icons.check_circle,
-                color: AppColors.primary,
+                color: AppColors.buyMarketplaceAccent,
                 size: 22,
               ),
             ],

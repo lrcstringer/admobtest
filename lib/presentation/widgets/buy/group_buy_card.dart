@@ -28,7 +28,7 @@ class GroupBuyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isBrand = groupBuy.isBrandSponsored;
-    final accentColor = isBrand ? AppColors.gold : AppColors.secondary;
+    final accentColor = isBrand ? AppColors.gold : AppColors.buyGroupBuyAccent;
     final isTerminal = groupBuy.status.isTerminal;
 
     return GestureDetector(
@@ -190,7 +190,7 @@ class GroupBuyCard extends StatelessWidget {
                           gradient: LinearGradient(
                             colors: isBrand
                                 ? AppColors.tertiaryGradient
-                                : AppColors.secondaryGradient,
+                                : [AppColors.buyGroupBuyAccent, Color(0xFF10B981)],
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),

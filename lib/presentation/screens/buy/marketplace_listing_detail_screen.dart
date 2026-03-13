@@ -111,13 +111,13 @@ class _MarketplaceListingDetailScreenState
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           listing.category.displayName,
                             style: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.buyMarketplaceAccent,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -489,7 +489,7 @@ class _MarketplaceListingDetailScreenState
             ListTile(
               leading: const Icon(
                 Icons.chat_bubble_outline,
-                color: AppColors.primary,
+                color: AppColors.buyMarketplaceAccent,
               ),
               title: const Text(
                 'Share to Chat',

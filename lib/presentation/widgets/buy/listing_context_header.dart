@@ -73,7 +73,7 @@ class ListingContextHeader extends StatelessWidget {
                   Text(
                     formattedPrice,
                     style: const TextStyle(
-                      color: AppColors.secondary,
+                      color: AppColors.buyMarketplaceAccent,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),

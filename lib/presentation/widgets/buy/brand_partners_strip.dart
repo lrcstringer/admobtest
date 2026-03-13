@@ -52,7 +52,7 @@ class _BrandHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brandColor = brand.brandColor != null
         ? AppColors.parseHex(brand.brandColor!)
-        : AppColors.primary;
+        : AppColors.buyMarketplaceAccent;
 
     // Determine hero style — use accentColor/heroStyle if available,
     // otherwise fall back to brandColor gradient

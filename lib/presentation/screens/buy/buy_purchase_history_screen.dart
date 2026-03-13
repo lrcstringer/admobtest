@@ -74,7 +74,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
                       onTimeout: () => bloc.state,
                     );
               },
-              color: AppColors.primary,
+              color: AppColors.buyMarketplaceAccent,
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: state.history.length,
@@ -218,7 +218,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
       case PurchaseStatus.failed:
         return AppColors.buyError;
       case PurchaseStatus.refunded:
-        return AppColors.secondary;
+        return AppColors.buyMarketplaceAccent;
     }
   }
 

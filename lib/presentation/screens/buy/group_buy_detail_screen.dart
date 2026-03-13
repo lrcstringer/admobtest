@@ -122,7 +122,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
     }
 
     final isBrand = groupBuy.isBrandSponsored;
-    final accentColor = isBrand ? AppColors.gold : AppColors.secondary;
+    final accentColor = isBrand ? AppColors.gold : AppColors.buyGroupBuyAccent;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -154,13 +154,13 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: AppColors.buyGroupBuyAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     groupBuy.category!,
                     style: const TextStyle(
-                      color: AppColors.primary,
+                      color: AppColors.buyGroupBuyAccent,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -195,19 +195,19 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.1),
+                color: AppColors.buyGroupBuyAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.local_shipping_outlined,
-                      size: 14, color: AppColors.secondary),
+                      size: 14, color: AppColors.buyGroupBuyAccent),
                   const SizedBox(width: 4),
                   Text(
                     'Delivery: ${groupBuy.deliveryStatus!.replaceAll('_', ' ')}',
                     style: const TextStyle(
-                      color: AppColors.secondary,
+                      color: AppColors.buyGroupBuyAccent,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -280,7 +280,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                   icon: const Icon(Icons.schedule_send, size: 16),
                   label: const Text('Extend deadline'),
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary,
+                    foregroundColor: AppColors.buyGroupBuyAccent,
                     textStyle: const TextStyle(fontSize: 13),
                   ),
                 ),
@@ -582,7 +582,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
               child: Text(
                 'View linked listing',
                 style: TextStyle(
-                  color: AppColors.secondary,
+                  color: AppColors.buyGroupBuyAccent,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -682,24 +682,24 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
         padding: const EdgeInsets.all(AppSpacing.sm),
         decoration: BoxDecoration(
           color: isCurrentUser
-              ? AppColors.primary.withValues(alpha: 0.05)
+              ? AppColors.buyGroupBuyAccent.withValues(alpha: 0.05)
               : AppColors.buyCard,
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
           border: isCurrentUser
-              ? Border.all(color: AppColors.primary.withValues(alpha: 0.2))
+              ? Border.all(color: AppColors.buyGroupBuyAccent.withValues(alpha: 0.2))
               : null,
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppColors.secondary.withValues(alpha: 0.15),
+              backgroundColor: AppColors.buyGroupBuyAccent.withValues(alpha: 0.15),
               child: Text(
                 contribution.userName.isNotEmpty
                     ? contribution.userName[0].toUpperCase()
                     : '?',
                 style: const TextStyle(
-                  color: AppColors.secondary,
+                  color: AppColors.buyGroupBuyAccent,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -724,7 +724,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                         const Text(
                           '(You)',
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: AppColors.buyGroupBuyAccent,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1124,7 +1124,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: const BorderSide(color: AppColors.buyGroupBuyAccent),
                     ),
                   ),
                 ),
@@ -1148,7 +1148,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      borderSide: const BorderSide(color: AppColors.primary),
+                      borderSide: const BorderSide(color: AppColors.buyGroupBuyAccent),
                     ),
                   ),
                   items: [
@@ -1198,7 +1198,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                          borderSide: const BorderSide(color: AppColors.primary),
+                          borderSide: const BorderSide(color: AppColors.buyGroupBuyAccent),
                         ),
                       ),
                       items: groupBuy.addresses
@@ -1229,7 +1229,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                          borderSide: const BorderSide(color: AppColors.primary),
+                          borderSide: const BorderSide(color: AppColors.buyGroupBuyAccent),
                         ),
                       ),
                     ),
@@ -1424,7 +1424,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
             ListTile(
               leading: const Icon(
                 Icons.chat_bubble_outline,
-                color: AppColors.primary,
+                color: AppColors.buyGroupBuyAccent,
               ),
               title: const Text(
                 'Share to Chat',

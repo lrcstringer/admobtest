@@ -151,7 +151,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
                       : Icons.check_box_outline_blank,
                   size: 20,
                   color: allSelected
-                      ? AppColors.primary
+                      ? AppColors.buyGroupBuyAccent
                       : AppColors.buyTextTertiary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -190,7 +190,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
             ),
             controlAffinity: ListTileControlAffinity.leading,
             dense: true,
-            activeColor: AppColors.primary,
+            activeColor: AppColors.buyGroupBuyAccent,
             contentPadding: const EdgeInsets.only(
               left: AppSpacing.xl,
               right: AppSpacing.md,

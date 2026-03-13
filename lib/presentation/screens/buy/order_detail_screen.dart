@@ -242,27 +242,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(AppSpacing.md),
                             decoration: BoxDecoration(
-                              color: AppColors.secondary
+                              color: AppColors.buyMarketplaceAccent
                                   .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Row(
                               children: [
                                 Icon(Icons.chat_outlined,
-                                    color: AppColors.secondary, size: 18),
+                                    color: AppColors.buyMarketplaceAccent, size: 18),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     'View conversation',
                                     style: TextStyle(
-                                      color: AppColors.secondary,
+                                      color: AppColors.buyMarketplaceAccent,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),
                                 Icon(Icons.chevron_right,
-                                    color: AppColors.secondary, size: 18),
+                                    color: AppColors.buyMarketplaceAccent, size: 18),
                               ],
                             ),
                           ),
@@ -471,10 +471,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.secondary.withValues(alpha: 0.05),
+          color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.secondary.withValues(alpha: 0.2),
+            color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.2),
           ),
         ),
         child: Column(
@@ -483,7 +483,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             const Row(
               children: [
                 Icon(Icons.handshake_outlined,
-                    color: AppColors.secondary, size: 18),
+                    color: AppColors.buyMarketplaceAccent, size: 18),
                 SizedBox(width: 8),
                 Text(
                   'Offer History',
@@ -600,7 +600,7 @@ class _OfferStep extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isFirst
                       ? AppColors.buyTextSecondary
-                      : AppColors.secondary,
+                      : AppColors.buyMarketplaceAccent,
                   shape: BoxShape.circle,
                 ),
               ),

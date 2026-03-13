@@ -44,7 +44,7 @@ class ShareableBuyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accentColor =
-        isGroupBuy ? AppColors.secondary : AppColors.tokenGold;
+        isGroupBuy ? AppColors.buyGroupBuyAccent : AppColors.tokenGold;
 
     return GestureDetector(
       onTap: onTap,

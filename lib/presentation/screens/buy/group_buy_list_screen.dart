@@ -72,9 +72,9 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
             color: AppColors.buyCard,
             child: TabBar(
               controller: _tabController,
-              labelColor: AppColors.primary,
+              labelColor: AppColors.buyGroupBuyAccent,
               unselectedLabelColor: AppColors.buyTextSecondary,
-              indicatorColor: AppColors.primary,
+              indicatorColor: AppColors.buyGroupBuyAccent,
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: const TextStyle(
                 fontSize: 13,
@@ -101,7 +101,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/buy/group-buys/create'),
-        backgroundColor: AppColors.secondary,
+        backgroundColor: AppColors.buyGroupBuyAccent,
         foregroundColor: AppColors.textOnSecondary,
         icon: const Icon(Icons.lightbulb_outline),
         label: const Text('Suggest a Deal'),
@@ -145,7 +145,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
                   onTimeout: () => stream.first,
                 );
           },
-          color: AppColors.primary,
+          color: AppColors.buyGroupBuyAccent,
           child: Column(
             children: [
               // Filter chips
@@ -235,7 +235,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
                   onTimeout: () => stream.first,
                 );
           },
-          color: AppColors.primary,
+          color: AppColors.buyGroupBuyAccent,
           child: ListView.builder(
             padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: 80),
             itemCount: state.myGroupBuys.length,
@@ -355,17 +355,17 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.15)
+              ? AppColors.buyGroupBuyAccent.withValues(alpha: 0.15)
               : AppColors.buyCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.buyCardBorder,
+            color: isSelected ? AppColors.buyGroupBuyAccent : AppColors.buyCardBorder,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.buyTextSecondary,
+            color: isSelected ? AppColors.buyGroupBuyAccent : AppColors.buyTextSecondary,
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),

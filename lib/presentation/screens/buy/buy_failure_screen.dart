@@ -139,7 +139,7 @@ class BuyFailureScreen extends StatelessWidget {
                           Icon(
                             Icons.help_outline,
                             size: 20,
-                            color: AppColors.primary,
+                            color: AppColors.buyMarketplaceAccent,
                           ),
                           SizedBox(width: 8),
                           Text(
@@ -211,7 +211,7 @@ class BuyFailureScreen extends StatelessWidget {
                     'Contact Support',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.primary,
+                      color: AppColors.buyMarketplaceAccent,
                     ),
                   ),
                 ),

@@ -79,7 +79,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                     onTimeout: () => bloc.state,
                   );
             },
-            color: AppColors.primary,
+            color: AppColors.buyMarketplaceAccent,
             backgroundColor: AppColors.buyCard,
             child: CustomScrollView(
               controller: _scrollController,

@@ -140,7 +140,7 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'monospace',
-                color: AppColors.primary,
+                color: AppColors.buyMarketplaceAccent,
               ),
             ),
             const SizedBox(height: 12),

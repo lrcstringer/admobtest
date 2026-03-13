@@ -83,24 +83,24 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: AppColors.secondary.withValues(alpha: 0.08),
+                      color: AppColors.buyGroupBuyAccent.withValues(alpha: 0.08),
                       borderRadius:
                           BorderRadius.circular(AppSpacing.radiusMd),
                       border: Border.all(
-                        color: AppColors.secondary.withValues(alpha: 0.2),
+                        color: AppColors.buyGroupBuyAccent.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.lightbulb_outline,
-                            color: AppColors.secondary, size: 20),
+                            color: AppColors.buyGroupBuyAccent, size: 20),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
                             'Suggest a product or deal you\'d like to buy together. '
                             'Our team will review it and set up a group buy if there\'s enough interest!',
                             style: TextStyle(
-                              color: AppColors.secondary,
+                              color: AppColors.buyGroupBuyAccent,
                               fontSize: 12,
                             ),
                           ),
@@ -186,7 +186,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                       ),
                     ),
                     contentPadding: EdgeInsets.zero,
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: AppColors.buyGroupBuyAccent,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
@@ -246,7 +246,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-          borderSide: const BorderSide(color: AppColors.primary),
+          borderSide: const BorderSide(color: AppColors.buyGroupBuyAccent),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
