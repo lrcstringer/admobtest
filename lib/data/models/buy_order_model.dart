@@ -287,6 +287,8 @@ class BuyOrderModel with _$BuyOrderModel {
 
 OrderStatus _parseOrderStatus(String? value) {
   switch (value) {
+    case 'pending':
+      return OrderStatus.pending;
     case 'escrowed':
       return OrderStatus.escrowed;
     case 'fulfilled':
