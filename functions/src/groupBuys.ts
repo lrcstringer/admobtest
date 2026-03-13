@@ -54,14 +54,14 @@ export const createGroupBuy = onCall(
     } = request.data;
 
     // Validate required fields
-    if (!title || typeof title !== "string" || title.trim().length < 3) {
-      throw new HttpsError("invalid-argument", "Title must be at least 3 characters");
+    if (!title || typeof title !== "string" || title.trim().length < 3 || title.trim().length > 200) {
+      throw new HttpsError("invalid-argument", "Title must be between 3 and 200 characters");
     }
-    if (!description || typeof description !== "string") {
-      throw new HttpsError("invalid-argument", "Description is required");
+    if (!description || typeof description !== "string" || description.trim().length > 5000) {
+      throw new HttpsError("invalid-argument", "Description is required and must not exceed 5000 characters");
     }
-    if (!targetAmount || typeof targetAmount !== "number" || targetAmount <= 0 || !Number.isInteger(targetAmount)) {
-      throw new HttpsError("invalid-argument", "Target amount must be a positive integer");
+    if (!targetAmount || typeof targetAmount !== "number" || targetAmount <= 0 || !Number.isInteger(targetAmount) || targetAmount > 10000000) {
+      throw new HttpsError("invalid-argument", "Target amount must be a positive integer up to 10,000,000");
     }
     if (!deadline) {
       throw new HttpsError("invalid-argument", "Deadline is required");
@@ -81,8 +81,8 @@ export const createGroupBuy = onCall(
     if (maxPart !== null && maxPart !== undefined && maxPart <= 0) {
       throw new HttpsError("invalid-argument", "Maximum participants must be greater than 0");
     }
-    if (maxPart !== null && (typeof maxPart !== "number" || maxPart < minPart)) {
-      throw new HttpsError("invalid-argument", "Maximum participants must be >= minimum participants");
+    if (maxPart !== null && (typeof maxPart !== "number" || maxPart < minPart || maxPart > 10000)) {
+      throw new HttpsError("invalid-argument", "Maximum participants must be between minimum participants and 10,000");
     }
 
     // Get user profile for organizer name
@@ -686,7 +686,7 @@ export const suggestGroupBuyDeal = onCall(
       userName,
       description: description.trim(),
       brandOrStore: brandOrStore.trim(),
-      estimatedPrice: estimatedPrice ? Number(estimatedPrice) : null,
+      estimatedPrice: estimatedPrice ? Math.min(Math.max(0, Math.floor(Number(estimatedPrice))), 10000000) : null,
       sourceUrl: sourceUrl?.toString().trim() || null,
       imageUrl: imageUrl?.toString().trim() || null,
       wantsToJoin: wantsToJoin === true,
@@ -1207,8 +1207,19 @@ export const updateGroupBuyDeliveryStatus = onCall(
       }
       const groupBuy = groupBuyDoc.data()!;
 
-      if (groupBuy.organizerId !== userId) {
-        throw new HttpsError("permission-denied", "Only the organizer can update delivery status");
+      const isOrganizer = groupBuy.organizerId === userId;
+      const isCreatedByAdmin = groupBuy.createdByAdmin === true;
+      let isAdmin = false;
+      if (!isOrganizer && isCreatedByAdmin) {
+        try {
+          await requireAdminPermission(request, "buy:forceCompleteGroupBuy", "updateGroupBuyDeliveryStatus");
+          isAdmin = true;
+        } catch {
+          // Not an admin — fall through to permission denied
+        }
+      }
+      if (!isOrganizer && !isAdmin) {
+        throw new HttpsError("permission-denied", "Only the organizer or admin can update delivery status");
       }
 
       if (!["completed", "targetMet"].includes(groupBuy.status)) {

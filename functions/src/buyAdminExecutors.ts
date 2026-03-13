@@ -377,6 +377,7 @@ export async function executeApproveGroupBuyRequest(
     clusters,
     imageUrl,
     communityId,
+    vendorId,
   } = payload as {
     requestId: string;
     groupBuyTitle: string;
@@ -388,6 +389,7 @@ export async function executeApproveGroupBuyRequest(
     clusters: string[];
     imageUrl: string | null;
     communityId: string | null;
+    vendorId: string | null;
   };
 
   const requestRef = db.collection("groupBuyRequests").doc(requestId);
@@ -414,8 +416,9 @@ export async function executeApproveGroupBuyRequest(
     maxParticipants: null,
     status: "open",
     deadline: admin.firestore.Timestamp.fromDate(new Date(deadline)),
-    organizerId: null,
+    organizerId: vendorId || "PLATFORM_CURATED",
     organizerName: "iMaliChat Curated",
+    vendorId: vendorId || null,
     communityId: communityId || null,
     brandId: null,
     brandName: null,
