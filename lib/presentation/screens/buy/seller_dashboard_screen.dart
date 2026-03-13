@@ -21,9 +21,9 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    // loadMyListings is auto-triggered after loadSellerPortal succeeds
     context.read<MarketplaceBloc>()
-      ..add(const MarketplaceEvent.loadSellerPortal())
-      ..add(const MarketplaceEvent.loadMyListings());
+      .add(const MarketplaceEvent.loadSellerPortal());
   }
 
   @override

@@ -137,7 +137,7 @@ return toggleFollow(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id)?  loadStorefront,TResult Function( String brandId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id)?  loadStorefront,TResult Function( String brandId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String? orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
 return loadStorefront(_that.id);case _LoadProducts() when loadProducts != null:
@@ -164,7 +164,7 @@ return toggleFollow(_that.brandId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id)  loadStorefront,required TResult Function( String brandId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id)  loadStorefront,required TResult Function( String brandId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String? orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront():
 return loadStorefront(_that.id);case _LoadProducts():
@@ -190,7 +190,7 @@ return toggleFollow(_that.brandId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id)?  loadStorefront,TResult? Function( String brandId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id)?  loadStorefront,TResult? Function( String brandId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String? orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
 return loadStorefront(_that.id);case _LoadProducts() when loadProducts != null:
@@ -409,11 +409,11 @@ as String,
 
 
 class _SubmitReview implements BrandStorefrontEvent {
-  const _SubmitReview({required this.brandId, required this.orderId, required this.qualityRating, required this.valueRating, required this.serviceRating, this.comment});
+  const _SubmitReview({required this.brandId, this.orderId, required this.qualityRating, required this.valueRating, required this.serviceRating, this.comment});
   
 
  final  String brandId;
- final  String orderId;
+ final  String? orderId;
  final  int qualityRating;
  final  int valueRating;
  final  int serviceRating;
@@ -449,7 +449,7 @@ abstract mixin class _$SubmitReviewCopyWith<$Res> implements $BrandStorefrontEve
   factory _$SubmitReviewCopyWith(_SubmitReview value, $Res Function(_SubmitReview) _then) = __$SubmitReviewCopyWithImpl;
 @useResult
 $Res call({
- String brandId, String orderId, int qualityRating, int valueRating, int serviceRating, String? comment
+ String brandId, String? orderId, int qualityRating, int valueRating, int serviceRating, String? comment
 });
 
 
@@ -466,11 +466,11 @@ class __$SubmitReviewCopyWithImpl<$Res>
 
 /// Create a copy of BrandStorefrontEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? brandId = null,Object? orderId = null,Object? qualityRating = null,Object? valueRating = null,Object? serviceRating = null,Object? comment = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? brandId = null,Object? orderId = freezed,Object? qualityRating = null,Object? valueRating = null,Object? serviceRating = null,Object? comment = freezed,}) {
   return _then(_SubmitReview(
 brandId: null == brandId ? _self.brandId : brandId // ignore: cast_nullable_to_non_nullable
-as String,orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
-as String,qualityRating: null == qualityRating ? _self.qualityRating : qualityRating // ignore: cast_nullable_to_non_nullable
+as String,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,qualityRating: null == qualityRating ? _self.qualityRating : qualityRating // ignore: cast_nullable_to_non_nullable
 as int,valueRating: null == valueRating ? _self.valueRating : valueRating // ignore: cast_nullable_to_non_nullable
 as int,serviceRating: null == serviceRating ? _self.serviceRating : serviceRating // ignore: cast_nullable_to_non_nullable
 as int,comment: freezed == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable

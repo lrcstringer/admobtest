@@ -146,4 +146,8 @@ abstract class MarketplaceRepository {
 
   /// Get seller dashboard analytics
   Future<Either<Failure, Map<String, dynamic>>> getSellerDashboard();
+
+  /// Get marketplace stats for the entry card
+  Future<Either<Failure, ({int listingCount, int sellerCount, List<String> thumbnails})>>
+      getMarketplaceStats();
 }

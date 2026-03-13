@@ -49,10 +49,6 @@ abstract class BuyRepository {
     String? comment,
   });
 
-  /// Get marketplace stats for the entry card
-  Future<Either<Failure, ({int listingCount, int sellerCount, List<String> thumbnails})>>
-      getMarketplaceStats();
-
   /// Claim a coupon from a brand storefront
   Future<Either<Failure, String>> claimStorefrontCoupon({
     required String storefrontId,

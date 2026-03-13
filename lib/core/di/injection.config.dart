@@ -700,10 +700,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i932.NetworkInfo>(),
       ),
     );
-    gh.factory<_i809.BuyTabBloc>(
-      () =>
-          _i809.BuyTabBloc(gh<_i637.BuyRepository>(), gh<_i932.NetworkInfo>()),
-    );
     gh.factory<_i394.FeatureFlagBloc>(
       () => _i394.FeatureFlagBloc(gh<_i993.FeatureFlagRepository>()),
     );
@@ -721,6 +717,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
         gh<_i988.AuditLogger>(),
         gh<_i124.MediaRecoveryService>(),
+      ),
+    );
+    gh.factory<_i809.BuyTabBloc>(
+      () => _i809.BuyTabBloc(
+        gh<_i637.BuyRepository>(),
+        gh<_i631.MarketplaceRepository>(),
+        gh<_i932.NetworkInfo>(),
       ),
     );
     gh.factory<_i775.EarnBloc>(

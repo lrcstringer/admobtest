@@ -6,21 +6,25 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/network/network_info.dart';
 import 'package:imalichat/domain/repositories/buy_repository.dart';
+import 'package:imalichat/domain/repositories/marketplace_repository.dart';
 import 'package:imalichat/presentation/blocs/buy_tab/buy_tab_bloc.dart';
 
 class MockBuyRepository extends Mock implements BuyRepository {}
+class MockMarketplaceRepository extends Mock implements MarketplaceRepository {}
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
 void main() {
   late MockBuyRepository mockBuyRepository;
+  late MockMarketplaceRepository mockMarketplaceRepository;
   late MockNetworkInfo mockNetworkInfo;
 
   setUp(() {
     mockBuyRepository = MockBuyRepository();
+    mockMarketplaceRepository = MockMarketplaceRepository();
     mockNetworkInfo = MockNetworkInfo();
   });
 
-  BuyTabBloc buildBloc() => BuyTabBloc(mockBuyRepository, mockNetworkInfo);
+  BuyTabBloc buildBloc() => BuyTabBloc(mockBuyRepository, mockMarketplaceRepository, mockNetworkInfo);
 
   void stubAllRepositoryCalls() {
     when(() => mockNetworkInfo.isConnected).thenAnswer((_) async => true);
@@ -31,7 +35,7 @@ void main() {
     when(() => mockBuyRepository.getBuyRegulars()).thenAnswer((_) async => const Right([]));
     when(() => mockBuyRepository.getFeaturedItems()).thenAnswer((_) async => const Right([]));
     when(() => mockBuyRepository.getBrandStorefronts()).thenAnswer((_) async => const Right([]));
-    when(() => mockBuyRepository.getMarketplaceStats()).thenAnswer((_) async => const Right((listingCount: 0, sellerCount: 0, thumbnails: <String>[])));
+    when(() => mockMarketplaceRepository.getMarketplaceStats()).thenAnswer((_) async => const Right((listingCount: 0, sellerCount: 0, thumbnails: <String>[])));
   }
 
   group('BuyTabBloc', () {

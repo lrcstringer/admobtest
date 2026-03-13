@@ -971,12 +971,10 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(ctx).pop();
-                // Use the existing update event for deadline changes
                 context.read<GroupBuyBloc>().add(
-                      GroupBuyEvent.updateDeliveryStatus(
+                      GroupBuyEvent.extendDeadline(
                         groupBuyId: groupBuy.id,
-                        deliveryStatus: 'deadline_extended',
-                        trackingInfo: newDeadline.toUtc().toIso8601String(),
+                        newDeadline: newDeadline,
                       ),
                     );
               },

@@ -266,7 +266,7 @@ export const buyMarketplaceItem = onCall(
       }
 
       // Validate seller is an approved provider
-      const providerApprovalDoc = await tx.get(db.collection("marketplaceProviders").doc(listing.providerId));
+      const providerApprovalDoc = await tx.get(db.collection("providers").doc(listing.providerId));
       if (providerApprovalDoc.exists && providerApprovalDoc.data()!.status !== "approved") {
         throw new HttpsError("failed-precondition", "Seller is not an approved provider");
       }
@@ -566,11 +566,19 @@ export const cancelMarketplaceOrder = onCall(
         cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
+      // Re-activate the listing so other buyers can purchase it
+      const listingRef = db.collection("marketplaceListings").doc(order.listingId);
+      const listingDoc = await tx.get(listingRef);
+      if (listingDoc.exists && listingDoc.data()!.status === "pending") {
+        tx.update(listingRef, { status: "active", updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+      }
+
       return {
         previousStatus: order.status as string,
         buyerId: order.buyerId,
         amount: order.amount,
         listingTitle: order.listingTitle,
+        listingId: order.listingId,
       };
     });
 
@@ -1472,6 +1480,10 @@ export const respondToOffer = onCall(
         revertBatch.update(offerRef, {
           status: "pending",
           respondedAt: null,
+        });
+        revertBatch.update(db.collection("marketplaceListings").doc(offer.listingId), {
+          status: "active",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         await revertBatch.commit();
         logger.error(`Escrow failed for offer-order ${result.orderId}, reverted offer to pending`, escrowError);

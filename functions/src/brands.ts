@@ -88,18 +88,18 @@ export const claimStorefrontCoupon = onCall(
         }
       }
 
-      // Validate maxClaims — check total claims for this coupon across all users
+      // Validate maxClaims — use atomic increment to prevent race conditions.
+      // The claimRef set (below) provides per-user idempotency.
+      // The counter on the storefront doc provides global limit enforcement.
       if (couponDef?.maxClaims && couponDef.maxClaims > 0) {
-        const existingClaims = await db
-          .collection("storefrontCoupons")
-          .where("storefrontId", "==", storefrontId)
-          .where("couponId", "==", couponId)
-          .count()
-          .get();
-        const currentClaimCount = existingClaims.data().count;
-        if (currentClaimCount >= couponDef.maxClaims) {
+        const couponCounterRef = db.collection("storefrontCouponCounters").doc(`${storefrontId}_${couponId}`);
+        const counterDoc = await tx.get(couponCounterRef);
+        const currentCount = counterDoc.exists ? (counterDoc.data()!.count || 0) : 0;
+        if (currentCount >= couponDef.maxClaims) {
           throw new HttpsError("resource-exhausted", "This coupon has reached its maximum number of claims");
         }
+        // Atomically increment the counter inside the transaction
+        tx.set(couponCounterRef, { count: currentCount + 1, storefrontId, couponId }, { merge: true });
       }
 
       tx.set(claimRef, {

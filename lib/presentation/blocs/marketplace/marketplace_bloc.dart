@@ -1,13 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
+import '../../../data/models/marketplace_provider_model.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/entities/marketplace_provider.dart';
 import '../../../domain/entities/saved_listing.dart';
-import '../../../domain/enums/provider_status.dart';
 import '../../../domain/entities/vouch.dart';
 import '../../../domain/repositories/marketplace_repository.dart';
 import '../../../domain/repositories/saved_listing_repository.dart';
@@ -44,6 +46,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<_LoadSavedItems>(_onLoadSavedItems);
     on<_LoadSellerPortal>(_onLoadSellerPortal);
     on<_ToggleFavourite>(_onToggleFavourite);
+    on<_UploadImages>(_onUploadImages);
   }
 
   Future<void> _onLoadListings(
@@ -512,31 +515,22 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         errorMessage: failure.displayMessage,
       )),
       (dashboard) {
-        // Extract provider profile from dashboard if present
+        // Extract provider profile from dashboard using model parsing
         final providerData = dashboard['provider'];
         MarketplaceProvider? sellerProfile;
         if (providerData is Map<String, dynamic>) {
-          sellerProfile = MarketplaceProvider(
-            id: providerData['id'] as String? ?? '',
-            userId: providerData['userId'] as String? ?? '',
-            displayName: providerData['displayName'] as String? ?? '',
-            bio: providerData['bio'] as String?,
-            photoUrl: providerData['photoUrl'] as String?,
-            status: ProviderStatus.active,
-            trustScore: (providerData['trustScore'] as num?)?.toDouble() ?? 0,
-            isVerified: providerData['isVerified'] as bool? ?? false,
-            vouchCount: providerData['vouchCount'] as int? ?? 0,
-            completedOrders: providerData['completedOrders'] as int? ?? 0,
-            createdAt: DateTime.tryParse(
-                    providerData['createdAt'] as String? ?? '') ??
-                DateTime.now(),
-          );
+          sellerProfile = MarketplaceProviderModel.fromJson(providerData).toEntity();
         }
 
         emit(state.copyWith(
           isLoadingSellerPortal: false,
           currentSellerProfile: sellerProfile ?? state.currentSellerProfile,
         ));
+
+        // Auto-load my listings now that seller profile is available
+        if (sellerProfile != null) {
+          add(const MarketplaceEvent.loadMyListings());
+        }
       },
     );
   }
@@ -600,6 +594,34 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     refreshResult.fold(
       (_) {}, // Non-critical — keep optimistic state
       (items) => emit(state.copyWith(savedItems: items)),
+    );
+  }
+
+  Future<void> _onUploadImages(
+    _UploadImages event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isUploadingImages) return;
+    emit(state.copyWith(
+      isUploadingImages: true,
+      uploadedImageUrls: [],
+      errorMessage: null,
+    ));
+
+    final result = await _repository.uploadListingImages(
+      imageData: event.imageData,
+      listingId: event.listingId,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isUploadingImages: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (urls) => emit(state.copyWith(
+        isUploadingImages: false,
+        uploadedImageUrls: urls,
+      )),
     );
   }
 

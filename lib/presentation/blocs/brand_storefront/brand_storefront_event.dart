@@ -17,7 +17,7 @@ class BrandStorefrontEvent with _$BrandStorefrontEvent {
   /// Submit a review for the brand
   const factory BrandStorefrontEvent.submitReview({
     required String brandId,
-    required String orderId,
+    String? orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,

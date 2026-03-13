@@ -55,7 +55,7 @@ extension GroupBuyEventPatterns on GroupBuyEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult Function( _LoadGroupBuy value)?  loadGroupBuy,TResult Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult Function( _CreateGroupBuy value)?  createGroupBuy,TResult Function( _JoinGroupBuy value)?  joinGroupBuy,TResult Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult Function( _SuggestDeal value)?  suggestDeal,TResult Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _ConfirmCollection value)?  confirmCollection,TResult Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult Function( _LoadGroupBuy value)?  loadGroupBuy,TResult Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult Function( _CreateGroupBuy value)?  createGroupBuy,TResult Function( _JoinGroupBuy value)?  joinGroupBuy,TResult Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult Function( _SuggestDeal value)?  suggestDeal,TResult Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _ConfirmCollection value)?  confirmCollection,TResult Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,TResult Function( _ExtendDeadline value)?  extendDeadline,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
@@ -71,7 +71,8 @@ return completeGroupBuy(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
-return updateDeliveryStatus(_that);case _:
+return updateDeliveryStatus(_that);case _ExtendDeadline() when extendDeadline != null:
+return extendDeadline(_that);case _:
   return orElse();
 
 }
@@ -89,7 +90,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadActiveGroupBuys value)  loadActiveGroupBuys,required TResult Function( _LoadGroupBuy value)  loadGroupBuy,required TResult Function( _LoadMyGroupBuys value)  loadMyGroupBuys,required TResult Function( _CreateGroupBuy value)  createGroupBuy,required TResult Function( _JoinGroupBuy value)  joinGroupBuy,required TResult Function( _LoadHubGroupBuys value)  loadHubGroupBuys,required TResult Function( _LeaveGroupBuy value)  leaveGroupBuy,required TResult Function( _SuggestDeal value)  suggestDeal,required TResult Function( _CompleteGroupBuy value)  completeGroupBuy,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _ConfirmCollection value)  confirmCollection,required TResult Function( _CancelGroupBuy value)  cancelGroupBuy,required TResult Function( _UpdateDeliveryStatus value)  updateDeliveryStatus,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadActiveGroupBuys value)  loadActiveGroupBuys,required TResult Function( _LoadGroupBuy value)  loadGroupBuy,required TResult Function( _LoadMyGroupBuys value)  loadMyGroupBuys,required TResult Function( _CreateGroupBuy value)  createGroupBuy,required TResult Function( _JoinGroupBuy value)  joinGroupBuy,required TResult Function( _LoadHubGroupBuys value)  loadHubGroupBuys,required TResult Function( _LeaveGroupBuy value)  leaveGroupBuy,required TResult Function( _SuggestDeal value)  suggestDeal,required TResult Function( _CompleteGroupBuy value)  completeGroupBuy,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _ConfirmCollection value)  confirmCollection,required TResult Function( _CancelGroupBuy value)  cancelGroupBuy,required TResult Function( _UpdateDeliveryStatus value)  updateDeliveryStatus,required TResult Function( _ExtendDeadline value)  extendDeadline,}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys():
@@ -105,7 +106,8 @@ return completeGroupBuy(_that);case _ClearMessages():
 return clearMessages(_that);case _ConfirmCollection():
 return confirmCollection(_that);case _CancelGroupBuy():
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus():
-return updateDeliveryStatus(_that);case _:
+return updateDeliveryStatus(_that);case _ExtendDeadline():
+return extendDeadline(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -122,7 +124,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult? Function( _LoadGroupBuy value)?  loadGroupBuy,TResult? Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult? Function( _CreateGroupBuy value)?  createGroupBuy,TResult? Function( _JoinGroupBuy value)?  joinGroupBuy,TResult? Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult? Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult? Function( _SuggestDeal value)?  suggestDeal,TResult? Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _ConfirmCollection value)?  confirmCollection,TResult? Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult? Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadActiveGroupBuys value)?  loadActiveGroupBuys,TResult? Function( _LoadGroupBuy value)?  loadGroupBuy,TResult? Function( _LoadMyGroupBuys value)?  loadMyGroupBuys,TResult? Function( _CreateGroupBuy value)?  createGroupBuy,TResult? Function( _JoinGroupBuy value)?  joinGroupBuy,TResult? Function( _LoadHubGroupBuys value)?  loadHubGroupBuys,TResult? Function( _LeaveGroupBuy value)?  leaveGroupBuy,TResult? Function( _SuggestDeal value)?  suggestDeal,TResult? Function( _CompleteGroupBuy value)?  completeGroupBuy,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _ConfirmCollection value)?  confirmCollection,TResult? Function( _CancelGroupBuy value)?  cancelGroupBuy,TResult? Function( _UpdateDeliveryStatus value)?  updateDeliveryStatus,TResult? Function( _ExtendDeadline value)?  extendDeadline,}){
 final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
@@ -138,7 +140,8 @@ return completeGroupBuy(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
-return updateDeliveryStatus(_that);case _:
+return updateDeliveryStatus(_that);case _ExtendDeadline() when extendDeadline != null:
+return extendDeadline(_that);case _:
   return null;
 
 }
@@ -155,7 +158,7 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function( String groupBuyId)?  completeGroupBuy,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function( String groupBuyId)?  completeGroupBuy,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,TResult Function( String groupBuyId,  DateTime newDeadline)?  extendDeadline,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
@@ -170,7 +173,8 @@ return completeGroupBuy(_that.groupBuyId);case _ClearMessages() when clearMessag
 return clearMessages();case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
-return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _:
+return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _ExtendDeadline() when extendDeadline != null:
+return extendDeadline(_that.groupBuyId,_that.newDeadline);case _:
   return orElse();
 
 }
@@ -188,7 +192,7 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function( String groupBuyId)  completeGroupBuy,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function( String groupBuyId)  completeGroupBuy,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,required TResult Function( String groupBuyId,  DateTime newDeadline)  extendDeadline,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys():
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy():
@@ -203,7 +207,8 @@ return completeGroupBuy(_that.groupBuyId);case _ClearMessages():
 return clearMessages();case _ConfirmCollection():
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy():
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus():
-return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _:
+return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _ExtendDeadline():
+return extendDeadline(_that.groupBuyId,_that.newDeadline);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,7 +225,7 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function( String groupBuyId)?  completeGroupBuy,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function( String groupBuyId)?  completeGroupBuy,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,TResult? Function( String groupBuyId,  DateTime newDeadline)?  extendDeadline,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
@@ -235,7 +240,8 @@ return completeGroupBuy(_that.groupBuyId);case _ClearMessages() when clearMessag
 return clearMessages();case _ConfirmCollection() when confirmCollection != null:
 return confirmCollection(_that.groupBuyId,_that.contributionId);case _CancelGroupBuy() when cancelGroupBuy != null:
 return cancelGroupBuy(_that.groupBuyId,_that.reason);case _UpdateDeliveryStatus() when updateDeliveryStatus != null:
-return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _:
+return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.trackingInfo);case _ExtendDeadline() when extendDeadline != null:
+return extendDeadline(_that.groupBuyId,_that.newDeadline);case _:
   return null;
 
 }
@@ -1069,6 +1075,74 @@ groupBuyId: null == groupBuyId ? _self.groupBuyId : groupBuyId // ignore: cast_n
 as String,deliveryStatus: null == deliveryStatus ? _self.deliveryStatus : deliveryStatus // ignore: cast_nullable_to_non_nullable
 as String,trackingInfo: freezed == trackingInfo ? _self.trackingInfo : trackingInfo // ignore: cast_nullable_to_non_nullable
 as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _ExtendDeadline implements GroupBuyEvent {
+  const _ExtendDeadline({required this.groupBuyId, required this.newDeadline});
+  
+
+ final  String groupBuyId;
+ final  DateTime newDeadline;
+
+/// Create a copy of GroupBuyEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ExtendDeadlineCopyWith<_ExtendDeadline> get copyWith => __$ExtendDeadlineCopyWithImpl<_ExtendDeadline>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ExtendDeadline&&(identical(other.groupBuyId, groupBuyId) || other.groupBuyId == groupBuyId)&&(identical(other.newDeadline, newDeadline) || other.newDeadline == newDeadline));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,groupBuyId,newDeadline);
+
+@override
+String toString() {
+  return 'GroupBuyEvent.extendDeadline(groupBuyId: $groupBuyId, newDeadline: $newDeadline)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ExtendDeadlineCopyWith<$Res> implements $GroupBuyEventCopyWith<$Res> {
+  factory _$ExtendDeadlineCopyWith(_ExtendDeadline value, $Res Function(_ExtendDeadline) _then) = __$ExtendDeadlineCopyWithImpl;
+@useResult
+$Res call({
+ String groupBuyId, DateTime newDeadline
+});
+
+
+
+
+}
+/// @nodoc
+class __$ExtendDeadlineCopyWithImpl<$Res>
+    implements _$ExtendDeadlineCopyWith<$Res> {
+  __$ExtendDeadlineCopyWithImpl(this._self, this._then);
+
+  final _ExtendDeadline _self;
+  final $Res Function(_ExtendDeadline) _then;
+
+/// Create a copy of GroupBuyEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? groupBuyId = null,Object? newDeadline = null,}) {
+  return _then(_ExtendDeadline(
+groupBuyId: null == groupBuyId ? _self.groupBuyId : groupBuyId // ignore: cast_nullable_to_non_nullable
+as String,newDeadline: null == newDeadline ? _self.newDeadline : newDeadline // ignore: cast_nullable_to_non_nullable
+as DateTime,
   ));
 }
 

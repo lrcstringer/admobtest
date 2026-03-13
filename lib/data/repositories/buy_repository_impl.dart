@@ -327,42 +327,16 @@ class BuyRepositoryImpl implements BuyRepository {
     String? comment,
   }) async {
     try {
-      final callable = FirebaseFunctions.instanceFor(
-        region: 'africa-south1',
-      ).httpsCallable('submitBrandReview');
-
-      await callable.call<dynamic>({
-        'brandId': brandId,
-        if (orderId != null) 'orderId': orderId,
-        'qualityRating': qualityRating,
-        'valueRating': valueRating,
-        'serviceRating': serviceRating,
-        if (comment != null && comment.isNotEmpty) 'comment': comment,
-      });
+      await _remoteDataSource.submitBrandReview(
+        brandId: brandId,
+        orderId: orderId,
+        qualityRating: qualityRating,
+        valueRating: valueRating,
+        serviceRating: serviceRating,
+        comment: comment,
+      );
 
       return const Right(null);
-    } on FirebaseFunctionsException catch (e) {
-      return Left(
-        Failure.serverError(message: e.message ?? 'Failed to submit review'),
-      );
-    } catch (e) {
-      return Left(Failure.serverError(message: e.toString()));
-    }
-  }
-
-  // ============ MARKETPLACE STATS ============
-
-  @override
-  Future<
-    Either<
-      Failure,
-      ({int listingCount, int sellerCount, List<String> thumbnails})
-    >
-  >
-  getMarketplaceStats() async {
-    try {
-      final stats = await _remoteDataSource.getMarketplaceStats();
-      return Right(stats);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

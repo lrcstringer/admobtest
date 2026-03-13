@@ -91,6 +91,8 @@ class StepUpAuthService {
     switch (actionType) {
       case 'cashout':
       case 'large_transfer':
+      case 'vas_purchase':
+      case 'marketplace_purchase':
         if (amount != null && amount >= 5000) {
           return StepUpResult.otpRequired;
         }

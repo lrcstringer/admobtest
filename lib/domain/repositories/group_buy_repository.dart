@@ -83,4 +83,10 @@ abstract class GroupBuyRepository {
     required String deliveryStatus,
     String? trackingInfo,
   });
+
+  /// Extend the deadline of an open group buy (organizer only)
+  Future<Either<Failure, void>> extendDeadline({
+    required String groupBuyId,
+    required DateTime newDeadline,
+  });
 }

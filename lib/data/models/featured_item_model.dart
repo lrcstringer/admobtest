@@ -26,7 +26,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
     String? ctaText,
     String? bgColorHex,
     @Default(0.4) double colorIntensity,
-    @Default(0.3) double imageOpacity,
+    @Default(1.0) double imageOpacity,
     @Default('right') String imageLayout,
     @Default(false) bool isDeleted,
   }) = _FeaturedItemModel;

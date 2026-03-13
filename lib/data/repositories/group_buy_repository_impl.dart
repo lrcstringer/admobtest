@@ -218,4 +218,20 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
       return Left(Failure.serverError(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> extendDeadline({
+    required String groupBuyId,
+    required DateTime newDeadline,
+  }) async {
+    try {
+      await _remoteDataSource.extendDeadline(
+        groupBuyId: groupBuyId,
+        newDeadline: newDeadline,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
 }

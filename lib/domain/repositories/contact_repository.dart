@@ -69,9 +69,11 @@ abstract class ContactRepository {
   );
 
   /// Follow a brand
+  @Deprecated('Use BuyRepository.toggleBrandFollow instead')
   Future<Either<Failure, void>> followBrand(String clientId);
 
   /// Unfollow a brand
+  @Deprecated('Use BuyRepository.toggleBrandFollow instead')
   Future<Either<Failure, void>> unfollowBrand(String clientId);
 
   /// Get user's followed brands

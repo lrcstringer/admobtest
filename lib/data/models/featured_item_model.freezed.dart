@@ -226,7 +226,7 @@ return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUr
 
 
 class _FeaturedItemModel extends FeaturedItemModel {
-  const _FeaturedItemModel({required this.id, required this.title, this.subtitle, this.imageUrl, this.videoUrl, this.type = 'campaign', this.deepLinkRoute, this.brandId, final  List<String> communityIds = const [], this.isActive = true, this.sortOrder = 0, this.scheduledStart, this.scheduledEnd, this.bgGradientType = 'goldOrange', this.brandName, this.ctaText, this.bgColorHex, this.colorIntensity = 0.4, this.imageOpacity = 0.3, this.imageLayout = 'right', this.isDeleted = false}): _communityIds = communityIds,super._();
+  const _FeaturedItemModel({required this.id, required this.title, this.subtitle, this.imageUrl, this.videoUrl, this.type = 'campaign', this.deepLinkRoute, this.brandId, final  List<String> communityIds = const [], this.isActive = true, this.sortOrder = 0, this.scheduledStart, this.scheduledEnd, this.bgGradientType = 'goldOrange', this.brandName, this.ctaText, this.bgColorHex, this.colorIntensity = 0.4, this.imageOpacity = 1.0, this.imageLayout = 'right', this.isDeleted = false}): _communityIds = communityIds,super._();
   
 
 @override final  String id;

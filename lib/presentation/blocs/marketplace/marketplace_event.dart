@@ -109,4 +109,10 @@ class MarketplaceEvent with _$MarketplaceEvent {
   /// Toggle favourite/save on a listing
   const factory MarketplaceEvent.toggleFavourite(String listingId) =
       _ToggleFavourite;
+
+  /// Upload listing images and return URLs
+  const factory MarketplaceEvent.uploadImages({
+    required List<Uint8List> imageData,
+    required String listingId,
+  }) = _UploadImages;
 }

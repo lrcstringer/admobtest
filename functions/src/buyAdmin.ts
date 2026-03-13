@@ -340,6 +340,7 @@ export const adminListFeaturedItems = onCall(
 
     const snapshot = await db
       .collection("featuredItems")
+      .where("isDeleted", "==", false)
       .orderBy("sortOrder")
       .get();
     const items = snapshot.docs.map((doc) => ({
@@ -946,17 +947,39 @@ export const adminDeleteBrandStorefront = onCall(
       );
     }
 
-    await ref.delete();
+    // Soft-delete the storefront (never hard-delete)
+    await ref.update({
+      isDeleted: true,
+      isActive: false,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Cascade: soft-delete all products in the storefront's products subcollection
+    const productsSnap = await ref.collection("products").where("isDeleted", "!=", true).get();
+    const productDocs = productsSnap.docs;
+    for (let i = 0; i < productDocs.length; i += 499) {
+      const chunk = productDocs.slice(i, i + 499);
+      const batch = db.batch();
+      for (const productDoc of chunk) {
+        batch.update(productDoc.ref, {
+          isDeleted: true,
+          isActive: false,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+    }
 
     logAdminAction(adminCtx.uid, "adminDeleteBrandStorefront", "success", {
       storefrontId,
       brandName: doc.data()?.brandName,
+      productsSoftDeleted: productDocs.length,
     }).catch(() => {});
 
     logger.info(
-      `Brand storefront '${storefrontId}' deleted by ${adminCtx.email}`
+      `Brand storefront '${storefrontId}' soft-deleted by ${adminCtx.email} (${productDocs.length} products cascaded)`
     );
-    return { success: true };
+    return { success: true, productsSoftDeleted: productDocs.length };
   }
 );
 
@@ -1157,6 +1180,26 @@ export const adminSuspendProvider = onCall(
       }
     }
 
+    // Notify the provider about the suspension
+    const suspendProviderData = providerDoc.data();
+    if (suspendProviderData?.userId) {
+      try {
+        await db.collection("notifications").add({
+          userId: suspendProviderData.userId,
+          type: "providerSuspended",
+          title: "Account Suspended",
+          body: reason
+            ? `Your provider account has been suspended: ${reason}`
+            : "Your provider account has been suspended.",
+          data: { providerId },
+          isRead: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        logger.warn("Failed to create suspension notification:", err);
+      }
+    }
+
     logAdminAction(adminCtx.uid, "adminSuspendProvider", "success", {
       providerId,
       reason,
@@ -1214,6 +1257,24 @@ export const adminUnsuspendProvider = onCall(
       unsuspendedAt: admin.firestore.FieldValue.serverTimestamp(),
       unsuspendedBy: adminCtx.uid,
     });
+
+    // Notify the provider about the unsuspension
+    const unsuspendProviderData = doc.data();
+    if (unsuspendProviderData?.userId) {
+      try {
+        await db.collection("notifications").add({
+          userId: unsuspendProviderData.userId,
+          type: "providerUnsuspended",
+          title: "Account Unsuspended",
+          body: "Your provider account has been unsuspended. You can now resume selling.",
+          data: { providerId },
+          isRead: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        logger.warn("Failed to create unsuspension notification:", err);
+      }
+    }
 
     logAdminAction(adminCtx.uid, "adminUnsuspendProvider", "success", {
       providerId,

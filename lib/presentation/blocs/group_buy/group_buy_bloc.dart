@@ -29,6 +29,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     on<_CancelGroupBuy>(_onCancelGroupBuy);
     on<_CompleteGroupBuy>(_onCompleteGroupBuy);
     on<_UpdateDeliveryStatus>(_onUpdateDeliveryStatus);
+    on<_ExtendDeadline>(_onExtendDeadline);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -327,6 +328,33 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
           successMessage: 'Delivery status updated',
         ));
         // Reload to reflect updated status
+        add(GroupBuyEvent.loadGroupBuy(event.groupBuyId));
+      },
+    );
+  }
+
+  Future<void> _onExtendDeadline(
+    _ExtendDeadline event,
+    Emitter<GroupBuyState> emit,
+  ) async {
+    if (state.isUpdatingDelivery) return;
+
+    emit(state.copyWith(isUpdatingDelivery: true, errorMessage: null));
+    final result = await _repository.extendDeadline(
+      groupBuyId: event.groupBuyId,
+      newDeadline: event.newDeadline,
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isUpdatingDelivery: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        emit(state.copyWith(
+          isUpdatingDelivery: false,
+          successMessage: 'Deadline extended',
+        ));
+        // Reload to reflect updated deadline
         add(GroupBuyEvent.loadGroupBuy(event.groupBuyId));
       },
     );

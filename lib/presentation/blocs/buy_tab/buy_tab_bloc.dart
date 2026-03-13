@@ -9,6 +9,7 @@ import '../../../domain/entities/buy_category.dart';
 import '../../../domain/entities/buy_regular.dart';
 import '../../../domain/entities/featured_item.dart';
 import '../../../domain/repositories/buy_repository.dart';
+import '../../../domain/repositories/marketplace_repository.dart';
 
 part 'buy_tab_event.dart';
 part 'buy_tab_state.dart';
@@ -17,9 +18,10 @@ part 'buy_tab_bloc.freezed.dart';
 @injectable
 class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
   final BuyRepository _buyRepository;
+  final MarketplaceRepository _marketplaceRepository;
   final NetworkInfo _networkInfo;
 
-  BuyTabBloc(this._buyRepository, this._networkInfo)
+  BuyTabBloc(this._buyRepository, this._marketplaceRepository, this._networkInfo)
       : super(const BuyTabState()) {
     on<_LoadBuyTab>(_onLoadBuyTab);
     on<_RefreshBuyTab>(_onRefreshBuyTab);
@@ -71,7 +73,7 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     final regularsFuture = _buyRepository.getBuyRegulars();
     final featuredFuture = _buyRepository.getFeaturedItems();
     final brandsFuture = _buyRepository.getBrandStorefronts();
-    final statsFuture = _buyRepository.getMarketplaceStats();
+    final statsFuture = _marketplaceRepository.getMarketplaceStats();
 
     final categoriesResult = await categoriesFuture;
     final regularsResult = await regularsFuture;
@@ -94,7 +96,10 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(regulars: data),
     );
     featuredResult.fold(
-      (_) => newState = newState.copyWith(featuredItems: []),
+      (failure) => newState = newState.copyWith(
+        featuredItems: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(featuredItems: data),
     );
     brandsResult.fold(
@@ -133,7 +138,7 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     final regularsFuture = _buyRepository.getBuyRegulars();
     final featuredFuture = _buyRepository.getFeaturedItems();
     final brandsFuture = _buyRepository.getBrandStorefronts();
-    final statsFuture = _buyRepository.getMarketplaceStats();
+    final statsFuture = _marketplaceRepository.getMarketplaceStats();
 
     final categoriesResult = await categoriesFuture;
     final regularsResult = await regularsFuture;
@@ -161,7 +166,10 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(regulars: data),
     );
     featuredResult.fold(
-      (_) => newState = newState.copyWith(featuredItems: []),
+      (failure) => newState = newState.copyWith(
+        featuredItems: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(featuredItems: data),
     );
     brandsResult.fold(

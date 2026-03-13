@@ -332,6 +332,9 @@ RefundType? _parseRefundType(String? value) {
   if (value == 'auto_unresponsive_seller') {
     return RefundType.autoUnresponsiveSeller;
   }
+  if (value == 'seller_initiated') {
+    return RefundType.sellerInitiated;
+  }
   return RefundType.values.firstWhere(
     (e) => e.name == value,
     orElse: () => RefundType.buyerDispute,

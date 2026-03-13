@@ -53,6 +53,10 @@ abstract class GroupBuyRemoteDataSource {
     required String deliveryStatus,
     String? trackingInfo,
   });
+  Future<void> extendDeadline({
+    required String groupBuyId,
+    required DateTime newDeadline,
+  });
 }
 
 @LazySingleton(as: GroupBuyRemoteDataSource)
@@ -281,6 +285,17 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       'groupBuyId': groupBuyId,
       'deliveryStatus': deliveryStatus,
       if (trackingInfo != null) 'trackingInfo': trackingInfo,
+    });
+  }
+
+  @override
+  Future<void> extendDeadline({
+    required String groupBuyId,
+    required DateTime newDeadline,
+  }) async {
+    await _functions.httpsCallable('extendGroupBuyDeadline').call({
+      'groupBuyId': groupBuyId,
+      'newDeadline': newDeadline.toUtc().toIso8601String(),
     });
   }
 }

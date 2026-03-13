@@ -139,6 +139,10 @@ abstract class MarketplaceRemoteDataSource {
 
   /// Get seller dashboard analytics (calls CF)
   Future<Map<String, dynamic>> getSellerDashboard();
+
+  /// Get marketplace stats (listing count, seller count, trending thumbnails)
+  Future<({int listingCount, int sellerCount, List<String> thumbnails})>
+      getMarketplaceStats();
 }
 
 @LazySingleton(as: MarketplaceRemoteDataSource)
@@ -506,5 +510,50 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     final result =
         await _functions.httpsCallable('getSellerDashboard').call({});
     return Map<String, dynamic>.from(result.data['dashboard'] as Map);
+  }
+
+  @override
+  Future<({int listingCount, int sellerCount, List<String> thumbnails})>
+      getMarketplaceStats() async {
+    // Get listing count (marketplaceListings use 'status' enum, not 'isActive')
+    final listingsSnapshot = await _firestore
+        .collection('marketplaceListings')
+        .where('status', isEqualTo: 'active')
+        .count()
+        .get();
+
+    // Get unique seller count (providers collection, status = 'approved')
+    final sellersSnapshot = await _firestore
+        .collection('providers')
+        .where('status', isEqualTo: 'approved')
+        .count()
+        .get();
+
+    // Get trending thumbnails (latest 4 listings with images)
+    final trendingSnapshot = await _firestore
+        .collection('marketplaceListings')
+        .where('status', isEqualTo: 'active')
+        .orderBy('createdAt', descending: true)
+        .limit(4)
+        .get();
+
+    // Listings store images as List<String> 'images' and optional 'thumbnailUrl'
+    final thumbnails = trendingSnapshot.docs
+        .map((doc) {
+          final data = doc.data();
+          final thumb = data['thumbnailUrl'] as String?;
+          if (thumb != null && thumb.isNotEmpty) return thumb;
+          final images = data['images'] as List<dynamic>?;
+          return images?.firstOrNull as String?;
+        })
+        .where((url) => url != null && url.isNotEmpty)
+        .cast<String>()
+        .toList();
+
+    return (
+      listingCount: listingsSnapshot.count ?? 0,
+      sellerCount: sellersSnapshot.count ?? 0,
+      thumbnails: thumbnails,
+    );
   }
 }

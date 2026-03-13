@@ -422,4 +422,20 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       return Left(ServerFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<
+    Either<
+      Failure,
+      ({int listingCount, int sellerCount, List<String> thumbnails})
+    >
+  >
+  getMarketplaceStats() async {
+    try {
+      final stats = await _remoteDataSource.getMarketplaceStats();
+      return Right(stats);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
 }

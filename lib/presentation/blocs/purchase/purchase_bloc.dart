@@ -132,6 +132,12 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     _SelectProduct event,
     Emitter<PurchaseState> emit,
   ) {
+    if (!event.product.isActive) {
+      emit(state.copyWith(
+        errorMessage: 'This product is no longer available',
+      ));
+      return;
+    }
     emit(state.copyWith(selectedProduct: event.product));
   }
 
@@ -297,10 +303,14 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     _SelectRecentRecipient event,
     Emitter<PurchaseState> emit,
   ) {
+    // Set the number immediately so the UI reflects the selection,
+    // then trigger re-validation because the recipient's number may
+    // have been ported or deactivated since it was last used.
     emit(state.copyWith(
       recipientNumber: event.number,
-      isRecipientValid: true,
+      isRecipientValid: null,
     ));
+    add(const PurchaseEvent.validateRecipient());
   }
 
   void _onResetSelection(
@@ -325,9 +335,8 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     switch (category) {
       case PurchaseCategory.airtime:
       case PurchaseCategory.data:
-        // SA mobile: 10 digits starting with 0, or 11+ with country code
-        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed) ||
-            RegExp(r'^\+?27[6-8]\d{8}$').hasMatch(trimmed);
+        // SA mobile: 10 digits starting with 0 (CF rejects +27 format)
+        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed);
       case PurchaseCategory.electricity:
         // Meter numbers: 11-13 digits
         return RegExp(r'^\d{11,13}$').hasMatch(trimmed);

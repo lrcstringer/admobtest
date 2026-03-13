@@ -3,12 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../domain/enums/marketplace_category.dart';
-import '../../../domain/repositories/marketplace_repository.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -393,44 +391,64 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       return;
     }
 
-    List<String> imageUrls = const [];
+    final bloc = context.read<MarketplaceBloc>();
 
-    // Upload selected images first
+    // Upload selected images first via BLoC
     if (_selectedImages.isNotEmpty) {
       setState(() => _isUploadingImages = true);
 
       try {
-        final repo = GetIt.I<MarketplaceRepository>();
-        // Generate a temporary listing ID for the storage path.
-        // The Cloud Function may assign a final ID, but these URLs remain valid.
         final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-
         final imageData = await Future.wait(
           _selectedImages.map((f) => f.readAsBytes()),
         );
-        final result = await repo.uploadListingImages(
+
+        bloc.add(MarketplaceEvent.uploadImages(
           imageData: imageData,
           listingId: tempId,
+        ));
+
+        // Wait for the upload to complete by listening to state changes
+        final resultState = await bloc.stream.firstWhere(
+          (s) => !s.isUploadingImages,
         );
 
-        final uploadFailed = result.fold<bool>(
-          (_) {
-            if (!mounted) return true;
-            setState(() => _isUploadingImages = false);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to upload images'),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            return true;
-          },
-          (urls) {
-            imageUrls = urls;
-            return false;
-          },
-        );
-        if (uploadFailed) return;
+        if (!mounted) return;
+        setState(() => _isUploadingImages = false);
+
+        if (resultState.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(resultState.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          return;
+        }
+
+        if (resultState.uploadedImageUrls.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to upload images'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          return;
+        }
+
+        if (!mounted) return;
+
+        bloc.add(MarketplaceEvent.createListing(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          category: _selectedCategory!.name,
+          priceTokens: int.parse(_priceController.text.trim()),
+          imageUrls: resultState.uploadedImageUrls,
+          location: _locationController.text.trim().isEmpty
+              ? null
+              : _locationController.text.trim(),
+        ));
+        return;
       } catch (e) {
         if (!mounted) return;
         setState(() => _isUploadingImages = false);
@@ -442,24 +460,19 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         );
         return;
       }
-
-      if (!mounted) return;
-      setState(() => _isUploadingImages = false);
     }
 
     if (!mounted) return;
 
-    context.read<MarketplaceBloc>().add(
-          MarketplaceEvent.createListing(
-            title: _titleController.text.trim(),
-            description: _descriptionController.text.trim(),
-            category: _selectedCategory!.name,
-            priceTokens: int.parse(_priceController.text.trim()),
-            imageUrls: imageUrls,
-            location: _locationController.text.trim().isEmpty
-                ? null
-                : _locationController.text.trim(),
-          ),
-        );
+    bloc.add(MarketplaceEvent.createListing(
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      category: _selectedCategory!.name,
+      priceTokens: int.parse(_priceController.text.trim()),
+      imageUrls: const [],
+      location: _locationController.text.trim().isEmpty
+          ? null
+          : _locationController.text.trim(),
+    ));
   }
 }

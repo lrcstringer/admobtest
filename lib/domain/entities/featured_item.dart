@@ -39,7 +39,7 @@ class FeaturedItem with _$FeaturedItem {
     @Default(0.4) double colorIntensity,
 
     /// Image overlay opacity (0.0–1.0). Only when bgGradientType == 'custom'.
-    @Default(0.3) double imageOpacity,
+    @Default(1.0) double imageOpacity,
 
     /// Image layout: 'full' (entire card) or 'right' (right half only).
     @Default('right') String imageLayout,

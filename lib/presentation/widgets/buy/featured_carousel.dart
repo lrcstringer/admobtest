@@ -194,15 +194,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
     );
   }
 
-  /// Parse a hex color string like '#FF6429' to a [Color].
-  Color _hexToColor(String hex) {
-    try {
-      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
-    } catch (_) {
-      return const Color(0xFFB82C00); // fallback color
-    }
-  }
-
   Widget _buildCard(FeaturedItem item) {
     final List<Color> bgColors;
     final double intensity;
@@ -214,9 +205,9 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
       final hex = item.bgColorHex!;
       if (hex.contains(',')) {
         final parts = hex.split(',');
-        bgColors = parts.map((h) => _hexToColor(h.trim())).toList();
+        bgColors = parts.map((h) => AppColors.parseHex(h.trim())).toList();
       } else {
-        final c = _hexToColor(hex);
+        final c = AppColors.parseHex(hex);
         bgColors = [c, c];
       }
       intensity = item.colorIntensity;

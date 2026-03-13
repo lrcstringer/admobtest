@@ -709,6 +709,7 @@ export const checkExpiredGroupBuys = onSchedule(
         // Load all contributions
         const contribsSnapshot = await doc.ref
           .collection("contributions")
+          .limit(500)
           .get();
 
         // Refund each contributor
@@ -765,12 +766,30 @@ export const checkExpiredGroupBuys = onSchedule(
     }
 
     for (const doc of pastCollectionDeadline.docs) {
+      const groupBuy = doc.data();
       try {
         await doc.ref.update({
           status: "completed",
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        logger.info(`Auto-completed group buy ${doc.id} (past collection deadline)`);
+
+        // Release escrowed funds to the organizer
+        try {
+          await releaseGroupBuyEscrow(
+            groupBuy.organizerId,
+            groupBuy.currentAmount,
+            doc.id,
+            `Group buy auto-completed: ${groupBuy.title}`
+          );
+          logger.info(`Auto-completed group buy ${doc.id} and released escrow (past collection deadline)`);
+        } catch (escrowErr) {
+          // Revert status so it can be retried
+          logger.error(`Escrow release failed for auto-completed group buy ${doc.id}, reverting to targetMet`, escrowErr);
+          await doc.ref.update({
+            status: "targetMet",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
       } catch (err) {
         logger.error(`Error auto-completing group buy ${doc.id}:`, err);
       }
@@ -1031,6 +1050,77 @@ export const updateGroupBuyDeliveryStatus = onCall(
 );
 
 // ============================================================================
+// EXTEND DEADLINE (organizer)
+// ============================================================================
+
+/**
+ * Extend the deadline of an open group buy.
+ * Only the organizer can extend.
+ */
+export const extendGroupBuyDeadline = onCall(
+  { labels: { area: "groupbuys" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "extendGroupBuyDeadline");
+
+    const userId = request.auth.uid;
+    const { groupBuyId, newDeadline } = request.data;
+
+    if (!groupBuyId || typeof groupBuyId !== "string") {
+      throw new HttpsError("invalid-argument", "groupBuyId is required");
+    }
+    if (!newDeadline || typeof newDeadline !== "string") {
+      throw new HttpsError("invalid-argument", "newDeadline is required");
+    }
+
+    const newDeadlineDate = new Date(newDeadline);
+    if (isNaN(newDeadlineDate.getTime())) {
+      throw new HttpsError("invalid-argument", "Invalid date format for newDeadline");
+    }
+    if (newDeadlineDate.getTime() <= Date.now()) {
+      throw new HttpsError("invalid-argument", "New deadline must be in the future");
+    }
+
+    const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
+
+    await db.runTransaction(async (tx) => {
+      const groupBuyDoc = await tx.get(groupBuyRef);
+      if (!groupBuyDoc.exists) {
+        throw new HttpsError("not-found", "Group buy not found");
+      }
+      const groupBuy = groupBuyDoc.data()!;
+
+      if (groupBuy.organizerId !== userId) {
+        throw new HttpsError("permission-denied", "Only the organizer can extend the deadline");
+      }
+
+      if (groupBuy.status !== "open") {
+        throw new HttpsError(
+          "failed-precondition",
+          `Cannot extend deadline — status is "${groupBuy.status}"`
+        );
+      }
+
+      // New deadline must be after the current deadline
+      const currentDeadline = groupBuy.deadline?.toDate?.() ?? new Date(groupBuy.deadline);
+      if (newDeadlineDate.getTime() <= currentDeadline.getTime()) {
+        throw new HttpsError("invalid-argument", "New deadline must be after the current deadline");
+      }
+
+      tx.update(groupBuyRef, {
+        deadline: admin.firestore.Timestamp.fromDate(newDeadlineDate),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    logger.info(`Group buy ${groupBuyId} deadline extended to ${newDeadline} by organizer ${userId}`);
+    return { success: true };
+  }
+);
+
+// ============================================================================
 // SCHEDULED: GROUP BUY REMINDERS
 // ============================================================================
 
@@ -1063,7 +1153,7 @@ export const sendGroupBuyReminders = onSchedule(
     let endingReminders = 0;
     for (const doc of endingSoon.docs) {
       const groupBuy = doc.data();
-      const contribs = await doc.ref.collection("contributions").get();
+      const contribs = await doc.ref.collection("contributions").limit(500).get();
 
       for (const contribDoc of contribs.docs) {
         const contrib = contribDoc.data();
@@ -1102,7 +1192,7 @@ export const sendGroupBuyReminders = onSchedule(
     let collectionReminders = 0;
     for (const doc of collectionApproaching.docs) {
       const groupBuy = doc.data();
-      const contribs = await doc.ref.collection("contributions").get();
+      const contribs = await doc.ref.collection("contributions").limit(500).get();
 
       for (const contribDoc of contribs.docs) {
         const contrib = contribDoc.data();

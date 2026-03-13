@@ -82,6 +82,15 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearError());
         }
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.read<PurchaseBloc>().add(const PurchaseEvent.clearSuccess());
+        }
       },
       builder: (context, state) {
         return PopScope(

@@ -55,22 +55,35 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 : null,
           ),
         );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Offer of R${_amountController.text} submitted for ${widget.listingTitle}',
-        ),
-        backgroundColor: AppColors.success,
-      ),
-    );
-
-    context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<MarketplaceBloc, MarketplaceState>(
+      listenWhen: (prev, curr) =>
+          prev.isMakingOffer && !curr.isMakingOffer,
+      listener: (context, state) {
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Offer of R${_amountController.text} submitted for ${widget.listingTitle}',
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.pop();
+        } else if (state.errorMessage != null) {
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Make an Offer'),
         backgroundColor: AppColors.surface,
@@ -197,6 +210,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

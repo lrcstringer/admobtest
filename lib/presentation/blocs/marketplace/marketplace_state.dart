@@ -35,5 +35,7 @@ class MarketplaceState with _$MarketplaceState {
     String? errorMessage,
     String? reportSuccessMessage,
     String? successMessage,
+    @Default(false) bool isUploadingImages,
+    @Default([]) List<String> uploadedImageUrls,
   }) = _MarketplaceState;
 }

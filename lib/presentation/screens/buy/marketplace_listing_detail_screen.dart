@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../domain/enums/delivery_method.dart';
 import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
+import '../../blocs/order/order_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/buy/payment_protection_explainer.dart';
@@ -61,7 +62,7 @@ class _MarketplaceListingDetailScreenState
       ),
       body: BlocBuilder<MarketplaceBloc, MarketplaceState>(
         builder: (context, state) {
-          if (state.isLoading) {
+          if (state.isLoadingDetail) {
             return _buildShimmer();
           }
 
@@ -560,6 +561,12 @@ class _MarketplaceListingDetailScreenState
       ),
     ).then((confirmed) {
       if (confirmed == true && mounted) {
+        context.read<OrderBloc>().add(
+              OrderEvent.buyItem(
+                listingId: listingId,
+                walletId: 'primary',
+              ),
+            );
         context.push(
           '/buy/marketplace/orders',
           extra: {'listingId': listingId},

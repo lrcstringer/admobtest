@@ -65,8 +65,8 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
     throw new HttpsError("failed-precondition", "Service provider is no longer available");
   }
 
-  const tokenAmount = product.priceTokens || 0;
-  const zarAmount = product.priceZar || 0;
+  const tokenAmount = product.priceTokens ?? 0;
+  const zarAmount = product.priceZar ?? 0;
   const purchaseCategory = provider.category || "airtime";
 
   // Validate recipient number format
@@ -136,9 +136,10 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   }
 
   // Deterministic purchase ID prevents duplicate charges on client retry.
-  // Uses second-level bucket so same user+product within 1s is idempotent.
+  // Uses second-level bucket so same user+product+recipient within 1s is idempotent.
   const timeBucket = Math.floor(Date.now() / 1000).toString();
-  const deterministicId = `${userId}_${productId}_${timeBucket}`;
+  const cleanedRecipient = recipientNumber.replace(/\D/g, "");
+  const deterministicId = `${userId}_${productId}_${cleanedRecipient}_${timeBucket}`;
   const purchaseRef = db.collection("purchases").doc(deterministicId);
 
   try {

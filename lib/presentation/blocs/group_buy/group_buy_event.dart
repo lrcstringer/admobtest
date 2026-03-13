@@ -77,4 +77,10 @@ class GroupBuyEvent with _$GroupBuyEvent {
     required String deliveryStatus,
     String? trackingInfo,
   }) = _UpdateDeliveryStatus;
+
+  /// Extend the deadline of an open group buy (organizer only)
+  const factory GroupBuyEvent.extendDeadline({
+    required String groupBuyId,
+    required DateTime newDeadline,
+  }) = _ExtendDeadline;
 }

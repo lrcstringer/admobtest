@@ -31,8 +31,15 @@ class BrandStorefrontScreen extends StatelessWidget {
   }
 }
 
-class _BrandStorefrontBody extends StatelessWidget {
+class _BrandStorefrontBody extends StatefulWidget {
   const _BrandStorefrontBody();
+
+  @override
+  State<_BrandStorefrontBody> createState() => _BrandStorefrontBodyState();
+}
+
+class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
+  bool _announcementDismissed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1069,6 +1076,7 @@ class _BrandStorefrontBody extends StatelessWidget {
   Widget _buildAnnouncementBar(BrandStorefront storefront) {
     final text = storefront.announcementText;
     if (text == null || text.isEmpty) return const SizedBox.shrink();
+    if (_announcementDismissed) return const SizedBox.shrink();
 
     return Container(
       width: double.infinity,
@@ -1091,7 +1099,10 @@ class _BrandStorefrontBody extends StatelessWidget {
             ),
           ),
           if (storefront.announcementDismissible)
-            const Icon(Icons.close, color: Colors.white70, size: 16),
+            GestureDetector(
+              onTap: () => setState(() => _announcementDismissed = true),
+              child: const Icon(Icons.close, color: Colors.white70, size: 16),
+            ),
         ],
       ),
     );
@@ -2299,13 +2310,13 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
   }
 
   void _onSubmit() {
-    final orderId = widget.orderId;
-    if (orderId == null || orderId.isEmpty) return;
+    if (!_isValid) return;
 
+    final orderId = widget.orderId;
     context.read<BrandStorefrontBloc>().add(
           BrandStorefrontEvent.submitReview(
             brandId: widget.brandId,
-            orderId: orderId,
+            orderId: orderId != null && orderId.isNotEmpty ? orderId : null,
             qualityRating: _qualityRating,
             valueRating: _valueRating,
             serviceRating: _serviceRating,

@@ -69,7 +69,14 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     this._playIntegrity,
   );
 
-  String get _userId => _auth.currentUser?.uid ?? '';
+  String get _userId {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null || uid.isEmpty) {
+      throw StateError(
+          'User must be authenticated to perform purchase operations');
+    }
+    return uid;
+  }
 
   CollectionReference<Map<String, dynamic>> get _providersCollection =>
       _firestore.collection('serviceProviders');
@@ -84,6 +91,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
   Future<List<ServiceProviderModel>> getServiceProviders() async {
     final snapshot = await _providersCollection
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
         .get();
 
@@ -99,6 +107,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
       String category) async {
     final snapshot = await _providersCollection
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .where('category', isEqualTo: category)
         .orderBy('sortOrder')
         .get();
@@ -119,6 +128,10 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     }
 
     final data = doc.data()!;
+    if (data['isActive'] == false || data['isDeleted'] == true) {
+      throw Exception('Provider is no longer available');
+    }
+
     data['id'] = doc.id;
     return ServiceProviderModel.fromJson(sanitizeFirestoreData(data));
   }
@@ -128,6 +141,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     final snapshot = await _productsCollection
         .where('providerId', isEqualTo: providerId)
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
         .get();
 
@@ -261,9 +275,8 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     switch (category) {
       case 'airtime':
       case 'data':
-        // SA mobile: 10 digits starting with 06/07/08, or with +27 country code
-        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed) ||
-            RegExp(r'^\+?27[6-8]\d{8}$').hasMatch(trimmed);
+        // SA mobile: 10 digits starting with 06/07/08 (CF rejects +27 format)
+        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed);
       case 'electricity':
         // Meter numbers: 11-13 digits
         return RegExp(r'^\d{11,13}$').hasMatch(trimmed);

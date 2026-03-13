@@ -62,7 +62,17 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             ],
           ),
         ),
-        child: BlocBuilder<BuyTabBloc, BuyTabState>(
+        child: BlocConsumer<BuyTabBloc, BuyTabState>(
+          listener: (context, state) {
+            if (state.errorMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          },
           builder: (context, state) {
             return RefreshIndicator(
               onRefresh: () async {

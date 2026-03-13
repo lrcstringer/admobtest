@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
@@ -31,8 +32,15 @@ abstract class BuyRemoteDataSource {
   /// Get visible reviews for a brand
   Future<List<BrandReviewModel>> getBrandReviews(String brandId);
 
-  /// Submit a review for a brand
-  Future<void> submitBrandReview(BrandReviewModel review);
+  /// Submit a review for a brand via Cloud Function
+  Future<void> submitBrandReview({
+    required String brandId,
+    String? orderId,
+    required int qualityRating,
+    required int valueRating,
+    required int serviceRating,
+    String? comment,
+  });
 
   /// Check if the current user is following a brand, and when they followed
   Future<({bool isFollowing, DateTime? followedAt})> getFollowStatus(String brandId);
@@ -51,6 +59,9 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   final FirebaseAuth _firebaseAuth;
 
   BuyRemoteDataSourceImpl(this._firestore, this._firebaseAuth);
+
+  FirebaseFunctions get _functions =>
+      FirebaseFunctions.instanceFor(region: 'africa-south1');
 
   CollectionReference<Map<String, dynamic>> get _categoriesCollection =>
       _firestore.collection('buyCategories');
@@ -126,6 +137,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .collection('brandStorefronts')
         .where('isActive', isEqualTo: true)
         .where('isDeleted', isEqualTo: false)
+        .where('isDraft', isEqualTo: false)
         .get();
 
     return snapshot.docs.map((doc) {
@@ -182,12 +194,22 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   }
 
   @override
-  Future<void> submitBrandReview(BrandReviewModel review) async {
-    // Reviews are stored in top-level brandReviews collection (matching CF)
-    await _firestore
-        .collection('brandReviews')
-        .doc(review.id)
-        .set(review.toFirestoreJson());
+  Future<void> submitBrandReview({
+    required String brandId,
+    String? orderId,
+    required int qualityRating,
+    required int valueRating,
+    required int serviceRating,
+    String? comment,
+  }) async {
+    await _functions.httpsCallable('submitBrandReview').call<dynamic>({
+      'brandId': brandId,
+      if (orderId != null) 'orderId': orderId,
+      'qualityRating': qualityRating,
+      'valueRating': valueRating,
+      'serviceRating': serviceRating,
+      if (comment != null && comment.isNotEmpty) 'comment': comment,
+    });
   }
 
   @override
@@ -197,7 +219,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
     if (uid == null) return (isFollowing: false, followedAt: null);
 
     final doc = await _firestore
-        .collection('brandStorefronts')
+        .collection('brandFollowers')
         .doc(brandId)
         .collection('followers')
         .doc(uid)
@@ -221,21 +243,18 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   @override
   Future<({int listingCount, int sellerCount, List<String> thumbnails})>
       getMarketplaceStats() async {
-    // Get listing count (marketplaceListings use 'status' enum, not 'isActive')
     final listingsSnapshot = await _firestore
         .collection('marketplaceListings')
         .where('status', isEqualTo: 'active')
         .count()
         .get();
 
-    // Get unique seller count (providers collection, status = 'approved')
     final sellersSnapshot = await _firestore
         .collection('providers')
         .where('status', isEqualTo: 'approved')
         .count()
         .get();
 
-    // Get trending thumbnails (latest 4 listings with images)
     final trendingSnapshot = await _firestore
         .collection('marketplaceListings')
         .where('status', isEqualTo: 'active')
@@ -243,7 +262,6 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .limit(4)
         .get();
 
-    // Listings store images as List<String> 'images' and optional 'thumbnailUrl'
     final thumbnails = trendingSnapshot.docs
         .map((doc) {
           final data = doc.data();
