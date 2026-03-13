@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
@@ -15,6 +16,8 @@ import 'package:imalichat/presentation/blocs/community_messaging/community_messa
 import '../../helpers/e2ee_test_helpers.dart';
 
 class MockCommunityRepository extends Mock implements CommunityRepository {}
+
+class MockFile extends Mock implements File {}
 
 void main() {
   late MockCommunityRepository mockCommunityRepository;
@@ -44,6 +47,7 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     setupFirebaseCoreMocks();
     await Firebase.initializeApp();
+    registerFallbackValue(MockFile());
   });
 
   setUp(() {
@@ -716,6 +720,335 @@ void main() {
       ),
       act: (bloc) => bloc.add(const CommunityMessagingEvent.loadMore()),
       expect: () => [],  // No state changes — early return
+    );
+  });
+
+  // ===========================================================================
+  // sendMediaMessage
+  // ===========================================================================
+
+  group('sendMediaMessage', () {
+    late MockFile mockMediaFile;
+    late MockFile mockThumbnailFile;
+
+    setUp(() {
+      mockMediaFile = MockFile();
+      mockThumbnailFile = MockFile();
+    });
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'calls repository.sendMediaMessage and emits sending states on success',
+      build: () {
+        final sentMediaMsg = E2EETestData.createMediaMessage();
+        when(() => mockCommunityRepository.sendMediaMessage(
+              communityId: any(named: 'communityId'),
+              mediaFile: any(named: 'mediaFile'),
+              mediaType: any(named: 'mediaType'),
+              caption: any(named: 'caption'),
+              durationSeconds: any(named: 'durationSeconds'),
+              thumbnailFile: any(named: 'thumbnailFile'),
+            )).thenAnswer((_) async => Right(sentMediaMsg));
+        return createBloc();
+      },
+      act: (bloc) => bloc.add(CommunityMessagingEvent.sendMediaMessage(
+        mediaFile: mockMediaFile,
+        mediaType: 'image',
+        caption: 'Check this out',
+      )),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', false)
+            .having((s) => s.errorMessage, 'errorMessage', isNull),
+      ],
+      verify: (_) {
+        verify(() => mockCommunityRepository.sendMediaMessage(
+              communityId: testCommunityId,
+              mediaFile: mockMediaFile,
+              mediaType: 'image',
+              caption: 'Check this out',
+              durationSeconds: null,
+              thumbnailFile: null,
+            )).called(1);
+      },
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'emits error on sendMediaMessage failure',
+      build: () {
+        when(() => mockCommunityRepository.sendMediaMessage(
+              communityId: any(named: 'communityId'),
+              mediaFile: any(named: 'mediaFile'),
+              mediaType: any(named: 'mediaType'),
+              caption: any(named: 'caption'),
+              durationSeconds: any(named: 'durationSeconds'),
+              thumbnailFile: any(named: 'thumbnailFile'),
+            )).thenAnswer(
+            (_) async => const Left(Failure.network(message: 'upload failed')),
+        );
+        return createBloc();
+      },
+      act: (bloc) => bloc.add(CommunityMessagingEvent.sendMediaMessage(
+        mediaFile: mockMediaFile,
+        mediaType: 'image',
+      )),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', false)
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+      ],
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'passes all optional parameters (caption, durationSeconds, thumbnailFile)',
+      build: () {
+        final sentMediaMsg = E2EETestData.createMediaMessage();
+        when(() => mockCommunityRepository.sendMediaMessage(
+              communityId: any(named: 'communityId'),
+              mediaFile: any(named: 'mediaFile'),
+              mediaType: any(named: 'mediaType'),
+              caption: any(named: 'caption'),
+              durationSeconds: any(named: 'durationSeconds'),
+              thumbnailFile: any(named: 'thumbnailFile'),
+            )).thenAnswer((_) async => Right(sentMediaMsg));
+        return createBloc();
+      },
+      act: (bloc) => bloc.add(CommunityMessagingEvent.sendMediaMessage(
+        mediaFile: mockMediaFile,
+        mediaType: 'video',
+        caption: 'My video',
+        durationSeconds: 120,
+        thumbnailFile: mockThumbnailFile,
+      )),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', false),
+      ],
+      verify: (_) {
+        verify(() => mockCommunityRepository.sendMediaMessage(
+              communityId: testCommunityId,
+              mediaFile: mockMediaFile,
+              mediaType: 'video',
+              caption: 'My video',
+              durationSeconds: 120,
+              thumbnailFile: mockThumbnailFile,
+            )).called(1);
+      },
+    );
+  });
+
+  // ===========================================================================
+  // clearError
+  // ===========================================================================
+
+  group('clearError', () {
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'clears errorMessage when clearError is dispatched',
+      build: () => createBloc(),
+      seed: () => CommunityMessagingState(
+        communityId: testCommunityId,
+        errorMessage: 'Something went wrong',
+      ),
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.clearError()),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.errorMessage, 'errorMessage', isNull),
+      ],
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'clearError is a no-op emission when errorMessage is already null',
+      build: () => createBloc(),
+      seed: () => CommunityMessagingState(
+        communityId: testCommunityId,
+        errorMessage: null,
+      ),
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.clearError()),
+      // Freezed copyWith with same value still emits (BLoC uses == comparison
+      // on the Freezed-generated class), but the state is unchanged.
+      expect: () => [],
+    );
+  });
+
+  // ===========================================================================
+  // Edge cases for existing events
+  // ===========================================================================
+
+  group('Edge cases', () {
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'sendTextMessage with replyToMessageId passes it to repository',
+      build: () {
+        final sentMessage = E2EETestData.createPlaintextMessage(
+          id: 'msg_reply',
+          textContent: 'Reply text',
+        );
+        when(() => mockCommunityRepository.sendTextMessage(
+              communityId: any(named: 'communityId'),
+              text: any(named: 'text'),
+              replyToMessageId: any(named: 'replyToMessageId'),
+            )).thenAnswer((_) async => Right(sentMessage));
+        return createBloc();
+      },
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.sendTextMessage(
+        text: 'This is a reply',
+        replyToMessageId: 'msg_original',
+      )),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isSending, 'isSending', false),
+      ],
+      verify: (_) {
+        verify(() => mockCommunityRepository.sendTextMessage(
+              communityId: testCommunityId,
+              text: 'This is a reply',
+              replyToMessageId: 'msg_original',
+            )).called(1);
+      },
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'loadMore does not emit when already loading',
+      build: () {
+        when(() => mockCommunityRepository.watchMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) => const Stream.empty());
+        return createBloc();
+      },
+      seed: () => CommunityMessagingState(
+        communityId: testCommunityId,
+        messages: [E2EETestData.createPlaintextMessage()],
+        hasMore: true,
+        isLoading: true,
+      ),
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.loadMore()),
+      expect: () => [], // No state changes — early return due to isLoading
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'loadMore sets hasMore=false when fewer than 50 messages returned',
+      build: () {
+        // Return only 2 messages (< 50), so hasMore should become false
+        final olderMsg = E2EETestData.createPlaintextMessage(
+          id: 'msg_older',
+          textContent: 'Older',
+        ).copyWith(createdAt: DateTime(2024, 5, 1));
+        when(() => mockCommunityRepository.getMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+              before: any(named: 'before'),
+            )).thenAnswer((_) async => Right([olderMsg]));
+        when(() => mockCommunityRepository.watchMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) => const Stream.empty());
+        return createBloc();
+      },
+      seed: () => CommunityMessagingState(
+        communityId: testCommunityId,
+        messages: [E2EETestData.createPlaintextMessage()],
+        hasMore: true,
+      ),
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.loadMore()),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', false)
+            .having((s) => s.hasMore, 'hasMore', false)
+            .having((s) => s.messages.length, 'messages.length', 2),
+      ],
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'loadMore emits error on repository failure',
+      build: () {
+        when(() => mockCommunityRepository.getMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+              before: any(named: 'before'),
+            )).thenAnswer(
+            (_) async => const Left(Failure.network(message: 'timeout')),
+        );
+        when(() => mockCommunityRepository.watchMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) => const Stream.empty());
+        return createBloc();
+      },
+      seed: () => CommunityMessagingState(
+        communityId: testCommunityId,
+        messages: [E2EETestData.createPlaintextMessage()],
+        hasMore: true,
+      ),
+      act: (bloc) => bloc.add(const CommunityMessagingEvent.loadMore()),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', false)
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+      ],
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'loadMessages with custom limit passes it to repository',
+      build: () {
+        when(() => mockCommunityRepository.getMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+              before: any(named: 'before'),
+            )).thenAnswer((_) async => const Right([]));
+        return createBloc();
+      },
+      act: (bloc) =>
+          bloc.add(const CommunityMessagingEvent.loadMessages(limit: 25)),
+      expect: () => [
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', true),
+        isA<CommunityMessagingState>()
+            .having((s) => s.isLoading, 'isLoading', false)
+            .having((s) => s.messages, 'messages', isEmpty)
+            .having((s) => s.hasMore, 'hasMore', false),
+      ],
+      verify: (_) {
+        verify(() => mockCommunityRepository.getMessages(
+              communityId: testCommunityId,
+              limit: 25,
+              before: null,
+            )).called(1);
+      },
+    );
+
+    blocTest<CommunityMessagingBloc, CommunityMessagingState>(
+      'watchMessages stream error does not crash bloc (logged only)',
+      build: () {
+        final streamController =
+            StreamController<Either<Failure, List<Message>>>();
+        when(() => mockCommunityRepository.watchMessages(
+              communityId: any(named: 'communityId'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) => streamController.stream);
+
+        Future.delayed(const Duration(milliseconds: 50), () {
+          streamController
+              .add(const Left(Failure.network(message: 'stream error')));
+        });
+
+        return createBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const CommunityMessagingEvent.watchMessages());
+        await Future.delayed(const Duration(milliseconds: 150));
+      },
+      expect: () => [],  // Stream errors are logged, not emitted
     );
   });
 }
