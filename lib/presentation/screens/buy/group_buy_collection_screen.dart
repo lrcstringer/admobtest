@@ -570,8 +570,20 @@ class _GroupBuyCollectionScreenState
     );
   }
 
-  void _openMaps(String address) {
+  Future<void> _openMaps(String address) async {
     final encoded = Uri.encodeComponent(address);
-    launchUrl(Uri.parse('https://maps.google.com/?q=$encoded'));
+    final uri = Uri.parse('https://maps.google.com/?q=$encoded');
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } on Exception {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open maps'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

@@ -785,8 +785,8 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
       );
     }
 
-    // Join button
-    if (groupBuy.canJoin) {
+    // Join button (hidden if user already contributed)
+    if (groupBuy.canJoin && !hasContributed) {
       buttons.add(
         Expanded(
           child: AppButton(
@@ -1074,6 +1074,9 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
   }
 
   void _showJoinDialog(GroupBuy groupBuy) {
+    // Refresh wallet to get latest balance before showing dialog
+    context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+
     final amountController = TextEditingController();
     final walletState = context.read<WalletBloc>().state;
     final spendableSubAccounts = walletState.subAccounts

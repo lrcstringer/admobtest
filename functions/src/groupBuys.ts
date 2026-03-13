@@ -50,6 +50,7 @@ export const createGroupBuy = onCall(
       linkedListingId,
       minParticipants,
       maxParticipants,
+      imageUrl,
     } = request.data;
 
     // Validate required fields
@@ -131,7 +132,7 @@ export const createGroupBuy = onCall(
       clusters: [],
       addresses: [],
       voucherCodes: [],
-      imageUrl: null,
+      imageUrl: imageUrl?.toString().trim() || null,
       originalPrice: null,
       collectionDeadline: null,
       deliveryStatus: null,
@@ -747,6 +748,7 @@ export const checkExpiredGroupBuys = onSchedule(
         let failedCount = 0;
         for (const contribDoc of contribsSnapshot.docs) {
           const contrib = contribDoc.data();
+          if (contrib.status === "refunded") continue; // Skip already refunded
           try {
             await refundGroupBuyContribution(
               contrib.userId,
@@ -898,6 +900,76 @@ export const checkExpiredGroupBuys = onSchedule(
         logger.info(`Stale targetMet group buy ${groupBuyId} auto-cancelled. Refunded ${refundedCount}, failed ${failedCount}`);
       } catch (err) {
         logger.error(`Error auto-cancelling stale group buy ${groupBuyId}:`, err);
+      }
+    }
+
+    // Resume incomplete cancellations: "cancelling" group buys still have unrefunded contributions.
+    // cancelCommunityGroupBuy processes max 50 per invocation — this picks up the remainder.
+    const staleCancellingSnapshot = await db
+      .collection("groupBuys")
+      .where("status", "==", "cancelling")
+      .limit(10)
+      .get();
+
+    for (const doc of staleCancellingSnapshot.docs) {
+      const groupBuy = doc.data();
+      const groupBuyId = doc.id;
+
+      try {
+        const contribs = await doc.ref.collection("contributions").limit(50).get();
+
+        if (contribs.empty) {
+          // All contributions already refunded and deleted — finalize status
+          await doc.ref.update({
+            status: "cancelled",
+            cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          logger.info(`Finalized cancellation of group buy ${groupBuyId} (no remaining contributions)`);
+          continue;
+        }
+
+        let refundedCount = 0;
+        let failedCount = 0;
+
+        for (const contribDoc of contribs.docs) {
+          const contrib = contribDoc.data();
+          try {
+            await refundGroupBuyContribution(
+              contrib.userId,
+              contrib.amount,
+              groupBuyId,
+              `Group buy cancelled: ${groupBuy.title}`
+            );
+            await contribDoc.ref.delete();
+            refundedCount++;
+          } catch (err) {
+            failedCount++;
+            logger.error(`Failed to refund ${contrib.userId} for cancelling group buy ${groupBuyId}`, err);
+          }
+        }
+
+        // Check if more contributions remain
+        const remaining = await doc.ref.collection("contributions").limit(1).get();
+        if (remaining.empty) {
+          await doc.ref.update({
+            status: "cancelled",
+            refundedCount: admin.firestore.FieldValue.increment(refundedCount),
+            failedRefundCount: admin.firestore.FieldValue.increment(failedCount),
+            cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          logger.info(`Completed cancellation of group buy ${groupBuyId}. Refunded ${refundedCount}, failed ${failedCount}`);
+        } else {
+          await doc.ref.update({
+            refundedCount: admin.firestore.FieldValue.increment(refundedCount),
+            failedRefundCount: admin.firestore.FieldValue.increment(failedCount),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          logger.info(`Partial cancellation of group buy ${groupBuyId}: refunded ${refundedCount}, more remain`);
+        }
+      } catch (err) {
+        logger.error(`Error processing cancelling group buy ${groupBuyId}:`, err);
       }
     }
   }
