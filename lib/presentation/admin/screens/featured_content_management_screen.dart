@@ -434,13 +434,22 @@ class _FeaturedContentManagementScreenState
           withData: true,
         );
         if (result != null && result.files.single.bytes != null) {
+          final bytes = result.files.single.bytes!;
+          if (bytes.lengthInBytes > 5 * 1024 * 1024) {
+            if (ctx.mounted) {
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                const SnackBar(content: Text('Image must be under 5 MB')),
+              );
+            }
+            return;
+          }
           setInnerState(() {
-            onPicked(result.files.single.bytes!, result.files.single.name);
+            onPicked(bytes, result.files.single.name);
           });
         }
       } catch (e) {
         if (ctx.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Failed to pick image: $e')),
           );
         }
@@ -464,7 +473,7 @@ class _FeaturedContentManagementScreenState
           final bytes = result.files.single.bytes!;
           if (bytes.lengthInBytes > 10 * 1024 * 1024) {
             if (ctx.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(ctx).showSnackBar(
                 const SnackBar(
                     content: Text('Video must be under 10 MB')),
               );
@@ -477,7 +486,7 @@ class _FeaturedContentManagementScreenState
         }
       } catch (e) {
         if (ctx.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Failed to pick video: $e')),
           );
         }
@@ -584,7 +593,7 @@ class _FeaturedContentManagementScreenState
     var colorIntensity =
         (existing?['colorIntensity'] as num?)?.toDouble() ?? 0.4;
     var imageOpacity =
-        (existing?['imageOpacity'] as num?)?.toDouble() ?? 0.3;
+        (existing?['imageOpacity'] as num?)?.toDouble() ?? 1.0;
     var imageLayout =
         existing?['imageLayout'] as String? ?? 'right';
 
@@ -1248,7 +1257,7 @@ class _FeaturedContentManagementScreenState
                             'colorIntensity':
                                 bgGradient == 'custom' ? colorIntensity : 0.4,
                             'imageOpacity':
-                                bgGradient == 'custom' ? imageOpacity : 0.3,
+                                bgGradient == 'custom' ? imageOpacity : 1.0,
                             'imageLayout': imageLayout,
                             'brandName': brandNameCtrl.text.trim().isEmpty
                                 ? null
@@ -1672,8 +1681,12 @@ class _FeaturedContentManagementScreenState
     );
   }
 
-  Color _hexToColor(String hex) {
-    return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+  Color _hexToColor(String hex, [Color fallback = const Color(0xFFFFB82C)]) {
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return fallback;
+    }
   }
 
   Widget _buildPreviewCard({
