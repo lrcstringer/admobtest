@@ -11,21 +11,10 @@ import '../../../domain/entities/featured_item.dart';
 import '../../theme/app_colors.dart';
 import '../common/brand_card.dart';
 
-/// Presentation-layer helper that evaluates [FeaturedItem] active status at a
-/// given point in time, so that callers do not rely on the entity's internal
-/// `DateTime.now()`.  All time-dependent filtering in this file uses this
-/// function with a `_now` captured once per build / event.
-bool _isActiveAt(FeaturedItem item, DateTime now) {
-  if (!item.isActive || item.isDeleted) return false;
-  final utc = now.toUtc();
-  if (item.scheduledStart != null && utc.isBefore(item.scheduledStart!)) {
-    return false;
-  }
-  if (item.scheduledEnd != null && utc.isAfter(item.scheduledEnd!)) {
-    return false;
-  }
-  return true;
-}
+/// Presentation-layer helper that delegates to [FeaturedItem.isCurrentlyActiveAt]
+/// with an explicit [now] captured once per build / event cycle.
+bool _isActiveAt(FeaturedItem item, DateTime now) =>
+    item.isCurrentlyActiveAt(now);
 
 /// Auto-advancing featured carousel for Buy tab Layer 1.
 /// 5-second auto-advance, pauses on touch, lifecycle-aware.

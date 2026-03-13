@@ -169,9 +169,10 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
         // Featured carousel (only currently active items, filtered by community)
         if (hasFeatured)
           Builder(builder: (context) {
+            final now = DateTime.now();
             final communityFiltered = _filterFeaturedByCommunity(
               state.featuredItems
-                  .where((i) => i.isCurrentlyActive)
+                  .where((i) => i.isCurrentlyActiveAt(now))
                   .toList(),
             );
             if (communityFiltered.isEmpty) {
@@ -236,7 +237,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     if (route.startsWith('http://') || route.startsWith('https://')) {
       launchUrl(Uri.parse(route), mode: LaunchMode.externalApplication);
     } else {
-      context.go(route);
+      context.push(route);
     }
   }
 

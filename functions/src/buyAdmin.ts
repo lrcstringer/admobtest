@@ -653,6 +653,9 @@ export const adminUpdateFeaturedItem = onCall(
     if (!doc.exists) {
       throw new HttpsError("not-found", `Featured item '${itemId}' not found`);
     }
+    if (doc.data()?.isDeleted === true) {
+      throw new HttpsError("failed-precondition", `Featured item '${itemId}' has been deleted. Reinstate it before updating.`);
+    }
 
     // Check for ordering conflicts if sortOrder is changing
     if (fields.sortOrder !== undefined && fields.sortOrder !== null) {
@@ -662,6 +665,7 @@ export const adminUpdateFeaturedItem = onCall(
           .collection("featuredItems")
           .where("sortOrder", "==", fields.sortOrder)
           .where("isActive", "==", true)
+          .where("isDeleted", "==", false)
           .limit(1)
           .get();
         // Exclude self from conflict check

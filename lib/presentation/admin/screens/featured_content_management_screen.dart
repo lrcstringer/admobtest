@@ -68,6 +68,7 @@ class _FeaturedContentManagementScreenState
         final snapshot = await _firestore
             .collection('featuredItems')
             .where('isActive', isEqualTo: true)
+            .where('isDeleted', isEqualTo: false)
             .orderBy('sortOrder')
             .get();
         if (mounted) {

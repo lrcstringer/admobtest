@@ -54,11 +54,14 @@ class FeaturedItem with _$FeaturedItem {
 
   bool get isScheduled => scheduledStart != null || scheduledEnd != null;
 
-  bool get isCurrentlyActive {
+  /// Whether this item is active at the given [now] (defaults to current time).
+  /// Prefer passing an explicit [now] from the presentation layer to keep
+  /// filtering deterministic within a single build / event cycle.
+  bool isCurrentlyActiveAt([DateTime? now]) {
     if (!isActive || isDeleted) return false;
-    final now = DateTime.now().toUtc();
-    if (scheduledStart != null && now.isBefore(scheduledStart!)) return false;
-    if (scheduledEnd != null && now.isAfter(scheduledEnd!)) return false;
+    final utc = (now ?? DateTime.now()).toUtc();
+    if (scheduledStart != null && utc.isBefore(scheduledStart!)) return false;
+    if (scheduledEnd != null && utc.isAfter(scheduledEnd!)) return false;
     return true;
   }
 }
