@@ -2359,7 +2359,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                           if (ctx.mounted) {
                             Navigator.of(ctx).pop();
                             _loadSubAccounts();
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               const SnackBar(
                                 content: Text('Sub-account created'),
                                 backgroundColor: AppColors.success,
@@ -2368,7 +2368,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                           }
                         } catch (e) {
                           if (ctx.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
                                 backgroundColor: AppColors.error,
@@ -2464,7 +2464,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                           if (ctx.mounted) {
                             Navigator.of(ctx).pop();
                             _loadSubAccounts();
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               const SnackBar(
                                 content: Text('Sub-account funded successfully'),
                                 backgroundColor: AppColors.success,
@@ -2473,7 +2473,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
                           }
                         } catch (e) {
                           if (ctx.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
                                 backgroundColor: AppColors.error,

@@ -551,7 +551,7 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
             Positioned.fill(
               child: AnimatedBuilder(
                 animation: _progressController,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: _ProgressRingPainter(
                     progress: _progressController.value,
                     color: _progressColor,

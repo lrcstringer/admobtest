@@ -2094,9 +2094,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
         setState(() {
           _subAccounts = accounts;
           // Auto-select main account if none selected
-          if (_selectedSubAccountId == null) {
-            _selectedSubAccountId = 'client:$clientId';
-          }
+          _selectedSubAccountId ??= 'client:$clientId';
         });
       }
     } catch (_) {}

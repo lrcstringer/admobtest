@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 
 /// Analytics service for Buy tab events (Spec §12.7).
 ///
-/// All methods are fire-and-forget (void, not Future<void>) so analytics
+/// All methods are fire-and-forget (`void`, not `Future<void>`) so analytics
 /// failures never block UX. All events prefixed `buy_`, snake_case params.
 @lazySingleton
 class BuyAnalyticsService {

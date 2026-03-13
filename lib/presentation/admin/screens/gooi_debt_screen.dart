@@ -53,7 +53,7 @@ class _GooiDebtScreenState extends State<GooiDebtScreen> {
     final resolved = _debts.where((d) => d['status'] != 'OUTSTANDING').toList();
     final totalOutstanding = outstanding.fold<int>(
       0,
-      (sum, d) => sum + ((d['amount'] as int?) ?? 0),
+      (total, d) => total + ((d['amount'] as int?) ?? 0),
     );
 
     return Scaffold(

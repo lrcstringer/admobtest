@@ -7,3 +7,8 @@ analyzer:
     # Freezed codegen issue — the concrete implementations exist in the
     # generated _$ClassName class. Safe to suppress until Freezed fixes this.
     non_abstract_class_inherits_abstract_member: ignore
+    # The null-aware `?` marker for map entries applies to the key, not the
+    # value. Since map keys are string literals (never null), replacing
+    # `if (v != null) 'k': v` with `?'k': v` produces a misleading warning.
+    # Suppress until the lint handles map entries correctly.
+    use_null_aware_elements: ignore

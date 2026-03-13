@@ -414,7 +414,7 @@ class _FeatureFlagManagementScreenState
                     _loadFlags();
                   } catch (e) {
                     if (ctx.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(ctx).showSnackBar(
                         SnackBar(content: Text('Error: $e')),
                       );
                     }
@@ -495,7 +495,7 @@ class _FeatureFlagManagementScreenState
                         } catch (e) {
                           setInnerState(() => saving = false);
                           if (ctx.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(content: Text('Error: $e')),
                             );
                           }

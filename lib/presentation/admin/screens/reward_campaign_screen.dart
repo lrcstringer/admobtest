@@ -64,9 +64,9 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
       final activeCampaigns =
           _campaigns.where((c) => c['status'] == 'active').length;
       final totalAllocated = _campaigns.fold<int>(
-          0, (sum, c) => sum + ((c['allocatedQuantity'] as num?)?.toInt() ?? 0));
+          0, (total, c) => total + ((c['allocatedQuantity'] as num?)?.toInt() ?? 0));
       final totalRedeemed = _campaigns.fold<int>(
-          0, (sum, c) => sum + ((c['redeemedQuantity'] as num?)?.toInt() ?? 0));
+          0, (total, c) => total + ((c['redeemedQuantity'] as num?)?.toInt() ?? 0));
 
       _statistics = {
         'totalCampaigns': _campaigns.length,

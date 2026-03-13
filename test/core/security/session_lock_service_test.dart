@@ -27,8 +27,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(AuthAction.login);
-    registerFallbackValue(const AuthenticationOptions());
-  });
+});
 
   setUp(() {
     mockCapabilityService = MockDeviceCapabilityService();
@@ -218,7 +217,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       final result = await service.attemptUnlock();
@@ -229,10 +230,8 @@ void main() {
       // Verify biometricOnly: true was used.
       verify(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: const AuthenticationOptions(
-              stickyAuth: true,
-              biometricOnly: true,
-            ),
+            biometricOnly: true,
+            persistAcrossBackgrounding: true,
           )).called(1);
     });
 
@@ -243,7 +242,9 @@ void main() {
       var callCount = 0;
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) return false; // biometric fails
@@ -258,7 +259,9 @@ void main() {
       // authenticate was called twice: biometricOnly:true then false.
       verify(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).called(2);
     });
 
@@ -268,7 +271,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => false);
 
       final result = await service.attemptUnlock();
@@ -284,7 +289,9 @@ void main() {
       var callCount = 0;
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) throw Exception('Biometric sensor error');
@@ -313,7 +320,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       final result = await service.attemptUnlock();
@@ -324,10 +333,8 @@ void main() {
       // Verify biometricOnly: false was used.
       verify(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: const AuthenticationOptions(
-              stickyAuth: true,
-              biometricOnly: false,
-            ),
+            biometricOnly: false,
+            persistAcrossBackgrounding: true,
           )).called(1);
     });
 
@@ -336,7 +343,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => false);
 
       final result = await service.attemptUnlock();
@@ -350,7 +359,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenThrow(Exception('Platform error'));
 
       final result = await service.attemptUnlock();

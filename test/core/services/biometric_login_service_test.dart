@@ -38,11 +38,11 @@ class InMemorySecureStorage extends Mock implements FlutterSecureStorage {
   @override
   Future<String?> read({
     required String key,
-    IOSOptions? iOptions,
+    AppleOptions? iOptions,
     AndroidOptions? aOptions,
     LinuxOptions? lOptions,
     WebOptions? webOptions,
-    MacOsOptions? mOptions,
+    AppleOptions? mOptions,
     WindowsOptions? wOptions,
   }) async =>
       _store[key];
@@ -51,11 +51,11 @@ class InMemorySecureStorage extends Mock implements FlutterSecureStorage {
   Future<void> write({
     required String key,
     required String? value,
-    IOSOptions? iOptions,
+    AppleOptions? iOptions,
     AndroidOptions? aOptions,
     LinuxOptions? lOptions,
     WebOptions? webOptions,
-    MacOsOptions? mOptions,
+    AppleOptions? mOptions,
     WindowsOptions? wOptions,
   }) async {
     if (value != null) _store[key] = value;
@@ -64,11 +64,11 @@ class InMemorySecureStorage extends Mock implements FlutterSecureStorage {
   @override
   Future<void> delete({
     required String key,
-    IOSOptions? iOptions,
+    AppleOptions? iOptions,
     AndroidOptions? aOptions,
     LinuxOptions? lOptions,
     WebOptions? webOptions,
-    MacOsOptions? mOptions,
+    AppleOptions? mOptions,
     WindowsOptions? wOptions,
   }) async =>
       _store.remove(key);
@@ -84,10 +84,6 @@ void main() {
   late MockFirebaseFunctions mockFunctions;
   late InMemorySecureStorage secureStorage;
   late BiometricLoginService service;
-
-  setUpAll(() {
-    registerFallbackValue(const AuthenticationOptions());
-  });
 
   setUp(() {
     mockDeviceBinding = MockDeviceBindingService();
@@ -285,7 +281,9 @@ void main() {
       // Step 1: Biometric prompt succeeds
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       // Step 2: Challenge request succeeds
@@ -363,7 +361,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => false);
 
       final result = await service.attemptBiometricLogin();
@@ -383,7 +383,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       final challengeCallable = MockHttpsCallable();
@@ -409,7 +411,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       final challengeCallable = MockHttpsCallable();
@@ -441,7 +445,9 @@ void main() {
 
       when(() => mockLocalAuth.authenticate(
             localizedReason: any(named: 'localizedReason'),
-            options: any(named: 'options'),
+            biometricOnly: any(named: 'biometricOnly'),
+            persistAcrossBackgrounding:
+                any(named: 'persistAcrossBackgrounding'),
           )).thenAnswer((_) async => true);
 
       // Challenge succeeds

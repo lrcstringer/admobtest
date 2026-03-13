@@ -670,7 +670,7 @@ class _BuyCategoryManagementScreenState
                         } catch (e) {
                           setInnerState(() => saving = false);
                           if (ctx.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            ScaffoldMessenger.of(ctx).showSnackBar(
                               SnackBar(content: Text('Error: $e')),
                             );
                           }

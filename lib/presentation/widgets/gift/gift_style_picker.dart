@@ -55,7 +55,7 @@ class GiftStylePicker extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _styles.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final (style, label, mainIcon, accentIcons) = _styles[index];
           final isSelected = selected == style;

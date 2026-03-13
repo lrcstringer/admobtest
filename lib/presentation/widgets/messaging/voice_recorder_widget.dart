@@ -433,7 +433,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget>
             Positioned.fill(
               child: AnimatedBuilder(
                 animation: _progressController,
-                builder: (_, __) => CustomPaint(
+                builder: (_, _) => CustomPaint(
                   painter: _RoundedRectProgressPainter(
                     progress: _progressController.value,
                     color: _progressColor,
