@@ -192,11 +192,27 @@ class MessageSyncService {
 
     // Start message-level sync FIRST (before pruning) so conversations
     // appear in the UI as quickly as possible.
+    // Pre-warm: prioritize the most recent conversations (first in the list,
+    // which is sorted by lastMessageAt DESC). The top 2 conversations get
+    // their backfill+subscribe kicked off first, so when the user opens the
+    // inbox and taps the most recent chat, messages are already loaded.
     if (_isSyncing) {
-      for (final convId in currentIds) {
-        if (!_syncingConversationIds.contains(convId)) {
-          _startMessageSync(convId);
-        }
+      final newIds = currentIds
+          .where((id) => !_syncingConversationIds.contains(id))
+          .toList();
+
+      // Prioritize: conversations list is already sorted by lastMessageAt DESC
+      // from Firestore. Start the top conversations first so their messages
+      // are available for instant display when the user opens the inbox.
+      const preWarmCount = 2;
+      final prioritized = newIds.take(preWarmCount);
+      final rest = newIds.skip(preWarmCount);
+
+      for (final convId in prioritized) {
+        _startMessageSync(convId);
+      }
+      for (final convId in rest) {
+        _startMessageSync(convId);
       }
 
       final removedIds = _syncingConversationIds.difference(currentIds);
@@ -267,7 +283,10 @@ class MessageSyncService {
       // Conversation list sync wasn't started early — start it now
       startConversationListSync();
     } else {
-      // Already running — kick-start message sync for known conversations
+      // Already running — kick-start message sync for known conversations.
+      // _latestConversationIds preserves insertion order from the Firestore
+      // snapshot (lastMessageAt DESC), so the most recent conversations are
+      // synced first for pre-warming.
       for (final convId in _latestConversationIds) {
         if (!_syncingConversationIds.contains(convId)) {
           _startMessageSync(convId);
@@ -361,11 +380,15 @@ class MessageSyncService {
     );
   }
 
-  /// One-time paginated fetch of ALL historical messages from Firestore.
+  /// One-time paginated fetch of historical messages from Firestore.
   ///
   /// Pages through messages oldest-first in batches of 50, processing each
-  /// batch through the decrypt-and-store pipeline. This ensures messages
-  /// beyond the 50-message live stream window are recovered after reinstall.
+  /// batch through the decrypt-and-store pipeline. Capped at [_maxBackfillMessages]
+  /// to avoid excessive Firestore reads and decryption time on reinstall.
+  /// Older messages beyond the cap can be fetched on-demand when the user
+  /// scrolls up past the backfill boundary.
+  static const _maxBackfillMessages = 500;
+
   Future<void> _backfillHistoricalMessages(String conversationId) async {
     // Check if local DB already has messages — skip backfill if so
     final existingCount = await _appDatabase.getMessageCount(conversationId);
@@ -376,19 +399,22 @@ class MessageSyncService {
     }
 
     debugPrint('MessageSyncService: Starting historical backfill for '
-        '$conversationId');
+        '$conversationId (max $_maxBackfillMessages messages)');
 
     const pageSize = 50;
     var totalFetched = 0;
     DateTime? beforeCursor;
 
-    while (true) {
+    while (totalFetched < _maxBackfillMessages) {
       // Abort if sync was stopped
       if (!_isSyncing) break;
 
+      final remaining = _maxBackfillMessages - totalFetched;
+      final limit = remaining < pageSize ? remaining : pageSize;
+
       final batch = await _remoteDataSource.getMessages(
         conversationId: conversationId,
-        limit: pageSize,
+        limit: limit,
         before: beforeCursor,
       );
 
@@ -406,13 +432,14 @@ class MessageSyncService {
       // (getMessages returns newest-first with descending createdAt)
       beforeCursor = batch.last.createdAt;
 
-      // If we got fewer than pageSize, we've reached the end
-      if (batch.length < pageSize) break;
+      // If we got fewer than requested, we've reached the end
+      if (batch.length < limit) break;
     }
 
     if (totalFetched > 0) {
       debugPrint('MessageSyncService: Backfill complete for '
-          '$conversationId — fetched $totalFetched messages');
+          '$conversationId — fetched $totalFetched messages'
+          '${totalFetched >= _maxBackfillMessages ? ' (cap reached)' : ''}');
     }
   }
 
@@ -615,6 +642,9 @@ class MessageSyncService {
                       isDecrypted: true,
                     ),
                   );
+                  _appDatabase
+                      .indexMessageForSearch(msg.id, decryptedMsg.textContent)
+                      .catchError((_) {});
                   await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
                   await _updateConversationPreview(
                       conversationId, decryptedMsg);
@@ -659,6 +689,9 @@ class MessageSyncService {
                     isDecrypted: true,
                   ),
                 );
+                _appDatabase
+                    .indexMessageForSearch(msg.id, decryptedMsg.textContent)
+                    .catchError((_) {});
                 await _appDatabase.cacheDecryptedPlaintext(msg.id, recovered);
                 await _updateConversationPreview(conversationId, decryptedMsg);
                 _decryptionService.decryptFailures.remove(msg.id);
@@ -700,6 +733,13 @@ class MessageSyncService {
             isDecrypted: isDecrypted,
           ),
         );
+
+        // Index in FTS5 for fast search (fire-and-forget)
+        if (isDecrypted && decryptedMsg.textContent != null) {
+          _appDatabase
+              .indexMessageForSearch(msg.id, decryptedMsg.textContent)
+              .catchError((_) {});
+        }
 
         // Also store in DecryptedMessageCache for backward compatibility
         if (isDecrypted && decryptedMsg.textContent != null) {
@@ -751,6 +791,9 @@ class MessageSyncService {
                 isDecrypted: true,
               ),
             );
+            _appDatabase
+                .indexMessageForSearch(msg.id, decryptedMsg.textContent)
+                .catchError((_) {});
             if (decryptedMsg.textContent != null) {
               try {
                 await _appDatabase.cacheDecryptedPlaintext(

@@ -1,8 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/chat_date_formatter.dart';
 import '../../../domain/entities/conversation.dart';
 import '../../theme/app_colors.dart';
+import 'imali_avatar.dart';
 
 /// List tile for a P2P conversation in the unified inbox.
 class ConversationListTile extends StatelessWidget {
@@ -11,12 +12,17 @@ class ConversationListTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
 
+  /// Names of users currently typing in this conversation.
+  /// When non-empty, replaces the subtitle with a typing indicator.
+  final List<String> typingNames;
+
   const ConversationListTile({
     super.key,
     required this.conversation,
     required this.currentUserId,
     required this.onTap,
     this.onLongPress,
+    this.typingNames = const [],
   });
 
   @override
@@ -56,7 +62,9 @@ class ConversationListTile extends StatelessWidget {
             ),
         ],
       ),
-      subtitle: _buildSubtitle(context, hasUnread),
+      subtitle: typingNames.isNotEmpty
+          ? _buildInlineTyping(context)
+          : _buildSubtitle(context, hasUnread),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -142,65 +150,27 @@ class ConversationListTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context, ParticipantInfo other) {
-    const double size = 48;
-    const double radius = 6;
-
-    final initialsWidget = Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColors.chatBubbleSent,
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        _initials(other.displayName),
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-      ),
+    return IMaliAvatar(
+      imageUrl: other.avatarUrl,
+      displayName: other.displayName,
     );
+  }
 
-    if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: other.avatarUrl!,
-        imageBuilder: (_, imageProvider) => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(radius),
-            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+  Widget _buildInlineTyping(BuildContext context) {
+    final label = typingNames.length == 1
+        ? '${typingNames.first} is typing...'
+        : '${typingNames.join(", ")} are typing...';
+    return Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: AppColors.primary,
+            fontStyle: FontStyle.italic,
           ),
-        ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
-      );
-    }
-
-    return initialsWidget;
+    );
   }
 
-  String _initials(String name) {
-    if (name.isEmpty) return '??';
-    final words = name.split(' ');
-    if (words.length >= 2) {
-      return '${words[0][0]}${words[1][0]}'.toUpperCase();
-    }
-    return name.substring(0, name.length.clamp(0, 2)).toUpperCase();
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    if (diff.inDays == 0) {
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } else if (diff.inDays == 1) {
-      return 'Yesterday';
-    } else if (diff.inDays < 7) {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return days[date.weekday - 1];
-    }
-    return '${date.day}/${date.month}';
-  }
+  String _formatDate(DateTime date) =>
+      ChatDateFormatter.formatListTimestamp(date);
 }

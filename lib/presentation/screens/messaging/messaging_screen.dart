@@ -422,7 +422,7 @@ class _MessagingScreenState extends State<MessagingScreen>
             convState.status == ConversationStatus.loading);
 
     if (convNotReady) {
-      return const Center(child: CircularProgressIndicator());
+      return const _InboxShimmer();
     }
 
     final items = _buildConversationItems(convState, currentUserId);
@@ -470,18 +470,58 @@ class _MessagingScreenState extends State<MessagingScreen>
         continue;
       }
 
+      final isPinned = conv.isPinnedFor(currentUserId);
       final Widget tile;
       {
-        tile = ConversationListTile(
-          conversation: conv,
-          currentUserId: currentUserId,
-          onTap: () {
-            context
-                .read<ConversationBloc>()
-                .add(ConversationEvent.selectConversation(conv.id));
-            context.push('/chat/conversation/${conv.id}');
+        tile = Dismissible(
+          key: ValueKey('swipe_${conv.id}'),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.endToStart) {
+              // Swipe left → archive
+              context
+                  .read<ConversationActionsBloc>()
+                  .add(ConversationActionsEvent.archiveConversation(conv.id));
+              return false; // don't remove from list; bloc handles it
+            } else {
+              // Swipe right → toggle pin
+              context.read<ConversationActionsBloc>().add(
+                    ConversationActionsEvent.togglePin(
+                      conversationId: conv.id,
+                      pinned: !isPinned,
+                    ),
+                  );
+              return false;
+            }
           },
-          onLongPress: () => _showConversationOptions(context, conv),
+          background: Container(
+            color: AppColors.primary.withValues(alpha: 0.15),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 24),
+            child: Icon(
+              isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+              color: AppColors.primary,
+            ),
+          ),
+          secondaryBackground: Container(
+            color: AppColors.textSecondary.withValues(alpha: 0.15),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 24),
+            child: const Icon(
+              Icons.archive_outlined,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          child: ConversationListTile(
+            conversation: conv,
+            currentUserId: currentUserId,
+            onTap: () {
+              context
+                  .read<ConversationBloc>()
+                  .add(ConversationEvent.selectConversation(conv.id));
+              context.push('/chat/conversation/${conv.id}');
+            },
+            onLongPress: () => _showConversationOptions(context, conv),
+          ),
         );
       }
 
@@ -555,17 +595,51 @@ class _MessagingScreenState extends State<MessagingScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 80, color: AppColors.textHint),
+            // Animated illustration: stacked speech bubbles
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Background glow
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.1),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                // Overlapping speech bubble icons
+                Positioned(
+                  left: 0,
+                  top: 10,
+                  child: Icon(Icons.chat_bubble_rounded,
+                      size: 48, color: AppColors.secondary.withValues(alpha: 0.3)),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 10,
+                  child: Icon(Icons.chat_bubble_rounded,
+                      size: 48, color: AppColors.primary.withValues(alpha: 0.3)),
+                ),
+                Icon(Icons.chat_bubble_outline_rounded,
+                    size: 64, color: AppColors.primary.withValues(alpha: 0.7)),
+              ],
+            ),
             AppSpacing.verticalLg,
             Text(
-              'No conversations yet',
+              'Your conversations live here',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
             ),
             AppSpacing.verticalSm,
             Text(
-              'Start a chat to get started',
+              'Send tokens, gifts, and messages to\nfriends and communities.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -606,7 +680,7 @@ class _MessagingScreenState extends State<MessagingScreen>
     String currentUserId,
   ) {
     if (poolState.isLoading && poolState.myPools.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const _InboxShimmer();
     }
 
     final allPools = poolState.myPools;
@@ -756,7 +830,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   ) {
     if (commState.status == CommunityLoadingStatus.loading &&
         commState.communities.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const _InboxShimmer();
     }
 
     final communities = commState.activeCommunities
@@ -1286,4 +1360,113 @@ class _InboxEntry {
     required this.isPinned,
     required this.widget,
   });
+}
+
+/// Skeleton shimmer placeholder for inbox loading state.
+/// Structured placeholders feel 30-40% faster than spinners.
+class _InboxShimmer extends StatelessWidget {
+  const _InboxShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 8,
+      itemBuilder: (_, __) => const _ShimmerTile(),
+    );
+  }
+}
+
+class _ShimmerTile extends StatefulWidget {
+  const _ShimmerTile();
+
+  @override
+  State<_ShimmerTile> createState() => _ShimmerTileState();
+}
+
+class _ShimmerTileState extends State<_ShimmerTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+    _animation = Tween(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (_, __) {
+        final opacity = _animation.value;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              // Avatar placeholder
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.chatSurface.withValues(alpha: opacity),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Name placeholder
+                    Container(
+                      width: 120,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: AppColors.chatSurface.withValues(alpha: opacity),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Message preview placeholder
+                    Container(
+                      width: double.infinity,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: AppColors.chatSurface.withValues(alpha: opacity * 0.7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Timestamp placeholder
+              Container(
+                width: 36,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.chatSurface.withValues(alpha: opacity * 0.5),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

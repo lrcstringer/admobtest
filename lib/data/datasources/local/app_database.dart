@@ -542,13 +542,18 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onCreate: (Migrator m) async {
         await m.createAll();
+        // FTS5 virtual table for fast message search (not managed by Drift)
+        await customStatement(
+          'CREATE VIRTUAL TABLE IF NOT EXISTS message_fts '
+          'USING fts5(text_content, rowid_ref UNINDEXED)',
+        );
       },
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
@@ -636,6 +641,23 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(localMarketplaceOrders);
           await m.createTable(localSaLocations);
           await m.createTable(localSavedListings);
+        }
+        if (from < 16) {
+          // FTS5 virtual table for fast in-conversation message search.
+          // rowid_ref maps to local_full_messages.id (text PK, stored as-is).
+          // content is NOT synced — we use a content-less (external content)
+          // approach: FTS stores its own copy of text_content, indexed by
+          // rowid_ref. This avoids triggers and keeps the FTS table small.
+          await customStatement(
+            'CREATE VIRTUAL TABLE IF NOT EXISTS message_fts '
+            'USING fts5(text_content, rowid_ref UNINDEXED)',
+          );
+          // Backfill existing messages into the FTS index
+          await customStatement(
+            'INSERT OR IGNORE INTO message_fts (rowid_ref, text_content) '
+            'SELECT id, text_content FROM local_full_messages '
+            'WHERE text_content IS NOT NULL AND text_content != \'\'',
+          );
         }
       },
     );
@@ -1059,6 +1081,45 @@ class AppDatabase extends _$AppDatabase {
         .watch();
   }
 
+  /// Watch conversations excluding archived ones for a specific user.
+  /// Reduces stream throughput — archived conversations don't trigger UI rebuilds.
+  Stream<List<LocalFullConversation>> watchActiveConversations(String userId) {
+    // SQLite json_extract is available since SQLite 3.9.0 (Android 7+, iOS 16+).
+    // The archivedJson column stores a JSON object like {"userId": true}.
+    // We exclude rows where json_extract(archived_json, '$.<userId>') = 1.
+    // Fall back to full list if json_extract is unavailable (shouldn't happen
+    // on any supported device).
+    final archivedPath = '\$.${userId.replaceAll("'", "''")}';
+    return customSelect(
+      'SELECT * FROM local_full_conversations '
+      'WHERE IFNULL(json_extract(archived_json, ?), 0) != 1 '
+      'ORDER BY last_message_at DESC',
+      variables: [Variable.withString(archivedPath)],
+      readsFrom: {localFullConversations},
+    ).watch().map((rows) {
+      return rows
+          .map((row) => localFullConversations.map(row.data))
+          .toList();
+    });
+  }
+
+  /// Compute total unread count at the SQL level. Only selects the
+  /// unread_counts_json column — avoids materializing full conversation objects.
+  Stream<int> watchTotalUnreadCountSql(String userId) {
+    // json_extract pulls the integer unread count for the specific user
+    // directly in SQL, then SUM aggregates across all conversations.
+    final unreadPath = '\$.${userId.replaceAll("'", "''")}';
+    return customSelect(
+      'SELECT IFNULL(SUM(IFNULL(json_extract(unread_counts_json, ?), 0)), 0) '
+      'AS total FROM local_full_conversations',
+      variables: [Variable.withString(unreadPath)],
+      readsFrom: {localFullConversations},
+    ).watch().map((rows) {
+      if (rows.isEmpty) return 0;
+      return rows.first.read<int>('total');
+    });
+  }
+
   Future<List<LocalFullConversation>> getLocalConversations() {
     return (select(localFullConversations)
           ..orderBy([(c) => OrderingTerm.desc(c.lastMessageAt)]))
@@ -1111,20 +1172,70 @@ class AppDatabase extends _$AppDatabase {
     ));
   }
 
-  /// Search messages in a conversation by text content (for in-conversation search).
+  /// Search messages in a conversation using FTS5 full-text index (fast)
+  /// with fallback to LIKE for devices where the FTS table doesn't exist.
   Future<List<LocalFullMessage>> searchLocalMessages(
     String conversationId,
     String query, {
     int limit = 50,
-  }) {
-    return (select(localFullMessages)
-          ..where((m) =>
-              m.conversationId.equals(conversationId) &
-              m.textContent.like('%$query%') &
-              m.deletedForEveryone.equals(false))
-          ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
-          ..limit(limit))
-        .get();
+  }) async {
+    // Sanitize query for FTS5: escape double quotes and wrap each term
+    final sanitized = query.replaceAll('"', '""').trim();
+    if (sanitized.isEmpty) return [];
+
+    try {
+      // Try FTS5 first — much faster than LIKE '%query%' for large tables.
+      // FTS5 match uses implicit prefix matching with *.
+      final ftsQuery = '"$sanitized"*';
+      final rows = await customSelect(
+        'SELECT m.* FROM local_full_messages m '
+        'INNER JOIN message_fts f ON m.id = f.rowid_ref '
+        'WHERE f.message_fts MATCH ? '
+        'AND m.conversation_id = ? '
+        'AND m.deleted_for_everyone = 0 '
+        'ORDER BY m.created_at DESC '
+        'LIMIT ?',
+        variables: [
+          Variable.withString(ftsQuery),
+          Variable.withString(conversationId),
+          Variable.withInt(limit),
+        ],
+        readsFrom: {localFullMessages},
+      ).get();
+
+      return rows
+          .map((row) => localFullMessages.map(row.data))
+          .toList();
+    } catch (_) {
+      // FTS table doesn't exist yet (pre-v16) — fall back to LIKE
+      return (select(localFullMessages)
+            ..where((m) =>
+                m.conversationId.equals(conversationId) &
+                m.textContent.like('%$sanitized%') &
+                m.deletedForEveryone.equals(false))
+            ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
+            ..limit(limit))
+          .get();
+    }
+  }
+
+  /// Populate the FTS5 index for a single message. Called by MessageSyncService
+  /// after storing a decrypted message. Fire-and-forget — FTS is an optimization,
+  /// not a correctness requirement.
+  Future<void> indexMessageForSearch(String messageId, String? textContent) {
+    if (textContent == null || textContent.isEmpty) return Future.value();
+    return customStatement(
+      'INSERT OR REPLACE INTO message_fts (rowid_ref, text_content) VALUES (?, ?)',
+      [messageId, textContent],
+    );
+  }
+
+  /// Remove a message from the FTS5 index (on deletion).
+  Future<void> removeMessageFromSearchIndex(String messageId) {
+    return customStatement(
+      'DELETE FROM message_fts WHERE rowid_ref = ?',
+      [messageId],
+    );
   }
 
   Future<void> clearLocalFullMessages() {

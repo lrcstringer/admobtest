@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../concurrency/keyed_mutex.dart';
@@ -109,7 +110,7 @@ class CommunitySyncService {
     if (_communityListSyncing) return;
     _communityListSyncing = true;
 
-    print('CommunitySyncService: Starting community list sync (pre-E2EE)');
+    debugPrint('CommunitySyncService: Starting community list sync (pre-E2EE)');
     _startCommunityListSync();
   }
 
@@ -122,13 +123,13 @@ class CommunitySyncService {
     if (_isSyncing) return;
     _isSyncing = true;
 
-    print('CommunitySyncService: Starting full sync (E2EE ready)');
+    debugPrint('CommunitySyncService: Starting full sync (E2EE ready)');
 
     // 6.1 Listen for connectivity changes to restart sync
     _connectivitySub?.cancel();
     _connectivitySub = _networkInfo.onConnectivityChanged.listen((_) async {
       if (_isSyncing && await _networkInfo.isConnected) {
-        print('CommunitySyncService: Network restored, restarting sync');
+        debugPrint('CommunitySyncService: Network restored, restarting sync');
         _restartCommunityListSync();
       }
     });
@@ -165,7 +166,7 @@ class CommunitySyncService {
                     .deleteLocalMessagesForConversation(model.id);
                 await _senderKeyService.resetAllKeysForCommunity(model.id);
               } catch (e) {
-                print('CommunitySyncService: Failed to clean up closed '
+                debugPrint('CommunitySyncService: Failed to clean up closed '
                     'community ${model.id}: $e');
               }
               continue;
@@ -230,7 +231,7 @@ class CommunitySyncService {
                 LocalCommunityMapper.toCompanion(community),
               );
             } catch (e) {
-              print('CommunitySyncService: Failed to store community '
+              debugPrint('CommunitySyncService: Failed to store community '
                   '${model.id}: $e');
             }
           }
@@ -240,7 +241,7 @@ class CommunitySyncService {
             ..clear()
             ..addAll(currentIds);
 
-          print('CommunitySyncService: Community list stream emitted '
+          debugPrint('CommunitySyncService: Community list stream emitted '
               '${communityModels.length} communities '
               '(${currentIds.length} active, isSyncing=$_isSyncing)');
 
@@ -271,10 +272,10 @@ class CommunitySyncService {
                 await _appDatabase
                     .deleteLocalMessagesForConversation(id);
                 await _senderKeyService.resetAllKeysForCommunity(id);
-                print('CommunitySyncService: Cleaned local data for '
+                debugPrint('CommunitySyncService: Cleaned local data for '
                     'removed community $id');
               } catch (e) {
-                print('CommunitySyncService: Failed to clean local data '
+                debugPrint('CommunitySyncService: Failed to clean local data '
                     'for $id: $e');
               }
             }
@@ -304,21 +305,21 @@ class CommunitySyncService {
                   await _appDatabase
                       .deleteLocalMessagesForConversation(id);
                   await _senderKeyService.resetAllKeysForCommunity(id);
-                  print('CommunitySyncService: Reconciled stale '
+                  debugPrint('CommunitySyncService: Reconciled stale '
                       'community $id from local DB');
                 }
               } catch (e) {
-                print('CommunitySyncService: First-sync reconciliation '
+                debugPrint('CommunitySyncService: First-sync reconciliation '
                     'error: $e');
               }
             }
           }
         }).catchError((Object e) {
-          print('CommunitySyncService: Community list error: $e');
+          debugPrint('CommunitySyncService: Community list error: $e');
         });
       },
       onError: (e) {
-        print('CommunitySyncService: Community list stream error: $e');
+        debugPrint('CommunitySyncService: Community list stream error: $e');
       },
     );
   }
@@ -335,7 +336,7 @@ class CommunitySyncService {
     _isSyncing = false;
     _communityListSyncing = false;
 
-    print('CommunitySyncService: Stopping sync');
+    debugPrint('CommunitySyncService: Stopping sync');
 
     // 6.9 Cancel connectivity subscription
     _connectivitySub?.cancel();
@@ -399,7 +400,7 @@ class CommunitySyncService {
     _syncRetryCount.remove('member_$communityId');
     _previousMemberIds.remove(communityId);
     _previousActiveMemberIds.remove(communityId);
-    print('CommunitySyncService: Stopped syncing deleted community '
+    debugPrint('CommunitySyncService: Stopped syncing deleted community '
         '$communityId');
   }
 
@@ -411,16 +412,16 @@ class CommunitySyncService {
   /// message sync immediately.
   void ensureSyncing(String communityId) {
     if (!_isSyncing) {
-      print('CommunitySyncService.ensureSyncing: Full sync not started '
+      debugPrint('CommunitySyncService.ensureSyncing: Full sync not started '
           'yet for $communityId — skipping (E2EE not ready)');
       return;
     }
     if (_syncingCommunityIds.contains(communityId)) {
-      print('CommunitySyncService.ensureSyncing: Already syncing '
+      debugPrint('CommunitySyncService.ensureSyncing: Already syncing '
           '$communityId');
       return;
     }
-    print('CommunitySyncService.ensureSyncing: Force-starting message '
+    debugPrint('CommunitySyncService.ensureSyncing: Force-starting message '
         'sync for $communityId (was not syncing!)');
     _ensureSyncedIds.add(communityId);
     _startMessageSync(communityId);
@@ -437,14 +438,14 @@ class CommunitySyncService {
     _messageSubs[communityId]?.cancel();
     _syncingCommunityIds.add(communityId);
 
-    print('CommunitySyncService: Starting message listener for '
+    debugPrint('CommunitySyncService: Starting message listener for '
         '$communityId (now syncing ${_syncingCommunityIds.length} communities)');
 
     _messageSubs[communityId] = _remoteDataSource
         .watchMessages(communityId: communityId, limit: 50)
         .listen(
       (messageModels) {
-        print('CommunitySyncService: Firestore emitted '
+        debugPrint('CommunitySyncService: Firestore emitted '
             '${messageModels.length} messages for $communityId');
         // M8: Reset retry count on successful stream data
         _syncRetryCount.remove(communityId);
@@ -454,21 +455,21 @@ class CommunitySyncService {
           communityId,
           () => _processIncomingMessages(communityId, messageModels),
         ).catchError((Object e) {
-          print(
+          debugPrint(
               'CommunitySyncService: processing error for $communityId: $e');
         });
       },
       // 6.2 Subscription error cleanup with retry
       // M8: Exponential backoff instead of fixed 10s delay
       onError: (e) {
-        print(
+        debugPrint(
             'CommunitySyncService: Message sync error for $communityId: $e');
         _messageSubs.remove(communityId);
         _syncingCommunityIds.remove(communityId);
         final retryCount = (_syncRetryCount[communityId] ?? 0) + 1;
         _syncRetryCount[communityId] = retryCount;
         if (retryCount > 5) {
-          print('CommunitySyncService: Max retries reached for '
+          debugPrint('CommunitySyncService: Max retries reached for '
               '$communityId message sync — will retry on next connectivity');
           return;
         }
@@ -538,7 +539,7 @@ class CommunitySyncService {
                 final newActive =
                     activeIds.difference(previousActiveIds);
                 if (newActive.isNotEmpty) {
-                  print(
+                  debugPrint(
                       'CommunitySyncService: ${newActive.length} new '
                       'active member(s) in $communityId — clearing '
                       'distribution flag');
@@ -546,7 +547,7 @@ class CommunitySyncService {
                     await _senderKeyService
                         .clearDistributed(communityId);
                   } catch (e) {
-                    print('CommunitySyncService: clearDistributed '
+                    debugPrint('CommunitySyncService: clearDistributed '
                         'failed for $communityId: $e');
                   }
                 }
@@ -558,38 +559,38 @@ class CommunitySyncService {
               if (previousIds != null && previousIds.isNotEmpty) {
                 final removed = previousIds.difference(currentIds);
                 if (removed.isNotEmpty) {
-                  print(
+                  debugPrint(
                       'CommunitySyncService: ${removed.length} member(s) '
                       'left $communityId — rekeying sender key');
                   try {
                     await _senderKeyService.rekeyAllSenderKeys(communityId);
                   } catch (e) {
-                    print('CommunitySyncService: Rekey failed for '
+                    debugPrint('CommunitySyncService: Rekey failed for '
                         '$communityId: $e');
                   }
                 }
               }
               _previousMemberIds[communityId] = currentIds;
             } catch (e) {
-              print(
+              debugPrint(
                   'CommunitySyncService: Member sync error for $communityId: $e');
             }
           },
         ).catchError((Object e) {
-          print(
+          debugPrint(
               'CommunitySyncService: Member lock error for $communityId: $e');
         });
       },
       // 6.2 + M8: Subscription error cleanup with exponential backoff
       onError: (e) {
-        print(
+        debugPrint(
             'CommunitySyncService: Member stream error for $communityId: $e');
         _memberSubs.remove(communityId);
         final key = 'member_$communityId';
         final retryCount = (_syncRetryCount[key] ?? 0) + 1;
         _syncRetryCount[key] = retryCount;
         if (retryCount > 5) {
-          print('CommunitySyncService: Max retries for member sync '
+          debugPrint('CommunitySyncService: Max retries for member sync '
               '$communityId — will retry on next connectivity');
           return;
         }
@@ -625,7 +626,7 @@ class CommunitySyncService {
   ) async {
     final currentUserId = _remoteDataSource.currentUserId;
     if (currentUserId == null) {
-      print('CommunitySyncService: currentUserId is NULL — '
+      debugPrint('CommunitySyncService: currentUserId is NULL — '
           'skipping ${messageModels.length} messages for $communityId');
       return;
     }
@@ -689,7 +690,7 @@ class CommunitySyncService {
             _mediaRecoveryService
                 .storePayload(msg.id, plaintext)
                 .catchError((e) {
-              print(
+              debugPrint(
                   'CommunitySync: vault store failed for ${msg.id}: $e');
             });
           } else {
@@ -700,7 +701,7 @@ class CommunitySyncService {
                 final recovered =
                     await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {
-                  print(
+                  debugPrint(
                       'CommunitySyncService: Vault recovery SUCCESS for '
                       '${msg.id}');
                   decryptedMsg = _applyDecryptedPayload(msg, recovered);
@@ -717,7 +718,7 @@ class CommunitySyncService {
                   continue;
                 }
               }
-              print(
+              debugPrint(
                   'CommunitySyncService: Sender own-message cache miss '
                   '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(textContent: '[Sent by you]');
@@ -735,7 +736,7 @@ class CommunitySyncService {
               final recovered =
                   await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
-                print(
+                debugPrint(
                     'CommunitySyncService: Vault recovery SUCCESS for '
                     'received msg ${msg.id}');
                 decryptedMsg = _applyDecryptedPayload(msg, recovered);
@@ -777,7 +778,7 @@ class CommunitySyncService {
             );
           } catch (e) {
             // H4: Log instead of silently swallowing
-            print('CommunitySyncService: Failed to cache plaintext '
+            debugPrint('CommunitySyncService: Failed to cache plaintext '
                 'for ${msg.id}: $e');
           }
         }
@@ -787,12 +788,12 @@ class CommunitySyncService {
       } catch (e) {
         errorCount++;
         // H4: Include message ID for debuggability
-        print(
+        debugPrint(
             'CommunitySyncService: Failed to process msg ${(model as dynamic).id ?? 'unknown'} '
             'in $communityId: $e');
       }
     }
-    print('CommunitySyncService: Processed ${messageModels.length} msgs '
+    debugPrint('CommunitySyncService: Processed ${messageModels.length} msgs '
         'for $communityId — stored=$storedCount, skipped=$skippedCount, '
         'errors=$errorCount');
   }
@@ -866,7 +867,7 @@ class CommunitySyncService {
     };
 
     // DIAG-1: Log what we're trying to decrypt
-    print('CommunitySyncService DIAG: Decrypting msg ${msg.id} from '
+    debugPrint('CommunitySyncService DIAG: Decrypting msg ${msg.id} from '
         '${msg.senderId} in $communityId — '
         'hasCiphertext=${msg.ciphertext != null}, '
         'hasE2ee=${msg.e2ee != null}, '
@@ -880,22 +881,22 @@ class CommunitySyncService {
         msg.senderId,
         encrypted,
       );
-      print('CommunitySyncService DIAG: Direct decrypt SUCCESS for '
+      debugPrint('CommunitySyncService DIAG: Direct decrypt SUCCESS for '
           'msg ${msg.id}');
       return result;
     } on StateError catch (e) {
       // DIAG-2: Log the specific StateError reason
-      print('CommunitySyncService DIAG: StateError for msg ${msg.id}: $e');
+      debugPrint('CommunitySyncService DIAG: StateError for msg ${msg.id}: $e');
       // C2: Wrap in try-catch so a network error during key fetch
       // doesn't kill the entire message batch
       List<({String communityId, String distributionId})> installed;
       try {
         installed = await _processIncomingKeyDistributions(communityId);
         // DIAG-3: Log what distributions we got
-        print('CommunitySyncService DIAG: Fetched ${installed.length} '
+        debugPrint('CommunitySyncService DIAG: Fetched ${installed.length} '
             'distributions for $communityId');
       } catch (e) {
-        print('CommunitySyncService DIAG: Key distribution fetch FAILED '
+        debugPrint('CommunitySyncService DIAG: Key distribution fetch FAILED '
             'for $communityId: $e — msg ${msg.id} undecryptable until '
             'next sync');
         return null;
@@ -912,17 +913,17 @@ class CommunitySyncService {
         if (installed.isNotEmpty) {
           await _markDistributionsConsumed(installed);
         }
-        print('CommunitySyncService DIAG: Retry decrypt SUCCESS for '
+        debugPrint('CommunitySyncService DIAG: Retry decrypt SUCCESS for '
             'msg ${msg.id} after installing ${installed.length} keys');
         return result;
       } catch (retryErr) {
-        print('CommunitySyncService DIAG: Retry decrypt FAILED for '
+        debugPrint('CommunitySyncService DIAG: Retry decrypt FAILED for '
             'msg ${msg.id}: $retryErr — distributions NOT consumed');
         return null;
       }
     } catch (e) {
       // DIAG-4: Log non-StateError exceptions (unexpected path)
-      print('CommunitySyncService DIAG: NON-StateError decrypt failure '
+      debugPrint('CommunitySyncService DIAG: NON-StateError decrypt failure '
           'for msg ${msg.id}: ${e.runtimeType}: $e');
       return null;
     }
@@ -946,7 +947,7 @@ class CommunitySyncService {
             await _remoteDataSource.fetchPendingKeyDistributions(communityId);
 
         // DIAG-5: Log distribution count
-        print('CommunitySyncService DIAG: Found ${distributions.length} '
+        debugPrint('CommunitySyncService DIAG: Found ${distributions.length} '
             'pending distributions for $communityId');
 
         for (final dist in distributions) {
@@ -957,7 +958,7 @@ class CommunitySyncService {
           final distributionId = dist['distributionId'] as String;
 
           // DIAG-6: Log each distribution's details
-          print('CommunitySyncService DIAG: Processing distribution '
+          debugPrint('CommunitySyncService DIAG: Processing distribution '
               '$distributionId from $fromUserId — '
               'hasE2ee=${e2ee != null}, hasX3dh=${x3dhHeader != null}');
 
@@ -973,7 +974,7 @@ class CommunitySyncService {
             );
 
             // DIAG-7: Log successful P2P decrypt
-            print('CommunitySyncService DIAG: P2P decrypt SUCCESS for '
+            debugPrint('CommunitySyncService DIAG: P2P decrypt SUCCESS for '
                 'distribution from $fromUserId');
 
             // Parse and store the sender key
@@ -984,7 +985,7 @@ class CommunitySyncService {
               keyData,
             );
 
-            print('CommunitySyncService DIAG: Stored sender key from '
+            debugPrint('CommunitySyncService DIAG: Stored sender key from '
                 '$fromUserId — chainId=${keyData['chainId']}, '
                 'msgNum=${keyData['messageNumber']}');
 
@@ -993,7 +994,7 @@ class CommunitySyncService {
             installed.add((communityId: communityId, distributionId: distributionId));
           } catch (e) {
             // DIAG-8: Log the specific failure with type
-            print(
+            debugPrint(
                 'CommunitySyncService DIAG: FAILED to process distribution '
                 'from $fromUserId: ${e.runtimeType}: $e');
           }
@@ -1003,7 +1004,7 @@ class CommunitySyncService {
         if (attempt < 2) {
           await Future.delayed(Duration(seconds: attempt * 2 + 1));
         } else {
-          print('CommunitySyncService: Key distribution fetch failed '
+          debugPrint('CommunitySyncService: Key distribution fetch failed '
               'after 3 attempts for $communityId: $e');
         }
       }
@@ -1023,7 +1024,7 @@ class CommunitySyncService {
           d.distributionId,
         );
       } catch (e) {
-        print('CommunitySyncService: Failed to mark distribution '
+        debugPrint('CommunitySyncService: Failed to mark distribution '
             '${d.distributionId} as consumed: $e');
       }
     }
@@ -1067,7 +1068,7 @@ class CommunitySyncService {
         lastMessageType: msg.type.name,
       );
     } catch (e) {
-      print(
+      debugPrint(
           'CommunitySyncService: Failed to update preview for $communityId: $e');
     }
   }

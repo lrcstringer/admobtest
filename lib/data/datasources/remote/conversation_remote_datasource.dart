@@ -198,6 +198,10 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
   // CONVERSATION LIST
   // =========================================================================
 
+  /// Maximum conversations to fetch per query. Prevents downloading
+  /// unbounded doc sets for power users with hundreds of conversations.
+  static const _conversationListLimit = 200;
+
   /// Track which conversations have already been healed this session
   /// to avoid redundant writes.
   final Set<String> _healedConversationIds = {};
@@ -209,6 +213,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       final snapshot = await _conversationsCollection
           .where('participantIds', arrayContains: userId)
           .orderBy('lastMessageAt', descending: true)
+          .limit(_conversationListLimit)
           .get();
 
       final conversations = _deduplicateConversations(
@@ -236,6 +241,7 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
     return _conversationsCollection
         .where('participantIds', arrayContains: userId)
         .orderBy('lastMessageAt', descending: true)
+        .limit(_conversationListLimit)
         .snapshots()
         .map((snapshot) {
       final raw = snapshot.docs

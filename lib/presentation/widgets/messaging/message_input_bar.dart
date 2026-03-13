@@ -1,5 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme/app_colors.dart';
 
@@ -33,6 +34,7 @@ class MessageInputBar extends StatefulWidget {
 class _MessageInputBarState extends State<MessageInputBar> {
   bool _hasText = false;
   bool _showEmojiPicker = false;
+  bool _showSentCheck = false;
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -166,7 +168,20 @@ class _MessageInputBarState extends State<MessageInputBar> {
               // Right button: Plus (attachment) when empty, Send when has text
               _hasText
                   ? IconButton.filled(
-                      onPressed: widget.isSending ? null : widget.onSend,
+                      onPressed: widget.isSending
+                          ? null
+                          : () {
+                              HapticFeedback.lightImpact();
+                              setState(() => _showSentCheck = true);
+                              widget.onSend();
+                              // Brief check-mark flash, then revert
+                              Future.delayed(
+                                  const Duration(milliseconds: 600), () {
+                                if (mounted) {
+                                  setState(() => _showSentCheck = false);
+                                }
+                              });
+                            },
                       icon: widget.isSending
                           ? const SizedBox(
                               width: 20,
@@ -176,7 +191,9 @@ class _MessageInputBarState extends State<MessageInputBar> {
                                 color: AppColors.textOnPrimary,
                               ),
                             )
-                          : const Icon(Icons.send),
+                          : _showSentCheck
+                              ? const Icon(Icons.check)
+                              : const Icon(Icons.send),
                     )
                   : IconButton.filled(
                       onPressed: widget.onAttachment,

@@ -34,6 +34,7 @@ Future<void> showMessageContextMenu({
   MessageActionCallback? onPin,
   required MessageActionCallback onDeleteForMe,
   MessageActionCallback? onDeleteForEveryone,
+  VoidCallback? onSelect,
 }) {
   HapticFeedback.mediumImpact();
 
@@ -128,6 +129,12 @@ Future<void> showMessageContextMenu({
               onDeleteForEveryone(message);
             }
           : null,
+      onSelect: onSelect != null
+          ? () {
+              Navigator.pop(ctx);
+              onSelect();
+            }
+          : null,
     ),
   );
 }
@@ -155,6 +162,7 @@ class _MessageContextMenuSheet extends StatelessWidget {
   final VoidCallback? onPin;
   final VoidCallback onDeleteForMe;
   final VoidCallback? onDeleteForEveryone;
+  final VoidCallback? onSelect;
 
   const _MessageContextMenuSheet({
     required this.isDeleted,
@@ -175,6 +183,7 @@ class _MessageContextMenuSheet extends StatelessWidget {
     this.onPin,
     required this.onDeleteForMe,
     this.onDeleteForEveryone,
+    this.onSelect,
   });
 
   @override
@@ -256,6 +265,13 @@ class _MessageContextMenuSheet extends StatelessWidget {
                     : Icons.push_pin_outlined,
                 label: isPinned ? 'Unpin' : 'Pin',
                 onTap: onPin!,
+              ),
+
+            if (onSelect != null)
+              _ActionTile(
+                icon: Icons.check_circle_outline_rounded,
+                label: 'Select',
+                onTap: onSelect!,
               ),
 
             const Divider(height: 1, color: AppColors.divider),

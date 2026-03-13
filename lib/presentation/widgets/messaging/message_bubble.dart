@@ -29,8 +29,9 @@ import 'voice_player_widget.dart';
 
 /// WeChat-style message bubble with square avatars and speech triangles.
 ///
-/// Handles text, token send/request, image, voice, and system messages.
-class MessageBubble extends StatelessWidget {
+/// Supports swipe-to-reply, double-tap to react, and message clustering
+/// (hide avatar/tail for consecutive same-sender messages).
+class MessageBubble extends StatefulWidget {
   final Message message;
   final bool isMe;
   final String currentUserId;
@@ -60,6 +61,18 @@ class MessageBubble extends StatelessWidget {
   /// Display name of the other participant (for token request labels).
   final String? otherUserName;
 
+  /// Called when user swipes to reply (swipe-to-reply gesture).
+  final ValueChanged<Message>? onSwipeReply;
+
+  /// Called when user double-taps to react (quick reaction).
+  final ValueChanged<Message>? onDoubleTapReact;
+
+  /// Whether to show the avatar (false when clustering consecutive messages).
+  final bool showAvatar;
+
+  /// Whether to show the speech triangle tail (false for middle messages in cluster).
+  final bool showTail;
+
   const MessageBubble({
     super.key,
     required this.message,
@@ -73,56 +86,149 @@ class MessageBubble extends StatelessWidget {
     this.onImageTap,
     this.highlightQuery,
     this.otherUserName,
+    this.onSwipeReply,
+    this.onDoubleTapReact,
+    this.showAvatar = true,
+    this.showTail = true,
   });
 
+  @override
+  State<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<MessageBubble>
+    with SingleTickerProviderStateMixin {
+  /// Swipe-to-reply drag offset.
+  double _swipeOffset = 0;
+  static const _swipeThreshold = 64.0;
+
   String? get _effectiveAvatarUrl {
-    final url = avatarUrl ?? message.senderAvatarUrl;
+    final url = widget.avatarUrl ?? widget.message.senderAvatarUrl;
     return (url != null && url.isNotEmpty) ? url : null;
+  }
+
+  /// Wraps content with swipe-to-reply + double-tap-to-react gestures.
+  Widget _wrapWithGestures({required Widget child}) {
+    Widget result = child;
+
+    // Double-tap to react
+    if (widget.onDoubleTapReact != null) {
+      result = GestureDetector(
+        onDoubleTap: () => widget.onDoubleTapReact!(widget.message),
+        child: result,
+      );
+    }
+
+    // Swipe-to-reply (horizontal drag)
+    if (widget.onSwipeReply != null) {
+      result = GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          setState(() {
+            // Swipe right for received, left for sent
+            final delta = widget.isMe ? -details.delta.dx : details.delta.dx;
+            _swipeOffset = (_swipeOffset + delta).clamp(0.0, _swipeThreshold * 1.5);
+          });
+        },
+        onHorizontalDragEnd: (_) {
+          if (_swipeOffset >= _swipeThreshold) {
+            widget.onSwipeReply!(widget.message);
+          }
+          setState(() => _swipeOffset = 0);
+        },
+        onHorizontalDragCancel: () {
+          setState(() => _swipeOffset = 0);
+        },
+        child: Stack(
+          children: [
+            // Reply icon behind the bubble
+            if (_swipeOffset > 8)
+              Positioned.fill(
+                child: Align(
+                  alignment: widget.isMe
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
+                  child: Opacity(
+                    opacity: (_swipeOffset / _swipeThreshold).clamp(0.0, 1.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.reply,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // The bubble itself, translated
+            Transform.translate(
+              offset: Offset(
+                widget.isMe ? -_swipeOffset : _swipeOffset,
+                0,
+              ),
+              child: result,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (message.deletedForEveryone) return _buildDeletedMessage(context);
-    if (message.isSystem) return _buildSystemMessage(context);
-    if (message.isGift && message.gift != null) return _buildGiftBubble(context);
-    if (message.isGroupGift && message.groupGift != null) return _buildGroupGiftBubble(context);
-    if (message.isSpray && message.tokenSpray != null) return _buildSprayBubble(context);
-    if (message.isGooiGooiInvite) return _buildGooiInviteCard(context);
-    if (message.isMarketplaceShare || message.isGroupBuyShare) return _buildShareableBuyCard(context);
-    if (message.isTokenTransfer) return _buildTokenCard(context);
+    if (widget.message.deletedForEveryone) return _buildDeletedMessage(context);
+    if (widget.message.isSystem) return _buildSystemMessage(context);
+    if (widget.message.isGift && widget.message.gift != null) return _buildGiftBubble(context);
+    if (widget.message.isGroupGift && widget.message.groupGift != null) return _buildGroupGiftBubble(context);
+    if (widget.message.isSpray && widget.message.tokenSpray != null) return _buildSprayBubble(context);
+    if (widget.message.isGooiGooiInvite) return _buildGooiInviteCard(context);
+    if (widget.message.isMarketplaceShare || widget.message.isGroupBuyShare) return _buildShareableBuyCard(context);
+    if (widget.message.isTokenTransfer) return _buildTokenCard(context);
 
     final bubbleColor =
-        isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived;
+        widget.isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived;
 
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+    // Clustered messages get tighter vertical spacing
+    final verticalMargin = widget.showTail ? 4.0 : 1.0;
+
+    final bubble = Align(
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
+          margin: EdgeInsets.symmetric(vertical: verticalMargin),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Left avatar (received messages)
-              if (!isMe) ...[
-                _buildSquareAvatar(),
+              // Left avatar (received messages) — hidden for clustered mid-messages
+              if (!widget.isMe) ...[
+                if (widget.showAvatar)
+                  _buildSquareAvatar()
+                else
+                  const SizedBox(width: 36), // placeholder to keep alignment
                 const SizedBox(width: 4),
               ],
               // Bubble with triangle
               Flexible(
                 child: Column(
                   crossAxisAlignment:
-                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                      widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
-                    if (showSenderName && !isMe)
+                    if (widget.showSenderName && !widget.isMe)
                       Padding(
                         padding: const EdgeInsets.only(left: 10, bottom: 2),
                         child: Text(
-                          message.senderName,
+                          widget.message.senderName,
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall
@@ -132,13 +238,13 @@ class MessageBubble extends StatelessWidget {
                               ),
                         ),
                       ),
-                    if (message.replyTo != null) _buildReplyContext(context),
+                    if (widget.message.replyTo != null) _buildReplyContext(context),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Left triangle (received)
-                        if (!isMe)
+                        // Left triangle (received) — only on tail messages
+                        if (!widget.isMe && widget.showTail)
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: CustomPaint(
@@ -146,11 +252,13 @@ class MessageBubble extends StatelessWidget {
                               painter:
                                   _TrianglePainter(isMe: false, color: bubbleColor),
                             ),
-                          ),
+                          )
+                        else if (!widget.isMe)
+                          const SizedBox(width: 6), // keep alignment without triangle
                         // Bubble content
                         Flexible(child: _buildBubbleContent(context, bubbleColor)),
-                        // Right triangle (sent)
-                        if (isMe)
+                        // Right triangle (sent) — only on tail messages
+                        if (widget.isMe && widget.showTail)
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
                             child: CustomPaint(
@@ -158,23 +266,30 @@ class MessageBubble extends StatelessWidget {
                               painter:
                                   _TrianglePainter(isMe: true, color: bubbleColor),
                             ),
-                          ),
+                          )
+                        else if (widget.isMe)
+                          const SizedBox(width: 6),
                       ],
                     ),
-                    if (message.totalReactions > 0) _buildReactionsBar(context),
+                    if (widget.message.totalReactions > 0) _buildReactionsBar(context),
                   ],
                 ),
               ),
-              // Right avatar (sent messages)
-              if (isMe) ...[
+              // Right avatar (sent messages) — hidden for clustered mid-messages
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
-                _buildSquareAvatar(),
+                if (widget.showAvatar)
+                  _buildSquareAvatar()
+                else
+                  const SizedBox(width: 36),
               ],
             ],
           ),
         ),
       ),
     );
+
+    return _wrapWithGestures(child: bubble);
   }
 
   Widget _buildSquareAvatar() {
@@ -184,6 +299,8 @@ class MessageBubble extends StatelessWidget {
     if (_effectiveAvatarUrl != null) {
       return CachedNetworkImage(
         imageUrl: _effectiveAvatarUrl!,
+        httpHeaders: const {'Connection': 'keep-alive'},
+        fadeInDuration: const Duration(milliseconds: 150),
         imageBuilder: (_, imageProvider) => Container(
           width: size,
           height: size,
@@ -200,7 +317,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildInitialsSquare(double size, double radius) {
-    final name = message.senderName;
+    final name = widget.message.senderName;
     String initials;
     if (name.isEmpty) {
       initials = '??';
@@ -233,7 +350,7 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildDeletedMessage(BuildContext context) {
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         constraints: BoxConstraints(
@@ -243,7 +360,7 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isMe) ...[
+            if (!widget.isMe) ...[
               _buildSquareAvatar(),
               const SizedBox(width: 4),
             ],
@@ -252,7 +369,7 @@ class MessageBubble extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: (isMe
+                  color: (widget.isMe
                           ? AppColors.chatBubbleSent
                           : AppColors.chatBubbleReceived)
                       .withValues(alpha: 0.5),
@@ -267,7 +384,7 @@ class MessageBubble extends StatelessWidget {
                     Icon(Icons.block, size: 14, color: AppColors.textHint),
                     const SizedBox(width: 6),
                     Text(
-                      isMe
+                      widget.isMe
                           ? 'You deleted this message'
                           : 'This message was deleted',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -279,7 +396,7 @@ class MessageBubble extends StatelessWidget {
                 ),
               ),
             ),
-            if (isMe) ...[
+            if (widget.isMe) ...[
               const SizedBox(width: 4),
               _buildSquareAvatar(),
             ],
@@ -290,10 +407,10 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildBubbleContent(BuildContext context, Color bubbleColor) {
-    final textColor = isMe
+    final textColor = widget.isMe
         ? AppColors.chatBubbleText
         : AppColors.chatBubbleReceivedText;
-    final metaColor = isMe
+    final metaColor = widget.isMe
         ? AppColors.chatBubbleTimestamp
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
 
@@ -306,7 +423,7 @@ class MessageBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (message.isForwarded)
+          if (widget.message.isForwarded)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Row(
@@ -325,23 +442,25 @@ class MessageBubble extends StatelessWidget {
                 ],
               ),
             ),
-          if (message.hasMedia) _buildMedia(context),
+          if (widget.message.hasMedia) _buildMedia(context),
           if (_isSentByYouFallback)
             const SizedBox.shrink() // Handled by _SentByYouPlaceholder in media
           else if (_isDecryptionFailed)
             _buildDecryptionFailed(context)
           else if (_isJsonMediaPayload)
             const SizedBox.shrink() // Suppress leaked JSON media payload
-          else if (message.isEncrypted &&
-              (message.textContent == null || message.textContent!.isEmpty))
+          else if (widget.message.isEncrypted &&
+              (widget.message.textContent == null || widget.message.textContent!.isEmpty))
             _buildEncryptedSentIndicator(context)
-          else if (message.textContent?.isNotEmpty == true)
+          else if (widget.message.textContent?.isNotEmpty == true) ...[
             _buildTextContent(context, textColor),
+            if (_firstUrl != null) _buildLinkPreview(context, metaColor),
+          ],
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.expiresAt != null) ...[
+              if (widget.message.expiresAt != null) ...[
                 Icon(
                   Icons.timer_outlined,
                   size: 10,
@@ -349,7 +468,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 const SizedBox(width: 2),
               ],
-              if (message.isEncrypted) ...[
+              if (widget.message.isEncrypted) ...[
                 Icon(
                   Icons.lock,
                   size: 10,
@@ -358,13 +477,13 @@ class MessageBubble extends StatelessWidget {
                 const SizedBox(width: 2),
               ],
               Text(
-                _formatTime(message.createdAt),
+                _formatTime(widget.message.createdAt),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: metaColor,
                       fontSize: 10,
                     ),
               ),
-              if (isMe) ...[
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
                 _buildStatusIcon(),
               ],
@@ -377,12 +496,12 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildReplyContext(BuildContext context) {
     return GestureDetector(
-      onTap: onReplyTap,
+      onTap: widget.onReplyTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 2),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: (isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived)
+          color: (widget.isMe ? AppColors.chatBubbleSent : AppColors.chatBubbleReceived)
               .withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(4),
           border: Border(
@@ -393,18 +512,18 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              message.replyTo!.senderName,
+              widget.message.replyTo!.senderName,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: AppColors.accent,
                     fontWeight: FontWeight.w600,
                   ),
             ),
             Text(
-              message.replyTo!.text,
+              widget.message.replyTo!.text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isMe
+                    color: widget.isMe
                         ? AppColors.chatBubbleTimestamp
                         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6),
                   ),
@@ -417,46 +536,59 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildMedia(BuildContext context) {
     // Media expired or removed — show placeholder
-    if (message.type.isMedia && message.media == null) {
+    if (widget.message.type.isMedia && widget.message.media == null) {
       // Sender's own message after reinstall — show graceful type indicator
       // instead of the alarming "Media no longer available".
       if (_isSentByYouFallback) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: _SentByYouPlaceholder(type: message.type),
+          child: _SentByYouPlaceholder(type: widget.message.type),
         );
       }
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: _MediaExpiredPlaceholder(type: message.type, isMe: isMe),
+        child: _MediaExpiredPlaceholder(type: widget.message.type, isMe: widget.isMe),
       );
     }
 
-    if (message.type == MessageType.image) {
-      final media = message.media!;
+    if (widget.message.type == MessageType.image) {
+      final media = widget.message.media!;
       final isEncrypted =
           media.thumbKey != null && media.thumbKey!.isNotEmpty;
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: GestureDetector(
-          onTap: onImageTap,
+          onTap: widget.onImageTap,
           child: Hero(
-            tag: 'image_${message.id}',
+            tag: 'image_${widget.message.id}',
             child: ClipRRect(
               borderRadius: AppSpacing.borderRadiusSm,
               child: isEncrypted
                   ? _EncryptedImageThumbnail(
-                      key: ValueKey('thumb_${message.id}'),
+                      key: ValueKey('thumb_${widget.message.id}'),
                       url: media.thumbnailUrl ?? media.url,
                       mediaKeyBase64: media.thumbKey ?? media.mediaKey!,
                     )
-                  : Image.network(
-                      media.thumbnailUrl ?? media.url,
+                  : CachedNetworkImage(
+                      imageUrl: media.thumbnailUrl ?? media.url,
                       width: 120,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      fadeInDuration: const Duration(milliseconds: 200),
+                      placeholder: (_, __) => Container(
+                        width: 120,
+                        height: 100,
+                        color: AppColors.chatSurface.withValues(alpha: 0.5),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (_, __, ___) => Container(
                         width: 120,
                         height: 60,
                         color: AppColors.chatSurface,
@@ -469,28 +601,28 @@ class MessageBubble extends StatelessWidget {
       );
     }
 
-    if (message.type == MessageType.document) {
+    if (widget.message.type == MessageType.document) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: _DocumentBubble(
-          media: message.media!,
-          isMe: isMe,
-          messageId: message.id,
+          media: widget.message.media!,
+          isMe: widget.isMe,
+          messageId: widget.message.id,
         ),
       );
     }
 
-    if (message.type == MessageType.video) {
+    if (widget.message.type == MessageType.video) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: VideoMessagePlayer(message: message, isMe: isMe),
+        child: VideoMessagePlayer(message: widget.message, isMe: widget.isMe),
       );
     }
 
-    if (message.type == MessageType.voice) {
+    if (widget.message.type == MessageType.voice) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: VoicePlayerWidget(message: message, isMe: isMe),
+        child: VoicePlayerWidget(message: widget.message, isMe: widget.isMe),
       );
     }
 
@@ -500,42 +632,62 @@ class MessageBubble extends StatelessWidget {
   Widget _buildStatusIcon() {
     IconData icon;
     Color color = AppColors.chatBubbleTimestamp;
+    bool animateRead = false;
 
     // Read receipts: if readBy has entries, show blue double-check
-    if (message.readBy.isNotEmpty &&
-        (message.status == MessageStatus.sent ||
-         message.status == MessageStatus.delivered ||
-         message.status == MessageStatus.read)) {
-      return Icon(Icons.done_all, size: 14, color: Colors.blue);
+    if (widget.message.readBy.isNotEmpty &&
+        (widget.message.status == MessageStatus.sent ||
+         widget.message.status == MessageStatus.delivered ||
+         widget.message.status == MessageStatus.read)) {
+      icon = Icons.done_all;
+      color = Colors.blue;
+      animateRead = true;
+    } else {
+      switch (widget.message.status) {
+        case MessageStatus.sending:
+          icon = Icons.access_time;
+        case MessageStatus.sent:
+        case MessageStatus.delivered:
+          icon = Icons.done;
+        case MessageStatus.read:
+          icon = Icons.done_all;
+          color = Colors.blue;
+          animateRead = true;
+        case MessageStatus.pending:
+          icon = Icons.hourglass_empty;
+          color = AppColors.accent;
+        case MessageStatus.failed:
+          icon = Icons.error_outline;
+          color = AppColors.error;
+        case MessageStatus.paid:
+          icon = Icons.check_circle;
+          color = const Color(0xFF006400); // Dark green on green bubble
+        case MessageStatus.declined:
+          icon = Icons.cancel_outlined;
+          color = AppColors.error;
+        case MessageStatus.expired:
+          icon = Icons.timer_off;
+          color = AppColors.textHint;
+      }
     }
 
-    switch (message.status) {
-      case MessageStatus.sending:
-        icon = Icons.access_time;
-      case MessageStatus.sent:
-      case MessageStatus.delivered:
-        icon = Icons.done;
-      case MessageStatus.read:
-        icon = Icons.done_all;
-        color = Colors.blue;
-      case MessageStatus.pending:
-        icon = Icons.hourglass_empty;
-        color = AppColors.accent;
-      case MessageStatus.failed:
-        icon = Icons.error_outline;
-        color = AppColors.error;
-      case MessageStatus.paid:
-        icon = Icons.check_circle;
-        color = const Color(0xFF006400); // Dark green on green bubble
-      case MessageStatus.declined:
-        icon = Icons.cancel_outlined;
-        color = AppColors.error;
-      case MessageStatus.expired:
-        icon = Icons.timer_off;
-        color = AppColors.textHint;
+    final iconWidget = Icon(icon, size: 14, color: color);
+
+    // Subtle scale-pop + color fade for read receipts
+    if (animateRead) {
+      return TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.6, end: 1.0),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.elasticOut,
+        builder: (_, scale, child) => Transform.scale(
+          scale: scale,
+          child: child,
+        ),
+        child: iconWidget,
+      );
     }
 
-    return Icon(icon, size: 14, color: color);
+    return iconWidget;
   }
 
   Widget _buildReactionsBar(BuildContext context) {
@@ -551,7 +703,7 @@ class MessageBubble extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: message.reactions.entries
+        children: widget.message.reactions.entries
             .where((e) => e.value.isNotEmpty)
             .map((entry) => Padding(
                   padding: const EdgeInsets.only(right: 4),
@@ -566,18 +718,18 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildGiftBubble(BuildContext context) {
-    final gift = message.gift!;
+    final gift = widget.message.gift!;
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMe) ...[
+              if (!widget.isMe) ...[
                 _buildSquareAvatar(),
                 const SizedBox(width: 4),
               ],
@@ -589,20 +741,20 @@ class MessageBubble extends StatelessWidget {
                 status: gift.status,
                 recipientId: gift.recipientId,
                 recipientName: gift.recipientName,
-                isMe: isMe,
-                currentUserId: currentUserId,
+                isMe: widget.isMe,
+                currentUserId: widget.currentUserId,
                 onOpen: () => showGiftOpeningDialog(
                   context,
                   gift: gift,
-                  senderName: message.senderName,
+                  senderName: widget.message.senderName,
                 ),
                 onClaim: () => showGiftOpeningDialog(
                   context,
                   gift: gift,
-                  senderName: message.senderName,
+                  senderName: widget.message.senderName,
                 ),
               ),
-              if (isMe) ...[
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
                 _buildSquareAvatar(),
               ],
@@ -614,25 +766,25 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildGroupGiftBubble(BuildContext context) {
-    final groupGift = message.groupGift!;
-    final isRecipient = !isMe; // In recipient's P2P chat, received = recipient
+    final groupGift = widget.message.groupGift!;
+    final isRecipient = !widget.isMe; // In recipient's P2P chat, received = recipient
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMe) ...[
+              if (!widget.isMe) ...[
                 _buildSquareAvatar(),
                 const SizedBox(width: 4),
               ],
               GroupGiftBubble(
                 data: groupGift,
-                isMe: isMe,
+                isMe: widget.isMe,
                 isRecipient: isRecipient,
                 onOpen: isRecipient
                     ? () => showDialog(
@@ -643,7 +795,7 @@ class MessageBubble extends StatelessWidget {
                         )
                     : null,
               ),
-              if (isMe) ...[
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
                 _buildSquareAvatar(),
               ],
@@ -655,18 +807,18 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildSprayBubble(BuildContext context) {
-    final spray = message.tokenSpray!;
+    final spray = widget.message.tokenSpray!;
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMe) ...[
+              if (!widget.isMe) ...[
                 _buildSquareAvatar(),
                 const SizedBox(width: 4),
               ],
@@ -679,10 +831,10 @@ class MessageBubble extends StatelessWidget {
                 targetAmount: spray.targetAmount,
                 status: spray.status,
                 expiresAt: spray.expiresAt,
-                currentUserId: currentUserId,
+                currentUserId: widget.currentUserId,
                 recipientId: spray.recipientId,
               ),
-              if (isMe) ...[
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
                 _buildSquareAvatar(),
               ],
@@ -695,13 +847,13 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildGooiInviteCard(BuildContext context) {
     Map<String, dynamic> data = {};
-    if (message.textContent != null) {
+    if (widget.message.textContent != null) {
       try {
         data = Map<String, dynamic>.from(
-          json.decode(message.textContent!) as Map,
+          json.decode(widget.message.textContent!) as Map,
         );
       } catch (_) {
-        data = {'groupName': message.textContent};
+        data = {'groupName': widget.message.textContent};
       }
     }
 
@@ -713,9 +865,9 @@ class MessageBubble extends StatelessWidget {
         : '';
 
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           constraints: const BoxConstraints(maxWidth: 280),
@@ -753,7 +905,7 @@ class MessageBubble extends StatelessWidget {
                 'You\'ve been invited to join a Gooi-Gooi savings group.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              if (groupId != null && !isMe) ...[
+              if (groupId != null && !widget.isMe) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -777,31 +929,31 @@ class MessageBubble extends StatelessWidget {
   Widget _buildShareableBuyCard(BuildContext context) {
     // Parse structured data from textContent (JSON-encoded)
     Map<String, dynamic> data = {};
-    if (message.textContent != null) {
+    if (widget.message.textContent != null) {
       try {
         data = Map<String, dynamic>.from(
-          json.decode(message.textContent!) as Map,
+          json.decode(widget.message.textContent!) as Map,
         );
       } catch (_) {
         // Fallback: treat textContent as title
-        data = {'title': message.textContent};
+        data = {'title': widget.message.textContent};
       }
     }
 
-    final isGroupBuy = message.isGroupBuyShare;
+    final isGroupBuy = widget.message.isGroupBuyShare;
     final deepLink = data['deepLink'] as String?;
 
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
-        onLongPress: onLongPress,
+        onLongPress: widget.onLongPress,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMe) ...[
+              if (!widget.isMe) ...[
                 _buildSquareAvatar(),
                 const SizedBox(width: 4),
               ],
@@ -821,7 +973,7 @@ class MessageBubble extends StatelessWidget {
                       }
                     : null,
               ),
-              if (isMe) ...[
+              if (widget.isMe) ...[
                 const SizedBox(width: 4),
                 _buildSquareAvatar(),
               ],
@@ -833,26 +985,26 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildTokenCard(BuildContext context) {
-    final isSend = message.type == MessageType.tokenSend;
-    final isRequest = message.type == MessageType.tokenRequest;
-    final isPaid = message.status == MessageStatus.paid;
-    final isDeclined = message.status == MessageStatus.declined;
-    final isExpired = message.status == MessageStatus.expired;
+    final isSend = widget.message.type == MessageType.tokenSend;
+    final isRequest = widget.message.type == MessageType.tokenRequest;
+    final isPaid = widget.message.status == MessageStatus.paid;
+    final isDeclined = widget.message.status == MessageStatus.declined;
+    final isExpired = widget.message.status == MessageStatus.expired;
     final canAction = isRequest &&
-        message.recipientId == currentUserId &&
-        message.status == MessageStatus.pending;
+        widget.message.recipientId == widget.currentUserId &&
+        widget.message.status == MessageStatus.pending;
 
-    final name = otherUserName ?? '';
+    final name = widget.otherUserName ?? '';
 
     // Build label text with participant name and outcome status
     String label;
     if (isSend) {
-      label = isMe
+      label = widget.isMe
           ? 'You sent'
           : name.isNotEmpty
               ? 'Sent to you by $name'
               : 'Sent to you';
-    } else if (isMe) {
+    } else if (widget.isMe) {
       // Requester's view
       if (isPaid) {
         label = name.isNotEmpty
@@ -916,16 +1068,24 @@ class MessageBubble extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isSend ? Icons.send : Icons.call_received,
-                  color: accentColor,
-                  size: 20,
+              // Animated icon with scale-pop
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.elasticOut,
+                builder: (_, scale, child) =>
+                    Transform.scale(scale: scale, child: child),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSend ? Icons.send : Icons.call_received,
+                    color: accentColor,
+                    size: 20,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -940,20 +1100,26 @@ class MessageBubble extends StatelessWidget {
                                 color: AppColors.textSecondary,
                               ),
                     ),
-                    Text(
-                      '${message.tokenAmount} Tokens',
-                      style:
-                          Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: accentColor,
-                              ),
+                    // Animated token amount with count-up effect
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: (widget.message.tokenAmount ?? 0).toDouble()),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeOutCubic,
+                      builder: (_, value, _) => Text(
+                        '${value.round()} Tokens',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: accentColor,
+                                ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          if (message.textContent?.isNotEmpty == true) ...[
+          if (widget.message.textContent?.isNotEmpty == true) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -963,20 +1129,20 @@ class MessageBubble extends StatelessWidget {
                 borderRadius: AppSpacing.borderRadiusSm,
               ),
               child: Text(
-                message.textContent!,
+                widget.message.textContent!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
               ),
             ),
           ],
-          if (canAction && onTokenRequestAction != null) ...[
+          if (canAction && widget.onTokenRequestAction != null) ...[
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => onTokenRequestAction!(false),
+                    onPressed: () => widget.onTokenRequestAction!(false),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.error,
                       side: const BorderSide(color: AppColors.error),
@@ -987,7 +1153,7 @@ class MessageBubble extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onTokenRequestAction!(true),
+                    onPressed: () => widget.onTokenRequestAction!(true),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                     ),
@@ -999,7 +1165,7 @@ class MessageBubble extends StatelessWidget {
           ],
           const SizedBox(height: 8),
           Text(
-            _formatTime(message.createdAt),
+            _formatTime(widget.message.createdAt),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textHint,
                 ),
@@ -1011,8 +1177,8 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildSystemMessage(BuildContext context) {
     final isDisappearingEvent =
-        message.systemEventType == 'disappearing_messages_changed';
-    final isCallEvent = message.systemEventType == 'call_ended';
+        widget.message.systemEventType == 'disappearing_messages_changed';
+    final isCallEvent = widget.message.systemEventType == 'call_ended';
 
     // Call system message: show icon + formatted text
     if (isCallEvent) {
@@ -1038,7 +1204,7 @@ class MessageBubble extends StatelessWidget {
               ],
               Flexible(
                 child: Text(
-                  message.textContent ?? '',
+                  widget.message.textContent ?? '',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -1052,7 +1218,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildCallSystemMessage(BuildContext context) {
-    final data = message.systemEventData ?? {};
+    final data = widget.message.systemEventData ?? {};
     final callType = data['callType'] as String? ?? 'voice';
     final endReason = data['endReason'] as String? ?? 'normal';
     final durationSeconds = data['durationSeconds'] as int?;
@@ -1136,8 +1302,8 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildTextContent(BuildContext context, Color textColor) {
-    final text = message.textContent!;
-    if (highlightQuery == null || highlightQuery!.isEmpty) {
+    final text = widget.message.textContent!;
+    if (widget.highlightQuery == null || widget.highlightQuery!.isEmpty) {
       return Text(
         text,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor),
@@ -1145,7 +1311,7 @@ class MessageBubble extends StatelessWidget {
     }
 
     // Highlight matching segments
-    final query = highlightQuery!.toLowerCase();
+    final query = widget.highlightQuery!.toLowerCase();
     final spans = <TextSpan>[];
     int start = 0;
     final textLower = text.toLowerCase();
@@ -1177,8 +1343,76 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
+  static final _urlRegex = RegExp(
+    r'https?://[^\s<>"\)]+',
+    caseSensitive: false,
+  );
+
+  /// First URL found in the message text, or null.
+  String? get _firstUrl {
+    final text = widget.message.textContent;
+    if (text == null || text.isEmpty) return null;
+    final match = _urlRegex.firstMatch(text);
+    return match?.group(0);
+  }
+
+  Widget _buildLinkPreview(BuildContext context, Color metaColor) {
+    final url = _firstUrl!;
+    final uri = Uri.tryParse(url);
+    final domain = uri?.host ?? url;
+
+    return GestureDetector(
+      onTap: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      child: Container(
+        margin: const EdgeInsets.only(top: 6),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: widget.isMe
+              ? Colors.black.withValues(alpha: 0.08)
+              : Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(6),
+          border: Border(
+            left: BorderSide(color: AppColors.accent, width: 3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.link, size: 16, color: AppColors.accent),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    domain,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    url,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: metaColor,
+                          fontSize: 11,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   bool get _isDecryptionFailed {
-    final text = message.textContent;
+    final text = widget.message.textContent;
     return text == '[Cannot decrypt]' ||
         text == '[Waiting for encryption key...]' ||
         (text != null && text.startsWith('[Session expired'));
@@ -1187,20 +1421,20 @@ class MessageBubble extends StatelessWidget {
   /// Detect leaked JSON media payloads in textContent (e.g. `{"media":{...}}`).
   /// These are E2EE decryption artefacts that should NOT be rendered as text.
   bool get _isJsonMediaPayload {
-    final text = message.textContent;
+    final text = widget.message.textContent;
     return text != null && text.startsWith('{"media":');
   }
 
   /// Sender's own message whose plaintext was lost (e.g. after reinstall).
   /// The local E2EE cache is gone and the message can't be recovered.
   bool get _isSentByYouFallback =>
-      message.textContent == '[Sent by you]';
+      widget.message.textContent == '[Sent by you]';
 
   Widget _buildDecryptionFailed(BuildContext context) {
-    final text = message.textContent ?? '';
+    final text = widget.message.textContent ?? '';
     final isWaiting = text == '[Waiting for encryption key...]';
     final isSessionExpired = text.startsWith('[Session expired');
-    final indicatorColor = isMe
+    final indicatorColor = widget.isMe
         ? AppColors.chatBubbleTimestamp
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
 
@@ -1234,7 +1468,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildEncryptedSentIndicator(BuildContext context) {
-    final indicatorColor = isMe
+    final indicatorColor = widget.isMe
         ? AppColors.chatBubbleTimestamp
         : AppColors.chatBubbleReceivedText.withValues(alpha: 0.6);
     return Row(

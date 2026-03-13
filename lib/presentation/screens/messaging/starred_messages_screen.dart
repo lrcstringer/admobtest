@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/injection.dart';
+import '../../../core/utils/chat_date_formatter.dart';
 import '../../../domain/entities/starred_message.dart';
 import '../../../domain/repositories/conversation_repository.dart';
-import '../../../core/di/injection.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/messaging/imali_avatar.dart';
 
 /// Displays all starred/bookmarked messages across conversations.
 ///
@@ -134,9 +136,9 @@ class _StarredMessageTile extends StatelessWidget {
     final timeAgo = _formatTimeAgo(starred.starredAt);
 
     return ListTile(
-      leading: const CircleAvatar(
-        backgroundColor: AppColors.primaryLight,
-        child: Icon(Icons.star_rounded, color: AppColors.primary),
+      leading: IMaliAvatar(
+        displayName: starred.senderName,
+        accentColor: AppColors.gold,
       ),
       title: Text(
         starred.senderName,
@@ -168,15 +170,6 @@ class _StarredMessageTile extends StatelessWidget {
     );
   }
 
-  String _formatTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-    if (diff.inDays < 1) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-  }
+  String _formatTimeAgo(DateTime dateTime) =>
+      ChatDateFormatter.formatTimeAgo(dateTime);
 }

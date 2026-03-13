@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/datasources/local/app_database.dart';
@@ -241,6 +242,41 @@ class MessageDecryptionService {
       }
     }
     return msg.copyWith(textContent: plaintext);
+  }
+
+  /// Batch-parse decrypted JSON payloads on a background isolate to avoid
+  /// UI jank when processing many messages at once (e.g. backfill).
+  ///
+  /// Returns a map of messageId → parsed payload fields ({text, media}).
+  /// Only messages whose plaintext starts with '{' are parsed; others are
+  /// returned as {text: plaintext}.
+  static Future<Map<String, Map<String, dynamic>>> batchParsePayloads(
+    Map<String, String> idToPlaintext,
+  ) {
+    if (idToPlaintext.length < 5) {
+      // Not worth isolate overhead for small batches
+      return Future.value(_parseBatch(idToPlaintext));
+    }
+    return compute(_parseBatch, idToPlaintext);
+  }
+
+  /// Pure function safe for isolate execution — no service dependencies.
+  static Map<String, Map<String, dynamic>> _parseBatch(
+    Map<String, String> idToPlaintext,
+  ) {
+    final results = <String, Map<String, dynamic>>{};
+    for (final entry in idToPlaintext.entries) {
+      final plaintext = entry.value;
+      if (plaintext.startsWith('{')) {
+        try {
+          final payload = jsonDecode(plaintext) as Map<String, dynamic>;
+          results[entry.key] = payload;
+          continue;
+        } catch (_) {}
+      }
+      results[entry.key] = {'text': plaintext};
+    }
+    return results;
   }
 
   /// Check if a message has permanently failed decryption.

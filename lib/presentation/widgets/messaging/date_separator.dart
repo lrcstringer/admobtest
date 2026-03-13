@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/chat_date_formatter.dart';
 import '../../theme/app_colors.dart';
 
 /// Date header between message groups in a chat view.
@@ -20,7 +21,7 @@ class DateSeparator extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            formatDateHeader(date),
+            ChatDateFormatter.formatDateHeader(date),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -30,27 +31,8 @@ class DateSeparator extends StatelessWidget {
     );
   }
 
-  /// Format a date for the separator header.
-  static String formatDateHeader(DateTime date) {
-    final now = DateTime.now();
-    if (_isSameDay(date, now)) return 'Today';
-    if (_isSameDay(date, now.subtract(const Duration(days: 1)))) {
-      return 'Yesterday';
-    }
-    final diff = now.difference(date);
-    if (diff.inDays < 7) {
-      const days = [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-        'Friday', 'Saturday', 'Sunday',
-      ];
-      return days[date.weekday - 1];
-    }
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  static bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
   /// Check if two dates are on the same calendar day.
-  static bool isSameDay(DateTime a, DateTime b) => _isSameDay(a, b);
+  /// Delegates to [ChatDateFormatter.isSameDay].
+  static bool isSameDay(DateTime a, DateTime b) =>
+      ChatDateFormatter.isSameDay(a, b);
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/conversation.dart';
 import '../../theme/app_colors.dart';
+import 'imali_avatar.dart';
 
 /// Modal bottom sheet for picking a conversation to forward a message to.
 class ForwardConversationPicker extends StatelessWidget {
@@ -99,23 +100,9 @@ class ForwardConversationPicker extends StatelessWidget {
     final avatarUrl = participant?.avatarUrl;
 
     return ListTile(
-      leading: CircleAvatar(
-        backgroundImage:
-            avatarUrl != null && avatarUrl.isNotEmpty
-                ? NetworkImage(avatarUrl)
-                : null,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-        child: avatarUrl == null || avatarUrl.isEmpty
-            ? Text(
-                displayName.isNotEmpty
-                    ? displayName[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : null,
+      leading: IMaliAvatar(
+        imageUrl: avatarUrl,
+        displayName: displayName,
       ),
       title: Text(displayName),
       subtitle: conv.lastMessageText != null

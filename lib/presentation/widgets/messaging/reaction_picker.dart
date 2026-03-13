@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme/app_colors.dart';
 
@@ -28,17 +29,40 @@ class ReactionPicker extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: kReactionEmoji
-            .map((emoji) => InkWell(
-                  onTap: () => onReactionSelected(emoji),
-                  borderRadius: BorderRadius.circular(16),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                  ),
-                ))
-            .toList(),
+        children: [
+          ...kReactionEmoji.map((emoji) => InkWell(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onReactionSelected(emoji);
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                ),
+              )),
+          // "More" button → opens full emoji keyboard
+          InkWell(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onReactionSelected('+');
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.textHint.withValues(alpha: 0.3),
+                ),
+                child: const Icon(Icons.add, size: 18, color: AppColors.textSecondary),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

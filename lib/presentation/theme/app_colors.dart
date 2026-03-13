@@ -187,21 +187,21 @@ class AppColors {
     Color(0xFFFF328C),
   ];
 
-  // ============ CHAT COLORS (WeChat-style neutral greys) ============
-  static const Color chatBackground = Color(0xFF111111); // Near-black body
-  static const Color chatAppBar = Color(0xFF111111); // Matches body — seamless
-  static const Color chatDoodle = Color(0xFF1A1A1A); // Very subtle pattern on dark bg
-  static const Color chatSurface = Color(0xFF1E1E1E); // Lighter grey for input bar area
+  // ============ CHAT COLORS (iMali-tinted dark theme) ============
+  static const Color chatBackground = Color(0xFF0E1018); // Brand-tinted near-black
+  static const Color chatAppBar = Color(0xFF0E1018); // Matches body — seamless
+  static const Color chatDoodle = Color(0xFF161828); // Subtle navy-tinted pattern
+  static const Color chatSurface = Color(0xFF1A1D2E); // Brand-navy surface
 
-  // WeChat-style bright bubbles on dark background
-  static const Color chatBubbleSent = Color(0xFF95EC69); // WeChat green
-  static const Color chatBubbleReceived = Color(0xFF3A3A3C); // Mid grey
+  // iMali-branded bubbles: warm pink-tinted sent, cool brand-navy received
+  static const Color chatBubbleSent = Color(0xFF95EC69); // WeChat green (kept for familiarity)
+  static const Color chatBubbleReceived = Color(0xFF252840); // Brand-navy received bubble
   static const Color chatBubbleText = Color(0xFF000000); // Black text on sent bubbles
-  static const Color chatBubbleReceivedText = Color(0xFFFFFFFF); // White text on received bubbles
+  static const Color chatBubbleReceivedText = Color(0xFFE8EAF6); // Soft white on navy
   static const Color chatBubbleTimestamp = Color(0xFF666666); // Grey timestamp on bubbles
-  static const Color chatInputBackground = Color(0xFF1E1E1E); // Lighter grey input bar
-  static const Color chatInputField = Color(0xFF111111); // Dark field inside lighter bar
-  static const Color chatTimestamp = Color(0xFF5C6E7F);
+  static const Color chatInputBackground = Color(0xFF1A1D2E); // Brand-navy input bar
+  static const Color chatInputField = Color(0xFF0E1018); // Dark field inside lighter bar
+  static const Color chatTimestamp = Color(0xFF6B7899); // Brand-tinted timestamp
 
   // ============ INPUT COLORS ============
   static const Color inputBackground = Color(0xFF13161D);

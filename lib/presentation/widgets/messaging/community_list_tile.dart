@@ -1,9 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/chat_date_formatter.dart';
 import '../../../domain/entities/community.dart';
-
 import '../../theme/app_colors.dart';
+import 'imali_avatar.dart';
 
 /// List tile for a community in the unified inbox.
 ///
@@ -116,86 +116,38 @@ class CommunityListTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
-    const double size = 48;
-    const double radius = 6;
     final color =
         community.isStokvel ? AppColors.secondary : AppColors.primary;
 
-    final initialsWidget = Container(
-      width: size,
-      height: size,
+    // Group icon badge overlay
+    final badge = Container(
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(radius),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        shape: BoxShape.circle,
       ),
-      alignment: Alignment.center,
-      child: Text(
-        community.displayInitials,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-      ),
-    );
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        if (community.avatarUrl != null && community.avatarUrl!.isNotEmpty)
-          CachedNetworkImage(
-            imageUrl: community.avatarUrl!,
-            imageBuilder: (_, imageProvider) => Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(radius),
-                image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-              ),
-            ),
-            placeholder: (_, __) => initialsWidget,
-            errorWidget: (_, __, ___) => initialsWidget,
-          )
-        else
-          initialsWidget,
-        // Group icon overlay
-        Positioned(
-          bottom: -2,
-          right: -2,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              shape: BoxShape.circle,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                community.isStokvel ? Icons.savings : Icons.group,
-                size: 10,
-                color: AppColors.textOnPrimary,
-              ),
-            ),
-          ),
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
         ),
-      ],
+        child: Icon(
+          community.isStokvel ? Icons.savings : Icons.group,
+          size: 10,
+          color: AppColors.textOnPrimary,
+        ),
+      ),
+    );
+
+    return IMaliAvatar(
+      imageUrl: community.avatarUrl,
+      displayName: community.name,
+      accentColor: color,
+      badge: badge,
     );
   }
 
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    if (diff.inDays == 0) {
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } else if (diff.inDays == 1) {
-      return 'Yesterday';
-    } else if (diff.inDays < 7) {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return days[date.weekday - 1];
-    }
-    return '${date.day}/${date.month}';
-  }
+  String _formatDate(DateTime date) =>
+      ChatDateFormatter.formatListTimestamp(date);
 }

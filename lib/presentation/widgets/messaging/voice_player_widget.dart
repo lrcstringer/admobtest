@@ -37,6 +37,8 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _hasError = false;
+  double _speed = 1.0;
+  late final StreamSubscription<double> _speedSub;
 
   bool get _isActive => _service.currentMessageId == widget.message.id;
 
@@ -73,6 +75,11 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
       if (!mounted || !_isActive || dur == null) return;
       setState(() => _duration = dur);
     });
+
+    _speedSub = _service.speedStream.listen((speed) {
+      if (!mounted) return;
+      setState(() => _speed = speed);
+    });
   }
 
   @override
@@ -80,6 +87,7 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
     _stateSub.cancel();
     _posSub.cancel();
     _durSub.cancel();
+    _speedSub.cancel();
     super.dispose();
   }
 
@@ -112,6 +120,18 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Cycle playback speed: 1x → 1.5x → 2x → 1x.
+  void _cycleSpeed() {
+    final next = _speed >= 2.0 ? 1.0 : _speed >= 1.5 ? 2.0 : 1.5;
+    _service.setSpeed(next);
+  }
+
+  String _speedLabel(double speed) {
+    if (speed == 1.5) return '1.5x';
+    if (speed == 2.0) return '2x';
+    return '1x';
   }
 
   String _formatDuration(Duration d) {
@@ -181,10 +201,37 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
               ],
             ),
             const SizedBox(height: 6),
-            // Duration chip (bottom-right, matching video player)
+            // Duration chip + speed toggle (bottom row)
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Speed toggle — only visible during playback
+                if (_isThisPlaying || _isActive)
+                  GestureDetector(
+                    onTap: _cycleSpeed,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _speed != 1.0
+                            ? AppColors.primary.withValues(alpha: 0.8)
+                            : Colors.black54,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        _speedLabel(_speed),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
+                // Duration chip
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -212,6 +259,37 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
                   ),
                 ),
               ],
+            ),
+            // Transcription stub — tap to show "coming soon"
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Voice transcription coming soon'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.text_fields, size: 12,
+                      color: widget.isMe
+                          ? AppColors.chatBubbleText.withValues(alpha: 0.5)
+                          : AppColors.chatBubbleReceivedText.withValues(alpha: 0.5)),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Transcribe',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: widget.isMe
+                          ? AppColors.chatBubbleText.withValues(alpha: 0.5)
+                          : AppColors.chatBubbleReceivedText.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -257,42 +335,64 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
     );
   }
 
-  /// Decorative waveform bars that animate with playback progress.
+  /// Seekable waveform bars that animate with playback progress.
+  /// Tap anywhere on the waveform to seek to that position.
   Widget _buildWaveform(double progress) {
     // Fixed waveform pattern (pseudo-random heights)
     const barHeights = [0.4, 0.7, 0.5, 0.9, 0.3, 0.8, 0.6, 1.0, 0.4, 0.7,
         0.5, 0.8, 0.3, 0.6, 0.9, 0.5, 0.7, 0.4, 0.8, 0.6];
     const maxHeight = 20.0;
 
-    return SizedBox(
-      height: maxHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: List.generate(barHeights.length, (i) {
-          final barProgress = i / barHeights.length;
-          final isPlayed = barProgress < progress;
-          final activeColor = widget.isMe
-              ? AppColors.chatBubbleText
-              : AppColors.chatBubbleReceivedText;
-          final inactiveColor = widget.isMe
-              ? AppColors.chatBubbleText.withValues(alpha: 0.3)
-              : AppColors.chatBubbleReceivedText.withValues(alpha: 0.3);
+    return GestureDetector(
+      onTapDown: (details) => _seekFromTap(details.localPosition.dx),
+      onHorizontalDragUpdate: (details) =>
+          _seekFromTap(details.localPosition.dx),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          _waveformWidth = constraints.maxWidth;
+          return SizedBox(
+            height: maxHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: List.generate(barHeights.length, (i) {
+                final barProgress = i / barHeights.length;
+                final isPlayed = barProgress < progress;
+                final activeColor = widget.isMe
+                    ? AppColors.chatBubbleText
+                    : AppColors.chatBubbleReceivedText;
+                final inactiveColor = widget.isMe
+                    ? AppColors.chatBubbleText.withValues(alpha: 0.3)
+                    : AppColors.chatBubbleReceivedText.withValues(alpha: 0.3);
 
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0.5),
-              child: Container(
-                height: maxHeight * barHeights[i],
-                decoration: BoxDecoration(
-                  color: isPlayed ? activeColor : inactiveColor,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.5),
+                    child: Container(
+                      height: maxHeight * barHeights[i],
+                      decoration: BoxDecoration(
+                        color: isPlayed ? activeColor : inactiveColor,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ),
           );
-        }),
+        },
       ),
     );
+  }
+
+  double _waveformWidth = 0;
+
+  void _seekFromTap(double localX) {
+    if (!_isActive || _duration.inMilliseconds == 0) return;
+    final fraction = (localX / _waveformWidth).clamp(0.0, 1.0);
+    final target = Duration(
+      milliseconds: (_duration.inMilliseconds * fraction).round(),
+    );
+    _service.seek(target);
   }
 }

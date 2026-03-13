@@ -66,7 +66,13 @@ class ConversationRepositoryImpl implements ConversationRepository {
   Stream<Either<Failure, List<Conversation>>> watchConversations() {
     // Read from local DB — MessageSyncService populates it from Firestore
     // with already-decrypted previews. No on-the-fly decryption needed.
-    return _appDatabase.watchLocalConversations().map((rows) {
+    // Use filtered query that excludes archived conversations at the DB level,
+    // reducing object allocation and stream throughput.
+    final userId = currentUserId;
+    final stream = userId != null
+        ? _appDatabase.watchActiveConversations(userId)
+        : _appDatabase.watchLocalConversations();
+    return stream.map((rows) {
       try {
         final conversations =
             rows.map(LocalConversationMapper.toEntity).toList();
@@ -476,6 +482,22 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String conversationId,
   }) async {
     try {
+      // Optimistic local update — unread badge clears instantly
+      if (currentUserId != null) {
+        final localConv =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (localConv != null) {
+          final conv = LocalConversationMapper.toEntity(localConv);
+          final updatedCounts = Map<String, int>.from(conv.unreadCounts);
+          updatedCounts[currentUserId!] = 0;
+          await _appDatabase.upsertLocalConversation(
+            LocalConversationMapper.toCompanion(
+              conv.copyWith(unreadCounts: updatedCounts),
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'conversations',
         recordId: conversationId,
@@ -496,6 +518,22 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required bool pinned,
   }) async {
     try {
+      // Optimistic local update — pin state reflects instantly
+      if (currentUserId != null) {
+        final localConv =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (localConv != null) {
+          final conv = LocalConversationMapper.toEntity(localConv);
+          final updatedPinned = Map<String, bool>.from(conv.pinned);
+          updatedPinned[currentUserId!] = pinned;
+          await _appDatabase.upsertLocalConversation(
+            LocalConversationMapper.toCompanion(
+              conv.copyWith(pinned: updatedPinned),
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'conversations',
         recordId: conversationId,
@@ -516,6 +554,22 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required bool muted,
   }) async {
     try {
+      // Optimistic local update — mute state reflects instantly
+      if (currentUserId != null) {
+        final localConv =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (localConv != null) {
+          final conv = LocalConversationMapper.toEntity(localConv);
+          final updatedMuted = Map<String, bool>.from(conv.muted);
+          updatedMuted[currentUserId!] = muted;
+          await _appDatabase.upsertLocalConversation(
+            LocalConversationMapper.toCompanion(
+              conv.copyWith(muted: updatedMuted),
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'conversations',
         recordId: conversationId,
@@ -535,6 +589,22 @@ class ConversationRepositoryImpl implements ConversationRepository {
     String conversationId,
   ) async {
     try {
+      // Optimistic local update — conversation disappears from inbox instantly
+      if (currentUserId != null) {
+        final localConv =
+            await _appDatabase.getLocalConversation(conversationId);
+        if (localConv != null) {
+          final conv = LocalConversationMapper.toEntity(localConv);
+          final updatedArchived = Map<String, bool>.from(conv.archived);
+          updatedArchived[currentUserId!] = true;
+          await _appDatabase.upsertLocalConversation(
+            LocalConversationMapper.toCompanion(
+              conv.copyWith(archived: updatedArchived),
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'conversations',
         recordId: conversationId,
@@ -638,6 +708,18 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String messageId,
   }) async {
     try {
+      // Optimistic local update — message disappears instantly
+      final existing = await _appDatabase.getLocalMessageById(messageId);
+      if (existing != null) {
+        final msg = LocalMessageMapper.toEntity(existing);
+        await _appDatabase.upsertLocalMessage(
+          LocalMessageMapper.toCompanion(
+            msg.copyWith(deletedForEveryone: true),
+            conversationId,
+          ),
+        );
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'messages',
         recordId: messageId,
@@ -704,6 +786,27 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String emoji,
   }) async {
     try {
+      // Optimistic local update — UI reflects reaction instantly
+      if (currentUserId != null) {
+        final existing = await _appDatabase.getLocalMessageById(messageId);
+        if (existing != null) {
+          final msg = LocalMessageMapper.toEntity(existing);
+          final updated = Map<String, List<String>>.from(
+            msg.reactions.map((k, v) => MapEntry(k, List<String>.from(v))),
+          );
+          final users = updated[emoji] ?? [];
+          if (!users.contains(currentUserId)) {
+            updated[emoji] = [...users, currentUserId!];
+          }
+          await _appDatabase.upsertLocalMessage(
+            LocalMessageMapper.toCompanion(
+              msg.copyWith(reactions: updated),
+              conversationId,
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'messages',
         recordId: messageId,
@@ -725,6 +828,32 @@ class ConversationRepositoryImpl implements ConversationRepository {
     required String emoji,
   }) async {
     try {
+      // Optimistic local update — UI reflects removal instantly
+      if (currentUserId != null) {
+        final existing = await _appDatabase.getLocalMessageById(messageId);
+        if (existing != null) {
+          final msg = LocalMessageMapper.toEntity(existing);
+          final updated = Map<String, List<String>>.from(
+            msg.reactions.map((k, v) => MapEntry(k, List<String>.from(v))),
+          );
+          final users = updated[emoji];
+          if (users != null) {
+            users.remove(currentUserId);
+            if (users.isEmpty) {
+              updated.remove(emoji);
+            } else {
+              updated[emoji] = users;
+            }
+          }
+          await _appDatabase.upsertLocalMessage(
+            LocalMessageMapper.toCompanion(
+              msg.copyWith(reactions: updated),
+              conversationId,
+            ),
+          );
+        }
+      }
+
       await _offlineActionQueue.enqueue(
         table: 'messages',
         recordId: messageId,
@@ -761,6 +890,16 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   @override
   Stream<Either<Failure, int>> watchTotalUnreadCount() {
+    // Use SQL-level json_extract + SUM aggregation when user ID is available.
+    // This avoids materializing every LocalFullConversation object and parsing
+    // JSON in Dart on every stream emission.
+    final userId = currentUserId;
+    if (userId != null) {
+      return _appDatabase.watchTotalUnreadCountSql(userId).map((total) {
+        return Right<Failure, int>(total);
+      });
+    }
+    // Fallback for edge case where userId is null
     return _appDatabase.watchLocalConversations().map((rows) {
       try {
         int total = 0;

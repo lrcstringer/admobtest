@@ -1,62 +1,63 @@
-# WIP: Fix All 136 Re-Audit Issues (Round 3)
+# WIP: Chat Tab UI/UX Overhaul — 22 Items — COMPLETE
 
-## Status: COMPLETE — awaiting commit/push
+## What we built
+Complete UI/UX overhaul of the Chat tab messaging screens — all 22 items from the comprehensive audit, organized into 5 phases.
 
-## Verification Results
-- `npm run build` (TypeScript): PASS — zero errors
-- `flutter analyze lib/`: PASS — zero errors, zero warnings (441 info-level lints, all pre-existing)
-- 63 files changed, +1803/-719 lines
+## Status: ALL 22 ITEMS COMPLETE
 
-## Summary of All Changes (136 fixes)
+### Phase 1 — Foundation Widgets & Utilities ✓
+- `IMaliAvatar` — shared rounded-square avatar widget (`lib/presentation/widgets/messaging/imali_avatar.dart`)
+- `IMaliBottomSheet` — consistent bottom sheet wrapper (`lib/presentation/widgets/messaging/imali_bottom_sheet.dart`)
+- `ChatDateFormatter` — shared date formatting utility (`lib/core/utils/chat_date_formatter.dart`)
 
-### CRITICAL (15 fixed)
-- Race conditions in CF transactions (submitBrandReview, reportItem, recordStorefrontView, renewListing)
-- Deterministic IDs replacing auto-generated doc IDs (featured items, categories, storefronts, vouches)
-- logAdminAction argument order swaps (~30 instances)
-- Missing isDeleted:false on adminCreateFeaturedItem
-- Non-transactional balance checks moved inside transactions
-- Idempotency guards on refund loops
+### Phase 2 — Critical Fixes ✓
+- Real `showMessageContextMenu` wired up in ConversationDetailScreen (Reply, Copy, Edit, Forward, Delete, React, Select)
+- All CircleAvatar replaced with IMaliAvatar across messaging screens
+- Bottom sheets standardized
 
-### HIGH (31 fixed)
-- Field name mismatches (amountTokens→tokenAmount, ratingCount→totalReviews via FieldValue.increment)
-- Missing enum values (OrderStatus.failed, ProviderStatus.pending/approved)
-- DateTime.now() non-determinism in entities → method-based with optional now param
-- Seller portal model parsing (flat fields vs nested provider)
-- Step-up auth OTP handling
-- Missing UI lifecycle buttons (Complete/Cancel/Confirm Collection on group buy)
-- Stale category result discarding in PurchaseBloc
+### Phase 3 — Core Interactions ✓
+- Swipe-to-reply on message bubbles (horizontal drag gesture with reply icon reveal)
+- Message clustering (consecutive same-sender messages grouped, avatar/tail hidden for mid-cluster)
+- Double-tap to react on message bubbles
+- Voice playback speed toggle (1x → 1.5x → 2x cycle button)
 
-### MEDIUM (55 fixed)
-- Coupon lookup path fix (top-level array vs sections[].coupons[])
-- isDraft filter on active storefronts
-- Null-safe model casts across 8+ model files
-- DateTime fallbacks: DateTime.now() → DateTime.fromMillisecondsSinceEpoch(0)
-- Composite index comments for Firestore queries
-- BlocListener for buy result in listing detail
-- Image upload through BLoC instead of direct
-- Group buy join validation (remaining target, wallet balance)
-- 7 hidden fields now displayed in group buy detail
-- Pull-to-refresh with isRefreshing flag
-- Video init 10s timeout in featured carousel
+### Phase 4 — Polish ✓
+- Received message fade+slide animation (250ms easeOutCubic for newest received)
+- In-list typing indicator (ConversationListTile `typingNames` parameter)
+- Swipe actions on conversation list (swipe left → archive, swipe right → toggle pin)
+- Waveform seek on voice messages (tap/drag to seek position)
+- Rich attachment picker — already existed as `ActionPickerWidget`
+- Link preview cards in message bubbles (URL extraction + domain card with accent border)
+- Color system tinted toward brand palette (chatBackground, chatSurface, chatBubbleReceived → brand-navy)
 
-### LOW (35 fixed)
-- Minor UI improvements (empty states, color parsing, CachedNetworkImage)
-- Try-catch on URL launches
-- Early returns on empty collections
-- Debug logging for diagnostics
-- Explanatory comments on design decisions
-- deepLinkDomain constant extraction
+### Phase 5 — Differentiation ✓
+- Chat themes / per-conversation wallpapers (`ChatThemeStyle` enum: defaultDoodle, solidDark, brandGradient, warmSunset, coolOcean + `ChatThemePicker`)
+- Message multi-select mode (selection highlight, app bar with count/delete/copy, enter via context menu "Select")
+- Full emoji access for reactions ("+" button at end of reaction picker row)
+- Quick reply suggestions (chip row above input bar for new conversations)
+- Enhanced empty states (stacked speech bubble illustration, brand glow, improved copy)
+- Token transfer micro-animations (scale-pop icon + count-up amount animation)
+- AI chat summaries UI stub (disabled menu item in chat options, "Coming soon")
+- Voice message transcription UI stub ("Transcribe" tap target in voice player)
 
-## Files Modified (63 total)
-### Cloud Functions (TypeScript): 5 files
-- buyAdmin.ts, brands.ts, marketplace.ts, groupBuys.ts, purchases.ts
+## Files Modified
+- `lib/presentation/widgets/messaging/message_bubble.dart` — StatefulWidget conversion, swipe-to-reply, clustering, double-tap, link preview, token animation
+- `lib/presentation/screens/messaging/conversation_detail_screen.dart` — clustering, animations, multi-select, quick replies, wallpaper picker, AI summary stub
+- `lib/presentation/widgets/messaging/voice_player_widget.dart` — speed toggle, waveform seek, transcription stub
+- `lib/presentation/widgets/messaging/chat_background.dart` — theme system with 5 wallpapers + picker
+- `lib/presentation/widgets/messaging/conversation_list_tile.dart` — typing indicator, inline typing display
+- `lib/presentation/widgets/messaging/reaction_picker.dart` — "+" button for full emoji access
+- `lib/presentation/widgets/messaging/message_context_menu.dart` — "Select" action for multi-select
+- `lib/presentation/screens/messaging/messaging_screen.dart` — swipe actions, enhanced empty state
+- `lib/presentation/theme/app_colors.dart` — brand-tinted chat color system
+- `lib/core/services/audio_playback_service.dart` — setSpeed/speedStream for playback speed
+- `lib/presentation/widgets/messaging/token_actions_sheet.dart` — IMaliAvatar
+- `lib/presentation/widgets/messaging/forward_conversation_picker.dart` — IMaliAvatar
+- `lib/presentation/widgets/messaging/date_separator.dart` — ChatDateFormatter delegation
+- `lib/presentation/widgets/messaging/community_list_tile.dart` — IMaliAvatar + ChatDateFormatter
+- `lib/presentation/screens/messaging/starred_messages_screen.dart` — IMaliAvatar + ChatDateFormatter
 
-### Flutter Domain: 8 files
-- order_status.dart, provider_status.dart, group_buy.dart, marketplace_listing.dart
-- marketplace_offer.dart, service_provider.dart, buy_order.dart, buy_repository.dart
-
-### Flutter Data: 16 files
-- 11 model files, 4 datasource files, 1 new helper (purchase_category_helpers.dart)
-
-### Flutter Presentation: 20+ files
-- 7 BLoC files, 10+ screen files, 3 widget files, 1 constants file
+## New Files Created
+- `lib/presentation/widgets/messaging/imali_avatar.dart`
+- `lib/presentation/widgets/messaging/imali_bottom_sheet.dart`
+- `lib/core/utils/chat_date_formatter.dart`

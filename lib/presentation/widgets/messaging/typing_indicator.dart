@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 
 /// Animated "is typing..." indicator with bouncing dots.
+///
+/// Includes a 300ms appearance delay to filter out noise from rapid
+/// typing state flips (user types one char then stops). The indicator
+/// only appears after typing has been continuous for 300ms.
 class TypingIndicator extends StatefulWidget {
   /// Display names of users who are typing.
   final List<String> typingNames;
@@ -18,9 +24,42 @@ class _TypingIndicatorState extends State<TypingIndicator>
   late final List<AnimationController> _controllers;
   late final List<Animation<double>> _animations;
 
+  /// Whether the indicator is actually visible (after delay).
+  bool _isVisible = false;
+
+  /// Timer for the 300ms appearance delay.
+  Timer? _showTimer;
+
   @override
   void initState() {
     super.initState();
+    _scheduleVisibility();
+    _initAnimations();
+  }
+
+  void _scheduleVisibility() {
+    _showTimer?.cancel();
+    if (widget.typingNames.isNotEmpty) {
+      // Delay showing by 300ms to filter out noise
+      _showTimer = Timer(const Duration(milliseconds: 300), () {
+        if (mounted) setState(() => _isVisible = true);
+      });
+    } else {
+      // Hide immediately when typing stops
+      _isVisible = false;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TypingIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.typingNames.length != widget.typingNames.length ||
+        oldWidget.typingNames.toString() != widget.typingNames.toString()) {
+      _scheduleVisibility();
+    }
+  }
+
+  void _initAnimations() {
     _controllers = List.generate(3, (i) {
       return AnimationController(
         vsync: this,
@@ -44,6 +83,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
 
   @override
   void dispose() {
+    _showTimer?.cancel();
     for (final c in _controllers) {
       c.dispose();
     }
@@ -60,7 +100,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.typingNames.isEmpty) return const SizedBox.shrink();
+    if (widget.typingNames.isEmpty || !_isVisible) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

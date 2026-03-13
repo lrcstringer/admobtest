@@ -205,6 +205,9 @@ class ConversationEvent with _$ConversationEvent {
   // UTILITY
   // =========================================================================
 
+  /// A real-time stream encountered an error (connection lost, etc.)
+  const factory ConversationEvent.streamError() = _StreamError;
+
   /// Clear error state
   const factory ConversationEvent.clearError() = _ClearError;
 }

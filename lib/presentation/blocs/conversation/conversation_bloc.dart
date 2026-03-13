@@ -82,6 +82,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     // Message forwarding
     on<_ForwardMessage>(_onForwardMessage);
 
+    // Stream health
+    on<_StreamError>(_onStreamError);
+
     // Utility
     on<_ClearError>(_onClearError);
   }
@@ -120,12 +123,14 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         _conversationRepository.watchConversations().listen(
       (result) {
         result.fold(
-          (failure) {},
-          (conversations) =>
-              add(ConversationEvent.conversationsUpdated(conversations)),
+          (failure) => add(const ConversationEvent.streamError()),
+          (conversations) {
+            if (state.hasStreamError) add(const ConversationEvent.clearError());
+            add(ConversationEvent.conversationsUpdated(conversations));
+          },
         );
       },
-      onError: (_) {},
+      onError: (_) => add(const ConversationEvent.streamError()),
     );
 
     // 3. Watch total unread count for tab badge
@@ -257,11 +262,11 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
         .listen(
       (result) {
         result.fold(
-          (failure) {},
+          (failure) => add(const ConversationEvent.streamError()),
           (messages) => add(ConversationEvent.messagesUpdated(messages)),
         );
       },
-      onError: (_) {},
+      onError: (_) => add(const ConversationEvent.streamError()),
     );
 
     // 4. Subscribe to typing indicators
@@ -725,11 +730,18 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   // UTILITY
   // ===========================================================================
 
+  void _onStreamError(
+    _StreamError event,
+    Emitter<ConversationState> emit,
+  ) {
+    emit(state.copyWith(hasStreamError: true));
+  }
+
   void _onClearError(
     _ClearError event,
     Emitter<ConversationState> emit,
   ) {
-    emit(state.copyWith(errorMessage: null));
+    emit(state.copyWith(errorMessage: null, hasStreamError: false));
   }
 
   // ===========================================================================

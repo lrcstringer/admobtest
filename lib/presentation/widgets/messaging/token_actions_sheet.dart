@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/value_objects/user_search_result.dart';
@@ -7,6 +8,7 @@ import '../../blocs/user_search/user_search_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import 'imali_avatar.dart';
 import 'wallet_picker.dart';
 
 /// Unified bottom sheet for sending or requesting tokens.
@@ -424,24 +426,9 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
           final result = results[index];
           return ListTile(
             dense: true,
-            leading: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-              backgroundImage: result.avatarUrl != null
-                  ? NetworkImage(result.avatarUrl!)
-                  : null,
-              child: result.avatarUrl == null
-                  ? Text(
-                      result.displayName.isNotEmpty
-                          ? result.displayName[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    )
-                  : null,
+            leading: IMaliAvatar.mini(
+              imageUrl: result.avatarUrl,
+              displayName: result.displayName,
             ),
             title: Text(
               result.displayName,
@@ -477,6 +464,7 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
     final note = _noteController.text.trim();
 
     setState(() => _isSubmitting = true);
+    HapticFeedback.mediumImpact();
 
     if (_isStandalone) {
       // Standalone mode: need to get/create a conversation first, then send

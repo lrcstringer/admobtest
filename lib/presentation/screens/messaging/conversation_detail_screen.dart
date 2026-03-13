@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +20,7 @@ import '../../../domain/entities/message.dart';
 import '../../../domain/enums/call_status.dart';
 import '../../../domain/enums/call_type.dart';
 import '../../../domain/enums/conversation_type.dart';
+import '../../../domain/enums/message_status.dart';
 import '../../../domain/enums/report_type.dart';
 import '../../../domain/repositories/moderation_repository.dart';
 import '../../blocs/call/call_bloc.dart';
@@ -29,7 +31,7 @@ import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/messaging/chat_background.dart';
+import '../../widgets/messaging/chat_background.dart' show ChatBackground, ChatThemePicker, ChatThemeStyle;
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/media_compose_screen.dart';
 import '../../widgets/messaging/media_picker_widget.dart';
@@ -37,6 +39,7 @@ import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/message_input_bar.dart';
 import '../../widgets/messaging/forward_conversation_picker.dart';
 import '../../widgets/messaging/message_search_bar.dart';
+import '../../widgets/messaging/message_context_menu.dart';
 import '../../widgets/messaging/reaction_picker.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 import '../../widgets/messaging/typing_indicator.dart';
@@ -63,15 +66,55 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   final _scrollController = ScrollController();
   bool _isSearchOpen = false;
 
+  /// Multi-select mode state.
+  bool _isMultiSelectMode = false;
+  final Set<String> _selectedMessageIds = {};
+
+  /// True when user has scrolled up away from the newest messages.
+  bool _isScrolledUp = false;
+
+  /// Count of new messages received while user is scrolled up.
+  int _newMessageCount = 0;
+
+  /// Previous message count — used to detect new arrivals.
+  int _previousMessageCount = 0;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     context.read<ConversationBloc>().add(
       ConversationEvent.selectConversation(widget.conversationId),
     );
     context.read<ConversationActionsBloc>().add(
       ConversationActionsEvent.markAsRead(widget.conversationId),
     );
+  }
+
+  void _onScroll() {
+    // In a reverse ListView, offset 0 = bottom (newest). Scrolled up = offset > threshold.
+    final isUp = _scrollController.hasClients &&
+        _scrollController.offset > 150;
+    if (isUp != _isScrolledUp) {
+      setState(() {
+        _isScrolledUp = isUp;
+        if (!isUp) _newMessageCount = 0;
+      });
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+    setState(() {
+      _isScrolledUp = false;
+      _newMessageCount = 0;
+    });
   }
 
   @override
@@ -84,6 +127,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       ),
     );
     _messageController.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     getIt<AudioPlaybackService>().stop();
     super.dispose();
@@ -93,7 +137,20 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   Widget build(BuildContext context) {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    return BlocListener<ConversationActionsBloc, ConversationActionsState>(
+    return BlocListener<ConversationBloc, ConversationState>(
+      listenWhen: (prev, curr) => curr.messages.length != prev.messages.length,
+      listener: (context, convState) {
+        final newCount = convState.messages.length;
+        if (newCount > _previousMessageCount && _isScrolledUp) {
+          setState(() {
+            _newMessageCount += newCount - _previousMessageCount;
+          });
+        } else if (!_isScrolledUp && _scrollController.hasClients) {
+          // Auto-scroll to bottom for new messages when user is at bottom
+        }
+        _previousMessageCount = newCount;
+      },
+      child: BlocListener<ConversationActionsBloc, ConversationActionsState>(
       listenWhen: (prev, curr) =>
           curr.errorMessage != null && prev.errorMessage != curr.errorMessage,
       listener: (context, actionsState) {
@@ -112,58 +169,120 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           final conv = state.selectedConversation;
 
           return Scaffold(
-            appBar: AppBar(
-              backgroundColor: AppColors.chatAppBar,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              title: conv != null
-                  ? Row(
-                      children: [
-                        _buildAppBarAvatar(context, conv, currentUserId),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Row(
+            appBar: _isMultiSelectMode
+                ? AppBar(
+                    backgroundColor: AppColors.chatAppBar,
+                    surfaceTintColor: Colors.transparent,
+                    elevation: 0,
+                    leading: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => setState(() {
+                        _isMultiSelectMode = false;
+                        _selectedMessageIds.clear();
+                      }),
+                    ),
+                    title: Text('${_selectedMessageIds.length} selected'),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: _selectedMessageIds.isEmpty
+                            ? null
+                            : () {
+                                for (final id in _selectedMessageIds) {
+                                  context.read<ConversationActionsBloc>().add(
+                                    ConversationActionsEvent
+                                        .deleteMessageForEveryone(
+                                      conversationId: widget.conversationId,
+                                      messageId: id,
+                                    ),
+                                  );
+                                }
+                                setState(() {
+                                  _isMultiSelectMode = false;
+                                  _selectedMessageIds.clear();
+                                });
+                              },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy),
+                        onPressed: _selectedMessageIds.isEmpty
+                            ? null
+                            : () {
+                                final texts = state.messages
+                                    .where((m) =>
+                                        _selectedMessageIds.contains(m.id) &&
+                                        m.textContent != null)
+                                    .map((m) => m.textContent!)
+                                    .join('\n');
+                                Clipboard.setData(ClipboardData(text: texts));
+                                setState(() {
+                                  _isMultiSelectMode = false;
+                                  _selectedMessageIds.clear();
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Copied to clipboard')),
+                                );
+                              },
+                      ),
+                    ],
+                  )
+                : AppBar(
+                    backgroundColor: AppColors.chatAppBar,
+                    surfaceTintColor: Colors.transparent,
+                    elevation: 0,
+                    title: conv != null
+                        ? Row(
                             children: [
-                              Flexible(
-                                child: Text(
-                                  conv.displayNameFor(currentUserId),
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),
-                                  overflow: TextOverflow.ellipsis,
+                              _buildAppBarAvatar(
+                                  context, conv, currentUserId),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        conv.displayNameFor(currentUserId),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w600),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (conv.hasDisappearingMessages) ...[
+                                      const SizedBox(width: 6),
+                                      const Icon(
+                                        Icons.timer_outlined,
+                                        size: 16,
+                                        color: AppColors.accent,
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
-                              if (conv.hasDisappearingMessages) ...[
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.timer_outlined,
-                                  size: 16,
-                                  color: AppColors.accent,
-                                ),
-                              ],
                             ],
-                          ),
-                        ),
-                      ],
-                    )
-                  : const Text('Chat'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {
-                    setState(() => _isSearchOpen = !_isSearchOpen);
-                    if (!_isSearchOpen) {
-                      context.read<ConversationBloc>().add(
-                        const ConversationEvent.clearMessageSearch(),
-                      );
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () => _showChatOptions(context, conv),
-                ),
-              ],
-            ),
+                          )
+                        : const Text('Chat'),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          setState(() => _isSearchOpen = !_isSearchOpen);
+                          if (!_isSearchOpen) {
+                            context.read<ConversationBloc>().add(
+                              const ConversationEvent.clearMessageSearch(),
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        onPressed: () => _showChatOptions(context, conv),
+                      ),
+                    ],
+                  ),
             body: Stack(
               children: [
                 const Positioned.fill(child: ChatBackground()),
@@ -188,6 +307,45 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                           );
                         },
                       ),
+                    // Stream error retry banner
+                    if (state.hasStreamError)
+                      Material(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.cloud_off,
+                                  size: 18, color: AppColors.error),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Connection lost. Messages may be outdated.',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: AppColors.error),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  context.read<ConversationBloc>().add(
+                                        const ConversationEvent.clearError(),
+                                      );
+                                  context.read<ConversationBloc>().add(
+                                        ConversationEvent.selectConversation(
+                                            widget.conversationId),
+                                      );
+                                },
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     // Message request banner
                     if (conv != null && conv.isMessageRequestFor(currentUserId))
                       _buildMessageRequestBanner(context, conv, currentUserId),
@@ -208,8 +366,79 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                         },
                       ),
                     Expanded(
-                      child: _buildMessageList(context, state, currentUserId),
+                      child: Stack(
+                        children: [
+                          _buildMessageList(context, state, currentUserId),
+                          // "New messages ↓" floating pill
+                          if (_isScrolledUp && _newMessageCount > 0)
+                            Positioned(
+                              bottom: 8,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: GestureDetector(
+                                  onTap: _scrollToBottom,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.2),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '$_newMessageCount new message${_newMessageCount > 1 ? 's' : ''} ↓',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.textOnPrimary,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          // Scroll-to-bottom button (when scrolled up but no new messages)
+                          if (_isScrolledUp && _newMessageCount == 0)
+                            Positioned(
+                              bottom: 8,
+                              right: 16,
+                              child: FloatingActionButton.small(
+                                onPressed: _scrollToBottom,
+                                backgroundColor: AppColors.chatSurface,
+                                child: const Icon(Icons.keyboard_arrow_down,
+                                    color: AppColors.textPrimary),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
+                    // Quick reply suggestions (shown when no text entered and few messages)
+                    if (_messageController.text.isEmpty &&
+                        state.messages.length <= 2 &&
+                        state.messages.isNotEmpty &&
+                        !state.messages.first.isSentBy(currentUserId))
+                      _QuickReplySuggestions(
+                        onSuggestionTap: (text) {
+                          _messageController.text = text;
+                          _sendMessage(context);
+                        },
+                      ),
                     // Typing indicator
                     if (state.typingUsers.isNotEmpty)
                       TypingIndicator(
@@ -250,6 +479,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           );
         },
       ),
+    ),
     );
   }
 
@@ -281,6 +511,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (other.avatarUrl != null && other.avatarUrl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: other.avatarUrl!,
+        fadeInDuration: const Duration(milliseconds: 150),
         imageBuilder: (_, imageProvider) => Container(
           width: size,
           height: size,
@@ -302,7 +533,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     String currentUserId,
   ) {
     if (state.messages.isEmpty && !state.hasLoadedMessages) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildMessageListShimmer();
     }
 
     if (state.messages.isEmpty) {
@@ -367,6 +598,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
+      addAutomaticKeepAlives: false,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: messages.length,
       itemBuilder: (context, index) {
@@ -387,37 +619,129 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             ?.getOtherParticipant(currentUserId)
             .displayName;
 
-        return Column(
-          key: ValueKey(message.id),
-          children: [
-            if (showDate) DateSeparator(date: message.createdAt),
-            MessageBubble(
-              message: message,
-              isMe: isMe,
-              currentUserId: currentUserId,
-              avatarUrl: state
-                  .selectedConversation
-                  ?.participants[message.senderId]
-                  ?.avatarUrl,
-              otherUserName: otherName,
-              highlightQuery: state.messageSearchQuery,
-              onLongPress: () => _onMessageLongPress(context, message, state),
-              onTokenRequestAction: message.isTokenTransfer
-                  ? (accepted) =>
-                        _handleTokenRequestAction(context, message, accepted)
-                  : null,
-              onImageTap: message.hasMedia && message.media != null
-                  ? () => context.push(
-                      '/chat/conversation/${widget.conversationId}/image-viewer',
-                      extra: {
-                        'messageId': message.id,
-                        'imageUrl': message.media!.url,
-                        'mediaKeyBase64': message.media!.mediaKey,
-                      },
-                    )
-                  : null,
+        // Message clustering: hide avatar/tail for consecutive same-sender messages.
+        // Since list is reversed, index-1 is the NEXT message chronologically.
+        final nextMsg = index > 0 ? messages[index - 1] : null;
+        final showTail = nextMsg == null ||
+            nextMsg.senderId != message.senderId ||
+            nextMsg.isSystem ||
+            !DateSeparator.isSameDay(message.createdAt, nextMsg.createdAt);
+        final showAvatar = showTail; // avatar on last message of cluster
+
+        final isSelected = _selectedMessageIds.contains(message.id);
+
+        final bubble = GestureDetector(
+          onTap: _isMultiSelectMode
+              ? () => setState(() {
+                    if (isSelected) {
+                      _selectedMessageIds.remove(message.id);
+                      if (_selectedMessageIds.isEmpty) {
+                        _isMultiSelectMode = false;
+                      }
+                    } else {
+                      _selectedMessageIds.add(message.id);
+                    }
+                  })
+              : null,
+          child: Container(
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : Colors.transparent,
+            child: Column(
+              key: ValueKey(message.id),
+              children: [
+                if (showDate) DateSeparator(date: message.createdAt),
+                MessageBubble(
+                  message: message,
+                  isMe: isMe,
+                  currentUserId: currentUserId,
+                  avatarUrl: state
+                      .selectedConversation
+                      ?.participants[message.senderId]
+                      ?.avatarUrl,
+                  otherUserName: otherName,
+                  highlightQuery: state.messageSearchQuery,
+                  showAvatar: showAvatar,
+                  showTail: showTail,
+                  onLongPress: _isMultiSelectMode
+                      ? null
+                      : () => _onMessageLongPress(context, message, state),
+                  onSwipeReply: _isMultiSelectMode
+                      ? null
+                      : (msg) => _startReply(msg),
+                  onDoubleTapReact: _isMultiSelectMode
+                      ? null
+                      : (msg) => _onMessageLongPress(context, msg, state),
+                  onTokenRequestAction: message.isTokenTransfer
+                      ? (accepted) =>
+                            _handleTokenRequestAction(context, message, accepted)
+                      : null,
+                  onImageTap: message.hasMedia && message.media != null
+                      ? () => context.push(
+                          '/chat/conversation/${widget.conversationId}/image-viewer',
+                          extra: {
+                            'messageId': message.id,
+                            'imageUrl': message.media!.url,
+                            'mediaKeyBase64': message.media!.mediaKey,
+                          },
+                        )
+                      : null,
+                ),
+              ],
             ),
-          ],
+          ),
+        );
+
+        // Subtle slide-up animation for optimistic (just-sent) messages
+        if (isMe && message.status == MessageStatus.sending && index == 0) {
+          return TweenAnimationBuilder<Offset>(
+            tween: Tween(
+              begin: const Offset(0, 0.15),
+              end: Offset.zero,
+            ),
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            builder: (_, offset, child) => FractionalTranslation(
+              translation: offset,
+              child: child,
+            ),
+            child: bubble,
+          );
+        }
+
+        // Fade+slide animation for newly received messages
+        if (!isMe && index == 0) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            builder: (_, value, child) => Opacity(
+              opacity: value,
+              child: FractionalTranslation(
+                translation: Offset(0, 0.1 * (1.0 - value)),
+                child: child,
+              ),
+            ),
+            child: bubble,
+          );
+        }
+
+        return bubble;
+      },
+    );
+  }
+
+  Widget _buildMessageListShimmer() {
+    return ListView.builder(
+      reverse: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        final isMe = index.isEven;
+        return Align(
+          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+          child: _ShimmerBubble(isMe: isMe),
         );
       },
     );
@@ -748,58 +1072,95 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     _messageController.clear();
   }
 
+  /// Message currently being replied to (shown above input bar).
+  Message? _replyingTo;
+
+  /// Message currently being edited (replaces input text).
+  Message? _editingMessage;
+
+  void _startReply(Message message) {
+    setState(() {
+      _replyingTo = message;
+      _editingMessage = null;
+    });
+  }
+
+  void _cancelReply() => setState(() => _replyingTo = null);
+
+  void _startEdit(Message message) {
+    setState(() {
+      _editingMessage = message;
+      _replyingTo = null;
+      _messageController.text = message.textContent ?? '';
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _editingMessage = null;
+      _messageController.clear();
+    });
+  }
+
   void _onMessageLongPress(
     BuildContext context,
     Message message,
     ConversationState state,
   ) {
-    // Skip for already-deleted messages
     if (message.deletedForEveryone) return;
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
+    final isMe = message.isSentBy(currentUserId);
+    final conv = state.selectedConversation;
+    final convType = conv?.type ?? ConversationType.p2p;
 
-    showModalBottomSheet(
+    showMessageContextMenu(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.emoji_emotions_outlined),
-              title: const Text('React'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showReactionPicker(context, message);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.shortcut_outlined),
-              title: const Text('Forward'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _forwardMessage(context, message, state, currentUserId);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColors.error),
-              title: const Text('Delete for Everyone'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _confirmDeleteMessage(context, message.id);
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      message: message,
+      isMe: isMe,
+      currentUserId: currentUserId,
+      conversationType: convType,
+      onReact: (msg, emoji) {
+        final actionsBloc = context.read<ConversationActionsBloc>();
+        if (msg.hasReacted(currentUserId, emoji)) {
+          actionsBloc.add(ConversationActionsEvent.removeReaction(
+            conversationId: widget.conversationId,
+            messageId: msg.id,
+            emoji: emoji,
+          ));
+        } else {
+          actionsBloc.add(ConversationActionsEvent.addReaction(
+            conversationId: widget.conversationId,
+            messageId: msg.id,
+            emoji: emoji,
+          ));
+        }
+      },
+      onReply: (msg) => _startReply(msg),
+      onCopy: (msg) {
+        if (msg.textContent != null) {
+          Clipboard.setData(ClipboardData(text: msg.textContent!));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Copied to clipboard')),
+          );
+        }
+      },
+      onForward: (msg) => _forwardMessage(context, msg, state, currentUserId),
+      onEdit: (msg) => _startEdit(msg),
+      onDeleteForMe: (msg) {
+        context.read<ConversationActionsBloc>().add(
+          ConversationActionsEvent.deleteMessageForEveryone(
+            conversationId: widget.conversationId,
+            messageId: msg.id,
+          ),
+        );
+      },
+      onDeleteForEveryone: (msg) => _confirmDeleteMessage(context, msg.id),
+      onSelect: () {
+        setState(() {
+          _isMultiSelectMode = true;
+          _selectedMessageIds.add(message.id);
+        });
+      },
     );
   }
 
@@ -1011,6 +1372,24 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               },
             ),
             ListTile(
+              leading: Icon(Icons.auto_awesome, color: AppColors.secondary),
+              title: const Text('AI Summary'),
+              subtitle: const Text('Coming soon'),
+              enabled: false,
+              onTap: () {
+                Navigator.pop(ctx);
+                // TODO: Wire up AI chat summary
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.wallpaper_outlined),
+              title: const Text('Chat Wallpaper'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showWallpaperPicker(context);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.ios_share_outlined),
               title: const Text('Export Chat'),
               onTap: () {
@@ -1056,6 +1435,19 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showWallpaperPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => ChatThemePicker(
+        current: ChatThemeStyle.defaultDoodle,
+        onSelected: (theme) {
+          // TODO: persist per-conversation theme preference
+          setState(() {});
+        },
       ),
     );
   }
@@ -1452,6 +1844,96 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Horizontal row of quick-reply chip suggestions above the input bar.
+class _QuickReplySuggestions extends StatelessWidget {
+  final ValueChanged<String> onSuggestionTap;
+
+  const _QuickReplySuggestions({required this.onSuggestionTap});
+
+  static const _suggestions = ['Hi!', 'Thanks!', 'Sure', 'On my way', 'Got it'];
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: _suggestions.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final text = _suggestions[index];
+          return ActionChip(
+            label: Text(text),
+            labelStyle: TextStyle(
+              color: AppColors.primary,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+            backgroundColor: AppColors.chatSurface,
+            side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+            onPressed: () => onSuggestionTap(text),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Animated shimmer bubble placeholder for message list loading state.
+class _ShimmerBubble extends StatefulWidget {
+  final bool isMe;
+  const _ShimmerBubble({required this.isMe});
+
+  @override
+  State<_ShimmerBubble> createState() => _ShimmerBubbleState();
+}
+
+class _ShimmerBubbleState extends State<_ShimmerBubble>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+    _animation = Tween(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (_, __) {
+        final opacity = _animation.value;
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Container(
+            width: widget.isMe ? 200 : 160,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.chatSurface.withValues(alpha: opacity),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -30,6 +30,9 @@ class ConversationState with _$ConversationState {
 
     // Message forwarding
     @Default(false) bool isForwarding,
+
+    // Stream health — surfaces connection errors as a dismissable banner
+    @Default(false) bool hasStreamError,
   }) = _ConversationState;
 
   const ConversationState._();

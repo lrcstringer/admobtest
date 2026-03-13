@@ -99,6 +99,14 @@ class AudioPlaybackService {
 
   Future<void> seek(Duration position) => _player.seek(position);
 
+  /// Set playback speed (1.0, 1.5, 2.0).
+  Future<void> setSpeed(double speed) => _player.setSpeed(speed);
+
+  /// Current playback speed.
+  double get speed => _player.speed;
+
+  Stream<double> get speedStream => _player.speedStream;
+
   Future<void> stop() async {
     await _player.stop();
     _currentMessageId = null;

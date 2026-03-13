@@ -55,7 +55,7 @@ extension ConversationEventPatterns on ConversationEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _WatchConversations value)?  watchConversations,TResult Function( _ConversationsUpdated value)?  conversationsUpdated,TResult Function( _SelectConversation value)?  selectConversation,TResult Function( _GetOrCreateConversation value)?  getOrCreateConversation,TResult Function( _LoadMessages value)?  loadMessages,TResult Function( _MessagesUpdated value)?  messagesUpdated,TResult Function( _SendTextMessage value)?  sendTextMessage,TResult Function( _SendMediaMessage value)?  sendMediaMessage,TResult Function( _SendTokens value)?  sendTokens,TResult Function( _RequestTokens value)?  requestTokens,TResult Function( _SendTokensToUser value)?  sendTokensToUser,TResult Function( _AcceptTokenRequest value)?  acceptTokenRequest,TResult Function( _DeclineTokenRequest value)?  declineTokenRequest,TResult Function( _AcceptConversation value)?  acceptConversation,TResult Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult Function( _ClearChat value)?  clearChat,TResult Function( _RetryMessage value)?  retryMessage,TResult Function( _SetTyping value)?  setTyping,TResult Function( _TypingStateUpdated value)?  typingStateUpdated,TResult Function( _SearchMessages value)?  searchMessages,TResult Function( _ClearMessageSearch value)?  clearMessageSearch,TResult Function( _SetDisappearingMessages value)?  setDisappearingMessages,TResult Function( _ForwardMessage value)?  forwardMessage,TResult Function( _ClearError value)?  clearError,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _WatchConversations value)?  watchConversations,TResult Function( _ConversationsUpdated value)?  conversationsUpdated,TResult Function( _SelectConversation value)?  selectConversation,TResult Function( _GetOrCreateConversation value)?  getOrCreateConversation,TResult Function( _LoadMessages value)?  loadMessages,TResult Function( _MessagesUpdated value)?  messagesUpdated,TResult Function( _SendTextMessage value)?  sendTextMessage,TResult Function( _SendMediaMessage value)?  sendMediaMessage,TResult Function( _SendTokens value)?  sendTokens,TResult Function( _RequestTokens value)?  requestTokens,TResult Function( _SendTokensToUser value)?  sendTokensToUser,TResult Function( _AcceptTokenRequest value)?  acceptTokenRequest,TResult Function( _DeclineTokenRequest value)?  declineTokenRequest,TResult Function( _AcceptConversation value)?  acceptConversation,TResult Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult Function( _ClearChat value)?  clearChat,TResult Function( _RetryMessage value)?  retryMessage,TResult Function( _SetTyping value)?  setTyping,TResult Function( _TypingStateUpdated value)?  typingStateUpdated,TResult Function( _SearchMessages value)?  searchMessages,TResult Function( _ClearMessageSearch value)?  clearMessageSearch,TResult Function( _SetDisappearingMessages value)?  setDisappearingMessages,TResult Function( _ForwardMessage value)?  forwardMessage,TResult Function( _StreamError value)?  streamError,TResult Function( _ClearError value)?  clearError,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _WatchConversations() when watchConversations != null:
@@ -81,7 +81,8 @@ return typingStateUpdated(_that);case _SearchMessages() when searchMessages != n
 return searchMessages(_that);case _ClearMessageSearch() when clearMessageSearch != null:
 return clearMessageSearch(_that);case _SetDisappearingMessages() when setDisappearingMessages != null:
 return setDisappearingMessages(_that);case _ForwardMessage() when forwardMessage != null:
-return forwardMessage(_that);case _ClearError() when clearError != null:
+return forwardMessage(_that);case _StreamError() when streamError != null:
+return streamError(_that);case _ClearError() when clearError != null:
 return clearError(_that);case _:
   return orElse();
 
@@ -100,7 +101,7 @@ return clearError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _WatchConversations value)  watchConversations,required TResult Function( _ConversationsUpdated value)  conversationsUpdated,required TResult Function( _SelectConversation value)  selectConversation,required TResult Function( _GetOrCreateConversation value)  getOrCreateConversation,required TResult Function( _LoadMessages value)  loadMessages,required TResult Function( _MessagesUpdated value)  messagesUpdated,required TResult Function( _SendTextMessage value)  sendTextMessage,required TResult Function( _SendMediaMessage value)  sendMediaMessage,required TResult Function( _SendTokens value)  sendTokens,required TResult Function( _RequestTokens value)  requestTokens,required TResult Function( _SendTokensToUser value)  sendTokensToUser,required TResult Function( _AcceptTokenRequest value)  acceptTokenRequest,required TResult Function( _DeclineTokenRequest value)  declineTokenRequest,required TResult Function( _AcceptConversation value)  acceptConversation,required TResult Function( _UnreadCountUpdated value)  unreadCountUpdated,required TResult Function( _ClearChat value)  clearChat,required TResult Function( _RetryMessage value)  retryMessage,required TResult Function( _SetTyping value)  setTyping,required TResult Function( _TypingStateUpdated value)  typingStateUpdated,required TResult Function( _SearchMessages value)  searchMessages,required TResult Function( _ClearMessageSearch value)  clearMessageSearch,required TResult Function( _SetDisappearingMessages value)  setDisappearingMessages,required TResult Function( _ForwardMessage value)  forwardMessage,required TResult Function( _ClearError value)  clearError,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _WatchConversations value)  watchConversations,required TResult Function( _ConversationsUpdated value)  conversationsUpdated,required TResult Function( _SelectConversation value)  selectConversation,required TResult Function( _GetOrCreateConversation value)  getOrCreateConversation,required TResult Function( _LoadMessages value)  loadMessages,required TResult Function( _MessagesUpdated value)  messagesUpdated,required TResult Function( _SendTextMessage value)  sendTextMessage,required TResult Function( _SendMediaMessage value)  sendMediaMessage,required TResult Function( _SendTokens value)  sendTokens,required TResult Function( _RequestTokens value)  requestTokens,required TResult Function( _SendTokensToUser value)  sendTokensToUser,required TResult Function( _AcceptTokenRequest value)  acceptTokenRequest,required TResult Function( _DeclineTokenRequest value)  declineTokenRequest,required TResult Function( _AcceptConversation value)  acceptConversation,required TResult Function( _UnreadCountUpdated value)  unreadCountUpdated,required TResult Function( _ClearChat value)  clearChat,required TResult Function( _RetryMessage value)  retryMessage,required TResult Function( _SetTyping value)  setTyping,required TResult Function( _TypingStateUpdated value)  typingStateUpdated,required TResult Function( _SearchMessages value)  searchMessages,required TResult Function( _ClearMessageSearch value)  clearMessageSearch,required TResult Function( _SetDisappearingMessages value)  setDisappearingMessages,required TResult Function( _ForwardMessage value)  forwardMessage,required TResult Function( _StreamError value)  streamError,required TResult Function( _ClearError value)  clearError,}){
 final _that = this;
 switch (_that) {
 case _WatchConversations():
@@ -126,7 +127,8 @@ return typingStateUpdated(_that);case _SearchMessages():
 return searchMessages(_that);case _ClearMessageSearch():
 return clearMessageSearch(_that);case _SetDisappearingMessages():
 return setDisappearingMessages(_that);case _ForwardMessage():
-return forwardMessage(_that);case _ClearError():
+return forwardMessage(_that);case _StreamError():
+return streamError(_that);case _ClearError():
 return clearError(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -144,7 +146,7 @@ return clearError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _WatchConversations value)?  watchConversations,TResult? Function( _ConversationsUpdated value)?  conversationsUpdated,TResult? Function( _SelectConversation value)?  selectConversation,TResult? Function( _GetOrCreateConversation value)?  getOrCreateConversation,TResult? Function( _LoadMessages value)?  loadMessages,TResult? Function( _MessagesUpdated value)?  messagesUpdated,TResult? Function( _SendTextMessage value)?  sendTextMessage,TResult? Function( _SendMediaMessage value)?  sendMediaMessage,TResult? Function( _SendTokens value)?  sendTokens,TResult? Function( _RequestTokens value)?  requestTokens,TResult? Function( _SendTokensToUser value)?  sendTokensToUser,TResult? Function( _AcceptTokenRequest value)?  acceptTokenRequest,TResult? Function( _DeclineTokenRequest value)?  declineTokenRequest,TResult? Function( _AcceptConversation value)?  acceptConversation,TResult? Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult? Function( _ClearChat value)?  clearChat,TResult? Function( _RetryMessage value)?  retryMessage,TResult? Function( _SetTyping value)?  setTyping,TResult? Function( _TypingStateUpdated value)?  typingStateUpdated,TResult? Function( _SearchMessages value)?  searchMessages,TResult? Function( _ClearMessageSearch value)?  clearMessageSearch,TResult? Function( _SetDisappearingMessages value)?  setDisappearingMessages,TResult? Function( _ForwardMessage value)?  forwardMessage,TResult? Function( _ClearError value)?  clearError,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _WatchConversations value)?  watchConversations,TResult? Function( _ConversationsUpdated value)?  conversationsUpdated,TResult? Function( _SelectConversation value)?  selectConversation,TResult? Function( _GetOrCreateConversation value)?  getOrCreateConversation,TResult? Function( _LoadMessages value)?  loadMessages,TResult? Function( _MessagesUpdated value)?  messagesUpdated,TResult? Function( _SendTextMessage value)?  sendTextMessage,TResult? Function( _SendMediaMessage value)?  sendMediaMessage,TResult? Function( _SendTokens value)?  sendTokens,TResult? Function( _RequestTokens value)?  requestTokens,TResult? Function( _SendTokensToUser value)?  sendTokensToUser,TResult? Function( _AcceptTokenRequest value)?  acceptTokenRequest,TResult? Function( _DeclineTokenRequest value)?  declineTokenRequest,TResult? Function( _AcceptConversation value)?  acceptConversation,TResult? Function( _UnreadCountUpdated value)?  unreadCountUpdated,TResult? Function( _ClearChat value)?  clearChat,TResult? Function( _RetryMessage value)?  retryMessage,TResult? Function( _SetTyping value)?  setTyping,TResult? Function( _TypingStateUpdated value)?  typingStateUpdated,TResult? Function( _SearchMessages value)?  searchMessages,TResult? Function( _ClearMessageSearch value)?  clearMessageSearch,TResult? Function( _SetDisappearingMessages value)?  setDisappearingMessages,TResult? Function( _ForwardMessage value)?  forwardMessage,TResult? Function( _StreamError value)?  streamError,TResult? Function( _ClearError value)?  clearError,}){
 final _that = this;
 switch (_that) {
 case _WatchConversations() when watchConversations != null:
@@ -170,7 +172,8 @@ return typingStateUpdated(_that);case _SearchMessages() when searchMessages != n
 return searchMessages(_that);case _ClearMessageSearch() when clearMessageSearch != null:
 return clearMessageSearch(_that);case _SetDisappearingMessages() when setDisappearingMessages != null:
 return setDisappearingMessages(_that);case _ForwardMessage() when forwardMessage != null:
-return forwardMessage(_that);case _ClearError() when clearError != null:
+return forwardMessage(_that);case _StreamError() when streamError != null:
+return streamError(_that);case _ClearError() when clearError != null:
 return clearError(_that);case _:
   return null;
 
@@ -188,7 +191,7 @@ return clearError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  watchConversations,TResult Function( List<Conversation> conversations)?  conversationsUpdated,TResult Function( String id)?  selectConversation,TResult Function( String participantId)?  getOrCreateConversation,TResult Function( String conversationId,  int? limit,  DateTime? before)?  loadMessages,TResult Function( List<Message> messages)?  messagesUpdated,TResult Function( String conversationId,  String text,  String? replyToMessageId)?  sendTextMessage,TResult Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)?  sendMediaMessage,TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  sendTokens,TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  requestTokens,TResult Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)?  sendTokensToUser,TResult Function( String messageId,  String conversationId)?  acceptTokenRequest,TResult Function( String messageId,  String conversationId)?  declineTokenRequest,TResult Function( String conversationId)?  acceptConversation,TResult Function( int count)?  unreadCountUpdated,TResult Function( String conversationId)?  clearChat,TResult Function( String conversationId,  String messageId)?  retryMessage,TResult Function( String conversationId,  bool isTyping)?  setTyping,TResult Function( Map<String, bool> typingUsers)?  typingStateUpdated,TResult Function( String conversationId,  String query)?  searchMessages,TResult Function()?  clearMessageSearch,TResult Function( String conversationId,  Duration? duration)?  setDisappearingMessages,TResult Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)?  forwardMessage,TResult Function()?  clearError,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  watchConversations,TResult Function( List<Conversation> conversations)?  conversationsUpdated,TResult Function( String id)?  selectConversation,TResult Function( String participantId)?  getOrCreateConversation,TResult Function( String conversationId,  int? limit,  DateTime? before)?  loadMessages,TResult Function( List<Message> messages)?  messagesUpdated,TResult Function( String conversationId,  String text,  String? replyToMessageId)?  sendTextMessage,TResult Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)?  sendMediaMessage,TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  sendTokens,TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  requestTokens,TResult Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)?  sendTokensToUser,TResult Function( String messageId,  String conversationId)?  acceptTokenRequest,TResult Function( String messageId,  String conversationId)?  declineTokenRequest,TResult Function( String conversationId)?  acceptConversation,TResult Function( int count)?  unreadCountUpdated,TResult Function( String conversationId)?  clearChat,TResult Function( String conversationId,  String messageId)?  retryMessage,TResult Function( String conversationId,  bool isTyping)?  setTyping,TResult Function( Map<String, bool> typingUsers)?  typingStateUpdated,TResult Function( String conversationId,  String query)?  searchMessages,TResult Function()?  clearMessageSearch,TResult Function( String conversationId,  Duration? duration)?  setDisappearingMessages,TResult Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)?  forwardMessage,TResult Function()?  streamError,TResult Function()?  clearError,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WatchConversations() when watchConversations != null:
 return watchConversations();case _ConversationsUpdated() when conversationsUpdated != null:
@@ -213,7 +216,8 @@ return typingStateUpdated(_that.typingUsers);case _SearchMessages() when searchM
 return searchMessages(_that.conversationId,_that.query);case _ClearMessageSearch() when clearMessageSearch != null:
 return clearMessageSearch();case _SetDisappearingMessages() when setDisappearingMessages != null:
 return setDisappearingMessages(_that.conversationId,_that.duration);case _ForwardMessage() when forwardMessage != null:
-return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _ClearError() when clearError != null:
+return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _StreamError() when streamError != null:
+return streamError();case _ClearError() when clearError != null:
 return clearError();case _:
   return orElse();
 
@@ -232,7 +236,7 @@ return clearError();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  watchConversations,required TResult Function( List<Conversation> conversations)  conversationsUpdated,required TResult Function( String id)  selectConversation,required TResult Function( String participantId)  getOrCreateConversation,required TResult Function( String conversationId,  int? limit,  DateTime? before)  loadMessages,required TResult Function( List<Message> messages)  messagesUpdated,required TResult Function( String conversationId,  String text,  String? replyToMessageId)  sendTextMessage,required TResult Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)  sendMediaMessage,required TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)  sendTokens,required TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)  requestTokens,required TResult Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)  sendTokensToUser,required TResult Function( String messageId,  String conversationId)  acceptTokenRequest,required TResult Function( String messageId,  String conversationId)  declineTokenRequest,required TResult Function( String conversationId)  acceptConversation,required TResult Function( int count)  unreadCountUpdated,required TResult Function( String conversationId)  clearChat,required TResult Function( String conversationId,  String messageId)  retryMessage,required TResult Function( String conversationId,  bool isTyping)  setTyping,required TResult Function( Map<String, bool> typingUsers)  typingStateUpdated,required TResult Function( String conversationId,  String query)  searchMessages,required TResult Function()  clearMessageSearch,required TResult Function( String conversationId,  Duration? duration)  setDisappearingMessages,required TResult Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)  forwardMessage,required TResult Function()  clearError,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  watchConversations,required TResult Function( List<Conversation> conversations)  conversationsUpdated,required TResult Function( String id)  selectConversation,required TResult Function( String participantId)  getOrCreateConversation,required TResult Function( String conversationId,  int? limit,  DateTime? before)  loadMessages,required TResult Function( List<Message> messages)  messagesUpdated,required TResult Function( String conversationId,  String text,  String? replyToMessageId)  sendTextMessage,required TResult Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)  sendMediaMessage,required TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)  sendTokens,required TResult Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)  requestTokens,required TResult Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)  sendTokensToUser,required TResult Function( String messageId,  String conversationId)  acceptTokenRequest,required TResult Function( String messageId,  String conversationId)  declineTokenRequest,required TResult Function( String conversationId)  acceptConversation,required TResult Function( int count)  unreadCountUpdated,required TResult Function( String conversationId)  clearChat,required TResult Function( String conversationId,  String messageId)  retryMessage,required TResult Function( String conversationId,  bool isTyping)  setTyping,required TResult Function( Map<String, bool> typingUsers)  typingStateUpdated,required TResult Function( String conversationId,  String query)  searchMessages,required TResult Function()  clearMessageSearch,required TResult Function( String conversationId,  Duration? duration)  setDisappearingMessages,required TResult Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)  forwardMessage,required TResult Function()  streamError,required TResult Function()  clearError,}) {final _that = this;
 switch (_that) {
 case _WatchConversations():
 return watchConversations();case _ConversationsUpdated():
@@ -257,7 +261,8 @@ return typingStateUpdated(_that.typingUsers);case _SearchMessages():
 return searchMessages(_that.conversationId,_that.query);case _ClearMessageSearch():
 return clearMessageSearch();case _SetDisappearingMessages():
 return setDisappearingMessages(_that.conversationId,_that.duration);case _ForwardMessage():
-return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _ClearError():
+return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _StreamError():
+return streamError();case _ClearError():
 return clearError();case _:
   throw StateError('Unexpected subclass');
 
@@ -275,7 +280,7 @@ return clearError();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  watchConversations,TResult? Function( List<Conversation> conversations)?  conversationsUpdated,TResult? Function( String id)?  selectConversation,TResult? Function( String participantId)?  getOrCreateConversation,TResult? Function( String conversationId,  int? limit,  DateTime? before)?  loadMessages,TResult? Function( List<Message> messages)?  messagesUpdated,TResult? Function( String conversationId,  String text,  String? replyToMessageId)?  sendTextMessage,TResult? Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)?  sendMediaMessage,TResult? Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  sendTokens,TResult? Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  requestTokens,TResult? Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)?  sendTokensToUser,TResult? Function( String messageId,  String conversationId)?  acceptTokenRequest,TResult? Function( String messageId,  String conversationId)?  declineTokenRequest,TResult? Function( String conversationId)?  acceptConversation,TResult? Function( int count)?  unreadCountUpdated,TResult? Function( String conversationId)?  clearChat,TResult? Function( String conversationId,  String messageId)?  retryMessage,TResult? Function( String conversationId,  bool isTyping)?  setTyping,TResult? Function( Map<String, bool> typingUsers)?  typingStateUpdated,TResult? Function( String conversationId,  String query)?  searchMessages,TResult? Function()?  clearMessageSearch,TResult? Function( String conversationId,  Duration? duration)?  setDisappearingMessages,TResult? Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)?  forwardMessage,TResult? Function()?  clearError,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  watchConversations,TResult? Function( List<Conversation> conversations)?  conversationsUpdated,TResult? Function( String id)?  selectConversation,TResult? Function( String participantId)?  getOrCreateConversation,TResult? Function( String conversationId,  int? limit,  DateTime? before)?  loadMessages,TResult? Function( List<Message> messages)?  messagesUpdated,TResult? Function( String conversationId,  String text,  String? replyToMessageId)?  sendTextMessage,TResult? Function( String conversationId,  File mediaFile,  String mediaType,  String recipientId,  String? caption,  int? durationSeconds,  String? replyToMessageId,  File? thumbnailFile)?  sendMediaMessage,TResult? Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  sendTokens,TResult? Function( String conversationId,  String recipientId,  int amount,  String? message,  String? subAccountId)?  requestTokens,TResult? Function( String recipientId,  int amount,  bool isSend,  String? message,  String? subAccountId)?  sendTokensToUser,TResult? Function( String messageId,  String conversationId)?  acceptTokenRequest,TResult? Function( String messageId,  String conversationId)?  declineTokenRequest,TResult? Function( String conversationId)?  acceptConversation,TResult? Function( int count)?  unreadCountUpdated,TResult? Function( String conversationId)?  clearChat,TResult? Function( String conversationId,  String messageId)?  retryMessage,TResult? Function( String conversationId,  bool isTyping)?  setTyping,TResult? Function( Map<String, bool> typingUsers)?  typingStateUpdated,TResult? Function( String conversationId,  String query)?  searchMessages,TResult? Function()?  clearMessageSearch,TResult? Function( String conversationId,  Duration? duration)?  setDisappearingMessages,TResult? Function( String sourceConversationId,  String sourceMessageId,  String targetConversationId)?  forwardMessage,TResult? Function()?  streamError,TResult? Function()?  clearError,}) {final _that = this;
 switch (_that) {
 case _WatchConversations() when watchConversations != null:
 return watchConversations();case _ConversationsUpdated() when conversationsUpdated != null:
@@ -300,7 +305,8 @@ return typingStateUpdated(_that.typingUsers);case _SearchMessages() when searchM
 return searchMessages(_that.conversationId,_that.query);case _ClearMessageSearch() when clearMessageSearch != null:
 return clearMessageSearch();case _SetDisappearingMessages() when setDisappearingMessages != null:
 return setDisappearingMessages(_that.conversationId,_that.duration);case _ForwardMessage() when forwardMessage != null:
-return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _ClearError() when clearError != null:
+return forwardMessage(_that.sourceConversationId,_that.sourceMessageId,_that.targetConversationId);case _StreamError() when streamError != null:
+return streamError();case _ClearError() when clearError != null:
 return clearError();case _:
   return null;
 
@@ -1842,6 +1848,38 @@ as String,
 /// @nodoc
 
 
+class _StreamError implements ConversationEvent {
+  const _StreamError();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StreamError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ConversationEvent.streamError()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
 class _ClearError implements ConversationEvent {
   const _ClearError();
   
@@ -1877,7 +1915,8 @@ mixin _$ConversationState {
  ConversationStatus get status; List<Conversation> get conversations; List<Message> get messages; Conversation? get selectedConversation; bool get isLoadingMessages; bool get hasLoadedMessages; bool get isSyncingMessages; bool get hasMoreMessages; bool get isSending; bool get isClearingChat; int get totalUnreadCount; int get messageRequestCount; String? get errorMessage;// Typing indicators
  Map<String, bool> get typingUsers;// Message search
  List<Message> get messageSearchResults; bool get isSearchingMessages; String? get messageSearchQuery;// Message forwarding
- bool get isForwarding;
+ bool get isForwarding;// Stream health — surfaces connection errors as a dismissable banner
+ bool get hasStreamError;
 /// Create a copy of ConversationState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1888,16 +1927,16 @@ $ConversationStateCopyWith<ConversationState> get copyWith => _$ConversationStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConversationState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.conversations, conversations)&&const DeepCollectionEquality().equals(other.messages, messages)&&(identical(other.selectedConversation, selectedConversation) || other.selectedConversation == selectedConversation)&&(identical(other.isLoadingMessages, isLoadingMessages) || other.isLoadingMessages == isLoadingMessages)&&(identical(other.hasLoadedMessages, hasLoadedMessages) || other.hasLoadedMessages == hasLoadedMessages)&&(identical(other.isSyncingMessages, isSyncingMessages) || other.isSyncingMessages == isSyncingMessages)&&(identical(other.hasMoreMessages, hasMoreMessages) || other.hasMoreMessages == hasMoreMessages)&&(identical(other.isSending, isSending) || other.isSending == isSending)&&(identical(other.isClearingChat, isClearingChat) || other.isClearingChat == isClearingChat)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.messageRequestCount, messageRequestCount) || other.messageRequestCount == messageRequestCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other.typingUsers, typingUsers)&&const DeepCollectionEquality().equals(other.messageSearchResults, messageSearchResults)&&(identical(other.isSearchingMessages, isSearchingMessages) || other.isSearchingMessages == isSearchingMessages)&&(identical(other.messageSearchQuery, messageSearchQuery) || other.messageSearchQuery == messageSearchQuery)&&(identical(other.isForwarding, isForwarding) || other.isForwarding == isForwarding));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ConversationState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.conversations, conversations)&&const DeepCollectionEquality().equals(other.messages, messages)&&(identical(other.selectedConversation, selectedConversation) || other.selectedConversation == selectedConversation)&&(identical(other.isLoadingMessages, isLoadingMessages) || other.isLoadingMessages == isLoadingMessages)&&(identical(other.hasLoadedMessages, hasLoadedMessages) || other.hasLoadedMessages == hasLoadedMessages)&&(identical(other.isSyncingMessages, isSyncingMessages) || other.isSyncingMessages == isSyncingMessages)&&(identical(other.hasMoreMessages, hasMoreMessages) || other.hasMoreMessages == hasMoreMessages)&&(identical(other.isSending, isSending) || other.isSending == isSending)&&(identical(other.isClearingChat, isClearingChat) || other.isClearingChat == isClearingChat)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.messageRequestCount, messageRequestCount) || other.messageRequestCount == messageRequestCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other.typingUsers, typingUsers)&&const DeepCollectionEquality().equals(other.messageSearchResults, messageSearchResults)&&(identical(other.isSearchingMessages, isSearchingMessages) || other.isSearchingMessages == isSearchingMessages)&&(identical(other.messageSearchQuery, messageSearchQuery) || other.messageSearchQuery == messageSearchQuery)&&(identical(other.isForwarding, isForwarding) || other.isForwarding == isForwarding)&&(identical(other.hasStreamError, hasStreamError) || other.hasStreamError == hasStreamError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(conversations),const DeepCollectionEquality().hash(messages),selectedConversation,isLoadingMessages,hasLoadedMessages,isSyncingMessages,hasMoreMessages,isSending,isClearingChat,totalUnreadCount,messageRequestCount,errorMessage,const DeepCollectionEquality().hash(typingUsers),const DeepCollectionEquality().hash(messageSearchResults),isSearchingMessages,messageSearchQuery,isForwarding);
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(conversations),const DeepCollectionEquality().hash(messages),selectedConversation,isLoadingMessages,hasLoadedMessages,isSyncingMessages,hasMoreMessages,isSending,isClearingChat,totalUnreadCount,messageRequestCount,errorMessage,const DeepCollectionEquality().hash(typingUsers),const DeepCollectionEquality().hash(messageSearchResults),isSearchingMessages,messageSearchQuery,isForwarding,hasStreamError]);
 
 @override
 String toString() {
-  return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, isSyncingMessages: $isSyncingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding)';
+  return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, isSyncingMessages: $isSyncingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding, hasStreamError: $hasStreamError)';
 }
 
 
@@ -1908,7 +1947,7 @@ abstract mixin class $ConversationStateCopyWith<$Res>  {
   factory $ConversationStateCopyWith(ConversationState value, $Res Function(ConversationState) _then) = _$ConversationStateCopyWithImpl;
 @useResult
 $Res call({
- ConversationStatus status, List<Conversation> conversations, List<Message> messages, Conversation? selectedConversation, bool isLoadingMessages, bool hasLoadedMessages, bool isSyncingMessages, bool hasMoreMessages, bool isSending, bool isClearingChat, int totalUnreadCount, int messageRequestCount, String? errorMessage, Map<String, bool> typingUsers, List<Message> messageSearchResults, bool isSearchingMessages, String? messageSearchQuery, bool isForwarding
+ ConversationStatus status, List<Conversation> conversations, List<Message> messages, Conversation? selectedConversation, bool isLoadingMessages, bool hasLoadedMessages, bool isSyncingMessages, bool hasMoreMessages, bool isSending, bool isClearingChat, int totalUnreadCount, int messageRequestCount, String? errorMessage, Map<String, bool> typingUsers, List<Message> messageSearchResults, bool isSearchingMessages, String? messageSearchQuery, bool isForwarding, bool hasStreamError
 });
 
 
@@ -1925,7 +1964,7 @@ class _$ConversationStateCopyWithImpl<$Res>
 
 /// Create a copy of ConversationState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? conversations = null,Object? messages = null,Object? selectedConversation = freezed,Object? isLoadingMessages = null,Object? hasLoadedMessages = null,Object? isSyncingMessages = null,Object? hasMoreMessages = null,Object? isSending = null,Object? isClearingChat = null,Object? totalUnreadCount = null,Object? messageRequestCount = null,Object? errorMessage = freezed,Object? typingUsers = null,Object? messageSearchResults = null,Object? isSearchingMessages = null,Object? messageSearchQuery = freezed,Object? isForwarding = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? conversations = null,Object? messages = null,Object? selectedConversation = freezed,Object? isLoadingMessages = null,Object? hasLoadedMessages = null,Object? isSyncingMessages = null,Object? hasMoreMessages = null,Object? isSending = null,Object? isClearingChat = null,Object? totalUnreadCount = null,Object? messageRequestCount = null,Object? errorMessage = freezed,Object? typingUsers = null,Object? messageSearchResults = null,Object? isSearchingMessages = null,Object? messageSearchQuery = freezed,Object? isForwarding = null,Object? hasStreamError = null,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ConversationStatus,conversations: null == conversations ? _self.conversations : conversations // ignore: cast_nullable_to_non_nullable
@@ -1945,6 +1984,7 @@ as Map<String, bool>,messageSearchResults: null == messageSearchResults ? _self.
 as List<Message>,isSearchingMessages: null == isSearchingMessages ? _self.isSearchingMessages : isSearchingMessages // ignore: cast_nullable_to_non_nullable
 as bool,messageSearchQuery: freezed == messageSearchQuery ? _self.messageSearchQuery : messageSearchQuery // ignore: cast_nullable_to_non_nullable
 as String?,isForwarding: null == isForwarding ? _self.isForwarding : isForwarding // ignore: cast_nullable_to_non_nullable
+as bool,hasStreamError: null == hasStreamError ? _self.hasStreamError : hasStreamError // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -2042,10 +2082,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding,  bool hasStreamError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ConversationState() when $default != null:
-return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding);case _:
+return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding,_that.hasStreamError);case _:
   return orElse();
 
 }
@@ -2063,10 +2103,10 @@ return $default(_that.status,_that.conversations,_that.messages,_that.selectedCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding,  bool hasStreamError)  $default,) {final _that = this;
 switch (_that) {
 case _ConversationState():
-return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding);case _:
+return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding,_that.hasStreamError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2083,10 +2123,10 @@ return $default(_that.status,_that.conversations,_that.messages,_that.selectedCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ConversationStatus status,  List<Conversation> conversations,  List<Message> messages,  Conversation? selectedConversation,  bool isLoadingMessages,  bool hasLoadedMessages,  bool isSyncingMessages,  bool hasMoreMessages,  bool isSending,  bool isClearingChat,  int totalUnreadCount,  int messageRequestCount,  String? errorMessage,  Map<String, bool> typingUsers,  List<Message> messageSearchResults,  bool isSearchingMessages,  String? messageSearchQuery,  bool isForwarding,  bool hasStreamError)?  $default,) {final _that = this;
 switch (_that) {
 case _ConversationState() when $default != null:
-return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding);case _:
+return $default(_that.status,_that.conversations,_that.messages,_that.selectedConversation,_that.isLoadingMessages,_that.hasLoadedMessages,_that.isSyncingMessages,_that.hasMoreMessages,_that.isSending,_that.isClearingChat,_that.totalUnreadCount,_that.messageRequestCount,_that.errorMessage,_that.typingUsers,_that.messageSearchResults,_that.isSearchingMessages,_that.messageSearchQuery,_that.isForwarding,_that.hasStreamError);case _:
   return null;
 
 }
@@ -2098,7 +2138,7 @@ return $default(_that.status,_that.conversations,_that.messages,_that.selectedCo
 
 
 class _ConversationState extends ConversationState {
-  const _ConversationState({this.status = ConversationStatus.initial, final  List<Conversation> conversations = const [], final  List<Message> messages = const [], this.selectedConversation, this.isLoadingMessages = false, this.hasLoadedMessages = false, this.isSyncingMessages = false, this.hasMoreMessages = false, this.isSending = false, this.isClearingChat = false, this.totalUnreadCount = 0, this.messageRequestCount = 0, this.errorMessage, final  Map<String, bool> typingUsers = const {}, final  List<Message> messageSearchResults = const [], this.isSearchingMessages = false, this.messageSearchQuery, this.isForwarding = false}): _conversations = conversations,_messages = messages,_typingUsers = typingUsers,_messageSearchResults = messageSearchResults,super._();
+  const _ConversationState({this.status = ConversationStatus.initial, final  List<Conversation> conversations = const [], final  List<Message> messages = const [], this.selectedConversation, this.isLoadingMessages = false, this.hasLoadedMessages = false, this.isSyncingMessages = false, this.hasMoreMessages = false, this.isSending = false, this.isClearingChat = false, this.totalUnreadCount = 0, this.messageRequestCount = 0, this.errorMessage, final  Map<String, bool> typingUsers = const {}, final  List<Message> messageSearchResults = const [], this.isSearchingMessages = false, this.messageSearchQuery, this.isForwarding = false, this.hasStreamError = false}): _conversations = conversations,_messages = messages,_typingUsers = typingUsers,_messageSearchResults = messageSearchResults,super._();
   
 
 @override@JsonKey() final  ConversationStatus status;
@@ -2148,6 +2188,8 @@ class _ConversationState extends ConversationState {
 @override final  String? messageSearchQuery;
 // Message forwarding
 @override@JsonKey() final  bool isForwarding;
+// Stream health — surfaces connection errors as a dismissable banner
+@override@JsonKey() final  bool hasStreamError;
 
 /// Create a copy of ConversationState
 /// with the given fields replaced by the non-null parameter values.
@@ -2159,16 +2201,16 @@ _$ConversationStateCopyWith<_ConversationState> get copyWith => __$ConversationS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ConversationState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._conversations, _conversations)&&const DeepCollectionEquality().equals(other._messages, _messages)&&(identical(other.selectedConversation, selectedConversation) || other.selectedConversation == selectedConversation)&&(identical(other.isLoadingMessages, isLoadingMessages) || other.isLoadingMessages == isLoadingMessages)&&(identical(other.hasLoadedMessages, hasLoadedMessages) || other.hasLoadedMessages == hasLoadedMessages)&&(identical(other.isSyncingMessages, isSyncingMessages) || other.isSyncingMessages == isSyncingMessages)&&(identical(other.hasMoreMessages, hasMoreMessages) || other.hasMoreMessages == hasMoreMessages)&&(identical(other.isSending, isSending) || other.isSending == isSending)&&(identical(other.isClearingChat, isClearingChat) || other.isClearingChat == isClearingChat)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.messageRequestCount, messageRequestCount) || other.messageRequestCount == messageRequestCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other._typingUsers, _typingUsers)&&const DeepCollectionEquality().equals(other._messageSearchResults, _messageSearchResults)&&(identical(other.isSearchingMessages, isSearchingMessages) || other.isSearchingMessages == isSearchingMessages)&&(identical(other.messageSearchQuery, messageSearchQuery) || other.messageSearchQuery == messageSearchQuery)&&(identical(other.isForwarding, isForwarding) || other.isForwarding == isForwarding));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ConversationState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._conversations, _conversations)&&const DeepCollectionEquality().equals(other._messages, _messages)&&(identical(other.selectedConversation, selectedConversation) || other.selectedConversation == selectedConversation)&&(identical(other.isLoadingMessages, isLoadingMessages) || other.isLoadingMessages == isLoadingMessages)&&(identical(other.hasLoadedMessages, hasLoadedMessages) || other.hasLoadedMessages == hasLoadedMessages)&&(identical(other.isSyncingMessages, isSyncingMessages) || other.isSyncingMessages == isSyncingMessages)&&(identical(other.hasMoreMessages, hasMoreMessages) || other.hasMoreMessages == hasMoreMessages)&&(identical(other.isSending, isSending) || other.isSending == isSending)&&(identical(other.isClearingChat, isClearingChat) || other.isClearingChat == isClearingChat)&&(identical(other.totalUnreadCount, totalUnreadCount) || other.totalUnreadCount == totalUnreadCount)&&(identical(other.messageRequestCount, messageRequestCount) || other.messageRequestCount == messageRequestCount)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other._typingUsers, _typingUsers)&&const DeepCollectionEquality().equals(other._messageSearchResults, _messageSearchResults)&&(identical(other.isSearchingMessages, isSearchingMessages) || other.isSearchingMessages == isSearchingMessages)&&(identical(other.messageSearchQuery, messageSearchQuery) || other.messageSearchQuery == messageSearchQuery)&&(identical(other.isForwarding, isForwarding) || other.isForwarding == isForwarding)&&(identical(other.hasStreamError, hasStreamError) || other.hasStreamError == hasStreamError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,const DeepCollectionEquality().hash(_conversations),const DeepCollectionEquality().hash(_messages),selectedConversation,isLoadingMessages,hasLoadedMessages,isSyncingMessages,hasMoreMessages,isSending,isClearingChat,totalUnreadCount,messageRequestCount,errorMessage,const DeepCollectionEquality().hash(_typingUsers),const DeepCollectionEquality().hash(_messageSearchResults),isSearchingMessages,messageSearchQuery,isForwarding);
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(_conversations),const DeepCollectionEquality().hash(_messages),selectedConversation,isLoadingMessages,hasLoadedMessages,isSyncingMessages,hasMoreMessages,isSending,isClearingChat,totalUnreadCount,messageRequestCount,errorMessage,const DeepCollectionEquality().hash(_typingUsers),const DeepCollectionEquality().hash(_messageSearchResults),isSearchingMessages,messageSearchQuery,isForwarding,hasStreamError]);
 
 @override
 String toString() {
-  return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, isSyncingMessages: $isSyncingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding)';
+  return 'ConversationState(status: $status, conversations: $conversations, messages: $messages, selectedConversation: $selectedConversation, isLoadingMessages: $isLoadingMessages, hasLoadedMessages: $hasLoadedMessages, isSyncingMessages: $isSyncingMessages, hasMoreMessages: $hasMoreMessages, isSending: $isSending, isClearingChat: $isClearingChat, totalUnreadCount: $totalUnreadCount, messageRequestCount: $messageRequestCount, errorMessage: $errorMessage, typingUsers: $typingUsers, messageSearchResults: $messageSearchResults, isSearchingMessages: $isSearchingMessages, messageSearchQuery: $messageSearchQuery, isForwarding: $isForwarding, hasStreamError: $hasStreamError)';
 }
 
 
@@ -2179,7 +2221,7 @@ abstract mixin class _$ConversationStateCopyWith<$Res> implements $ConversationS
   factory _$ConversationStateCopyWith(_ConversationState value, $Res Function(_ConversationState) _then) = __$ConversationStateCopyWithImpl;
 @override @useResult
 $Res call({
- ConversationStatus status, List<Conversation> conversations, List<Message> messages, Conversation? selectedConversation, bool isLoadingMessages, bool hasLoadedMessages, bool isSyncingMessages, bool hasMoreMessages, bool isSending, bool isClearingChat, int totalUnreadCount, int messageRequestCount, String? errorMessage, Map<String, bool> typingUsers, List<Message> messageSearchResults, bool isSearchingMessages, String? messageSearchQuery, bool isForwarding
+ ConversationStatus status, List<Conversation> conversations, List<Message> messages, Conversation? selectedConversation, bool isLoadingMessages, bool hasLoadedMessages, bool isSyncingMessages, bool hasMoreMessages, bool isSending, bool isClearingChat, int totalUnreadCount, int messageRequestCount, String? errorMessage, Map<String, bool> typingUsers, List<Message> messageSearchResults, bool isSearchingMessages, String? messageSearchQuery, bool isForwarding, bool hasStreamError
 });
 
 
@@ -2196,7 +2238,7 @@ class __$ConversationStateCopyWithImpl<$Res>
 
 /// Create a copy of ConversationState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? conversations = null,Object? messages = null,Object? selectedConversation = freezed,Object? isLoadingMessages = null,Object? hasLoadedMessages = null,Object? isSyncingMessages = null,Object? hasMoreMessages = null,Object? isSending = null,Object? isClearingChat = null,Object? totalUnreadCount = null,Object? messageRequestCount = null,Object? errorMessage = freezed,Object? typingUsers = null,Object? messageSearchResults = null,Object? isSearchingMessages = null,Object? messageSearchQuery = freezed,Object? isForwarding = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? conversations = null,Object? messages = null,Object? selectedConversation = freezed,Object? isLoadingMessages = null,Object? hasLoadedMessages = null,Object? isSyncingMessages = null,Object? hasMoreMessages = null,Object? isSending = null,Object? isClearingChat = null,Object? totalUnreadCount = null,Object? messageRequestCount = null,Object? errorMessage = freezed,Object? typingUsers = null,Object? messageSearchResults = null,Object? isSearchingMessages = null,Object? messageSearchQuery = freezed,Object? isForwarding = null,Object? hasStreamError = null,}) {
   return _then(_ConversationState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ConversationStatus,conversations: null == conversations ? _self._conversations : conversations // ignore: cast_nullable_to_non_nullable
@@ -2216,6 +2258,7 @@ as Map<String, bool>,messageSearchResults: null == messageSearchResults ? _self.
 as List<Message>,isSearchingMessages: null == isSearchingMessages ? _self.isSearchingMessages : isSearchingMessages // ignore: cast_nullable_to_non_nullable
 as bool,messageSearchQuery: freezed == messageSearchQuery ? _self.messageSearchQuery : messageSearchQuery // ignore: cast_nullable_to_non_nullable
 as String?,isForwarding: null == isForwarding ? _self.isForwarding : isForwarding // ignore: cast_nullable_to_non_nullable
+as bool,hasStreamError: null == hasStreamError ? _self.hasStreamError : hasStreamError // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
