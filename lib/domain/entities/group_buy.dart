@@ -88,6 +88,7 @@ class GroupBuy with _$GroupBuy {
   /// Whether a user can still join
   bool get canJoin =>
       status.isJoinable &&
+      !isExpired() &&
       (maxParticipants == null || participantCount < maxParticipants!);
 
   /// Remaining spots (null if unlimited, clamped to 0 minimum)
@@ -99,7 +100,7 @@ class GroupBuy with _$GroupBuy {
   bool get isBrandSponsored => sponsorType == 'brand' && brandId != null;
 
   /// Whether the deadline has passed
-  bool get isExpired => DateTime.now().isAfter(deadline);
+  bool isExpired({DateTime? now}) => (now ?? DateTime.now()).isAfter(deadline);
 
   /// Formatted token target
   String get formattedTarget => '$targetAmount tokens';

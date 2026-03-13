@@ -67,8 +67,9 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : json['createdAt'] is String
-              ? (DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now())
-              : DateTime.now(),
+              ? (DateTime.tryParse(json['createdAt'] as String) ??
+                  DateTime.fromMillisecondsSinceEpoch(0))
+              : DateTime.fromMillisecondsSinceEpoch(0),
       // New fields (Spec §8.25)
       categories: (json['categories'] as List<dynamic>?)
               ?.map((e) => e as String)

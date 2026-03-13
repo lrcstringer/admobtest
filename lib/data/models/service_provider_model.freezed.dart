@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ServiceProviderModel {
 
- String get id; String get name; String get code; String get category; String? get logoUrl; String? get description; bool get isActive; List<ServiceProductModel> get products; int? get sortOrder; DateTime get createdAt; DateTime? get updatedAt;
+ String get id; String get name; String get code; String get category; String? get logoUrl; String? get description; bool get isActive; bool get isDeleted; List<ServiceProductModel> get products; int? get sortOrder; DateTime get createdAt; DateTime? get updatedAt;
 /// Create a copy of ServiceProviderModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ServiceProviderModelCopyWith<ServiceProviderModel> get copyWith => _$ServicePro
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProviderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&const DeepCollectionEquality().equals(other.products, products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProviderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.products, products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,const DeepCollectionEquality().hash(products),sortOrder,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,isDeleted,const DeepCollectionEquality().hash(products),sortOrder,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ServiceProviderModel(id: $id, name: $name, code: $code, category: $category, logoUrl: $logoUrl, description: $description, isActive: $isActive, products: $products, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ServiceProviderModel(id: $id, name: $name, code: $code, category: $category, logoUrl: $logoUrl, description: $description, isActive: $isActive, isDeleted: $isDeleted, products: $products, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ServiceProviderModelCopyWith<$Res>  {
   factory $ServiceProviderModelCopyWith(ServiceProviderModel value, $Res Function(ServiceProviderModel) _then) = _$ServiceProviderModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String code, String category, String? logoUrl, String? description, bool isActive, List<ServiceProductModel> products, int? sortOrder, DateTime createdAt, DateTime? updatedAt
+ String id, String name, String code, String category, String? logoUrl, String? description, bool isActive, bool isDeleted, List<ServiceProductModel> products, int? sortOrder, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -62,7 +62,7 @@ class _$ServiceProviderModelCopyWithImpl<$Res>
 
 /// Create a copy of ServiceProviderModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? code = null,Object? category = null,Object? logoUrl = freezed,Object? description = freezed,Object? isActive = null,Object? products = null,Object? sortOrder = freezed,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? code = null,Object? category = null,Object? logoUrl = freezed,Object? description = freezed,Object? isActive = null,Object? isDeleted = null,Object? products = null,Object? sortOrder = freezed,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -71,6 +71,7 @@ as String,category: null == category ? _self.category : category // ignore: cast
 as String,logoUrl: freezed == logoUrl ? _self.logoUrl : logoUrl // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
 as List<ServiceProductModel>,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -160,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  bool isDeleted,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ServiceProviderModel() when $default != null:
-return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.isDeleted,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -181,10 +182,10 @@ return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  bool isDeleted,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _ServiceProviderModel():
-return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.isDeleted,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +202,10 @@ return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String code,  String category,  String? logoUrl,  String? description,  bool isActive,  bool isDeleted,  List<ServiceProductModel> products,  int? sortOrder,  DateTime createdAt,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _ServiceProviderModel() when $default != null:
-return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_that.description,_that.isActive,_that.isDeleted,_that.products,_that.sortOrder,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -216,7 +217,7 @@ return $default(_that.id,_that.name,_that.code,_that.category,_that.logoUrl,_tha
 
 
 class _ServiceProviderModel extends ServiceProviderModel {
-  const _ServiceProviderModel({required this.id, required this.name, required this.code, required this.category, this.logoUrl, this.description, required this.isActive, required final  List<ServiceProductModel> products, this.sortOrder, required this.createdAt, this.updatedAt}): _products = products,super._();
+  const _ServiceProviderModel({required this.id, required this.name, required this.code, required this.category, this.logoUrl, this.description, required this.isActive, this.isDeleted = false, required final  List<ServiceProductModel> products, this.sortOrder, required this.createdAt, this.updatedAt}): _products = products,super._();
   
 
 @override final  String id;
@@ -226,6 +227,7 @@ class _ServiceProviderModel extends ServiceProviderModel {
 @override final  String? logoUrl;
 @override final  String? description;
 @override final  bool isActive;
+@override@JsonKey() final  bool isDeleted;
  final  List<ServiceProductModel> _products;
 @override List<ServiceProductModel> get products {
   if (_products is EqualUnmodifiableListView) return _products;
@@ -247,16 +249,16 @@ _$ServiceProviderModelCopyWith<_ServiceProviderModel> get copyWith => __$Service
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProviderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&const DeepCollectionEquality().equals(other._products, _products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProviderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.category, category) || other.category == category)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.description, description) || other.description == description)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other._products, _products)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,const DeepCollectionEquality().hash(_products),sortOrder,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,code,category,logoUrl,description,isActive,isDeleted,const DeepCollectionEquality().hash(_products),sortOrder,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'ServiceProviderModel(id: $id, name: $name, code: $code, category: $category, logoUrl: $logoUrl, description: $description, isActive: $isActive, products: $products, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'ServiceProviderModel(id: $id, name: $name, code: $code, category: $category, logoUrl: $logoUrl, description: $description, isActive: $isActive, isDeleted: $isDeleted, products: $products, sortOrder: $sortOrder, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -267,7 +269,7 @@ abstract mixin class _$ServiceProviderModelCopyWith<$Res> implements $ServicePro
   factory _$ServiceProviderModelCopyWith(_ServiceProviderModel value, $Res Function(_ServiceProviderModel) _then) = __$ServiceProviderModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String code, String category, String? logoUrl, String? description, bool isActive, List<ServiceProductModel> products, int? sortOrder, DateTime createdAt, DateTime? updatedAt
+ String id, String name, String code, String category, String? logoUrl, String? description, bool isActive, bool isDeleted, List<ServiceProductModel> products, int? sortOrder, DateTime createdAt, DateTime? updatedAt
 });
 
 
@@ -284,7 +286,7 @@ class __$ServiceProviderModelCopyWithImpl<$Res>
 
 /// Create a copy of ServiceProviderModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? code = null,Object? category = null,Object? logoUrl = freezed,Object? description = freezed,Object? isActive = null,Object? products = null,Object? sortOrder = freezed,Object? createdAt = null,Object? updatedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? code = null,Object? category = null,Object? logoUrl = freezed,Object? description = freezed,Object? isActive = null,Object? isDeleted = null,Object? products = null,Object? sortOrder = freezed,Object? createdAt = null,Object? updatedAt = freezed,}) {
   return _then(_ServiceProviderModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -293,6 +295,7 @@ as String,category: null == category ? _self.category : category // ignore: cast
 as String,logoUrl: freezed == logoUrl ? _self.logoUrl : logoUrl // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
 as List<ServiceProductModel>,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable

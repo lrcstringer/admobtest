@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/enums/delivery_method.dart';
 import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
@@ -43,24 +44,39 @@ class _MarketplaceListingDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Listing'),
-        backgroundColor: AppColors.surface,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share_outlined),
-            onPressed: _onShare,
-          ),
-          IconButton(
-            icon: const Icon(Icons.flag_outlined),
-            onPressed: () => context.push(
-              '/buy/marketplace/report/listing/${widget.listingId}',
+    return BlocListener<OrderBloc, OrderState>(
+      listenWhen: (prev, curr) =>
+          prev.isProcessing && !curr.isProcessing,
+      listener: (context, state) {
+        if (state.successMessage != null) {
+          context.push('/buy/marketplace/orders');
+        } else if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.red,
             ),
-          ),
-        ],
-      ),
-      body: BlocBuilder<MarketplaceBloc, MarketplaceState>(
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Listing'),
+          backgroundColor: AppColors.surface,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share_outlined),
+              onPressed: _onShare,
+            ),
+            IconButton(
+              icon: const Icon(Icons.flag_outlined),
+              onPressed: () => context.push(
+                '/buy/marketplace/report/listing/${widget.listingId}',
+              ),
+            ),
+          ],
+        ),
+        body: BlocBuilder<MarketplaceBloc, MarketplaceState>(
         builder: (context, state) {
           if (state.isLoadingDetail) {
             return _buildShimmer();
@@ -313,6 +329,7 @@ class _MarketplaceListingDetailScreenState
           );
         },
       ),
+      ),
     );
   }
 
@@ -355,7 +372,7 @@ class _MarketplaceListingDetailScreenState
     );
   }
 
-  Widget _buildProviderCard(dynamic listing) {
+  Widget _buildProviderCard(MarketplaceListing listing) {
     return GestureDetector(
       onTap: () => context.push(
         '/buy/marketplace/provider/${listing.providerId}',
@@ -567,10 +584,6 @@ class _MarketplaceListingDetailScreenState
                 walletId: 'primary',
               ),
             );
-        context.push(
-          '/buy/marketplace/orders',
-          extra: {'listingId': listingId},
-        );
       }
     });
   }

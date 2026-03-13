@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -63,6 +65,14 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
 
     final result =
         await _purchaseRepository.getProvidersByCategory(event.category);
+
+    // Discard stale results if the user selected a different category
+    // while this fetch was in-flight.
+    if (state.selectedCategory != null &&
+        state.selectedCategory != event.category) {
+      return;
+    }
+
     result.fold(
       (failure) => emit(state.copyWith(
         isLoadingProviders: false,
@@ -229,6 +239,17 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
         ));
         return;
       }
+      // OTP step-up is not yet implemented. If biometric step-up returns
+      // otpRequired, surface a user-friendly message instead of silently
+      // proceeding without verification.
+      if (authResult == StepUpResult.otpRequired) {
+        emit(state.copyWith(
+          isPurchasing: false,
+          errorMessage:
+              'OTP verification not yet available. Please try again later.',
+        ));
+        return;
+      }
     }
 
     final result = await _purchaseRepository.makePurchase(
@@ -294,7 +315,12 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     );
 
     result.fold(
-      (failure) {}, // Silently fail for recent recipients
+      (failure) {
+        developer.log(
+          'Failed to load recent recipients: ${failure.displayMessage}',
+          name: 'PurchaseBloc',
+        );
+      },
       (recipients) => emit(state.copyWith(recentRecipients: recipients)),
     );
   }
@@ -328,6 +354,7 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
   }
 
   /// Basic local format validation for recipient numbers by category.
+  // Keep in sync with purchase_remote_datasource.dart validateRecipientNumber
   bool _isRecipientFormatValid(String number, PurchaseCategory category) {
     final trimmed = number.trim();
     if (trimmed.isEmpty) return false;

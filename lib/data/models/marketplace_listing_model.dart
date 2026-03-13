@@ -81,7 +81,7 @@ class MarketplaceListingModel with _$MarketplaceListingModel {
           ? (json['createdAt'] as Timestamp).toDate()
           : json['createdAt'] is String
               ? DateTime.parse(json['createdAt'] as String)
-              : DateTime.now(),
+              : DateTime.fromMillisecondsSinceEpoch(0),
       // New fields (Spec §8.25)
       locationData: json['locationData'] is Map<String, dynamic>
           ? LocationData.fromJson(

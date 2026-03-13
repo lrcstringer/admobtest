@@ -265,9 +265,15 @@ export const buyMarketplaceItem = onCall(
         throw new HttpsError("failed-precondition", "This listing is no longer available");
       }
 
+      // Get provider (single read, reused for approval check and seller userId)
+      const providerDoc = await tx.get(db.collection("providers").doc(listing.providerId));
+      if (!providerDoc.exists) {
+        throw new HttpsError("not-found", "Seller not found");
+      }
+      const provider = providerDoc.data()!;
+
       // Validate seller is an approved provider
-      const providerApprovalDoc = await tx.get(db.collection("providers").doc(listing.providerId));
-      if (providerApprovalDoc.exists && providerApprovalDoc.data()!.status !== "approved") {
+      if (provider.status !== "approved") {
         throw new HttpsError("failed-precondition", "Seller is not an approved provider");
       }
 
@@ -279,13 +285,6 @@ export const buyMarketplaceItem = onCall(
         }
         // If previous order failed/cancelled, allow re-purchase by overwriting
       }
-
-      // Get provider to find seller userId
-      const providerDoc = await tx.get(db.collection("providers").doc(listing.providerId));
-      if (!providerDoc.exists) {
-        throw new HttpsError("not-found", "Seller not found");
-      }
-      const provider = providerDoc.data()!;
 
       if (provider.userId === userId) {
         throw new HttpsError("failed-precondition", "You cannot buy your own listing");
@@ -721,10 +720,16 @@ export const vouchForProvider = onCall(
         throw new HttpsError("not-found", "Provider not found");
       }
 
+      // Look up voucher's user profile for display info
+      const voucherProfileDoc = await tx.get(db.collection("users").doc(userId));
+      const voucherProfile = voucherProfileDoc.data();
+
       // Create vouch doc
       tx.set(vouchRef, {
         id: vouchRef.id,
         voucherId: userId,
+        voucherName: voucherProfile?.displayName || "",
+        voucherPhotoUrl: voucherProfile?.photoUrl || null,
         providerId,
         orderId: orderId || null,
         rating,
@@ -807,23 +812,27 @@ export const reportMarketplaceItem = onCall(
       );
     }
 
-    // Deterministic report ID prevents duplicate reports on retry
+    // Deterministic report ID prevents duplicate reports on retry.
+    // Wrapped in a transaction for safety — the deterministic ID prevents true dupes,
+    // but the transaction ensures the existence check and set are atomic.
     const reportDocId = `${userId}_${targetId}_${targetType}`;
     const reportRef = db.collection("marketplaceReports").doc(reportDocId);
-    const existingReport = await reportRef.get();
-    if (existingReport.exists) {
-      throw new HttpsError("already-exists", "You have already reported this item");
-    }
+    await db.runTransaction(async (tx) => {
+      const existingReport = await tx.get(reportRef);
+      if (existingReport.exists) {
+        throw new HttpsError("already-exists", "You have already reported this item");
+      }
 
-    await reportRef.set({
-      id: reportRef.id,
-      reporterId: userId,
-      targetId,
-      targetType,
-      reason,
-      description: description?.trim() || null,
-      status: "pending",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      tx.set(reportRef, {
+        id: reportRef.id,
+        reporterId: userId,
+        targetId,
+        targetType,
+        reason,
+        description: description?.trim() || null,
+        status: "pending",
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
     });
 
     // Increment report count and auto-flag if threshold reached (transaction)
@@ -1544,7 +1553,7 @@ export const sellerInitiatedRefund = onCall(
       tx.update(orderRef, {
         status: "refunding",
         refundType: "seller_initiated",
-        refundReason: reason?.trim() || "Seller initiated refund",
+        disputeReason: reason?.trim() || "Seller initiated refund",
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -1571,7 +1580,7 @@ export const sellerInitiatedRefund = onCall(
       await orderRef.update({
         status: orderData.status,
         refundType: null,
-        refundReason: null,
+        disputeReason: null,
       });
       logger.error(`Seller refund failed for order ${orderId}`, refundError);
       throw new HttpsError("internal", "Refund processing failed. Please try again.");

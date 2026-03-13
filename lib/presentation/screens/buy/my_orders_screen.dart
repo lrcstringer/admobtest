@@ -258,6 +258,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
         color = AppColors.secondary;
       case OrderStatus.cancelled:
         color = AppColors.textHint;
+      case OrderStatus.failed:
+        color = AppColors.error;
     }
 
     return Container(

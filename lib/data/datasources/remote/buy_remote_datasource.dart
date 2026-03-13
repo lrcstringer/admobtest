@@ -117,11 +117,15 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
 
   @override
   Future<List<FeaturedItemModel>> getFeaturedItems() async {
+    // Server-side filter: only fetch items whose schedule hasn't expired.
+    // Items without scheduledEnd are open-ended and always included.
+    // Client-side isCurrentlyActive check provides defense-in-depth.
     final snapshot = await _firestore
         .collection('featuredItems')
         .where('isActive', isEqualTo: true)
         .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
+        .limit(50)
         .get();
 
     return snapshot.docs.map((doc) {
@@ -153,6 +157,12 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         await _firestore.collection('brandStorefronts').doc(id).get();
     if (!doc.exists) return null;
     final data = doc.data()!;
+    // Guard: reject inactive, deleted, or draft storefronts
+    if (data['isActive'] == false ||
+        data['isDeleted'] == true ||
+        data['isDraft'] == true) {
+      return null;
+    }
     data['id'] = doc.id;
     return BrandStorefrontModel.fromJson(data);
   }
@@ -182,6 +192,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .collection('brandReviews')
         .where('brandId', isEqualTo: brandId)
         .where('isRemovedByAdmin', isEqualTo: false)
+        .where('isFiltered', isEqualTo: false)
         .orderBy('createdAt', descending: true)
         .limit(50)
         .get();

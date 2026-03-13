@@ -868,7 +868,8 @@ String toString() {
 /// @nodoc
 mixin _$OrderState {
 
- bool get isLoading; bool get isLoadingDetail; bool get isProcessing; List<BuyOrder> get buyerOrders; List<BuyOrder> get sellerOrders; BuyOrder? get selectedOrder; MarketplaceOffer? get linkedOffer; String? get errorMessage; String? get successMessage;
+ bool get isLoading; bool get isLoadingDetail; bool get isProcessing; List<BuyOrder> get buyerOrders; List<BuyOrder> get sellerOrders; BuyOrder? get selectedOrder;/// Offer linked to the selected order (loaded via loadLinkedOffer)
+ MarketplaceOffer? get linkedOffer; String? get errorMessage; String? get successMessage;
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1113,6 +1114,7 @@ class _OrderState implements OrderState {
 }
 
 @override final  BuyOrder? selectedOrder;
+/// Offer linked to the selected order (loaded via loadLinkedOffer)
 @override final  MarketplaceOffer? linkedOffer;
 @override final  String? errorMessage;
 @override final  String? successMessage;

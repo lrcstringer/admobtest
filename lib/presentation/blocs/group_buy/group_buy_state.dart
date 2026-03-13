@@ -17,6 +17,7 @@ class GroupBuyState with _$GroupBuyState {
     @Default(false) bool isCancelling,
     @Default(false) bool isCompleting,
     @Default(false) bool isUpdatingDelivery,
+    @Default(false) bool isExtendingDeadline,
     String? successId,
     String? successMessage,
     @Default(false) bool shouldPopOnSuccess,

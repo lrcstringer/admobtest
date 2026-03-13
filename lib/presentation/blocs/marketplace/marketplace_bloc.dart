@@ -47,6 +47,7 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<_LoadSellerPortal>(_onLoadSellerPortal);
     on<_ToggleFavourite>(_onToggleFavourite);
     on<_UploadImages>(_onUploadImages);
+    on<_RegisterProvider>(_onRegisterProvider);
   }
 
   Future<void> _onLoadListings(
@@ -515,11 +516,11 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         errorMessage: failure.displayMessage,
       )),
       (dashboard) {
-        // Extract provider profile from dashboard using model parsing
-        final providerData = dashboard['provider'];
+        // CF returns flat dashboard fields (not a nested 'provider' object).
+        // Construct the provider directly from the flat map.
         MarketplaceProvider? sellerProfile;
-        if (providerData is Map<String, dynamic>) {
-          sellerProfile = MarketplaceProviderModel.fromJson(providerData).toEntity();
+        if (dashboard.containsKey('providerId')) {
+          sellerProfile = MarketplaceProviderModel.fromJson(dashboard).toEntity();
         }
 
         emit(state.copyWith(
@@ -621,6 +622,34 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       (urls) => emit(state.copyWith(
         isUploadingImages: false,
         uploadedImageUrls: urls,
+      )),
+    );
+  }
+
+  Future<void> _onRegisterProvider(
+    _RegisterProvider event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isRegistering) return;
+    emit(state.copyWith(isRegistering: true, errorMessage: null));
+
+    final result = await _repository.registerProvider(
+      displayName: event.displayName,
+      bio: event.bio,
+      photoUrl: event.photoUrl,
+      servicesDescription: event.servicesDescription,
+      communityId: event.communityId,
+      category: event.category,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isRegistering: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (providerId) => emit(state.copyWith(
+        isRegistering: false,
+        successMessage: 'Provider registered successfully',
       )),
     );
   }

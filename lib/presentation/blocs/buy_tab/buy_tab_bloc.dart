@@ -92,7 +92,10 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(categories: data),
     );
     regularsResult.fold(
-      (_) => newState = newState.copyWith(regulars: []),
+      (failure) => newState = newState.copyWith(
+        regulars: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(regulars: data),
     );
     featuredResult.fold(
@@ -103,14 +106,18 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(featuredItems: data),
     );
     brandsResult.fold(
-      (_) => newState = newState.copyWith(brandPartners: []),
+      (failure) => newState = newState.copyWith(
+        brandPartners: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(brandPartners: data),
     );
     statsResult.fold(
-      (_) => newState = newState.copyWith(
+      (failure) => newState = newState.copyWith(
         marketplaceListingCount: 0,
         marketplaceSellerCount: 0,
         trendingThumbnails: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
       ),
       (stats) => newState = newState.copyWith(
         marketplaceListingCount: stats.listingCount,
@@ -162,7 +169,10 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(categories: data),
     );
     regularsResult.fold(
-      (_) => newState = newState.copyWith(regulars: []),
+      (failure) => newState = newState.copyWith(
+        regulars: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(regulars: data),
     );
     featuredResult.fold(
@@ -173,14 +183,18 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       (data) => newState = newState.copyWith(featuredItems: data),
     );
     brandsResult.fold(
-      (_) => newState = newState.copyWith(brandPartners: []),
+      (failure) => newState = newState.copyWith(
+        brandPartners: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
+      ),
       (data) => newState = newState.copyWith(brandPartners: data),
     );
     statsResult.fold(
-      (_) => newState = newState.copyWith(
+      (failure) => newState = newState.copyWith(
         marketplaceListingCount: 0,
         marketplaceSellerCount: 0,
         trendingThumbnails: [],
+        errorMessage: newState.errorMessage ?? failure.displayMessage,
       ),
       (stats) => newState = newState.copyWith(
         marketplaceListingCount: stats.listingCount,

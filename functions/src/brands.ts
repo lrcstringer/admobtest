@@ -66,16 +66,26 @@ export const claimStorefrontCoupon = onCall(
         throw new HttpsError("not-found", "Storefront not found");
       }
 
-      // Find the coupon within storefront sections to validate maxClaims and expiry
+      // Find the coupon — check top-level coupons array first (Flutter stores coupons here),
+      // then fall back to sections[].coupons[] for backward compatibility.
       const storefrontData = storefrontDoc.data()!;
-      const sections = storefrontData.sections as Array<{ type?: string; coupons?: Array<{ id?: string; maxClaims?: number; expiresAt?: string }> }> | undefined;
       let couponDef: { id?: string; maxClaims?: number; expiresAt?: string } | undefined;
 
-      if (sections) {
-        for (const section of sections) {
-          if (section.coupons) {
-            couponDef = section.coupons.find((c) => c.id === couponId);
-            if (couponDef) break;
+      // Path 1: Top-level coupons array (current Flutter format)
+      const topLevelCoupons = storefrontData.coupons as Array<{ id?: string; maxClaims?: number; expiresAt?: string }> | undefined;
+      if (topLevelCoupons) {
+        couponDef = topLevelCoupons.find((c) => c.id === couponId);
+      }
+
+      // Path 2: Nested sections[].coupons[] (legacy format, backward compatibility)
+      if (!couponDef) {
+        const sections = storefrontData.sections as Array<{ type?: string; coupons?: Array<{ id?: string; maxClaims?: number; expiresAt?: string }> }> | undefined;
+        if (sections) {
+          for (const section of sections) {
+            if (section.coupons) {
+              couponDef = section.coupons.find((c) => c.id === couponId);
+              if (couponDef) break;
+            }
           }
         }
       }
@@ -407,6 +417,7 @@ export const getActiveBrandStorefronts = onCall(
     const snapshot = await db
       .collection("brandStorefronts")
       .where("isActive", "==", true)
+      .where("isDraft", "==", false)
       .get();
 
     // Additional client-side filter for isDeleted to handle docs

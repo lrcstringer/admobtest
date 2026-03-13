@@ -565,7 +565,12 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
   void _initializeController(String url) {
     final controller = VideoPlayerController.networkUrl(Uri.parse(url));
     _controller = controller;
-    controller.initialize().then((_) {
+    controller.initialize().timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        // Timed out — fall back to poster image
+      },
+    ).then((_) {
       if (_disposed || !mounted) return;
       // Guard: controller may have been replaced by didUpdateWidget
       if (_controller != controller) return;

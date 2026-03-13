@@ -1,7 +1,10 @@
+import 'dart:developer' as developer;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/purchase.dart';
+import 'purchase_category_helpers.dart';
 
 part 'purchase_model.freezed.dart';
 
@@ -38,17 +41,17 @@ class PurchaseModel with _$PurchaseModel {
     final completedAt = json['completedAt'];
 
     return PurchaseModel(
-      id: json['id'] as String,
-      walletId: (json['subAccountId'] ?? json['walletId'] ?? '') as String,
-      userId: json['userId'] as String,
-      providerId: json['providerId'] as String,
-      providerName: json['providerName'] as String,
-      category: json['category'] as String,
-      tokenAmount: json['tokenAmount'] as int,
-      zarAmount: (json['zarAmount'] as num).toDouble(),
+      id: json['id'] as String? ?? '',
+      walletId: json['walletId'] as String? ?? json['subAccountId'] as String? ?? '',
+      userId: json['userId'] as String? ?? '',
+      providerId: json['providerId'] as String? ?? '',
+      providerName: json['providerName'] as String? ?? '',
+      category: json['category'] as String? ?? 'other',
+      tokenAmount: (json['tokenAmount'] as num?)?.toInt() ?? 0,
+      zarAmount: (json['zarAmount'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] as String? ?? 'pending',
-      productCode: json['productCode'] as String,
-      productName: json['productName'] as String,
+      productCode: json['productCode'] as String? ?? '',
+      productName: json['productName'] as String? ?? '',
       recipientNumber: json['recipientNumber'] as String?,
       voucherCode: json['voucherCode'] as String?,
       voucherPin: json['voucherPin'] as String?,
@@ -102,7 +105,7 @@ class PurchaseModel with _$PurchaseModel {
       userId: userId,
       providerId: providerId,
       providerName: providerName,
-      category: _parseCategory(category),
+      category: parsePurchaseCategory(category),
       tokenAmount: tokenAmount,
       zarAmount: zarAmount,
       status: _parseStatus(status),
@@ -145,35 +148,6 @@ class PurchaseModel with _$PurchaseModel {
     );
   }
 
-  static PurchaseCategory _parseCategory(String category) {
-    switch (category) {
-      case 'airtime':
-        return PurchaseCategory.airtime;
-      case 'data':
-        return PurchaseCategory.data;
-      case 'electricity':
-        return PurchaseCategory.electricity;
-      case 'voucher':
-        return PurchaseCategory.voucher;
-      case 'marketplace':
-        return PurchaseCategory.marketplace;
-      case 'school':
-        return PurchaseCategory.school;
-      case 'municipal':
-        return PurchaseCategory.municipal;
-      case 'insurance':
-        return PurchaseCategory.insurance;
-      case 'funeral':
-        return PurchaseCategory.funeral;
-      case 'stokvel':
-        return PurchaseCategory.stokvel;
-      case 'gaming':
-        return PurchaseCategory.gaming;
-      default:
-        return PurchaseCategory.other;
-    }
-  }
-
   static PurchaseStatus _parseStatus(String status) {
     switch (status) {
       case 'pending':
@@ -187,6 +161,10 @@ class PurchaseModel with _$PurchaseModel {
       case 'refunded':
         return PurchaseStatus.refunded;
       default:
+        developer.log(
+          'Unknown PurchaseStatus "$status", defaulting to pending',
+          name: 'PurchaseModel',
+        );
         return PurchaseStatus.pending;
     }
   }

@@ -53,6 +53,7 @@ class BuyOrder with _$BuyOrder {
     DateTime? sellerRespondedAt,
     @Default(false) bool adminReviewRequired,
     String? adminReviewReason,
+    String? refundReason,
     DateTime? refundedAt,
     @Default(0) int version,
   }) = _BuyOrder;

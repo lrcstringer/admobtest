@@ -41,7 +41,7 @@ class GroupBuyRequestModel with _$GroupBuyRequestModel {
       status: _parseStatus(json['status'] as String?),
       adminNotes: json['adminNotes'] as String?,
       convertedGroupBuyId: json['convertedGroupBuyId'] as String?,
-      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt: _parseDateTime(json['updatedAt']),
     );
   }
@@ -49,6 +49,44 @@ class GroupBuyRequestModel with _$GroupBuyRequestModel {
   factory GroupBuyRequestModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     return GroupBuyRequestModel.fromJson({...data, 'id': doc.id});
+  }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'userId': userId,
+      'userName': userName,
+      'description': description,
+      'brandOrStore': brandOrStore,
+      if (estimatedPrice != null) 'estimatedPrice': estimatedPrice,
+      if (sourceUrl != null) 'sourceUrl': sourceUrl,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      'wantsToJoin': wantsToJoin,
+      'status': status.name,
+      if (adminNotes != null) 'adminNotes': adminNotes,
+      if (convertedGroupBuyId != null)
+        'convertedGroupBuyId': convertedGroupBuyId,
+      'createdAt': Timestamp.fromDate(createdAt),
+      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+    };
+  }
+
+  factory GroupBuyRequestModel.fromEntity(GroupBuyRequest entity) {
+    return GroupBuyRequestModel(
+      id: entity.id,
+      userId: entity.userId,
+      userName: entity.userName,
+      description: entity.description,
+      brandOrStore: entity.brandOrStore,
+      estimatedPrice: entity.estimatedPrice,
+      sourceUrl: entity.sourceUrl,
+      imageUrl: entity.imageUrl,
+      wantsToJoin: entity.wantsToJoin,
+      status: entity.status,
+      adminNotes: entity.adminNotes,
+      convertedGroupBuyId: entity.convertedGroupBuyId,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
   }
 
   GroupBuyRequest toEntity() {

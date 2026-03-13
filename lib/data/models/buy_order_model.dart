@@ -55,6 +55,7 @@ class BuyOrderModel with _$BuyOrderModel {
     DateTime? sellerRespondedAt,
     @Default(false) bool adminReviewRequired,
     String? adminReviewReason,
+    String? refundReason,
     DateTime? refundedAt,
     @Default(0) int version,
   }) = _BuyOrderModel;
@@ -115,6 +116,7 @@ class BuyOrderModel with _$BuyOrderModel {
       sellerRespondedAt: _parseDateTimeNullable(json['sellerRespondedAt']),
       adminReviewRequired: json['adminReviewRequired'] as bool? ?? false,
       adminReviewReason: json['adminReviewReason'] as String?,
+      refundReason: json['refundReason'] as String?,
       refundedAt: _parseDateTimeNullable(json['refundedAt']),
       version: (json['version'] as num?)?.toInt() ?? 0,
     );
@@ -174,6 +176,7 @@ class BuyOrderModel with _$BuyOrderModel {
         'sellerRespondedAt': Timestamp.fromDate(sellerRespondedAt!),
       if (adminReviewRequired) 'adminReviewRequired': adminReviewRequired,
       if (adminReviewReason != null) 'adminReviewReason': adminReviewReason,
+      if (refundReason != null) 'refundReason': refundReason,
       if (refundedAt != null) 'refundedAt': Timestamp.fromDate(refundedAt!),
       'version': version,
     };
@@ -224,6 +227,7 @@ class BuyOrderModel with _$BuyOrderModel {
       sellerRespondedAt: sellerRespondedAt,
       adminReviewRequired: adminReviewRequired,
       adminReviewReason: adminReviewReason,
+      refundReason: refundReason,
       refundedAt: refundedAt,
       version: version,
     );
@@ -274,6 +278,7 @@ class BuyOrderModel with _$BuyOrderModel {
       sellerRespondedAt: entity.sellerRespondedAt,
       adminReviewRequired: entity.adminReviewRequired,
       adminReviewReason: entity.adminReviewReason,
+      refundReason: entity.refundReason,
       refundedAt: entity.refundedAt,
       version: entity.version,
     );
@@ -296,6 +301,8 @@ OrderStatus _parseOrderStatus(String? value) {
       return OrderStatus.refunded;
     case 'cancelled':
       return OrderStatus.cancelled;
+    case 'failed':
+      return OrderStatus.failed;
     default:
       return OrderStatus.pending;
   }

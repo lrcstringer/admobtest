@@ -115,4 +115,14 @@ class MarketplaceEvent with _$MarketplaceEvent {
     required List<Uint8List> imageData,
     required String listingId,
   }) = _UploadImages;
+
+  /// Register as a marketplace provider
+  const factory MarketplaceEvent.registerProvider({
+    required String displayName,
+    String? bio,
+    String? photoUrl,
+    String? servicesDescription,
+    String? communityId,
+    String? category,
+  }) = _RegisterProvider;
 }

@@ -1,5 +1,7 @@
-/// Status of a marketplace provider (Spec §8.25 — no approval queue)
+/// Status of a marketplace provider
 enum ProviderStatus {
+  pending,
+  approved,
   active,
   suspended,
   banned,
@@ -8,6 +10,10 @@ enum ProviderStatus {
 extension ProviderStatusX on ProviderStatus {
   String get displayName {
     switch (this) {
+      case ProviderStatus.pending:
+        return 'Pending';
+      case ProviderStatus.approved:
+        return 'Approved';
       case ProviderStatus.active:
         return 'Active';
       case ProviderStatus.suspended:
@@ -17,21 +23,22 @@ extension ProviderStatusX on ProviderStatus {
     }
   }
 
-  bool get isActive => this == ProviderStatus.active;
+  bool get isActive =>
+      this == ProviderStatus.active || this == ProviderStatus.approved;
 
-  /// Convert from string with legacy mapping
+  /// Convert from string
   static ProviderStatus fromString(String value) {
     switch (value) {
+      case 'pending':
+        return ProviderStatus.pending;
+      case 'approved':
+        return ProviderStatus.approved;
       case 'active':
-        return ProviderStatus.active;
-      case 'approved': // legacy
         return ProviderStatus.active;
       case 'suspended':
         return ProviderStatus.suspended;
       case 'banned':
         return ProviderStatus.banned;
-      case 'pending': // legacy — treat as active (instant registration)
-        return ProviderStatus.active;
       case 'rejected': // legacy — treat as banned
         return ProviderStatus.banned;
       default:

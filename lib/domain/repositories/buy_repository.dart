@@ -53,6 +53,7 @@ abstract class BuyRepository {
   Future<Either<Failure, String>> claimStorefrontCoupon({
     required String storefrontId,
     required String couponId,
+    String? couponCode,
   });
 
   /// Get coupon IDs the current user has already claimed for a storefront

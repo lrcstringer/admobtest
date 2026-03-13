@@ -12,10 +12,13 @@ class MarketplaceState with _$MarketplaceState {
     @Default(true) bool hasMore,
     MarketplaceListing? selectedListing,
     MarketplaceProvider? selectedProvider,
+    /// Vouches for the currently viewed provider profile
     @Default([]) List<Vouch> providerVouches,
     @Default(false) bool isSearching,
     @Default('') String searchQuery,
+    /// Current category filter — used for pagination in loadMore
     String? activeCategory,
+    /// Current community filter — used for pagination in loadMore
     String? activeCommunityId,
     @Default(false) bool isCreating,
     @Default(false) bool isReporting,
@@ -37,5 +40,6 @@ class MarketplaceState with _$MarketplaceState {
     String? successMessage,
     @Default(false) bool isUploadingImages,
     @Default([]) List<String> uploadedImageUrls,
+    @Default(false) bool isRegistering,
   }) = _MarketplaceState;
 }

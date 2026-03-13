@@ -103,6 +103,7 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
         .doc(groupBuyId)
         .collection('contributions')
         .orderBy('contributedAt', descending: true)
+        .limit(100)
         .get();
     return snap.docs
         .map((d) => GroupBuyContributionModel.fromFirestore(d))

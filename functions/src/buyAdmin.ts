@@ -83,9 +83,9 @@ export const adminCreateFeatureFlag = onCall(
 
     await db.collection("featureFlags").doc(featureKey.trim()).set(data);
 
-    logAdminAction(adminCtx.uid, "adminCreateFeatureFlag", "success", {
+    await logAdminAction(adminCtx.uid, "adminCreateFeatureFlag", "success", {
       featureKey,
-    }).catch(() => {});
+    });
 
     logger.info(`Feature flag '${featureKey}' created by ${adminCtx.email}`);
     return { success: true, featureKey };
@@ -133,10 +133,10 @@ export const adminUpdateFeatureFlag = onCall(
 
     await ref.update(updates);
 
-    logAdminAction(adminCtx.uid, "adminUpdateFeatureFlag", "success", {
+    await logAdminAction(adminCtx.uid, "adminUpdateFeatureFlag", "success", {
       flagId,
       updates,
-    }).catch(() => {});
+    });
 
     logger.info(`Feature flag '${flagId}' updated by ${adminCtx.email}`);
     return { success: true, flagId };
@@ -188,6 +188,20 @@ export const adminCreateBuyCategory = onCall(
       throw new HttpsError("invalid-argument", "name is required");
     }
 
+    // Duplicate name check
+    const duplicateSnap = await db
+      .collection("buyCategories")
+      .where("name", "==", name.trim())
+      .limit(1)
+      .get();
+    if (!duplicateSnap.empty) {
+      throw new HttpsError("already-exists", `Buy category '${name.trim()}' already exists`);
+    }
+
+    // Deterministic ID: cat_<nameHash>
+    const nameHash = name.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 40);
+    const categoryDocId = `cat_${nameHash}`;
+
     const data = {
       name: name.trim(),
       iconEmoji: iconEmoji || "",
@@ -203,15 +217,15 @@ export const adminCreateBuyCategory = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const ref = await db.collection("buyCategories").add(data);
+    await db.collection("buyCategories").doc(categoryDocId).set(data);
 
-    logAdminAction(adminCtx.uid, "adminCreateBuyCategory", "success", {
-      categoryId: ref.id,
+    await logAdminAction(adminCtx.uid, "adminCreateBuyCategory", "success", {
+      categoryId: categoryDocId,
       name,
-    }).catch(() => {});
+    });
 
     logger.info(`Buy category '${name}' created by ${adminCtx.email}`);
-    return { success: true, categoryId: ref.id };
+    return { success: true, categoryId: categoryDocId };
   }
 );
 
@@ -261,10 +275,10 @@ export const adminUpdateBuyCategory = onCall(
 
     await ref.update(updates);
 
-    logAdminAction(adminCtx.uid, "adminUpdateBuyCategory", "success", {
+    await logAdminAction(adminCtx.uid, "adminUpdateBuyCategory", "success", {
       categoryId,
       updates: Object.keys(fields),
-    }).catch(() => {});
+    });
 
     logger.info(`Buy category '${categoryId}' updated by ${adminCtx.email}`);
     return { success: true, categoryId };
@@ -299,6 +313,9 @@ export const adminToggleBuyCategory = onCall(
     if (!doc.exists) {
       throw new HttpsError("not-found", `Category '${categoryId}' not found`);
     }
+    if (doc.data()?.isDeleted === true) {
+      throw new HttpsError("failed-precondition", "Cannot toggle a deleted category");
+    }
 
     const updates: Record<string, unknown> = {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -308,11 +325,11 @@ export const adminToggleBuyCategory = onCall(
 
     await ref.update(updates);
 
-    logAdminAction(adminCtx.uid, "adminToggleBuyCategory", "success", {
+    await logAdminAction(adminCtx.uid, "adminToggleBuyCategory", "success", {
       categoryId,
       isActive,
       isComingSoon,
-    }).catch(() => {});
+    });
 
     logger.info(
       `Buy category '${categoryId}' toggled by ${adminCtx.email}`
@@ -412,12 +429,21 @@ export const adminCreateFeaturedItem = onCall(
     }
 
     // Validate scheduled dates
+    if (scheduledStart) {
+      const start = new Date(scheduledStart);
+      if (isNaN(start.getTime())) {
+        throw new HttpsError("invalid-argument", "Invalid date format for scheduledStart");
+      }
+    }
+    if (scheduledEnd) {
+      const end = new Date(scheduledEnd);
+      if (isNaN(end.getTime())) {
+        throw new HttpsError("invalid-argument", "Invalid date format for scheduledEnd");
+      }
+    }
     if (scheduledStart && scheduledEnd) {
       const start = new Date(scheduledStart);
       const end = new Date(scheduledEnd);
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        throw new HttpsError("invalid-argument", "Invalid date format for scheduled dates");
-      }
       if (start >= end) {
         throw new HttpsError("invalid-argument", "scheduledStart must be before scheduledEnd");
       }
@@ -462,12 +488,13 @@ export const adminCreateFeaturedItem = onCall(
       throw new HttpsError("invalid-argument", "videoUrl must be a valid HTTPS or GCS URL");
     }
 
-    // Check for ordering conflicts if sortOrder is provided
+    // Check for ordering conflicts if sortOrder is provided — exclude soft-deleted items
     if (sortOrder !== undefined && sortOrder !== null) {
       const conflictSnap = await db
         .collection("featuredItems")
         .where("sortOrder", "==", sortOrder)
         .where("isActive", "==", true)
+        .where("isDeleted", "==", false)
         .limit(1)
         .get();
       if (!conflictSnap.empty) {
@@ -477,6 +504,10 @@ export const adminCreateFeaturedItem = onCall(
         );
       }
     }
+
+    // Deterministic ID: feat_<titleHash>_<timestamp>
+    const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 30);
+    const featuredItemId = `feat_${titleHash}_${Date.now()}`;
 
     const data: Record<string, unknown> = {
       title: title.trim(),
@@ -488,6 +519,7 @@ export const adminCreateFeaturedItem = onCall(
       brandId: brandId || null,
       communityIds: communityIds || [],
       isActive: isActive ?? true,
+      isDeleted: false,
       sortOrder: sortOrder ?? 0,
       bgGradientType: bgGradientType || "goldOrange",
       brandName: brandName || null,
@@ -502,15 +534,16 @@ export const adminCreateFeaturedItem = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const ref = await db.collection("featuredItems").add(data);
+    const ref = db.collection("featuredItems").doc(featuredItemId);
+    await ref.set(data);
 
-    logAdminAction(adminCtx.uid, "adminCreateFeaturedItem", "success", {
-      itemId: ref.id,
+    await logAdminAction(adminCtx.uid, "adminCreateFeaturedItem", "success", {
+      itemId: featuredItemId,
       title,
-    }).catch(() => {});
+    });
 
     logger.info(`Featured item '${title}' created by ${adminCtx.email}`);
-    return { success: true, itemId: ref.id };
+    return { success: true, itemId: featuredItemId };
   }
 );
 
@@ -655,10 +688,10 @@ export const adminUpdateFeaturedItem = onCall(
 
     await ref.update(updates);
 
-    logAdminAction(adminCtx.uid, "adminUpdateFeaturedItem", "success", {
+    await logAdminAction(adminCtx.uid, "adminUpdateFeaturedItem", "success", {
       itemId,
       updates: Object.keys(fields),
-    }).catch(() => {});
+    });
 
     logger.info(`Featured item '${itemId}' updated by ${adminCtx.email}`);
     return { success: true, itemId };
@@ -697,10 +730,10 @@ export const adminDeleteFeaturedItem = onCall(
       deletedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminDeleteFeaturedItem", "success", {
+    await logAdminAction(adminCtx.uid, "adminDeleteFeaturedItem", "success", {
       itemId,
       title: doc.data()?.title,
-    }).catch(() => {});
+    });
 
     logger.info(`Featured item '${itemId}' soft-deleted by ${adminCtx.email}`);
     return { success: true };
@@ -724,14 +757,11 @@ export const adminListBrandStorefronts = onCall(
       "adminListBrandStorefronts"
     );
 
-    const snapshot = await db.collection("brandStorefronts").get();
-    // Filter out soft-deleted storefronts
-    const storefronts = snapshot.docs
-      .filter((doc) => doc.data().isDeleted !== true)
-      .map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const snapshot = await db.collection("brandStorefronts").where("isDeleted", "==", false).get();
+    const storefronts = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     return { storefronts };
   }
@@ -781,6 +811,17 @@ export const adminCreateBrandStorefront = onCall(
       );
     }
 
+    // Uniqueness check: one storefront per brandId
+    const existingStorefront = await db
+      .collection("brandStorefronts")
+      .where("brandId", "==", brandId)
+      .where("isDeleted", "==", false)
+      .limit(1)
+      .get();
+    if (!existingStorefront.empty) {
+      throw new HttpsError("already-exists", `A storefront for brand '${brandId}' already exists`);
+    }
+
     // Validate coupon fields within sections
     if (sections && Array.isArray(sections)) {
       for (const section of sections as Array<{ type?: string; coupons?: Array<Record<string, unknown>> }>) {
@@ -821,17 +862,20 @@ export const adminCreateBrandStorefront = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const ref = await db.collection("brandStorefronts").add(data);
+    // Deterministic ID: store_<brandId>
+    const storefrontDocId = `store_${brandId}`;
+    const ref = db.collection("brandStorefronts").doc(storefrontDocId);
+    await ref.set(data);
 
-    logAdminAction(adminCtx.uid, "adminCreateBrandStorefront", "success", {
-      storefrontId: ref.id,
+    await logAdminAction(adminCtx.uid, "adminCreateBrandStorefront", "success", {
+      storefrontId: storefrontDocId,
       brandName,
-    }).catch(() => {});
+    });
 
     logger.info(
       `Brand storefront '${brandName}' created by ${adminCtx.email}`
     );
-    return { success: true, storefrontId: ref.id };
+    return { success: true, storefrontId: storefrontDocId };
   }
 );
 
@@ -898,6 +942,9 @@ export const adminUpdateBrandStorefront = onCall(
         `Storefront '${storefrontId}' not found`
       );
     }
+    if (doc.data()?.isDeleted === true) {
+      throw new HttpsError("failed-precondition", "Cannot update a deleted storefront");
+    }
 
     const updates: Record<string, unknown> = {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -908,10 +955,10 @@ export const adminUpdateBrandStorefront = onCall(
 
     await ref.update(updates);
 
-    logAdminAction(adminCtx.uid, "adminUpdateBrandStorefront", "success", {
+    await logAdminAction(adminCtx.uid, "adminUpdateBrandStorefront", "success", {
       storefrontId,
       updates: Object.keys(fields),
-    }).catch(() => {});
+    });
 
     logger.info(
       `Brand storefront '${storefrontId}' updated by ${adminCtx.email}`
@@ -957,8 +1004,8 @@ export const adminDeleteBrandStorefront = onCall(
     // Cascade: soft-delete all products in the storefront's products subcollection
     const productsSnap = await ref.collection("products").where("isDeleted", "!=", true).get();
     const productDocs = productsSnap.docs;
-    for (let i = 0; i < productDocs.length; i += 499) {
-      const chunk = productDocs.slice(i, i + 499);
+    for (let i = 0; i < productDocs.length; i += 500) {
+      const chunk = productDocs.slice(i, i + 500);
       const batch = db.batch();
       for (const productDoc of chunk) {
         batch.update(productDoc.ref, {
@@ -970,11 +1017,31 @@ export const adminDeleteBrandStorefront = onCall(
       await batch.commit();
     }
 
-    logAdminAction(adminCtx.uid, "adminDeleteBrandStorefront", "success", {
+    // Cascade: soft-delete brand products in top-level brandProducts collection
+    const brandProductsSnap = await db
+      .collection("brandProducts")
+      .where("storefrontId", "==", storefrontId)
+      .where("isDeleted", "==", false)
+      .get();
+    const brandProductDocs = brandProductsSnap.docs;
+    for (let i = 0; i < brandProductDocs.length; i += 500) {
+      const chunk = brandProductDocs.slice(i, i + 500);
+      const bpBatch = db.batch();
+      for (const bpDoc of chunk) {
+        bpBatch.update(bpDoc.ref, {
+          isDeleted: true,
+          isActive: false,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      await bpBatch.commit();
+    }
+
+    await logAdminAction(adminCtx.uid, "adminDeleteBrandStorefront", "success", {
       storefrontId,
       brandName: doc.data()?.brandName,
-      productsSoftDeleted: productDocs.length,
-    }).catch(() => {});
+      productsSoftDeleted: productDocs.length + brandProductDocs.length,
+    });
 
     logger.info(
       `Brand storefront '${storefrontId}' soft-deleted by ${adminCtx.email} (${productDocs.length} products cascaded)`
@@ -1020,9 +1087,9 @@ export const adminApproveProvider = onCall(
       approvedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminApproveProvider", "success", {
+    await logAdminAction(adminCtx.uid, "adminApproveProvider", "success", {
       providerId,
-    }).catch(() => {});
+    });
 
     logger.info(`Provider '${providerId}' approved by ${adminCtx.email}`);
     return { success: true, providerId };
@@ -1055,6 +1122,9 @@ export const adminRejectProvider = onCall(
     if (!doc.exists) {
       throw new HttpsError("not-found", "Provider not found");
     }
+    if (doc.data()?.status !== "pending") {
+      throw new HttpsError("failed-precondition", "Provider is not in pending status");
+    }
 
     await ref.update({
       status: "rejected",
@@ -1063,10 +1133,10 @@ export const adminRejectProvider = onCall(
       rejectionReason: reason || null,
     });
 
-    logAdminAction(adminCtx.uid, "adminRejectProvider", "success", {
+    await logAdminAction(adminCtx.uid, "adminRejectProvider", "success", {
       providerId,
       reason,
-    }).catch(() => {});
+    });
 
     logger.info(`Provider '${providerId}' rejected by ${adminCtx.email}`);
     return { success: true, providerId };
@@ -1109,7 +1179,7 @@ export const adminSuspendProvider = onCall(
       suspensionReason: reason || null,
     });
 
-    // Cascade: remove all active/paused/pending/flagged listings (batch-size safe: chunks of 499)
+    // Cascade: remove all active/paused/pending/flagged listings (batch-size safe: chunks of 500)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
@@ -1117,8 +1187,8 @@ export const adminSuspendProvider = onCall(
       .get();
 
     const listingDocs = listingsSnap.docs;
-    for (let i = 0; i < listingDocs.length; i += 499) {
-      const chunk = listingDocs.slice(i, i + 499);
+    for (let i = 0; i < listingDocs.length; i += 500) {
+      const chunk = listingDocs.slice(i, i + 500);
       const batch = db.batch();
       for (const listingDoc of chunk) {
         batch.update(listingDoc.ref, {
@@ -1142,6 +1212,11 @@ export const adminSuspendProvider = onCall(
     for (const orderDoc of pendingOrders.docs) {
       const orderData = orderDoc.data();
       try {
+        // Idempotency guard: skip orders already refunded
+        if (orderData.refundJournalId) {
+          cancelledCount++;
+          continue;
+        }
         if (orderData.status === "escrowed" && orderData.escrowJournalId) {
           if (!orderData.buyerId) {
             logger.error(`Order ${orderDoc.id} missing buyerId, skipping refund`);
@@ -1200,13 +1275,13 @@ export const adminSuspendProvider = onCall(
       }
     }
 
-    logAdminAction(adminCtx.uid, "adminSuspendProvider", "success", {
+    await logAdminAction(adminCtx.uid, "adminSuspendProvider", "success", {
       providerId,
       reason,
       listingsRemoved: listingsSnap.size,
       ordersCancelled: cancelledCount,
       failedOrderIds,
-    }).catch(() => {});
+    });
 
     logger.info(
       `Provider '${providerId}' suspended by ${adminCtx.email}: ` +
@@ -1276,9 +1351,9 @@ export const adminUnsuspendProvider = onCall(
       }
     }
 
-    logAdminAction(adminCtx.uid, "adminUnsuspendProvider", "success", {
+    await logAdminAction(adminCtx.uid, "adminUnsuspendProvider", "success", {
       providerId,
-    }).catch(() => {});
+    });
 
     logger.info(`Provider '${providerId}' unsuspended by ${adminCtx.email}`);
     return { success: true, providerId };
@@ -1312,6 +1387,10 @@ export const adminDismissListingFlags = onCall(
     if (!doc.exists) {
       throw new HttpsError("not-found", "Listing not found");
     }
+    const listingStatus = doc.data()?.status;
+    if (listingStatus === "removed" || doc.data()?.isDeleted === true) {
+      throw new HttpsError("failed-precondition", "Cannot dismiss flags on a removed or deleted listing");
+    }
 
     await ref.update({
       status: "active",
@@ -1320,9 +1399,9 @@ export const adminDismissListingFlags = onCall(
       reviewedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminDismissListingFlags", "success", {
+    await logAdminAction(adminCtx.uid, "adminDismissListingFlags", "success", {
       listingId,
-    }).catch(() => {});
+    });
 
     return { success: true, listingId };
   }
@@ -1351,6 +1430,10 @@ export const adminFlagListing = onCall(
     if (!doc.exists) {
       throw new HttpsError("not-found", "Listing not found");
     }
+    const flagListingStatus = doc.data()?.status;
+    if (!["active", "paused"].includes(flagListingStatus)) {
+      throw new HttpsError("failed-precondition", `Cannot flag listing with status '${flagListingStatus}' — must be active or paused`);
+    }
 
     await ref.update({
       status: "flagged",
@@ -1358,9 +1441,9 @@ export const adminFlagListing = onCall(
       flaggedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminFlagListing", "success", {
+    await logAdminAction(adminCtx.uid, "adminFlagListing", "success", {
       listingId,
-    }).catch(() => {});
+    });
 
     return { success: true, listingId };
   }
@@ -1392,14 +1475,16 @@ export const adminRemoveListing = onCall(
 
     await ref.update({
       status: "removed",
+      isDeleted: true,
+      isActive: false,
       removedAt: admin.firestore.FieldValue.serverTimestamp(),
       removedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminRemoveListing", "success", {
+    await logAdminAction(adminCtx.uid, "adminRemoveListing", "success", {
       listingId,
       title: doc.data()?.title,
-    }).catch(() => {});
+    });
 
     return { success: true, listingId };
   }
@@ -1441,9 +1526,9 @@ export const adminReinstateListing = onCall(
       reinstatedBy: adminCtx.uid,
     });
 
-    logAdminAction(adminCtx.uid, "adminReinstateListing", "success", {
+    await logAdminAction(adminCtx.uid, "adminReinstateListing", "success", {
       listingId,
-    }).catch(() => {});
+    });
 
     return { success: true, listingId };
   }
@@ -1501,12 +1586,12 @@ export const adminForceCancelOrder = onCall(
       `Force-cancel order ${orderId} — refund ${order.amount} tokens to buyer ${order.buyerId}`
     );
 
-    logAdminAction(adminCtx.uid, "adminForceCancelOrder", "pending", {
+    await logAdminAction(adminCtx.uid, "adminForceCancelOrder", "pending", {
       orderId,
       pendingActionId,
       previousStatus: order.status,
       amount: order.amount,
-    }).catch(() => {});
+    });
 
     logger.info(`Force-cancel order '${orderId}' pending approval (action ${pendingActionId})`);
     return { success: true, pendingActionId, requiresApproval: true };
@@ -1561,12 +1646,12 @@ export const adminForceCompleteOrder = onCall(
       `Force-complete order ${orderId} — release ${order.amount} tokens to seller ${order.sellerId}`
     );
 
-    logAdminAction(adminCtx.uid, "adminForceCompleteOrder", "pending", {
+    await logAdminAction(adminCtx.uid, "adminForceCompleteOrder", "pending", {
       orderId,
       pendingActionId,
       previousStatus: order.status,
       amount: order.amount,
-    }).catch(() => {});
+    });
 
     logger.info(`Force-complete order '${orderId}' pending approval (action ${pendingActionId})`);
     return { success: true, pendingActionId, requiresApproval: true };
@@ -1640,12 +1725,12 @@ export const adminResolveDispute = onCall(
       `Resolve dispute on order ${orderId}: ${resolution}${resolution === "split" ? ` (${sellerPercent}% to seller)` : ""}`
     );
 
-    logAdminAction(adminCtx.uid, "adminResolveDispute", "pending", {
+    await logAdminAction(adminCtx.uid, "adminResolveDispute", "pending", {
       orderId,
       resolution,
       sellerPercent,
       pendingActionId,
-    }).catch(() => {});
+    });
 
     logger.info(
       `Dispute resolution '${resolution}' for order '${orderId}' pending approval (action ${pendingActionId})`
@@ -1672,7 +1757,7 @@ export const adminGetMarketplaceAnalytics = onCall(
     );
 
     const [ordersSnap, providersSnap, listingsSnap] = await Promise.all([
-      db.collection("buyOrders").get(),
+      db.collection("buyOrders").limit(10000).get(),
       db.collection("providers").where("status", "==", "approved").get(),
       db
         .collection("marketplaceListings")
@@ -1837,7 +1922,7 @@ export const adminListGroupBuys = onCall(
       ...doc.data(),
     }));
 
-    await logAdminAction(adminCtx.uid, "buy:listGroupBuys", "adminListGroupBuys", {
+    await logAdminAction(adminCtx.uid, "adminListGroupBuys", "success", {
       count: groupBuys.length,
       status: status || "all",
     });
@@ -1881,7 +1966,7 @@ export const adminGetGroupBuyDetails = onCall(
       ...d.data(),
     }));
 
-    await logAdminAction(adminCtx.uid, "buy:getGroupBuyDetails", "adminGetGroupBuyDetails", {
+    await logAdminAction(adminCtx.uid, "adminGetGroupBuyDetails", "success", {
       groupBuyId,
     });
 
@@ -1951,8 +2036,8 @@ export const adminExtendGroupBuyDeadline = onCall(
 
     await logAdminAction(
       adminCtx.uid,
-      "buy:extendGroupBuyDeadline",
       "adminExtendGroupBuyDeadline",
+      "success",
       { groupBuyId, newDeadline, reason: reason || "" }
     );
 
@@ -2093,6 +2178,7 @@ export const adminRetryGroupBuyRefunds = onCall(
       .collection("groupBuys")
       .doc(groupBuyId)
       .collection("contributions")
+      .where("status", "!=", "refunded")
       .get();
 
     const { refundGroupBuyContribution } = await import("./ledger/groupBuyEscrow");
@@ -2124,8 +2210,8 @@ export const adminRetryGroupBuyRefunds = onCall(
 
     await logAdminAction(
       adminCtx.uid,
-      "buy:retryGroupBuyRefunds",
       "adminRetryGroupBuyRefunds",
+      "success",
       { groupBuyId, refunded, errorCount: errors.length }
     );
 
@@ -2244,8 +2330,8 @@ export const adminCreateBrandGroupBuy = onCall(
 
     await logAdminAction(
       adminCtx.uid,
-      "buy:createBrandGroupBuy",
       "adminCreateBrandGroupBuy",
+      "success",
       { groupBuyId: docRef.id, title, brandId, targetAmount }
     );
 
@@ -2343,7 +2429,7 @@ export const adminGetEscrowOverview = onCall(
       logger.warn("Failed to read escrow system accounts for recon:", err);
     }
 
-    await logAdminAction(adminCtx.uid, "buy:getEscrowOverview", "adminGetEscrowOverview", {
+    await logAdminAction(adminCtx.uid, "adminGetEscrowOverview", "success", {
       marketplaceCount: marketplaceEscrows.length,
       groupBuyCount: groupBuyEscrows.length,
       totalEscrow: marketplaceEscrowTotal + groupBuyEscrowTotal,
@@ -2409,18 +2495,6 @@ export const submitBrandReview = onCall(
       }
     }
 
-    // One review per order
-    const existingSnap = await db
-      .collection("brandReviews")
-      .where("orderId", "==", orderId)
-      .where("userId", "==", userId)
-      .limit(1)
-      .get();
-
-    if (!existingSnap.empty) {
-      throw new HttpsError("already-exists", "You have already reviewed this order");
-    }
-
     // Get user display name
     const userDoc = await db.collection("users").doc(userId).get();
     const userName = userDoc.data()?.displayName || "iMali User";
@@ -2432,46 +2506,56 @@ export const submitBrandReview = onCall(
       ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
       : false;
 
-    const reviewData = {
-      brandId,
-      userId,
-      userName,
-      orderId,
-      qualityRating,
-      valueRating,
-      serviceRating,
-      overallRating,
-      comment: comment?.trim() || null,
-      isFiltered,
-      isRemovedByAdmin: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: null,
-    };
+    // Deterministic doc ID prevents duplicates even under concurrent requests
+    const reviewDocId = `${userId}_${brandId}_${orderId}`;
+    const reviewRef = db.collection("brandReviews").doc(reviewDocId);
+    const storefrontRef = db.collection("brandStorefronts").doc(brandId);
 
-    const reviewRef = await db.collection("brandReviews").add(reviewData);
+    // Transaction: duplicate check + review creation + aggregate update (atomic)
+    await db.runTransaction(async (tx) => {
+      const existingReview = await tx.get(reviewRef);
+      if (existingReview.exists) {
+        throw new HttpsError("already-exists", "You have already reviewed this order");
+      }
 
-    // Update brand storefront aggregate rating
-    try {
-      const allReviews = await db
-        .collection("brandReviews")
-        .where("brandId", "==", brandId)
-        .where("isRemovedByAdmin", "==", false)
-        .get();
+      tx.set(reviewRef, {
+        brandId,
+        userId,
+        userName,
+        orderId,
+        qualityRating,
+        valueRating,
+        serviceRating,
+        overallRating,
+        comment: comment?.trim() || null,
+        isFiltered,
+        isRemovedByAdmin: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: null,
+      });
 
-      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
-      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
-
-      await db.collection("brandStorefronts").doc(brandId).update({
-        averageRating: avgRating,
-        totalReviews: allReviews.size,
+      // Update aggregate rating using FieldValue.increment for atomicity
+      tx.update(storefrontRef, {
+        ratingSum: admin.firestore.FieldValue.increment(overallRating),
+        ratingCount: admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
+    });
+
+    // Recompute averageRating outside transaction (non-critical, best-effort)
+    try {
+      const storefrontDoc = await storefrontRef.get();
+      const sfData = storefrontDoc.data();
+      if (sfData && sfData.ratingCount > 0) {
+        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
+        await storefrontRef.update({ averageRating: avgRating });
+      }
     } catch (err) {
-      logger.warn("Failed to update brand aggregate rating:", err);
+      logger.warn("Failed to recompute averageRating:", err);
     }
 
     logger.info(`Brand review submitted by ${userId} for brand ${brandId}`);
-    return { success: true, reviewId: reviewRef.id, isFiltered };
+    return { success: true, reviewId: reviewDocId, isFiltered };
   }
 );
 
@@ -2542,27 +2626,31 @@ export const editBrandReview = onCall(
     const q = (updates.qualityRating ?? reviewData.qualityRating) as number;
     const v = (updates.valueRating ?? reviewData.valueRating) as number;
     const s = (updates.serviceRating ?? reviewData.serviceRating) as number;
-    updates.overallRating = Math.round(((q + v + s) / 3) * 10) / 10;
+    const newOverallRating = Math.round(((q + v + s) / 3) * 10) / 10;
+    updates.overallRating = newOverallRating;
+
+    const oldOverallRating = reviewData.overallRating as number;
+    const ratingDiff = newOverallRating - oldOverallRating;
 
     await reviewRef.update(updates);
 
-    // Recalculate aggregate rating after edit (consistent with submitBrandReview)
+    // Update aggregate rating using FieldValue.increment (no re-query needed)
     const brandId = reviewData.brandId;
     try {
-      const allReviews = await db
-        .collection("brandReviews")
-        .where("brandId", "==", brandId)
-        .where("isRemovedByAdmin", "==", false)
-        .get();
-
-      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
-      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
-
-      await db.collection("brandStorefronts").doc(brandId).update({
-        averageRating: avgRating,
-        totalReviews: allReviews.size,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      const storefrontRef = db.collection("brandStorefronts").doc(brandId);
+      if (ratingDiff !== 0) {
+        await storefrontRef.update({
+          ratingSum: admin.firestore.FieldValue.increment(ratingDiff),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      // Recompute averageRating
+      const storefrontDoc = await storefrontRef.get();
+      const sfData = storefrontDoc.data();
+      if (sfData && sfData.ratingCount > 0) {
+        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
+        await storefrontRef.update({ averageRating: avgRating });
+      }
     } catch (err) {
       logger.warn("Failed to update brand aggregate rating after edit:", err);
     }
@@ -2611,27 +2699,39 @@ export const adminFlagBrandReview = onCall(
 
     const brandId = reviewDoc.data()!.brandId;
 
-    // Recalculate aggregate rating after flagging
+    // Update aggregate rating using FieldValue.increment based on flag/unflag action
     try {
-      const allReviews = await db
-        .collection("brandReviews")
-        .where("brandId", "==", brandId)
-        .where("isRemovedByAdmin", "==", false)
-        .get();
-
-      const total = allReviews.docs.reduce((sum, d) => sum + (d.data().overallRating || 0), 0);
-      const avgRating = allReviews.size > 0 ? Math.round((total / allReviews.size) * 10) / 10 : 0;
-
-      await db.collection("brandStorefronts").doc(brandId).update({
-        averageRating: avgRating,
-        totalReviews: allReviews.size,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      const reviewOverall = reviewDoc.data()!.overallRating || 0;
+      const storefrontRef = db.collection("brandStorefronts").doc(brandId);
+      if (isRemovedByAdmin) {
+        // Removing a review: decrement count and subtract rating
+        await storefrontRef.update({
+          ratingSum: admin.firestore.FieldValue.increment(-reviewOverall),
+          ratingCount: admin.firestore.FieldValue.increment(-1),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Restoring a review: increment count and add rating
+        await storefrontRef.update({
+          ratingSum: admin.firestore.FieldValue.increment(reviewOverall),
+          ratingCount: admin.firestore.FieldValue.increment(1),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+      // Recompute averageRating
+      const storefrontDoc = await storefrontRef.get();
+      const sfData = storefrontDoc.data();
+      if (sfData && sfData.ratingCount > 0) {
+        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
+        await storefrontRef.update({ averageRating: avgRating });
+      } else if (sfData) {
+        await storefrontRef.update({ averageRating: 0 });
+      }
     } catch (err) {
       logger.warn("Failed to update brand aggregate rating after flag:", err);
     }
 
-    await logAdminAction(adminCtx.uid, "buy:flagBrandReview", "adminFlagBrandReview", {
+    await logAdminAction(adminCtx.uid, "adminFlagBrandReview", "success", {
       reviewId,
       isRemovedByAdmin,
       brandId,
@@ -2899,10 +2999,10 @@ export const adminSeedBuyInitialData = onCall(
 
     await batch.commit();
 
-    logAdminAction(adminCtx.uid, "adminSeedBuyInitialData", "success", {
+    await logAdminAction(adminCtx.uid, "adminSeedBuyInitialData", "success", {
       created,
       skipped,
-    }).catch(() => {});
+    });
 
     logger.info(`Buy data seeded by ${adminCtx.email}: ${created} created, ${skipped} skipped`);
     return { success: true, created, skipped };
@@ -2952,7 +3052,7 @@ export const adminBanProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Remove all active/paused/pending/flagged listings (batch-size safe: chunks of 499)
+    // Remove all active/paused/pending/flagged listings (batch-size safe: chunks of 500)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
@@ -2960,8 +3060,8 @@ export const adminBanProvider = onCall(
       .get();
 
     const listingDocs = listingsSnap.docs;
-    for (let i = 0; i < listingDocs.length; i += 499) {
-      const chunk = listingDocs.slice(i, i + 499);
+    for (let i = 0; i < listingDocs.length; i += 500) {
+      const chunk = listingDocs.slice(i, i + 500);
       const listBatch = db.batch();
       for (const doc of chunk) {
         listBatch.update(doc.ref, {
@@ -2984,6 +3084,11 @@ export const adminBanProvider = onCall(
     for (const doc of openOrders.docs) {
       const order = doc.data();
       try {
+        // Idempotency guard: skip orders already refunded
+        if (order.refundJournalId) {
+          refundedCount++;
+          continue;
+        }
         if (!order.buyerId) {
           logger.error(`Order ${doc.id} missing buyerId, skipping refund`);
           failedOrderIds.push(doc.id);
@@ -3037,7 +3142,7 @@ export const adminBanProvider = onCall(
       }
     }
 
-    await logAdminAction(adminCtx.uid, "buy:banProvider", "adminBanProvider", {
+    await logAdminAction(adminCtx.uid, "adminBanProvider", "success", {
       providerId,
       reason,
       listingsRemoved: listingsSnap.size,
@@ -3108,7 +3213,7 @@ export const adminReinstateProvider = onCall(
       }
     }
 
-    await logAdminAction(adminCtx.uid, "buy:reinstateProvider", "adminReinstateProvider", {
+    await logAdminAction(adminCtx.uid, "adminReinstateProvider", "success", {
       providerId,
       previousStatus: provider.status,
     });
@@ -3183,7 +3288,7 @@ export const adminPartialRefund = onCall(
       status: order.status === "disputed" ? "resolved" : order.status,
     });
 
-    await logAdminAction(adminCtx.uid, "buy:partialRefund", "adminPartialRefund", {
+    await logAdminAction(adminCtx.uid, "adminPartialRefund", "success", {
       orderId,
       refundAmount,
       originalAmount: order.amount,
@@ -3226,12 +3331,13 @@ export const adminRequireReturn = onCall(
     }
 
     await orderRef.update({
+      status: "return_required",
       disputeResolution: "return_required",
       disputeResolutionNote: instructions || "Please return the item to the seller",
       resolvedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:requireReturn", "adminRequireReturn", {
+    await logAdminAction(adminCtx.uid, "adminRequireReturn", "success", {
       orderId,
       instructions,
     });
@@ -3285,7 +3391,7 @@ export const adminEscalateToSms = onCall(
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:escalateToSms", "adminEscalateToSms", {
+    await logAdminAction(adminCtx.uid, "adminEscalateToSms", "success", {
       orderId,
       recipientUserId,
     });
@@ -3336,7 +3442,7 @@ export const adminUpdateSellerLevelConfig = onCall(
       { merge: true }
     );
 
-    await logAdminAction(adminCtx.uid, "buy:updateSellerLevelConfig", "adminUpdateSellerLevelConfig", {
+    await logAdminAction(adminCtx.uid, "adminUpdateSellerLevelConfig", "success", {
       thresholds,
     });
 
@@ -3378,7 +3484,7 @@ export const adminUpdateBannedWords = onCall(
       { merge: true }
     );
 
-    await logAdminAction(adminCtx.uid, "buy:updateBannedWords", "adminUpdateBannedWords", {
+    await logAdminAction(adminCtx.uid, "adminUpdateBannedWords", "success", {
       wordCount: normalized.length,
     });
 
@@ -3467,7 +3573,7 @@ export const adminCreateBrandProduct = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:createBrandProduct", "adminCreateBrandProduct", {
+    await logAdminAction(adminCtx.uid, "adminCreateBrandProduct", "success", {
       productId: productRef.id,
       storefrontId,
       name,
@@ -3518,7 +3624,7 @@ export const adminUpdateBrandProduct = onCall(
 
     await productRef.update(safeUpdates);
 
-    await logAdminAction(adminCtx.uid, "buy:updateBrandProduct", "adminUpdateBrandProduct", {
+    await logAdminAction(adminCtx.uid, "adminUpdateBrandProduct", "success", {
       productId,
       updatedFields: Object.keys(safeUpdates),
     });
@@ -3558,7 +3664,7 @@ export const adminDeleteBrandProduct = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:deleteBrandProduct", "adminDeleteBrandProduct", {
+    await logAdminAction(adminCtx.uid, "adminDeleteBrandProduct", "success", {
       productId,
     });
 
@@ -3619,7 +3725,7 @@ export const adminListVasProviders = onCall(
       })
     );
 
-    await logAdminAction(adminCtx.uid, "buy:listVasProviders", "adminListVasProviders", {
+    await logAdminAction(adminCtx.uid, "adminListVasProviders", "success", {
       category: category || "all",
       count: providers.length,
     });
@@ -3690,7 +3796,7 @@ export const adminCreateVasProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:createVasProvider", "adminCreateVasProvider", {
+    await logAdminAction(adminCtx.uid, "adminCreateVasProvider", "success", {
       providerId: ref.id,
       name,
       code,
@@ -3738,7 +3844,7 @@ export const adminUpdateVasProvider = onCall(
 
     await ref.update(safeUpdates);
 
-    await logAdminAction(adminCtx.uid, "buy:updateVasProvider", "adminUpdateVasProvider", {
+    await logAdminAction(adminCtx.uid, "adminUpdateVasProvider", "success", {
       providerId,
     });
 
@@ -3777,7 +3883,7 @@ export const adminToggleVasProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:toggleVasProvider", "adminToggleVasProvider", {
+    await logAdminAction(adminCtx.uid, "adminToggleVasProvider", "success", {
       providerId,
       isActive: newStatus,
     });
@@ -3818,8 +3924,8 @@ export const adminDeleteVasProvider = onCall(
       .get();
 
     if (!allProducts.empty) {
-      for (let i = 0; i < allProducts.docs.length; i += 499) {
-        const chunk = allProducts.docs.slice(i, i + 499);
+      for (let i = 0; i < allProducts.docs.length; i += 500) {
+        const chunk = allProducts.docs.slice(i, i + 500);
         const productBatch = db.batch();
         for (const productDoc of chunk) {
           productBatch.update(productDoc.ref, {
@@ -3838,7 +3944,7 @@ export const adminDeleteVasProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:deleteVasProvider", "adminDeleteVasProvider", {
+    await logAdminAction(adminCtx.uid, "adminDeleteVasProvider", "success", {
       providerId,
     });
 
@@ -3881,7 +3987,7 @@ export const adminListVasProducts = onCall(
       query = query.where("isActive", "==", true);
     }
 
-    query = query.orderBy("sortOrder");
+    query = query.orderBy("sortOrder").limit(100);
 
     if (startAfterId && typeof startAfterId === "string" && startAfterId.trim().length > 0) {
       const startAfterDoc = await db.collection("serviceProducts").doc(startAfterId).get();
@@ -3967,7 +4073,7 @@ export const adminCreateVasProduct = onCall(
     });
     await batch.commit();
 
-    await logAdminAction(adminCtx.uid, "buy:createVasProduct", "adminCreateVasProduct", {
+    await logAdminAction(adminCtx.uid, "adminCreateVasProduct", "success", {
       productId: productRef.id,
       providerId,
       name,
@@ -4019,7 +4125,7 @@ export const adminUpdateVasProduct = onCall(
 
     await ref.update(safeUpdates);
 
-    await logAdminAction(adminCtx.uid, "buy:updateVasProduct", "adminUpdateVasProduct", {
+    await logAdminAction(adminCtx.uid, "adminUpdateVasProduct", "success", {
       productId,
     });
 
@@ -4058,7 +4164,7 @@ export const adminToggleVasProduct = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    await logAdminAction(adminCtx.uid, "buy:toggleVasProduct", "adminToggleVasProduct", {
+    await logAdminAction(adminCtx.uid, "adminToggleVasProduct", "success", {
       productId,
       isActive: newStatus,
     });
@@ -4107,7 +4213,7 @@ export const adminDeleteVasProduct = onCall(
     }
     await batch.commit();
 
-    await logAdminAction(adminCtx.uid, "buy:deleteVasProduct", "adminDeleteVasProduct", {
+    await logAdminAction(adminCtx.uid, "adminDeleteVasProduct", "success", {
       productId,
     });
 
@@ -4150,7 +4256,7 @@ export const adminBulkUpdateVasProductPrices = onCall(
       return { success: true, updatedCount: 0 };
     }
 
-    // Build updates first, then commit in batch-size-safe chunks of 499
+    // Build updates first, then commit in batch-size-safe chunks of 500
     const updates: Array<{ ref: FirebaseFirestore.DocumentReference; newPrice: number }> = [];
     for (const doc of productsSnap.docs) {
       const currentPrice = doc.data().priceZar;
@@ -4168,8 +4274,8 @@ export const adminBulkUpdateVasProductPrices = onCall(
     }
 
     let updatedCount = 0;
-    for (let i = 0; i < updates.length; i += 499) {
-      const chunk = updates.slice(i, i + 499);
+    for (let i = 0; i < updates.length; i += 500) {
+      const chunk = updates.slice(i, i + 500);
       const batch = db.batch();
       for (const { ref, newPrice } of chunk) {
         batch.update(ref, {
@@ -4182,7 +4288,7 @@ export const adminBulkUpdateVasProductPrices = onCall(
       updatedCount += chunk.length;
     }
 
-    await logAdminAction(adminCtx.uid, "buy:bulkUpdateVasProductPrices", "adminBulkUpdateVasProductPrices", {
+    await logAdminAction(adminCtx.uid, "adminBulkUpdateVasProductPrices", "success", {
       providerId,
       adjustmentType,
       adjustmentValue,
@@ -4267,7 +4373,7 @@ export const adminSeedVasProviders = onCall(
 
     await batch.commit();
 
-    await logAdminAction(adminCtx.uid, "buy:seedVasProviders", "adminSeedVasProviders", {
+    await logAdminAction(adminCtx.uid, "adminSeedVasProviders", "success", {
       created,
       skipped,
     });
@@ -4355,7 +4461,7 @@ export const migrateListingCategories = onCall(
       await batch.commit();
     }
 
-    await logAdminAction(adminCtx.uid, "buy:migrateCategories", "migrateListingCategories", {
+    await logAdminAction(adminCtx.uid, "migrateListingCategories", "success", {
       migrated,
       skipped,
       unmappedCount: unmapped.length,

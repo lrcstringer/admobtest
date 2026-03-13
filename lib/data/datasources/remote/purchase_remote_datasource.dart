@@ -124,12 +124,18 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     final doc = await _providersCollection.doc(providerId).get();
 
     if (!doc.exists) {
-      throw Exception('Provider not found');
+      throw const ServerException(
+        message: 'Provider not found',
+        code: 'not-found',
+      );
     }
 
     final data = doc.data()!;
     if (data['isActive'] == false || data['isDeleted'] == true) {
-      throw Exception('Provider is no longer available');
+      throw const ServerException(
+        message: 'Provider is no longer available',
+        code: 'unavailable',
+      );
     }
 
     data['id'] = doc.id;
@@ -157,10 +163,20 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     final doc = await _productsCollection.doc(productId).get();
 
     if (!doc.exists) {
-      throw Exception('Product not found');
+      throw const ServerException(
+        message: 'Product not found',
+        code: 'not-found',
+      );
     }
 
     final data = doc.data()!;
+    if (data['isActive'] == false || data['isDeleted'] == true) {
+      throw const ServerException(
+        message: 'Product is no longer available',
+        code: 'unavailable',
+      );
+    }
+
     data['id'] = doc.id;
     return ServiceProductModel.fromJson(sanitizeFirestoreData(data));
   }
@@ -193,6 +209,7 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
   }
 
   @override
+  // Requires composite index: (userId, category, createdAt desc)
   Future<List<PurchaseModel>> getPurchaseHistory({
     String? category,
     int? limit,

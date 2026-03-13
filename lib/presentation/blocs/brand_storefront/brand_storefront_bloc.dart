@@ -26,6 +26,7 @@ class BrandStorefrontBloc
     on<_ClaimCoupon>(_onClaimCoupon);
     on<_RecordView>(_onRecordView);
     on<_ToggleFollow>(_onToggleFollow);
+    on<_ResetReviewState>(_onResetReviewState);
   }
 
   Future<void> _onLoadStorefront(
@@ -193,6 +194,7 @@ class BrandStorefrontBloc
     final result = await _buyRepository.claimStorefrontCoupon(
       storefrontId: event.storefrontId,
       couponId: event.couponId,
+      couponCode: event.couponCode,
     );
 
     result.fold(
@@ -200,9 +202,10 @@ class BrandStorefrontBloc
         isClaimingCoupon: false,
         errorMessage: failure.displayMessage,
       )),
-      (_) => emit(state.copyWith(
+      (couponCode) => emit(state.copyWith(
         isClaimingCoupon: false,
         claimedCouponIds: {...state.claimedCouponIds, event.couponId},
+        lastClaimedCouponCode: couponCode,
       )),
     );
   }
@@ -215,15 +218,28 @@ class BrandStorefrontBloc
     await _buyRepository.recordStorefrontView(event.storefrontId);
   }
 
+  void _onResetReviewState(
+    _ResetReviewState event,
+    Emitter<BrandStorefrontState> emit,
+  ) {
+    emit(state.copyWith(reviewSubmitSuccess: false));
+  }
+
   Future<void> _onToggleFollow(
     _ToggleFollow event,
     Emitter<BrandStorefrontState> emit,
   ) async {
     if (state.isTogglingFollow) return;
 
+    // Save original state for revert
+    final originalIsFollowing = state.isFollowing;
+    final originalFollowedAt = state.followedAt;
+
     // Optimistic UI: toggle immediately
     emit(state.copyWith(
-      isFollowing: !state.isFollowing,
+      isFollowing: !originalIsFollowing,
+      // Clear followedAt when unfollowing, set to now when following
+      followedAt: originalIsFollowing ? null : DateTime.now(),
       isTogglingFollow: true,
     ));
 
@@ -231,15 +247,18 @@ class BrandStorefrontBloc
 
     result.fold(
       (failure) {
-        // Revert on failure
+        // Revert on failure — restore original followedAt
         emit(state.copyWith(
-          isFollowing: !state.isFollowing,
+          isFollowing: originalIsFollowing,
+          followedAt: originalFollowedAt,
           isTogglingFollow: false,
           errorMessage: failure.displayMessage,
         ));
       },
       (isFollowing) => emit(state.copyWith(
         isFollowing: isFollowing,
+        // Server is the source of truth; if unfollowed, clear followedAt
+        followedAt: isFollowing ? state.followedAt : null,
         isTogglingFollow: false,
       )),
     );

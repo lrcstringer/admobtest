@@ -13,6 +13,7 @@ class BrandStorefrontState with _$BrandStorefrontState {
     @Default(false) bool reviewSubmitSuccess,
     @Default(false) bool isClaimingCoupon,
     @Default({}) Set<String> claimedCouponIds,
+    String? lastClaimedCouponCode,
     @Default(false) bool isFollowing,
     DateTime? followedAt,
     @Default(false) bool isTogglingFollow,

@@ -51,7 +51,7 @@ class BrandProductModel with _$BrandProductModel {
       deliveryInfo: json['deliveryInfo'] as String?,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
+          : DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 

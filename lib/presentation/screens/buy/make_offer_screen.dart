@@ -28,7 +28,6 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _messageController = TextEditingController();
-  bool _isSubmitting = false;
 
   double get _priceZar => widget.listingPriceTokens / 100;
 
@@ -40,8 +39,8 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
   }
 
   void _submitOffer() {
-    if (!_formKey.currentState!.validate() || _isSubmitting) return;
-    setState(() => _isSubmitting = true);
+    final isMakingOffer = context.read<MarketplaceBloc>().state.isMakingOffer;
+    if (!_formKey.currentState!.validate() || isMakingOffer) return;
 
     final offerZar = double.parse(_amountController.text);
     final offerTokens = (offerZar * 100).round();
@@ -74,7 +73,6 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
           );
           context.pop();
         } else if (state.errorMessage != null) {
-          setState(() => _isSubmitting = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
@@ -195,15 +193,21 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
               const Spacer(),
 
               // Submit button
-              SizedBox(
-                width: double.infinity,
-                child: AppButton(
-                  text: 'Submit Offer',
-                  variant: AppButtonVariant.primary,
-                  isLoading: _isSubmitting,
-                  loadingText: 'Submitting...',
-                  onPressed: _isSubmitting ? null : _submitOffer,
-                ),
+              BlocBuilder<MarketplaceBloc, MarketplaceState>(
+                buildWhen: (prev, curr) =>
+                    prev.isMakingOffer != curr.isMakingOffer,
+                builder: (context, state) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: AppButton(
+                      text: 'Submit Offer',
+                      variant: AppButtonVariant.primary,
+                      isLoading: state.isMakingOffer,
+                      loadingText: 'Submitting...',
+                      onPressed: state.isMakingOffer ? null : _submitOffer,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.md),
             ],

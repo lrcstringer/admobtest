@@ -41,26 +41,26 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
     throw new HttpsError("invalid-argument", "Recipient number is required");
   }
 
-  // Get product details
+  // Pre-validate product and provider availability — fast-fail optimization only.
+  // The authoritative checks happen inside processPurchaseTransaction(), which runs
+  // atomically within the ledger's double-entry transaction. These pre-checks avoid
+  // unnecessary purchase doc creation for obviously invalid requests.
   const productDoc = await db.collection("serviceProducts").doc(productId).get();
   if (!productDoc.exists) {
     throw new HttpsError("not-found", "Product not found");
   }
   const product = productDoc.data()!;
 
-  // Validate product is still active
   if (!product.isActive || product.isDeleted) {
     throw new HttpsError("failed-precondition", "Product is no longer available");
   }
 
-  // Get provider details
   const providerDoc = await db.collection("serviceProviders").doc(product.providerId).get();
   if (!providerDoc.exists) {
     throw new HttpsError("not-found", "Provider not found");
   }
   const provider = providerDoc.data()!;
 
-  // Validate provider is still active
   if (!provider.isActive || provider.isDeleted) {
     throw new HttpsError("failed-precondition", "Service provider is no longer available");
   }
@@ -143,24 +143,31 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   const purchaseRef = db.collection("purchases").doc(deterministicId);
 
   try {
-    // Create initial purchase record
-    await purchaseRef.set({
-      id: purchaseRef.id,
-      userId,
-      productId,
-      productCode: product.code || product.id,
-      productName: product.name,
-      providerId: product.providerId,
-      providerName: provider.name,
-      category: purchaseCategory,
-      tokenAmount,
-      zarAmount,
-      recipientNumber,
-      subAccountId: subAccountId || null,
-      status: "processing",
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      processedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    // Create initial purchase record.
+    // If this set() fails, throw immediately — the catch block reads the purchase doc,
+    // which would also fail if the doc was never created.
+    try {
+      await purchaseRef.set({
+        id: purchaseRef.id,
+        userId,
+        productId,
+        productCode: product.code || product.id,
+        productName: product.name,
+        providerId: product.providerId,
+        providerName: provider.name,
+        category: purchaseCategory,
+        tokenAmount,
+        zarAmount,
+        recipientNumber,
+        subAccountId: subAccountId || null,
+        status: "processing",
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        processedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (setError) {
+      logger.error("Failed to create initial purchase record", { purchaseId: purchaseRef.id, error: setError });
+      throw new HttpsError("internal", "Failed to initiate purchase. No tokens were deducted — you can safely retry.");
+    }
 
     // Re-check product and provider availability before committing to ledger transaction
     const freshProduct = await db.collection("serviceProducts").doc(productId).get();

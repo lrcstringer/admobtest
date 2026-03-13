@@ -24,9 +24,18 @@ class BrandStorefrontScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GetIt.I<BrandStorefrontBloc>()
-        ..add(BrandStorefrontEvent.loadStorefront(storefrontId))
-        ..add(BrandStorefrontEvent.recordView(storefrontId)),
-      child: const _BrandStorefrontBody(),
+        ..add(BrandStorefrontEvent.loadStorefront(storefrontId)),
+      child: BlocListener<BrandStorefrontBloc, BrandStorefrontState>(
+        listenWhen: (prev, curr) =>
+            prev.storefront == null && curr.storefront != null,
+        listener: (context, state) {
+          // Fire recordView only after storefront loads successfully
+          context
+              .read<BrandStorefrontBloc>()
+              .add(BrandStorefrontEvent.recordView(storefrontId));
+        },
+        child: const _BrandStorefrontBody(),
+      ),
     );
   }
 }
@@ -219,11 +228,12 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   }
 
   Widget _buildGradientHero(BrandStorefront storefront) {
-    final primaryColor = _parseHexColor(storefront.brandColor) ??
-        _parseHexColor(storefront.accentColor) ??
-        AppColors.primary;
-    final secondaryColor =
-        _parseHexColor(storefront.secondaryColor) ?? primaryColor.withValues(alpha: 0.6);
+    final primaryColor = AppColors.parseHex(
+      storefront.brandColor ?? storefront.accentColor,
+    );
+    final secondaryColor = storefront.secondaryColor != null
+        ? AppColors.parseHex(storefront.secondaryColor)
+        : primaryColor.withValues(alpha: 0.6);
 
     return Container(
       height: 160,
@@ -492,7 +502,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     required String deepLink,
   }) {
     return GestureDetector(
-      onTap: () => context.go(deepLink),
+      onTap: () => context.push(deepLink),
       child: Column(
         children: [
           Container(
@@ -751,7 +761,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: GestureDetector(
         onTap: storefront.bannerDeepLink != null
-            ? () => context.go(storefront.bannerDeepLink!)
+            ? () => context.push(storefront.bannerDeepLink!)
             : null,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -874,9 +884,16 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   // ─── Reviews ─────────────────────────────────────────────
 
   Widget _buildReviews(BuildContext context, BrandStorefront storefront) {
+    // orderId is required by the CF — only enable review writing when available.
+    // In the current flow, orderId comes from a completed purchase.
+    final String? orderId = null;
     return _PaginatedReviewsSection(
       storefront: storefront,
-      onWriteReview: () => _showReviewBottomSheet(context, storefront.brandId),
+      orderId: orderId,
+      onWriteReview: orderId != null
+          ? () => _showReviewBottomSheet(context, storefront.brandId,
+              orderId: orderId)
+          : null,
       buildReviewCard: _buildReviewCard,
     );
   }
@@ -884,7 +901,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   void _showReviewBottomSheet(
     BuildContext context,
     String brandId, {
-    String? orderId,
+    required String orderId,
   }) {
     showModalBottomSheet<void>(
       context: context,
@@ -1081,7 +1098,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: _parseBrandColor(storefront.accentColor) ?? AppColors.primary,
+      color: AppColors.parseHex(storefront.accentColor),
       child: Row(
         children: [
           const Icon(Icons.campaign, color: Colors.white, size: 18),
@@ -1146,7 +1163,14 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                             fit: StackFit.expand,
                             children: [
                               if (video.thumbnailUrl != null)
-                                Image.network(video.thumbnailUrl!, fit: BoxFit.cover)
+                                CachedNetworkImage(
+                                  imageUrl: video.thumbnailUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  placeholder: (_, __) => Container(color: AppColors.shimmerBase),
+                                  errorWidget: (_, __, ___) => Container(color: AppColors.shimmerBase),
+                                )
                               else
                                 Container(color: AppColors.shimmerBase),
                               const Center(
@@ -1199,7 +1223,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    (_parseBrandColor(storefront.accentColor) ?? AppColors.primary).withValues(alpha: 0.1),
+                    (AppColors.parseHex(storefront.accentColor)).withValues(alpha: 0.1),
                     AppColors.surfaceElevated,
                   ],
                 ),
@@ -1212,12 +1236,12 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: (_parseBrandColor(storefront.accentColor) ?? AppColors.primary).withValues(alpha: 0.15),
+                      color: (AppColors.parseHex(storefront.accentColor)).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.local_offer,
-                      color: _parseBrandColor(storefront.accentColor) ?? AppColors.primary,
+                      color: AppColors.parseHex(storefront.accentColor),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1329,7 +1353,6 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   // ─── Testimonials ────────────────────────────────────────
 
   Widget _buildTestimonials(BrandStorefront storefront) {
-    // Uses the reviews section data as testimonials when testimonialReviewIds are set
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
@@ -1465,20 +1488,6 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   // ─── Helpers ─────────────────────────────────────────────
 
-  Color? _parseBrandColor(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    final cleaned = hex.replaceFirst('#', '');
-    if (cleaned.length == 6) {
-      final value = int.tryParse('FF$cleaned', radix: 16);
-      return value != null ? Color(value) : null;
-    }
-    if (cleaned.length == 8) {
-      final value = int.tryParse(cleaned, radix: 16);
-      return value != null ? Color(value) : null;
-    }
-    return null;
-  }
-
   Widget _buildInfoRow(IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -1501,14 +1510,6 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     );
   }
 
-  Color? _parseHexColor(String? hex) {
-    if (hex == null || hex.isEmpty) return null;
-    final cleaned = hex.replaceFirst('#', '');
-    if (cleaned.length != 6) return null;
-    final value = int.tryParse(cleaned, radix: 16);
-    if (value == null) return null;
-    return Color(0xFF000000 | value);
-  }
 
   IconData _socialIcon(String platform) {
     switch (platform.toLowerCase()) {
@@ -1555,7 +1556,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   Future<void> _launchUrl(String url) async {
     final uri = Uri.tryParse(url);
     if (uri != null) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (_) {
+        // Silently fail — URL may be malformed or no handler available
+      }
     }
   }
 }
@@ -1646,7 +1651,7 @@ class _StorefrontHeroSection extends StatelessWidget {
                       const SizedBox(height: 10),
                       AppButton(
                         text: ctaText,
-                        onPressed: () => context.go(ctaDeepLink),
+                        onPressed: () => context.push(ctaDeepLink),
                         size: AppButtonSize.small,
                       ),
                     ],
@@ -1685,7 +1690,7 @@ class _StorefrontQuickActionsLegacy extends StatelessWidget {
                   return Expanded(
                     child: GestureDetector(
                       onTap: a['deepLink'] != null
-                          ? () => context.go(a['deepLink'] as String)
+                          ? () => context.push(a['deepLink'] as String)
                           : null,
                       child: Column(
                         children: [
@@ -1837,7 +1842,7 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                               ),
                               if (deepLink != null)
                                 GestureDetector(
-                                  onTap: () => context.go(deepLink),
+                                  onTap: () => context.push(deepLink),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 4),
@@ -1939,12 +1944,14 @@ class _StorefrontAboutLegacy extends StatelessWidget {
 /// Paginated reviews section: shows first 10, then "Load more" in batches of 10.
 class _PaginatedReviewsSection extends StatefulWidget {
   final BrandStorefront storefront;
-  final VoidCallback onWriteReview;
+  final String? orderId;
+  final VoidCallback? onWriteReview;
   final Widget Function(BrandReview) buildReviewCard;
 
   const _PaginatedReviewsSection({
     required this.storefront,
-    required this.onWriteReview,
+    this.orderId,
+    this.onWriteReview,
     required this.buildReviewCard,
   });
 
@@ -2035,7 +2042,7 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
                 onPressed: () =>
                     setState(() => _visibleCount += _pageSize),
                 child: Text(
-                  'Show more reviews (${allVisible.length - _visibleCount} remaining)',
+                  'Show more reviews (${(allVisible.length - _visibleCount).clamp(0, allVisible.length)} remaining)',
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 13,
@@ -2048,20 +2055,25 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
 
           // Write a Review button
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.rate_review_outlined, size: 18),
-              label: const Text('Write a Review'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+          Tooltip(
+            message: widget.onWriteReview == null
+                ? 'Purchase an item to leave a review'
+                : '',
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.rate_review_outlined, size: 18),
+                label: const Text('Write a Review'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                onPressed: widget.onWriteReview,
               ),
-              onPressed: widget.onWriteReview,
             ),
           ),
         ],
@@ -2072,11 +2084,11 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
 
 class _ReviewSubmissionSheet extends StatefulWidget {
   final String brandId;
-  final String? orderId;
+  final String orderId;
 
   const _ReviewSubmissionSheet({
     required this.brandId,
-    this.orderId,
+    required this.orderId,
   });
 
   @override
@@ -2312,11 +2324,10 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
   void _onSubmit() {
     if (!_isValid) return;
 
-    final orderId = widget.orderId;
     context.read<BrandStorefrontBloc>().add(
           BrandStorefrontEvent.submitReview(
             brandId: widget.brandId,
-            orderId: orderId != null && orderId.isNotEmpty ? orderId : null,
+            orderId: widget.orderId,
             qualityRating: _qualityRating,
             valueRating: _valueRating,
             serviceRating: _serviceRating,

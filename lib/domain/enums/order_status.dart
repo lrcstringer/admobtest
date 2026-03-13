@@ -8,6 +8,7 @@ enum OrderStatus {
   refunding,
   refunded,
   cancelled,
+  failed,
 }
 
 extension OrderStatusX on OrderStatus {
@@ -29,6 +30,8 @@ extension OrderStatusX on OrderStatus {
         return 'Refunded';
       case OrderStatus.cancelled:
         return 'Cancelled';
+      case OrderStatus.failed:
+        return 'Failed';
     }
   }
 
@@ -42,5 +45,6 @@ extension OrderStatusX on OrderStatus {
   bool get isTerminal =>
       this == OrderStatus.completed ||
       this == OrderStatus.refunded ||
-      this == OrderStatus.cancelled;
+      this == OrderStatus.cancelled ||
+      this == OrderStatus.failed;
 }

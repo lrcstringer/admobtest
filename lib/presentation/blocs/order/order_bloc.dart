@@ -109,10 +109,13 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         stepUpRequired == StepUpResult.otpRequired) {
       final authResult = await _stepUpAuthService.performBiometricStepUp();
       if (authResult == StepUpResult.cancelled ||
-          authResult == StepUpResult.failed) {
+          authResult == StepUpResult.failed ||
+          authResult == StepUpResult.otpRequired) {
         emit(state.copyWith(
           isProcessing: false,
-          errorMessage: 'Authentication required',
+          errorMessage: authResult == StepUpResult.otpRequired
+              ? 'OTP verification required but not yet supported'
+              : 'Authentication required',
         ));
         return;
       }

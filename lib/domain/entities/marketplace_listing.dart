@@ -53,21 +53,17 @@ class MarketplaceListing with _$MarketplaceListing {
   /// Whether listing is paused
   bool get isPaused => status == ListingStatus.paused;
 
-  /// Days until listing expires (null if no expiry set)
-  int? get daysUntilExpiry {
+  /// Days until listing expires (null if no expiry set).
+  /// Accepts optional [now] for testability.
+  int? daysUntilExpiry([DateTime? now]) {
     if (expiresAt == null) return null;
-    return expiresAt!.difference(DateTime.now()).inDays;
+    return expiresAt!.difference(now ?? DateTime.now()).inDays;
   }
 
-  /// Testable version that accepts an optional reference time
-  int? getDaysUntilExpiry([DateTime? referenceTime]) {
-    if (expiresAt == null) return null;
-    return expiresAt!.difference(referenceTime ?? DateTime.now()).inDays;
-  }
-
-  /// Whether listing expires within 7 days
-  bool get isExpiringSoon {
-    final days = daysUntilExpiry;
+  /// Whether listing expires within 7 days.
+  /// Accepts optional [now] for testability.
+  bool isExpiringSoon([DateTime? now]) {
+    final days = daysUntilExpiry(now);
     return days != null && days <= 7 && days >= 0;
   }
 

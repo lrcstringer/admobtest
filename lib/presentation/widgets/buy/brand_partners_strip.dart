@@ -20,6 +20,8 @@ class BrandPartnersStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (brands.isEmpty) return const SizedBox.shrink();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

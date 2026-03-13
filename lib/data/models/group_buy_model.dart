@@ -66,7 +66,7 @@ class GroupBuyModel with _$GroupBuyModel {
       currentAmount: (json['currentAmount'] as num?)?.toInt() ?? 0,
       minParticipants: (json['minParticipants'] as num?)?.toInt() ?? 1,
       maxParticipants: (json['maxParticipants'] as num?)?.toInt(),
-      deadline: _parseDateTime(json['deadline']) ?? DateTime.now(),
+      deadline: _parseDateTime(json['deadline']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       status: _parseGroupBuyStatus(json['status'] as String?),
       participantCount: (json['participantCount'] as num?)?.toInt() ?? 0,
       sponsorType: json['sponsorType'] as String? ?? 'community',
@@ -101,7 +101,7 @@ class GroupBuyModel with _$GroupBuyModel {
       deliveryFee: (json['deliveryFee'] as num?)?.toInt(),
       organizerSuccessRate:
           (json['organizerSuccessRate'] as num?)?.toDouble(),
-      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt: _parseDateTime(json['updatedAt']),
     );
   }
@@ -239,20 +239,11 @@ class GroupBuyModel with _$GroupBuyModel {
 }
 
 GroupBuyStatus _parseGroupBuyStatus(String? value) {
-  switch (value) {
-    case 'targetMet':
-      return GroupBuyStatus.targetMet;
-    case 'expired':
-      return GroupBuyStatus.expired;
-    case 'completed':
-      return GroupBuyStatus.completed;
-    case 'cancelling':
-      return GroupBuyStatus.cancelling;
-    case 'cancelled':
-      return GroupBuyStatus.cancelled;
-    default:
-      return GroupBuyStatus.open;
-  }
+  if (value == null) return GroupBuyStatus.open;
+  return GroupBuyStatus.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => GroupBuyStatus.open,
+  );
 }
 
 GroupBuyType _parseGroupBuyType(String? value) {

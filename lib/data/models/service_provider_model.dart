@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../domain/entities/purchase.dart';
 import '../../domain/entities/service_provider.dart';
+import 'purchase_category_helpers.dart';
 
 part 'service_provider_model.freezed.dart';
 
@@ -16,6 +16,7 @@ class ServiceProviderModel with _$ServiceProviderModel {
     String? logoUrl,
     String? description,
     required bool isActive,
+    @Default(false) bool isDeleted,
     required List<ServiceProductModel> products,
     int? sortOrder,
     required DateTime createdAt,
@@ -30,13 +31,14 @@ class ServiceProviderModel with _$ServiceProviderModel {
     final products = json['products'] as List?;
 
     return ServiceProviderModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      code: json['code'] as String,
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      code: json['code'] as String? ?? '',
       category: json['category'] as String? ?? 'airtime',
       logoUrl: json['logoUrl'] as String?,
       description: json['description'] as String?,
       isActive: json['isActive'] as bool? ?? true,
+      isDeleted: json['isDeleted'] as bool? ?? false,
       products: products
               ?.map((p) => ServiceProductModel.fromJson(p as Map<String, dynamic>))
               .toList() ??
@@ -61,6 +63,7 @@ class ServiceProviderModel with _$ServiceProviderModel {
       'logoUrl': logoUrl,
       'description': description,
       'isActive': isActive,
+      'isDeleted': isDeleted,
       'products': products.map((p) => p.toFirestoreJson()).toList(),
       'sortOrder': sortOrder,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -73,10 +76,11 @@ class ServiceProviderModel with _$ServiceProviderModel {
       id: id,
       name: name,
       code: code,
-      category: _parseCategory(category),
+      category: parsePurchaseCategory(category),
       logoUrl: logoUrl,
       description: description,
       isActive: isActive,
+      isDeleted: isDeleted,
       products: products.map((p) => p.toEntity()).toList(),
       sortOrder: sortOrder,
       createdAt: createdAt,
@@ -93,6 +97,7 @@ class ServiceProviderModel with _$ServiceProviderModel {
       logoUrl: entity.logoUrl,
       description: entity.description,
       isActive: entity.isActive,
+      isDeleted: entity.isDeleted,
       products:
           entity.products.map((p) => ServiceProductModel.fromEntity(p)).toList(),
       sortOrder: entity.sortOrder,
@@ -101,34 +106,6 @@ class ServiceProviderModel with _$ServiceProviderModel {
     );
   }
 
-  static PurchaseCategory _parseCategory(String category) {
-    switch (category) {
-      case 'airtime':
-        return PurchaseCategory.airtime;
-      case 'data':
-        return PurchaseCategory.data;
-      case 'electricity':
-        return PurchaseCategory.electricity;
-      case 'voucher':
-        return PurchaseCategory.voucher;
-      case 'marketplace':
-        return PurchaseCategory.marketplace;
-      case 'school':
-        return PurchaseCategory.school;
-      case 'municipal':
-        return PurchaseCategory.municipal;
-      case 'insurance':
-        return PurchaseCategory.insurance;
-      case 'funeral':
-        return PurchaseCategory.funeral;
-      case 'stokvel':
-        return PurchaseCategory.stokvel;
-      case 'gaming':
-        return PurchaseCategory.gaming;
-      default:
-        return PurchaseCategory.other;
-    }
-  }
 }
 
 @freezed
@@ -151,10 +128,10 @@ class ServiceProductModel with _$ServiceProductModel {
 
   factory ServiceProductModel.fromJson(Map<String, dynamic> json) {
     return ServiceProductModel(
-      id: json['id'] as String,
-      providerId: json['providerId'] as String,
-      name: json['name'] as String,
-      code: json['code'] as String,
+      id: json['id'] as String? ?? '',
+      providerId: json['providerId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      code: json['code'] as String? ?? '',
       priceTokens: json['priceTokens'] as int? ?? 0,
       priceZar: (json['priceZar'] as num?)?.toDouble() ?? 0.0,
       description: json['description'] as String?,

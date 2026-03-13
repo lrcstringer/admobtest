@@ -14,6 +14,7 @@ class ServiceProvider with _$ServiceProvider {
     String? logoUrl,
     String? description,
     required bool isActive,
+    @Default(false) bool isDeleted,
     required List<ServiceProduct> products,
     int? sortOrder,
     required DateTime createdAt,

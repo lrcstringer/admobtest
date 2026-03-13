@@ -17,7 +17,7 @@ class BrandStorefrontEvent with _$BrandStorefrontEvent {
   /// Submit a review for the brand
   const factory BrandStorefrontEvent.submitReview({
     required String brandId,
-    String? orderId,
+    required String orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -38,4 +38,7 @@ class BrandStorefrontEvent with _$BrandStorefrontEvent {
   /// Toggle follow/unfollow for this brand
   const factory BrandStorefrontEvent.toggleFollow(String brandId) =
       _ToggleFollow;
+
+  /// Reset review submission state (clears reviewSubmitSuccess)
+  const factory BrandStorefrontEvent.resetReviewState() = _ResetReviewState;
 }

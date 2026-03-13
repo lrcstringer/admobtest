@@ -136,7 +136,7 @@ OfferStatus _parseOfferStatus(String? value) {
 DateTime _parseDateTime(dynamic value) {
   if (value is Timestamp) return value.toDate();
   if (value is String) return DateTime.parse(value);
-  return DateTime.now();
+  return DateTime.fromMillisecondsSinceEpoch(0);
 }
 
 DateTime? _parseDateTimeNullable(dynamic value) {

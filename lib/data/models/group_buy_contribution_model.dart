@@ -35,7 +35,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
           ? (json['contributedAt'] as Timestamp).toDate()
           : json['contributedAt'] is String
               ? DateTime.parse(json['contributedAt'] as String)
-              : DateTime.now(),
+              : DateTime.fromMillisecondsSinceEpoch(0),
       voucherCode: json['voucherCode'] as String?,
       hasCollected: json['hasCollected'] as bool? ?? false,
       collectedAt: json['collectedAt'] is Timestamp
@@ -66,6 +66,21 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
       collectedAt: collectedAt,
       walletId: walletId,
     );
+  }
+
+  Map<String, dynamic> toFirestoreJson() {
+    return {
+      'userId': userId,
+      'userName': userName,
+      'amount': amount,
+      if (journalId != null) 'journalId': journalId,
+      if (deliveryAddress != null) 'deliveryAddress': deliveryAddress,
+      'contributedAt': Timestamp.fromDate(contributedAt),
+      if (voucherCode != null) 'voucherCode': voucherCode,
+      'hasCollected': hasCollected,
+      if (collectedAt != null) 'collectedAt': Timestamp.fromDate(collectedAt!),
+      'walletId': walletId,
+    };
   }
 
   factory GroupBuyContributionModel.fromEntity(GroupBuyContribution entity) {

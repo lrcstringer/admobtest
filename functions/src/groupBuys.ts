@@ -175,7 +175,10 @@ export const joinGroupBuy = onCall(
       throw new HttpsError("invalid-argument", "Amount must be a positive integer");
     }
 
-    // Pre-validate wallet balance before entering transaction
+    // Pre-validate wallet balance — fast-fail optimization only.
+    // The authoritative balance check happens inside processGroupBuyEscrow(),
+    // which runs atomically within the ledger's double-entry transaction.
+    // This pre-check is NOT relied upon for correctness (no TOCTOU risk).
     if (walletId) {
       const subAccount = await getSubAccount(userId, walletId);
       if (!subAccount || subAccount.balance < amount) {
@@ -279,17 +282,29 @@ export const joinGroupBuy = onCall(
         `Group buy contribution: ${result.title}`
       );
     } catch (escrowError) {
-      // Compensating transaction: delete contribution, decrement counts
+      // Compensating transaction: delete contribution, decrement counts.
+      // Re-read the group buy doc to get CURRENT amounts before deciding whether to revert status.
       logger.error(`Escrow failed for group buy ${groupBuyId}, reverting contribution`, escrowError);
       await db.runTransaction(async (tx) => {
+        const freshGroupBuyDoc = await tx.get(groupBuyRef);
+        const freshGroupBuy = freshGroupBuyDoc.data();
         tx.delete(contribRef);
-        tx.update(groupBuyRef, {
+
+        const updateData: Record<string, unknown> = {
           currentAmount: admin.firestore.FieldValue.increment(-amount),
           participantCount: admin.firestore.FieldValue.increment(-1),
-          // If we had flipped to targetMet, revert to open
-          ...(result.targetMet ? { status: "open" } : {}),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        };
+
+        // Only revert status to "open" if after decrementing, currentAmount will be below target
+        if (result.targetMet && freshGroupBuy) {
+          const currentAmountAfterRevert = (freshGroupBuy.currentAmount || 0) - amount;
+          if (currentAmountAfterRevert < (freshGroupBuy.targetAmount || 0)) {
+            updateData.status = "open";
+          }
+        }
+
+        tx.update(groupBuyRef, updateData);
       });
       throw new HttpsError("internal", "Payment processing failed. Please try again.");
     }
@@ -402,6 +417,8 @@ export const completeGroupBuy = onCall(
 
       return {
         organizerId: groupBuy.organizerId,
+        vendorId: groupBuy.vendorId || null,
+        brandId: groupBuy.brandId || null,
         currentAmount: groupBuy.currentAmount,
         title: groupBuy.title,
       };
@@ -409,10 +426,23 @@ export const completeGroupBuy = onCall(
 
     // Release escrow outside transaction (ledger has its own idempotency).
     // If release fails, revert status to "targetMet" so it can be retried.
+    // Guard: admin-curated deals may have null organizerId — use vendorId/brandId as fallback.
+    const escrowRecipientId = txResult.organizerId || txResult.vendorId || txResult.brandId;
+    if (!escrowRecipientId) {
+      logger.error(`Group buy ${groupBuyId} has no organizerId, vendorId, or brandId — flagging for manual review`);
+      await groupBuyRef.update({
+        status: "targetMet",
+        adminReviewRequired: true,
+        adminReviewReason: "No escrow recipient: organizerId, vendorId, and brandId are all null",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      throw new HttpsError("internal", "This group buy requires manual review — no payment recipient found.");
+    }
+
     let releaseJournalId: string;
     try {
       releaseJournalId = await releaseGroupBuyEscrow(
-        txResult.organizerId,
+        escrowRecipientId,
         txResult.currentAmount,
         groupBuyId,
         `Group buy completed: ${txResult.title}`
@@ -655,7 +685,7 @@ export const suggestGroupBuyDeal = onCall(
       userName,
       description: description.trim(),
       brandOrStore: brandOrStore.trim(),
-      estimatedPrice: estimatedPrice?.toString().trim() || null,
+      estimatedPrice: estimatedPrice ? Number(estimatedPrice) : null,
       sourceUrl: sourceUrl?.toString().trim() || null,
       imageUrl: imageUrl?.toString().trim() || null,
       wantsToJoin: wantsToJoin === true,
@@ -724,6 +754,8 @@ export const checkExpiredGroupBuys = onSchedule(
               groupBuyId,
               `Group buy expired: ${groupBuy.title}`
             );
+            // Mark contribution as refunded so subsequent runs skip it
+            await contribDoc.ref.update({ status: "refunded" });
             refundedCount++;
             logger.info(
               `Refunded ${contrib.amount} tokens to ${contrib.userId} ` +
@@ -773,10 +805,22 @@ export const checkExpiredGroupBuys = onSchedule(
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        // Release escrowed funds to the organizer
+        // Release escrowed funds — use organizer, vendorId, or brandId as recipient
+        const recipientId = groupBuy.organizerId || groupBuy.vendorId || groupBuy.brandId;
+        if (!recipientId) {
+          logger.error(`Auto-completed group buy ${doc.id} has no escrow recipient — flagging for manual review`);
+          await doc.ref.update({
+            status: "targetMet",
+            adminReviewRequired: true,
+            adminReviewReason: "No escrow recipient: organizerId, vendorId, and brandId are all null",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          continue;
+        }
+
         try {
           await releaseGroupBuyEscrow(
-            groupBuy.organizerId,
+            recipientId,
             groupBuy.currentAmount,
             doc.id,
             `Group buy auto-completed: ${groupBuy.title}`
@@ -792,6 +836,68 @@ export const checkExpiredGroupBuys = onSchedule(
         }
       } catch (err) {
         logger.error(`Error auto-completing group buy ${doc.id}:`, err);
+      }
+    }
+
+    // G-6: Auto-cancel stale "targetMet" group buys with no collectionDeadline after 14 days.
+    // These users are locked in with no clear resolution path — auto-cancel with refunds.
+    const fourteenDaysAgo = admin.firestore.Timestamp.fromMillis(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const staleTargetMetSnapshot = await db
+      .collection("groupBuys")
+      .where("status", "==", "targetMet")
+      .where("updatedAt", "<=", fourteenDaysAgo)
+      .limit(20)
+      .get();
+
+    // Filter out those with a collectionDeadline (those are handled by the section above)
+    const staleWithoutDeadline = staleTargetMetSnapshot.docs.filter((doc) => {
+      const data = doc.data();
+      return !data.collectionDeadline;
+    });
+
+    if (staleWithoutDeadline.length > 0) {
+      logger.info(`Found ${staleWithoutDeadline.length} stale targetMet group buys (no collectionDeadline, >14 days) to auto-cancel`);
+    }
+
+    for (const doc of staleWithoutDeadline) {
+      const groupBuy = doc.data();
+      const groupBuyId = doc.id;
+
+      try {
+        // Refund all contributions
+        const contribsSnapshot = await doc.ref.collection("contributions").limit(500).get();
+        let refundedCount = 0;
+        let failedCount = 0;
+
+        for (const contribDoc of contribsSnapshot.docs) {
+          const contrib = contribDoc.data();
+          if (contrib.status === "refunded") continue; // Skip already refunded
+          try {
+            await refundGroupBuyContribution(
+              contrib.userId,
+              contrib.amount,
+              groupBuyId,
+              `Group buy auto-cancelled (stale targetMet): ${groupBuy.title}`
+            );
+            await contribDoc.ref.update({ status: "refunded" });
+            refundedCount++;
+          } catch (err) {
+            failedCount++;
+            logger.error(`Failed to refund ${contrib.userId} for stale group buy ${groupBuyId}:`, err);
+          }
+        }
+
+        await doc.ref.update({
+          status: "cancelled",
+          cancelReason: "Auto-cancelled: targetMet for over 14 days with no collection deadline",
+          refundedCount,
+          failedRefundCount: failedCount,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        logger.info(`Stale targetMet group buy ${groupBuyId} auto-cancelled. Refunded ${refundedCount}, failed ${failedCount}`);
+      } catch (err) {
+        logger.error(`Error auto-cancelling stale group buy ${groupBuyId}:`, err);
       }
     }
   }
@@ -839,9 +945,9 @@ export const confirmGroupBuyCollection = onCall(
       const groupBuy = groupBuyDoc.data()!;
       const contrib = contribDoc.data()!;
 
-      // Verify the contribution belongs to the calling user
-      if (contrib.userId !== userId) {
-        throw new HttpsError("permission-denied", "You can only confirm collection for your own contribution");
+      // Verify the caller is the contribution owner or the group buy organizer
+      if (contrib.userId !== userId && userId !== groupBuy.organizerId) {
+        throw new HttpsError("permission-denied", "Only the contributor or organizer can confirm collection");
       }
 
       // R5-4/R5-5: Idempotency guard — if already collected, return early

@@ -80,7 +80,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                     .read<BuyTabBloc>()
                     .add(const BuyTabEvent.refreshBuyTab());
                 await context.read<BuyTabBloc>().stream.firstWhere(
-                      (s) => !s.isLoading,
+                      (s) => !s.isRefreshing,
                     );
               },
               color: AppColors.primary,
@@ -152,14 +152,41 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
 
         // Featured carousel (only currently active items, filtered by community)
         if (hasFeatured)
-          FeaturedCarousel(
-            items: _filterFeaturedByCommunity(
+          Builder(builder: (context) {
+            final communityFiltered = _filterFeaturedByCommunity(
               state.featuredItems
                   .where((i) => i.isCurrentlyActive)
                   .toList(),
-            ),
-            onItemTap: _onFeaturedItemTap,
-          ),
+            );
+            if (communityFiltered.isEmpty) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Container(
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: AppColors.border.withValues(alpha: 0.3)),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'No featured items for your community',
+                      style: TextStyle(
+                        color: AppColors.textTertiary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+            return FeaturedCarousel(
+              items: communityFiltered,
+              onItemTap: _onFeaturedItemTap,
+            );
+          }),
 
         // Brand partners strip
         if (hasBrands)

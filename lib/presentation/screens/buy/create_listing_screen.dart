@@ -398,7 +398,8 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       setState(() => _isUploadingImages = true);
 
       try {
-        final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+        final userId = context.read<MarketplaceBloc>().state.currentSellerProfile?.id ?? 'unknown';
+        final tempId = 'draft_${userId}_${DateTime.now().millisecondsSinceEpoch}';
         final imageData = await Future.wait(
           _selectedImages.map((f) => f.readAsBytes()),
         );

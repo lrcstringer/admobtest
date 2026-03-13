@@ -58,6 +58,10 @@ abstract class MarketplaceRemoteDataSource {
     required int priceTokens,
     required List<String> imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   });
 
   /// Buy a marketplace item (calls CF — creates escrow)
@@ -228,7 +232,6 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     final snapshot = await _firestore
         .collection('marketplaceListings')
         .where('providerId', isEqualTo: providerId)
-        .where('status', isEqualTo: 'active')
         .orderBy('createdAt', descending: true)
         .get();
 
@@ -333,6 +336,10 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     required int priceTokens,
     required List<String> imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) async {
     final result =
         await _functions.httpsCallable('createMarketplaceListing').call({
@@ -343,6 +350,10 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       'priceTokens': priceTokens,
       'imageUrls': imageUrls,
       if (location != null) 'location': location,
+      if (deliveryMethod != null) 'deliveryMethod': deliveryMethod,
+      if (deliveryFee != null) 'deliveryFee': deliveryFee,
+      if (serviceAreaType != null) 'serviceAreaType': serviceAreaType,
+      if (locationData != null) 'locationData': locationData,
     });
     return result.data['listingId'] as String;
   }

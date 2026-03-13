@@ -46,7 +46,7 @@ class BrandReviewModel with _$BrandReviewModel {
       isRemovedByAdmin: json['isRemovedByAdmin'] as bool? ?? false,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
+          : DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt: json['updatedAt'] is Timestamp
           ? (json['updatedAt'] as Timestamp).toDate()
           : null,

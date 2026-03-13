@@ -152,9 +152,17 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             const SizedBox(height: 12),
             AppButton(
               text: 'Retry',
-              onPressed: () => context
-                  .read<PurchaseBloc>()
-                  .add(const PurchaseEvent.loadProviders()),
+              onPressed: () {
+                final bloc = context.read<PurchaseBloc>();
+                final purchaseCategory =
+                    _mapToPurchaseCategory(widget.categoryId);
+                if (purchaseCategory != null) {
+                  bloc.add(PurchaseEvent.loadProvidersByCategory(
+                      purchaseCategory));
+                } else {
+                  bloc.add(const PurchaseEvent.loadProviders());
+                }
+              },
               variant: AppButtonVariant.outline,
               size: AppButtonSize.small,
             ),
@@ -439,6 +447,36 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
               ],
             ],
           ),
+          // Recent recipients chips
+          if (state.recentRecipients.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 34,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: state.recentRecipients.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final number = state.recentRecipients[index];
+                  return ActionChip(
+                    label: Text(
+                      number,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    backgroundColor: AppColors.surface,
+                    side: BorderSide(
+                        color: AppColors.border.withValues(alpha: 0.5)),
+                    onPressed: () {
+                      _recipientController.text = number;
+                      context.read<PurchaseBloc>().add(
+                            PurchaseEvent.selectRecentRecipient(number),
+                          );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -610,14 +648,15 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   Widget? _buildFab(BuildContext context, PurchaseState state) {
     if (state.selectedProduct == null ||
         state.recipientNumber == null ||
-        state.recipientNumber!.isEmpty) {
+        state.recipientNumber!.isEmpty ||
+        state.isRecipientValid != true) {
       return null;
     }
 
     return FloatingActionButton.extended(
       onPressed: state.isPurchasing
           ? null
-          : () => context.go('/buy/wallet-selection'),
+          : () => context.push('/buy/wallet-selection'),
       icon: state.isPurchasing
           ? const SizedBox(
               width: 20,

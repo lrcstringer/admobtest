@@ -351,12 +351,14 @@ class BuyRepositoryImpl implements BuyRepository {
   Future<Either<Failure, String>> claimStorefrontCoupon({
     required String storefrontId,
     required String couponId,
+    String? couponCode,
   }) async {
     try {
       final result =
           await _functions.httpsCallable('claimStorefrontCoupon').call({
         'storefrontId': storefrontId,
         'couponId': couponId,
+        if (couponCode != null) 'couponCode': couponCode,
       });
       return Right(result.data['couponCode'] as String);
     } on FirebaseFunctionsException catch (e) {

@@ -12,6 +12,7 @@ import '../../../domain/enums/group_buy_type.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/group_buy/group_buy_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/buy/countdown_timer_widget.dart';
@@ -143,8 +144,78 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Status badge
-          _buildStatusBadge(groupBuy, accentColor),
+          // Status badge row with category
+          Row(
+            children: [
+              _buildStatusBadge(groupBuy, accentColor),
+              if (groupBuy.category != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    groupBuy.category!,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+              if (groupBuy.deliveryFee != null && groupBuy.deliveryFee! > 0) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '+${groupBuy.deliveryFee} delivery',
+                    style: const TextStyle(
+                      color: AppColors.warning,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+
+          // Delivery status chip
+          if (groupBuy.deliveryStatus != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.local_shipping_outlined,
+                      size: 14, color: AppColors.secondary),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Delivery: ${groupBuy.deliveryStatus!.replaceAll('_', ' ')}',
+                    style: const TextStyle(
+                      color: AppColors.secondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
 
           // Title
@@ -158,13 +229,36 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Organizer
-          Text(
-            'Organized by ${groupBuy.organizerName}',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-            ),
+          // Organizer with success rate
+          Row(
+            children: [
+              Text(
+                'Organized by ${groupBuy.organizerName}',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+              if (groupBuy.organizerSuccessRate != null) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '${(groupBuy.organizerSuccessRate! * 100).round()}% success',
+                    style: const TextStyle(
+                      color: AppColors.success,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -225,6 +319,67 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           // Brand info
           if (isBrand) ...[
             _buildBrandInfo(groupBuy),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+
+          // Collection deadline countdown
+          if (groupBuy.collectionDeadline != null) ...[
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time_outlined,
+                      color: AppColors.warning),
+                  const SizedBox(width: AppSpacing.sm),
+                  const Text(
+                    'Collect by',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const Spacer(),
+                  CountdownTimerWidget(
+                    deadline: groupBuy.collectionDeadline!,
+                    fontSize: 18,
+                    textAlign: TextAlign.end,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+
+          // Fulfilment instructions
+          if (groupBuy.fulfilmentInstructions != null &&
+              groupBuy.fulfilmentInstructions!.isNotEmpty) ...[
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: AppSpacing.md),
+              title: const Text(
+                'Fulfilment Instructions',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              children: [
+                Text(
+                  groupBuy.fulfilmentInstructions!,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.lg),
           ],
 
@@ -605,14 +760,124 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
     GroupBuyState state,
     GroupBuy groupBuy,
   ) {
-    // Determine if the current user has already contributed
     final uid = _currentUserId;
+    final isOrganizer = uid != null && groupBuy.organizerId == uid;
     final hasContributed = uid != null &&
         state.contributions.any((c) => c.userId == uid);
     final isOpen = groupBuy.status == GroupBuyStatus.open;
+    final isTargetMet = groupBuy.status == GroupBuyStatus.targetMet;
+    final isCompleted = groupBuy.status == GroupBuyStatus.completed;
 
-    // Nothing to show if not open and user can't join
-    if (!groupBuy.canJoin && !hasContributed) return const SizedBox.shrink();
+    final buttons = <Widget>[];
+
+    // Leave button (if user has contributed and deal is still open)
+    if (hasContributed && isOpen) {
+      buttons.add(
+        Expanded(
+          child: AppButton(
+            text: 'Leave',
+            isLoading: state.isLeaving,
+            loadingText: 'Leaving...',
+            onPressed: () => _showLeaveDialog(groupBuy),
+            variant: AppButtonVariant.outline,
+          ),
+        ),
+      );
+    }
+
+    // Join button
+    if (groupBuy.canJoin) {
+      buttons.add(
+        Expanded(
+          child: AppButton(
+            text: 'Join · ${groupBuy.formattedTarget}',
+            isLoading: state.isJoining,
+            loadingText: 'Joining...',
+            onPressed: () => _showJoinDialog(groupBuy),
+            variant: groupBuy.isBrandSponsored
+                ? AppButtonVariant.secondary
+                : AppButtonVariant.primary,
+          ),
+        ),
+      );
+    }
+
+    // Cancel button (organizer only, while open)
+    if (isOpen && isOrganizer) {
+      buttons.add(
+        Expanded(
+          child: AppButton(
+            text: 'Cancel',
+            isLoading: state.isCancelling,
+            loadingText: 'Cancelling...',
+            onPressed: () => _showCancelDialog(groupBuy),
+            variant: AppButtonVariant.danger,
+          ),
+        ),
+      );
+    }
+
+    // Complete button (organizer only, when target met)
+    if (isTargetMet && isOrganizer) {
+      buttons.add(
+        Expanded(
+          child: AppButton(
+            text: 'Complete & Release Funds',
+            isLoading: state.isCompleting,
+            loadingText: 'Completing...',
+            onPressed: () => _showCompleteDialog(groupBuy),
+            variant: AppButtonVariant.primary,
+          ),
+        ),
+      );
+    }
+
+    // Confirm Collection button (completed, user has contributed)
+    if (isCompleted && hasContributed) {
+      final userContribution = state.contributions.firstWhere(
+        (c) => c.userId == uid,
+      );
+      if (!userContribution.hasCollected) {
+        buttons.add(
+          Expanded(
+            child: AppButton(
+              text: 'Confirm Collection',
+              isLoading: state.isConfirmingCollection,
+              loadingText: 'Confirming...',
+              onPressed: () {
+                context.read<GroupBuyBloc>().add(
+                      GroupBuyEvent.confirmCollection(
+                        groupBuyId: groupBuy.id,
+                        contributionId: userContribution.id,
+                      ),
+                    );
+              },
+              variant: AppButtonVariant.secondary,
+            ),
+          ),
+        );
+      }
+    }
+
+    // Delivery Status Update (organizer only, when completed)
+    if (isCompleted && isOrganizer) {
+      buttons.add(
+        Expanded(
+          child: _buildDeliveryStatusDropdown(groupBuy),
+        ),
+      );
+    }
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+
+    // Add spacing between buttons
+    final spacedChildren = <Widget>[];
+    for (var i = 0; i < buttons.length; i++) {
+      spacedChildren.add(buttons[i]);
+      if (i < buttons.length - 1) {
+        spacedChildren.add(const SizedBox(width: AppSpacing.sm));
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -623,36 +888,144 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
         ),
       ),
       child: SafeArea(
-        child: Row(
+        child: Row(children: spacedChildren),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryStatusDropdown(GroupBuy groupBuy) {
+    const statuses = ['pending', 'shipped', 'in_transit', 'delivered'];
+    return DropdownButtonFormField<String>(
+      initialValue: groupBuy.deliveryStatus ?? 'pending',
+      dropdownColor: AppColors.surfaceElevated,
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+      decoration: InputDecoration(
+        labelText: 'Delivery Status',
+        labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        filled: true,
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+      ),
+      items: statuses
+          .map((s) => DropdownMenuItem(
+                value: s,
+                child: Text(
+                  s.replaceAll('_', ' ').toUpperCase(),
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ))
+          .toList(),
+      onChanged: (value) {
+        if (value != null && value != groupBuy.deliveryStatus) {
+          context.read<GroupBuyBloc>().add(
+                GroupBuyEvent.updateDeliveryStatus(
+                  groupBuyId: groupBuy.id,
+                  deliveryStatus: value,
+                ),
+              );
+        }
+      },
+    );
+  }
+
+  void _showCompleteDialog(GroupBuy groupBuy) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text(
+          'Complete this deal?',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: const Text(
+          'This will release the escrowed funds. '
+          'Make sure all participants are satisfied before proceeding.',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.read<GroupBuyBloc>().add(
+                    GroupBuyEvent.completeGroupBuy(
+                      groupBuyId: groupBuy.id,
+                    ),
+                  );
+            },
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCancelDialog(GroupBuy groupBuy) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text(
+          'Cancel this deal?',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Leave button (if user has contributed and deal is still open)
-            if (hasContributed && isOpen) ...[
-              Expanded(
-                child: AppButton(
-                  text: 'Leave',
-                  isLoading: state.isLeaving,
-                  loadingText: 'Leaving...',
-                  onPressed: () => _showLeaveDialog(groupBuy),
-                  variant: AppButtonVariant.outline,
+            const Text(
+              'All contributions will be refunded. This cannot be undone.',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              controller: reasonController,
+              style: const TextStyle(color: AppColors.textPrimary),
+              maxLines: 2,
+              decoration: InputDecoration(
+                hintText: 'Reason (optional)',
+                hintStyle: const TextStyle(color: AppColors.textHint),
+                filled: true,
+                fillColor: AppColors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  borderSide: const BorderSide(color: AppColors.border),
                 ),
               ),
-              if (groupBuy.canJoin) const SizedBox(width: AppSpacing.sm),
-            ],
-            // Join button
-            if (groupBuy.canJoin)
-              Expanded(
-                child: AppButton(
-                  text: 'Join · ${groupBuy.formattedTarget}',
-                  isLoading: state.isJoining,
-                  loadingText: 'Joining...',
-                  onPressed: () => _showJoinDialog(groupBuy),
-                  variant: groupBuy.isBrandSponsored
-                      ? AppButtonVariant.secondary
-                      : AppButtonVariant.primary,
-                ),
-              ),
+            ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Back'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              final reason = reasonController.text.trim();
+              context.read<GroupBuyBloc>().add(
+                    GroupBuyEvent.cancelGroupBuy(
+                      groupBuyId: groupBuy.id,
+                      reason: reason.isNotEmpty ? reason : null,
+                    ),
+                  );
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Cancel Deal'),
+          ),
+        ],
       ),
     );
   }
@@ -866,6 +1239,39 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                 final amount = int.tryParse(amountController.text);
                 if (amount == null || amount <= 0) return;
 
+                // G-15: Check against remaining target
+                final remainingAmount =
+                    groupBuy.targetAmount - groupBuy.currentAmount;
+                if (amount > remainingAmount) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Amount exceeds remaining target of $remainingAmount tokens',
+                      ),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+
+                // G-16: Warn if amount exceeds wallet balance
+                final walletBalance = selectedWalletId == 'primary'
+                    ? walletState.mainWalletAvailable
+                    : spendableSubAccounts
+                        .where((sa) => sa.id == selectedWalletId)
+                        .fold(0, (_, sa) => sa.balance);
+                if (amount > walletBalance) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Warning: amount exceeds your wallet balance of $walletBalance tokens',
+                      ),
+                      backgroundColor: AppColors.warning,
+                    ),
+                  );
+                  // Don't return — let the backend reject if truly insufficient
+                }
+
                 // Validate address for physical group buys
                 if (groupBuy.type == GroupBuyType.physical) {
                   final address = selectedAddress ?? addressController.text.trim();
@@ -1037,7 +1443,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
                 Clipboard.setData(
                   ClipboardData(
                     text:
-                        'https://imalichat.app/buy/group-buys/${groupBuy.id}',
+                        '${AppConstants.deepLinkDomain}/buy/group-buys/${groupBuy.id}',
                   ),
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1060,7 +1466,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
               onTap: () {
                 Navigator.of(ctx).pop();
                 final deepLink =
-                    'https://imalichat.app/buy/group-buys/${groupBuy.id}';
+                    '${AppConstants.deepLinkDomain}/buy/group-buys/${groupBuy.id}';
                 SharePlus.instance.share(
                   ShareParams(
                     text: 'Check out this Hlangana deal: ${groupBuy.title}\n$deepLink',

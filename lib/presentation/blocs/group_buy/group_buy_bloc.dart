@@ -337,21 +337,21 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     _ExtendDeadline event,
     Emitter<GroupBuyState> emit,
   ) async {
-    if (state.isUpdatingDelivery) return;
+    if (state.isExtendingDeadline) return;
 
-    emit(state.copyWith(isUpdatingDelivery: true, errorMessage: null));
+    emit(state.copyWith(isExtendingDeadline: true, errorMessage: null));
     final result = await _repository.extendDeadline(
       groupBuyId: event.groupBuyId,
       newDeadline: event.newDeadline,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        isUpdatingDelivery: false,
+        isExtendingDeadline: false,
         errorMessage: failure.displayMessage,
       )),
       (_) {
         emit(state.copyWith(
-          isUpdatingDelivery: false,
+          isExtendingDeadline: false,
           successMessage: 'Deadline extended',
         ));
         // Reload to reflect updated deadline

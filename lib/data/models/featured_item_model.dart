@@ -35,7 +35,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
 
   factory FeaturedItemModel.fromJson(Map<String, dynamic> json) {
     return FeaturedItemModel(
-      id: json['id'] as String? ?? '',
+      id: json['id'] as String? ?? (throw ArgumentError('FeaturedItemModel.fromJson: missing required field "id"')),
       title: json['title'] as String? ?? '[Untitled]',
       subtitle: json['subtitle'] as String?,
       imageUrl: json['imageUrl'] as String?,

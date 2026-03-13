@@ -83,7 +83,7 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
       );
       return Right(model.toEntity());
     } catch (e) {
-      if (e.toString().contains('Insufficient balance')) {
+      if (e.toString().toLowerCase().contains('insufficient')) {
         return const Left(Failure.insufficientBalance());
       }
       return Left(Failure.serverError(message: e.toString()));

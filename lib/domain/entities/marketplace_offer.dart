@@ -34,8 +34,11 @@ class MarketplaceOffer with _$MarketplaceOffer {
 
   bool get isActive => status.isActive;
   bool get isTerminal => status.isTerminal;
-  bool get isExpired =>
-      expiresAt != null && DateTime.now().isAfter(expiresAt!);
+  bool get isExpired => isExpiredAt();
+
+  /// Whether the offer has expired. Accepts optional [now] for testability.
+  bool isExpiredAt([DateTime? now]) =>
+      expiresAt != null && (now ?? DateTime.now()).isAfter(expiresAt!);
 
   /// Discount percentage relative to the original listing price.
   int get discountPercent =>
