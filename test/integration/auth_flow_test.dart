@@ -2,18 +2,26 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
+import 'package:imalichat/core/services/call_notification_service.dart';
+import 'package:imalichat/core/services/key_backup_service.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/notification_service.dart';
 import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/core/services/signal_protocol_service.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/enums/user_status.dart';
@@ -44,6 +52,17 @@ class MockOfflineActionQueue extends Mock implements OfflineActionQueue {}
 class MockCommunitySyncService extends Mock implements CommunitySyncService {}
 
 class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
+
+class MockNotificationService extends Mock implements NotificationService {}
+
+class MockCallNotificationService extends Mock
+    implements CallNotificationService {}
+
+class MockKeyBackupService extends Mock implements KeyBackupService {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
 
 // =============================================================================
 // TEST FIXTURES
@@ -106,6 +125,57 @@ void main() {
       );
 
   setUp(() {
+    // Reset GetIt and register mocks needed by fire-and-forget calls
+    final getIt = GetIt.instance;
+    if (getIt.isRegistered<NotificationService>()) {
+      getIt.unregister<NotificationService>();
+    }
+    if (getIt.isRegistered<CallNotificationService>()) {
+      getIt.unregister<CallNotificationService>();
+    }
+    if (getIt.isRegistered<KeyBackupService>()) {
+      getIt.unregister<KeyBackupService>();
+    }
+    if (getIt.isRegistered<MediaRecoveryService>()) {
+      getIt.unregister<MediaRecoveryService>();
+    }
+    if (getIt.isRegistered<AppDatabase>()) {
+      getIt.unregister<AppDatabase>();
+    }
+
+    final mockNotificationService = MockNotificationService();
+    when(() => mockNotificationService.initialize())
+        .thenAnswer((_) async {});
+    getIt.registerSingleton<NotificationService>(mockNotificationService);
+
+    final mockCallNotificationService = MockCallNotificationService();
+    when(() => mockCallNotificationService.saveVoipToken())
+        .thenAnswer((_) async {});
+    getIt.registerSingleton<CallNotificationService>(
+        mockCallNotificationService);
+
+    final mockKeyBackupService = MockKeyBackupService();
+    when(() => mockKeyBackupService.autoRestore())
+        .thenAnswer((_) async => false);
+    when(() => mockKeyBackupService.autoBackup())
+        .thenAnswer((_) async {});
+    getIt.registerSingleton<KeyBackupService>(mockKeyBackupService);
+
+    final mockMediaRecoveryService = MockMediaRecoveryService();
+    when(() => mockMediaRecoveryService.initialize())
+        .thenAnswer((_) async => false);
+    getIt.registerSingleton<MediaRecoveryService>(mockMediaRecoveryService);
+
+    final mockAppDatabase = MockAppDatabase();
+    when(() => mockAppDatabase.clearMessageCacheIfUserChanged(any()))
+        .thenAnswer((_) async => false);
+    when(() => mockAppDatabase.purgeUndecryptableMessages())
+        .thenAnswer((_) async => 0);
+    getIt.registerSingleton<AppDatabase>(mockAppDatabase);
+
+    // Initialize SharedPreferences for signOut handler
+    SharedPreferences.setMockInitialValues({});
+
     mockAuthRepository = MockAuthRepository();
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
@@ -592,6 +662,8 @@ void main() {
       build: () {
         when(() => mockAuthRepository.signOut())
             .thenAnswer((_) async => const Right(null));
+        when(() => mockAuthRepository.clearLocalCache())
+            .thenAnswer((_) async {});
         return createBloc();
       },
       act: (bloc) => bloc.add(const AuthEvent.signOut()),

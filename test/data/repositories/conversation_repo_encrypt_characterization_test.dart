@@ -76,7 +76,7 @@ LocalPendingMessage _createPendingTextMessage({
       status: 'pending',
       errorMessage: null,
       retryCount: 0,
-      createdAt: DateTime(2024, 6, 1),
+      createdAt: DateTime.now(),
       lastAttemptAt: null,
     );
 
@@ -441,7 +441,7 @@ void main() {
                   status: 'pending',
                   errorMessage: null,
                   retryCount: 0,
-                  createdAt: DateTime(2024, 6, 1),
+                  createdAt: DateTime.now(),
                   lastAttemptAt: null,
                 ),
               ]);
@@ -470,7 +470,7 @@ void main() {
                   status: 'pending',
                   errorMessage: null,
                   retryCount: 0,
-                  createdAt: DateTime(2024, 6, 1),
+                  createdAt: DateTime.now(),
                   lastAttemptAt: null,
                 ),
               ]);

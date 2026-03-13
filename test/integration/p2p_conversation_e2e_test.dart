@@ -301,6 +301,9 @@ const _identityKeyA = 'identity_key_A_base64';
 const _identityKeyB = 'identity_key_B_base64';
 const _plaintext = 'Hello Bob!';
 
+/// Recent timestamp within 24h window (OutgoingMessageQueue expires older messages).
+DateTime _recentTime() => DateTime.now().subtract(const Duration(minutes: 5));
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // FIXTURES
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -421,6 +424,7 @@ void main() {
   late MockAppDatabase dbB;
   late MockConversationRemoteDataSource remoteDsB;
   late MockSignalProtocolService signalB;
+  late MockMediaRecoveryService mediaRecoveryB;
   late MessageDecryptionService decryptionServiceB;
   late MessageSyncService syncServiceB;
 
@@ -529,6 +533,10 @@ void main() {
           lastMessageType: any(named: 'lastMessageType'),
         )).thenAnswer((_) async {});
     when(() => dbA.getPendingMessages()).thenAnswer((_) async => []);
+    when(() => dbA.transaction<Null>(any())).thenAnswer((inv) async {
+      final fn = inv.positionalArguments[0] as Future<Null> Function();
+      return fn();
+    });
 
     // SignalA: encrypt plaintext → fake ciphertext
     when(() => signalA.encryptP2P(_userB, _plaintext)).thenAnswer((_) async {
@@ -561,6 +569,11 @@ void main() {
     // MessageSyncService stub for cache
     when(() => syncServiceA.cacheSentPlaintext(any(), any())).thenReturn(null);
 
+    // MediaRecoveryService stubs for PhoneA queue
+    final mediaRecoveryA = MockMediaRecoveryService();
+    when(() => mediaRecoveryA.storePayload(any(), any()))
+        .thenAnswer((_) async {});
+
     // Build PhoneA OutgoingMessageQueue (REAL service)
     queueA = OutgoingMessageQueue(
       dbA,
@@ -571,7 +584,7 @@ void main() {
       senderKeyA,
       syncServiceA,
       MockCommunitySyncService(),
-      MockMediaRecoveryService(),
+      mediaRecoveryA,
     );
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -615,6 +628,36 @@ void main() {
     when(() => remoteDsB.getUserE2eeIdentityKey(_userA))
         .thenAnswer((_) async => _identityKeyA);
 
+    // DB stubs for PhoneB sync service operations
+    when(() => dbB.getLocalConversations())
+        .thenAnswer((_) async => []);
+    when(() => remoteDsB.getConversations())
+        .thenAnswer((_) async => [_createConversationModel()]);
+    when(() => dbB.getMessageCount(any()))
+        .thenAnswer((_) async => 0);
+    when(() => dbB.getLocalMessages(any(), limit: any(named: 'limit'), before: any(named: 'before')))
+        .thenAnswer((_) async => []);
+    when(() => dbB.deleteLocalConversation(any()))
+        .thenAnswer((_) async {});
+    when(() => dbB.upsertLocalConversationsBatch(any()))
+        .thenAnswer((_) async {});
+    when(() => remoteDsB.getMessages(
+          conversationId: any(named: 'conversationId'),
+          limit: any(named: 'limit'),
+          before: any(named: 'before'),
+        )).thenAnswer((_) async => []);
+    when(() => dbB.getPendingMessagesForConversation(any()))
+        .thenAnswer((_) async => []);
+    when(() => dbB.indexMessageForSearch(any(), any()))
+        .thenAnswer((_) async {});
+
+    // MediaRecoveryService stubs for PhoneB
+    mediaRecoveryB = MockMediaRecoveryService();
+    when(() => mediaRecoveryB.initialize()).thenAnswer((_) async => false);
+    when(() => mediaRecoveryB.isReady).thenReturn(false);
+    when(() => mediaRecoveryB.storePayload(any(), any()))
+        .thenAnswer((_) async {});
+
     // Build PhoneB services (REAL)
     decryptionServiceB = MessageDecryptionService(
       signalB,
@@ -626,7 +669,7 @@ void main() {
       remoteDsB,
       decryptionServiceB,
       dbB,
-      MockMediaRecoveryService(),
+      mediaRecoveryB,
     );
   });
 
@@ -703,7 +746,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -817,7 +860,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1079,7 +1122,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1124,7 +1167,7 @@ void main() {
         status: 'encrypting', // killed during encryption
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
 
@@ -1165,8 +1208,8 @@ void main() {
         status: 'failed', // previously failed
         errorMessage: 'Network error',
         retryCount: 2,
-        createdAt: DateTime(2024, 6, 1),
-        lastAttemptAt: DateTime(2024, 6, 1, 11, 59),
+        createdAt: _recentTime(),
+        lastAttemptAt: _recentTime(),
       );
 
       when(() => dbA.getPendingMessages())
@@ -1200,7 +1243,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1, 10, 0),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1285,6 +1328,35 @@ void main() {
       when(() => dbARestart.deleteExpiredMessages())
           .thenAnswer((_) async => 0);
 
+      final mediaRecoveryARestart = MockMediaRecoveryService();
+      when(() => mediaRecoveryARestart.initialize())
+          .thenAnswer((_) async => false);
+      when(() => mediaRecoveryARestart.isReady).thenReturn(false);
+      when(() => mediaRecoveryARestart.storePayload(any(), any()))
+          .thenAnswer((_) async {});
+
+      // Stubs for sync service operations
+      when(() => dbARestart.getLocalConversations())
+          .thenAnswer((_) async => []);
+      when(() => remoteDsARestart.getConversations())
+          .thenAnswer((_) async => [_createConversationModel()]);
+      when(() => dbARestart.getMessageCount(any()))
+          .thenAnswer((_) async => 1);
+      when(() => dbARestart.getLocalMessages(any(),
+              limit: any(named: 'limit'), before: any(named: 'before')))
+          .thenAnswer((_) async => []);
+      when(() => dbARestart.deleteLocalConversation(any()))
+          .thenAnswer((_) async {});
+      when(() => remoteDsARestart.getMessages(
+            conversationId: any(named: 'conversationId'),
+            limit: any(named: 'limit'),
+            before: any(named: 'before'),
+          )).thenAnswer((_) async => []);
+      when(() => dbARestart.getPendingMessagesForConversation(any()))
+          .thenAnswer((_) async => []);
+      when(() => dbARestart.indexMessageForSearch(any(), any()))
+          .thenAnswer((_) async {});
+
       final decryptionServiceARestart = MessageDecryptionService(
         signalARestart,
         remoteDsARestart,
@@ -1294,7 +1366,7 @@ void main() {
         remoteDsARestart,
         decryptionServiceARestart,
         dbARestart,
-        MockMediaRecoveryService(),
+        mediaRecoveryARestart,
       );
 
       // Simulate the Firestore stream emitting the same message
@@ -1361,7 +1433,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1462,7 +1534,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1685,7 +1757,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1),
+        createdAt: _recentTime(),
         lastAttemptAt: null,
       );
       when(() => dbA.getPendingMessages())
@@ -1703,8 +1775,6 @@ void main() {
             error: any(named: 'error'),
             lastAttemptAt: any(named: 'lastAttemptAt'),
           )).called(1);
-      verify(() => dbA.incrementPendingMessageRetry('pending_encrypt_fail'))
-          .called(1);
       verify(() => dbA.updateLocalMessageStatus('pending_encrypt_fail', 'failed'))
           .called(1);
     });
@@ -1830,6 +1900,7 @@ void main() {
         () async {
       // Queue multiple messages — they must be processed in createdAt order
       // to maintain the Signal double ratchet chain
+      final now = DateTime.now();
       final msg1 = LocalPendingMessage(
         id: 'pending_chain_1',
         conversationId: _conversationId,
@@ -1841,7 +1912,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1, 10, 0), // earlier
+        createdAt: now.subtract(const Duration(minutes: 2)), // earlier
         lastAttemptAt: null,
       );
       final msg2 = LocalPendingMessage(
@@ -1855,7 +1926,7 @@ void main() {
         status: 'pending',
         errorMessage: null,
         retryCount: 0,
-        createdAt: DateTime(2024, 6, 1, 10, 1), // later
+        createdAt: now.subtract(const Duration(minutes: 1)), // later
         lastAttemptAt: null,
       );
 

@@ -9,11 +9,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
+import 'package:imalichat/core/services/call_notification_service.dart';
 import 'package:imalichat/core/services/key_backup_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/notification_service.dart';
 import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -22,6 +26,14 @@ import 'package:imalichat/presentation/blocs/auth/auth_bloc.dart';
 
 import '../../helpers/e2ee_test_helpers.dart';
 import '../../helpers/test_helpers.dart';
+
+class MockNotificationService extends Mock implements NotificationService {}
+
+class MockCallNotificationService extends Mock implements CallNotificationService {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -78,12 +90,30 @@ void main() {
     mockKeyBackupService = MockKeyBackupService();
     authStateController = StreamController<User?>.broadcast();
 
-    // Register MockKeyBackupService in getIt so AuthBloc can resolve it
+    // Register GetIt services that AuthBloc resolves during authenticated state
     final gi = GetIt.instance;
-    if (gi.isRegistered<KeyBackupService>()) {
-      gi.unregister<KeyBackupService>();
-    }
+    final mockNotificationService = MockNotificationService();
+    final mockCallNotificationService = MockCallNotificationService();
+    final mockMediaRecoveryService = MockMediaRecoveryService();
+    final mockAppDatabase = MockAppDatabase();
+
+    when(() => mockNotificationService.initialize()).thenAnswer((_) async {});
+    when(() => mockCallNotificationService.saveVoipToken()).thenAnswer((_) async {});
+    when(() => mockMediaRecoveryService.initialize()).thenAnswer((_) async => true);
+    when(() => mockAppDatabase.clearMessageCacheIfUserChanged(any())).thenAnswer((_) => Future.value(false));
+    when(() => mockAppDatabase.purgeUndecryptableMessages()).thenAnswer((_) async => 0);
+
+    if (gi.isRegistered<NotificationService>()) gi.unregister<NotificationService>();
+    if (gi.isRegistered<CallNotificationService>()) gi.unregister<CallNotificationService>();
+    if (gi.isRegistered<KeyBackupService>()) gi.unregister<KeyBackupService>();
+    if (gi.isRegistered<MediaRecoveryService>()) gi.unregister<MediaRecoveryService>();
+    if (gi.isRegistered<AppDatabase>()) gi.unregister<AppDatabase>();
+
+    gi.registerSingleton<NotificationService>(mockNotificationService);
+    gi.registerSingleton<CallNotificationService>(mockCallNotificationService);
     gi.registerSingleton<KeyBackupService>(mockKeyBackupService);
+    gi.registerSingleton<MediaRecoveryService>(mockMediaRecoveryService);
+    gi.registerSingleton<AppDatabase>(mockAppDatabase);
 
     // Default stubs for backup service
     when(() => mockKeyBackupService.autoBackup())
@@ -137,9 +167,11 @@ void main() {
   tearDown(() {
     authStateController.close();
     final gi = GetIt.instance;
-    if (gi.isRegistered<KeyBackupService>()) {
-      gi.unregister<KeyBackupService>();
-    }
+    if (gi.isRegistered<NotificationService>()) gi.unregister<NotificationService>();
+    if (gi.isRegistered<CallNotificationService>()) gi.unregister<CallNotificationService>();
+    if (gi.isRegistered<KeyBackupService>()) gi.unregister<KeyBackupService>();
+    if (gi.isRegistered<MediaRecoveryService>()) gi.unregister<MediaRecoveryService>();
+    if (gi.isRegistered<AppDatabase>()) gi.unregister<AppDatabase>();
   });
 
   group('AuthBloc - E2EE Key Initialization', () {
@@ -165,7 +197,12 @@ void main() {
               .having((s) => s.status, 'status', AuthStatus.loading),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.authenticated)
-              .having((s) => s.user, 'user', TestData.testUser),
+              .having((s) => s.user, 'user', TestData.testUser)
+              .having((s) => s.keyRestoreFailed, 'keyRestoreFailed', false),
+          // E2EE key init completes: no local keys + autoRestore returns false → keyRestoreFailed
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.authenticated)
+              .having((s) => s.keyRestoreFailed, 'keyRestoreFailed', true),
         ],
         verify: (_) {
           verify(() => mockKeyManagementService.loadPrivateKeys()).called(1);
@@ -477,7 +514,12 @@ void main() {
               .having((s) => s.isLoading, 'isLoading', true),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.authenticated)
-              .having((s) => s.isLoading, 'isLoading', false),
+              .having((s) => s.isLoading, 'isLoading', false)
+              .having((s) => s.keyRestoreFailed, 'keyRestoreFailed', false),
+          // E2EE key init: no local keys + autoRestore false → keyRestoreFailed
+          isA<AuthState>()
+              .having((s) => s.status, 'status', AuthStatus.authenticated)
+              .having((s) => s.keyRestoreFailed, 'keyRestoreFailed', true),
         ],
         verify: (_) {
           verify(() => mockKeyManagementService.loadPrivateKeys()).called(1);

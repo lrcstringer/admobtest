@@ -588,6 +588,9 @@ void main() {
 
   group('addReaction', () {
     test('enqueues action via offline queue', () async {
+      when(() => mockAppDatabase.getLocalMessageById('msg_1'))
+          .thenAnswer((_) async => null);
+
       final result = await repository.addReaction(
         conversationId: _conversationId,
         messageId: 'msg_1',
@@ -606,6 +609,9 @@ void main() {
 
   group('removeReaction', () {
     test('enqueues action via offline queue', () async {
+      when(() => mockAppDatabase.getLocalMessageById('msg_1'))
+          .thenAnswer((_) async => null);
+
       final result = await repository.removeReaction(
         conversationId: _conversationId,
         messageId: 'msg_1',

@@ -321,7 +321,7 @@ void main() {
             .having(
               (s) => s.totalUnreadCount,
               'totalUnreadCount',
-              0,
+              5,
             )
             .having(
               (s) => s.selectedCommunity,

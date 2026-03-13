@@ -190,11 +190,25 @@ void main() {
     group('SelectRecentRecipient', () {
       blocTest<PurchaseBloc, PurchaseState>(
         'selects recent recipient and marks as valid',
-        build: () => PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService),
+        build: () {
+          when(() => mockPurchaseRepository.validateRecipientNumber(
+                number: any(named: 'number'),
+                category: any(named: 'category'),
+              )).thenAnswer((_) async => const Right(true));
+          return PurchaseBloc(mockPurchaseRepository, mockStepUpAuthService);
+        },
         act: (bloc) => bloc.add(const PurchaseEvent.selectRecentRecipient('0712345678')),
         expect: () => [
+          // First: sets number with isRecipientValid: null
           isA<PurchaseState>()
               .having((s) => s.recipientNumber, 'recipientNumber', '0712345678')
+              .having((s) => s.isRecipientValid, 'isRecipientValid', isNull),
+          // Second: validateRecipient fires → isValidating: true
+          isA<PurchaseState>()
+              .having((s) => s.isValidating, 'isValidating', true),
+          // Third: validation completes → isRecipientValid: true
+          isA<PurchaseState>()
+              .having((s) => s.isValidating, 'isValidating', false)
               .having((s) => s.isRecipientValid, 'isRecipientValid', true),
         ],
       );

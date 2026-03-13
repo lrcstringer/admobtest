@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +49,9 @@ class FakeCreateCommunityParams extends Fake
 
 class FakeUpdateCommunityParams extends Fake
     implements UpdateCommunityParams {}
+
+class FakeLocalCommunitiesCompanion extends Fake
+    implements LocalCommunitiesCompanion {}
 
 // ==================== TEST FIXTURES ====================
 
@@ -170,6 +174,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeCreateCommunityParams());
     registerFallbackValue(FakeUpdateCommunityParams());
+    registerFallbackValue(FakeLocalCommunitiesCompanion());
     registerFallbackValue(MemberRole.member);
   });
 
@@ -322,8 +327,11 @@ void main() {
 
   group('getMessages', () {
     test('returns pre-decrypted messages from local DB', () async {
-      when(() => mockAppDatabase.getLocalMessages(_communityId))
-          .thenAnswer((_) async => [_createLocalMessage()]);
+      when(() => mockAppDatabase.getLocalMessages(
+            _communityId,
+            limit: 50,
+            before: null,
+          )).thenAnswer((_) async => [_createLocalMessage()]);
 
       final result = await repository.getMessages(communityId: _communityId);
 
@@ -338,14 +346,16 @@ void main() {
     });
 
     test('applies before filter', () async {
-      when(() => mockAppDatabase.getLocalMessages(_communityId))
-          .thenAnswer((_) async => [
-                _createLocalMessage(id: 'msg_old'),
-              ]);
+      final before = DateTime(2024, 1, 1);
+      when(() => mockAppDatabase.getLocalMessages(
+            _communityId,
+            limit: 50,
+            before: before,
+          )).thenAnswer((_) async => []);
 
       final result = await repository.getMessages(
         communityId: _communityId,
-        before: DateTime(2024, 1, 1), // Before the message
+        before: before,
       );
 
       expect(result.isRight(), isTrue);
@@ -356,11 +366,13 @@ void main() {
     });
 
     test('applies limit', () async {
-      when(() => mockAppDatabase.getLocalMessages(_communityId))
-          .thenAnswer((_) async => [
+      when(() => mockAppDatabase.getLocalMessages(
+            _communityId,
+            limit: 2,
+            before: null,
+          )).thenAnswer((_) async => [
                 _createLocalMessage(id: 'msg_1'),
                 _createLocalMessage(id: 'msg_2'),
-                _createLocalMessage(id: 'msg_3'),
               ]);
 
       final result = await repository.getMessages(
@@ -575,15 +587,18 @@ void main() {
           .thenAnswer((_) async => true);
       when(() => mockDataSource.createCommunity(any()))
           .thenAnswer((_) async => _createCommunityModel());
+      when(() => mockAppDatabase.upsertLocalCommunity(any()))
+          .thenAnswer((_) async {});
 
       final result = await repository.createCommunity(params);
 
       expect(result.isRight(), isTrue);
     });
 
-    test('returns Left(network) when not connected', () async {
-      when(() => mockNetworkInfo.isConnected)
-          .thenAnswer((_) async => false);
+    test('returns Left(network) when datasource throws SocketException',
+        () async {
+      when(() => mockDataSource.createCommunity(any())).thenThrow(
+          const SocketException('No Internet connection'));
 
       final result = await repository.createCommunity(
         CreateCommunityParams(
@@ -642,6 +657,18 @@ void main() {
       when(() => mockNetworkInfo.isConnected)
           .thenAnswer((_) async => true);
       when(() => mockDataSource.deleteCommunity(_communityId))
+          .thenAnswer((_) async {});
+      when(() => mockCommunitySyncService.stopSyncingCommunity(_communityId))
+          .thenReturn(null);
+      when(() => mockAppDatabase.deleteLocalCommunity(_communityId))
+          .thenAnswer((_) async {});
+      when(() =>
+              mockAppDatabase.deleteLocalCommunityMembersForCommunity(_communityId))
+          .thenAnswer((_) async {});
+      when(() =>
+              mockAppDatabase.deleteLocalMessagesForConversation(_communityId))
+          .thenAnswer((_) async {});
+      when(() => mockSenderKeyService.resetAllKeysForCommunity(_communityId))
           .thenAnswer((_) async {});
 
       final result = await repository.deleteCommunity(_communityId);

@@ -105,6 +105,7 @@ void main() {
   late MockFirebaseMessaging mockFirebaseMessaging;
   late InMemorySecureStorage secureStorage;
   late MockAuditLogger mockAuditLogger;
+  late MockMediaRecoveryService mockMediaRecoveryService;
   late DeviceBindingService service;
 
   setUp(() {
@@ -113,13 +114,15 @@ void main() {
     mockFirebaseMessaging = MockFirebaseMessaging();
     secureStorage = InMemorySecureStorage();
     mockAuditLogger = MockAuditLogger();
+    mockMediaRecoveryService = MockMediaRecoveryService();
+    when(() => mockMediaRecoveryService.clear()).thenAnswer((_) async {});
     service = DeviceBindingService(
       mockKeystoreService,
       mockDeviceRepository,
       mockFirebaseMessaging,
       secureStorage,
       mockAuditLogger,
-      MockMediaRecoveryService(),
+      mockMediaRecoveryService,
     );
   });
 

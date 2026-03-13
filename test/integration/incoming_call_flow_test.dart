@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imalichat/core/services/call_analytics_service.dart';
@@ -26,6 +27,15 @@ class MockCallAnalyticsService extends Mock implements CallAnalyticsService {}
 class MockRTCPeerConnection extends Mock implements RTCPeerConnection {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Mock connectivity_plus platform channels
+  const MethodChannel connectivityChannel =
+      MethodChannel('dev.fluttercommunity.plus/connectivity');
+  const MethodChannel connectivityEventChannel = MethodChannel(
+      'dev.fluttercommunity.plus/connectivity_status',
+      StandardMethodCodec());
+
   late MockCallRepository mockRepo;
   late MockWebRtcServiceFactory mockFactory;
   late MockWebRtcService mockWebRtc;
@@ -39,6 +49,16 @@ void main() {
     registerFallbackValue(CallType.voice);
     registerFallbackValue(RTCSessionDescription('', 'offer'));
     registerFallbackValue(RTCIceCandidate('', '', 0));
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(connectivityChannel, (call) async {
+      if (call.method == 'check') return ['wifi'];
+      return null;
+    });
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(connectivityEventChannel, (call) async {
+      return null;
+    });
   });
 
   setUp(() {
@@ -68,16 +88,34 @@ void main() {
         .thenAnswer((_) => const Stream<RTCPeerConnectionState>.empty());
     when(() => mockWebRtc.onIceGatheringState)
         .thenAnswer((_) => const Stream<RTCIceGatheringState>.empty());
+    when(() => mockWebRtc.onRemoteVideoEnabled)
+        .thenAnswer((_) => const Stream<bool>.empty());
     when(() => mockWebRtc.initialize(
           isVideo: any(named: 'isVideo'),
           iceServers: any(named: 'iceServers'),
           onIceCandidate: any(named: 'onIceCandidate'),
         )).thenAnswer((_) async {});
     when(() => mockWebRtc.dispose()).thenAnswer((_) async {});
+    when(() => mockWebRtc.setSpeakerphone(any())).thenAnswer((_) async {});
+    when(() => mockWebRtc.upgradeToVideo()).thenAnswer((_) async {});
 
     when(() => mockPc.signalingState)
         .thenReturn(RTCSignalingState.RTCSignalingStateStable);
     when(() => mockPc.onRenegotiationNeeded).thenReturn(null);
+    when(() => mockPc.createOffer(any())).thenAnswer(
+        (_) async => RTCSessionDescription('sdp', 'offer'));
+    when(() => mockPc.createOffer()).thenAnswer(
+        (_) async => RTCSessionDescription('sdp', 'offer'));
+    when(() => mockPc.createAnswer(any())).thenAnswer(
+        (_) async => RTCSessionDescription('sdp', 'answer'));
+    when(() => mockPc.createAnswer()).thenAnswer(
+        (_) async => RTCSessionDescription('sdp', 'answer'));
+    when(() => mockPc.setLocalDescription(any())).thenAnswer((_) async {});
+    when(() => mockPc.setRemoteDescription(any())).thenAnswer((_) async {});
+    when(() => mockPc.getLocalDescription())
+        .thenAnswer((_) async => RTCSessionDescription('sdp', 'offer'));
+    when(() => mockPc.addCandidate(any())).thenAnswer((_) async {});
+    when(() => mockPc.restartIce()).thenAnswer((_) async {});
 
     when(() => mockSignaling.watchCall(any()))
         .thenAnswer((_) => callDocController.stream);
@@ -89,7 +127,8 @@ void main() {
         .thenAnswer((_) async {});
     when(() => mockSignaling.getRemoteDescription(any(),
             isCaller: any(named: 'isCaller')))
-        .thenAnswer((_) async => null);
+        .thenAnswer(
+            (_) async => RTCSessionDescription('remote-sdp', 'offer'));
     when(() => mockSignaling.watchRemoteDescription(any(),
             isCaller: any(named: 'isCaller')))
         .thenAnswer((_) => const Stream.empty());
@@ -106,7 +145,7 @@ void main() {
 
     when(() => mockRepo.answerCall(any())).thenAnswer((_) async {});
     when(() => mockRepo.getTurnCredentials())
-        .thenAnswer((_) async => {'iceServers': []});
+        .thenAnswer((_) async => {'hasTurn': true, 'iceServers': []});
     when(() => mockRepo.endCall(any(), reason: any(named: 'reason')))
         .thenAnswer((_) async {});
   });
@@ -163,7 +202,8 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockRepo.answerCall('inc_v_1')).called(1);
-        verify(() => mockRepo.getTurnCredentials()).called(1);
+        // Called twice: pre-fetch on incomingCall + accept flow
+        verify(() => mockRepo.getTurnCredentials()).called(2);
       },
     );
 

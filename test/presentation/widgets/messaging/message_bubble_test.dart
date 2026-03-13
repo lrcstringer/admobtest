@@ -314,6 +314,7 @@ void main() {
       );
 
       await pumpBubble(tester, message: msg, isMe: true);
+      await tester.pumpAndSettle();
 
       expect(find.text('500 Tokens'), findsOneWidget);
       expect(find.text('You sent'), findsOneWidget);
@@ -341,6 +342,7 @@ void main() {
         isMe: false,
         onTokenRequestAction: (_) {},
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('250 Tokens'), findsOneWidget);
       expect(find.text('Pay'), findsOneWidget);

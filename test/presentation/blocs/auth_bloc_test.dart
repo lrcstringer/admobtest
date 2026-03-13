@@ -3,17 +3,24 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imalichat/core/error/failures.dart';
 import 'package:imalichat/core/security/device_binding_service.dart';
 import 'package:imalichat/core/services/biometric_login_service.dart';
+import 'package:imalichat/core/services/call_notification_service.dart';
+import 'package:imalichat/core/services/key_backup_service.dart';
 import 'package:imalichat/core/services/key_management_service.dart';
 import 'package:imalichat/core/services/community_sync_service.dart';
+import 'package:imalichat/core/services/media_recovery_service.dart';
 import 'package:imalichat/core/services/message_sync_service.dart';
+import 'package:imalichat/core/services/notification_service.dart';
 import 'package:imalichat/core/services/offline_action_queue.dart';
 import 'package:imalichat/core/services/outgoing_message_queue.dart';
 import 'package:imalichat/core/services/signal_protocol_service.dart';
+import 'package:imalichat/data/datasources/local/app_database.dart';
 import 'package:imalichat/domain/entities/trusted_device.dart';
 import 'package:imalichat/domain/entities/user.dart';
 import 'package:imalichat/domain/repositories/auth_repository.dart';
@@ -42,6 +49,16 @@ class MockCommunitySyncService extends Mock implements CommunitySyncService {}
 
 class MockOutgoingMessageQueue extends Mock implements OutgoingMessageQueue {}
 
+class MockNotificationService extends Mock implements NotificationService {}
+
+class MockCallNotificationService extends Mock implements CallNotificationService {}
+
+class MockKeyBackupService extends Mock implements KeyBackupService {}
+
+class MockMediaRecoveryService extends Mock implements MediaRecoveryService {}
+
+class MockAppDatabase extends Mock implements AppDatabase {}
+
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockUserRepository mockUserRepository;
@@ -65,6 +82,8 @@ void main() {
       );
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+
     mockAuthRepository = MockAuthRepository();
     mockUserRepository = MockUserRepository();
     mockDeviceBindingService = MockDeviceBindingService();
@@ -72,6 +91,34 @@ void main() {
     mockKeyManagementService = MockKeyManagementService();
     mockSignalProtocolService = MockSignalProtocolService();
     authStateController = StreamController<User?>.broadcast();
+
+    // Register GetIt services that AuthBloc resolves during authenticated state
+    final gi = GetIt.instance;
+    final mockNotificationService = MockNotificationService();
+    final mockCallNotificationService = MockCallNotificationService();
+    final mockKeyBackupService = MockKeyBackupService();
+    final mockMediaRecoveryService = MockMediaRecoveryService();
+    final mockAppDatabase = MockAppDatabase();
+
+    when(() => mockNotificationService.initialize()).thenAnswer((_) async {});
+    when(() => mockCallNotificationService.saveVoipToken()).thenAnswer((_) async {});
+    when(() => mockKeyBackupService.autoRestore()).thenAnswer((_) async => false);
+    when(() => mockKeyBackupService.autoBackup()).thenAnswer((_) async {});
+    when(() => mockMediaRecoveryService.initialize()).thenAnswer((_) async => true);
+    when(() => mockAppDatabase.clearMessageCacheIfUserChanged(any())).thenAnswer((_) => Future.value(false));
+    when(() => mockAppDatabase.purgeUndecryptableMessages()).thenAnswer((_) async => 0);
+
+    if (gi.isRegistered<NotificationService>()) gi.unregister<NotificationService>();
+    if (gi.isRegistered<CallNotificationService>()) gi.unregister<CallNotificationService>();
+    if (gi.isRegistered<KeyBackupService>()) gi.unregister<KeyBackupService>();
+    if (gi.isRegistered<MediaRecoveryService>()) gi.unregister<MediaRecoveryService>();
+    if (gi.isRegistered<AppDatabase>()) gi.unregister<AppDatabase>();
+
+    gi.registerSingleton<NotificationService>(mockNotificationService);
+    gi.registerSingleton<CallNotificationService>(mockCallNotificationService);
+    gi.registerSingleton<KeyBackupService>(mockKeyBackupService);
+    gi.registerSingleton<MediaRecoveryService>(mockMediaRecoveryService);
+    gi.registerSingleton<AppDatabase>(mockAppDatabase);
 
     // Stub SignalProtocolService methods called during sign-out / E2EE init
     when(() => mockSignalProtocolService.resetAllSessions())
@@ -83,6 +130,8 @@ void main() {
 
     when(() => mockAuthRepository.authStateChanges)
         .thenAnswer((_) => authStateController.stream);
+    when(() => mockAuthRepository.clearLocalCache())
+        .thenAnswer((_) async {});
     when(() => mockBiometricLoginService.recordSuccessfulAuth())
         .thenAnswer((_) async {});
     when(() => mockDeviceBindingService.clearBinding())
@@ -104,6 +153,12 @@ void main() {
 
   tearDown(() {
     authStateController.close();
+    final gi = GetIt.instance;
+    if (gi.isRegistered<NotificationService>()) gi.unregister<NotificationService>();
+    if (gi.isRegistered<CallNotificationService>()) gi.unregister<CallNotificationService>();
+    if (gi.isRegistered<KeyBackupService>()) gi.unregister<KeyBackupService>();
+    if (gi.isRegistered<MediaRecoveryService>()) gi.unregister<MediaRecoveryService>();
+    if (gi.isRegistered<AppDatabase>()) gi.unregister<AppDatabase>();
   });
 
   group('AuthBloc', () {
