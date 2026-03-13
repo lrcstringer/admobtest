@@ -11,7 +11,6 @@ part of 'buy_category.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$BuySubcategory {
 
@@ -22,8 +21,6 @@ mixin _$BuySubcategory {
 @pragma('vm:prefer-inline')
 $BuySubcategoryCopyWith<BuySubcategory> get copyWith => _$BuySubcategoryCopyWithImpl<BuySubcategory>(this as BuySubcategory, _$identity);
 
-  /// Serializes this BuySubcategory to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -31,7 +28,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BuySubcategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,iconEmoji);
 
@@ -208,11 +205,11 @@ return $default(_that.id,_that.name,_that.iconEmoji);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BuySubcategory implements BuySubcategory {
   const _BuySubcategory({required this.id, required this.name, this.iconEmoji = ''});
-  factory _BuySubcategory.fromJson(Map<String, dynamic> json) => _$BuySubcategoryFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -224,17 +221,14 @@ class _BuySubcategory implements BuySubcategory {
 @pragma('vm:prefer-inline')
 _$BuySubcategoryCopyWith<_BuySubcategory> get copyWith => __$BuySubcategoryCopyWithImpl<_BuySubcategory>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BuySubcategoryToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuySubcategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,iconEmoji);
 
@@ -280,7 +274,6 @@ as String,
 
 }
 
-
 /// @nodoc
 mixin _$BuyCategory {
 
@@ -291,8 +284,6 @@ mixin _$BuyCategory {
 @pragma('vm:prefer-inline')
 $BuyCategoryCopyWith<BuyCategory> get copyWith => _$BuyCategoryCopyWithImpl<BuyCategory>(this as BuyCategory, _$identity);
 
-  /// Serializes this BuyCategory to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -300,7 +291,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isComingSoon, isComingSoon) || other.isComingSoon == isComingSoon)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping)&&(identical(other.featureFlagKey, featureFlagKey) || other.featureFlagKey == featureFlagKey)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor)&&const DeepCollectionEquality().equals(other.subcategories, subcategories));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,iconEmoji,sortOrder,isActive,isComingSoon,purchaseCategoryMapping,featureFlagKey,logoUrl,backgroundColor,const DeepCollectionEquality().hash(subcategories));
 
@@ -485,11 +476,11 @@ return $default(_that.id,_that.name,_that.iconEmoji,_that.sortOrder,_that.isActi
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BuyCategory extends BuyCategory {
   const _BuyCategory({required this.id, required this.name, required this.iconEmoji, required this.sortOrder, required this.isActive, this.isComingSoon = false, this.purchaseCategoryMapping, this.featureFlagKey, this.logoUrl, this.backgroundColor, final  List<BuySubcategory> subcategories = const []}): _subcategories = subcategories,super._();
-  factory _BuyCategory.fromJson(Map<String, dynamic> json) => _$BuyCategoryFromJson(json);
+  
 
 @override final  String id;
 @override final  String name;
@@ -515,17 +506,14 @@ class _BuyCategory extends BuyCategory {
 @pragma('vm:prefer-inline')
 _$BuyCategoryCopyWith<_BuyCategory> get copyWith => __$BuyCategoryCopyWithImpl<_BuyCategory>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BuyCategoryToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyCategory&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.iconEmoji, iconEmoji) || other.iconEmoji == iconEmoji)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isComingSoon, isComingSoon) || other.isComingSoon == isComingSoon)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping)&&(identical(other.featureFlagKey, featureFlagKey) || other.featureFlagKey == featureFlagKey)&&(identical(other.logoUrl, logoUrl) || other.logoUrl == logoUrl)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor)&&const DeepCollectionEquality().equals(other._subcategories, _subcategories));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,name,iconEmoji,sortOrder,isActive,isComingSoon,purchaseCategoryMapping,featureFlagKey,logoUrl,backgroundColor,const DeepCollectionEquality().hash(_subcategories));
 

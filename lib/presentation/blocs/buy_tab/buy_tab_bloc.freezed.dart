@@ -55,12 +55,14 @@ extension BuyTabEventPatterns on BuyTabEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyTab value)?  loadBuyTab,TResult Function( _RefreshBuyTab value)?  refreshBuyTab,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyTab value)?  loadBuyTab,TResult Function( _RefreshBuyTab value)?  refreshBuyTab,TResult Function( _ToggleRegularPin value)?  toggleRegularPin,TResult Function( _DeleteRegular value)?  deleteRegular,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadBuyTab() when loadBuyTab != null:
 return loadBuyTab(_that);case _RefreshBuyTab() when refreshBuyTab != null:
-return refreshBuyTab(_that);case _:
+return refreshBuyTab(_that);case _ToggleRegularPin() when toggleRegularPin != null:
+return toggleRegularPin(_that);case _DeleteRegular() when deleteRegular != null:
+return deleteRegular(_that);case _:
   return orElse();
 
 }
@@ -78,12 +80,14 @@ return refreshBuyTab(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyTab value)  loadBuyTab,required TResult Function( _RefreshBuyTab value)  refreshBuyTab,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyTab value)  loadBuyTab,required TResult Function( _RefreshBuyTab value)  refreshBuyTab,required TResult Function( _ToggleRegularPin value)  toggleRegularPin,required TResult Function( _DeleteRegular value)  deleteRegular,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyTab():
 return loadBuyTab(_that);case _RefreshBuyTab():
-return refreshBuyTab(_that);case _:
+return refreshBuyTab(_that);case _ToggleRegularPin():
+return toggleRegularPin(_that);case _DeleteRegular():
+return deleteRegular(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -100,12 +104,14 @@ return refreshBuyTab(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyTab value)?  loadBuyTab,TResult? Function( _RefreshBuyTab value)?  refreshBuyTab,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyTab value)?  loadBuyTab,TResult? Function( _RefreshBuyTab value)?  refreshBuyTab,TResult? Function( _ToggleRegularPin value)?  toggleRegularPin,TResult? Function( _DeleteRegular value)?  deleteRegular,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyTab() when loadBuyTab != null:
 return loadBuyTab(_that);case _RefreshBuyTab() when refreshBuyTab != null:
-return refreshBuyTab(_that);case _:
+return refreshBuyTab(_that);case _ToggleRegularPin() when toggleRegularPin != null:
+return toggleRegularPin(_that);case _DeleteRegular() when deleteRegular != null:
+return deleteRegular(_that);case _:
   return null;
 
 }
@@ -122,11 +128,13 @@ return refreshBuyTab(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyTab,TResult Function()?  refreshBuyTab,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyTab,TResult Function()?  refreshBuyTab,TResult Function( String regularId,  bool isPinned)?  toggleRegularPin,TResult Function( String regularId)?  deleteRegular,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadBuyTab() when loadBuyTab != null:
 return loadBuyTab();case _RefreshBuyTab() when refreshBuyTab != null:
-return refreshBuyTab();case _:
+return refreshBuyTab();case _ToggleRegularPin() when toggleRegularPin != null:
+return toggleRegularPin(_that.regularId,_that.isPinned);case _DeleteRegular() when deleteRegular != null:
+return deleteRegular(_that.regularId);case _:
   return orElse();
 
 }
@@ -144,11 +152,13 @@ return refreshBuyTab();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyTab,required TResult Function()  refreshBuyTab,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyTab,required TResult Function()  refreshBuyTab,required TResult Function( String regularId,  bool isPinned)  toggleRegularPin,required TResult Function( String regularId)  deleteRegular,}) {final _that = this;
 switch (_that) {
 case _LoadBuyTab():
 return loadBuyTab();case _RefreshBuyTab():
-return refreshBuyTab();case _:
+return refreshBuyTab();case _ToggleRegularPin():
+return toggleRegularPin(_that.regularId,_that.isPinned);case _DeleteRegular():
+return deleteRegular(_that.regularId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -165,11 +175,13 @@ return refreshBuyTab();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyTab,TResult? Function()?  refreshBuyTab,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyTab,TResult? Function()?  refreshBuyTab,TResult? Function( String regularId,  bool isPinned)?  toggleRegularPin,TResult? Function( String regularId)?  deleteRegular,}) {final _that = this;
 switch (_that) {
 case _LoadBuyTab() when loadBuyTab != null:
 return loadBuyTab();case _RefreshBuyTab() when refreshBuyTab != null:
-return refreshBuyTab();case _:
+return refreshBuyTab();case _ToggleRegularPin() when toggleRegularPin != null:
+return toggleRegularPin(_that.regularId,_that.isPinned);case _DeleteRegular() when deleteRegular != null:
+return deleteRegular(_that.regularId);case _:
   return null;
 
 }
@@ -240,6 +252,140 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class _ToggleRegularPin implements BuyTabEvent {
+  const _ToggleRegularPin({required this.regularId, required this.isPinned});
+  
+
+ final  String regularId;
+ final  bool isPinned;
+
+/// Create a copy of BuyTabEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ToggleRegularPinCopyWith<_ToggleRegularPin> get copyWith => __$ToggleRegularPinCopyWithImpl<_ToggleRegularPin>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ToggleRegularPin&&(identical(other.regularId, regularId) || other.regularId == regularId)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,regularId,isPinned);
+
+@override
+String toString() {
+  return 'BuyTabEvent.toggleRegularPin(regularId: $regularId, isPinned: $isPinned)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ToggleRegularPinCopyWith<$Res> implements $BuyTabEventCopyWith<$Res> {
+  factory _$ToggleRegularPinCopyWith(_ToggleRegularPin value, $Res Function(_ToggleRegularPin) _then) = __$ToggleRegularPinCopyWithImpl;
+@useResult
+$Res call({
+ String regularId, bool isPinned
+});
+
+
+
+
+}
+/// @nodoc
+class __$ToggleRegularPinCopyWithImpl<$Res>
+    implements _$ToggleRegularPinCopyWith<$Res> {
+  __$ToggleRegularPinCopyWithImpl(this._self, this._then);
+
+  final _ToggleRegularPin _self;
+  final $Res Function(_ToggleRegularPin) _then;
+
+/// Create a copy of BuyTabEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? regularId = null,Object? isPinned = null,}) {
+  return _then(_ToggleRegularPin(
+regularId: null == regularId ? _self.regularId : regularId // ignore: cast_nullable_to_non_nullable
+as String,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _DeleteRegular implements BuyTabEvent {
+  const _DeleteRegular({required this.regularId});
+  
+
+ final  String regularId;
+
+/// Create a copy of BuyTabEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DeleteRegularCopyWith<_DeleteRegular> get copyWith => __$DeleteRegularCopyWithImpl<_DeleteRegular>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeleteRegular&&(identical(other.regularId, regularId) || other.regularId == regularId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,regularId);
+
+@override
+String toString() {
+  return 'BuyTabEvent.deleteRegular(regularId: $regularId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DeleteRegularCopyWith<$Res> implements $BuyTabEventCopyWith<$Res> {
+  factory _$DeleteRegularCopyWith(_DeleteRegular value, $Res Function(_DeleteRegular) _then) = __$DeleteRegularCopyWithImpl;
+@useResult
+$Res call({
+ String regularId
+});
+
+
+
+
+}
+/// @nodoc
+class __$DeleteRegularCopyWithImpl<$Res>
+    implements _$DeleteRegularCopyWith<$Res> {
+  __$DeleteRegularCopyWithImpl(this._self, this._then);
+
+  final _DeleteRegular _self;
+  final $Res Function(_DeleteRegular) _then;
+
+/// Create a copy of BuyTabEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? regularId = null,}) {
+  return _then(_DeleteRegular(
+regularId: null == regularId ? _self.regularId : regularId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 /// @nodoc
 mixin _$BuyTabState {

@@ -72,4 +72,13 @@ abstract class BuyRepository {
 
   /// Toggle follow/unfollow for a brand
   Future<Either<Failure, bool>> toggleBrandFollow(String brandId);
+
+  /// Toggle pin/unpin for a buy regular
+  Future<Either<Failure, void>> toggleRegularPin(
+    String regularId, {
+    required bool isPinned,
+  });
+
+  /// Delete a buy regular
+  Future<Either<Failure, void>> deleteRegular(String regularId);
 }

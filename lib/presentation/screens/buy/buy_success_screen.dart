@@ -88,8 +88,8 @@ class BuySuccessScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Your ${purchase.categoryDisplayName.toLowerCase()} purchase has been completed.',
-                  style: TextStyle(
-                    color: Colors.grey[600],
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
@@ -203,8 +203,8 @@ class BuySuccessScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            color: Colors.grey[600],
+          style: const TextStyle(
+            color: AppColors.textSecondary,
             fontSize: 14,
           ),
         ),
@@ -277,7 +277,7 @@ class BuySuccessScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: AppColors.textTertiary,
                       ),
                     ),
                   ],

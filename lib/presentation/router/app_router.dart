@@ -1130,6 +1130,12 @@ class AppRouter {
                         categoryId: categoryId,
                         categoryName: extra?['name'] as String?,
                         categoryEmoji: extra?['emoji'] as String?,
+                        quickBuyProviderId:
+                            extra?['quickBuyProviderId'] as String?,
+                        quickBuyProductId:
+                            extra?['quickBuyProductId'] as String?,
+                        quickBuyRecipient:
+                            extra?['quickBuyRecipient'] as String?,
                       );
                     },
                   ),

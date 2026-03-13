@@ -38,7 +38,7 @@ class BuyRegularModel with _$BuyRegularModel {
       lastUsedAt: json['lastUsedAt'] is Timestamp
           ? (json['lastUsedAt'] as Timestamp).toDate()
           : DateTime.tryParse(json['lastUsedAt']?.toString() ?? '') ??
-              DateTime.now(),
+              DateTime.utc(1970),
       categoryEmoji: json['categoryEmoji'] as String?,
       purchaseCategoryMapping: json['purchaseCategoryMapping'] as String?,
     );

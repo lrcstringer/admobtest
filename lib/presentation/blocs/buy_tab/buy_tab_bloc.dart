@@ -25,6 +25,8 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
       : super(const BuyTabState()) {
     on<_LoadBuyTab>(_onLoadBuyTab);
     on<_RefreshBuyTab>(_onRefreshBuyTab);
+    on<_ToggleRegularPin>(_onToggleRegularPin);
+    on<_DeleteRegular>(_onDeleteRegular);
   }
 
   Future<void> _onLoadBuyTab(
@@ -204,5 +206,66 @@ class BuyTabBloc extends Bloc<BuyTabEvent, BuyTabState> {
     );
 
     emit(newState);
+  }
+
+  Future<void> _onToggleRegularPin(
+    _ToggleRegularPin event,
+    Emitter<BuyTabState> emit,
+  ) async {
+    // Optimistic update: toggle in local state immediately
+    final updated = state.regulars.map((r) {
+      if (r.id == event.regularId) {
+        return r.copyWith(isPinned: event.isPinned);
+      }
+      return r;
+    }).toList();
+    emit(state.copyWith(regulars: updated));
+
+    final result = await _buyRepository.toggleRegularPin(
+      event.regularId,
+      isPinned: event.isPinned,
+    );
+
+    result.fold(
+      (failure) {
+        // Revert on failure
+        final reverted = state.regulars.map((r) {
+          if (r.id == event.regularId) {
+            return r.copyWith(isPinned: !event.isPinned);
+          }
+          return r;
+        }).toList();
+        emit(state.copyWith(
+          regulars: reverted,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (_) {},
+    );
+  }
+
+  Future<void> _onDeleteRegular(
+    _DeleteRegular event,
+    Emitter<BuyTabState> emit,
+  ) async {
+    // Optimistic update: remove from local state immediately
+    final removed = state.regulars
+        .where((r) => r.id != event.regularId)
+        .toList();
+    final original = state.regulars;
+    emit(state.copyWith(regulars: removed));
+
+    final result = await _buyRepository.deleteRegular(event.regularId);
+
+    result.fold(
+      (failure) {
+        // Revert on failure
+        emit(state.copyWith(
+          regulars: original,
+          errorMessage: failure.displayMessage,
+        ));
+      },
+      (_) {},
+    );
   }
 }

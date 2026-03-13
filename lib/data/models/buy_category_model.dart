@@ -24,10 +24,14 @@ class BuyCategoryModel with _$BuyCategoryModel {
 
   factory BuyCategoryModel.fromJson(Map<String, dynamic> json) {
     final rawSubs = json['subcategories'] as List<dynamic>?;
-    final subcategories = rawSubs
-            ?.map((s) =>
-                BuySubcategory.fromJson(Map<String, dynamic>.from(s as Map)))
-            .toList() ??
+    final subcategories = rawSubs?.map((s) {
+          final m = Map<String, dynamic>.from(s as Map);
+          return BuySubcategory(
+            id: m['id'] as String? ?? '',
+            name: m['name'] as String? ?? '',
+            iconEmoji: m['iconEmoji'] as String? ?? '',
+          );
+        }).toList() ??
         [];
 
     return BuyCategoryModel(

@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'buy_category.freezed.dart';
-part 'buy_category.g.dart';
 
 @freezed
 class BuySubcategory with _$BuySubcategory {
@@ -10,9 +9,6 @@ class BuySubcategory with _$BuySubcategory {
     required String name,
     @Default('') String iconEmoji,
   }) = _BuySubcategory;
-
-  factory BuySubcategory.fromJson(Map<String, dynamic> json) =>
-      _$BuySubcategoryFromJson(json);
 }
 
 @freezed
@@ -32,9 +28,6 @@ class BuyCategory with _$BuyCategory {
   }) = _BuyCategory;
 
   const BuyCategory._();
-
-  factory BuyCategory.fromJson(Map<String, dynamic> json) =>
-      _$BuyCategoryFromJson(json);
 
   /// Whether this category should be displayed (active and not hidden by feature flag)
   bool get isDisplayable => isActive || isComingSoon;

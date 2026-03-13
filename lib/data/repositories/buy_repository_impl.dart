@@ -86,12 +86,14 @@ class BuyRepositoryImpl implements BuyRepository {
       final localRows = await _database.getAllBuyCategories();
       final entities = localRows.map((row) {
         final subsJson = jsonDecode(row.subcategoriesJson) as List;
-        final subs = subsJson
-            .map(
-              (s) =>
-                  BuySubcategory.fromJson(Map<String, dynamic>.from(s as Map)),
-            )
-            .toList();
+        final subs = subsJson.map((s) {
+          final m = Map<String, dynamic>.from(s as Map);
+          return BuySubcategory(
+            id: m['id'] as String? ?? '',
+            name: m['name'] as String? ?? '',
+            iconEmoji: m['iconEmoji'] as String? ?? '',
+          );
+        }).toList();
         return BuyCategory(
           id: row.id,
           name: row.name,
@@ -413,6 +415,29 @@ class BuyRepositoryImpl implements BuyRepository {
     try {
       final isFollowing = await _remoteDataSource.toggleBrandFollow(brandId);
       return Right(isFollowing);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> toggleRegularPin(
+    String regularId, {
+    required bool isPinned,
+  }) async {
+    try {
+      await _remoteDataSource.toggleRegularPin(regularId, isPinned: isPinned);
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteRegular(String regularId) async {
+    try {
+      await _remoteDataSource.deleteRegular(regularId);
+      return const Right(null);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

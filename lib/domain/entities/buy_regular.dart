@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'buy_regular.freezed.dart';
-part 'buy_regular.g.dart';
 
 /// A user's frequently-purchased VAS product shortcut.
 @freezed
@@ -24,9 +23,6 @@ class BuyRegular with _$BuyRegular {
   }) = _BuyRegular;
 
   const BuyRegular._();
-
-  factory BuyRegular.fromJson(Map<String, dynamic> json) =>
-      _$BuyRegularFromJson(json);
 
   /// Short display label for the dock chip (e.g., "MTN R50")
   String get chipLabel => recipientLabel ?? productName;

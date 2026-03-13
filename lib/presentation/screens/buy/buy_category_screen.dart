@@ -22,11 +22,19 @@ class BuyCategoryScreen extends StatefulWidget {
   final String? categoryName;
   final String? categoryEmoji;
 
+  /// Quick-buy pre-fill fields from My Regulars dock.
+  final String? quickBuyProviderId;
+  final String? quickBuyProductId;
+  final String? quickBuyRecipient;
+
   const BuyCategoryScreen({
     super.key,
     required this.categoryId,
     this.categoryName,
     this.categoryEmoji,
+    this.quickBuyProviderId,
+    this.quickBuyProductId,
+    this.quickBuyRecipient,
   });
 
   @override
@@ -38,6 +46,14 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   final _searchController = TextEditingController();
   Timer? _searchDebounce;
   String _searchQuery = '';
+
+  /// Tracks whether quick-buy provider auto-selection has been applied.
+  bool _quickBuyProviderApplied = false;
+
+  /// Tracks whether quick-buy product auto-selection has been applied.
+  bool _quickBuyProductApplied = false;
+
+  bool get _isQuickBuy => widget.quickBuyProviderId != null;
 
   @override
   void initState() {
@@ -90,6 +106,50 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             ),
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearSuccess());
+        }
+
+        // Quick-buy auto-selection: once providers load, select the matching provider
+        if (_isQuickBuy &&
+            !_quickBuyProviderApplied &&
+            !state.isLoadingProviders &&
+            state.providers.isNotEmpty) {
+          final match = state.providers
+              .where((p) => p.id == widget.quickBuyProviderId)
+              .firstOrNull;
+          if (match != null) {
+            _quickBuyProviderApplied = true;
+            context
+                .read<PurchaseBloc>()
+                .add(PurchaseEvent.selectProvider(match));
+            // Pre-fill recipient
+            if (widget.quickBuyRecipient != null) {
+              _recipientController.text = widget.quickBuyRecipient!;
+              context.read<PurchaseBloc>().add(
+                    PurchaseEvent.setRecipientNumber(widget.quickBuyRecipient!),
+                  );
+              context
+                  .read<PurchaseBloc>()
+                  .add(const PurchaseEvent.validateRecipient());
+            }
+          }
+        }
+
+        // Quick-buy auto-selection: once products load, select the matching product
+        if (_isQuickBuy &&
+            _quickBuyProviderApplied &&
+            !_quickBuyProductApplied &&
+            !state.isLoadingProducts &&
+            state.products.isNotEmpty &&
+            widget.quickBuyProductId != null) {
+          final match = state.products
+              .where((p) => p.id == widget.quickBuyProductId)
+              .firstOrNull;
+          if (match != null && match.isActive) {
+            _quickBuyProductApplied = true;
+            context
+                .read<PurchaseBloc>()
+                .add(PurchaseEvent.selectProduct(match));
+          }
         }
       },
       builder: (context, state) {

@@ -67,6 +67,12 @@ abstract class BuyRemoteDataSource {
 
   /// Toggle follow/unfollow for a brand
   Future<bool> toggleBrandFollow(String brandId);
+
+  /// Toggle pin/unpin for a buy regular
+  Future<void> toggleRegularPin(String regularId, {required bool isPinned});
+
+  /// Delete a buy regular
+  Future<void> deleteRegular(String regularId);
 }
 
 @LazySingleton(as: BuyRemoteDataSource)
@@ -350,5 +356,31 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
       'brandId': brandId,
     });
     return result.data['isFollowing'] as bool;
+  }
+
+  @override
+  Future<void> toggleRegularPin(String regularId, {required bool isPinned}) async {
+    final uid = _firebaseAuth.currentUser?.uid;
+    if (uid == null) return;
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('buyRegulars')
+        .doc(regularId)
+        .update({'isPinned': isPinned});
+  }
+
+  @override
+  Future<void> deleteRegular(String regularId) async {
+    final uid = _firebaseAuth.currentUser?.uid;
+    if (uid == null) return;
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('buyRegulars')
+        .doc(regularId)
+        .delete();
   }
 }

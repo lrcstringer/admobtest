@@ -11,7 +11,6 @@ part of 'buy_regular.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$BuyRegular {
 
@@ -24,8 +23,6 @@ mixin _$BuyRegular {
 @pragma('vm:prefer-inline')
 $BuyRegularCopyWith<BuyRegular> get copyWith => _$BuyRegularCopyWithImpl<BuyRegular>(this as BuyRegular, _$identity);
 
-  /// Serializes this BuyRegular to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -33,7 +30,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyRegular&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.recipientLabel, recipientLabel) || other.recipientLabel == recipientLabel)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.usageCount, usageCount) || other.usageCount == usageCount)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.categoryEmoji, categoryEmoji) || other.categoryEmoji == categoryEmoji)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,providerId,productId,providerName,productName,recipientNumber,recipientLabel,isPinned,usageCount,lastUsedAt,categoryEmoji,purchaseCategoryMapping);
 
@@ -219,11 +216,11 @@ return $default(_that.id,_that.providerId,_that.productId,_that.providerName,_th
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _BuyRegular extends BuyRegular {
   const _BuyRegular({required this.id, required this.providerId, required this.productId, required this.providerName, required this.productName, required this.recipientNumber, this.recipientLabel, this.isPinned = false, this.usageCount = 0, required this.lastUsedAt, this.categoryEmoji, this.purchaseCategoryMapping}): super._();
-  factory _BuyRegular.fromJson(Map<String, dynamic> json) => _$BuyRegularFromJson(json);
+  
 
 @override final  String id;
 @override final  String providerId;
@@ -246,17 +243,14 @@ class _BuyRegular extends BuyRegular {
 @pragma('vm:prefer-inline')
 _$BuyRegularCopyWith<_BuyRegular> get copyWith => __$BuyRegularCopyWithImpl<_BuyRegular>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$BuyRegularToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyRegular&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.recipientLabel, recipientLabel) || other.recipientLabel == recipientLabel)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.usageCount, usageCount) || other.usageCount == usageCount)&&(identical(other.lastUsedAt, lastUsedAt) || other.lastUsedAt == lastUsedAt)&&(identical(other.categoryEmoji, categoryEmoji) || other.categoryEmoji == categoryEmoji)&&(identical(other.purchaseCategoryMapping, purchaseCategoryMapping) || other.purchaseCategoryMapping == purchaseCategoryMapping));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode => Object.hash(runtimeType,id,providerId,productId,providerName,productName,recipientNumber,recipientLabel,isPinned,usageCount,lastUsedAt,categoryEmoji,purchaseCategoryMapping);
 

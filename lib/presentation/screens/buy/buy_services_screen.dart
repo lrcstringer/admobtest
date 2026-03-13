@@ -277,7 +277,9 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             extra: {
               'name': regular.providerName,
               'emoji': regular.categoryEmoji ?? '📦',
-              'quickBuyRegularId': regular.id,
+              'quickBuyProviderId': regular.providerId,
+              'quickBuyProductId': regular.productId,
+              'quickBuyRecipient': regular.recipientNumber,
             },
           );
         },
@@ -344,6 +346,12 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(sheetContext);
+                  context.read<BuyTabBloc>().add(
+                        BuyTabEvent.toggleRegularPin(
+                          regularId: regular.id,
+                          isPinned: !regular.isPinned,
+                        ),
+                      );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -365,6 +373,11 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                 ),
                 onTap: () {
                   Navigator.pop(sheetContext);
+                  context.read<BuyTabBloc>().add(
+                        BuyTabEvent.deleteRegular(
+                          regularId: regular.id,
+                        ),
+                      );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:
