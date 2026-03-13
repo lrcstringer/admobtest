@@ -193,7 +193,12 @@ class BrandStorefrontBloc
     if (state.isClaimingCoupon) return;
     if (state.claimedCouponIds.contains(event.couponId)) return;
 
-    emit(state.copyWith(isClaimingCoupon: true, errorMessage: null));
+    // Optimistic: add coupon ID immediately to prevent double-claim on rapid taps
+    emit(state.copyWith(
+      isClaimingCoupon: true,
+      errorMessage: null,
+      claimedCouponIds: {...state.claimedCouponIds, event.couponId},
+    ));
 
     final result = await _buyRepository.claimStorefrontCoupon(
       storefrontId: event.storefrontId,
@@ -202,13 +207,18 @@ class BrandStorefrontBloc
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        isClaimingCoupon: false,
-        errorMessage: failure.displayMessage,
-      )),
+      (failure) {
+        // Revert optimistic add on failure
+        final reverted = Set<String>.from(state.claimedCouponIds)
+          ..remove(event.couponId);
+        emit(state.copyWith(
+          isClaimingCoupon: false,
+          claimedCouponIds: reverted,
+          errorMessage: failure.displayMessage,
+        ));
+      },
       (couponCode) => emit(state.copyWith(
         isClaimingCoupon: false,
-        claimedCouponIds: {...state.claimedCouponIds, event.couponId},
         lastClaimedCouponCode: couponCode,
       )),
     );

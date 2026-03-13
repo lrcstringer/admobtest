@@ -369,10 +369,8 @@ export const toggleBrandFollow = onCall(
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         tx.delete(followerRef);
-        const currentCount = clientDoc.data()?.followerCount || 0;
-        const newCount = Math.max(0, currentCount - 1);
         tx.update(clientRef, {
-          followerCount: newCount,
+          followerCount: admin.firestore.FieldValue.increment(-1),
         });
         return false;
       } else {

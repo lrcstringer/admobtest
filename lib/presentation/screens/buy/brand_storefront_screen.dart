@@ -59,7 +59,19 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BrandStorefrontBloc, BrandStorefrontState>(
+    return BlocConsumer<BrandStorefrontBloc, BrandStorefrontState>(
+      listenWhen: (prev, curr) =>
+          prev.errorMessage != curr.errorMessage &&
+          curr.errorMessage != null &&
+          curr.storefront != null,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      },
       builder: (context, state) {
         final storefront = state.storefront;
 
@@ -81,19 +93,30 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             actions: [
               if (storefront != null)
                 IconButton(
-                  icon: Icon(
-                    state.isFollowing
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                    color: state.isFollowing
-                        ? AppColors.error
-                        : AppColors.textSecondary,
-                  ),
-                  onPressed: () => context
-                      .read<BrandStorefrontBloc>()
-                      .add(BrandStorefrontEvent.toggleFollow(
-                        storefront.brandId,
-                      )),
+                  icon: state.isTogglingFollow
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.textSecondary,
+                          ),
+                        )
+                      : Icon(
+                          state.isFollowing
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: state.isFollowing
+                              ? AppColors.error
+                              : AppColors.textSecondary,
+                        ),
+                  onPressed: state.isTogglingFollow
+                      ? null
+                      : () => context
+                          .read<BrandStorefrontBloc>()
+                          .add(BrandStorefrontEvent.toggleFollow(
+                            storefront.brandId,
+                          )),
                 ),
             ],
           ),
@@ -2293,10 +2316,11 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed:
-                              _isValid && !state.isSubmittingReview
-                                  ? _onSubmit
-                                  : null,
+                          onPressed: _isValid &&
+                                  !state.isSubmittingReview &&
+                                  !state.reviewSubmitSuccess
+                              ? _onSubmit
+                              : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
