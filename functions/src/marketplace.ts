@@ -153,7 +153,7 @@ export const createMarketplaceListing = onCall(
 
     const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
     const dateBucket = new Date().toISOString().split("T")[0];
-    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}`);
+    const baseId = `${providerId}_${titleHash}_${dateBucket}`;
     const now = admin.firestore.Timestamp.now();
     const expiresAt = admin.firestore.Timestamp.fromMillis(
       now.toMillis() + 90 * 24 * 60 * 60 * 1000
@@ -161,7 +161,20 @@ export const createMarketplaceListing = onCall(
 
     const priceZar = Math.round((priceTokens / LedgerConfig.TOKENS_PER_ZAR) * 100) / 100;
 
-    // Transaction to check doc doesn't already exist before setting
+    // Deterministic ID with collision resolution: try base ID, then _2, _3, etc.
+    let listingRef = db.collection("marketplaceListings").doc(baseId);
+    let resolvedId = baseId;
+    for (let suffix = 2; suffix <= 10; suffix++) {
+      const doc = await db.collection("marketplaceListings").doc(resolvedId).get();
+      if (!doc.exists) break;
+      resolvedId = `${baseId}_${suffix}`;
+      listingRef = db.collection("marketplaceListings").doc(resolvedId);
+      if (suffix === 10) {
+        throw new HttpsError("already-exists", "Too many listings with the same title today — please use a different title");
+      }
+    }
+
+    // Transaction to atomically check + set — guards against concurrent creation of the same ID
     await db.runTransaction(async (tx) => {
       const existingDoc = await tx.get(listingRef);
       if (existingDoc.exists) {
@@ -817,14 +830,34 @@ export const reportMarketplaceItem = onCall(
     }
 
     // Deterministic report ID prevents duplicate reports on retry.
-    // Wrapped in a transaction for safety — the deterministic ID prevents true dupes,
-    // but the transaction ensures the existence check and set are atomic.
+    // Single transaction: create report + increment count + auto-flag — prevents
+    // race condition where concurrent reports skip the auto-flag threshold.
     const reportDocId = `${userId}_${targetId}_${targetType}`;
     const reportRef = db.collection("marketplaceReports").doc(reportDocId);
+    const targetRef = targetType === "listing"
+      ? db.collection("marketplaceListings").doc(targetId)
+      : null;
+
     await db.runTransaction(async (tx) => {
       const existingReport = await tx.get(reportRef);
       if (existingReport.exists) {
         throw new HttpsError("already-exists", "You have already reported this item");
+      }
+
+      // Read target doc inside transaction to get atomic count
+      let currentCount = 0;
+      if (targetRef) {
+        const targetDoc = await tx.get(targetRef);
+        if (targetDoc.exists) {
+          currentCount = (targetDoc.data()!.reportCount || 0) + 1;
+          tx.update(targetRef, { reportCount: currentCount });
+
+          // Auto-flag at 3+ unique reporters
+          if (currentCount >= 3 && targetDoc.data()!.status === "active") {
+            tx.update(targetRef, { status: "flagged" });
+            logger.warn(`Listing ${targetId} auto-flagged: ${currentCount} reports`);
+          }
+        }
       }
 
       tx.set(reportRef, {
@@ -839,23 +872,11 @@ export const reportMarketplaceItem = onCall(
       });
     });
 
-    // Increment report count and auto-flag if threshold reached (transaction)
-    if (targetType === "listing") {
-      const listingRef = db.collection("marketplaceListings").doc(targetId);
-      await db.runTransaction(async (tx) => {
-        const listingDoc = await tx.get(listingRef);
-        if (!listingDoc.exists) return;
-
-        const currentCount = (listingDoc.data()!.reportCount || 0) + 1;
-        tx.update(listingRef, {
-          reportCount: currentCount,
-        });
-
-        // Auto-flag at 3+ unique reporters
-        if (currentCount >= 3 && listingDoc.data()!.status === "active") {
-          tx.update(listingRef, { status: "flagged" });
-          logger.warn(`Listing ${targetId} auto-flagged: ${currentCount} reports`);
-        }
+    // Increment report count for provider targets (informational, not auto-flagged)
+    if (targetType === "provider") {
+      const providerRef = db.collection("providers").doc(targetId);
+      await providerRef.update({
+        reportCount: admin.firestore.FieldValue.increment(1),
       });
     }
 

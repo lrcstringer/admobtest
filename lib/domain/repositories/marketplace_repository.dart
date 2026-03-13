@@ -27,7 +27,7 @@ abstract class MarketplaceRepository {
 
   /// Get provider's listings
   Future<Either<Failure, List<MarketplaceListing>>> getProviderListings(
-      String providerId);
+      String providerId, {String? statusFilter});
 
   /// Get vouches for a provider
   Future<Either<Failure, List<Vouch>>> getProviderVouches(String providerId);

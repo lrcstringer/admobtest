@@ -69,9 +69,12 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
 
   @override
   Future<Either<Failure, List<MarketplaceListing>>> getProviderListings(
-      String providerId) async {
+      String providerId, {String? statusFilter}) async {
     try {
-      final models = await _remoteDataSource.getProviderListings(providerId);
+      final models = await _remoteDataSource.getProviderListings(
+        providerId,
+        statusFilter: statusFilter,
+      );
       return Right(models.map((m) => m.toEntity()).toList());
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
