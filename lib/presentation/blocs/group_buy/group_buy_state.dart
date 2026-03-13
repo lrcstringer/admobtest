@@ -2,8 +2,11 @@ part of 'group_buy_bloc.dart';
 
 @freezed
 class GroupBuyState with _$GroupBuyState {
+  const GroupBuyState._();
+
   const factory GroupBuyState({
-    @Default(false) bool isLoading,
+    @Default(false) bool isLoadingList,
+    @Default(false) bool isLoadingDetail,
     @Default([]) List<GroupBuy> activeGroupBuys,
     @Default([]) List<GroupBuy> myGroupBuys,
     @Default([]) List<GroupBuy> hubGroupBuys,
@@ -23,4 +26,6 @@ class GroupBuyState with _$GroupBuyState {
     @Default(false) bool shouldPopOnSuccess,
     String? errorMessage,
   }) = _GroupBuyState;
+
+  bool get isLoading => isLoadingList || isLoadingDetail;
 }

@@ -29,6 +29,8 @@ abstract class GroupBuyRepository {
     String? linkedListingId,
     int minParticipants,
     int? maxParticipants,
+    String? imageUrl,
+    int? pricePerPerson,
   });
 
   /// Join a group buy with a contribution

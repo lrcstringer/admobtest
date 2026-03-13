@@ -57,6 +57,7 @@ class _BrandStorefrontManagementScreenState
       try {
         final snapshot = await FirebaseFirestore.instance
             .collection('brandStorefronts')
+            .where('isDeleted', isEqualTo: false)
             .get();
         if (mounted) {
           setState(() {
@@ -182,7 +183,7 @@ class _BrandStorefrontManagementScreenState
                         )
                       : ListView.separated(
                           itemCount: _storefronts.length,
-                          separatorBuilder: (_, __) => Divider(
+                          separatorBuilder: (context, index) => Divider(
                             color: AppColors.borderDark,
                             height: 1,
                           ),
@@ -525,7 +526,7 @@ class _BrandStorefrontManagementScreenState
                             child: Image.network(
                               logoUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (context, error, stackTrace) => const Icon(
                                 Icons.storefront,
                                 size: 36,
                                 color: AppColors.textTertiary,
@@ -926,7 +927,7 @@ class _ReviewsDialogContentState extends State<_ReviewsDialogContent> {
                   )
                 : ListView.separated(
                     itemCount: _reviews.length,
-                    separatorBuilder: (_, __) => const Divider(
+                    separatorBuilder: (context, index) => const Divider(
                       color: AppColors.borderDark,
                       height: 1,
                     ),

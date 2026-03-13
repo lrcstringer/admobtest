@@ -19,6 +19,11 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
   final PurchaseRepository _purchaseRepository;
   final StepUpAuthService _stepUpAuthService;
 
+  /// Guards against concurrent purchase submissions. The `if (state.isPurchasing)`
+  /// check alone is a check-then-act race because flutter_bloc ^9.x processes
+  /// events concurrently by default. This flag is set before async gaps.
+  bool _purchaseInProgress = false;
+
   PurchaseBloc(this._purchaseRepository, this._stepUpAuthService)
       : super(const PurchaseState()) {
     on<_LoadProviders>(_onLoadProviders);
@@ -34,6 +39,7 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     on<_LoadRecentRecipients>(_onLoadRecentRecipients);
     on<_SelectRecentRecipient>(_onSelectRecentRecipient);
     on<_ResetSelection>(_onResetSelection);
+    on<_SubmitOtp>(_onSubmitOtp);
     on<_ClearError>(_onClearError);
     on<_ClearSuccess>(_onClearSuccess);
   }
@@ -194,68 +200,116 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     _MakePurchase event,
     Emitter<PurchaseState> emit,
   ) async {
-    // Double-submit guard — prevent double-charging
-    if (state.isPurchasing) return;
+    // Mutex guard — prevents concurrent purchase processing across async gaps.
+    // The state-based `isPurchasing` check alone is a check-then-act race
+    // because flutter_bloc ^9.x processes events concurrently by default.
+    if (_purchaseInProgress) return;
+    _purchaseInProgress = true;
 
-    if (state.selectedProduct == null || state.recipientNumber == null) {
-      emit(state.copyWith(
-        errorMessage: 'Please select a product and enter a recipient number',
-      ));
-      return;
-    }
-
-    // Block purchase if recipient hasn't been validated yet
-    if (state.isRecipientValid != true) {
-      emit(state.copyWith(
-        errorMessage: 'Please validate the recipient number before purchasing',
-      ));
-      return;
-    }
-
-    // Local format check — catch obviously invalid numbers before server call
-    final category =
-        state.selectedProvider?.category ?? PurchaseCategory.airtime;
-    if (!_isRecipientFormatValid(state.recipientNumber!, category)) {
-      emit(state.copyWith(
-        errorMessage: 'Invalid recipient number format',
-      ));
-      return;
-    }
-
-    emit(state.copyWith(isPurchasing: true));
-
-    // Step-up auth before VAS purchase
-    final stepUpRequired = _stepUpAuthService.evaluateRequired(
-      actionType: 'vas_purchase',
-    );
-    if (stepUpRequired == StepUpResult.biometricVerified ||
-        stepUpRequired == StepUpResult.otpRequired) {
-      final authResult = await _stepUpAuthService.performBiometricStepUp();
-      if (authResult == StepUpResult.cancelled ||
-          authResult == StepUpResult.failed) {
+    try {
+      if (state.selectedProduct == null || state.recipientNumber == null) {
         emit(state.copyWith(
-          isPurchasing: false,
-          errorMessage: 'Authentication required',
+          errorMessage: 'Please select a product and enter a recipient number',
         ));
         return;
       }
-      // OTP step-up is not yet implemented. If biometric step-up returns
-      // otpRequired, surface a user-friendly message instead of silently
-      // proceeding without verification.
-      if (authResult == StepUpResult.otpRequired) {
+
+      // Block purchase if recipient hasn't been validated yet
+      if (state.isRecipientValid != true) {
         emit(state.copyWith(
-          isPurchasing: false,
           errorMessage:
-              'OTP verification not yet available. Please try again later.',
+              'Please validate the recipient number before purchasing',
         ));
         return;
       }
-    }
 
+      // Local format check — catch obviously invalid numbers before server call
+      // Keep in sync with purchase_remote_datasource.dart validateRecipientNumber
+      final category =
+          state.selectedProvider?.category ?? PurchaseCategory.airtime;
+      if (!_isRecipientFormatValid(state.recipientNumber!, category)) {
+        emit(state.copyWith(
+          errorMessage: 'Invalid recipient number format',
+        ));
+        return;
+      }
+
+      emit(state.copyWith(isPurchasing: true));
+
+      // Step-up auth before VAS purchase
+      final stepUpRequired = _stepUpAuthService.evaluateRequired(
+        actionType: 'vas_purchase',
+      );
+      if (stepUpRequired == StepUpResult.biometricVerified ||
+          stepUpRequired == StepUpResult.otpRequired) {
+        final authResult = await _stepUpAuthService.performBiometricStepUp();
+        if (authResult == StepUpResult.cancelled ||
+            authResult == StepUpResult.failed) {
+          emit(state.copyWith(
+            isPurchasing: false,
+            errorMessage: 'Authentication required',
+          ));
+          return;
+        }
+        // When biometric step-up indicates OTP is required (e.g. Tier 3/4
+        // devices without biometric hardware), prompt the user for PIN-based
+        // verification via the step-up auth service.
+        if (authResult == StepUpResult.otpRequired) {
+          emit(state.copyWith(
+            isPurchasing: false,
+            isAwaitingOtp: true,
+            otpPhoneNumber: _maskedRecipientHint(),
+          ));
+          return;
+        }
+      }
+
+      await _executePurchase(event.subAccountId, emit);
+    } finally {
+      _purchaseInProgress = false;
+    }
+  }
+
+  Future<void> _onSubmitOtp(
+    _SubmitOtp event,
+    Emitter<PurchaseState> emit,
+  ) async {
+    if (_purchaseInProgress) return;
+    _purchaseInProgress = true;
+
+    try {
+      emit(state.copyWith(
+        isPurchasing: true,
+        isAwaitingOtp: false,
+        otpPhoneNumber: null,
+      ));
+
+      final pinResult = await _stepUpAuthService.verifyPinStepUp(event.otp);
+      if (pinResult != StepUpResult.biometricVerified) {
+        emit(state.copyWith(
+          isPurchasing: false,
+          errorMessage: pinResult == StepUpResult.cancelled
+              ? 'Verification cancelled'
+              : 'Verification failed. Please try again.',
+        ));
+        return;
+      }
+
+      await _executePurchase(event.subAccountId, emit);
+    } finally {
+      _purchaseInProgress = false;
+    }
+  }
+
+  /// Shared purchase execution after all auth gates have passed.
+  Future<void> _executePurchase(
+    String? subAccountId,
+    Emitter<PurchaseState> emit,
+  ) async {
     final result = await _purchaseRepository.makePurchase(
       productId: state.selectedProduct!.id,
       recipientNumber: state.recipientNumber!,
-      subAccountId: event.subAccountId,
+      subAccountId: subAccountId,
     );
 
     result.fold(
@@ -266,13 +320,22 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
       (purchase) => emit(state.copyWith(
         isPurchasing: false,
         lastPurchase: purchase,
-        successMessage: 'Purchase successful! ${purchase.productName} sent to ${purchase.recipientNumber}',
-        // Reset selection after successful purchase
+        successMessage:
+            'Purchase successful! ${purchase.productName} sent to ${purchase.recipientNumber}',
         selectedProduct: null,
         recipientNumber: null,
         isRecipientValid: null,
       )),
     );
+  }
+
+  /// Returns a masked hint for the OTP prompt based on the user's recipient number.
+  String _maskedRecipientHint() {
+    final number = state.recipientNumber ?? '';
+    if (number.length >= 4) {
+      return '${'*' * (number.length - 4)}${number.substring(number.length - 4)}';
+    }
+    return '****';
   }
 
   Future<void> _onLoadHistory(
@@ -354,7 +417,9 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
   }
 
   /// Basic local format validation for recipient numbers by category.
-  // Keep in sync with purchase_remote_datasource.dart validateRecipientNumber
+  /// Mirrors the authoritative validation in
+  /// `purchase_remote_datasource.dart#validateRecipientNumber` — if you change
+  /// patterns here, update the datasource method to match.
   bool _isRecipientFormatValid(String number, PurchaseCategory category) {
     final trimmed = number.trim();
     if (trimmed.isEmpty) return false;

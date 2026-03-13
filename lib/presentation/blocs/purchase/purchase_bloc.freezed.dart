@@ -55,7 +55,7 @@ extension PurchaseEventPatterns on PurchaseEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadProviders value)?  loadProviders,TResult Function( _LoadProvidersByCategory value)?  loadProvidersByCategory,TResult Function( _SelectCategory value)?  selectCategory,TResult Function( _SelectProvider value)?  selectProvider,TResult Function( _LoadProducts value)?  loadProducts,TResult Function( _SelectProduct value)?  selectProduct,TResult Function( _SetRecipientNumber value)?  setRecipientNumber,TResult Function( _ValidateRecipient value)?  validateRecipient,TResult Function( _MakePurchase value)?  makePurchase,TResult Function( _LoadHistory value)?  loadHistory,TResult Function( _LoadRecentRecipients value)?  loadRecentRecipients,TResult Function( _SelectRecentRecipient value)?  selectRecentRecipient,TResult Function( _ResetSelection value)?  resetSelection,TResult Function( _ClearError value)?  clearError,TResult Function( _ClearSuccess value)?  clearSuccess,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadProviders value)?  loadProviders,TResult Function( _LoadProvidersByCategory value)?  loadProvidersByCategory,TResult Function( _SelectCategory value)?  selectCategory,TResult Function( _SelectProvider value)?  selectProvider,TResult Function( _LoadProducts value)?  loadProducts,TResult Function( _SelectProduct value)?  selectProduct,TResult Function( _SetRecipientNumber value)?  setRecipientNumber,TResult Function( _ValidateRecipient value)?  validateRecipient,TResult Function( _MakePurchase value)?  makePurchase,TResult Function( _LoadHistory value)?  loadHistory,TResult Function( _LoadRecentRecipients value)?  loadRecentRecipients,TResult Function( _SelectRecentRecipient value)?  selectRecentRecipient,TResult Function( _ResetSelection value)?  resetSelection,TResult Function( _SubmitOtp value)?  submitOtp,TResult Function( _ClearError value)?  clearError,TResult Function( _ClearSuccess value)?  clearSuccess,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadProviders() when loadProviders != null:
@@ -71,7 +71,8 @@ return makePurchase(_that);case _LoadHistory() when loadHistory != null:
 return loadHistory(_that);case _LoadRecentRecipients() when loadRecentRecipients != null:
 return loadRecentRecipients(_that);case _SelectRecentRecipient() when selectRecentRecipient != null:
 return selectRecentRecipient(_that);case _ResetSelection() when resetSelection != null:
-return resetSelection(_that);case _ClearError() when clearError != null:
+return resetSelection(_that);case _SubmitOtp() when submitOtp != null:
+return submitOtp(_that);case _ClearError() when clearError != null:
 return clearError(_that);case _ClearSuccess() when clearSuccess != null:
 return clearSuccess(_that);case _:
   return orElse();
@@ -91,7 +92,7 @@ return clearSuccess(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadProviders value)  loadProviders,required TResult Function( _LoadProvidersByCategory value)  loadProvidersByCategory,required TResult Function( _SelectCategory value)  selectCategory,required TResult Function( _SelectProvider value)  selectProvider,required TResult Function( _LoadProducts value)  loadProducts,required TResult Function( _SelectProduct value)  selectProduct,required TResult Function( _SetRecipientNumber value)  setRecipientNumber,required TResult Function( _ValidateRecipient value)  validateRecipient,required TResult Function( _MakePurchase value)  makePurchase,required TResult Function( _LoadHistory value)  loadHistory,required TResult Function( _LoadRecentRecipients value)  loadRecentRecipients,required TResult Function( _SelectRecentRecipient value)  selectRecentRecipient,required TResult Function( _ResetSelection value)  resetSelection,required TResult Function( _ClearError value)  clearError,required TResult Function( _ClearSuccess value)  clearSuccess,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadProviders value)  loadProviders,required TResult Function( _LoadProvidersByCategory value)  loadProvidersByCategory,required TResult Function( _SelectCategory value)  selectCategory,required TResult Function( _SelectProvider value)  selectProvider,required TResult Function( _LoadProducts value)  loadProducts,required TResult Function( _SelectProduct value)  selectProduct,required TResult Function( _SetRecipientNumber value)  setRecipientNumber,required TResult Function( _ValidateRecipient value)  validateRecipient,required TResult Function( _MakePurchase value)  makePurchase,required TResult Function( _LoadHistory value)  loadHistory,required TResult Function( _LoadRecentRecipients value)  loadRecentRecipients,required TResult Function( _SelectRecentRecipient value)  selectRecentRecipient,required TResult Function( _ResetSelection value)  resetSelection,required TResult Function( _SubmitOtp value)  submitOtp,required TResult Function( _ClearError value)  clearError,required TResult Function( _ClearSuccess value)  clearSuccess,}){
 final _that = this;
 switch (_that) {
 case _LoadProviders():
@@ -107,7 +108,8 @@ return makePurchase(_that);case _LoadHistory():
 return loadHistory(_that);case _LoadRecentRecipients():
 return loadRecentRecipients(_that);case _SelectRecentRecipient():
 return selectRecentRecipient(_that);case _ResetSelection():
-return resetSelection(_that);case _ClearError():
+return resetSelection(_that);case _SubmitOtp():
+return submitOtp(_that);case _ClearError():
 return clearError(_that);case _ClearSuccess():
 return clearSuccess(_that);case _:
   throw StateError('Unexpected subclass');
@@ -126,7 +128,7 @@ return clearSuccess(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadProviders value)?  loadProviders,TResult? Function( _LoadProvidersByCategory value)?  loadProvidersByCategory,TResult? Function( _SelectCategory value)?  selectCategory,TResult? Function( _SelectProvider value)?  selectProvider,TResult? Function( _LoadProducts value)?  loadProducts,TResult? Function( _SelectProduct value)?  selectProduct,TResult? Function( _SetRecipientNumber value)?  setRecipientNumber,TResult? Function( _ValidateRecipient value)?  validateRecipient,TResult? Function( _MakePurchase value)?  makePurchase,TResult? Function( _LoadHistory value)?  loadHistory,TResult? Function( _LoadRecentRecipients value)?  loadRecentRecipients,TResult? Function( _SelectRecentRecipient value)?  selectRecentRecipient,TResult? Function( _ResetSelection value)?  resetSelection,TResult? Function( _ClearError value)?  clearError,TResult? Function( _ClearSuccess value)?  clearSuccess,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadProviders value)?  loadProviders,TResult? Function( _LoadProvidersByCategory value)?  loadProvidersByCategory,TResult? Function( _SelectCategory value)?  selectCategory,TResult? Function( _SelectProvider value)?  selectProvider,TResult? Function( _LoadProducts value)?  loadProducts,TResult? Function( _SelectProduct value)?  selectProduct,TResult? Function( _SetRecipientNumber value)?  setRecipientNumber,TResult? Function( _ValidateRecipient value)?  validateRecipient,TResult? Function( _MakePurchase value)?  makePurchase,TResult? Function( _LoadHistory value)?  loadHistory,TResult? Function( _LoadRecentRecipients value)?  loadRecentRecipients,TResult? Function( _SelectRecentRecipient value)?  selectRecentRecipient,TResult? Function( _ResetSelection value)?  resetSelection,TResult? Function( _SubmitOtp value)?  submitOtp,TResult? Function( _ClearError value)?  clearError,TResult? Function( _ClearSuccess value)?  clearSuccess,}){
 final _that = this;
 switch (_that) {
 case _LoadProviders() when loadProviders != null:
@@ -142,7 +144,8 @@ return makePurchase(_that);case _LoadHistory() when loadHistory != null:
 return loadHistory(_that);case _LoadRecentRecipients() when loadRecentRecipients != null:
 return loadRecentRecipients(_that);case _SelectRecentRecipient() when selectRecentRecipient != null:
 return selectRecentRecipient(_that);case _ResetSelection() when resetSelection != null:
-return resetSelection(_that);case _ClearError() when clearError != null:
+return resetSelection(_that);case _SubmitOtp() when submitOtp != null:
+return submitOtp(_that);case _ClearError() when clearError != null:
 return clearError(_that);case _ClearSuccess() when clearSuccess != null:
 return clearSuccess(_that);case _:
   return null;
@@ -161,7 +164,7 @@ return clearSuccess(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadProviders,TResult Function( PurchaseCategory category)?  loadProvidersByCategory,TResult Function( PurchaseCategory? category)?  selectCategory,TResult Function( ServiceProvider provider)?  selectProvider,TResult Function( String providerId)?  loadProducts,TResult Function( ServiceProduct product)?  selectProduct,TResult Function( String number)?  setRecipientNumber,TResult Function()?  validateRecipient,TResult Function( String? subAccountId)?  makePurchase,TResult Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)?  loadHistory,TResult Function( PurchaseCategory? category)?  loadRecentRecipients,TResult Function( String number)?  selectRecentRecipient,TResult Function()?  resetSelection,TResult Function()?  clearError,TResult Function()?  clearSuccess,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadProviders,TResult Function( PurchaseCategory category)?  loadProvidersByCategory,TResult Function( PurchaseCategory? category)?  selectCategory,TResult Function( ServiceProvider provider)?  selectProvider,TResult Function( String providerId)?  loadProducts,TResult Function( ServiceProduct product)?  selectProduct,TResult Function( String number)?  setRecipientNumber,TResult Function()?  validateRecipient,TResult Function( String? subAccountId)?  makePurchase,TResult Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)?  loadHistory,TResult Function( PurchaseCategory? category)?  loadRecentRecipients,TResult Function( String number)?  selectRecentRecipient,TResult Function()?  resetSelection,TResult Function( String otp,  String? subAccountId)?  submitOtp,TResult Function()?  clearError,TResult Function()?  clearSuccess,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadProviders() when loadProviders != null:
 return loadProviders();case _LoadProvidersByCategory() when loadProvidersByCategory != null:
@@ -176,7 +179,8 @@ return makePurchase(_that.subAccountId);case _LoadHistory() when loadHistory != 
 return loadHistory(_that.category,_that.limit,_that.startAfter);case _LoadRecentRecipients() when loadRecentRecipients != null:
 return loadRecentRecipients(_that.category);case _SelectRecentRecipient() when selectRecentRecipient != null:
 return selectRecentRecipient(_that.number);case _ResetSelection() when resetSelection != null:
-return resetSelection();case _ClearError() when clearError != null:
+return resetSelection();case _SubmitOtp() when submitOtp != null:
+return submitOtp(_that.otp,_that.subAccountId);case _ClearError() when clearError != null:
 return clearError();case _ClearSuccess() when clearSuccess != null:
 return clearSuccess();case _:
   return orElse();
@@ -196,7 +200,7 @@ return clearSuccess();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadProviders,required TResult Function( PurchaseCategory category)  loadProvidersByCategory,required TResult Function( PurchaseCategory? category)  selectCategory,required TResult Function( ServiceProvider provider)  selectProvider,required TResult Function( String providerId)  loadProducts,required TResult Function( ServiceProduct product)  selectProduct,required TResult Function( String number)  setRecipientNumber,required TResult Function()  validateRecipient,required TResult Function( String? subAccountId)  makePurchase,required TResult Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)  loadHistory,required TResult Function( PurchaseCategory? category)  loadRecentRecipients,required TResult Function( String number)  selectRecentRecipient,required TResult Function()  resetSelection,required TResult Function()  clearError,required TResult Function()  clearSuccess,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadProviders,required TResult Function( PurchaseCategory category)  loadProvidersByCategory,required TResult Function( PurchaseCategory? category)  selectCategory,required TResult Function( ServiceProvider provider)  selectProvider,required TResult Function( String providerId)  loadProducts,required TResult Function( ServiceProduct product)  selectProduct,required TResult Function( String number)  setRecipientNumber,required TResult Function()  validateRecipient,required TResult Function( String? subAccountId)  makePurchase,required TResult Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)  loadHistory,required TResult Function( PurchaseCategory? category)  loadRecentRecipients,required TResult Function( String number)  selectRecentRecipient,required TResult Function()  resetSelection,required TResult Function( String otp,  String? subAccountId)  submitOtp,required TResult Function()  clearError,required TResult Function()  clearSuccess,}) {final _that = this;
 switch (_that) {
 case _LoadProviders():
 return loadProviders();case _LoadProvidersByCategory():
@@ -211,7 +215,8 @@ return makePurchase(_that.subAccountId);case _LoadHistory():
 return loadHistory(_that.category,_that.limit,_that.startAfter);case _LoadRecentRecipients():
 return loadRecentRecipients(_that.category);case _SelectRecentRecipient():
 return selectRecentRecipient(_that.number);case _ResetSelection():
-return resetSelection();case _ClearError():
+return resetSelection();case _SubmitOtp():
+return submitOtp(_that.otp,_that.subAccountId);case _ClearError():
 return clearError();case _ClearSuccess():
 return clearSuccess();case _:
   throw StateError('Unexpected subclass');
@@ -230,7 +235,7 @@ return clearSuccess();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadProviders,TResult? Function( PurchaseCategory category)?  loadProvidersByCategory,TResult? Function( PurchaseCategory? category)?  selectCategory,TResult? Function( ServiceProvider provider)?  selectProvider,TResult? Function( String providerId)?  loadProducts,TResult? Function( ServiceProduct product)?  selectProduct,TResult? Function( String number)?  setRecipientNumber,TResult? Function()?  validateRecipient,TResult? Function( String? subAccountId)?  makePurchase,TResult? Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)?  loadHistory,TResult? Function( PurchaseCategory? category)?  loadRecentRecipients,TResult? Function( String number)?  selectRecentRecipient,TResult? Function()?  resetSelection,TResult? Function()?  clearError,TResult? Function()?  clearSuccess,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadProviders,TResult? Function( PurchaseCategory category)?  loadProvidersByCategory,TResult? Function( PurchaseCategory? category)?  selectCategory,TResult? Function( ServiceProvider provider)?  selectProvider,TResult? Function( String providerId)?  loadProducts,TResult? Function( ServiceProduct product)?  selectProduct,TResult? Function( String number)?  setRecipientNumber,TResult? Function()?  validateRecipient,TResult? Function( String? subAccountId)?  makePurchase,TResult? Function( PurchaseCategory? category,  int? limit,  DateTime? startAfter)?  loadHistory,TResult? Function( PurchaseCategory? category)?  loadRecentRecipients,TResult? Function( String number)?  selectRecentRecipient,TResult? Function()?  resetSelection,TResult? Function( String otp,  String? subAccountId)?  submitOtp,TResult? Function()?  clearError,TResult? Function()?  clearSuccess,}) {final _that = this;
 switch (_that) {
 case _LoadProviders() when loadProviders != null:
 return loadProviders();case _LoadProvidersByCategory() when loadProvidersByCategory != null:
@@ -245,7 +250,8 @@ return makePurchase(_that.subAccountId);case _LoadHistory() when loadHistory != 
 return loadHistory(_that.category,_that.limit,_that.startAfter);case _LoadRecentRecipients() when loadRecentRecipients != null:
 return loadRecentRecipients(_that.category);case _SelectRecentRecipient() when selectRecentRecipient != null:
 return selectRecentRecipient(_that.number);case _ResetSelection() when resetSelection != null:
-return resetSelection();case _ClearError() when clearError != null:
+return resetSelection();case _SubmitOtp() when submitOtp != null:
+return submitOtp(_that.otp,_that.subAccountId);case _ClearError() when clearError != null:
 return clearError();case _ClearSuccess() when clearSuccess != null:
 return clearSuccess();case _:
   return null;
@@ -1036,6 +1042,74 @@ String toString() {
 /// @nodoc
 
 
+class _SubmitOtp implements PurchaseEvent {
+  const _SubmitOtp({required this.otp, this.subAccountId});
+  
+
+ final  String otp;
+ final  String? subAccountId;
+
+/// Create a copy of PurchaseEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SubmitOtpCopyWith<_SubmitOtp> get copyWith => __$SubmitOtpCopyWithImpl<_SubmitOtp>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmitOtp&&(identical(other.otp, otp) || other.otp == otp)&&(identical(other.subAccountId, subAccountId) || other.subAccountId == subAccountId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,otp,subAccountId);
+
+@override
+String toString() {
+  return 'PurchaseEvent.submitOtp(otp: $otp, subAccountId: $subAccountId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SubmitOtpCopyWith<$Res> implements $PurchaseEventCopyWith<$Res> {
+  factory _$SubmitOtpCopyWith(_SubmitOtp value, $Res Function(_SubmitOtp) _then) = __$SubmitOtpCopyWithImpl;
+@useResult
+$Res call({
+ String otp, String? subAccountId
+});
+
+
+
+
+}
+/// @nodoc
+class __$SubmitOtpCopyWithImpl<$Res>
+    implements _$SubmitOtpCopyWith<$Res> {
+  __$SubmitOtpCopyWithImpl(this._self, this._then);
+
+  final _SubmitOtp _self;
+  final $Res Function(_SubmitOtp) _then;
+
+/// Create a copy of PurchaseEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? otp = null,Object? subAccountId = freezed,}) {
+  return _then(_SubmitOtp(
+otp: null == otp ? _self.otp : otp // ignore: cast_nullable_to_non_nullable
+as String,subAccountId: freezed == subAccountId ? _self.subAccountId : subAccountId // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class _ClearError implements PurchaseEvent {
   const _ClearError();
   
@@ -1100,7 +1174,9 @@ String toString() {
 /// @nodoc
 mixin _$PurchaseState {
 
- bool get isLoadingProviders; bool get isLoadingProducts; bool get isLoadingHistory; bool get isPurchasing; bool get isValidating; List<ServiceProvider> get providers; List<ServiceProduct> get products; List<Purchase> get history; List<String> get recentRecipients; PurchaseCategory? get selectedCategory; ServiceProvider? get selectedProvider; ServiceProduct? get selectedProduct; String? get recipientNumber; bool? get isRecipientValid; Purchase? get lastPurchase; bool get hasMoreHistory; String? get errorMessage; String? get successMessage;
+ bool get isLoadingProviders; bool get isLoadingProducts; bool get isLoadingHistory; bool get isPurchasing; bool get isValidating; List<ServiceProvider> get providers; List<ServiceProduct> get products; List<Purchase> get history; List<String> get recentRecipients; PurchaseCategory? get selectedCategory; ServiceProvider? get selectedProvider; ServiceProduct? get selectedProduct; String? get recipientNumber; bool? get isRecipientValid; Purchase? get lastPurchase; bool get hasMoreHistory;/// When true, the UI should show an OTP input for step-up verification.
+ bool get isAwaitingOtp;/// Masked phone number to display alongside OTP prompt (e.g. "0**-***-5678").
+ String? get otpPhoneNumber; String? get errorMessage; String? get successMessage;
 /// Create a copy of PurchaseState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1111,16 +1187,16 @@ $PurchaseStateCopyWith<PurchaseState> get copyWith => _$PurchaseStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PurchaseState&&(identical(other.isLoadingProviders, isLoadingProviders) || other.isLoadingProviders == isLoadingProviders)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.isPurchasing, isPurchasing) || other.isPurchasing == isPurchasing)&&(identical(other.isValidating, isValidating) || other.isValidating == isValidating)&&const DeepCollectionEquality().equals(other.providers, providers)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.history, history)&&const DeepCollectionEquality().equals(other.recentRecipients, recentRecipients)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&(identical(other.selectedProduct, selectedProduct) || other.selectedProduct == selectedProduct)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.isRecipientValid, isRecipientValid) || other.isRecipientValid == isRecipientValid)&&(identical(other.lastPurchase, lastPurchase) || other.lastPurchase == lastPurchase)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PurchaseState&&(identical(other.isLoadingProviders, isLoadingProviders) || other.isLoadingProviders == isLoadingProviders)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.isPurchasing, isPurchasing) || other.isPurchasing == isPurchasing)&&(identical(other.isValidating, isValidating) || other.isValidating == isValidating)&&const DeepCollectionEquality().equals(other.providers, providers)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.history, history)&&const DeepCollectionEquality().equals(other.recentRecipients, recentRecipients)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&(identical(other.selectedProduct, selectedProduct) || other.selectedProduct == selectedProduct)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.isRecipientValid, isRecipientValid) || other.isRecipientValid == isRecipientValid)&&(identical(other.lastPurchase, lastPurchase) || other.lastPurchase == lastPurchase)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.isAwaitingOtp, isAwaitingOtp) || other.isAwaitingOtp == isAwaitingOtp)&&(identical(other.otpPhoneNumber, otpPhoneNumber) || other.otpPhoneNumber == otpPhoneNumber)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoadingProviders,isLoadingProducts,isLoadingHistory,isPurchasing,isValidating,const DeepCollectionEquality().hash(providers),const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(history),const DeepCollectionEquality().hash(recentRecipients),selectedCategory,selectedProvider,selectedProduct,recipientNumber,isRecipientValid,lastPurchase,hasMoreHistory,errorMessage,successMessage);
+int get hashCode => Object.hashAll([runtimeType,isLoadingProviders,isLoadingProducts,isLoadingHistory,isPurchasing,isValidating,const DeepCollectionEquality().hash(providers),const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(history),const DeepCollectionEquality().hash(recentRecipients),selectedCategory,selectedProvider,selectedProduct,recipientNumber,isRecipientValid,lastPurchase,hasMoreHistory,isAwaitingOtp,otpPhoneNumber,errorMessage,successMessage]);
 
 @override
 String toString() {
-  return 'PurchaseState(isLoadingProviders: $isLoadingProviders, isLoadingProducts: $isLoadingProducts, isLoadingHistory: $isLoadingHistory, isPurchasing: $isPurchasing, isValidating: $isValidating, providers: $providers, products: $products, history: $history, recentRecipients: $recentRecipients, selectedCategory: $selectedCategory, selectedProvider: $selectedProvider, selectedProduct: $selectedProduct, recipientNumber: $recipientNumber, isRecipientValid: $isRecipientValid, lastPurchase: $lastPurchase, hasMoreHistory: $hasMoreHistory, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'PurchaseState(isLoadingProviders: $isLoadingProviders, isLoadingProducts: $isLoadingProducts, isLoadingHistory: $isLoadingHistory, isPurchasing: $isPurchasing, isValidating: $isValidating, providers: $providers, products: $products, history: $history, recentRecipients: $recentRecipients, selectedCategory: $selectedCategory, selectedProvider: $selectedProvider, selectedProduct: $selectedProduct, recipientNumber: $recipientNumber, isRecipientValid: $isRecipientValid, lastPurchase: $lastPurchase, hasMoreHistory: $hasMoreHistory, isAwaitingOtp: $isAwaitingOtp, otpPhoneNumber: $otpPhoneNumber, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -1131,7 +1207,7 @@ abstract mixin class $PurchaseStateCopyWith<$Res>  {
   factory $PurchaseStateCopyWith(PurchaseState value, $Res Function(PurchaseState) _then) = _$PurchaseStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoadingProviders, bool isLoadingProducts, bool isLoadingHistory, bool isPurchasing, bool isValidating, List<ServiceProvider> providers, List<ServiceProduct> products, List<Purchase> history, List<String> recentRecipients, PurchaseCategory? selectedCategory, ServiceProvider? selectedProvider, ServiceProduct? selectedProduct, String? recipientNumber, bool? isRecipientValid, Purchase? lastPurchase, bool hasMoreHistory, String? errorMessage, String? successMessage
+ bool isLoadingProviders, bool isLoadingProducts, bool isLoadingHistory, bool isPurchasing, bool isValidating, List<ServiceProvider> providers, List<ServiceProduct> products, List<Purchase> history, List<String> recentRecipients, PurchaseCategory? selectedCategory, ServiceProvider? selectedProvider, ServiceProduct? selectedProduct, String? recipientNumber, bool? isRecipientValid, Purchase? lastPurchase, bool hasMoreHistory, bool isAwaitingOtp, String? otpPhoneNumber, String? errorMessage, String? successMessage
 });
 
 
@@ -1148,7 +1224,7 @@ class _$PurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of PurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoadingProviders = null,Object? isLoadingProducts = null,Object? isLoadingHistory = null,Object? isPurchasing = null,Object? isValidating = null,Object? providers = null,Object? products = null,Object? history = null,Object? recentRecipients = null,Object? selectedCategory = freezed,Object? selectedProvider = freezed,Object? selectedProduct = freezed,Object? recipientNumber = freezed,Object? isRecipientValid = freezed,Object? lastPurchase = freezed,Object? hasMoreHistory = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoadingProviders = null,Object? isLoadingProducts = null,Object? isLoadingHistory = null,Object? isPurchasing = null,Object? isValidating = null,Object? providers = null,Object? products = null,Object? history = null,Object? recentRecipients = null,Object? selectedCategory = freezed,Object? selectedProvider = freezed,Object? selectedProduct = freezed,Object? recipientNumber = freezed,Object? isRecipientValid = freezed,Object? lastPurchase = freezed,Object? hasMoreHistory = null,Object? isAwaitingOtp = null,Object? otpPhoneNumber = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoadingProviders: null == isLoadingProviders ? _self.isLoadingProviders : isLoadingProviders // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingProducts: null == isLoadingProducts ? _self.isLoadingProducts : isLoadingProducts // ignore: cast_nullable_to_non_nullable
@@ -1166,7 +1242,9 @@ as ServiceProduct?,recipientNumber: freezed == recipientNumber ? _self.recipient
 as String?,isRecipientValid: freezed == isRecipientValid ? _self.isRecipientValid : isRecipientValid // ignore: cast_nullable_to_non_nullable
 as bool?,lastPurchase: freezed == lastPurchase ? _self.lastPurchase : lastPurchase // ignore: cast_nullable_to_non_nullable
 as Purchase?,hasMoreHistory: null == hasMoreHistory ? _self.hasMoreHistory : hasMoreHistory // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as bool,isAwaitingOtp: null == isAwaitingOtp ? _self.isAwaitingOtp : isAwaitingOtp // ignore: cast_nullable_to_non_nullable
+as bool,otpPhoneNumber: freezed == otpPhoneNumber ? _self.otpPhoneNumber : otpPhoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -1289,10 +1367,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  bool isAwaitingOtp,  String? otpPhoneNumber,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PurchaseState() when $default != null:
-return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.isAwaitingOtp,_that.otpPhoneNumber,_that.errorMessage,_that.successMessage);case _:
   return orElse();
 
 }
@@ -1310,10 +1388,10 @@ return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoading
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  bool isAwaitingOtp,  String? otpPhoneNumber,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
 switch (_that) {
 case _PurchaseState():
-return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.isAwaitingOtp,_that.otpPhoneNumber,_that.errorMessage,_that.successMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1330,10 +1408,10 @@ return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoading
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoadingProviders,  bool isLoadingProducts,  bool isLoadingHistory,  bool isPurchasing,  bool isValidating,  List<ServiceProvider> providers,  List<ServiceProduct> products,  List<Purchase> history,  List<String> recentRecipients,  PurchaseCategory? selectedCategory,  ServiceProvider? selectedProvider,  ServiceProduct? selectedProduct,  String? recipientNumber,  bool? isRecipientValid,  Purchase? lastPurchase,  bool hasMoreHistory,  bool isAwaitingOtp,  String? otpPhoneNumber,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _PurchaseState() when $default != null:
-return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoadingHistory,_that.isPurchasing,_that.isValidating,_that.providers,_that.products,_that.history,_that.recentRecipients,_that.selectedCategory,_that.selectedProvider,_that.selectedProduct,_that.recipientNumber,_that.isRecipientValid,_that.lastPurchase,_that.hasMoreHistory,_that.isAwaitingOtp,_that.otpPhoneNumber,_that.errorMessage,_that.successMessage);case _:
   return null;
 
 }
@@ -1345,7 +1423,7 @@ return $default(_that.isLoadingProviders,_that.isLoadingProducts,_that.isLoading
 
 
 class _PurchaseState implements PurchaseState {
-  const _PurchaseState({this.isLoadingProviders = false, this.isLoadingProducts = false, this.isLoadingHistory = false, this.isPurchasing = false, this.isValidating = false, final  List<ServiceProvider> providers = const [], final  List<ServiceProduct> products = const [], final  List<Purchase> history = const [], final  List<String> recentRecipients = const [], this.selectedCategory, this.selectedProvider, this.selectedProduct, this.recipientNumber, this.isRecipientValid, this.lastPurchase, this.hasMoreHistory = false, this.errorMessage, this.successMessage}): _providers = providers,_products = products,_history = history,_recentRecipients = recentRecipients;
+  const _PurchaseState({this.isLoadingProviders = false, this.isLoadingProducts = false, this.isLoadingHistory = false, this.isPurchasing = false, this.isValidating = false, final  List<ServiceProvider> providers = const [], final  List<ServiceProduct> products = const [], final  List<Purchase> history = const [], final  List<String> recentRecipients = const [], this.selectedCategory, this.selectedProvider, this.selectedProduct, this.recipientNumber, this.isRecipientValid, this.lastPurchase, this.hasMoreHistory = false, this.isAwaitingOtp = false, this.otpPhoneNumber, this.errorMessage, this.successMessage}): _providers = providers,_products = products,_history = history,_recentRecipients = recentRecipients;
   
 
 @override@JsonKey() final  bool isLoadingProviders;
@@ -1388,6 +1466,10 @@ class _PurchaseState implements PurchaseState {
 @override final  bool? isRecipientValid;
 @override final  Purchase? lastPurchase;
 @override@JsonKey() final  bool hasMoreHistory;
+/// When true, the UI should show an OTP input for step-up verification.
+@override@JsonKey() final  bool isAwaitingOtp;
+/// Masked phone number to display alongside OTP prompt (e.g. "0**-***-5678").
+@override final  String? otpPhoneNumber;
 @override final  String? errorMessage;
 @override final  String? successMessage;
 
@@ -1401,16 +1483,16 @@ _$PurchaseStateCopyWith<_PurchaseState> get copyWith => __$PurchaseStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PurchaseState&&(identical(other.isLoadingProviders, isLoadingProviders) || other.isLoadingProviders == isLoadingProviders)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.isPurchasing, isPurchasing) || other.isPurchasing == isPurchasing)&&(identical(other.isValidating, isValidating) || other.isValidating == isValidating)&&const DeepCollectionEquality().equals(other._providers, _providers)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._history, _history)&&const DeepCollectionEquality().equals(other._recentRecipients, _recentRecipients)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&(identical(other.selectedProduct, selectedProduct) || other.selectedProduct == selectedProduct)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.isRecipientValid, isRecipientValid) || other.isRecipientValid == isRecipientValid)&&(identical(other.lastPurchase, lastPurchase) || other.lastPurchase == lastPurchase)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PurchaseState&&(identical(other.isLoadingProviders, isLoadingProviders) || other.isLoadingProviders == isLoadingProviders)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.isPurchasing, isPurchasing) || other.isPurchasing == isPurchasing)&&(identical(other.isValidating, isValidating) || other.isValidating == isValidating)&&const DeepCollectionEquality().equals(other._providers, _providers)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._history, _history)&&const DeepCollectionEquality().equals(other._recentRecipients, _recentRecipients)&&(identical(other.selectedCategory, selectedCategory) || other.selectedCategory == selectedCategory)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&(identical(other.selectedProduct, selectedProduct) || other.selectedProduct == selectedProduct)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.isRecipientValid, isRecipientValid) || other.isRecipientValid == isRecipientValid)&&(identical(other.lastPurchase, lastPurchase) || other.lastPurchase == lastPurchase)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.isAwaitingOtp, isAwaitingOtp) || other.isAwaitingOtp == isAwaitingOtp)&&(identical(other.otpPhoneNumber, otpPhoneNumber) || other.otpPhoneNumber == otpPhoneNumber)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoadingProviders,isLoadingProducts,isLoadingHistory,isPurchasing,isValidating,const DeepCollectionEquality().hash(_providers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_history),const DeepCollectionEquality().hash(_recentRecipients),selectedCategory,selectedProvider,selectedProduct,recipientNumber,isRecipientValid,lastPurchase,hasMoreHistory,errorMessage,successMessage);
+int get hashCode => Object.hashAll([runtimeType,isLoadingProviders,isLoadingProducts,isLoadingHistory,isPurchasing,isValidating,const DeepCollectionEquality().hash(_providers),const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_history),const DeepCollectionEquality().hash(_recentRecipients),selectedCategory,selectedProvider,selectedProduct,recipientNumber,isRecipientValid,lastPurchase,hasMoreHistory,isAwaitingOtp,otpPhoneNumber,errorMessage,successMessage]);
 
 @override
 String toString() {
-  return 'PurchaseState(isLoadingProviders: $isLoadingProviders, isLoadingProducts: $isLoadingProducts, isLoadingHistory: $isLoadingHistory, isPurchasing: $isPurchasing, isValidating: $isValidating, providers: $providers, products: $products, history: $history, recentRecipients: $recentRecipients, selectedCategory: $selectedCategory, selectedProvider: $selectedProvider, selectedProduct: $selectedProduct, recipientNumber: $recipientNumber, isRecipientValid: $isRecipientValid, lastPurchase: $lastPurchase, hasMoreHistory: $hasMoreHistory, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'PurchaseState(isLoadingProviders: $isLoadingProviders, isLoadingProducts: $isLoadingProducts, isLoadingHistory: $isLoadingHistory, isPurchasing: $isPurchasing, isValidating: $isValidating, providers: $providers, products: $products, history: $history, recentRecipients: $recentRecipients, selectedCategory: $selectedCategory, selectedProvider: $selectedProvider, selectedProduct: $selectedProduct, recipientNumber: $recipientNumber, isRecipientValid: $isRecipientValid, lastPurchase: $lastPurchase, hasMoreHistory: $hasMoreHistory, isAwaitingOtp: $isAwaitingOtp, otpPhoneNumber: $otpPhoneNumber, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -1421,7 +1503,7 @@ abstract mixin class _$PurchaseStateCopyWith<$Res> implements $PurchaseStateCopy
   factory _$PurchaseStateCopyWith(_PurchaseState value, $Res Function(_PurchaseState) _then) = __$PurchaseStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoadingProviders, bool isLoadingProducts, bool isLoadingHistory, bool isPurchasing, bool isValidating, List<ServiceProvider> providers, List<ServiceProduct> products, List<Purchase> history, List<String> recentRecipients, PurchaseCategory? selectedCategory, ServiceProvider? selectedProvider, ServiceProduct? selectedProduct, String? recipientNumber, bool? isRecipientValid, Purchase? lastPurchase, bool hasMoreHistory, String? errorMessage, String? successMessage
+ bool isLoadingProviders, bool isLoadingProducts, bool isLoadingHistory, bool isPurchasing, bool isValidating, List<ServiceProvider> providers, List<ServiceProduct> products, List<Purchase> history, List<String> recentRecipients, PurchaseCategory? selectedCategory, ServiceProvider? selectedProvider, ServiceProduct? selectedProduct, String? recipientNumber, bool? isRecipientValid, Purchase? lastPurchase, bool hasMoreHistory, bool isAwaitingOtp, String? otpPhoneNumber, String? errorMessage, String? successMessage
 });
 
 
@@ -1438,7 +1520,7 @@ class __$PurchaseStateCopyWithImpl<$Res>
 
 /// Create a copy of PurchaseState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoadingProviders = null,Object? isLoadingProducts = null,Object? isLoadingHistory = null,Object? isPurchasing = null,Object? isValidating = null,Object? providers = null,Object? products = null,Object? history = null,Object? recentRecipients = null,Object? selectedCategory = freezed,Object? selectedProvider = freezed,Object? selectedProduct = freezed,Object? recipientNumber = freezed,Object? isRecipientValid = freezed,Object? lastPurchase = freezed,Object? hasMoreHistory = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoadingProviders = null,Object? isLoadingProducts = null,Object? isLoadingHistory = null,Object? isPurchasing = null,Object? isValidating = null,Object? providers = null,Object? products = null,Object? history = null,Object? recentRecipients = null,Object? selectedCategory = freezed,Object? selectedProvider = freezed,Object? selectedProduct = freezed,Object? recipientNumber = freezed,Object? isRecipientValid = freezed,Object? lastPurchase = freezed,Object? hasMoreHistory = null,Object? isAwaitingOtp = null,Object? otpPhoneNumber = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_PurchaseState(
 isLoadingProviders: null == isLoadingProviders ? _self.isLoadingProviders : isLoadingProviders // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingProducts: null == isLoadingProducts ? _self.isLoadingProducts : isLoadingProducts // ignore: cast_nullable_to_non_nullable
@@ -1456,7 +1538,9 @@ as ServiceProduct?,recipientNumber: freezed == recipientNumber ? _self.recipient
 as String?,isRecipientValid: freezed == isRecipientValid ? _self.isRecipientValid : isRecipientValid // ignore: cast_nullable_to_non_nullable
 as bool?,lastPurchase: freezed == lastPurchase ? _self.lastPurchase : lastPurchase // ignore: cast_nullable_to_non_nullable
 as Purchase?,hasMoreHistory: null == hasMoreHistory ? _self.hasMoreHistory : hasMoreHistory // ignore: cast_nullable_to_non_nullable
-as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as bool,isAwaitingOtp: null == isAwaitingOtp ? _self.isAwaitingOtp : isAwaitingOtp // ignore: cast_nullable_to_non_nullable
+as bool,otpPhoneNumber: freezed == otpPhoneNumber ? _self.otpPhoneNumber : otpPhoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

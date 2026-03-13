@@ -211,8 +211,8 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                   width: 48,
                   height: 48,
                   fit: BoxFit.contain,
-                  placeholder: (_, __) => _buildProviderInitials(provider),
-                  errorWidget: (_, __, ___) =>
+                  placeholder: (_, _) => _buildProviderInitials(provider),
+                  errorWidget: (_, _, _) =>
                       _buildProviderInitials(provider),
                 ),
               )
@@ -273,7 +273,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           mainAxisSpacing: 12,
         ),
         itemCount: 6,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
@@ -455,7 +455,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: state.recentRecipients.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final number = state.recentRecipients[index];
                   return ActionChip(
@@ -631,7 +631,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
-        itemBuilder: (_, __) => Padding(
+        itemBuilder: (_, _) => Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
             height: 72,

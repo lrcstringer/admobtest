@@ -195,7 +195,7 @@ class _PurchaseSummaryCard extends StatelessWidget {
           ),
           _SummaryRow(
             label: 'ZAR equivalent',
-            value: 'R${(product.priceTokens / 100).toStringAsFixed(2)}',
+            value: 'R${product.priceZar.toStringAsFixed(2)}',
             isSecondary: true,
           ),
           if (product.priceZar > 0 &&

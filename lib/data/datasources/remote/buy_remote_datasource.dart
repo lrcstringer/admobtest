@@ -35,7 +35,7 @@ abstract class BuyRemoteDataSource {
   /// Submit a review for a brand via Cloud Function
   Future<void> submitBrandReview({
     required String brandId,
-    String? orderId,
+    required String orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -51,6 +51,22 @@ abstract class BuyRemoteDataSource {
   /// Get marketplace stats (listing count, seller count, trending thumbnails)
   Future<({int listingCount, int sellerCount, List<String> thumbnails})>
       getMarketplaceStats();
+
+  /// Claim a coupon from a brand storefront
+  Future<String> claimStorefrontCoupon({
+    required String storefrontId,
+    required String couponId,
+    String? couponCode,
+  });
+
+  /// Get coupon IDs the current user has already claimed for a storefront
+  Future<Set<String>> getClaimedCouponIds(String storefrontId);
+
+  /// Record a storefront view (fire-and-forget analytics)
+  Future<void> recordStorefrontView(String storefrontId);
+
+  /// Toggle follow/unfollow for a brand
+  Future<bool> toggleBrandFollow(String brandId);
 }
 
 @LazySingleton(as: BuyRemoteDataSource)
@@ -169,10 +185,10 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
 
   @override
   Future<List<BrandProductModel>> getBrandProducts(String brandId) async {
+    final storefrontId = 'store_$brandId';
     final snapshot = await _firestore
-        .collection('brandStorefronts')
-        .doc(brandId)
-        .collection('products')
+        .collection('brandProducts')
+        .where('storefrontId', isEqualTo: storefrontId)
         .where('isActive', isEqualTo: true)
         .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
@@ -207,7 +223,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   @override
   Future<void> submitBrandReview({
     required String brandId,
-    String? orderId,
+    required String orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -215,7 +231,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   }) async {
     await _functions.httpsCallable('submitBrandReview').call<dynamic>({
       'brandId': brandId,
-      if (orderId != null) 'orderId': orderId,
+      'orderId': orderId,
       'qualityRating': qualityRating,
       'valueRating': valueRating,
       'serviceRating': serviceRating,
@@ -290,5 +306,49 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
       sellerCount: sellersSnapshot.count ?? 0,
       thumbnails: thumbnails,
     );
+  }
+
+  @override
+  Future<String> claimStorefrontCoupon({
+    required String storefrontId,
+    required String couponId,
+    String? couponCode,
+  }) async {
+    final result =
+        await _functions.httpsCallable('claimStorefrontCoupon').call({
+      'storefrontId': storefrontId,
+      'couponId': couponId,
+      if (couponCode != null) 'couponCode': couponCode,
+    });
+    return result.data['couponCode'] as String;
+  }
+
+  @override
+  Future<Set<String>> getClaimedCouponIds(String storefrontId) async {
+    final result =
+        await _functions.httpsCallable('getClaimedCoupons').call({
+      'storefrontId': storefrontId,
+    });
+    final couponIds = (result.data['couponIds'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toSet() ??
+        {};
+    return couponIds;
+  }
+
+  @override
+  Future<void> recordStorefrontView(String storefrontId) async {
+    await _functions.httpsCallable('recordStorefrontView').call({
+      'storefrontId': storefrontId,
+    });
+  }
+
+  @override
+  Future<bool> toggleBrandFollow(String brandId) async {
+    final result =
+        await _functions.httpsCallable('toggleBrandFollow').call({
+      'brandId': brandId,
+    });
+    return result.data['isFollowing'] as bool;
   }
 }

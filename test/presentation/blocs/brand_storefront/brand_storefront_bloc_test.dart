@@ -44,8 +44,10 @@ void main() {
               .thenAnswer((_) async => Right(testStorefront));
           when(() => mockBuyRepository.getClaimedCouponIds(any()))
               .thenAnswer((_) async => const Right(<String>{}));
-          when(() => mockBuyRepository.isFollowingBrand(any()))
-              .thenAnswer((_) async => const Right(false));
+          when(() => mockBuyRepository.getFollowStatus(any()))
+              .thenAnswer((_) async => const Right(
+                    (isFollowing: false, followedAt: null),
+                  ));
           when(() => mockBuyRepository.getBrandProducts(any()))
               .thenAnswer((_) async => const Right([]));
           when(() => mockBuyRepository.getBrandReviews(any()))

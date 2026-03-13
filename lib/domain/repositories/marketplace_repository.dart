@@ -7,6 +7,7 @@ import '../entities/buy_order.dart';
 import '../entities/marketplace_listing.dart';
 import '../entities/marketplace_offer.dart';
 import '../entities/marketplace_provider.dart';
+import '../entities/seller_dashboard.dart';
 import '../entities/vouch.dart';
 
 abstract class MarketplaceRepository {
@@ -145,7 +146,7 @@ abstract class MarketplaceRepository {
   });
 
   /// Get seller dashboard analytics
-  Future<Either<Failure, Map<String, dynamic>>> getSellerDashboard();
+  Future<Either<Failure, SellerDashboard>> getSellerDashboard();
 
   /// Get marketplace stats for the entry card
   Future<Either<Failure, ({int listingCount, int sellerCount, List<String> thumbnails})>>

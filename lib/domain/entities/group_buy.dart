@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../enums/group_buy_fulfilment_type.dart';
 import '../enums/group_buy_status.dart';
 import '../enums/group_buy_type.dart';
+import '../enums/sponsor_type.dart';
 
 part 'group_buy.freezed.dart';
 
@@ -29,8 +30,7 @@ class GroupBuy with _$GroupBuy {
     required GroupBuyStatus status,
     @Default(0) int participantCount,
 
-    /// 'community' or 'brand'
-    @Default('community') String sponsorType,
+    @Default(SponsorType.community) SponsorType sponsorType,
     String? brandId,
     String? brandName,
     String? brandLogoUrl,
@@ -97,7 +97,7 @@ class GroupBuy with _$GroupBuy {
       : null;
 
   /// Whether sponsored by a brand
-  bool get isBrandSponsored => sponsorType == 'brand' && brandId != null;
+  bool get isBrandSponsored => sponsorType == SponsorType.brand && brandId != null;
 
   /// Whether the deadline has passed
   bool isExpired({DateTime? now}) => (now ?? DateTime.now()).isAfter(deadline);

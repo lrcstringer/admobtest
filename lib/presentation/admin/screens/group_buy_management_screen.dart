@@ -39,6 +39,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     super.dispose();
   }
 
+  final _firestore = FirebaseFirestore.instance;
   final _functions =
       FirebaseFunctions.instanceFor(region: 'africa-south1');
 
@@ -50,7 +51,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
         _functions.httpsCallable('adminListGroupBuys').call<dynamic>({
           'limit': _pageSize,
         }),
-        FirebaseFirestore.instance
+        _firestore
             .collection('groupBuyRequests')
             .orderBy('createdAt', descending: true)
             .limit(100)
@@ -95,7 +96,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     if (!_hasMore || _isLoading || _lastDoc == null) return;
     setState(() => _isLoading = true);
     try {
-      final snapshot = await FirebaseFirestore.instance
+      final snapshot = await _firestore
           .collection('groupBuys')
           .orderBy('createdAt', descending: true)
           .startAfterDocument(_lastDoc!)
@@ -1378,7 +1379,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 FutureBuilder<QuerySnapshot>(
-                  future: FirebaseFirestore.instance
+                  future: _firestore
                       .collection('groupBuys')
                       .doc(item['id'])
                       .collection('contributions')
@@ -1552,7 +1553,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   Future<void> _extendDeadline(
       String groupBuyId, DateTime newDeadline, String reason) async {
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminExtendGroupBuyDeadline')
           .call({
         'groupBuyId': groupBuyId,
@@ -1605,7 +1606,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
 
   Future<void> _forceComplete(String groupBuyId) async {
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminForceCompleteGroupBuy')
           .call({'groupBuyId': groupBuyId});
       if (mounted) {
@@ -1656,7 +1657,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
 
   Future<void> _forceCancel(String groupBuyId) async {
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminForceCancelGroupBuy')
           .call({'groupBuyId': groupBuyId});
       if (mounted) {
@@ -1678,7 +1679,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
 
   Future<void> _retryRefunds(String groupBuyId) async {
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminRetryGroupBuyRefunds')
           .call({'groupBuyId': groupBuyId});
       if (mounted) {

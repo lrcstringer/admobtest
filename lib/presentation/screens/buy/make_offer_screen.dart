@@ -42,7 +42,16 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
     final isMakingOffer = context.read<MarketplaceBloc>().state.isMakingOffer;
     if (!_formKey.currentState!.validate() || isMakingOffer) return;
 
-    final offerZar = double.parse(_amountController.text);
+    final offerZar = double.tryParse(_amountController.text);
+    if (offerZar == null || offerZar <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid amount'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     final offerTokens = (offerZar * 100).round();
 
     context.read<MarketplaceBloc>().add(

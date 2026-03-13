@@ -263,12 +263,6 @@ class AdminRouter {
             },
           ),
           GoRoute(
-            path: '/buy-purchase-monitoring',
-            name: 'adminBuyPurchaseMonitoring',
-            builder: (context, state) =>
-                const BuyPurchaseMonitoringScreen(),
-          ),
-          GoRoute(
             path: '/buy-providers',
             name: 'adminBuyProviders',
             builder: (context, state) =>

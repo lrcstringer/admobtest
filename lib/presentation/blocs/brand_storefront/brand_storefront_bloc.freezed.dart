@@ -140,10 +140,10 @@ return resetReviewState(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id)?  loadStorefront,TResult Function( String brandId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,TResult Function()?  resetReviewState,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String? orderId)?  loadStorefront,TResult Function( String brandId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,TResult Function()?  resetReviewState,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
-return loadStorefront(_that.id);case _LoadProducts() when loadProducts != null:
+return loadStorefront(_that.id,_that.orderId);case _LoadProducts() when loadProducts != null:
 return loadProducts(_that.brandId);case _LoadReviews() when loadReviews != null:
 return loadReviews(_that.brandId);case _SubmitReview() when submitReview != null:
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon() when claimCoupon != null:
@@ -168,10 +168,10 @@ return resetReviewState();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id)  loadStorefront,required TResult Function( String brandId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,required TResult Function()  resetReviewState,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String? orderId)  loadStorefront,required TResult Function( String brandId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,required TResult Function()  resetReviewState,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront():
-return loadStorefront(_that.id);case _LoadProducts():
+return loadStorefront(_that.id,_that.orderId);case _LoadProducts():
 return loadProducts(_that.brandId);case _LoadReviews():
 return loadReviews(_that.brandId);case _SubmitReview():
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon():
@@ -195,10 +195,10 @@ return resetReviewState();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id)?  loadStorefront,TResult? Function( String brandId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,TResult? Function()?  resetReviewState,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String? orderId)?  loadStorefront,TResult? Function( String brandId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,TResult? Function()?  resetReviewState,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
-return loadStorefront(_that.id);case _LoadProducts() when loadProducts != null:
+return loadStorefront(_that.id,_that.orderId);case _LoadProducts() when loadProducts != null:
 return loadProducts(_that.brandId);case _LoadReviews() when loadReviews != null:
 return loadReviews(_that.brandId);case _SubmitReview() when submitReview != null:
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon() when claimCoupon != null:
@@ -217,10 +217,11 @@ return resetReviewState();case _:
 
 
 class _LoadStorefront implements BrandStorefrontEvent {
-  const _LoadStorefront(this.id);
+  const _LoadStorefront(this.id, {this.orderId});
   
 
  final  String id;
+ final  String? orderId;
 
 /// Create a copy of BrandStorefrontEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -232,16 +233,16 @@ _$LoadStorefrontCopyWith<_LoadStorefront> get copyWith => __$LoadStorefrontCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadStorefront&&(identical(other.id, id) || other.id == id));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadStorefront&&(identical(other.id, id) || other.id == id)&&(identical(other.orderId, orderId) || other.orderId == orderId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id);
+int get hashCode => Object.hash(runtimeType,id,orderId);
 
 @override
 String toString() {
-  return 'BrandStorefrontEvent.loadStorefront(id: $id)';
+  return 'BrandStorefrontEvent.loadStorefront(id: $id, orderId: $orderId)';
 }
 
 
@@ -252,7 +253,7 @@ abstract mixin class _$LoadStorefrontCopyWith<$Res> implements $BrandStorefrontE
   factory _$LoadStorefrontCopyWith(_LoadStorefront value, $Res Function(_LoadStorefront) _then) = __$LoadStorefrontCopyWithImpl;
 @useResult
 $Res call({
- String id
+ String id, String? orderId
 });
 
 
@@ -269,10 +270,11 @@ class __$LoadStorefrontCopyWithImpl<$Res>
 
 /// Create a copy of BrandStorefrontEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? id = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? id = null,Object? orderId = freezed,}) {
   return _then(_LoadStorefront(
 null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,
+as String,orderId: freezed == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -724,7 +726,7 @@ String toString() {
 /// @nodoc
 mixin _$BrandStorefrontState {
 
- bool get isLoading; BrandStorefront? get storefront; List<BrandProduct> get products; List<BrandReview> get reviews; bool get isLoadingProducts; bool get isLoadingReviews; bool get isSubmittingReview; bool get reviewSubmitSuccess; bool get isClaimingCoupon; Set<String> get claimedCouponIds; String? get lastClaimedCouponCode; bool get isFollowing; DateTime? get followedAt; bool get isTogglingFollow; String? get errorMessage;
+ bool get isLoading; BrandStorefront? get storefront; List<BrandProduct> get products; List<BrandReview> get reviews; bool get isLoadingProducts; bool get isLoadingReviews; bool get isSubmittingReview; bool get reviewSubmitSuccess; bool get isClaimingCoupon; Set<String> get claimedCouponIds; String? get lastClaimedCouponCode; bool get isFollowing; DateTime? get followedAt; bool get isTogglingFollow; String? get errorMessage; String? get eligibleReviewOrderId;
 /// Create a copy of BrandStorefrontState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -735,16 +737,16 @@ $BrandStorefrontStateCopyWith<BrandStorefrontState> get copyWith => _$BrandStore
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandStorefrontState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.storefront, storefront) || other.storefront == storefront)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingReviews, isLoadingReviews) || other.isLoadingReviews == isLoadingReviews)&&(identical(other.isSubmittingReview, isSubmittingReview) || other.isSubmittingReview == isSubmittingReview)&&(identical(other.reviewSubmitSuccess, reviewSubmitSuccess) || other.reviewSubmitSuccess == reviewSubmitSuccess)&&(identical(other.isClaimingCoupon, isClaimingCoupon) || other.isClaimingCoupon == isClaimingCoupon)&&const DeepCollectionEquality().equals(other.claimedCouponIds, claimedCouponIds)&&(identical(other.lastClaimedCouponCode, lastClaimedCouponCode) || other.lastClaimedCouponCode == lastClaimedCouponCode)&&(identical(other.isFollowing, isFollowing) || other.isFollowing == isFollowing)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.isTogglingFollow, isTogglingFollow) || other.isTogglingFollow == isTogglingFollow)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrandStorefrontState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.storefront, storefront) || other.storefront == storefront)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingReviews, isLoadingReviews) || other.isLoadingReviews == isLoadingReviews)&&(identical(other.isSubmittingReview, isSubmittingReview) || other.isSubmittingReview == isSubmittingReview)&&(identical(other.reviewSubmitSuccess, reviewSubmitSuccess) || other.reviewSubmitSuccess == reviewSubmitSuccess)&&(identical(other.isClaimingCoupon, isClaimingCoupon) || other.isClaimingCoupon == isClaimingCoupon)&&const DeepCollectionEquality().equals(other.claimedCouponIds, claimedCouponIds)&&(identical(other.lastClaimedCouponCode, lastClaimedCouponCode) || other.lastClaimedCouponCode == lastClaimedCouponCode)&&(identical(other.isFollowing, isFollowing) || other.isFollowing == isFollowing)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.isTogglingFollow, isTogglingFollow) || other.isTogglingFollow == isTogglingFollow)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.eligibleReviewOrderId, eligibleReviewOrderId) || other.eligibleReviewOrderId == eligibleReviewOrderId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,storefront,const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(reviews),isLoadingProducts,isLoadingReviews,isSubmittingReview,reviewSubmitSuccess,isClaimingCoupon,const DeepCollectionEquality().hash(claimedCouponIds),lastClaimedCouponCode,isFollowing,followedAt,isTogglingFollow,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,storefront,const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(reviews),isLoadingProducts,isLoadingReviews,isSubmittingReview,reviewSubmitSuccess,isClaimingCoupon,const DeepCollectionEquality().hash(claimedCouponIds),lastClaimedCouponCode,isFollowing,followedAt,isTogglingFollow,errorMessage,eligibleReviewOrderId);
 
 @override
 String toString() {
-  return 'BrandStorefrontState(isLoading: $isLoading, storefront: $storefront, products: $products, reviews: $reviews, isLoadingProducts: $isLoadingProducts, isLoadingReviews: $isLoadingReviews, isSubmittingReview: $isSubmittingReview, reviewSubmitSuccess: $reviewSubmitSuccess, isClaimingCoupon: $isClaimingCoupon, claimedCouponIds: $claimedCouponIds, lastClaimedCouponCode: $lastClaimedCouponCode, isFollowing: $isFollowing, followedAt: $followedAt, isTogglingFollow: $isTogglingFollow, errorMessage: $errorMessage)';
+  return 'BrandStorefrontState(isLoading: $isLoading, storefront: $storefront, products: $products, reviews: $reviews, isLoadingProducts: $isLoadingProducts, isLoadingReviews: $isLoadingReviews, isSubmittingReview: $isSubmittingReview, reviewSubmitSuccess: $reviewSubmitSuccess, isClaimingCoupon: $isClaimingCoupon, claimedCouponIds: $claimedCouponIds, lastClaimedCouponCode: $lastClaimedCouponCode, isFollowing: $isFollowing, followedAt: $followedAt, isTogglingFollow: $isTogglingFollow, errorMessage: $errorMessage, eligibleReviewOrderId: $eligibleReviewOrderId)';
 }
 
 
@@ -755,7 +757,7 @@ abstract mixin class $BrandStorefrontStateCopyWith<$Res>  {
   factory $BrandStorefrontStateCopyWith(BrandStorefrontState value, $Res Function(BrandStorefrontState) _then) = _$BrandStorefrontStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, BrandStorefront? storefront, List<BrandProduct> products, List<BrandReview> reviews, bool isLoadingProducts, bool isLoadingReviews, bool isSubmittingReview, bool reviewSubmitSuccess, bool isClaimingCoupon, Set<String> claimedCouponIds, String? lastClaimedCouponCode, bool isFollowing, DateTime? followedAt, bool isTogglingFollow, String? errorMessage
+ bool isLoading, BrandStorefront? storefront, List<BrandProduct> products, List<BrandReview> reviews, bool isLoadingProducts, bool isLoadingReviews, bool isSubmittingReview, bool reviewSubmitSuccess, bool isClaimingCoupon, Set<String> claimedCouponIds, String? lastClaimedCouponCode, bool isFollowing, DateTime? followedAt, bool isTogglingFollow, String? errorMessage, String? eligibleReviewOrderId
 });
 
 
@@ -772,7 +774,7 @@ class _$BrandStorefrontStateCopyWithImpl<$Res>
 
 /// Create a copy of BrandStorefrontState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? storefront = freezed,Object? products = null,Object? reviews = null,Object? isLoadingProducts = null,Object? isLoadingReviews = null,Object? isSubmittingReview = null,Object? reviewSubmitSuccess = null,Object? isClaimingCoupon = null,Object? claimedCouponIds = null,Object? lastClaimedCouponCode = freezed,Object? isFollowing = null,Object? followedAt = freezed,Object? isTogglingFollow = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? storefront = freezed,Object? products = null,Object? reviews = null,Object? isLoadingProducts = null,Object? isLoadingReviews = null,Object? isSubmittingReview = null,Object? reviewSubmitSuccess = null,Object? isClaimingCoupon = null,Object? claimedCouponIds = null,Object? lastClaimedCouponCode = freezed,Object? isFollowing = null,Object? followedAt = freezed,Object? isTogglingFollow = null,Object? errorMessage = freezed,Object? eligibleReviewOrderId = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,storefront: freezed == storefront ? _self.storefront : storefront // ignore: cast_nullable_to_non_nullable
@@ -789,6 +791,7 @@ as String?,isFollowing: null == isFollowing ? _self.isFollowing : isFollowing //
 as bool,followedAt: freezed == followedAt ? _self.followedAt : followedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,isTogglingFollow: null == isTogglingFollow ? _self.isTogglingFollow : isTogglingFollow // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,eligibleReviewOrderId: freezed == eligibleReviewOrderId ? _self.eligibleReviewOrderId : eligibleReviewOrderId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -886,10 +889,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage,  String? eligibleReviewOrderId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrandStorefrontState() when $default != null:
-return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage,_that.eligibleReviewOrderId);case _:
   return orElse();
 
 }
@@ -907,10 +910,10 @@ return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage,  String? eligibleReviewOrderId)  $default,) {final _that = this;
 switch (_that) {
 case _BrandStorefrontState():
-return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage,_that.eligibleReviewOrderId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -927,10 +930,10 @@ return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  BrandStorefront? storefront,  List<BrandProduct> products,  List<BrandReview> reviews,  bool isLoadingProducts,  bool isLoadingReviews,  bool isSubmittingReview,  bool reviewSubmitSuccess,  bool isClaimingCoupon,  Set<String> claimedCouponIds,  String? lastClaimedCouponCode,  bool isFollowing,  DateTime? followedAt,  bool isTogglingFollow,  String? errorMessage,  String? eligibleReviewOrderId)?  $default,) {final _that = this;
 switch (_that) {
 case _BrandStorefrontState() when $default != null:
-return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_that.isLoadingProducts,_that.isLoadingReviews,_that.isSubmittingReview,_that.reviewSubmitSuccess,_that.isClaimingCoupon,_that.claimedCouponIds,_that.lastClaimedCouponCode,_that.isFollowing,_that.followedAt,_that.isTogglingFollow,_that.errorMessage,_that.eligibleReviewOrderId);case _:
   return null;
 
 }
@@ -942,7 +945,7 @@ return $default(_that.isLoading,_that.storefront,_that.products,_that.reviews,_t
 
 
 class _BrandStorefrontState implements BrandStorefrontState {
-  const _BrandStorefrontState({this.isLoading = false, this.storefront, final  List<BrandProduct> products = const [], final  List<BrandReview> reviews = const [], this.isLoadingProducts = false, this.isLoadingReviews = false, this.isSubmittingReview = false, this.reviewSubmitSuccess = false, this.isClaimingCoupon = false, final  Set<String> claimedCouponIds = const {}, this.lastClaimedCouponCode, this.isFollowing = false, this.followedAt, this.isTogglingFollow = false, this.errorMessage}): _products = products,_reviews = reviews,_claimedCouponIds = claimedCouponIds;
+  const _BrandStorefrontState({this.isLoading = false, this.storefront, final  List<BrandProduct> products = const [], final  List<BrandReview> reviews = const [], this.isLoadingProducts = false, this.isLoadingReviews = false, this.isSubmittingReview = false, this.reviewSubmitSuccess = false, this.isClaimingCoupon = false, final  Set<String> claimedCouponIds = const {}, this.lastClaimedCouponCode, this.isFollowing = false, this.followedAt, this.isTogglingFollow = false, this.errorMessage, this.eligibleReviewOrderId}): _products = products,_reviews = reviews,_claimedCouponIds = claimedCouponIds;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -978,6 +981,7 @@ class _BrandStorefrontState implements BrandStorefrontState {
 @override final  DateTime? followedAt;
 @override@JsonKey() final  bool isTogglingFollow;
 @override final  String? errorMessage;
+@override final  String? eligibleReviewOrderId;
 
 /// Create a copy of BrandStorefrontState
 /// with the given fields replaced by the non-null parameter values.
@@ -989,16 +993,16 @@ _$BrandStorefrontStateCopyWith<_BrandStorefrontState> get copyWith => __$BrandSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandStorefrontState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.storefront, storefront) || other.storefront == storefront)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingReviews, isLoadingReviews) || other.isLoadingReviews == isLoadingReviews)&&(identical(other.isSubmittingReview, isSubmittingReview) || other.isSubmittingReview == isSubmittingReview)&&(identical(other.reviewSubmitSuccess, reviewSubmitSuccess) || other.reviewSubmitSuccess == reviewSubmitSuccess)&&(identical(other.isClaimingCoupon, isClaimingCoupon) || other.isClaimingCoupon == isClaimingCoupon)&&const DeepCollectionEquality().equals(other._claimedCouponIds, _claimedCouponIds)&&(identical(other.lastClaimedCouponCode, lastClaimedCouponCode) || other.lastClaimedCouponCode == lastClaimedCouponCode)&&(identical(other.isFollowing, isFollowing) || other.isFollowing == isFollowing)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.isTogglingFollow, isTogglingFollow) || other.isTogglingFollow == isTogglingFollow)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrandStorefrontState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.storefront, storefront) || other.storefront == storefront)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&(identical(other.isLoadingProducts, isLoadingProducts) || other.isLoadingProducts == isLoadingProducts)&&(identical(other.isLoadingReviews, isLoadingReviews) || other.isLoadingReviews == isLoadingReviews)&&(identical(other.isSubmittingReview, isSubmittingReview) || other.isSubmittingReview == isSubmittingReview)&&(identical(other.reviewSubmitSuccess, reviewSubmitSuccess) || other.reviewSubmitSuccess == reviewSubmitSuccess)&&(identical(other.isClaimingCoupon, isClaimingCoupon) || other.isClaimingCoupon == isClaimingCoupon)&&const DeepCollectionEquality().equals(other._claimedCouponIds, _claimedCouponIds)&&(identical(other.lastClaimedCouponCode, lastClaimedCouponCode) || other.lastClaimedCouponCode == lastClaimedCouponCode)&&(identical(other.isFollowing, isFollowing) || other.isFollowing == isFollowing)&&(identical(other.followedAt, followedAt) || other.followedAt == followedAt)&&(identical(other.isTogglingFollow, isTogglingFollow) || other.isTogglingFollow == isTogglingFollow)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.eligibleReviewOrderId, eligibleReviewOrderId) || other.eligibleReviewOrderId == eligibleReviewOrderId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,storefront,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_reviews),isLoadingProducts,isLoadingReviews,isSubmittingReview,reviewSubmitSuccess,isClaimingCoupon,const DeepCollectionEquality().hash(_claimedCouponIds),lastClaimedCouponCode,isFollowing,followedAt,isTogglingFollow,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,storefront,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_reviews),isLoadingProducts,isLoadingReviews,isSubmittingReview,reviewSubmitSuccess,isClaimingCoupon,const DeepCollectionEquality().hash(_claimedCouponIds),lastClaimedCouponCode,isFollowing,followedAt,isTogglingFollow,errorMessage,eligibleReviewOrderId);
 
 @override
 String toString() {
-  return 'BrandStorefrontState(isLoading: $isLoading, storefront: $storefront, products: $products, reviews: $reviews, isLoadingProducts: $isLoadingProducts, isLoadingReviews: $isLoadingReviews, isSubmittingReview: $isSubmittingReview, reviewSubmitSuccess: $reviewSubmitSuccess, isClaimingCoupon: $isClaimingCoupon, claimedCouponIds: $claimedCouponIds, lastClaimedCouponCode: $lastClaimedCouponCode, isFollowing: $isFollowing, followedAt: $followedAt, isTogglingFollow: $isTogglingFollow, errorMessage: $errorMessage)';
+  return 'BrandStorefrontState(isLoading: $isLoading, storefront: $storefront, products: $products, reviews: $reviews, isLoadingProducts: $isLoadingProducts, isLoadingReviews: $isLoadingReviews, isSubmittingReview: $isSubmittingReview, reviewSubmitSuccess: $reviewSubmitSuccess, isClaimingCoupon: $isClaimingCoupon, claimedCouponIds: $claimedCouponIds, lastClaimedCouponCode: $lastClaimedCouponCode, isFollowing: $isFollowing, followedAt: $followedAt, isTogglingFollow: $isTogglingFollow, errorMessage: $errorMessage, eligibleReviewOrderId: $eligibleReviewOrderId)';
 }
 
 
@@ -1009,7 +1013,7 @@ abstract mixin class _$BrandStorefrontStateCopyWith<$Res> implements $BrandStore
   factory _$BrandStorefrontStateCopyWith(_BrandStorefrontState value, $Res Function(_BrandStorefrontState) _then) = __$BrandStorefrontStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, BrandStorefront? storefront, List<BrandProduct> products, List<BrandReview> reviews, bool isLoadingProducts, bool isLoadingReviews, bool isSubmittingReview, bool reviewSubmitSuccess, bool isClaimingCoupon, Set<String> claimedCouponIds, String? lastClaimedCouponCode, bool isFollowing, DateTime? followedAt, bool isTogglingFollow, String? errorMessage
+ bool isLoading, BrandStorefront? storefront, List<BrandProduct> products, List<BrandReview> reviews, bool isLoadingProducts, bool isLoadingReviews, bool isSubmittingReview, bool reviewSubmitSuccess, bool isClaimingCoupon, Set<String> claimedCouponIds, String? lastClaimedCouponCode, bool isFollowing, DateTime? followedAt, bool isTogglingFollow, String? errorMessage, String? eligibleReviewOrderId
 });
 
 
@@ -1026,7 +1030,7 @@ class __$BrandStorefrontStateCopyWithImpl<$Res>
 
 /// Create a copy of BrandStorefrontState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? storefront = freezed,Object? products = null,Object? reviews = null,Object? isLoadingProducts = null,Object? isLoadingReviews = null,Object? isSubmittingReview = null,Object? reviewSubmitSuccess = null,Object? isClaimingCoupon = null,Object? claimedCouponIds = null,Object? lastClaimedCouponCode = freezed,Object? isFollowing = null,Object? followedAt = freezed,Object? isTogglingFollow = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? storefront = freezed,Object? products = null,Object? reviews = null,Object? isLoadingProducts = null,Object? isLoadingReviews = null,Object? isSubmittingReview = null,Object? reviewSubmitSuccess = null,Object? isClaimingCoupon = null,Object? claimedCouponIds = null,Object? lastClaimedCouponCode = freezed,Object? isFollowing = null,Object? followedAt = freezed,Object? isTogglingFollow = null,Object? errorMessage = freezed,Object? eligibleReviewOrderId = freezed,}) {
   return _then(_BrandStorefrontState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,storefront: freezed == storefront ? _self.storefront : storefront // ignore: cast_nullable_to_non_nullable
@@ -1043,6 +1047,7 @@ as String?,isFollowing: null == isFollowing ? _self.isFollowing : isFollowing //
 as bool,followedAt: freezed == followedAt ? _self.followedAt : followedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,isTogglingFollow: null == isTogglingFollow ? _self.isTogglingFollow : isTogglingFollow // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,eligibleReviewOrderId: freezed == eligibleReviewOrderId ? _self.eligibleReviewOrderId : eligibleReviewOrderId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

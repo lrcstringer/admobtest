@@ -8,6 +8,7 @@ import '../../domain/entities/buy_order.dart';
 import '../../domain/entities/marketplace_listing.dart';
 import '../../domain/entities/marketplace_offer.dart';
 import '../../domain/entities/marketplace_provider.dart';
+import '../../domain/entities/seller_dashboard.dart';
 import '../../domain/entities/vouch.dart';
 import '../../domain/repositories/marketplace_repository.dart';
 import '../datasources/remote/marketplace_remote_datasource.dart';
@@ -414,10 +415,10 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getSellerDashboard() async {
+  Future<Either<Failure, SellerDashboard>> getSellerDashboard() async {
     try {
-      final dashboard = await _remoteDataSource.getSellerDashboard();
-      return Right(dashboard);
+      final dashboardMap = await _remoteDataSource.getSellerDashboard();
+      return Right(SellerDashboard.fromMap(dashboardMap));
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

@@ -19,6 +19,10 @@ class PurchaseState with _$PurchaseState {
     bool? isRecipientValid,
     Purchase? lastPurchase,
     @Default(false) bool hasMoreHistory,
+    /// When true, the UI should show an OTP input for step-up verification.
+    @Default(false) bool isAwaitingOtp,
+    /// Masked phone number to display alongside OTP prompt (e.g. "0**-***-5678").
+    String? otpPhoneNumber,
     String? errorMessage,
     String? successMessage,
   }) = _PurchaseState;

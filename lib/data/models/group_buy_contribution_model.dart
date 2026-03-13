@@ -23,6 +23,7 @@ class GroupBuyContributionModel with _$GroupBuyContributionModel {
 
   const GroupBuyContributionModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory GroupBuyContributionModel.fromJson(Map<String, dynamic> json) {
     return GroupBuyContributionModel(
       id: json['id'] as String? ?? '',

@@ -103,10 +103,31 @@ class _EditListingScreenState extends State<EditListingScreen> {
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listenWhen: (prev, curr) =>
             prev.selectedListing != curr.selectedListing ||
-            prev.isLoadingDetail != curr.isLoadingDetail,
+            prev.isLoadingDetail != curr.isLoadingDetail ||
+            (prev.isUpdating && !curr.isUpdating),
         listener: (context, state) {
           if (state.selectedListing != null && _listing == null) {
             _populateForm(state.selectedListing!);
+          }
+          if (!state.isUpdating && _isSaving) {
+            setState(() => _isSaving = false);
+            if (state.successMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Listing updated'),
+                  backgroundColor: AppColors.buySuccess,
+                ),
+              );
+              context.read<MarketplaceBloc>().add(const MarketplaceEvent.clearMessages());
+              context.pop();
+            } else if (state.errorMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.errorMessage!),
+                  backgroundColor: AppColors.buyError,
+                ),
+              );
+            }
           }
         },
         buildWhen: (prev, curr) =>
@@ -589,22 +610,23 @@ class _EditListingScreenState extends State<EditListingScreen> {
 
     setState(() => _isSaving = true);
 
-    // TODO(Phase 3.27): Wire updateListing CF with:
-    // - title, description, price, location updates
-    // - image URL management (removed existing + uploaded new)
-    // - Optimistic UI update in BLoC
+    final priceTokens = int.tryParse(_priceController.text.trim());
+    if (priceTokens == null || priceTokens <= 0) {
+      setState(() => _isSaving = false);
+      return;
+    }
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted) return;
-    setState(() => _isSaving = false);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Listing updated'),
-        backgroundColor: AppColors.buySuccess,
+    context.read<MarketplaceBloc>().add(
+      MarketplaceEvent.updateListing(
+        listingId: widget.listingId,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        priceTokens: priceTokens,
+        imageUrls: _existingImageUrls,
+        location: _locationController.text.trim().isEmpty
+            ? null
+            : _locationController.text.trim(),
       ),
     );
-    context.pop();
   }
 }

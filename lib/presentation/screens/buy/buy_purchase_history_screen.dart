@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/purchase.dart';
@@ -64,11 +65,13 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
 
             return RefreshIndicator(
               onRefresh: () async {
-                context
-                    .read<PurchaseBloc>()
-                    .add(const PurchaseEvent.loadHistory(limit: 50));
-                await context.read<PurchaseBloc>().stream.firstWhere(
-                      (s) => !s.isLoadingHistory,
+                final bloc = context.read<PurchaseBloc>();
+                bloc.add(const PurchaseEvent.loadHistory(limit: 50));
+                await bloc.stream
+                    .firstWhere((s) => !s.isLoadingHistory)
+                    .timeout(
+                      const Duration(seconds: 10),
+                      onTimeout: () => bloc.state,
                     );
               },
               color: AppColors.primary,
@@ -162,7 +165,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
-        itemBuilder: (_, __) => Padding(
+        itemBuilder: (_, _) => Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
             height: 68,
@@ -219,7 +222,9 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
     }
   }
 
+  static final DateFormat _dateFmt = DateFormat('dd/MM/yyyy');
+
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return _dateFmt.format(date);
   }
 }

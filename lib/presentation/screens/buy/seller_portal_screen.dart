@@ -428,7 +428,10 @@ class _SellerProfileHeader extends StatelessWidget {
             icon: const Icon(Icons.edit_outlined,
                 size: 20, color: AppColors.buyTextTertiary),
             onPressed: () {
-              // TODO(Phase 3.8): Navigate to edit provider profile
+              context.push('/buy/marketplace/register', extra: {
+                'editMode': true,
+                'provider': provider,
+              });
             },
           ),
         ],
@@ -495,71 +498,81 @@ class _EarningsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.buyMarketplaceAccent,
-            AppColors.buyMarketplaceAccentDark,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return BlocBuilder<MarketplaceBloc, MarketplaceState>(
+      buildWhen: (prev, curr) => prev.sellerDashboard != curr.sellerDashboard,
+      builder: (context, state) {
+        final dashboard = state.sellerDashboard;
+        final totalRevenue = dashboard?.totalRevenue ?? 0.0;
+        final revenueZar = totalRevenue / 100;
+
+        return Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                AppColors.buyMarketplaceAccent,
+                AppColors.buyMarketplaceAccentDark,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Total Earnings',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Total Earnings',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
+                    ),
+                    child: Text(
+                      '${provider.completedOrders} sales',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'R${revenueZar.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusRound),
-                ),
-                child: Text(
-                  '${provider.completedOrders} sales',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
+              const SizedBox(height: 4),
+              Text(
+                provider.completedOrders > 0
+                    ? '${dashboard?.totalOrders ?? 0} total orders'
+                    : 'Earnings shown after first completed order',
+                style: const TextStyle(
+                  color: Colors.white60,
+                  fontSize: 11,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          // Earnings amount — placeholder until order aggregation is wired
-          const Text(
-            '—',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Earnings shown after first completed order',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -864,7 +877,33 @@ class _SuspendedView extends StatelessWidget {
             height: 48,
             child: OutlinedButton.icon(
               onPressed: () {
-                // TODO(Phase 3.15): Open support chat
+                showDialog<void>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: const Text(
+                      'Contact Support',
+                      style: TextStyle(
+                        color: AppColors.buyTextPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    content: const Text(
+                      'For help with your suspended account, please email us at support@imalichat.app with your account details and we will respond within 24 hours.',
+                      style: TextStyle(
+                        color: AppColors.buyTextSecondary,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
               },
               icon: const Icon(Icons.support_agent_rounded, size: 20),
               label: const Text('Contact Support'),

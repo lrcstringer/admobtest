@@ -135,7 +135,7 @@ class BuySuccessScreen extends StatelessWidget {
                         const Divider(height: 24),
                         _buildDetailRow(
                           'Paid from',
-                          _resolveWalletName(context, purchase.walletId),
+                          _resolveWalletName(context, purchase.subAccountId),
                         ),
                         if (purchase.reference != null) ...[
                           const Divider(height: 24),

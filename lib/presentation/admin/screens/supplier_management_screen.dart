@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
@@ -370,23 +371,54 @@ class _CreateSupplierDialogState extends State<_CreateSupplierDialog> {
     super.dispose();
   }
 
-  void _handleCreate() {
+  Future<void> _handleCreate() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // TODO: Call adminCreateSupplier Cloud Function
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      final functions =
+          FirebaseFunctions.instanceFor(region: 'africa-south1');
+      await functions.httpsCallable('adminCreateSupplier').call({
+        'providerId': _providerIdController.text.trim(),
+        'providerName': _providerNameController.text.trim(),
+        'category': _selectedCategory,
+        if (_contactNameController.text.trim().isNotEmpty)
+          'contactName': _contactNameController.text.trim(),
+        if (_contactEmailController.text.trim().isNotEmpty)
+          'contactEmail': _contactEmailController.text.trim(),
+      });
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Supplier creation not yet connected to backend'),
-            backgroundColor: AppColors.warning,
+            content: Text('Supplier created successfully'),
+            backgroundColor: AppColors.success,
           ),
         );
       }
-    });
+    } on FirebaseFunctionsException catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Failed to create supplier'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create supplier: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   @override

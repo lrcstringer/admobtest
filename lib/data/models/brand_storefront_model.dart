@@ -1,7 +1,10 @@
+import 'dart:developer' as developer;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/brand_storefront.dart';
+import '../mappers/brand_storefront_mapper.dart';
 
 part 'brand_storefront_model.freezed.dart';
 
@@ -354,117 +357,10 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
     };
   }
 
-  BrandStorefront toEntity() {
-    return BrandStorefront(
-      id: id,
-      brandId: brandId,
-      brandName: brandName,
-      brandLogoUrl: brandLogoUrl,
-      brandColor: brandColor,
-      coverImageUrl: coverImageUrl,
-      tagline: tagline,
-      isActive: isActive,
-      isPremium: isPremium,
-      communityIds: communityIds,
-      sections: sections,
-      createdAt: createdAt,
-      heroStyle: heroStyle,
-      heroImageUrl: heroImageUrl,
-      heroVideoUrl: heroVideoUrl,
-      accentColor: accentColor,
-      secondaryColor: secondaryColor,
-      logoPlacement: logoPlacement,
-      fontStyle: fontStyle,
-      cornerStyle: cornerStyle,
-      themePreference: themePreference,
-      description: description,
-      bannerImageUrl: bannerImageUrl,
-      bannerDeepLink: bannerDeepLink,
-      establishedYear: establishedYear,
-      socialLinks: socialLinks,
-      trustBadges: trustBadges,
-      averageRating: averageRating,
-      ratingCount: ratingCount,
-      quickActions: quickActions,
-      galleryImageUrls: galleryImageUrls,
-      promotions: promotions,
-      sectionOrder: sectionOrder,
-      isDraft: isDraft,
-      publishedAt: publishedAt,
-      tier: tier,
-      heroFocalPointX: heroFocalPointX,
-      heroFocalPointY: heroFocalPointY,
-      showChatButton: showChatButton,
-      bannerVideoUrl: bannerVideoUrl,
-      announcementText: announcementText,
-      announcementDeepLink: announcementDeepLink,
-      announcementDismissible: announcementDismissible,
-      showcaseVideos: showcaseVideos,
-      coupons: coupons,
-      faqItems: faqItems,
-      testimonialReviewIds: testimonialReviewIds,
-      locations: locations,
-      richTextBlocks: richTextBlocks,
-      sectionSettings: sectionSettings,
-      totalViews: totalViews,
-    );
-  }
+  BrandStorefront toEntity() => BrandStorefrontMapper.toEntity(this);
 
-  factory BrandStorefrontModel.fromEntity(BrandStorefront entity) {
-    return BrandStorefrontModel(
-      id: entity.id,
-      brandId: entity.brandId,
-      brandName: entity.brandName,
-      brandLogoUrl: entity.brandLogoUrl,
-      brandColor: entity.brandColor,
-      coverImageUrl: entity.coverImageUrl,
-      tagline: entity.tagline,
-      isActive: entity.isActive,
-      isPremium: entity.isPremium,
-      communityIds: entity.communityIds,
-      sections: entity.sections,
-      createdAt: entity.createdAt,
-      heroStyle: entity.heroStyle,
-      heroImageUrl: entity.heroImageUrl,
-      heroVideoUrl: entity.heroVideoUrl,
-      accentColor: entity.accentColor,
-      secondaryColor: entity.secondaryColor,
-      logoPlacement: entity.logoPlacement,
-      fontStyle: entity.fontStyle,
-      cornerStyle: entity.cornerStyle,
-      themePreference: entity.themePreference,
-      description: entity.description,
-      bannerImageUrl: entity.bannerImageUrl,
-      bannerDeepLink: entity.bannerDeepLink,
-      establishedYear: entity.establishedYear,
-      socialLinks: entity.socialLinks,
-      trustBadges: entity.trustBadges,
-      averageRating: entity.averageRating,
-      ratingCount: entity.ratingCount,
-      quickActions: entity.quickActions,
-      galleryImageUrls: entity.galleryImageUrls,
-      promotions: entity.promotions,
-      sectionOrder: entity.sectionOrder,
-      isDraft: entity.isDraft,
-      publishedAt: entity.publishedAt,
-      tier: entity.tier,
-      heroFocalPointX: entity.heroFocalPointX,
-      heroFocalPointY: entity.heroFocalPointY,
-      showChatButton: entity.showChatButton,
-      bannerVideoUrl: entity.bannerVideoUrl,
-      announcementText: entity.announcementText,
-      announcementDeepLink: entity.announcementDeepLink,
-      announcementDismissible: entity.announcementDismissible,
-      showcaseVideos: entity.showcaseVideos,
-      coupons: entity.coupons,
-      faqItems: entity.faqItems,
-      testimonialReviewIds: entity.testimonialReviewIds,
-      locations: entity.locations,
-      richTextBlocks: entity.richTextBlocks,
-      sectionSettings: entity.sectionSettings,
-      totalViews: entity.totalViews,
-    );
-  }
+  factory BrandStorefrontModel.fromEntity(BrandStorefront entity) =>
+      BrandStorefrontMapper.fromEntity(entity);
 
   /// Safe enum parser — returns [fallback] if value doesn't match.
   static T _parseEnum<T extends Enum>(
@@ -481,12 +377,16 @@ class BrandStorefrontModel with _$BrandStorefrontModel {
       dynamic jsonList, T Function(Map<String, dynamic>) parser) {
     if (jsonList is! List) return [];
     final result = <T>[];
-    for (final item in jsonList) {
+    for (var i = 0; i < jsonList.length; i++) {
+      final item = jsonList[i];
       if (item is Map<String, dynamic>) {
         try {
           result.add(parser(item));
-        } catch (_) {
-          // Skip malformed entries rather than crashing the entire model
+        } catch (e) {
+          developer.log(
+            'Failed to parse item at index $i: $e',
+            name: 'BrandStorefrontModel._safeParseList',
+          );
         }
       }
     }

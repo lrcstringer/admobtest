@@ -6,11 +6,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/failures.dart';
-import '../../../data/models/marketplace_provider_model.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/entities/marketplace_provider.dart';
 import '../../../domain/entities/saved_listing.dart';
+import '../../../domain/entities/seller_dashboard.dart';
 import '../../../domain/entities/vouch.dart';
+
 import '../../../domain/repositories/marketplace_repository.dart';
 import '../../../domain/repositories/saved_listing_repository.dart';
 
@@ -515,23 +516,11 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         isLoadingSellerPortal: false,
         errorMessage: failure.displayMessage,
       )),
-      (dashboard) {
-        // CF returns flat dashboard fields (not a nested 'provider' object).
-        // Construct the provider directly from the flat map.
-        MarketplaceProvider? sellerProfile;
-        if (dashboard.containsKey('providerId')) {
-          sellerProfile = MarketplaceProviderModel.fromJson(dashboard).toEntity();
-        }
-
+      (sellerDashboard) {
         emit(state.copyWith(
           isLoadingSellerPortal: false,
-          currentSellerProfile: sellerProfile ?? state.currentSellerProfile,
+          sellerDashboard: sellerDashboard,
         ));
-
-        // Auto-load my listings now that seller profile is available
-        if (sellerProfile != null) {
-          add(const MarketplaceEvent.loadMyListings());
-        }
       },
     );
   }

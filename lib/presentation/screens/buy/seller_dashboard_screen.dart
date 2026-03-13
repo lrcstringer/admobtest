@@ -107,7 +107,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 // Stats grid
                 _StatsGrid(
                   completedOrders: provider.completedOrders,
-                  totalEarnings: 0, // TODO: add totalEarnings to MarketplaceProvider when backend supports it
+                  totalEarnings: (state.sellerDashboard?.totalRevenue ?? 0.0).round(),
                   trustScore: provider.trustScore,
                   activeListings: state.myListings
                       .where((l) => l.isAvailable)
@@ -121,9 +121,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                       context.push('/buy/marketplace/orders'),
                   onCreateListing: () =>
                       context.push('/buy/marketplace/create-listing'),
-                  onViewListings: () {
-                    // Already loaded via loadMyListings
-                  },
+                  onViewListings: () =>
+                      context.push('/buy/my-listings'),
                 ),
                 const SizedBox(height: 16),
 

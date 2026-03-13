@@ -27,14 +27,15 @@ class ListingExpiryCard extends StatelessWidget {
     // Stale nudge takes priority over normal expiry display
     if (listing.isStaleRenewal) return _buildStaleNudge();
 
-    final days = listing.daysUntilExpiry();
+    final now = DateTime.now();
+    final days = listing.daysUntilExpiry(now);
     if (days == null) return const SizedBox.shrink();
 
     if (listing.status == ListingStatus.expired || days == 0) {
       return _buildExpiredCard();
     }
 
-    if (listing.isExpiringSoon()) return _buildWarningCard(days);
+    if (listing.isExpiringSoon(now)) return _buildWarningCard(days);
 
     return _buildNormalCard(days);
   }

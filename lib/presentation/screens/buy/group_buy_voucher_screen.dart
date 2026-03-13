@@ -220,7 +220,8 @@ class _GroupBuyVoucherScreenState extends State<GroupBuyVoucherScreen> {
   }
 
   Widget _buildExpiryWarning(DateTime expiry) {
-    final daysLeft = expiry.difference(DateTime.now()).inDays;
+    final now = DateTime.now();
+    final daysLeft = expiry.difference(now).inDays;
     final isUrgent = daysLeft < 7;
     final dateStr = DateFormat('dd MMM yyyy').format(expiry);
 

@@ -17,19 +17,26 @@ import '../../widgets/common/brand_card.dart';
 
 class BrandStorefrontScreen extends StatelessWidget {
   final String storefrontId;
+  final String? orderId;
 
-  const BrandStorefrontScreen({super.key, required this.storefrontId});
+  const BrandStorefrontScreen({
+    super.key,
+    required this.storefrontId,
+    this.orderId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GetIt.I<BrandStorefrontBloc>()
-        ..add(BrandStorefrontEvent.loadStorefront(storefrontId)),
+        ..add(BrandStorefrontEvent.loadStorefront(
+          storefrontId,
+          orderId: orderId,
+        )),
       child: BlocListener<BrandStorefrontBloc, BrandStorefrontState>(
         listenWhen: (prev, curr) =>
             prev.storefront == null && curr.storefront != null,
         listener: (context, state) {
-          // Fire recordView only after storefront loads successfully
           context
               .read<BrandStorefrontBloc>()
               .add(BrandStorefrontEvent.recordView(storefrontId));
@@ -169,26 +176,23 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   }
 
   Widget _buildStorefront(BuildContext context, BrandStorefront storefront) {
-    // Use new sectionOrder if available, otherwise fall back to legacy sections
     final useSectionOrder = storefront.sectionOrder.isNotEmpty;
+    final now = DateTime.now();
 
     return CustomScrollView(
       slivers: [
-        // Hero — always first
         SliverToBoxAdapter(
           child: _buildHero(storefront),
         ),
 
-        // Brand header with tagline + trust badges
         SliverToBoxAdapter(
           child: _buildBrandHeader(context, storefront),
         ),
 
-        // Dynamic sections
         if (useSectionOrder)
           ...storefront.sectionOrder.map(
             (type) => SliverToBoxAdapter(
-              child: _buildSectionByType(context, type, storefront),
+              child: _buildSectionByType(context, type, storefront, now),
             ),
           )
         else
@@ -427,6 +431,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     BuildContext context,
     StorefrontSectionType type,
     BrandStorefront storefront,
+    DateTime now,
   ) {
     switch (type) {
       case StorefrontSectionType.quickActions:
@@ -438,7 +443,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       case StorefrontSectionType.banner:
         return _buildBanner(context, storefront);
       case StorefrontSectionType.promotions:
-        return _buildPromotions(storefront);
+        return _buildPromotions(storefront, now);
       case StorefrontSectionType.gallery:
         return _buildGallery(storefront);
       case StorefrontSectionType.reviews:
@@ -452,7 +457,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       case StorefrontSectionType.videoShowcase:
         return _buildVideoShowcase(storefront);
       case StorefrontSectionType.couponCenter:
-        return _buildCouponCenter(context, storefront);
+        return _buildCouponCenter(context, storefront, now);
       case StorefrontSectionType.faq:
         return _buildFaq(storefront);
       case StorefrontSectionType.testimonials:
@@ -502,7 +507,21 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     required String deepLink,
   }) {
     return GestureDetector(
-      onTap: () => context.push(deepLink),
+      onTap: () {
+        if (deepLink.startsWith('/')) {
+          try {
+            context.push(deepLink);
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Unable to open this link')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid link')),
+          );
+        }
+      },
       child: Column(
         children: [
           Container(
@@ -783,10 +802,9 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   // ─── Promotions ──────────────────────────────────────────
 
-  Widget _buildPromotions(BrandStorefront storefront) {
+  Widget _buildPromotions(BrandStorefront storefront, DateTime now) {
     final activePromos = storefront.promotions
-        .where(
-            (p) => p.expiresAt == null || p.expiresAt!.isAfter(DateTime.now()))
+        .where((p) => p.expiresAt == null || p.expiresAt!.isAfter(now))
         .toList();
     if (activePromos.isEmpty) return const SizedBox.shrink();
 
@@ -884,9 +902,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   // ─── Reviews ─────────────────────────────────────────────
 
   Widget _buildReviews(BuildContext context, BrandStorefront storefront) {
-    // orderId is required by the CF — only enable review writing when available.
-    // In the current flow, orderId comes from a completed purchase.
-    final String? orderId = null;
+    final orderId =
+        context.read<BrandStorefrontBloc>().state.eligibleReviewOrderId;
     return _PaginatedReviewsSection(
       storefront: storefront,
       orderId: orderId,
@@ -1202,10 +1219,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   // ─── Coupon Center ───────────────────────────────────────
 
-  Widget _buildCouponCenter(BuildContext context, BrandStorefront storefront) {
+  Widget _buildCouponCenter(
+      BuildContext context, BrandStorefront storefront, DateTime now) {
     final coupons = storefront.coupons
         .where((c) => c.isActive != false)
-        .where((c) => c.expiresAt == null || c.expiresAt!.isAfter(DateTime.now()))
+        .where((c) => c.expiresAt == null || c.expiresAt!.isAfter(now))
         .toList();
     if (coupons.isEmpty) return const SizedBox.shrink();
 
@@ -1353,29 +1371,59 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   // ─── Testimonials ────────────────────────────────────────
 
   Widget _buildTestimonials(BrandStorefront storefront) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _SectionTitle('What People Say'),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
-            ),
-            child: const Center(
-              child: Text(
-                'Testimonials will appear here',
-                style: TextStyle(color: AppColors.textTertiary, fontSize: 13),
+    final reviewIds = storefront.testimonialReviewIds;
+    if (reviewIds.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _SectionTitle('What People Say'),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: BorderRadius.circular(12),
+                border:
+                    Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              ),
+              child: const Center(
+                child: Text(
+                  'No testimonials yet',
+                  style:
+                      TextStyle(color: AppColors.textTertiary, fontSize: 13),
+                ),
               ),
             ),
+          ],
+        ),
+      );
+    }
+
+    return BlocBuilder<BrandStorefrontBloc, BrandStorefrontState>(
+      buildWhen: (prev, curr) => prev.reviews != curr.reviews,
+      builder: (context, state) {
+        final testimonialReviews = state.reviews
+            .where((r) => reviewIds.contains(r.id) && r.isVisible)
+            .toList();
+
+        if (testimonialReviews.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _SectionTitle('What People Say'),
+              const SizedBox(height: 8),
+              ...testimonialReviews.map((review) => _buildReviewCard(review)),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

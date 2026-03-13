@@ -12988,7 +12988,7 @@ class $LocalFeaturedItemsTable extends LocalFeaturedItems
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: false,
-    defaultValue: const Constant(0.3),
+    defaultValue: const Constant(1.0),
   );
   static const VerificationMeta _imageLayoutMeta = const VerificationMeta(
     'imageLayout',

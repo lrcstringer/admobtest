@@ -45,6 +45,9 @@ class FeaturedItem with _$FeaturedItem {
     @Default('right') String imageLayout,
 
     @Default(false) bool isDeleted,
+
+    @Default(null) DateTime? createdAt,
+    @Default(null) DateTime? updatedAt,
   }) = _FeaturedItem;
 
   const FeaturedItem._();

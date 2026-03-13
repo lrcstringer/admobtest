@@ -310,7 +310,7 @@ as DateTime?,
 /// @nodoc
 mixin _$ServiceProductModel {
 
- String get id; String get providerId; String get name; String get code; int get priceTokens; double get priceZar; String? get description; String? get validity; bool get isActive; int? get sortOrder; Map<String, dynamic>? get metadata;
+ String get id; String get providerId; String get name; String get code; int get priceTokens; double get priceZar; String? get description; String? get validity; bool get isActive; bool get isDeleted; int? get sortOrder; Map<String, dynamic>? get metadata;
 /// Create a copy of ServiceProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -321,16 +321,16 @@ $ServiceProductModelCopyWith<ServiceProductModel> get copyWith => _$ServiceProdu
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other.metadata, metadata));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ServiceProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other.metadata, metadata));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,sortOrder,const DeepCollectionEquality().hash(metadata));
+int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,isDeleted,sortOrder,const DeepCollectionEquality().hash(metadata));
 
 @override
 String toString() {
-  return 'ServiceProductModel(id: $id, providerId: $providerId, name: $name, code: $code, priceTokens: $priceTokens, priceZar: $priceZar, description: $description, validity: $validity, isActive: $isActive, sortOrder: $sortOrder, metadata: $metadata)';
+  return 'ServiceProductModel(id: $id, providerId: $providerId, name: $name, code: $code, priceTokens: $priceTokens, priceZar: $priceZar, description: $description, validity: $validity, isActive: $isActive, isDeleted: $isDeleted, sortOrder: $sortOrder, metadata: $metadata)';
 }
 
 
@@ -341,7 +341,7 @@ abstract mixin class $ServiceProductModelCopyWith<$Res>  {
   factory $ServiceProductModelCopyWith(ServiceProductModel value, $Res Function(ServiceProductModel) _then) = _$ServiceProductModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String providerId, String name, String code, int priceTokens, double priceZar, String? description, String? validity, bool isActive, int? sortOrder, Map<String, dynamic>? metadata
+ String id, String providerId, String name, String code, int priceTokens, double priceZar, String? description, String? validity, bool isActive, bool isDeleted, int? sortOrder, Map<String, dynamic>? metadata
 });
 
 
@@ -358,7 +358,7 @@ class _$ServiceProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ServiceProductModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? providerId = null,Object? name = null,Object? code = null,Object? priceTokens = null,Object? priceZar = null,Object? description = freezed,Object? validity = freezed,Object? isActive = null,Object? sortOrder = freezed,Object? metadata = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? providerId = null,Object? name = null,Object? code = null,Object? priceTokens = null,Object? priceZar = null,Object? description = freezed,Object? validity = freezed,Object? isActive = null,Object? isDeleted = null,Object? sortOrder = freezed,Object? metadata = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
@@ -369,6 +369,7 @@ as int,priceZar: null == priceZar ? _self.priceZar : priceZar // ignore: cast_nu
 as double,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,validity: freezed == validity ? _self.validity : validity // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,metadata: freezed == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>?,
@@ -456,10 +457,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  int? sortOrder,  Map<String, dynamic>? metadata)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  bool isDeleted,  int? sortOrder,  Map<String, dynamic>? metadata)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ServiceProductModel() when $default != null:
-return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.sortOrder,_that.metadata);case _:
+return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.isDeleted,_that.sortOrder,_that.metadata);case _:
   return orElse();
 
 }
@@ -477,10 +478,10 @@ return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceToken
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  int? sortOrder,  Map<String, dynamic>? metadata)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  bool isDeleted,  int? sortOrder,  Map<String, dynamic>? metadata)  $default,) {final _that = this;
 switch (_that) {
 case _ServiceProductModel():
-return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.sortOrder,_that.metadata);case _:
+return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.isDeleted,_that.sortOrder,_that.metadata);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -497,10 +498,10 @@ return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceToken
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  int? sortOrder,  Map<String, dynamic>? metadata)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String providerId,  String name,  String code,  int priceTokens,  double priceZar,  String? description,  String? validity,  bool isActive,  bool isDeleted,  int? sortOrder,  Map<String, dynamic>? metadata)?  $default,) {final _that = this;
 switch (_that) {
 case _ServiceProductModel() when $default != null:
-return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.sortOrder,_that.metadata);case _:
+return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceTokens,_that.priceZar,_that.description,_that.validity,_that.isActive,_that.isDeleted,_that.sortOrder,_that.metadata);case _:
   return null;
 
 }
@@ -512,7 +513,7 @@ return $default(_that.id,_that.providerId,_that.name,_that.code,_that.priceToken
 
 
 class _ServiceProductModel extends ServiceProductModel {
-  const _ServiceProductModel({required this.id, required this.providerId, required this.name, required this.code, required this.priceTokens, required this.priceZar, this.description, this.validity, required this.isActive, this.sortOrder, final  Map<String, dynamic>? metadata}): _metadata = metadata,super._();
+  const _ServiceProductModel({required this.id, required this.providerId, required this.name, required this.code, required this.priceTokens, required this.priceZar, this.description, this.validity, required this.isActive, this.isDeleted = false, this.sortOrder, final  Map<String, dynamic>? metadata}): _metadata = metadata,super._();
   
 
 @override final  String id;
@@ -524,6 +525,7 @@ class _ServiceProductModel extends ServiceProductModel {
 @override final  String? description;
 @override final  String? validity;
 @override final  bool isActive;
+@override@JsonKey() final  bool isDeleted;
 @override final  int? sortOrder;
  final  Map<String, dynamic>? _metadata;
 @override Map<String, dynamic>? get metadata {
@@ -545,16 +547,16 @@ _$ServiceProductModelCopyWith<_ServiceProductModel> get copyWith => __$ServicePr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other._metadata, _metadata));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ServiceProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.priceTokens, priceTokens) || other.priceTokens == priceTokens)&&(identical(other.priceZar, priceZar) || other.priceZar == priceZar)&&(identical(other.description, description) || other.description == description)&&(identical(other.validity, validity) || other.validity == validity)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&const DeepCollectionEquality().equals(other._metadata, _metadata));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,sortOrder,const DeepCollectionEquality().hash(_metadata));
+int get hashCode => Object.hash(runtimeType,id,providerId,name,code,priceTokens,priceZar,description,validity,isActive,isDeleted,sortOrder,const DeepCollectionEquality().hash(_metadata));
 
 @override
 String toString() {
-  return 'ServiceProductModel(id: $id, providerId: $providerId, name: $name, code: $code, priceTokens: $priceTokens, priceZar: $priceZar, description: $description, validity: $validity, isActive: $isActive, sortOrder: $sortOrder, metadata: $metadata)';
+  return 'ServiceProductModel(id: $id, providerId: $providerId, name: $name, code: $code, priceTokens: $priceTokens, priceZar: $priceZar, description: $description, validity: $validity, isActive: $isActive, isDeleted: $isDeleted, sortOrder: $sortOrder, metadata: $metadata)';
 }
 
 
@@ -565,7 +567,7 @@ abstract mixin class _$ServiceProductModelCopyWith<$Res> implements $ServiceProd
   factory _$ServiceProductModelCopyWith(_ServiceProductModel value, $Res Function(_ServiceProductModel) _then) = __$ServiceProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String providerId, String name, String code, int priceTokens, double priceZar, String? description, String? validity, bool isActive, int? sortOrder, Map<String, dynamic>? metadata
+ String id, String providerId, String name, String code, int priceTokens, double priceZar, String? description, String? validity, bool isActive, bool isDeleted, int? sortOrder, Map<String, dynamic>? metadata
 });
 
 
@@ -582,7 +584,7 @@ class __$ServiceProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ServiceProductModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? providerId = null,Object? name = null,Object? code = null,Object? priceTokens = null,Object? priceZar = null,Object? description = freezed,Object? validity = freezed,Object? isActive = null,Object? sortOrder = freezed,Object? metadata = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? providerId = null,Object? name = null,Object? code = null,Object? priceTokens = null,Object? priceZar = null,Object? description = freezed,Object? validity = freezed,Object? isActive = null,Object? isDeleted = null,Object? sortOrder = freezed,Object? metadata = freezed,}) {
   return _then(_ServiceProductModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
@@ -593,6 +595,7 @@ as int,priceZar: null == priceZar ? _self.priceZar : priceZar // ignore: cast_nu
 as double,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,validity: freezed == validity ? _self.validity : validity // ignore: cast_nullable_to_non_nullable
 as String?,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,metadata: freezed == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>?,

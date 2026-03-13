@@ -1,38 +1,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../enums/purchase_category.dart';
+import '../enums/purchase_status.dart';
+
+export '../enums/purchase_category.dart';
+export '../enums/purchase_status.dart';
+
 part 'purchase.freezed.dart';
-
-/// Purchase status
-enum PurchaseStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-  refunded,
-}
-
-/// Purchase category (Spec §14.5)
-enum PurchaseCategory {
-  airtime,
-  data,
-  electricity,
-  voucher,
-  marketplace,
-  school,
-  municipal,
-  insurance,
-  funeral,
-  stokvel,
-  gaming,
-  other,
-}
 
 /// Purchase entity representing a service purchase
 @freezed
 class Purchase with _$Purchase {
   const factory Purchase({
     required String id,
-    required String walletId,
+    required String subAccountId,
     required String userId,
     required String providerId,
     required String providerName,

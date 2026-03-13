@@ -25,6 +25,7 @@ class ServiceProviderModel with _$ServiceProviderModel {
 
   const ServiceProviderModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory ServiceProviderModel.fromJson(Map<String, dynamic> json) {
     final createdAt = json['createdAt'];
     final updatedAt = json['updatedAt'];
@@ -120,12 +121,14 @@ class ServiceProductModel with _$ServiceProductModel {
     String? description,
     String? validity,
     required bool isActive,
+    @Default(false) bool isDeleted,
     int? sortOrder,
     Map<String, dynamic>? metadata,
   }) = _ServiceProductModel;
 
   const ServiceProductModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory ServiceProductModel.fromJson(Map<String, dynamic> json) {
     return ServiceProductModel(
       id: json['id'] as String? ?? '',
@@ -137,6 +140,7 @@ class ServiceProductModel with _$ServiceProductModel {
       description: json['description'] as String?,
       validity: json['validity'] as String?,
       isActive: json['isActive'] as bool? ?? true,
+      isDeleted: json['isDeleted'] as bool? ?? false,
       sortOrder: json['sortOrder'] as int?,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -152,6 +156,7 @@ class ServiceProductModel with _$ServiceProductModel {
       'description': description,
       'validity': validity,
       'isActive': isActive,
+      'isDeleted': isDeleted,
       'sortOrder': sortOrder,
       'metadata': metadata,
     };
@@ -168,6 +173,7 @@ class ServiceProductModel with _$ServiceProductModel {
       description: description,
       validity: validity,
       isActive: isActive,
+      isDeleted: isDeleted,
       sortOrder: sortOrder,
       metadata: metadata,
     );
@@ -184,6 +190,7 @@ class ServiceProductModel with _$ServiceProductModel {
       description: entity.description,
       validity: entity.validity,
       isActive: entity.isActive,
+      isDeleted: entity.isDeleted,
       sortOrder: entity.sortOrder,
       metadata: entity.metadata,
     );

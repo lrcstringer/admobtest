@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
@@ -320,7 +319,7 @@ class BuyRepositoryImpl implements BuyRepository {
   @override
   Future<Either<Failure, void>> submitBrandReview({
     required String brandId,
-    String? orderId,
+    required String orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,
@@ -344,9 +343,6 @@ class BuyRepositoryImpl implements BuyRepository {
 
   // ============ STOREFRONT INTERACTIONS ============
 
-  FirebaseFunctions get _functions =>
-      FirebaseFunctions.instanceFor(region: 'africa-south1');
-
   @override
   Future<Either<Failure, String>> claimStorefrontCoupon({
     required String storefrontId,
@@ -354,17 +350,12 @@ class BuyRepositoryImpl implements BuyRepository {
     String? couponCode,
   }) async {
     try {
-      final result =
-          await _functions.httpsCallable('claimStorefrontCoupon').call({
-        'storefrontId': storefrontId,
-        'couponId': couponId,
-        if (couponCode != null) 'couponCode': couponCode,
-      });
-      return Right(result.data['couponCode'] as String);
-    } on FirebaseFunctionsException catch (e) {
-      return Left(
-        Failure.serverError(message: e.message ?? 'Failed to claim coupon'),
+      final code = await _remoteDataSource.claimStorefrontCoupon(
+        storefrontId: storefrontId,
+        couponId: couponId,
+        couponCode: couponCode,
       );
+      return Right(code);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -375,20 +366,9 @@ class BuyRepositoryImpl implements BuyRepository {
     String storefrontId,
   ) async {
     try {
-      final result =
-          await _functions.httpsCallable('getClaimedCoupons').call({
-        'storefrontId': storefrontId,
-      });
-      final couponIds = (result.data['couponIds'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toSet() ??
-          {};
+      final couponIds =
+          await _remoteDataSource.getClaimedCouponIds(storefrontId);
       return Right(couponIds);
-    } on FirebaseFunctionsException catch (e) {
-      return Left(
-        Failure.serverError(
-            message: e.message ?? 'Failed to load claimed coupons'),
-      );
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }
@@ -399,9 +379,7 @@ class BuyRepositoryImpl implements BuyRepository {
     String storefrontId,
   ) async {
     try {
-      await _functions.httpsCallable('recordStorefrontView').call({
-        'storefrontId': storefrontId,
-      });
+      await _remoteDataSource.recordStorefrontView(storefrontId);
       return const Right(null);
     } catch (_) {
       // Fire-and-forget — swallow errors to not disrupt UX
@@ -433,15 +411,8 @@ class BuyRepositoryImpl implements BuyRepository {
   @override
   Future<Either<Failure, bool>> toggleBrandFollow(String brandId) async {
     try {
-      final result =
-          await _functions.httpsCallable('toggleBrandFollow').call({
-        'brandId': brandId,
-      });
-      return Right(result.data['isFollowing'] as bool);
-    } on FirebaseFunctionsException catch (e) {
-      return Left(
-        Failure.serverError(message: e.message ?? 'Failed to toggle follow'),
-      );
+      final isFollowing = await _remoteDataSource.toggleBrandFollow(brandId);
+      return Right(isFollowing);
     } catch (e) {
       return Left(Failure.serverError(message: e.toString()));
     }

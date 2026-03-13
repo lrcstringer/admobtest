@@ -37,17 +37,17 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     _LoadActiveGroupBuys event,
     Emitter<GroupBuyState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(isLoadingList: true, errorMessage: null));
     final result = await _repository.getActiveGroupBuys(
       communityId: event.communityId,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         errorMessage: failure.displayMessage,
       )),
       (groupBuys) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         activeGroupBuys: groupBuys,
       )),
     );
@@ -57,7 +57,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     _LoadGroupBuy event,
     Emitter<GroupBuyState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(isLoadingDetail: true, errorMessage: null));
 
     // Fetch in parallel with proper typing (no unsafe dynamic casts)
     final groupBuyFuture = _repository.getGroupBuy(event.id);
@@ -69,13 +69,13 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
 
     groupBuyResult.fold(
       (failure) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingDetail: false,
         errorMessage: failure.displayMessage,
       )),
       (groupBuy) {
         final contributions = contribsResult.getOrElse(() => []);
         emit(state.copyWith(
-          isLoading: false,
+          isLoadingDetail: false,
           selectedGroupBuy: groupBuy,
           contributions: contributions,
         ));
@@ -87,15 +87,15 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     _LoadMyGroupBuys event,
     Emitter<GroupBuyState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(isLoadingList: true, errorMessage: null));
     final result = await _repository.getMyGroupBuys();
     result.fold(
       (failure) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         errorMessage: failure.displayMessage,
       )),
       (groupBuys) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         myGroupBuys: groupBuys,
       )),
     );
@@ -117,6 +117,8 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       linkedListingId: event.linkedListingId,
       minParticipants: event.minParticipants,
       maxParticipants: event.maxParticipants,
+      imageUrl: event.imageUrl,
+      pricePerPerson: event.pricePerPerson,
     );
     result.fold(
       (failure) => emit(state.copyWith(
@@ -161,17 +163,17 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
     _LoadHubGroupBuys event,
     Emitter<GroupBuyState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(isLoadingList: true, errorMessage: null));
     final result = await _repository.getHubGroupBuys(
       userClusters: event.userClusters,
     );
     result.fold(
       (failure) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         errorMessage: failure.displayMessage,
       )),
       (groupBuys) => emit(state.copyWith(
-        isLoading: false,
+        isLoadingList: false,
         hubGroupBuys: groupBuys,
       )),
     );

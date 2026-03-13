@@ -12,6 +12,11 @@ part 'order_bloc.freezed.dart';
 part 'order_event.dart';
 part 'order_state.dart';
 
+/// Handles marketplace order lifecycle (buy, confirm, dispute, vouch).
+///
+/// Intentionally depends on [MarketplaceRepository] because orders are a
+/// first-class marketplace concept — the order entity, escrow flow, and
+/// fulfilment confirmation all live within the marketplace bounded context.
 @injectable
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final MarketplaceRepository _repository;
@@ -109,13 +114,21 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         stepUpRequired == StepUpResult.otpRequired) {
       final authResult = await _stepUpAuthService.performBiometricStepUp();
       if (authResult == StepUpResult.cancelled ||
-          authResult == StepUpResult.failed ||
-          authResult == StepUpResult.otpRequired) {
+          authResult == StepUpResult.failed) {
         emit(state.copyWith(
           isProcessing: false,
-          errorMessage: authResult == StepUpResult.otpRequired
-              ? 'OTP verification required but not yet supported'
-              : 'Authentication required',
+          errorMessage: 'Authentication required',
+        ));
+        return;
+      }
+      if (authResult == StepUpResult.otpRequired) {
+        // Device lacks biometric capability. Direct user to enable device
+        // security (PIN/pattern/fingerprint) in system settings before
+        // retrying the purchase.
+        emit(state.copyWith(
+          isProcessing: false,
+          errorMessage:
+              'Identity verification required. Please enable biometric or screen lock in your device settings and try again.',
         ));
         return;
       }

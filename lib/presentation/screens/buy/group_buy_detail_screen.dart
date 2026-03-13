@@ -108,7 +108,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
   }
 
   Widget _buildBody(GroupBuyState state, GroupBuy? groupBuy) {
-    if (state.isLoading && groupBuy == null) {
+    if (state.isLoadingDetail && groupBuy == null) {
       return _buildShimmer();
     }
 
@@ -233,7 +233,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           Row(
             children: [
               Text(
-                'Organized by ${groupBuy.organizerName}',
+                'Organized by ${groupBuy.organizerName ?? 'iMali Team'}',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
@@ -894,9 +894,14 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
   }
 
   Widget _buildDeliveryStatusDropdown(GroupBuy groupBuy) {
-    const statuses = ['pending', 'shipped', 'in_transit', 'delivered'];
+    const deliveryStatuses = {
+      'preparing': 'Preparing',
+      'shipped': 'Shipped',
+      'in_transit': 'In Transit',
+      'delivered': 'Delivered',
+    };
     return DropdownButtonFormField<String>(
-      initialValue: groupBuy.deliveryStatus ?? 'pending',
+      initialValue: groupBuy.deliveryStatus ?? 'preparing',
       dropdownColor: AppColors.surfaceElevated,
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
       decoration: InputDecoration(
@@ -914,11 +919,11 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           borderSide: const BorderSide(color: AppColors.border),
         ),
       ),
-      items: statuses
-          .map((s) => DropdownMenuItem(
-                value: s,
+      items: deliveryStatuses.entries
+          .map((e) => DropdownMenuItem(
+                value: e.key,
                 child: Text(
-                  s.replaceAll('_', ' ').toUpperCase(),
+                  e.value,
                   style: const TextStyle(fontSize: 13),
                 ),
               ))

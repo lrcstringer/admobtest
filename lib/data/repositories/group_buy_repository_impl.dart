@@ -70,6 +70,8 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
     String? linkedListingId,
     int minParticipants = 2,
     int? maxParticipants,
+    String? imageUrl,
+    int? pricePerPerson,
   }) async {
     try {
       final id = await _remoteDataSource.createGroupBuy(
@@ -80,6 +82,8 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
         linkedListingId: linkedListingId,
         minParticipants: minParticipants,
         maxParticipants: maxParticipants,
+        imageUrl: imageUrl,
+        pricePerPerson: pricePerPerson,
       );
       return Right(id);
     } catch (e) {

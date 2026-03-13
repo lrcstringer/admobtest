@@ -42,6 +42,13 @@ const routeRoles = <String, List<String>>{
   '/buy-analytics': ['superAdmin', 'financeAdmin', 'auditor'],
   '/buy-group-buys': ['superAdmin', 'financeAdmin'],
   '/buy-escrow': ['superAdmin', 'financeAdmin', 'auditor'],
+  '/buy-storefront-builder': ['superAdmin', 'campaignAdmin'],
+  '/buy-vas-providers': ['superAdmin', 'platformAdmin'],
+  '/buy-vas-products': ['superAdmin', 'platformAdmin'],
+  '/buy-purchase-monitoring': ['superAdmin', 'financeAdmin'],
+  '/gooi-management': ['superAdmin', 'financeAdmin'],
+  '/gooi-config': ['superAdmin'],
+  '/gooi-debts': ['superAdmin', 'financeAdmin'],
 };
 
 /// Whether a route is visible for the given roles.
@@ -49,7 +56,7 @@ bool isRouteAllowed(String path, List<String> roles) {
   if (roles.isEmpty) return false;
   if (roles.contains('superAdmin')) return true;
   final allowed = routeRoles[path];
-  if (allowed == null) return true;
+  if (allowed == null) return false;
   if (allowed.contains('*')) return true;
   return roles.any((role) => allowed.contains(role));
 }

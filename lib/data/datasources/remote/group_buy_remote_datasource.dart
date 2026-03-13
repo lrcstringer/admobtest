@@ -20,6 +20,8 @@ abstract class GroupBuyRemoteDataSource {
     String? linkedListingId,
     int minParticipants,
     int? maxParticipants,
+    String? imageUrl,
+    int? pricePerPerson,
   });
   Future<void> joinGroupBuy({
     required String groupBuyId,
@@ -160,6 +162,8 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
     String? linkedListingId,
     int minParticipants = 2,
     int? maxParticipants,
+    String? imageUrl,
+    int? pricePerPerson,
   }) async {
     final result = await _functions
         .httpsCallable('createGroupBuy')
@@ -171,6 +175,8 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       if (linkedListingId != null) 'linkedListingId': linkedListingId,
       'minParticipants': minParticipants,
       if (maxParticipants != null) 'maxParticipants': maxParticipants,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (pricePerPerson != null) 'pricePerPerson': pricePerPerson,
     });
     return result.data['groupBuyId'] as String;
   }

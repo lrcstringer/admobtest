@@ -18,5 +18,6 @@ class BrandStorefrontState with _$BrandStorefrontState {
     DateTime? followedAt,
     @Default(false) bool isTogglingFollow,
     String? errorMessage,
+    String? eligibleReviewOrderId,
   }) = _BrandStorefrontState;
 }

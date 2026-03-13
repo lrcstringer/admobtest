@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/brand_product.dart';
+import '../mappers/brand_product_mapper.dart';
 
 part 'brand_product_model.freezed.dart';
 
@@ -78,51 +79,10 @@ class BrandProductModel with _$BrandProductModel {
     };
   }
 
-  BrandProduct toEntity() {
-    return BrandProduct(
-      id: id,
-      brandId: brandId,
-      name: name,
-      description: description,
-      priceZar: priceZar,
-      priceTokens: priceTokens,
-      imageUrl: imageUrl,
-      category: category,
-      isActive: isActive,
-      isFeatured: isFeatured,
-      sortOrder: sortOrder,
-      stockCount: stockCount,
-      fulfilmentType: fulfilmentType,
-      contactMethod: contactMethod,
-      voucherInstructions: voucherInstructions,
-      collectionAddress: collectionAddress,
-      deliveryInfo: deliveryInfo,
-      createdAt: createdAt,
-    );
-  }
+  BrandProduct toEntity() => BrandProductMapper.toEntity(this);
 
-  factory BrandProductModel.fromEntity(BrandProduct entity) {
-    return BrandProductModel(
-      id: entity.id,
-      brandId: entity.brandId,
-      name: entity.name,
-      description: entity.description,
-      priceZar: entity.priceZar,
-      priceTokens: entity.priceTokens,
-      imageUrl: entity.imageUrl,
-      category: entity.category,
-      isActive: entity.isActive,
-      isFeatured: entity.isFeatured,
-      sortOrder: entity.sortOrder,
-      stockCount: entity.stockCount,
-      fulfilmentType: entity.fulfilmentType,
-      contactMethod: entity.contactMethod,
-      voucherInstructions: entity.voucherInstructions,
-      collectionAddress: entity.collectionAddress,
-      deliveryInfo: entity.deliveryInfo,
-      createdAt: entity.createdAt,
-    );
-  }
+  factory BrandProductModel.fromEntity(BrandProduct entity) =>
+      BrandProductMapper.fromEntity(entity);
 
   static FulfilmentType _parseFulfilmentType(String? value) {
     if (value == null) return FulfilmentType.digital;

@@ -12,7 +12,7 @@ part 'purchase_model.freezed.dart';
 class PurchaseModel with _$PurchaseModel {
   const factory PurchaseModel({
     required String id,
-    required String walletId,
+    required String subAccountId,
     required String userId,
     required String providerId,
     required String providerName,
@@ -35,6 +35,7 @@ class PurchaseModel with _$PurchaseModel {
 
   const PurchaseModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory PurchaseModel.fromJson(Map<String, dynamic> json) {
     final createdAt = json['createdAt'];
     final processedAt = json['processedAt'];
@@ -42,7 +43,7 @@ class PurchaseModel with _$PurchaseModel {
 
     return PurchaseModel(
       id: json['id'] as String? ?? '',
-      walletId: json['walletId'] as String? ?? json['subAccountId'] as String? ?? '',
+      subAccountId: json['subAccountId'] as String? ?? json['walletId'] as String? ?? '',
       userId: json['userId'] as String? ?? '',
       providerId: json['providerId'] as String? ?? '',
       providerName: json['providerName'] as String? ?? '',
@@ -58,25 +59,37 @@ class PurchaseModel with _$PurchaseModel {
       reference: json['reference'] as String?,
       failureReason: json['failureReason'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: createdAt is Timestamp
-          ? createdAt.toDate()
-          : DateTime.parse(createdAt as String),
+      // sanitizeFirestoreData converts Timestamps to ISO strings before
+      // this parser runs, but raw Firestore data may still contain
+      // Timestamp objects — handle both formats for safety.
+      createdAt: createdAt == null
+          ? DateTime.fromMillisecondsSinceEpoch(0)
+          : createdAt is Timestamp
+              ? createdAt.toDate()
+              : createdAt is String
+                  ? DateTime.tryParse(createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0)
+                  : DateTime.fromMillisecondsSinceEpoch(0),
       processedAt: processedAt == null
           ? null
           : processedAt is Timestamp
               ? processedAt.toDate()
-              : DateTime.parse(processedAt as String),
+              : processedAt is String
+                  ? DateTime.tryParse(processedAt)
+                  : null,
       completedAt: completedAt == null
           ? null
           : completedAt is Timestamp
               ? completedAt.toDate()
-              : DateTime.parse(completedAt as String),
+              : completedAt is String
+                  ? DateTime.tryParse(completedAt)
+                  : null,
     );
   }
 
+  // ID is the document key, not stored in document body
   Map<String, dynamic> toFirestoreJson() {
     return {
-      'walletId': walletId,
+      'subAccountId': subAccountId,
       'userId': userId,
       'providerId': providerId,
       'providerName': providerName,
@@ -101,7 +114,7 @@ class PurchaseModel with _$PurchaseModel {
   Purchase toEntity() {
     return Purchase(
       id: id,
-      walletId: walletId,
+      subAccountId: subAccountId,
       userId: userId,
       providerId: providerId,
       providerName: providerName,
@@ -126,7 +139,7 @@ class PurchaseModel with _$PurchaseModel {
   factory PurchaseModel.fromEntity(Purchase entity) {
     return PurchaseModel(
       id: entity.id,
-      walletId: entity.walletId,
+      subAccountId: entity.subAccountId,
       userId: entity.userId,
       providerId: entity.providerId,
       providerName: entity.providerName,

@@ -153,7 +153,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       child: ListView.separated(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: orders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
         itemBuilder: (_, index) => _buildOrderCard(orders[index], isBuyer),
       ),
     );
@@ -286,7 +286,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: 5,
-        itemBuilder: (_, __) => Padding(
+        itemBuilder: (_, _) => Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: Container(
             height: 72,

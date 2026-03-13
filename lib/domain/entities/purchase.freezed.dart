@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Purchase {
 
- String get id; String get walletId; String get userId; String get providerId; String get providerName; PurchaseCategory get category; int get tokenAmount; double get zarAmount; PurchaseStatus get status; String get productCode; String get productName; String? get recipientNumber; String? get voucherCode; String? get voucherPin; String? get reference; String? get failureReason; Map<String, dynamic>? get metadata; DateTime get createdAt; DateTime? get processedAt; DateTime? get completedAt;
+ String get id; String get subAccountId; String get userId; String get providerId; String get providerName; PurchaseCategory get category; int get tokenAmount; double get zarAmount; PurchaseStatus get status; String get productCode; String get productName; String? get recipientNumber; String? get voucherCode; String? get voucherPin; String? get reference; String? get failureReason; Map<String, dynamic>? get metadata; DateTime get createdAt; DateTime? get processedAt; DateTime? get completedAt;
 /// Create a copy of Purchase
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PurchaseCopyWith<Purchase> get copyWith => _$PurchaseCopyWithImpl<Purchase>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.subAccountId, subAccountId) || other.subAccountId == subAccountId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(metadata),createdAt,processedAt,completedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,subAccountId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(metadata),createdAt,processedAt,completedAt]);
 
 @override
 String toString() {
-  return 'Purchase(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+  return 'Purchase(id: $id, subAccountId: $subAccountId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PurchaseCopyWith<$Res>  {
   factory $PurchaseCopyWith(Purchase value, $Res Function(Purchase) _then) = _$PurchaseCopyWithImpl;
 @useResult
 $Res call({
- String id, String walletId, String userId, String providerId, String providerName, PurchaseCategory category, int tokenAmount, double zarAmount, PurchaseStatus status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
+ String id, String subAccountId, String userId, String providerId, String providerName, PurchaseCategory category, int tokenAmount, double zarAmount, PurchaseStatus status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
 });
 
 
@@ -62,10 +62,10 @@ class _$PurchaseCopyWithImpl<$Res>
 
 /// Create a copy of Purchase
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? walletId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? subAccountId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,subAccountId: null == subAccountId ? _self.subAccountId : subAccountId // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
 as String,providerName: null == providerName ? _self.providerName : providerName // ignore: cast_nullable_to_non_nullable
@@ -169,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String subAccountId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Purchase() when $default != null:
-return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+return $default(_that.id,_that.subAccountId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
   return orElse();
 
 }
@@ -190,10 +190,10 @@ return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.prov
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String subAccountId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Purchase():
-return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+return $default(_that.id,_that.subAccountId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +210,10 @@ return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.prov
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String walletId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String subAccountId,  String userId,  String providerId,  String providerName,  PurchaseCategory category,  int tokenAmount,  double zarAmount,  PurchaseStatus status,  String productCode,  String productName,  String? recipientNumber,  String? voucherCode,  String? voucherPin,  String? reference,  String? failureReason,  Map<String, dynamic>? metadata,  DateTime createdAt,  DateTime? processedAt,  DateTime? completedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Purchase() when $default != null:
-return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
+return $default(_that.id,_that.subAccountId,_that.userId,_that.providerId,_that.providerName,_that.category,_that.tokenAmount,_that.zarAmount,_that.status,_that.productCode,_that.productName,_that.recipientNumber,_that.voucherCode,_that.voucherPin,_that.reference,_that.failureReason,_that.metadata,_that.createdAt,_that.processedAt,_that.completedAt);case _:
   return null;
 
 }
@@ -225,11 +225,11 @@ return $default(_that.id,_that.walletId,_that.userId,_that.providerId,_that.prov
 
 
 class _Purchase extends Purchase {
-  const _Purchase({required this.id, required this.walletId, required this.userId, required this.providerId, required this.providerName, required this.category, required this.tokenAmount, required this.zarAmount, required this.status, required this.productCode, required this.productName, this.recipientNumber, this.voucherCode, this.voucherPin, this.reference, this.failureReason, final  Map<String, dynamic>? metadata, required this.createdAt, this.processedAt, this.completedAt}): _metadata = metadata,super._();
+  const _Purchase({required this.id, required this.subAccountId, required this.userId, required this.providerId, required this.providerName, required this.category, required this.tokenAmount, required this.zarAmount, required this.status, required this.productCode, required this.productName, this.recipientNumber, this.voucherCode, this.voucherPin, this.reference, this.failureReason, final  Map<String, dynamic>? metadata, required this.createdAt, this.processedAt, this.completedAt}): _metadata = metadata,super._();
   
 
 @override final  String id;
-@override final  String walletId;
+@override final  String subAccountId;
 @override final  String userId;
 @override final  String providerId;
 @override final  String providerName;
@@ -267,16 +267,16 @@ _$PurchaseCopyWith<_Purchase> get copyWith => __$PurchaseCopyWithImpl<_Purchase>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Purchase&&(identical(other.id, id) || other.id == id)&&(identical(other.subAccountId, subAccountId) || other.subAccountId == subAccountId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.providerId, providerId) || other.providerId == providerId)&&(identical(other.providerName, providerName) || other.providerName == providerName)&&(identical(other.category, category) || other.category == category)&&(identical(other.tokenAmount, tokenAmount) || other.tokenAmount == tokenAmount)&&(identical(other.zarAmount, zarAmount) || other.zarAmount == zarAmount)&&(identical(other.status, status) || other.status == status)&&(identical(other.productCode, productCode) || other.productCode == productCode)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.recipientNumber, recipientNumber) || other.recipientNumber == recipientNumber)&&(identical(other.voucherCode, voucherCode) || other.voucherCode == voucherCode)&&(identical(other.voucherPin, voucherPin) || other.voucherPin == voucherPin)&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.failureReason, failureReason) || other.failureReason == failureReason)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.processedAt, processedAt) || other.processedAt == processedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,walletId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(_metadata),createdAt,processedAt,completedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,subAccountId,userId,providerId,providerName,category,tokenAmount,zarAmount,status,productCode,productName,recipientNumber,voucherCode,voucherPin,reference,failureReason,const DeepCollectionEquality().hash(_metadata),createdAt,processedAt,completedAt]);
 
 @override
 String toString() {
-  return 'Purchase(id: $id, walletId: $walletId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
+  return 'Purchase(id: $id, subAccountId: $subAccountId, userId: $userId, providerId: $providerId, providerName: $providerName, category: $category, tokenAmount: $tokenAmount, zarAmount: $zarAmount, status: $status, productCode: $productCode, productName: $productName, recipientNumber: $recipientNumber, voucherCode: $voucherCode, voucherPin: $voucherPin, reference: $reference, failureReason: $failureReason, metadata: $metadata, createdAt: $createdAt, processedAt: $processedAt, completedAt: $completedAt)';
 }
 
 
@@ -287,7 +287,7 @@ abstract mixin class _$PurchaseCopyWith<$Res> implements $PurchaseCopyWith<$Res>
   factory _$PurchaseCopyWith(_Purchase value, $Res Function(_Purchase) _then) = __$PurchaseCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String walletId, String userId, String providerId, String providerName, PurchaseCategory category, int tokenAmount, double zarAmount, PurchaseStatus status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
+ String id, String subAccountId, String userId, String providerId, String providerName, PurchaseCategory category, int tokenAmount, double zarAmount, PurchaseStatus status, String productCode, String productName, String? recipientNumber, String? voucherCode, String? voucherPin, String? reference, String? failureReason, Map<String, dynamic>? metadata, DateTime createdAt, DateTime? processedAt, DateTime? completedAt
 });
 
 
@@ -304,10 +304,10 @@ class __$PurchaseCopyWithImpl<$Res>
 
 /// Create a copy of Purchase
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? walletId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? subAccountId = null,Object? userId = null,Object? providerId = null,Object? providerName = null,Object? category = null,Object? tokenAmount = null,Object? zarAmount = null,Object? status = null,Object? productCode = null,Object? productName = null,Object? recipientNumber = freezed,Object? voucherCode = freezed,Object? voucherPin = freezed,Object? reference = freezed,Object? failureReason = freezed,Object? metadata = freezed,Object? createdAt = null,Object? processedAt = freezed,Object? completedAt = freezed,}) {
   return _then(_Purchase(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
+as String,subAccountId: null == subAccountId ? _self.subAccountId : subAccountId // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,providerId: null == providerId ? _self.providerId : providerId // ignore: cast_nullable_to_non_nullable
 as String,providerName: null == providerName ? _self.providerName : providerName // ignore: cast_nullable_to_non_nullable

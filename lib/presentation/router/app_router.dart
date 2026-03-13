@@ -1169,8 +1169,12 @@ class AppRouter {
                     builder: (context, state) {
                       final storefrontId =
                           state.pathParameters['storefrontId']!;
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final orderId = extra?['orderId'] as String?;
                       return BrandStorefrontScreen(
-                          storefrontId: storefrontId);
+                        storefrontId: storefrontId,
+                        orderId: orderId,
+                      );
                     },
                   ),
                   // 10.6) Marketplace hub

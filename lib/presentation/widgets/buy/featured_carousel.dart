@@ -2,12 +2,30 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../core/services/buy_analytics_service.dart';
 import '../../../domain/entities/featured_item.dart';
 import '../../theme/app_colors.dart';
 import '../common/brand_card.dart';
+
+/// Presentation-layer helper that evaluates [FeaturedItem] active status at a
+/// given point in time, so that callers do not rely on the entity's internal
+/// `DateTime.now()`.  All time-dependent filtering in this file uses this
+/// function with a `_now` captured once per build / event.
+bool _isActiveAt(FeaturedItem item, DateTime now) {
+  if (!item.isActive || item.isDeleted) return false;
+  final utc = now.toUtc();
+  if (item.scheduledStart != null && utc.isBefore(item.scheduledStart!)) {
+    return false;
+  }
+  if (item.scheduledEnd != null && utc.isAfter(item.scheduledEnd!)) {
+    return false;
+  }
+  return true;
+}
 
 /// Auto-advancing featured carousel for Buy tab Layer 1.
 /// 5-second auto-advance, pauses on touch, lifecycle-aware.
@@ -43,16 +61,20 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
   @override
   void didUpdateWidget(covariant FeaturedCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final now = DateTime.now();
     final oldActive =
-        oldWidget.items.where((i) => i.isCurrentlyActive).toList();
+        oldWidget.items.where((i) => _isActiveAt(i, now)).toList();
     final newActive =
-        widget.items.where((i) => i.isCurrentlyActive).toList();
+        widget.items.where((i) => _isActiveAt(i, now)).toList();
     if (oldActive.length != newActive.length) {
       _autoAdvanceTimer?.cancel();
       _autoAdvanceTimer = null;
       _currentPage = 0;
-      _pageController.dispose();
+      final oldController = _pageController;
       _pageController = PageController();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        oldController.dispose();
+      });
       _startAutoAdvance();
     }
   }
@@ -78,14 +100,16 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
 
   void _startAutoAdvance() {
     _autoAdvanceTimer?.cancel();
+    final now = DateTime.now();
     final activeItems =
-        widget.items.where((item) => item.isCurrentlyActive).toList();
+        widget.items.where((item) => _isActiveAt(item, now)).toList();
     if (activeItems.length <= 1) return;
 
     _autoAdvanceTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted || _isUserInteracting) return;
+      final tickNow = DateTime.now();
       final items =
-          widget.items.where((item) => item.isCurrentlyActive).toList();
+          widget.items.where((item) => _isActiveAt(item, tickNow)).toList();
       if (items.isEmpty) return;
       if (!_pageController.hasClients) return;
       final nextPage = (_currentPage + 1) % items.length;
@@ -107,6 +131,8 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
         return BrandGradient.pinkPurple;
       case 'logo':
         return BrandGradient.logo;
+      case 'custom':
+        return BrandGradient.goldOrange;
       default:
         return BrandGradient.goldOrange;
     }
@@ -114,10 +140,10 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
     final activeItems =
-        widget.items.where((item) => item.isCurrentlyActive).toList();
+        widget.items.where((item) => _isActiveAt(item, now)).toList();
     if (activeItems.isEmpty) {
-      // Issue 6: Show placeholder when all items are outside their schedule
       if (widget.items.isNotEmpty) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -201,7 +227,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
     final isFullImage = item.imageLayout == 'full';
 
     if (item.bgGradientType == 'custom' && item.bgColorHex != null) {
-      // Custom: use hex color(s) with configurable intensity/opacity
       final hex = item.bgColorHex!;
       if (hex.contains(',')) {
         final parts = hex.split(',');
@@ -213,13 +238,11 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
       intensity = item.colorIntensity;
       imgOpacity = item.imageOpacity;
     } else {
-      // Preset gradient (existing behavior — unchanged)
       bgColors = BrandCard.colorsFor(_gradientForType(item.bgGradientType));
       intensity = 0.4;
       imgOpacity = 0.3;
     }
 
-    // Bold dark gradient background
     final darkBg = [
       Color.alphaBlend(
         bgColors[0].withValues(alpha: intensity),
@@ -239,7 +262,13 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
         hasLink ? (item.ctaText ?? _defaultCtaForType(item.type)) : '';
 
     return GestureDetector(
-      onTap: () => widget.onItemTap(item),
+      onTap: () {
+        GetIt.I<BuyAnalyticsService>().trackFeaturedItemTapped(
+          itemId: item.id,
+          itemType: item.type,
+        );
+        widget.onItemTap(item);
+      },
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -253,7 +282,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
           borderRadius: BorderRadius.circular(16),
           child: Stack(
             children: [
-              // Decorative circles (preset gradients only)
               if (item.bgGradientType != 'custom') ...[
                 Positioned(
                   right: -20,
@@ -272,7 +300,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                 ),
               ],
 
-              // Optional background video or image
               if (item.videoUrl != null && item.videoUrl!.isNotEmpty)
                 Positioned(
                   right: 0,
@@ -296,7 +323,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                   left: isFullImage ? 0 : null,
                   width: isFullImage ? null : 160,
                   child: item.bgGradientType == 'custom'
-                      // Custom: uniform opacity, image scaled to fit (no crop)
                       ? Opacity(
                           opacity: imgOpacity,
                           child: CachedNetworkImage(
@@ -307,13 +333,12 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                                 : Alignment.centerRight,
                             width: double.infinity,
                             height: double.infinity,
-                            placeholder: (_, __) =>
+                            placeholder: (context, url) =>
                                 const SizedBox.shrink(),
-                            errorWidget: (_, __, ___) =>
+                            errorWidget: (context, url, error) =>
                                 const SizedBox.shrink(),
                           ),
                         )
-                      // Preset: directional fade into background
                       : ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(
                             begin: isFullImage
@@ -332,25 +357,22 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                           child: CachedNetworkImage(
                             imageUrl: item.imageUrl!,
                             fit: BoxFit.cover,
-                            placeholder: (_, __) =>
+                            placeholder: (context, url) =>
                                 const SizedBox.shrink(),
-                            errorWidget: (_, __, ___) =>
+                            errorWidget: (context, url, error) =>
                                 const SizedBox.shrink(),
                           ),
                         ),
                 ),
 
-              // Content
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Badge chip
                     _buildBadge(item.type),
                     const SizedBox(height: 8),
 
-                    // Brand name
                     if (item.brandName != null &&
                         item.brandName!.isNotEmpty) ...[
                       Text(
@@ -365,7 +387,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                       const SizedBox(height: 2),
                     ],
 
-                    // Title (flexible — absorbs remaining space)
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
@@ -383,7 +404,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                       ),
                     ),
 
-                    // Subtitle
                     if (item.subtitle != null &&
                         item.subtitle!.isNotEmpty) ...[
                       Text(
@@ -398,7 +418,6 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                       const SizedBox(height: 8),
                     ],
 
-                    // CTA button
                     if (ctaLabel.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -544,6 +563,7 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
   VideoPlayerController? _controller;
   bool _initialized = false;
   bool _disposed = false;
+  bool _timedOut = false;
 
   @override
   void initState() {
@@ -558,6 +578,7 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
       _controller?.dispose();
       _controller = null;
       _initialized = false;
+      _timedOut = false;
       _initializeController(widget.videoUrl);
     }
   }
@@ -568,11 +589,14 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
     controller.initialize().timeout(
       const Duration(seconds: 10),
       onTimeout: () {
-        // Timed out — fall back to poster image
+        if (_disposed || !mounted) return;
+        if (_controller != controller) return;
+        controller.dispose();
+        _controller = null;
+        setState(() => _timedOut = true);
       },
     ).then((_) {
       if (_disposed || !mounted) return;
-      // Guard: controller may have been replaced by didUpdateWidget
       if (_controller != controller) return;
       controller.setLooping(true);
       controller.setVolume(0);
@@ -580,7 +604,10 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
       setState(() => _initialized = true);
     }).catchError((_) {
       if (_disposed || !mounted) return;
-      // Silently fall back to poster image on error
+      if (_controller != controller) return;
+      controller.dispose();
+      _controller = null;
+      setState(() => _timedOut = true);
     });
   }
 
@@ -609,8 +636,9 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
           child: VideoPlayer(controller),
         ),
       );
-    } else if (!_initialized && controller != null) {
-      // Issue 5: Show shimmer while video is initializing
+    } else if (_timedOut || controller == null) {
+      content = _buildPoster();
+    } else {
       content = Shimmer.fromColors(
         baseColor: AppColors.shimmerBase,
         highlightColor: AppColors.shimmerHighlight,
@@ -618,8 +646,6 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
           color: AppColors.surface,
         ),
       );
-    } else {
-      content = _buildPoster();
     }
 
     if (widget.isCustom) {
@@ -655,8 +681,8 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
           widget.isFullImage ? Alignment.center : Alignment.centerRight,
       width: double.infinity,
       height: double.infinity,
-      placeholder: (_, __) => const SizedBox.shrink(),
-      errorWidget: (_, __, ___) => const SizedBox.shrink(),
+      placeholder: (context, url) => const SizedBox.shrink(),
+      errorWidget: (context, url, error) => const SizedBox.shrink(),
     );
   }
 }

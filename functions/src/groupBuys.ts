@@ -1117,10 +1117,14 @@ export const updateGroupBuyDeliveryStatus = onCall(
     if (!groupBuyId || typeof groupBuyId !== "string") {
       throw new HttpsError("invalid-argument", "groupBuyId is required");
     }
-    const validStatuses = ["preparing", "shipped", "delivered"];
+    const validStatuses = ["pending", "preparing", "in_transit", "shipped", "delivered"];
     if (!validStatuses.includes(deliveryStatus)) {
       throw new HttpsError("invalid-argument", `deliveryStatus must be one of: ${validStatuses.join(", ")}`);
     }
+
+    // Normalize frontend values to canonical backend values
+    const statusMap: Record<string, string> = { pending: "preparing", in_transit: "shipped" };
+    const normalizedStatus = statusMap[deliveryStatus] || deliveryStatus;
 
     const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
 
@@ -1140,7 +1144,7 @@ export const updateGroupBuyDeliveryStatus = onCall(
       }
 
       const updates: Record<string, unknown> = {
-        deliveryStatus,
+        deliveryStatus: normalizedStatus,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
       if (trackingInfo) {
@@ -1150,7 +1154,7 @@ export const updateGroupBuyDeliveryStatus = onCall(
       tx.update(groupBuyRef, updates);
     });
 
-    logger.info(`Group buy ${groupBuyId} delivery status updated to ${deliveryStatus} by ${userId}`);
+    logger.info(`Group buy ${groupBuyId} delivery status updated to ${normalizedStatus} by ${userId}`);
     return { success: true };
   }
 );

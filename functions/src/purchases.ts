@@ -6,6 +6,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
+import * as crypto from "crypto";
 import { requireAppCheck, requirePlayIntegrity } from "./security";
 import {
   processPurchaseTransaction,
@@ -236,13 +237,14 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       throw updateError;
     }
 
-    // Simulate VAS provider API call
+    // VAS provider API call (simulation or real)
     const purchaseData = {
       category: provider.category || "airtime",
       productName: product.name,
       tokenAmount,
       zarAmount,
       recipientNumber,
+      purchaseId: purchaseRef.id,
     };
     const result = await simulateVasProviderCall(purchaseData);
 
@@ -328,9 +330,10 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
 });
 
 /**
- * Simulate VAS provider API call.
- * TODO: Replace with actual VAS API integration before production launch.
- * Always succeeds — real provider failures will be handled by the actual API.
+ * VAS provider API call.
+ * In simulation mode (VAS_SIMULATION_MODE=true or functions.config().vas.simulation_mode),
+ * returns deterministic success with generated codes.
+ * In production mode (simulation off), throws an error — real VAS integration must be configured.
  */
 interface PurchaseRequest {
   category: string;
@@ -338,6 +341,17 @@ interface PurchaseRequest {
   tokenAmount: number;
   zarAmount: number;
   recipientNumber: string;
+  purchaseId: string;
+}
+
+function isVasSimulationMode(): boolean {
+  if (process.env.VAS_SIMULATION_MODE === "true") return true;
+  try {
+    const config = require("firebase-functions").config();
+    return config?.vas?.simulation_mode === "true";
+  } catch {
+    return false;
+  }
 }
 
 async function simulateVasProviderCall(purchase: PurchaseRequest): Promise<{
@@ -347,38 +361,53 @@ async function simulateVasProviderCall(purchase: PurchaseRequest): Promise<{
   reference?: string;
   error?: string;
 }> {
+  if (!isVasSimulationMode()) {
+    throw new HttpsError(
+      "failed-precondition",
+      "VAS provider integration not configured. Set VAS_SIMULATION_MODE=true for testing."
+    );
+  }
+
+  logger.warn("VAS provider call running in SIMULATION MODE — not connected to a real provider", {
+    category: purchase.category,
+    purchaseId: purchase.purchaseId,
+  });
+
   // Simulate API delay
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  // Deterministic success — no random failures that cost users real money.
   const category = purchase.category;
+  const purchaseId = purchase.purchaseId;
 
   if (category === "electricity") {
     return {
       success: true,
       voucherCode: generateElectricityToken(),
-      reference: `EL${Date.now()}`,
+      reference: `EL_${purchaseId}`,
     };
   } else if (category === "voucher") {
     return {
       success: true,
       voucherCode: generateVoucherCode(),
       voucherPin: generateVoucherPin(),
-      reference: `VC${Date.now()}`,
+      reference: `VC_${purchaseId}`,
     };
   } else {
     return {
       success: true,
-      reference: `TX${Date.now()}`,
+      reference: `TX_${purchaseId}`,
     };
   }
 }
 
-// Helper functions
+// Helper functions using crypto.randomBytes for secure generation
 function generateElectricityToken(): string {
+  const bytes = crypto.randomBytes(10);
   let token = "";
   for (let i = 0; i < 20; i++) {
-    token += Math.floor(Math.random() * 10).toString();
+    const byteIndex = Math.floor(i / 2);
+    const nibble = i % 2 === 0 ? (bytes[byteIndex] >> 4) : (bytes[byteIndex] & 0x0f);
+    token += (nibble % 10).toString();
     if ((i + 1) % 4 === 0 && i < 19) token += " ";
   }
   return token;
@@ -386,18 +415,20 @@ function generateElectricityToken(): string {
 
 function generateVoucherCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = crypto.randomBytes(12);
   let code = "";
   for (let i = 0; i < 12; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(bytes[i] % chars.length);
     if ((i + 1) % 4 === 0 && i < 11) code += "-";
   }
   return code;
 }
 
 function generateVoucherPin(): string {
+  const bytes = crypto.randomBytes(4);
   let pin = "";
   for (let i = 0; i < 4; i++) {
-    pin += Math.floor(Math.random() * 10).toString();
+    pin += (bytes[i] % 10).toString();
   }
   return pin;
 }

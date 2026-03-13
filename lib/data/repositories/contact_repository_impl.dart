@@ -10,6 +10,7 @@ import '../../domain/entities/brand_account.dart';
 import '../../domain/entities/contact.dart';
 import '../../domain/entities/contact_suggestion.dart';
 import '../../domain/repositories/contact_repository.dart';
+import '../models/brand_account_model.dart';
 
 @LazySingleton(as: ContactRepository)
 class ContactRepositoryImpl implements ContactRepository {
@@ -604,15 +605,7 @@ class ContactRepositoryImpl implements ContactRepository {
     if (brandsData is! List) return [];
     return brandsData.map((b) {
       final m = Map<String, dynamic>.from(b as Map);
-      return BrandAccount(
-        id: m['id'] as String? ?? '',
-        name: m['name'] as String? ?? 'Brand',
-        logoUrl: m['logoUrl'] as String?,
-        avatarColor: m['avatarColor'] as String?,
-        description: m['description'] as String?,
-        isFollowed: m['isFollowed'] as bool? ?? false,
-        followerCount: m['followerCount'] as int? ?? 0,
-      );
+      return BrandAccountModel.fromJson(m).toEntity();
     }).toList();
   }
 

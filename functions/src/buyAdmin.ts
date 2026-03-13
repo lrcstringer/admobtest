@@ -31,6 +31,8 @@ export const adminListFeatureFlags = onCall(
       "adminListFeatureFlags"
     );
 
+    // Feature flags use featureKey as doc ID and are toggled via isEnabled —
+    // they do not have an isDeleted field since flags are never soft-deleted.
     const snapshot = await db.collection("featureFlags").get();
     const flags = snapshot.docs.map((doc) => ({
       id: doc.id,
@@ -505,9 +507,9 @@ export const adminCreateFeaturedItem = onCall(
       }
     }
 
-    // Deterministic ID: feat_<titleHash>_<timestamp>
+    // Deterministic ID: feat_<titleHash> (idempotent — same title produces same ID)
     const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 30);
-    const featuredItemId = `feat_${titleHash}_${Date.now()}`;
+    const featuredItemId = `feat_${titleHash}`;
 
     const data: Record<string, unknown> = {
       title: title.trim(),
@@ -855,6 +857,7 @@ export const adminCreateBrandStorefront = onCall(
       coverImageUrl: coverImageUrl || null,
       tagline: tagline || null,
       isActive: isActive ?? true,
+      isDeleted: false,
       isPremium: isPremium ?? false,
       communityIds: communityIds || [],
       sections: sections || [],
@@ -1223,9 +1226,6 @@ export const adminSuspendProvider = onCall(
             failedOrderIds.push(orderDoc.id);
             continue;
           }
-          const { refundMarketplaceEscrow } = await import(
-            "./ledger/marketplaceEscrow"
-          );
           const journalId = await refundMarketplaceEscrow(
             orderData.buyerId,
             orderData.amount,
@@ -1522,6 +1522,8 @@ export const adminReinstateListing = onCall(
 
     await ref.update({
       status: "active",
+      isDeleted: false,
+      isActive: true,
       reinstatedAt: admin.firestore.FieldValue.serverTimestamp(),
       reinstatedBy: adminCtx.uid,
     });
@@ -2291,7 +2293,11 @@ export const adminCreateBrandGroupBuy = onCall(
       throw new HttpsError("invalid-argument", "deadline must be a future date");
     }
 
-    const docRef = await db.collection("groupBuys").add({
+    const titleSlug = title.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").substring(0, 30);
+    const groupBuyDocId = `brand_gb_${brandId}_${titleSlug}`;
+    const docRef = db.collection("groupBuys").doc(groupBuyDocId);
+    await docRef.set({
+      id: groupBuyDocId,
       title,
       description: description || "",
       targetAmount,
@@ -2332,10 +2338,10 @@ export const adminCreateBrandGroupBuy = onCall(
       adminCtx.uid,
       "adminCreateBrandGroupBuy",
       "success",
-      { groupBuyId: docRef.id, title, brandId, targetAmount }
+      { groupBuyId: groupBuyDocId, title, brandId, targetAmount }
     );
 
-    return { success: true, groupBuyId: docRef.id };
+    return { success: true, groupBuyId: groupBuyDocId };
   }
 );
 
@@ -2455,210 +2461,7 @@ export const adminGetEscrowOverview = onCall(
 // BRAND REVIEWS
 // ============================================================================
 
-/**
- * Submit a brand review (consumer-facing, but in buyAdmin for admin moderation hooks).
- * One review per order — orderId is the uniqueness key.
- */
-export const submitBrandReview = onCall(
-  { labels: { area: "buy" } },
-  async (request) => {
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "User must be authenticated");
-    }
-    requireAppCheck(request, "submitBrandReview");
-
-    const userId = request.auth.uid;
-    const {
-      brandId,
-      orderId,
-      qualityRating,
-      valueRating,
-      serviceRating,
-      comment,
-    } = request.data as {
-      brandId: string;
-      orderId: string;
-      qualityRating: number;
-      valueRating: number;
-      serviceRating: number;
-      comment?: string;
-    };
-
-    if (!brandId || !orderId) {
-      throw new HttpsError("invalid-argument", "brandId and orderId are required");
-    }
-
-    // Validate ratings are 1-5
-    for (const [name, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
-      if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
-        throw new HttpsError("invalid-argument", `${name} must be an integer between 1 and 5`);
-      }
-    }
-
-    // Get user display name
-    const userDoc = await db.collection("users").doc(userId).get();
-    const userName = userDoc.data()?.displayName || "iMali User";
-
-    const overallRating = Math.round(((qualityRating + valueRating + serviceRating) / 3) * 10) / 10;
-
-    // Simple auto-filter: flag if comment contains obvious profanity placeholder
-    const isFiltered = comment
-      ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
-      : false;
-
-    // Deterministic doc ID prevents duplicates even under concurrent requests
-    const reviewDocId = `${userId}_${brandId}_${orderId}`;
-    const reviewRef = db.collection("brandReviews").doc(reviewDocId);
-    const storefrontRef = db.collection("brandStorefronts").doc(brandId);
-
-    // Transaction: duplicate check + review creation + aggregate update (atomic)
-    await db.runTransaction(async (tx) => {
-      const existingReview = await tx.get(reviewRef);
-      if (existingReview.exists) {
-        throw new HttpsError("already-exists", "You have already reviewed this order");
-      }
-
-      tx.set(reviewRef, {
-        brandId,
-        userId,
-        userName,
-        orderId,
-        qualityRating,
-        valueRating,
-        serviceRating,
-        overallRating,
-        comment: comment?.trim() || null,
-        isFiltered,
-        isRemovedByAdmin: false,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: null,
-      });
-
-      // Update aggregate rating using FieldValue.increment for atomicity
-      tx.update(storefrontRef, {
-        ratingSum: admin.firestore.FieldValue.increment(overallRating),
-        ratingCount: admin.firestore.FieldValue.increment(1),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    });
-
-    // Recompute averageRating outside transaction (non-critical, best-effort)
-    try {
-      const storefrontDoc = await storefrontRef.get();
-      const sfData = storefrontDoc.data();
-      if (sfData && sfData.ratingCount > 0) {
-        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
-        await storefrontRef.update({ averageRating: avgRating });
-      }
-    } catch (err) {
-      logger.warn("Failed to recompute averageRating:", err);
-    }
-
-    logger.info(`Brand review submitted by ${userId} for brand ${brandId}`);
-    return { success: true, reviewId: reviewDocId, isFiltered };
-  }
-);
-
-/**
- * Edit an existing brand review (by the original author only).
- */
-export const editBrandReview = onCall(
-  { labels: { area: "buy" } },
-  async (request) => {
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "User must be authenticated");
-    }
-    requireAppCheck(request, "editBrandReview");
-
-    const userId = request.auth.uid;
-    const {
-      reviewId,
-      qualityRating,
-      valueRating,
-      serviceRating,
-      comment,
-    } = request.data as {
-      reviewId: string;
-      qualityRating?: number;
-      valueRating?: number;
-      serviceRating?: number;
-      comment?: string;
-    };
-
-    if (!reviewId) {
-      throw new HttpsError("invalid-argument", "reviewId is required");
-    }
-
-    const reviewRef = db.collection("brandReviews").doc(reviewId);
-    const reviewDoc = await reviewRef.get();
-
-    if (!reviewDoc.exists) {
-      throw new HttpsError("not-found", "Review not found");
-    }
-
-    const reviewData = reviewDoc.data()!;
-    if (reviewData.userId !== userId) {
-      throw new HttpsError("permission-denied", "You can only edit your own reviews");
-    }
-
-    const updates: Record<string, unknown> = {
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    // Validate and apply optional rating updates
-    for (const [key, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
-      if (val !== undefined) {
-        if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
-          throw new HttpsError("invalid-argument", `${key} must be an integer between 1 and 5`);
-        }
-        updates[key] = val;
-      }
-    }
-
-    if (comment !== undefined) {
-      updates.comment = comment?.trim() || null;
-      updates.isFiltered = comment
-        ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
-        : false;
-    }
-
-    // Recompute overall if any rating changed
-    const q = (updates.qualityRating ?? reviewData.qualityRating) as number;
-    const v = (updates.valueRating ?? reviewData.valueRating) as number;
-    const s = (updates.serviceRating ?? reviewData.serviceRating) as number;
-    const newOverallRating = Math.round(((q + v + s) / 3) * 10) / 10;
-    updates.overallRating = newOverallRating;
-
-    const oldOverallRating = reviewData.overallRating as number;
-    const ratingDiff = newOverallRating - oldOverallRating;
-
-    await reviewRef.update(updates);
-
-    // Update aggregate rating using FieldValue.increment (no re-query needed)
-    const brandId = reviewData.brandId;
-    try {
-      const storefrontRef = db.collection("brandStorefronts").doc(brandId);
-      if (ratingDiff !== 0) {
-        await storefrontRef.update({
-          ratingSum: admin.firestore.FieldValue.increment(ratingDiff),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
-      // Recompute averageRating
-      const storefrontDoc = await storefrontRef.get();
-      const sfData = storefrontDoc.data();
-      if (sfData && sfData.ratingCount > 0) {
-        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
-        await storefrontRef.update({ averageRating: avgRating });
-      }
-    } catch (err) {
-      logger.warn("Failed to update brand aggregate rating after edit:", err);
-    }
-
-    logger.info(`Brand review ${reviewId} updated by ${userId}`);
-    return { success: true };
-  }
-);
+// submitBrandReview and editBrandReview moved to brands.ts (consumer-facing functions)
 
 /**
  * Admin: flag/unflag a brand review (hide from carousel or restore).
@@ -2686,39 +2489,46 @@ export const adminFlagBrandReview = onCall(
     }
 
     const reviewRef = db.collection("brandReviews").doc(reviewId);
-    const reviewDoc = await reviewRef.get();
 
-    if (!reviewDoc.exists) {
-      throw new HttpsError("not-found", "Review not found");
-    }
+    // Transaction: flag/unflag review + aggregate rating update (atomic)
+    const brandId = await db.runTransaction(async (tx) => {
+      const reviewDoc = await tx.get(reviewRef);
+      if (!reviewDoc.exists) {
+        throw new HttpsError("not-found", "Review not found");
+      }
 
-    await reviewRef.update({
-      isRemovedByAdmin,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+      const reviewData = reviewDoc.data()!;
+      const reviewBrandId = reviewData.brandId;
+      const reviewOverall = reviewData.overallRating || 0;
+      const storefrontRef = db.collection("brandStorefronts").doc("store_" + reviewBrandId);
 
-    const brandId = reviewDoc.data()!.brandId;
+      tx.update(reviewRef, {
+        isRemovedByAdmin,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
 
-    // Update aggregate rating using FieldValue.increment based on flag/unflag action
-    try {
-      const reviewOverall = reviewDoc.data()!.overallRating || 0;
-      const storefrontRef = db.collection("brandStorefronts").doc(brandId);
       if (isRemovedByAdmin) {
         // Removing a review: decrement count and subtract rating
-        await storefrontRef.update({
+        tx.update(storefrontRef, {
           ratingSum: admin.firestore.FieldValue.increment(-reviewOverall),
           ratingCount: admin.firestore.FieldValue.increment(-1),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       } else {
         // Restoring a review: increment count and add rating
-        await storefrontRef.update({
+        tx.update(storefrontRef, {
           ratingSum: admin.firestore.FieldValue.increment(reviewOverall),
           ratingCount: admin.firestore.FieldValue.increment(1),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
-      // Recompute averageRating
+
+      return reviewBrandId;
+    });
+
+    // Recompute averageRating outside transaction (best-effort)
+    try {
+      const storefrontRef = db.collection("brandStorefronts").doc("store_" + brandId);
       const storefrontDoc = await storefrontRef.get();
       const sfData = storefrontDoc.data();
       if (sfData && sfData.ratingCount > 0) {
@@ -2763,7 +2573,6 @@ export const adminSeedBuyInitialData = onCall(
     );
 
     const now = admin.firestore.FieldValue.serverTimestamp();
-    const batch = db.batch();
     let created = 0;
     let skipped = 0;
 
@@ -2776,23 +2585,34 @@ export const adminSeedBuyInitialData = onCall(
       { key: "buy_group_buys", enabled: false, global: false },
     ];
 
-    for (const flag of featureFlags) {
-      const ref = db.collection("featureFlags").doc(flag.key);
-      const doc = await ref.get();
-      if (!doc.exists) {
-        batch.set(ref, {
-          featureKey: flag.key,
-          isEnabled: flag.enabled,
-          isGlobal: flag.global,
-          enabledCommunityIds: [],
-          createdAt: now,
-          updatedAt: now,
-        });
-        created++;
-      } else {
-        skipped++;
+    // Transaction: atomic reads + batch writes to prevent duplicate creation from concurrent calls
+    const { flagsCreated, flagsSkipped } = await db.runTransaction(async (tx) => {
+      let txCreated = 0;
+      let txSkipped = 0;
+
+      for (const flag of featureFlags) {
+        const ref = db.collection("featureFlags").doc(flag.key);
+        const doc = await tx.get(ref);
+        if (!doc.exists) {
+          tx.set(ref, {
+            featureKey: flag.key,
+            isEnabled: flag.enabled,
+            isGlobal: flag.global,
+            enabledCommunityIds: [],
+            createdAt: now,
+            updatedAt: now,
+          });
+          txCreated++;
+        } else {
+          txSkipped++;
+        }
       }
-    }
+
+      return { flagsCreated: txCreated, flagsSkipped: txSkipped };
+    });
+
+    created += flagsCreated;
+    skipped += flagsSkipped;
 
     // ── Buy Categories (16 marketplace service categories) ──
     const categories: Array<{
@@ -2973,31 +2793,40 @@ export const adminSeedBuyInitialData = onCall(
       },
     ];
 
-    for (const cat of categories) {
-      const ref = db.collection("buyCategories").doc(cat.id);
-      const doc = await ref.get();
-      if (!doc.exists) {
-        batch.set(ref, {
-          name: cat.name,
-          iconEmoji: cat.emoji,
-          sortOrder: cat.sort,
-          isActive: cat.active,
-          isComingSoon: cat.comingSoon,
-          purchaseCategoryMapping: cat.mapping || null,
-          featureFlagKey: null,
-          logoUrl: null,
-          backgroundColor: null,
-          subcategories: cat.subcategories,
-          createdAt: now,
-          updatedAt: now,
-        });
-        created++;
-      } else {
-        skipped++;
-      }
-    }
+    // Transaction: atomic reads + writes for categories to prevent duplicates from concurrent calls
+    const { catsCreated, catsSkipped } = await db.runTransaction(async (tx) => {
+      let txCreated = 0;
+      let txSkipped = 0;
 
-    await batch.commit();
+      for (const cat of categories) {
+        const ref = db.collection("buyCategories").doc(cat.id);
+        const doc = await tx.get(ref);
+        if (!doc.exists) {
+          tx.set(ref, {
+            name: cat.name,
+            iconEmoji: cat.emoji,
+            sortOrder: cat.sort,
+            isActive: cat.active,
+            isComingSoon: cat.comingSoon,
+            purchaseCategoryMapping: cat.mapping || null,
+            featureFlagKey: null,
+            logoUrl: null,
+            backgroundColor: null,
+            subcategories: cat.subcategories,
+            createdAt: now,
+            updatedAt: now,
+          });
+          txCreated++;
+        } else {
+          txSkipped++;
+        }
+      }
+
+      return { catsCreated: txCreated, catsSkipped: txSkipped };
+    });
+
+    created += catsCreated;
+    skipped += catsSkipped;
 
     await logAdminAction(adminCtx.uid, "adminSeedBuyInitialData", "success", {
       created,
@@ -3182,12 +3011,12 @@ export const adminReinstateProvider = onCall(
     }
 
     const provider = providerDoc.data()!;
-    if (provider.status === "active") {
-      return { success: true, message: "Provider is already active" };
+    if (provider.status === "approved") {
+      return { success: true, message: "Provider is already approved" };
     }
 
     await providerRef.update({
-      status: "active",
+      status: "approved",
       suspensionReason: null,
       suspensionTrigger: null,
       suspendedAt: null,
@@ -3244,7 +3073,9 @@ export const adminPartialRefund = onCall(
       throw new HttpsError("invalid-argument", "Refund amount must be a positive integer");
     }
 
-    // Use transaction to prevent concurrent double-refund
+    // Two-phase approach: transaction validates and extracts data,
+    // then refund + final update happen atomically outside.
+    // The transaction marks the order as processing to prevent concurrent refunds.
     const orderRef = db.collection("buyOrders").doc(orderId);
     const order = await db.runTransaction(async (tx) => {
       const orderDoc = await tx.get(orderRef);
@@ -3271,6 +3102,8 @@ export const adminPartialRefund = onCall(
       return data;
     });
 
+    // Execute refund and final update sequentially — the processing lock above
+    // prevents concurrent calls from double-refunding.
     const journalId = await refundMarketplaceEscrow(
       order.buyerId,
       refundAmount,
@@ -3518,6 +3351,7 @@ export const adminListBrandProducts = onCall(
     const productsSnap = await db
       .collection("brandProducts")
       .where("storefrontId", "==", storefrontId)
+      .where("isDeleted", "==", false)
       .orderBy("sortOrder", "asc")
       .get();
 
@@ -4004,6 +3838,8 @@ export const adminListVasProducts = onCall(
       updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() ?? null,
     }));
 
+    await logAdminAction(adminCtx.uid, "listVasProducts", "success", { providerId });
+
     logger.info(`Admin ${adminCtx.email} listed ${products.length} VAS products for provider ${providerId}`);
     return { success: true, products };
   }
@@ -4337,41 +4173,48 @@ export const adminSeedVasProviders = onCall(
       { name: "OTT", code: "ott", category: "voucher", sortOrder: 4 },
     ];
 
-    const batch = db.batch();
     let created = 0;
     let skipped = 0;
 
-    for (const provider of defaultProviders) {
-      const existing = await db
-        .collection("serviceProviders")
-        .where("code", "==", provider.code)
-        .limit(1)
-        .get();
+    // Transaction: atomic reads + writes to prevent duplicate providers from concurrent calls.
+    // Firestore transactions don't support inequality queries, so we read by deterministic doc ID.
+    // Use deterministic IDs based on provider code for idempotency.
+    const txResult = await db.runTransaction(async (tx) => {
+      let txCreated = 0;
+      let txSkipped = 0;
 
-      if (!existing.empty) {
-        skipped++;
-        continue;
+      for (const provider of defaultProviders) {
+        const deterministicId = `vas_${provider.code.replace(/[^a-z0-9-]/g, "")}`;
+        const ref = db.collection("serviceProviders").doc(deterministicId);
+        const doc = await tx.get(ref);
+
+        if (doc.exists) {
+          txSkipped++;
+          continue;
+        }
+
+        tx.set(ref, {
+          id: deterministicId,
+          name: provider.name,
+          code: provider.code,
+          category: provider.category,
+          logoUrl: null,
+          description: null,
+          sortOrder: provider.sortOrder,
+          isActive: true,
+          isDeleted: false,
+          productsCount: 0,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        txCreated++;
       }
 
-      const ref = db.collection("serviceProviders").doc();
-      batch.set(ref, {
-        id: ref.id,
-        name: provider.name,
-        code: provider.code,
-        category: provider.category,
-        logoUrl: null,
-        description: null,
-        sortOrder: provider.sortOrder,
-        isActive: true,
-        isDeleted: false,
-        productsCount: 0,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      created++;
-    }
+      return { txCreated, txSkipped };
+    });
 
-    await batch.commit();
+    created = txResult.txCreated;
+    skipped = txResult.txSkipped;
 
     await logAdminAction(adminCtx.uid, "adminSeedVasProviders", "success", {
       created,
@@ -4627,8 +4470,8 @@ export const adminCreateCuratedGroupBuy = onCall(
       throw new HttpsError("invalid-argument", "deadline must be a valid future date");
     }
 
-    const titleSlug = title.trim().toLowerCase().replace(/\s+/g, "_").substring(0, 30);
-    const groupBuyRef = db.collection("groupBuys").doc(`curated_${titleSlug}_${Date.now()}`);
+    const titleSlug = title.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").substring(0, 30);
+    const groupBuyRef = db.collection("groupBuys").doc(`curated_${titleSlug}`);
     await groupBuyRef.set({
       id: groupBuyRef.id,
       title: title.trim(),

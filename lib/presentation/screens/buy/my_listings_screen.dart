@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/enums/listing_status.dart';
@@ -554,7 +555,12 @@ class _ActionButtons extends StatelessWidget {
             label: 'Pause',
             icon: Icons.pause_circle_outline_rounded,
             onTap: () {
-              // TODO(Phase 3.27): Wire pause listing CF
+              context.read<MarketplaceBloc>().add(
+                MarketplaceEvent.toggleListingStatus(
+                  listingId: listing.id,
+                  action: 'paused',
+                ),
+              );
             },
           ),
           const Spacer(),
@@ -562,7 +568,11 @@ class _ActionButtons extends StatelessWidget {
             label: 'Share',
             icon: Icons.share_outlined,
             onTap: () {
-              // TODO(Phase 3.27): Wire share listing
+              SharePlus.instance.share(
+                ShareParams(
+                  text: 'Check out ${listing.title} on iMali! https://imalichat.app/buy/marketplace/${listing.id}',
+                ),
+              );
             },
           ),
         ];
@@ -574,7 +584,12 @@ class _ActionButtons extends StatelessWidget {
             icon: Icons.play_circle_outline_rounded,
             color: AppColors.buySuccess,
             onTap: () {
-              // TODO(Phase 3.27): Wire resume listing CF
+              context.read<MarketplaceBloc>().add(
+                MarketplaceEvent.toggleListingStatus(
+                  listingId: listing.id,
+                  action: 'active',
+                ),
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -593,7 +608,9 @@ class _ActionButtons extends StatelessWidget {
             icon: Icons.refresh_rounded,
             color: AppColors.buySuccess,
             onTap: () {
-              // TODO(Phase 3.19): Wire renew listing CF
+              context.read<MarketplaceBloc>().add(
+                MarketplaceEvent.renewListing(listing.id),
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -612,7 +629,7 @@ class _ActionButtons extends StatelessWidget {
             icon: Icons.replay_rounded,
             color: AppColors.buyMarketplaceAccent,
             onTap: () {
-              // TODO(Phase 3.27): Wire relist as new listing
+              context.push('/buy/marketplace/create-listing', extra: listing);
             },
           ),
         ];

@@ -38,23 +38,52 @@ class _GroupBuyCollectionScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.buyBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.buyCard,
-        foregroundColor: AppColors.buyTextPrimary,
-        elevation: 0,
-        title: const Text(
-          'Collect Your Item',
-          style: TextStyle(
-            color: AppColors.buyTextPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+    return BlocListener<GroupBuyBloc, GroupBuyState>(
+      listenWhen: (prev, curr) =>
+          prev.isConfirmingCollection != curr.isConfirmingCollection ||
+          prev.successMessage != curr.successMessage ||
+          prev.errorMessage != curr.errorMessage,
+      listener: (context, state) {
+        if (state.successMessage != null && !state.isConfirmingCollection) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: AppColors.buyGroupBuyAccent,
+            ),
+          );
+          context
+              .read<GroupBuyBloc>()
+              .add(const GroupBuyEvent.clearMessages());
+        }
+        if (state.errorMessage != null && !state.isConfirmingCollection) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+          context
+              .read<GroupBuyBloc>()
+              .add(const GroupBuyEvent.clearMessages());
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.buyBackground,
+        appBar: AppBar(
+          backgroundColor: AppColors.buyCard,
+          foregroundColor: AppColors.buyTextPrimary,
+          elevation: 0,
+          title: const Text(
+            'Collect Your Item',
+            style: TextStyle(
+              color: AppColors.buyTextPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
           ),
         ),
-      ),
-      body: BlocBuilder<GroupBuyBloc, GroupBuyState>(
-        builder: (context, state) {
+        body: BlocBuilder<GroupBuyBloc, GroupBuyState>(
+          builder: (context, state) {
           final groupBuy = state.selectedGroupBuy;
           if (groupBuy == null) {
             return const Center(
@@ -211,6 +240,7 @@ class _GroupBuyCollectionScreenState
             ),
           );
         },
+      ),
       ),
     );
   }
@@ -418,7 +448,8 @@ class _GroupBuyCollectionScreenState
   // ── Deadline warning ──
 
   Widget _buildDeadlineWarning(DateTime deadline) {
-    final daysLeft = deadline.difference(DateTime.now()).inDays;
+    final now = DateTime.now();
+    final daysLeft = deadline.difference(now).inDays;
     final isUrgent = daysLeft < 3;
     final dateStr = DateFormat('dd MMM yyyy').format(deadline);
 
@@ -497,17 +528,12 @@ class _GroupBuyCollectionScreenState
                 child: FilledButton(
                   onPressed: () {
                     Navigator.pop(ctx);
-                    // Call confirmGroupBuyCollection CF
-                    // (will be wired in Phase 5.10)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Collection confirmed!'),
-                        backgroundColor: AppColors.buyGroupBuyAccent,
-                      ),
-                    );
-                    // Reload
                     context.read<GroupBuyBloc>().add(
-                        GroupBuyEvent.loadGroupBuy(widget.groupBuyId));
+                          GroupBuyEvent.confirmCollection(
+                            groupBuyId: widget.groupBuyId,
+                            contributionId: contributionId,
+                          ),
+                        );
                   },
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.buyGroupBuyAccent,

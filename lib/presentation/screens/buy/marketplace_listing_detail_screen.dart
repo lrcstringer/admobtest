@@ -551,7 +551,7 @@ class _MarketplaceListingDetailScreenState
     final listing = context.read<MarketplaceBloc>().state.selectedListing;
     if (listing == null) return;
 
-    final priceZar = (listing.priceTokens / 100).toStringAsFixed(2);
+    final priceZar = listing.priceZar.toStringAsFixed(2);
 
     showDialog<bool>(
       context: context,

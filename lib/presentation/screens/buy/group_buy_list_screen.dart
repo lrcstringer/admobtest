@@ -112,11 +112,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
   Widget _buildActiveDeals() {
     return BlocBuilder<GroupBuyBloc, GroupBuyState>(
       buildWhen: (prev, curr) =>
-          prev.isLoading != curr.isLoading ||
+          prev.isLoadingList != curr.isLoadingList ||
           prev.activeGroupBuys != curr.activeGroupBuys ||
           prev.errorMessage != curr.errorMessage,
       builder: (context, state) {
-        if (state.isLoading && state.activeGroupBuys.isEmpty) {
+        if (state.isLoadingList && state.activeGroupBuys.isEmpty) {
           return _buildShimmer();
         }
 
@@ -139,10 +139,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
             context
                 .read<GroupBuyBloc>()
                 .add(const GroupBuyEvent.loadActiveGroupBuys());
-            await context
-                .read<GroupBuyBloc>()
-                .stream
-                .firstWhere((s) => !s.isLoading);
+            final stream = context.read<GroupBuyBloc>().stream;
+            await stream.firstWhere((s) => !s.isLoadingList).timeout(
+                  const Duration(seconds: 10),
+                  onTimeout: () => stream.first,
+                );
           },
           color: AppColors.primary,
           child: Column(
@@ -208,11 +209,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
   Widget _buildMyDeals() {
     return BlocBuilder<GroupBuyBloc, GroupBuyState>(
       buildWhen: (prev, curr) =>
-          prev.isLoading != curr.isLoading ||
+          prev.isLoadingList != curr.isLoadingList ||
           prev.myGroupBuys != curr.myGroupBuys ||
           prev.errorMessage != curr.errorMessage,
       builder: (context, state) {
-        if (state.isLoading && state.myGroupBuys.isEmpty) {
+        if (state.isLoadingList && state.myGroupBuys.isEmpty) {
           return _buildShimmer();
         }
 
@@ -228,10 +229,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
             context
                 .read<GroupBuyBloc>()
                 .add(const GroupBuyEvent.loadMyGroupBuys());
-            await context
-                .read<GroupBuyBloc>()
-                .stream
-                .firstWhere((s) => !s.isLoading);
+            final stream = context.read<GroupBuyBloc>().stream;
+            await stream.firstWhere((s) => !s.isLoadingList).timeout(
+                  const Duration(seconds: 10),
+                  onTimeout: () => stream.first,
+                );
           },
           color: AppColors.primary,
           child: ListView.builder(

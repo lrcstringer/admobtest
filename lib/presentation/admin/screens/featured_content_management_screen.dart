@@ -25,6 +25,14 @@ class _FeaturedContentManagementScreenState
   bool _isLoading = false;
   List<Map<String, dynamic>> _items = [];
 
+  // Admin screens access Firebase directly as a pragmatic exception to Clean
+  // Architecture — extracting a full admin repository is out of scope.  These
+  // final fields centralise the instances so they are obtained once.
+  final FirebaseFunctions _functions =
+      FirebaseFunctions.instanceFor(region: 'africa-south1');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +49,7 @@ class _FeaturedContentManagementScreenState
   Future<void> _loadItems() async {
     setState(() => _isLoading = true);
     try {
-      final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      final result = await _functions
           .httpsCallable('adminListFeaturedItems')
           .call<dynamic>({});
       final data = result.data as Map<String, dynamic>?;
@@ -57,7 +65,7 @@ class _FeaturedContentManagementScreenState
     } catch (e) {
       // Fallback: direct Firestore read (active items only)
       try {
-        final snapshot = await FirebaseFirestore.instance
+        final snapshot = await _firestore
             .collection('featuredItems')
             .where('isActive', isEqualTo: true)
             .orderBy('sortOrder')
@@ -81,24 +89,28 @@ class _FeaturedContentManagementScreenState
   List<Map<String, dynamic>> get _activeItems =>
       _items.where((i) => i['isActive'] == true).toList();
 
-  List<Map<String, dynamic>> get _scheduledItems =>
+  List<Map<String, dynamic>> _scheduledItems(DateTime now) =>
       _items.where((i) {
         final start = i['scheduledStart'];
         if (start == null) return false;
         final startDate = start is Timestamp ? start.toDate() : DateTime.tryParse(start.toString());
-        return startDate != null && startDate.isAfter(DateTime.now().toUtc());
+        return startDate != null && startDate.isAfter(now);
       }).toList();
 
-  List<Map<String, dynamic>> get _expiredItems =>
+  List<Map<String, dynamic>> _expiredItems(DateTime now) =>
       _items.where((i) {
         final end = i['scheduledEnd'];
         if (end == null) return false;
         final endDate = end is Timestamp ? end.toDate() : DateTime.tryParse(end.toString());
-        return endDate != null && endDate.isBefore(DateTime.now().toUtc());
+        return endDate != null && endDate.isBefore(now);
       }).toList();
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now().toUtc();
+    final scheduled = _scheduledItems(now);
+    final expired = _expiredItems(now);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: Padding(
@@ -155,7 +167,7 @@ class _FeaturedContentManagementScreenState
             const SizedBox(height: 20),
 
             // Stats
-            _buildStats(),
+            _buildStats(scheduled),
             const SizedBox(height: 20),
 
             // Tabs
@@ -166,8 +178,8 @@ class _FeaturedContentManagementScreenState
               unselectedLabelColor: AppColors.textTertiary,
               tabs: [
                 Tab(text: 'Active (${_activeItems.length})'),
-                Tab(text: 'Scheduled (${_scheduledItems.length})'),
-                Tab(text: 'Expired (${_expiredItems.length})'),
+                Tab(text: 'Scheduled (${scheduled.length})'),
+                Tab(text: 'Expired (${expired.length})'),
               ],
             ),
             const SizedBox(height: 16),
@@ -180,8 +192,8 @@ class _FeaturedContentManagementScreenState
                       controller: _tabController,
                       children: [
                         _buildItemList(_activeItems),
-                        _buildItemList(_scheduledItems),
-                        _buildItemList(_expiredItems),
+                        _buildItemList(scheduled),
+                        _buildItemList(expired),
                       ],
                     ),
             ),
@@ -191,7 +203,7 @@ class _FeaturedContentManagementScreenState
     );
   }
 
-  Widget _buildStats() {
+  Widget _buildStats(List<Map<String, dynamic>> scheduled) {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -206,7 +218,7 @@ class _FeaturedContentManagementScreenState
           icon: Icons.schedule,
           color: AppColors.secondary,
           title: 'Scheduled',
-          value: '${_scheduledItems.length}',
+          value: '${scheduled.length}',
         ),
         _StatCard(
           icon: Icons.inventory_2,
@@ -356,7 +368,7 @@ class _FeaturedContentManagementScreenState
 
   Future<void> _toggleItem(Map<String, dynamic> item) async {
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminUpdateFeaturedItem')
           .call<dynamic>({
         'itemId': item['id'],
@@ -395,7 +407,7 @@ class _FeaturedContentManagementScreenState
     if (confirmed != true) return;
 
     try {
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
+      await _functions
           .httpsCallable('adminDeleteFeaturedItem')
           .call<dynamic>({'itemId': item['id']});
       _loadItems();
@@ -481,7 +493,7 @@ class _FeaturedContentManagementScreenState
       _ => 'video/mp4',
     };
 
-    final ref = FirebaseStorage.instance
+    final ref = _storage
         .ref()
         .child('featured_videos')
         .child('$itemId.$ext');
@@ -500,7 +512,7 @@ class _FeaturedContentManagementScreenState
         resizeImageForUpload(imageBytes, ImageResizeTarget.featuredImage);
     if (resized == null) throw Exception('Failed to process image');
 
-    final ref = FirebaseStorage.instance
+    final ref = _storage
         .ref()
         .child('featured_images')
         .child('$itemId.${resized.extension}');

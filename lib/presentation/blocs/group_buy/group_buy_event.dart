@@ -21,6 +21,8 @@ class GroupBuyEvent with _$GroupBuyEvent {
     String? linkedListingId,
     @Default(2) int minParticipants,
     int? maxParticipants,
+    String? imageUrl,
+    int? pricePerPerson,
   }) = _CreateGroupBuy;
 
   /// Join a group buy with a contribution

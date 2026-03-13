@@ -52,6 +52,7 @@ class ServiceProduct with _$ServiceProduct {
     String? description,
     String? validity,
     required bool isActive,
+    @Default(false) bool isDeleted,
     int? sortOrder,
     Map<String, dynamic>? metadata,
   }) = _ServiceProduct;

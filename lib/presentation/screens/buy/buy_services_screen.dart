@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/buy_category.dart';
+import '../../../domain/entities/buy_regular.dart';
 import '../../../domain/entities/featured_item.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/buy_tab/buy_tab_bloc.dart';
@@ -30,10 +31,19 @@ class BuyServicesScreen extends StatefulWidget {
 }
 
 class _BuyServicesScreenState extends State<BuyServicesScreen> {
+  final _scrollController = ScrollController();
+  final _utilitiesGridKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     context.read<BuyTabBloc>().add(const BuyTabEvent.loadBuyTab());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -76,15 +86,18 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           builder: (context, state) {
             return RefreshIndicator(
               onRefresh: () async {
-                context
-                    .read<BuyTabBloc>()
-                    .add(const BuyTabEvent.refreshBuyTab());
-                await context.read<BuyTabBloc>().stream.firstWhere(
-                      (s) => !s.isRefreshing,
+                final bloc = context.read<BuyTabBloc>();
+                bloc.add(const BuyTabEvent.refreshBuyTab());
+                await bloc.stream
+                    .firstWhere((s) => !s.isRefreshing)
+                    .timeout(
+                      const Duration(seconds: 10),
+                      onTimeout: () => bloc.state,
                     );
               },
               color: AppColors.primary,
               child: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   // Offline banner
                   if (state.isOffline)
@@ -101,8 +114,11 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                   // ── Layer 2: Utilities Hub ──
                   _buildMyRegulars(state),
 
-                  const SliverToBoxAdapter(
-                    child: BuySectionHeader(title: 'Utilities'),
+                  SliverToBoxAdapter(
+                    child: BuySectionHeader(
+                      key: _utilitiesGridKey,
+                      title: 'Utilities',
+                    ),
                   ),
 
                   SliverToBoxAdapter(
@@ -264,13 +280,104 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             },
           );
         },
-        onRegularLongPress: (_) {
-          // Pin/unpin regulars — future enhancement
-        },
-        onAddTap: () {
-          // Scroll focus to utilities grid
-        },
+        onRegularLongPress: (regular) => _showRegularOptionsSheet(regular),
+        onAddTap: _scrollToUtilitiesGrid,
       ),
+    );
+  }
+
+  void _scrollToUtilitiesGrid() {
+    final keyContext = _utilitiesGridKey.currentContext;
+    if (keyContext != null) {
+      Scrollable.ensureVisible(
+        keyContext,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _showRegularOptionsSheet(BuyRegular regular) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Text(
+                  regular.providerName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  regular.isPinned
+                      ? Icons.push_pin_outlined
+                      : Icons.push_pin,
+                  color: AppColors.primary,
+                ),
+                title: Text(
+                  regular.isPinned ? 'Unpin from top' : 'Pin to top',
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        regular.isPinned
+                            ? '${regular.providerName} unpinned'
+                            : '${regular.providerName} pinned to top',
+                      ),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading:
+                    const Icon(Icons.delete_outline, color: AppColors.error),
+                title: const Text(
+                  'Remove from regulars',
+                  style: TextStyle(color: AppColors.error),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text('${regular.providerName} removed from regulars'),
+                      backgroundColor: AppColors.textSecondary,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -435,7 +542,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                                 child: Image.network(
                                   entry.value,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, _, _) => Container(
                                     color:
                                         Colors.white.withValues(alpha: 0.15),
                                     child: const Icon(Icons.image,

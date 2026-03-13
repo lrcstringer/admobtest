@@ -42,7 +42,7 @@ abstract class BuyRepository {
   /// Submit a review for a brand (delegates to Cloud Function)
   Future<Either<Failure, void>> submitBrandReview({
     required String brandId,
-    String? orderId,
+    required String orderId,
     required int qualityRating,
     required int valueRating,
     required int serviceRating,

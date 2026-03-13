@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/brand_review.dart';
+import '../mappers/brand_review_mapper.dart';
 
 part 'brand_review_model.freezed.dart';
 
@@ -71,41 +72,8 @@ class BrandReviewModel with _$BrandReviewModel {
     };
   }
 
-  BrandReview toEntity() {
-    return BrandReview(
-      id: id,
-      brandId: brandId,
-      userId: userId,
-      userName: userName,
-      orderId: orderId,
-      qualityRating: qualityRating,
-      valueRating: valueRating,
-      serviceRating: serviceRating,
-      overallRating: overallRating,
-      comment: comment,
-      isFiltered: isFiltered,
-      isRemovedByAdmin: isRemovedByAdmin,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-    );
-  }
+  BrandReview toEntity() => BrandReviewMapper.toEntity(this);
 
-  factory BrandReviewModel.fromEntity(BrandReview entity) {
-    return BrandReviewModel(
-      id: entity.id,
-      brandId: entity.brandId,
-      userId: entity.userId,
-      userName: entity.userName,
-      orderId: entity.orderId,
-      qualityRating: entity.qualityRating,
-      valueRating: entity.valueRating,
-      serviceRating: entity.serviceRating,
-      overallRating: entity.overallRating,
-      comment: entity.comment,
-      isFiltered: entity.isFiltered,
-      isRemovedByAdmin: entity.isRemovedByAdmin,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    );
-  }
+  factory BrandReviewModel.fromEntity(BrandReview entity) =>
+      BrandReviewMapper.fromEntity(entity);
 }

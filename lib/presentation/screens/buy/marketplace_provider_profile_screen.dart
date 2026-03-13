@@ -52,7 +52,7 @@ class _MarketplaceProviderProfileScreenState
       ),
       body: BlocBuilder<MarketplaceBloc, MarketplaceState>(
         builder: (context, state) {
-          if (state.isLoading && state.selectedProvider == null) {
+          if (state.isLoadingProvider && state.selectedProvider == null) {
             return _buildShimmer();
           }
 
@@ -246,7 +246,15 @@ class _MarketplaceProviderProfileScreenState
             variant: AppButtonVariant.primary,
             isFullWidth: true,
             onPressed: () {
-              // TODO: E2EE chat with provider
+              final provider = context.read<MarketplaceBloc>().state.selectedProvider;
+              if (provider == null) return;
+              context.push(
+                '/chat/conversation/${provider.userId}',
+                extra: {
+                  'recipientName': provider.displayName,
+                  'context': 'marketplace_provider',
+                },
+              );
             },
           ),
         ),

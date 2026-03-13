@@ -34,6 +34,7 @@ class MarketplaceState with _$MarketplaceState {
     @Default([]) List<MarketplaceListing> myListings,
     @Default([]) List<SavedListing> savedItems,
     MarketplaceProvider? currentSellerProfile,
+    SellerDashboard? sellerDashboard,
     String? createSuccessId,
     String? errorMessage,
     String? reportSuccessMessage,

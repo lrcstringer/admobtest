@@ -24,8 +24,13 @@ abstract class MarketplaceRemoteDataSource {
   /// Get a marketplace provider profile
   Future<MarketplaceProviderModel?> getProvider(String id);
 
-  /// Get provider's listings
-  Future<List<MarketplaceListingModel>> getProviderListings(String providerId);
+  /// Get provider's listings. When [statusFilter] is provided, only listings
+  /// with that status are returned; when null, all statuses are included
+  /// (for seller's own listing management).
+  Future<List<MarketplaceListingModel>> getProviderListings(
+    String providerId, {
+    String? statusFilter,
+  });
 
   /// Get vouches for a provider
   Future<List<VouchModel>> getProviderVouches(String providerId);
@@ -228,10 +233,18 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
 
   @override
   Future<List<MarketplaceListingModel>> getProviderListings(
-      String providerId) async {
-    final snapshot = await _firestore
+    String providerId, {
+    String? statusFilter,
+  }) async {
+    Query<Map<String, dynamic>> query = _firestore
         .collection('marketplaceListings')
-        .where('providerId', isEqualTo: providerId)
+        .where('providerId', isEqualTo: providerId);
+
+    if (statusFilter != null) {
+      query = query.where('status', isEqualTo: statusFilter);
+    }
+
+    final snapshot = await query
         .orderBy('createdAt', descending: true)
         .get();
 

@@ -245,10 +245,19 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     final doc = await _purchasesCollection.doc(purchaseId).get();
 
     if (!doc.exists) {
-      throw Exception('Purchase not found');
+      throw const ServerException(
+        message: 'Purchase not found',
+        code: 'not-found',
+      );
     }
 
     final data = doc.data()!;
+    if (data['userId'] != _userId) {
+      throw const ServerException(
+        message: 'Unauthorized access to purchase',
+        code: 'permission-denied',
+      );
+    }
     data['id'] = doc.id;
     return PurchaseModel.fromJson(sanitizeFirestoreData(data));
   }

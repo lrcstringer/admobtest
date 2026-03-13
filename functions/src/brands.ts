@@ -225,7 +225,7 @@ export const recordStorefrontView = onCall(
 
     // Record daily analytics — use deterministic visitor doc instead of
     // unbounded array to avoid hitting Firestore's 1MB doc limit on popular brands.
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const today = admin.firestore.Timestamp.now().toDate().toISOString().split("T")[0]; // YYYY-MM-DD
     const dailyRef = db
       .collection("brandAnalytics")
       .doc(brandId)
@@ -433,5 +433,315 @@ export const getActiveBrandStorefronts = onCall(
       }));
 
     return { success: true, storefronts };
+  }
+);
+
+// ============================================================================
+// FOLLOWED & AVAILABLE BRANDS
+// ============================================================================
+
+/**
+ * Get brands the current user follows.
+ * Reads the user's followedBrands array, then fetches each brand's client doc
+ * to return structured brand objects.
+ */
+export const getFollowedBrands = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "getFollowedBrands");
+
+    const userId = request.auth.uid;
+    const userDoc = await db.collection("users").doc(userId).get();
+    if (!userDoc.exists) {
+      return { success: true, brands: [] };
+    }
+
+    const followedBrands: string[] = userDoc.data()?.followedBrands || [];
+    if (followedBrands.length === 0) {
+      return { success: true, brands: [] };
+    }
+
+    // Firestore 'in' queries support max 30 items; chunk if needed
+    const brands: Array<{ id: string; name: string; logoUrl: string | null; category: string | null }> = [];
+    for (let i = 0; i < followedBrands.length; i += 30) {
+      const chunk = followedBrands.slice(i, i + 30);
+      const clientSnap = await db
+        .collection("clients")
+        .where(admin.firestore.FieldPath.documentId(), "in", chunk)
+        .get();
+
+      for (const doc of clientSnap.docs) {
+        const data = doc.data();
+        if (data.isActive !== false) {
+          brands.push({
+            id: doc.id,
+            name: data.companyName || data.name || data.displayName || doc.id,
+            logoUrl: data.logoUrl || null,
+            category: data.category || null,
+          });
+        }
+      }
+    }
+
+    return { success: true, brands };
+  }
+);
+
+/**
+ * Get available brands (active, non-deleted storefronts).
+ * Returns a lightweight list of brand objects for consumer browsing.
+ */
+export const getAvailableBrands = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "getAvailableBrands");
+
+    const snapshot = await db
+      .collection("brandStorefronts")
+      .where("isActive", "==", true)
+      .get();
+
+    const brands = snapshot.docs
+      .filter((doc) => doc.data().isDeleted !== true)
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.brandName || doc.id,
+          logoUrl: data.brandLogoUrl || null,
+          category: data.category || null,
+        };
+      });
+
+    return { success: true, brands };
+  }
+);
+
+// ============================================================================
+// BRAND REVIEWS (consumer-facing)
+// ============================================================================
+
+/**
+ * Submit a brand review (consumer-facing).
+ * One review per order — orderId is the uniqueness key.
+ */
+export const submitBrandReview = onCall(
+  { labels: { area: "buy" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "submitBrandReview");
+
+    const userId = request.auth.uid;
+    const {
+      brandId,
+      orderId,
+      qualityRating,
+      valueRating,
+      serviceRating,
+      comment,
+    } = request.data as {
+      brandId: string;
+      orderId: string;
+      qualityRating: number;
+      valueRating: number;
+      serviceRating: number;
+      comment?: string;
+    };
+
+    if (!brandId || !orderId) {
+      throw new HttpsError("invalid-argument", "brandId and orderId are required");
+    }
+
+    // Validate ratings are 1-5
+    for (const [name, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
+      if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
+        throw new HttpsError("invalid-argument", `${name} must be an integer between 1 and 5`);
+      }
+    }
+
+    // Get user display name
+    const userDoc = await db.collection("users").doc(userId).get();
+    const userName = userDoc.data()?.displayName || "iMali User";
+
+    const overallRating = Math.round(((qualityRating + valueRating + serviceRating) / 3) * 10) / 10;
+
+    // Simple auto-filter: flag if comment contains obvious profanity placeholder
+    const isFiltered = comment
+      ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
+      : false;
+
+    // Deterministic doc ID prevents duplicates even under concurrent requests
+    const reviewDocId = `${userId}_${brandId}_${orderId}`;
+    const reviewRef = db.collection("brandReviews").doc(reviewDocId);
+    const storefrontRef = db.collection("brandStorefronts").doc("store_" + brandId);
+
+    // Transaction: duplicate check + review creation + aggregate update (atomic)
+    await db.runTransaction(async (tx) => {
+      const existingReview = await tx.get(reviewRef);
+      if (existingReview.exists) {
+        throw new HttpsError("already-exists", "You have already reviewed this order");
+      }
+
+      tx.set(reviewRef, {
+        brandId,
+        userId,
+        userName,
+        orderId,
+        qualityRating,
+        valueRating,
+        serviceRating,
+        overallRating,
+        comment: comment?.trim() || null,
+        isFiltered,
+        isRemovedByAdmin: false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: null,
+      });
+
+      // Update aggregate rating using FieldValue.increment for atomicity
+      tx.update(storefrontRef, {
+        ratingSum: admin.firestore.FieldValue.increment(overallRating),
+        ratingCount: admin.firestore.FieldValue.increment(1),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    // Recompute averageRating outside transaction (non-critical, best-effort)
+    try {
+      const storefrontDoc = await storefrontRef.get();
+      const sfData = storefrontDoc.data();
+      if (sfData && sfData.ratingCount > 0) {
+        const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
+        await storefrontRef.update({ averageRating: avgRating });
+      }
+    } catch (err) {
+      logger.warn("Failed to recompute averageRating:", err);
+    }
+
+    logger.info(`Brand review submitted by ${userId} for brand ${brandId}`);
+    return { success: true, reviewId: reviewDocId, isFiltered };
+  }
+);
+
+/**
+ * Edit an existing brand review (by the original author only).
+ * Wraps review update + aggregate rating update in a single transaction.
+ */
+export const editBrandReview = onCall(
+  { labels: { area: "buy" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "editBrandReview");
+
+    const userId = request.auth.uid;
+    const {
+      reviewId,
+      qualityRating,
+      valueRating,
+      serviceRating,
+      comment,
+    } = request.data as {
+      reviewId: string;
+      qualityRating?: number;
+      valueRating?: number;
+      serviceRating?: number;
+      comment?: string;
+    };
+
+    if (!reviewId) {
+      throw new HttpsError("invalid-argument", "reviewId is required");
+    }
+
+    // Validate optional rating updates upfront
+    for (const [key, val] of Object.entries({ qualityRating, valueRating, serviceRating })) {
+      if (val !== undefined) {
+        if (typeof val !== "number" || val < 1 || val > 5 || !Number.isInteger(val)) {
+          throw new HttpsError("invalid-argument", `${key} must be an integer between 1 and 5`);
+        }
+      }
+    }
+
+    const reviewRef = db.collection("brandReviews").doc(reviewId);
+
+    // Transaction: review update + aggregate rating update (atomic)
+    await db.runTransaction(async (tx) => {
+      const reviewDoc = await tx.get(reviewRef);
+
+      if (!reviewDoc.exists) {
+        throw new HttpsError("not-found", "Review not found");
+      }
+
+      const reviewData = reviewDoc.data()!;
+      if (reviewData.userId !== userId) {
+        throw new HttpsError("permission-denied", "You can only edit your own reviews");
+      }
+
+      const updates: Record<string, unknown> = {
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      if (qualityRating !== undefined) updates.qualityRating = qualityRating;
+      if (valueRating !== undefined) updates.valueRating = valueRating;
+      if (serviceRating !== undefined) updates.serviceRating = serviceRating;
+
+      if (comment !== undefined) {
+        updates.comment = comment?.trim() || null;
+        updates.isFiltered = comment
+          ? /\b(fuck|shit|damn|ass|bitch)\b/i.test(comment)
+          : false;
+      }
+
+      // Recompute overall if any rating changed
+      const q = (updates.qualityRating ?? reviewData.qualityRating) as number;
+      const v = (updates.valueRating ?? reviewData.valueRating) as number;
+      const s = (updates.serviceRating ?? reviewData.serviceRating) as number;
+      const newOverallRating = Math.round(((q + v + s) / 3) * 10) / 10;
+      updates.overallRating = newOverallRating;
+
+      const oldOverallRating = reviewData.overallRating as number;
+      const ratingDiff = newOverallRating - oldOverallRating;
+
+      tx.update(reviewRef, updates);
+
+      // Update aggregate rating atomically within the same transaction
+      if (ratingDiff !== 0) {
+        const brandId = reviewData.brandId;
+        const storefrontRef = db.collection("brandStorefronts").doc("store_" + brandId);
+        tx.update(storefrontRef, {
+          ratingSum: admin.firestore.FieldValue.increment(ratingDiff),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+    });
+
+    // Recompute averageRating outside transaction (best-effort)
+    try {
+      const freshReview = await reviewRef.get();
+      const brandId = freshReview.data()?.brandId;
+      if (brandId) {
+        const storefrontRef = db.collection("brandStorefronts").doc("store_" + brandId);
+        const storefrontDoc = await storefrontRef.get();
+        const sfData = storefrontDoc.data();
+        if (sfData && sfData.ratingCount > 0) {
+          const avgRating = Math.round((sfData.ratingSum / sfData.ratingCount) * 10) / 10;
+          await storefrontRef.update({ averageRating: avgRating });
+        }
+      }
+    } catch (err) {
+      logger.warn("Failed to update brand aggregate rating after edit:", err);
+    }
+
+    logger.info(`Brand review ${reviewId} updated by ${userId}`);
+    return { success: true };
   }
 );

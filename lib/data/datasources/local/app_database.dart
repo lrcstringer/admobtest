@@ -375,7 +375,7 @@ class LocalFeaturedItems extends Table {
   RealColumn get colorIntensity =>
       real().withDefault(const Constant(0.4))();
   RealColumn get imageOpacity =>
-      real().withDefault(const Constant(0.3))();
+      real().withDefault(const Constant(1.0))();
   TextColumn get imageLayout =>
       text().withDefault(const Constant('right'))();
   DateTimeColumn get syncedAt => dateTime()();

@@ -54,6 +54,12 @@ class PurchaseEvent with _$PurchaseEvent {
   /// Reset selection (go back to provider list)
   const factory PurchaseEvent.resetSelection() = _ResetSelection;
 
+  /// Submit OTP for step-up authentication during purchase
+  const factory PurchaseEvent.submitOtp({
+    required String otp,
+    String? subAccountId,
+  }) = _SubmitOtp;
+
   /// Clear error
   const factory PurchaseEvent.clearError() = _ClearError;
 

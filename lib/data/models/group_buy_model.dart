@@ -5,6 +5,7 @@ import '../../domain/entities/group_buy.dart';
 import '../../domain/enums/group_buy_fulfilment_type.dart';
 import '../../domain/enums/group_buy_status.dart';
 import '../../domain/enums/group_buy_type.dart';
+import '../../domain/enums/sponsor_type.dart';
 
 part 'group_buy_model.freezed.dart';
 
@@ -53,6 +54,7 @@ class GroupBuyModel with _$GroupBuyModel {
 
   const GroupBuyModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory GroupBuyModel.fromJson(Map<String, dynamic> json) {
     return GroupBuyModel(
       id: json['id'] as String? ?? '',
@@ -171,7 +173,7 @@ class GroupBuyModel with _$GroupBuyModel {
       deadline: deadline,
       status: status,
       participantCount: participantCount,
-      sponsorType: sponsorType,
+      sponsorType: SponsorType.fromString(sponsorType),
       brandId: brandId,
       brandName: brandName,
       brandLogoUrl: brandLogoUrl,
@@ -212,7 +214,7 @@ class GroupBuyModel with _$GroupBuyModel {
       deadline: entity.deadline,
       status: entity.status,
       participantCount: entity.participantCount,
-      sponsorType: entity.sponsorType,
+      sponsorType: entity.sponsorType.name,
       brandId: entity.brandId,
       brandName: entity.brandName,
       brandLogoUrl: entity.brandLogoUrl,

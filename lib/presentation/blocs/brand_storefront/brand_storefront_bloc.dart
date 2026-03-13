@@ -33,7 +33,11 @@ class BrandStorefrontBloc
     _LoadStorefront event,
     Emitter<BrandStorefrontState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+    emit(state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+      eligibleReviewOrderId: event.orderId,
+    ));
 
     final result = await _buyRepository.getBrandStorefront(event.id);
 

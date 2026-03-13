@@ -27,6 +27,7 @@ class GroupBuyRequestModel with _$GroupBuyRequestModel {
 
   const GroupBuyRequestModel._();
 
+  // Manual parsing handles Firestore Timestamps and null safety
   factory GroupBuyRequestModel.fromJson(Map<String, dynamic> json) {
     return GroupBuyRequestModel(
       id: json['id'] as String? ?? '',

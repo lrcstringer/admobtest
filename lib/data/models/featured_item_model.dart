@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/featured_item.dart';
+import '../mappers/featured_item_mapper.dart';
 
 part 'featured_item_model.freezed.dart';
 
@@ -29,6 +30,8 @@ class FeaturedItemModel with _$FeaturedItemModel {
     @Default(1.0) double imageOpacity,
     @Default('right') String imageLayout,
     @Default(false) bool isDeleted,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _FeaturedItemModel;
 
   const FeaturedItemModel._();
@@ -64,23 +67,34 @@ class FeaturedItemModel with _$FeaturedItemModel {
       ctaText: json['ctaText'] as String?,
       bgColorHex: json['bgColorHex'] as String?,
       colorIntensity: (json['colorIntensity'] as num?)?.toDouble() ?? 0.4,
+      // Legacy field migration: 'opacity' -> 'imageOpacity'
       imageOpacity: (json['imageOpacity'] as num?)?.toDouble()
           ?? (json['opacity'] as num?)?.toDouble()
           ?? 1.0,
       imageLayout: json['imageLayout'] as String? ?? 'right',
       isDeleted: json['isDeleted'] as bool? ?? false,
+      createdAt: json['createdAt'] is Timestamp
+          ? (json['createdAt'] as Timestamp).toDate()
+          : json['createdAt'] is String
+              ? DateTime.tryParse(json['createdAt'] as String)
+              : null,
+      updatedAt: json['updatedAt'] is Timestamp
+          ? (json['updatedAt'] as Timestamp).toDate()
+          : json['updatedAt'] is String
+              ? DateTime.tryParse(json['updatedAt'] as String)
+              : null,
     );
   }
 
   Map<String, dynamic> toFirestoreJson() {
     return {
       'title': title,
-      'subtitle': subtitle,
-      'imageUrl': imageUrl,
-      'videoUrl': videoUrl,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (videoUrl != null) 'videoUrl': videoUrl,
       'type': type,
-      'deepLinkRoute': deepLinkRoute,
-      'brandId': brandId,
+      if (deepLinkRoute != null) 'deepLinkRoute': deepLinkRoute,
+      if (brandId != null) 'brandId': brandId,
       'communityIds': communityIds,
       'isActive': isActive,
       'sortOrder': sortOrder,
@@ -89,65 +103,20 @@ class FeaturedItemModel with _$FeaturedItemModel {
       if (scheduledEnd != null)
         'scheduledEnd': Timestamp.fromDate(scheduledEnd!),
       'bgGradientType': bgGradientType,
-      'brandName': brandName,
-      'ctaText': ctaText,
-      'bgColorHex': bgColorHex,
+      if (brandName != null) 'brandName': brandName,
+      if (ctaText != null) 'ctaText': ctaText,
+      if (bgColorHex != null) 'bgColorHex': bgColorHex,
       'colorIntensity': colorIntensity,
       'imageOpacity': imageOpacity,
       'imageLayout': imageLayout,
       'isDeleted': isDeleted,
+      if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
+      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
     };
   }
 
-  FeaturedItem toEntity() {
-    return FeaturedItem(
-      id: id,
-      title: title,
-      subtitle: subtitle,
-      imageUrl: imageUrl,
-      videoUrl: videoUrl,
-      type: type,
-      deepLinkRoute: deepLinkRoute,
-      brandId: brandId,
-      communityIds: communityIds,
-      isActive: isActive,
-      sortOrder: sortOrder,
-      scheduledStart: scheduledStart,
-      scheduledEnd: scheduledEnd,
-      bgGradientType: bgGradientType,
-      brandName: brandName,
-      ctaText: ctaText,
-      bgColorHex: bgColorHex,
-      colorIntensity: colorIntensity,
-      imageOpacity: imageOpacity,
-      imageLayout: imageLayout,
-      isDeleted: isDeleted,
-    );
-  }
+  FeaturedItem toEntity() => FeaturedItemMapper.toEntity(this);
 
-  factory FeaturedItemModel.fromEntity(FeaturedItem entity) {
-    return FeaturedItemModel(
-      id: entity.id,
-      title: entity.title,
-      subtitle: entity.subtitle,
-      imageUrl: entity.imageUrl,
-      videoUrl: entity.videoUrl,
-      type: entity.type,
-      deepLinkRoute: entity.deepLinkRoute,
-      brandId: entity.brandId,
-      communityIds: entity.communityIds,
-      isActive: entity.isActive,
-      sortOrder: entity.sortOrder,
-      scheduledStart: entity.scheduledStart,
-      scheduledEnd: entity.scheduledEnd,
-      bgGradientType: entity.bgGradientType,
-      brandName: entity.brandName,
-      ctaText: entity.ctaText,
-      bgColorHex: entity.bgColorHex,
-      colorIntensity: entity.colorIntensity,
-      imageOpacity: entity.imageOpacity,
-      imageLayout: entity.imageLayout,
-      isDeleted: entity.isDeleted,
-    );
-  }
+  factory FeaturedItemModel.fromEntity(FeaturedItem entity) =>
+      FeaturedItemMapper.fromEntity(entity);
 }

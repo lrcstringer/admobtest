@@ -1,4 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -280,12 +283,12 @@ class _CommunityGroupBuyCreateScreenState
                     ClipRRect(
                       borderRadius: BorderRadius.circular(
                           AppSpacing.radiusMd),
-                      child: CachedNetworkImage(
-                        imageUrl: _imagePath!,
+                      child: Image.file(
+                        File(_imagePath!),
                         width: double.infinity,
                         height: 220,
                         fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           height: 220,
                           color: AppColors.buyShimmerBase,
                         ),
@@ -1039,20 +1042,49 @@ class _CommunityGroupBuyCreateScreenState
     }
   }
 
-  void _onPublish() {
+  Future<void> _onPublish() async {
     HapticFeedback.mediumImpact();
+
+    final pricePerPerson = int.tryParse(_priceController.text) ?? 0;
+    final maxParticipants =
+        int.tryParse(_maxParticipantsController.text) ?? 1;
+    final targetAmount = pricePerPerson * maxParticipants;
+
+    String? imageUrl;
+    if (_imagePath != null) {
+      try {
+        final userId =
+            FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+        final ref = FirebaseStorage.instance.ref(
+            'groupBuys/${userId}_${DateTime.now().millisecondsSinceEpoch}');
+        await ref.putFile(File(_imagePath!));
+        imageUrl = await ref.getDownloadURL();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Image upload failed: $e'),
+              backgroundColor: AppColors.buyError,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    if (!mounted) return;
 
     context.read<GroupBuyBloc>().add(
           GroupBuyEvent.createGroupBuy(
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
-            targetAmount:
-                int.tryParse(_priceController.text) ?? 0,
+            targetAmount: targetAmount,
             deadline: _deadline!,
             minParticipants:
                 int.tryParse(_minParticipantsController.text) ?? 3,
-            maxParticipants:
-                int.tryParse(_maxParticipantsController.text),
+            maxParticipants: maxParticipants,
+            imageUrl: imageUrl,
+            pricePerPerson: pricePerPerson,
           ),
         );
   }
