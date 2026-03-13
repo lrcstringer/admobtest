@@ -42,5 +42,6 @@ class MarketplaceState with _$MarketplaceState {
     @Default(false) bool isUploadingImages,
     @Default([]) List<String> uploadedImageUrls,
     @Default(false) bool isRegistering,
+    @Default(false) bool isTogglingFavourite,
   }) = _MarketplaceState;
 }

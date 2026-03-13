@@ -34,6 +34,9 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<_DisputeOrder>(_onDisputeOrder);
     on<_VouchForProvider>(_onVouchForProvider);
     on<_LoadLinkedOffer>(_onLoadLinkedOffer);
+    on<_RespondToDispute>(_onRespondToDispute);
+    on<_AddDisputeEvidence>(_onAddDisputeEvidence);
+    on<_ProposeResolution>(_onProposeResolution);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -289,6 +292,95 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       (_) {}, // Non-critical — offer data is supplementary
       (offer) => emit(state.copyWith(linkedOffer: offer)),
     );
+  }
+
+  Future<void> _onRespondToDispute(
+    _RespondToDispute event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.respondToDispute(
+      orderId: event.orderId,
+      response: event.response,
+      photoUrls: event.photoUrls,
+      proposedResolution: event.proposedResolution,
+      proposedResolutionAmount: event.proposedResolutionAmount,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Dispute response submitted',
+      )),
+    );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
+  }
+
+  Future<void> _onAddDisputeEvidence(
+    _AddDisputeEvidence event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.addDisputeEvidence(
+      orderId: event.orderId,
+      photoUrls: event.photoUrls,
+      additionalDetails: event.additionalDetails,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Evidence added to dispute',
+      )),
+    );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
+  }
+
+  Future<void> _onProposeResolution(
+    _ProposeResolution event,
+    Emitter<OrderState> emit,
+  ) async {
+    if (state.isProcessing) return;
+    emit(state.copyWith(isProcessing: true, errorMessage: null));
+
+    final result = await _repository.proposeResolution(
+      orderId: event.orderId,
+      resolutionType: event.resolutionType,
+      refundAmount: event.refundAmount,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isProcessing: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) => emit(state.copyWith(
+        isProcessing: false,
+        successMessage: 'Resolution proposed',
+      )),
+    );
+
+    if (result.isRight()) {
+      await _refreshSelectedOrder(event.orderId, emit);
+    }
   }
 
   Future<void> _onClearMessages(

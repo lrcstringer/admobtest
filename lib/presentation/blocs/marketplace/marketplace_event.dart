@@ -51,6 +51,10 @@ class MarketplaceEvent with _$MarketplaceEvent {
     required int priceTokens,
     required List<String> imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) = _CreateListing;
 
   /// Clear success/error messages
@@ -65,6 +69,10 @@ class MarketplaceEvent with _$MarketplaceEvent {
     int? priceTokens,
     List<String>? imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) = _UpdateListing;
 
   /// Toggle listing status (pause/unpause/markSold)

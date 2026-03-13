@@ -60,6 +60,10 @@ abstract class MarketplaceRepository {
     required int priceTokens,
     required List<String> imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   });
 
   /// Buy a marketplace item (creates escrow)
@@ -111,6 +115,10 @@ abstract class MarketplaceRepository {
     int? priceTokens,
     List<String>? imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   });
 
   /// Toggle listing status (pause/unpause/markSold)
@@ -143,6 +151,29 @@ abstract class MarketplaceRepository {
   Future<Either<Failure, void>> sellerRefund({
     required String orderId,
     String? reason,
+  });
+
+  /// Seller responds to a buyer's dispute
+  Future<Either<Failure, void>> respondToDispute({
+    required String orderId,
+    required String response,
+    List<String>? photoUrls,
+    String? proposedResolution,
+    int? proposedResolutionAmount,
+  });
+
+  /// Buyer adds evidence to an existing dispute
+  Future<Either<Failure, void>> addDisputeEvidence({
+    required String orderId,
+    required List<String> photoUrls,
+    String? additionalDetails,
+  });
+
+  /// Seller proposes a resolution for a disputed order
+  Future<Either<Failure, void>> proposeResolution({
+    required String orderId,
+    required String resolutionType,
+    int? refundAmount,
   });
 
   /// Get seller dashboard analytics

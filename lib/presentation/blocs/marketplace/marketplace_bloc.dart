@@ -276,6 +276,10 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       priceTokens: event.priceTokens,
       imageUrls: event.imageUrls,
       location: event.location,
+      deliveryMethod: event.deliveryMethod,
+      deliveryFee: event.deliveryFee,
+      serviceAreaType: event.serviceAreaType,
+      locationData: event.locationData,
     );
 
     result.fold(
@@ -305,6 +309,10 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       priceTokens: event.priceTokens,
       imageUrls: event.imageUrls,
       location: event.location,
+      deliveryMethod: event.deliveryMethod,
+      deliveryFee: event.deliveryFee,
+      serviceAreaType: event.serviceAreaType,
+      locationData: event.locationData,
     );
 
     result.fold(
@@ -529,6 +537,8 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     _ToggleFavourite event,
     Emitter<MarketplaceState> emit,
   ) async {
+    if (state.isTogglingFavourite) return;
+
     // Snapshot for revert on failure
     final previousItems = List<SavedListing>.from(state.savedItems);
     final isSaved =

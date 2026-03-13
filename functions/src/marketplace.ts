@@ -108,7 +108,8 @@ export const createMarketplaceListing = onCall(
     requireAppCheck(request, "createMarketplaceListing");
 
     const userId = request.auth.uid;
-    const { title, description, category, subCategory, priceTokens, imageUrls, location } =
+    const { title, description, category, subCategory, priceTokens, imageUrls, location,
+      deliveryMethod, deliveryFee, serviceAreaType, locationData } =
       request.data;
 
     // Validate required fields
@@ -152,8 +153,7 @@ export const createMarketplaceListing = onCall(
 
     const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
     const dateBucket = new Date().toISOString().split("T")[0];
-    const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}_${randomSuffix}`);
+    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}`);
     const now = admin.firestore.Timestamp.now();
     const expiresAt = admin.firestore.Timestamp.fromMillis(
       now.toMillis() + 90 * 24 * 60 * 60 * 1000
@@ -185,6 +185,10 @@ export const createMarketplaceListing = onCall(
         providerIsVerified: provider.isVerified || false,
         communityId: provider.communityId || null,
         location: location?.trim() || null,
+        deliveryMethod: deliveryMethod || null,
+        deliveryFee: (typeof deliveryFee === "number" && deliveryFee >= 0) ? Math.floor(deliveryFee) : null,
+        serviceAreaType: serviceAreaType || null,
+        locationData: locationData || null,
         status: "active",
         viewCount: 0,
         reportCount: 0,
@@ -920,7 +924,8 @@ export const updateMarketplaceListing = onCall(
     requireAppCheck(request, "updateMarketplaceListing");
 
     const userId = request.auth.uid;
-    const { listingId, title, description, category, subCategory, priceTokens, imageUrls, location } =
+    const { listingId, title, description, category, subCategory, priceTokens, imageUrls, location,
+      deliveryMethod, deliveryFee, serviceAreaType, locationData } =
       request.data;
 
     if (!listingId || typeof listingId !== "string") {
@@ -987,6 +992,18 @@ export const updateMarketplaceListing = onCall(
     }
     if (location !== undefined) {
       updates.location = location?.trim() || null;
+    }
+    if (deliveryMethod !== undefined) {
+      updates.deliveryMethod = deliveryMethod || null;
+    }
+    if (deliveryFee !== undefined) {
+      updates.deliveryFee = (typeof deliveryFee === "number" && deliveryFee >= 0) ? Math.floor(deliveryFee) : null;
+    }
+    if (serviceAreaType !== undefined) {
+      updates.serviceAreaType = serviceAreaType || null;
+    }
+    if (locationData !== undefined) {
+      updates.locationData = locationData || null;
     }
 
     await listingRef.update(updates);

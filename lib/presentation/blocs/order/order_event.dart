@@ -44,6 +44,29 @@ class OrderEvent with _$OrderEvent {
   /// Load the offer linked to an order (if any)
   const factory OrderEvent.loadLinkedOffer(String offerId) = _LoadLinkedOffer;
 
+  /// Seller responds to a buyer's dispute
+  const factory OrderEvent.respondToDispute({
+    required String orderId,
+    required String response,
+    List<String>? photoUrls,
+    String? proposedResolution,
+    int? proposedResolutionAmount,
+  }) = _RespondToDispute;
+
+  /// Buyer adds evidence to an existing dispute
+  const factory OrderEvent.addDisputeEvidence({
+    required String orderId,
+    required List<String> photoUrls,
+    String? additionalDetails,
+  }) = _AddDisputeEvidence;
+
+  /// Seller proposes a resolution for a disputed order
+  const factory OrderEvent.proposeResolution({
+    required String orderId,
+    required String resolutionType,
+    int? refundAmount,
+  }) = _ProposeResolution;
+
   /// Clear any success/error messages
   const factory OrderEvent.clearMessages() = _ClearMessages;
 }

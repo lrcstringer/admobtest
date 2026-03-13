@@ -155,6 +155,10 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     required int priceTokens,
     required List<String> imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) async {
     try {
       final listingId = await _remoteDataSource.createListing(
@@ -165,6 +169,10 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
         priceTokens: priceTokens,
         imageUrls: imageUrls,
         location: location,
+        deliveryMethod: deliveryMethod,
+        deliveryFee: deliveryFee,
+        serviceAreaType: serviceAreaType,
+        locationData: locationData,
       );
       return Right(listingId);
     } catch (e) {
@@ -306,6 +314,10 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     int? priceTokens,
     List<String>? imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) async {
     try {
       await _remoteDataSource.updateListing(
@@ -316,6 +328,10 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
         priceTokens: priceTokens,
         imageUrls: imageUrls,
         location: location,
+        deliveryMethod: deliveryMethod,
+        deliveryFee: deliveryFee,
+        serviceAreaType: serviceAreaType,
+        locationData: locationData,
       );
       return const Right(null);
     } catch (e) {
@@ -407,6 +423,64 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
       await _remoteDataSource.sellerRefund(
         orderId: orderId,
         reason: reason,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> respondToDispute({
+    required String orderId,
+    required String response,
+    List<String>? photoUrls,
+    String? proposedResolution,
+    int? proposedResolutionAmount,
+  }) async {
+    try {
+      await _remoteDataSource.respondToDispute(
+        orderId: orderId,
+        response: response,
+        photoUrls: photoUrls,
+        proposedResolution: proposedResolution,
+        proposedResolutionAmount: proposedResolutionAmount,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addDisputeEvidence({
+    required String orderId,
+    required List<String> photoUrls,
+    String? additionalDetails,
+  }) async {
+    try {
+      await _remoteDataSource.addDisputeEvidence(
+        orderId: orderId,
+        photoUrls: photoUrls,
+        additionalDetails: additionalDetails,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> proposeResolution({
+    required String orderId,
+    required String resolutionType,
+    int? refundAmount,
+  }) async {
+    try {
+      await _remoteDataSource.proposeResolution(
+        orderId: orderId,
+        resolutionType: resolutionType,
+        refundAmount: refundAmount,
       );
       return const Right(null);
     } catch (e) {

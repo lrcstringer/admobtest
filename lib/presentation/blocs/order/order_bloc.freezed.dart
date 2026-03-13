@@ -55,7 +55,7 @@ extension OrderEventPatterns on OrderEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult Function( _LoadSellerOrders value)?  loadSellerOrders,TResult Function( _SelectOrder value)?  selectOrder,TResult Function( _BuyItem value)?  buyItem,TResult Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult Function( _ConfirmReceipt value)?  confirmReceipt,TResult Function( _CancelOrder value)?  cancelOrder,TResult Function( _DisputeOrder value)?  disputeOrder,TResult Function( _VouchForProvider value)?  vouchForProvider,TResult Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult Function( _ClearMessages value)?  clearMessages,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult Function( _LoadSellerOrders value)?  loadSellerOrders,TResult Function( _SelectOrder value)?  selectOrder,TResult Function( _BuyItem value)?  buyItem,TResult Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult Function( _ConfirmReceipt value)?  confirmReceipt,TResult Function( _CancelOrder value)?  cancelOrder,TResult Function( _DisputeOrder value)?  disputeOrder,TResult Function( _VouchForProvider value)?  vouchForProvider,TResult Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult Function( _RespondToDispute value)?  respondToDispute,TResult Function( _AddDisputeEvidence value)?  addDisputeEvidence,TResult Function( _ProposeResolution value)?  proposeResolution,TResult Function( _ClearMessages value)?  clearMessages,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
@@ -68,7 +68,10 @@ return confirmReceipt(_that);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that);case _VouchForProvider() when vouchForProvider != null:
 return vouchForProvider(_that);case _LoadLinkedOffer() when loadLinkedOffer != null:
-return loadLinkedOffer(_that);case _ClearMessages() when clearMessages != null:
+return loadLinkedOffer(_that);case _RespondToDispute() when respondToDispute != null:
+return respondToDispute(_that);case _AddDisputeEvidence() when addDisputeEvidence != null:
+return addDisputeEvidence(_that);case _ProposeResolution() when proposeResolution != null:
+return proposeResolution(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _:
   return orElse();
 
@@ -87,7 +90,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyerOrders value)  loadBuyerOrders,required TResult Function( _LoadSellerOrders value)  loadSellerOrders,required TResult Function( _SelectOrder value)  selectOrder,required TResult Function( _BuyItem value)  buyItem,required TResult Function( _ConfirmFulfilment value)  confirmFulfilment,required TResult Function( _ConfirmReceipt value)  confirmReceipt,required TResult Function( _CancelOrder value)  cancelOrder,required TResult Function( _DisputeOrder value)  disputeOrder,required TResult Function( _VouchForProvider value)  vouchForProvider,required TResult Function( _LoadLinkedOffer value)  loadLinkedOffer,required TResult Function( _ClearMessages value)  clearMessages,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyerOrders value)  loadBuyerOrders,required TResult Function( _LoadSellerOrders value)  loadSellerOrders,required TResult Function( _SelectOrder value)  selectOrder,required TResult Function( _BuyItem value)  buyItem,required TResult Function( _ConfirmFulfilment value)  confirmFulfilment,required TResult Function( _ConfirmReceipt value)  confirmReceipt,required TResult Function( _CancelOrder value)  cancelOrder,required TResult Function( _DisputeOrder value)  disputeOrder,required TResult Function( _VouchForProvider value)  vouchForProvider,required TResult Function( _LoadLinkedOffer value)  loadLinkedOffer,required TResult Function( _RespondToDispute value)  respondToDispute,required TResult Function( _AddDisputeEvidence value)  addDisputeEvidence,required TResult Function( _ProposeResolution value)  proposeResolution,required TResult Function( _ClearMessages value)  clearMessages,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders():
@@ -100,7 +103,10 @@ return confirmReceipt(_that);case _CancelOrder():
 return cancelOrder(_that);case _DisputeOrder():
 return disputeOrder(_that);case _VouchForProvider():
 return vouchForProvider(_that);case _LoadLinkedOffer():
-return loadLinkedOffer(_that);case _ClearMessages():
+return loadLinkedOffer(_that);case _RespondToDispute():
+return respondToDispute(_that);case _AddDisputeEvidence():
+return addDisputeEvidence(_that);case _ProposeResolution():
+return proposeResolution(_that);case _ClearMessages():
 return clearMessages(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -118,7 +124,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult? Function( _LoadSellerOrders value)?  loadSellerOrders,TResult? Function( _SelectOrder value)?  selectOrder,TResult? Function( _BuyItem value)?  buyItem,TResult? Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult? Function( _ConfirmReceipt value)?  confirmReceipt,TResult? Function( _CancelOrder value)?  cancelOrder,TResult? Function( _DisputeOrder value)?  disputeOrder,TResult? Function( _VouchForProvider value)?  vouchForProvider,TResult? Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult? Function( _ClearMessages value)?  clearMessages,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult? Function( _LoadSellerOrders value)?  loadSellerOrders,TResult? Function( _SelectOrder value)?  selectOrder,TResult? Function( _BuyItem value)?  buyItem,TResult? Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult? Function( _ConfirmReceipt value)?  confirmReceipt,TResult? Function( _CancelOrder value)?  cancelOrder,TResult? Function( _DisputeOrder value)?  disputeOrder,TResult? Function( _VouchForProvider value)?  vouchForProvider,TResult? Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult? Function( _RespondToDispute value)?  respondToDispute,TResult? Function( _AddDisputeEvidence value)?  addDisputeEvidence,TResult? Function( _ProposeResolution value)?  proposeResolution,TResult? Function( _ClearMessages value)?  clearMessages,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
@@ -131,7 +137,10 @@ return confirmReceipt(_that);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that);case _VouchForProvider() when vouchForProvider != null:
 return vouchForProvider(_that);case _LoadLinkedOffer() when loadLinkedOffer != null:
-return loadLinkedOffer(_that);case _ClearMessages() when clearMessages != null:
+return loadLinkedOffer(_that);case _RespondToDispute() when respondToDispute != null:
+return respondToDispute(_that);case _AddDisputeEvidence() when addDisputeEvidence != null:
+return addDisputeEvidence(_that);case _ProposeResolution() when proposeResolution != null:
+return proposeResolution(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _:
   return null;
 
@@ -149,7 +158,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyerOrders,TResult Function()?  loadSellerOrders,TResult Function( String orderId)?  selectOrder,TResult Function( String listingId,  String walletId)?  buyItem,TResult Function( String orderId)?  confirmFulfilment,TResult Function( String orderId)?  confirmReceipt,TResult Function( String orderId)?  cancelOrder,TResult Function( String orderId,  String reason)?  disputeOrder,TResult Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult Function( String offerId)?  loadLinkedOffer,TResult Function()?  clearMessages,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyerOrders,TResult Function()?  loadSellerOrders,TResult Function( String orderId)?  selectOrder,TResult Function( String listingId,  String walletId)?  buyItem,TResult Function( String orderId)?  confirmFulfilment,TResult Function( String orderId)?  confirmReceipt,TResult Function( String orderId)?  cancelOrder,TResult Function( String orderId,  String reason)?  disputeOrder,TResult Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult Function( String offerId)?  loadLinkedOffer,TResult Function( String orderId,  String response,  List<String>? photoUrls,  String? proposedResolution,  int? proposedResolutionAmount)?  respondToDispute,TResult Function( String orderId,  List<String> photoUrls,  String? additionalDetails)?  addDisputeEvidence,TResult Function( String orderId,  String resolutionType,  int? refundAmount)?  proposeResolution,TResult Function()?  clearMessages,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
 return loadBuyerOrders();case _LoadSellerOrders() when loadSellerOrders != null:
@@ -161,7 +170,10 @@ return confirmReceipt(_that.orderId);case _CancelOrder() when cancelOrder != nul
 return cancelOrder(_that.orderId);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider() when vouchForProvider != null:
 return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer() when loadLinkedOffer != null:
-return loadLinkedOffer(_that.offerId);case _ClearMessages() when clearMessages != null:
+return loadLinkedOffer(_that.offerId);case _RespondToDispute() when respondToDispute != null:
+return respondToDispute(_that.orderId,_that.response,_that.photoUrls,_that.proposedResolution,_that.proposedResolutionAmount);case _AddDisputeEvidence() when addDisputeEvidence != null:
+return addDisputeEvidence(_that.orderId,_that.photoUrls,_that.additionalDetails);case _ProposeResolution() when proposeResolution != null:
+return proposeResolution(_that.orderId,_that.resolutionType,_that.refundAmount);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _:
   return orElse();
 
@@ -180,7 +192,7 @@ return clearMessages();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyerOrders,required TResult Function()  loadSellerOrders,required TResult Function( String orderId)  selectOrder,required TResult Function( String listingId,  String walletId)  buyItem,required TResult Function( String orderId)  confirmFulfilment,required TResult Function( String orderId)  confirmReceipt,required TResult Function( String orderId)  cancelOrder,required TResult Function( String orderId,  String reason)  disputeOrder,required TResult Function( String providerId,  String orderId,  int rating,  String? comment)  vouchForProvider,required TResult Function( String offerId)  loadLinkedOffer,required TResult Function()  clearMessages,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyerOrders,required TResult Function()  loadSellerOrders,required TResult Function( String orderId)  selectOrder,required TResult Function( String listingId,  String walletId)  buyItem,required TResult Function( String orderId)  confirmFulfilment,required TResult Function( String orderId)  confirmReceipt,required TResult Function( String orderId)  cancelOrder,required TResult Function( String orderId,  String reason)  disputeOrder,required TResult Function( String providerId,  String orderId,  int rating,  String? comment)  vouchForProvider,required TResult Function( String offerId)  loadLinkedOffer,required TResult Function( String orderId,  String response,  List<String>? photoUrls,  String? proposedResolution,  int? proposedResolutionAmount)  respondToDispute,required TResult Function( String orderId,  List<String> photoUrls,  String? additionalDetails)  addDisputeEvidence,required TResult Function( String orderId,  String resolutionType,  int? refundAmount)  proposeResolution,required TResult Function()  clearMessages,}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders():
 return loadBuyerOrders();case _LoadSellerOrders():
@@ -192,7 +204,10 @@ return confirmReceipt(_that.orderId);case _CancelOrder():
 return cancelOrder(_that.orderId);case _DisputeOrder():
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider():
 return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer():
-return loadLinkedOffer(_that.offerId);case _ClearMessages():
+return loadLinkedOffer(_that.offerId);case _RespondToDispute():
+return respondToDispute(_that.orderId,_that.response,_that.photoUrls,_that.proposedResolution,_that.proposedResolutionAmount);case _AddDisputeEvidence():
+return addDisputeEvidence(_that.orderId,_that.photoUrls,_that.additionalDetails);case _ProposeResolution():
+return proposeResolution(_that.orderId,_that.resolutionType,_that.refundAmount);case _ClearMessages():
 return clearMessages();case _:
   throw StateError('Unexpected subclass');
 
@@ -210,7 +225,7 @@ return clearMessages();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyerOrders,TResult? Function()?  loadSellerOrders,TResult? Function( String orderId)?  selectOrder,TResult? Function( String listingId,  String walletId)?  buyItem,TResult? Function( String orderId)?  confirmFulfilment,TResult? Function( String orderId)?  confirmReceipt,TResult? Function( String orderId)?  cancelOrder,TResult? Function( String orderId,  String reason)?  disputeOrder,TResult? Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult? Function( String offerId)?  loadLinkedOffer,TResult? Function()?  clearMessages,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyerOrders,TResult? Function()?  loadSellerOrders,TResult? Function( String orderId)?  selectOrder,TResult? Function( String listingId,  String walletId)?  buyItem,TResult? Function( String orderId)?  confirmFulfilment,TResult? Function( String orderId)?  confirmReceipt,TResult? Function( String orderId)?  cancelOrder,TResult? Function( String orderId,  String reason)?  disputeOrder,TResult? Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult? Function( String offerId)?  loadLinkedOffer,TResult? Function( String orderId,  String response,  List<String>? photoUrls,  String? proposedResolution,  int? proposedResolutionAmount)?  respondToDispute,TResult? Function( String orderId,  List<String> photoUrls,  String? additionalDetails)?  addDisputeEvidence,TResult? Function( String orderId,  String resolutionType,  int? refundAmount)?  proposeResolution,TResult? Function()?  clearMessages,}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
 return loadBuyerOrders();case _LoadSellerOrders() when loadSellerOrders != null:
@@ -222,7 +237,10 @@ return confirmReceipt(_that.orderId);case _CancelOrder() when cancelOrder != nul
 return cancelOrder(_that.orderId);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider() when vouchForProvider != null:
 return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer() when loadLinkedOffer != null:
-return loadLinkedOffer(_that.offerId);case _ClearMessages() when clearMessages != null:
+return loadLinkedOffer(_that.offerId);case _RespondToDispute() when respondToDispute != null:
+return respondToDispute(_that.orderId,_that.response,_that.photoUrls,_that.proposedResolution,_that.proposedResolutionAmount);case _AddDisputeEvidence() when addDisputeEvidence != null:
+return addDisputeEvidence(_that.orderId,_that.photoUrls,_that.additionalDetails);case _ProposeResolution() when proposeResolution != null:
+return proposeResolution(_that.orderId,_that.resolutionType,_that.refundAmount);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _:
   return null;
 
@@ -827,6 +845,234 @@ class __$LoadLinkedOfferCopyWithImpl<$Res>
   return _then(_LoadLinkedOffer(
 null == offerId ? _self.offerId : offerId // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _RespondToDispute implements OrderEvent {
+  const _RespondToDispute({required this.orderId, required this.response, final  List<String>? photoUrls, this.proposedResolution, this.proposedResolutionAmount}): _photoUrls = photoUrls;
+  
+
+ final  String orderId;
+ final  String response;
+ final  List<String>? _photoUrls;
+ List<String>? get photoUrls {
+  final value = _photoUrls;
+  if (value == null) return null;
+  if (_photoUrls is EqualUnmodifiableListView) return _photoUrls;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+ final  String? proposedResolution;
+ final  int? proposedResolutionAmount;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RespondToDisputeCopyWith<_RespondToDispute> get copyWith => __$RespondToDisputeCopyWithImpl<_RespondToDispute>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RespondToDispute&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.response, response) || other.response == response)&&const DeepCollectionEquality().equals(other._photoUrls, _photoUrls)&&(identical(other.proposedResolution, proposedResolution) || other.proposedResolution == proposedResolution)&&(identical(other.proposedResolutionAmount, proposedResolutionAmount) || other.proposedResolutionAmount == proposedResolutionAmount));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderId,response,const DeepCollectionEquality().hash(_photoUrls),proposedResolution,proposedResolutionAmount);
+
+@override
+String toString() {
+  return 'OrderEvent.respondToDispute(orderId: $orderId, response: $response, photoUrls: $photoUrls, proposedResolution: $proposedResolution, proposedResolutionAmount: $proposedResolutionAmount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RespondToDisputeCopyWith<$Res> implements $OrderEventCopyWith<$Res> {
+  factory _$RespondToDisputeCopyWith(_RespondToDispute value, $Res Function(_RespondToDispute) _then) = __$RespondToDisputeCopyWithImpl;
+@useResult
+$Res call({
+ String orderId, String response, List<String>? photoUrls, String? proposedResolution, int? proposedResolutionAmount
+});
+
+
+
+
+}
+/// @nodoc
+class __$RespondToDisputeCopyWithImpl<$Res>
+    implements _$RespondToDisputeCopyWith<$Res> {
+  __$RespondToDisputeCopyWithImpl(this._self, this._then);
+
+  final _RespondToDispute _self;
+  final $Res Function(_RespondToDispute) _then;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? orderId = null,Object? response = null,Object? photoUrls = freezed,Object? proposedResolution = freezed,Object? proposedResolutionAmount = freezed,}) {
+  return _then(_RespondToDispute(
+orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String,response: null == response ? _self.response : response // ignore: cast_nullable_to_non_nullable
+as String,photoUrls: freezed == photoUrls ? _self._photoUrls : photoUrls // ignore: cast_nullable_to_non_nullable
+as List<String>?,proposedResolution: freezed == proposedResolution ? _self.proposedResolution : proposedResolution // ignore: cast_nullable_to_non_nullable
+as String?,proposedResolutionAmount: freezed == proposedResolutionAmount ? _self.proposedResolutionAmount : proposedResolutionAmount // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _AddDisputeEvidence implements OrderEvent {
+  const _AddDisputeEvidence({required this.orderId, required final  List<String> photoUrls, this.additionalDetails}): _photoUrls = photoUrls;
+  
+
+ final  String orderId;
+ final  List<String> _photoUrls;
+ List<String> get photoUrls {
+  if (_photoUrls is EqualUnmodifiableListView) return _photoUrls;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_photoUrls);
+}
+
+ final  String? additionalDetails;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AddDisputeEvidenceCopyWith<_AddDisputeEvidence> get copyWith => __$AddDisputeEvidenceCopyWithImpl<_AddDisputeEvidence>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AddDisputeEvidence&&(identical(other.orderId, orderId) || other.orderId == orderId)&&const DeepCollectionEquality().equals(other._photoUrls, _photoUrls)&&(identical(other.additionalDetails, additionalDetails) || other.additionalDetails == additionalDetails));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderId,const DeepCollectionEquality().hash(_photoUrls),additionalDetails);
+
+@override
+String toString() {
+  return 'OrderEvent.addDisputeEvidence(orderId: $orderId, photoUrls: $photoUrls, additionalDetails: $additionalDetails)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AddDisputeEvidenceCopyWith<$Res> implements $OrderEventCopyWith<$Res> {
+  factory _$AddDisputeEvidenceCopyWith(_AddDisputeEvidence value, $Res Function(_AddDisputeEvidence) _then) = __$AddDisputeEvidenceCopyWithImpl;
+@useResult
+$Res call({
+ String orderId, List<String> photoUrls, String? additionalDetails
+});
+
+
+
+
+}
+/// @nodoc
+class __$AddDisputeEvidenceCopyWithImpl<$Res>
+    implements _$AddDisputeEvidenceCopyWith<$Res> {
+  __$AddDisputeEvidenceCopyWithImpl(this._self, this._then);
+
+  final _AddDisputeEvidence _self;
+  final $Res Function(_AddDisputeEvidence) _then;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? orderId = null,Object? photoUrls = null,Object? additionalDetails = freezed,}) {
+  return _then(_AddDisputeEvidence(
+orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String,photoUrls: null == photoUrls ? _self._photoUrls : photoUrls // ignore: cast_nullable_to_non_nullable
+as List<String>,additionalDetails: freezed == additionalDetails ? _self.additionalDetails : additionalDetails // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _ProposeResolution implements OrderEvent {
+  const _ProposeResolution({required this.orderId, required this.resolutionType, this.refundAmount});
+  
+
+ final  String orderId;
+ final  String resolutionType;
+ final  int? refundAmount;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ProposeResolutionCopyWith<_ProposeResolution> get copyWith => __$ProposeResolutionCopyWithImpl<_ProposeResolution>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProposeResolution&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.resolutionType, resolutionType) || other.resolutionType == resolutionType)&&(identical(other.refundAmount, refundAmount) || other.refundAmount == refundAmount));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderId,resolutionType,refundAmount);
+
+@override
+String toString() {
+  return 'OrderEvent.proposeResolution(orderId: $orderId, resolutionType: $resolutionType, refundAmount: $refundAmount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ProposeResolutionCopyWith<$Res> implements $OrderEventCopyWith<$Res> {
+  factory _$ProposeResolutionCopyWith(_ProposeResolution value, $Res Function(_ProposeResolution) _then) = __$ProposeResolutionCopyWithImpl;
+@useResult
+$Res call({
+ String orderId, String resolutionType, int? refundAmount
+});
+
+
+
+
+}
+/// @nodoc
+class __$ProposeResolutionCopyWithImpl<$Res>
+    implements _$ProposeResolutionCopyWith<$Res> {
+  __$ProposeResolutionCopyWithImpl(this._self, this._then);
+
+  final _ProposeResolution _self;
+  final $Res Function(_ProposeResolution) _then;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? orderId = null,Object? resolutionType = null,Object? refundAmount = freezed,}) {
+  return _then(_ProposeResolution(
+orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String,resolutionType: null == resolutionType ? _self.resolutionType : resolutionType // ignore: cast_nullable_to_non_nullable
+as String,refundAmount: freezed == refundAmount ? _self.refundAmount : refundAmount // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

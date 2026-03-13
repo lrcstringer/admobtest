@@ -112,6 +112,10 @@ abstract class MarketplaceRemoteDataSource {
     int? priceTokens,
     List<String>? imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   });
 
   /// Toggle listing status (calls CF)
@@ -141,6 +145,29 @@ abstract class MarketplaceRemoteDataSource {
   Future<void> sellerRefund({
     required String orderId,
     String? reason,
+  });
+
+  /// Seller responds to a buyer's dispute (calls CF)
+  Future<void> respondToDispute({
+    required String orderId,
+    required String response,
+    List<String>? photoUrls,
+    String? proposedResolution,
+    int? proposedResolutionAmount,
+  });
+
+  /// Buyer adds evidence to an existing dispute (calls CF)
+  Future<void> addDisputeEvidence({
+    required String orderId,
+    required List<String> photoUrls,
+    String? additionalDetails,
+  });
+
+  /// Seller proposes a resolution for a disputed order (calls CF)
+  Future<void> proposeResolution({
+    required String orderId,
+    required String resolutionType,
+    int? refundAmount,
   });
 
   /// Get a single offer by ID (Firestore read)
@@ -332,8 +359,7 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       'displayName': displayName,
       if (bio != null) 'bio': bio,
       if (photoUrl != null) 'photoUrl': photoUrl,
-      if (servicesDescription != null)
-        'servicesDescription': servicesDescription,
+      if (servicesDescription != null) 'servicesDescription': servicesDescription,
       if (communityId != null) 'communityId': communityId,
       if (category != null) 'category': category,
     });
@@ -452,6 +478,10 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     int? priceTokens,
     List<String>? imageUrls,
     String? location,
+    String? deliveryMethod,
+    int? deliveryFee,
+    String? serviceAreaType,
+    Map<String, dynamic>? locationData,
   }) async {
     await _functions.httpsCallable('updateMarketplaceListing').call({
       'listingId': listingId,
@@ -461,6 +491,10 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       if (priceTokens != null) 'priceTokens': priceTokens,
       if (imageUrls != null) 'imageUrls': imageUrls,
       if (location != null) 'location': location,
+      if (deliveryMethod != null) 'deliveryMethod': deliveryMethod,
+      if (deliveryFee != null) 'deliveryFee': deliveryFee,
+      if (serviceAreaType != null) 'serviceAreaType': serviceAreaType,
+      if (locationData != null) 'locationData': locationData,
     });
   }
 
@@ -518,6 +552,49 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
     await _functions.httpsCallable('sellerInitiatedRefund').call({
       'orderId': orderId,
       if (reason != null) 'reason': reason,
+    });
+  }
+
+  @override
+  Future<void> respondToDispute({
+    required String orderId,
+    required String response,
+    List<String>? photoUrls,
+    String? proposedResolution,
+    int? proposedResolutionAmount,
+  }) async {
+    await _functions.httpsCallable('respondToDispute').call({
+      'orderId': orderId,
+      'response': response,
+      if (photoUrls != null) 'photoUrls': photoUrls,
+      if (proposedResolution != null) 'proposedResolution': proposedResolution,
+      if (proposedResolutionAmount != null) 'proposedResolutionAmount': proposedResolutionAmount,
+    });
+  }
+
+  @override
+  Future<void> addDisputeEvidence({
+    required String orderId,
+    required List<String> photoUrls,
+    String? additionalDetails,
+  }) async {
+    await _functions.httpsCallable('addDisputeEvidence').call({
+      'orderId': orderId,
+      'photoUrls': photoUrls,
+      if (additionalDetails != null) 'additionalDetails': additionalDetails,
+    });
+  }
+
+  @override
+  Future<void> proposeResolution({
+    required String orderId,
+    required String resolutionType,
+    int? refundAmount,
+  }) async {
+    await _functions.httpsCallable('proposeResolution').call({
+      'orderId': orderId,
+      'resolutionType': resolutionType,
+      if (refundAmount != null) 'refundAmount': refundAmount,
     });
   }
 
