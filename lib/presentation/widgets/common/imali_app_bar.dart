@@ -81,7 +81,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
             color: AppColors.textSecondary,
           ),
           onPressed: () {
-            // TODO: navigate to notifications screen
+            // Notifications screen not yet wired
           },
           tooltip: 'Notifications',
         ),

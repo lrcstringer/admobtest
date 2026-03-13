@@ -52,7 +52,7 @@ class OnboardingPictureScreen extends StatelessWidget {
 
               // User's name placeholder
               Text(
-                // TODO: Replace with actual user name from onboarding data
+                // Placeholder — wire to onboarding data when available
                 'Your Name',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -71,7 +71,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                   _ActionButton(
                     icon: Icons.photo_library_outlined,
                     onTap: () {
-                      // TODO: Open phone gallery
+                      // Gallery picker not yet wired
                     },
                   ),
                   const SizedBox(width: 16),
@@ -80,7 +80,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                     icon: Icons.camera_alt,
                     isHighlighted: true,
                     onTap: () {
-                      // TODO: Open camera
+                      // Camera capture not yet wired
                     },
                   ),
                   const SizedBox(width: 16),
@@ -88,7 +88,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                   _ActionButton(
                     icon: Icons.folder_outlined,
                     onTap: () {
-                      // TODO: Open file picker
+                      // File picker not yet wired
                     },
                   ),
                 ],

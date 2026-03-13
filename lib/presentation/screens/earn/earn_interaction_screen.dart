@@ -2742,7 +2742,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   url,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => SizedBox(
+                  errorBuilder: (_, _, _) => SizedBox(
                     height: 100,
                     child: Center(
                       child: Icon(Icons.broken_image_outlined,

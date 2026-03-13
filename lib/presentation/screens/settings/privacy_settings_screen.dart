@@ -136,7 +136,7 @@ class PrivacySettingsScreen extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
                 onTap: () {
-                  // TODO: Navigate to blocked users screen (Phase 2)
+                  // Blocked users screen planned for Phase 2
                 },
               ),
 

@@ -77,7 +77,7 @@ class _MarketplaceSearchBarState extends State<MarketplaceSearchBar> {
           ),
           suffixIcon: ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
-            builder: (_, value, __) {
+            builder: (_, value, _) {
               if (value.text.isEmpty) return const SizedBox.shrink();
               return IconButton(
                 icon: const Icon(

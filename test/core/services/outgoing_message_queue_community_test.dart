@@ -56,8 +56,6 @@ class _TestFirebaseFunctionsException extends FirebaseFunctionsException {
   _TestFirebaseFunctionsException({
     required super.code,
     required super.message,
-    super.details,
-    super.stackTrace,
   });
 }
 

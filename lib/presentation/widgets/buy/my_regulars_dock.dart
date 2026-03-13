@@ -39,7 +39,7 @@ class MyRegularsDock extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: regulars.length + 1, // +1 for Add chip
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 if (index == regulars.length) {
                   return _buildAddChip();

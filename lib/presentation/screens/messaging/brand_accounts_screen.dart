@@ -216,7 +216,7 @@ class _BrandAccountsScreenState extends State<BrandAccountsScreen> {
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(
+                errorBuilder: (_, _, _) => Icon(
                   Icons.storefront,
                   color: color,
                   size: 24,

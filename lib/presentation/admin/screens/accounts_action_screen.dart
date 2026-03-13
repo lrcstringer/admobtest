@@ -456,7 +456,7 @@ class _FundClientDialogState extends State<_FundClientDialog> {
             children: [
               // Client selector
               DropdownButtonFormField<String>(
-                value: _selectedClientId,
+                initialValue: _selectedClientId,
                 decoration:
                     const InputDecoration(labelText: 'Select Client'),
                 items: widget.clients
@@ -525,7 +525,7 @@ class _FundClientDialogState extends State<_FundClientDialog> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _paymentMethod,
+                initialValue: _paymentMethod,
                 decoration:
                     const InputDecoration(labelText: 'Payment Method'),
                 items: const [
@@ -681,7 +681,7 @@ class _FundSubAccountDialogState extends State<_FundSubAccountDialog> {
             children: [
               // Client selector
               DropdownButtonFormField<String>(
-                value: _selectedClientId,
+                initialValue: _selectedClientId,
                 decoration:
                     const InputDecoration(labelText: 'Select Client'),
                 items: widget.clients
@@ -718,7 +718,7 @@ class _FundSubAccountDialogState extends State<_FundSubAccountDialog> {
                 )
               else if (_selectedClientId != null) ...[
                 DropdownButtonFormField<String>(
-                  value: _selectedSubAccountId,
+                  initialValue: _selectedSubAccountId,
                   decoration: const InputDecoration(
                       labelText: 'Select Sub-Account'),
                   items: _subAccounts

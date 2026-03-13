@@ -578,7 +578,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                           fit: BoxFit.cover,
                           width: 36,
                           height: 36,
-                          errorBuilder: (_, __, ___) => Center(
+                          errorBuilder: (_, _, _) => Center(
                             child: Text(
                               _clientInitial(client),
                               style: const TextStyle(
@@ -1907,7 +1907,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
                                         child: Image.network(
                                           _existingLogoUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => Icon(
+                                          errorBuilder: (_, _, _) => Icon(
                                             Icons.business,
                                             color: AppColors.textSecondary,
                                             size: 28,

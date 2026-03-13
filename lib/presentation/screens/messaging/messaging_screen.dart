@@ -1334,7 +1334,7 @@ class _InboxShimmer extends StatelessWidget {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 8,
-      itemBuilder: (_, __) => const _ShimmerTile(),
+      itemBuilder: (_, _) => const _ShimmerTile(),
     );
   }
 }
@@ -1373,7 +1373,7 @@ class _ShimmerTileState extends State<_ShimmerTile>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (_, __) {
+      builder: (_, _) {
         final opacity = _animation.value;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

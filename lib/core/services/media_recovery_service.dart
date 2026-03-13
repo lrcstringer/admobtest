@@ -262,7 +262,7 @@ class MediaRecoveryService {
   }
 
   // ===========================================================================
-  // DEFERRED BLOB STORAGE
+  // Blob storage — writes recovery key blob after device doc exists
   // ===========================================================================
 
   /// Store the TEE-wrapped recovery key blob on the Firestore device doc.

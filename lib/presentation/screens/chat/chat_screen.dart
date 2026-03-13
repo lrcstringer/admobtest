@@ -311,8 +311,8 @@ class _ChatScreenState extends State<ChatScreen> {
           radius: 24,
           backgroundImage: imageProvider,
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
 
@@ -359,7 +359,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showSearchDialog(BuildContext context) {
-    // TODO: Implement search
+    // Search not yet implemented — show placeholder snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Search coming soon')),
     );
@@ -678,7 +678,7 @@ class QRCodeSheet extends StatelessWidget {
               children: [
                 OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Implement scan QR
+                    // QR scanning not yet wired
                   },
                   icon: const Icon(Icons.qr_code_scanner),
                   label: const Text('Scan QR'),
@@ -686,7 +686,7 @@ class QRCodeSheet extends StatelessWidget {
                 AppSpacing.horizontalMd,
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Implement share QR
+                    // QR sharing not yet wired
                   },
                   icon: const Icon(Icons.share),
                   label: const Text('Share'),

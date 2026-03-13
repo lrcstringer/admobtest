@@ -192,7 +192,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         const SizedBox(height: 4),
                         ValueListenableBuilder<TextEditingValue>(
                           valueListenable: _priceController,
-                          builder: (_, value, __) {
+                          builder: (_, value, _) {
                             final tokens = int.tryParse(value.text) ?? 0;
                             if (tokens <= 0) return const SizedBox.shrink();
                             final zar = tokens / 100;

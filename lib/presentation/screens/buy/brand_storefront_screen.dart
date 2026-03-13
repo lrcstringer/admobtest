@@ -258,8 +258,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         child: CachedNetworkImage(
           imageUrl: heroImage,
           fit: BoxFit.cover,
-          placeholder: (_, __) => Container(color: AppColors.surfaceElevated),
-          errorWidget: (_, __, ___) => _buildGradientHero(storefront),
+          placeholder: (_, _) => Container(color: AppColors.surfaceElevated),
+          errorWidget: (_, _, _) => _buildGradientHero(storefront),
         ),
       );
     }
@@ -292,7 +292,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 width: 64,
                 height: 64,
                 fit: BoxFit.contain,
-                errorWidget: (_, __, ___) => Text(
+                errorWidget: (_, _, _) => Text(
                   storefront.brandName,
                   style: const TextStyle(
                     fontSize: 24,
@@ -636,7 +636,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: featured.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) =>
                   _buildProductCard(context, featured[index], width: 160),
             ),
@@ -729,10 +729,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     ? CachedNetworkImage(
                         imageUrl: product.imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
+                        placeholder: (_, _) => Container(
                           color: AppColors.shimmerBase,
                         ),
-                        errorWidget: (_, __, ___) => Container(
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(Icons.image_outlined,
                               color: AppColors.textHint),
@@ -825,11 +825,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             width: double.infinity,
             height: 100,
             fit: BoxFit.cover,
-            placeholder: (_, __) => Container(
+            placeholder: (_, _) => Container(
               height: 100,
               color: AppColors.surfaceElevated,
             ),
-            errorWidget: (_, __, ___) => const SizedBox.shrink(),
+            errorWidget: (_, _, _) => const SizedBox.shrink(),
           ),
         ),
       ),
@@ -906,7 +906,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: storefront.galleryImageUrls.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(10),
@@ -915,11 +915,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     width: 180,
                     height: 140,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
+                    placeholder: (_, _) => Container(
                       width: 180,
                       color: AppColors.surfaceElevated,
                     ),
-                    errorWidget: (_, __, ___) => Container(
+                    errorWidget: (_, _, _) => Container(
                       width: 180,
                       color: AppColors.surfaceElevated,
                       child: const Icon(Icons.broken_image,
@@ -1196,7 +1196,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: videos.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 final video = videos[index];
                 return Container(
@@ -1221,8 +1221,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
-                                  placeholder: (_, __) => Container(color: AppColors.shimmerBase),
-                                  errorWidget: (_, __, ___) => Container(color: AppColors.shimmerBase),
+                                  placeholder: (_, _) => Container(color: AppColors.shimmerBase),
+                                  errorWidget: (_, _, _) => Container(color: AppColors.shimmerBase),
                                 )
                               else
                                 Container(color: AppColors.shimmerBase),
@@ -1873,9 +1873,9 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                               ? CachedNetworkImage(
                                   imageUrl: imageUrl,
                                   fit: BoxFit.cover,
-                                  placeholder: (_, __) =>
+                                  placeholder: (_, _) =>
                                       Container(color: AppColors.surface),
-                                  errorWidget: (_, __, ___) => Container(
+                                  errorWidget: (_, _, _) => Container(
                                     color: AppColors.surface,
                                     child: const Icon(Icons.image,
                                         color: AppColors.textTertiary),

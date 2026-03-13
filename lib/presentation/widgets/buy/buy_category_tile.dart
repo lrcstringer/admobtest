@@ -96,8 +96,8 @@ class BuyCategoryTile extends StatelessWidget {
           width: 20,
           height: 20,
           fit: BoxFit.contain,
-          placeholder: (_, __) => _svgOrEmojiIcon(context),
-          errorWidget: (_, __, ___) => _svgOrEmojiIcon(context),
+          placeholder: (_, _) => _svgOrEmojiIcon(context),
+          errorWidget: (_, _, _) => _svgOrEmojiIcon(context),
         ),
       );
     }

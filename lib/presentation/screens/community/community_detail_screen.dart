@@ -347,7 +347,7 @@ class _ChatTab extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black,
-      pageBuilder: (ctx, _, __) => MediaComposeScreen(
+      pageBuilder: (ctx, _, _) => MediaComposeScreen(
         mediaFile: result.file,
         mediaType: result.mediaType,
         onSend: (caption) {
@@ -440,14 +440,14 @@ class _ChatTab extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black,
-      pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
+      pageBuilder: (ctx, _, _) => VoiceRecorderWidget(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
           showGeneralDialog(
             context: context,
             barrierDismissible: false,
             barrierColor: Colors.black,
-            pageBuilder: (ctx2, _, __) => MediaComposeScreen(
+            pageBuilder: (ctx2, _, _) => MediaComposeScreen(
               mediaFile: result.file,
               mediaType: 'audio/m4a',
               durationSeconds: result.durationSeconds,
@@ -475,7 +475,7 @@ class _ChatTab extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black,
-      pageBuilder: (ctx, _, __) => VideoMessageRecorder(
+      pageBuilder: (ctx, _, _) => VideoMessageRecorder(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
           // 8.1 Use showGeneralDialog instead of Navigator.push for fullscreen overlay
@@ -483,7 +483,7 @@ class _ChatTab extends StatelessWidget {
             context: context,
             barrierDismissible: false,
             barrierColor: Colors.black,
-            pageBuilder: (ctx2, _, __) => MediaComposeScreen(
+            pageBuilder: (ctx2, _, _) => MediaComposeScreen(
               mediaFile: result.videoFile,
               mediaType: 'video/mp4',
               thumbnailFile: result.thumbnailFile,

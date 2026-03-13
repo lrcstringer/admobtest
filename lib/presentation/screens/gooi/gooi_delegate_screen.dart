@@ -91,7 +91,9 @@ class _GooiDelegateScreenState extends State<GooiDelegateScreen> {
                 const SizedBox(height: AppSpacing.md),
                 ...eligibleMembers.map((m) => RadioListTile<String>(
                       value: m.userId,
+                      // ignore: deprecated_member_use
                       groupValue: _selectedMemberId,
+                      // ignore: deprecated_member_use
                       onChanged: (v) => setState(() => _selectedMemberId = v),
                       title: Text(m.displayName),
                       activeColor: AppColors.teal,

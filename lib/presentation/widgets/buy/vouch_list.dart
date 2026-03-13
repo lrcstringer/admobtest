@@ -30,7 +30,7 @@ class VouchList extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: vouches.length,
-      separatorBuilder: (_, __) => const Divider(
+      separatorBuilder: (_, _) => const Divider(
         color: AppColors.border,
         height: 1,
       ),

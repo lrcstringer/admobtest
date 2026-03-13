@@ -259,7 +259,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: 4,
-        itemBuilder: (_, __) => Container(
+        itemBuilder: (_, _) => Container(
           height: 160,
           margin: const EdgeInsets.only(bottom: AppSpacing.sm),
           decoration: BoxDecoration(

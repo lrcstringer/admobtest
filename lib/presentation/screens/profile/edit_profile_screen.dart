@@ -354,7 +354,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       maxHeight: 512,
       imageQuality: 85,
     );
-    if (picked == null) return;
+    if (picked == null || !mounted) return;
 
     final user = context.read<AuthBloc>().state.user;
     if (user == null) return;

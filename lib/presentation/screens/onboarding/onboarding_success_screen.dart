@@ -31,7 +31,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
     final starsSize = size.width * 0.50;
     final crownSize = photoSize * 0.35;
 
-    // TODO: Replace with actual user number from backend
+    // Placeholder user number — wire to backend-assigned user number
     const userNumber = '85 674';
 
     return Scaffold(
@@ -85,7 +85,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(17),
                           child: const Center(
-                            // TODO: Show user's uploaded photo if available
+                            // Fallback icon — replace with user's uploaded photo when available
                             child: Icon(
                               Icons.person,
                               color: AppColors.textPrimary,
@@ -119,7 +119,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
 
                 // User's name
                 Text(
-                  // TODO: Replace with actual user name from onboarding data
+                  // Placeholder — wire to onboarding data when available
                   'Your Name',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(

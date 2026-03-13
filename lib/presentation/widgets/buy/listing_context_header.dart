@@ -47,7 +47,7 @@ class ListingContextHeader extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: thumbnailUrl!,
                         fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _placeholder(),
+                        errorWidget: (_, _, _) => _placeholder(),
                       )
                     : _placeholder(),
               ),

@@ -46,7 +46,7 @@ class BuySubcategoryListScreen extends StatelessWidget {
                   vertical: 16,
                 ),
                 itemCount: subcategories.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   return _SubcategoryTile(
                     subcategory: subcategories[index],

@@ -70,7 +70,7 @@ class ShareableBuyCard extends StatelessWidget {
                   ? CachedNetworkImage(
                       imageUrl: thumbnailUrl!,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => _placeholderImage(),
+                      errorWidget: (_, _, _) => _placeholderImage(),
                     )
                   : _placeholderImage(),
             ),

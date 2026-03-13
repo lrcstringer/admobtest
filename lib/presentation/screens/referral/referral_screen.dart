@@ -516,7 +516,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                       width: 36,
                       height: 36,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Center(
+                      errorBuilder: (_, _, _) => Center(
                         child: Text(
                           referral.refereeInitials,
                           style: Theme.of(context)

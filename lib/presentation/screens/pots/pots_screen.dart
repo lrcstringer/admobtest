@@ -146,7 +146,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
         return ListView.separated(
           padding: AppSpacing.pagePadding,
           itemCount: state.potHistory.length,
-          separatorBuilder: (_, __) => AppSpacing.verticalMd,
+          separatorBuilder: (_, _) => AppSpacing.verticalMd,
           itemBuilder: (context, index) {
             final pot = state.potHistory[index];
             return _buildHistoryCard(context, pot);
@@ -828,7 +828,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
                 return ListView.separated(
                   padding: AppSpacing.pagePadding,
                   itemCount: state.leaderboard.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final score = state.leaderboard[index];
                     return _buildLeaderboardItem(context, score, index + 1);

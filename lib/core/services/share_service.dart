@@ -26,9 +26,11 @@ $achievement
 Join me and start earning rewards:
 https://imalichat.app/join$refParam
 ''';
-    await Share.share(
-      text,
-      subject: 'Check out what I earned on iMaliChat!',
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: 'Check out what I earned on iMaliChat!',
+      ),
     );
   }
 
@@ -45,7 +47,9 @@ Join "$communityName" on iMaliChat!
 
 $link
 ''';
-    await Share.share(text, subject: 'Join $communityName on iMaliChat');
+    await SharePlus.instance.share(
+      ShareParams(text: text, subject: 'Join $communityName on iMaliChat'),
+    );
   }
 
   /// Share a generic referral link.
@@ -61,7 +65,9 @@ Use my referral code: $referralCode
 
 $link
 ''';
-    await Share.share(text, subject: 'Join iMaliChat');
+    await SharePlus.instance.share(
+      ShareParams(text: text, subject: 'Join iMaliChat'),
+    );
   }
 
   /// Share a user's QR code page link for starting a conversation.
@@ -76,9 +82,11 @@ $displayName
 
 $link
 ''';
-    await Share.share(
-      text,
-      subject: 'Chat with $displayName on iMaliChat',
+    await SharePlus.instance.share(
+      ShareParams(
+        text: text,
+        subject: 'Chat with $displayName on iMaliChat',
+      ),
     );
   }
 }

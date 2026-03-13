@@ -186,7 +186,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                       ),
                     ),
                     contentPadding: EdgeInsets.zero,
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 

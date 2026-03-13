@@ -116,8 +116,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           radius: 18,
           backgroundImage: imageProvider,
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
 
@@ -586,7 +586,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 title: const Text('View Profile'),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Navigate to profile
+                  // Profile navigation not yet wired
                 },
               ),
               ListTile(
@@ -609,7 +609,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                 title: const Text('Block User'),
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Block user
+                  // Block user not yet wired
                 },
               ),
               const SizedBox(height: 8),

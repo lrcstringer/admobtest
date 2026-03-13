@@ -47,7 +47,7 @@ class _CollectionRoomScreenState extends State<CollectionRoomScreen> {
       context.read<AuthBloc>().state.user?.id ?? '';
 
   void _showContributeSheet(TokenPool pool) {
-    // TODO: Get actual balance from wallet bloc
+    // Hardcoded balance — wire to WalletBloc when wallet integration is complete
     const availableBalance = 10000;
 
     showModalBottomSheet(

@@ -29,7 +29,7 @@ class TrendingStrip extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, index) => _buildTrendingCard(items[index]),
           ),
         ),
@@ -86,10 +86,10 @@ class TrendingStrip extends StatelessWidget {
                     ? CachedNetworkImage(
                         imageUrl: item.imageUrl!,
                         fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
+                        placeholder: (_, _) => Container(
                           color: AppColors.surface,
                         ),
-                        errorWidget: (_, __, ___) => Container(
+                        errorWidget: (_, _, _) => Container(
                           color: AppColors.surface,
                           child: const Icon(
                             Icons.image,

@@ -274,9 +274,11 @@ You'll get 10 tokens when you sign up and complete your first engagement!
 
     final message = customMessage ?? defaultMessage;
 
-    final result = await Share.share(
-      message,
-      subject: 'Join iMaliChat - Earn. Chat. Buy.',
+    final result = await SharePlus.instance.share(
+      ShareParams(
+        text: message,
+        subject: 'Join iMaliChat - Earn. Chat. Buy.',
+      ),
     );
     return result.status != ShareResultStatus.dismissed;
   }

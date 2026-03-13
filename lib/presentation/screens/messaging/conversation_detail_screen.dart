@@ -630,8 +630,8 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
     return initialsWidget;
@@ -1128,7 +1128,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black,
-      pageBuilder: (ctx, _, __) => VoiceRecorderWidget(
+      pageBuilder: (ctx, _, _) => VoiceRecorderWidget(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
           Navigator.of(context).push(
@@ -1171,7 +1171,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black,
-      pageBuilder: (ctx, _, __) => VideoMessageRecorder(
+      pageBuilder: (ctx, _, _) => VideoMessageRecorder(
         onRecordingComplete: (result) {
           Navigator.of(ctx).pop();
           Navigator.of(context).push(
@@ -1632,9 +1632,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         );
 
         if (context.mounted) Navigator.of(context).pop(); // dismiss loader
-        await Share.shareXFiles(
-          [file],
-          subject: 'iMaliChat \u2014 $conversationName',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [file],
+            subject: 'iMaliChat \u2014 $conversationName',
+          ),
         );
       } else {
         // With media: progress dialog
@@ -1645,7 +1647,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           barrierDismissible: false,
           builder: (_) => ValueListenableBuilder<(int, int)>(
             valueListenable: progress,
-            builder: (_, value, __) {
+            builder: (_, value, _) {
               final (completed, total) = value;
               final fraction = total > 0 ? completed / total : 0.0;
               return AlertDialog(
@@ -1679,9 +1681,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         if (context.mounted) Navigator.of(context).pop(); // dismiss dialog
         progress.dispose();
 
-        await Share.shareXFiles(
-          [file],
-          subject: 'iMaliChat \u2014 $conversationName',
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [file],
+            subject: 'iMaliChat \u2014 $conversationName',
+          ),
         );
       }
     } on ExportException catch (e) {
@@ -1989,7 +1993,7 @@ class _ShimmerBubbleState extends State<_ShimmerBubble>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (_, __) {
+      builder: (_, _) {
         final opacity = _animation.value;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),

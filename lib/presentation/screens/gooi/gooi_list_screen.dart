@@ -75,7 +75,7 @@ class _GooiListScreenState extends State<GooiListScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.md),
               itemCount: state.filteredGroups.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final group = state.filteredGroups[index];
                 return GooiGroupTile(

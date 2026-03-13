@@ -294,8 +294,8 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
           radius: 24,
           backgroundImage: imageProvider,
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
 

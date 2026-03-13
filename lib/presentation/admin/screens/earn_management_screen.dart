@@ -373,7 +373,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                                           fit: BoxFit.cover,
                                           width: 40,
                                           height: 40,
-                                          errorBuilder: (_, __, ___) => Center(
+                                          errorBuilder: (_, _, _) => Center(
                                             child: Text(
                                               ((client['displayName'] as String?)?.isNotEmpty == true
                                                   ? client['displayName'][0]
@@ -521,7 +521,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                                                   fit: BoxFit.cover,
                                                   width: 36,
                                                   height: 36,
-                                                  errorBuilder: (_, __, ___) => Center(
+                                                  errorBuilder: (_, _, _) => Center(
                                                     child: Text(
                                                       _threadInitials(thread),
                                                       style: const TextStyle(
@@ -1013,7 +1013,7 @@ class _CampaignCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     width: 48,
                     height: 48,
-                    errorBuilder: (_, __, ___) => Center(
+                    errorBuilder: (_, _, _) => Center(
                       child: Text(
                         _threadInitials(thread),
                         style: const TextStyle(
@@ -1315,7 +1315,7 @@ class _OpportunityCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: 48,
                           height: 48,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             decoration: BoxDecoration(
                               color: AppColors.secondary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -3267,7 +3267,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                                         child: Image.network(
                                           _existingImageUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => Icon(
+                                          errorBuilder: (_, _, _) => Icon(
                                             Icons.broken_image,
                                             color: AppColors.textSecondary,
                                             size: 28,
@@ -4582,7 +4582,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   )
                 else if (_rewardCampaigns.isNotEmpty) ...[
                   DropdownButtonFormField<String?>(
-                    value: _rewardCampaignId,
+                    initialValue: _rewardCampaignId,
                     decoration: const InputDecoration(
                       labelText: 'Reward Campaign (optional)',
                       hintText: 'Link an inventory reward',
@@ -4653,7 +4653,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   )
                 else if (_clientSubAccounts.isNotEmpty) ...[
                   DropdownButtonFormField<String?>(
-                    value: _tokenSourceAccountId,
+                    initialValue: _tokenSourceAccountId,
                     decoration: const InputDecoration(
                       labelText: 'Token Source Override (optional)',
                       hintText: 'Defaults to campaign token source',
@@ -4733,7 +4733,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                           Padding(
                             padding: const EdgeInsets.only(left: 40),
                             child: DropdownButtonFormField<int>(
-                              value: _uploadVideoMaxSeconds,
+                              initialValue: _uploadVideoMaxSeconds,
                               decoration: const InputDecoration(
                                 labelText: 'Max Video Duration',
                                 isDense: true,
@@ -5828,7 +5828,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                                         child: Image.network(
                                           _existingImageUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) => Icon(
+                                          errorBuilder: (_, _, _) => Icon(
                                             Icons.broken_image,
                                             color: AppColors.textSecondary,
                                             size: 28,
@@ -6030,7 +6030,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   )
                 else if (_rewardCampaigns.isNotEmpty) ...[
                   DropdownButtonFormField<String?>(
-                    value: _rewardCampaignId,
+                    initialValue: _rewardCampaignId,
                     decoration: const InputDecoration(
                       labelText: 'Reward Campaign (optional)',
                       hintText: 'Link an inventory reward',
@@ -6101,7 +6101,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   )
                 else if (_clientSubAccounts.isNotEmpty) ...[
                   DropdownButtonFormField<String?>(
-                    value: _tokenSourceAccountId,
+                    initialValue: _tokenSourceAccountId,
                     decoration: const InputDecoration(
                       labelText: 'Token Source Override (optional)',
                       hintText: 'Defaults to campaign token source',
@@ -6181,7 +6181,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                           Padding(
                             padding: const EdgeInsets.only(left: 40),
                             child: DropdownButtonFormField<int>(
-                              value: _uploadVideoMaxSeconds,
+                              initialValue: _uploadVideoMaxSeconds,
                               decoration: const InputDecoration(
                                 labelText: 'Max Video Duration',
                                 isDense: true,
@@ -7160,7 +7160,7 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
             children: [
               // Question type selector
               DropdownButtonFormField<String>(
-                value: _questionType,
+                initialValue: _questionType,
                 decoration:
                     const InputDecoration(labelText: 'Question type'),
                 items: _typeLabels.entries
@@ -7314,7 +7314,7 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
       if (_isAttentionCheck) ...[
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _correctAnswer,
+          initialValue: _correctAnswer,
           decoration:
               const InputDecoration(labelText: 'Correct answer'),
           items: _optionControllers
@@ -7363,7 +7363,7 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _branchRules[i],
+                    initialValue: _branchRules[i],
                     decoration: const InputDecoration(
                       hintText: 'Next (default)',
                       isDense: true,

@@ -1589,13 +1589,10 @@ LazyDatabase _openConnection() {
     final file = File(p.join(dbFolder.path, 'imali_local_encrypted.db'));
 
     // Retrieve or generate encryption key from secure storage.
-    // Must use encryptedSharedPreferences: true to match the DI-registered
+    // Must use matching AndroidOptions to match the DI-registered
     // FlutterSecureStorage instance used by the rest of the app.
-    // The default (raw Keystore) loses entries between sessions on many
-    // Android devices, causing the key to come back null, the DB to be
-    // deleted, and all cached plaintext to be permanently lost.
     const storage = FlutterSecureStorage(
-      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      aOptions: AndroidOptions(),
     );
     String? key = await storage.read(key: 'imali_db_encryption_key');
     if (key == null) {

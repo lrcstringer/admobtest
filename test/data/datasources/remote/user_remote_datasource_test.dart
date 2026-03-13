@@ -1,3 +1,5 @@
+// ignore_for_file: subtype_of_sealed_class
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_test/flutter_test.dart';

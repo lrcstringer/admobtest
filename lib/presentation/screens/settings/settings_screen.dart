@@ -189,7 +189,9 @@ class SettingsScreen extends StatelessWidget {
       final data = result.data as Map<String, dynamic>;
       final jsonString = const JsonEncoder.withIndent('  ').convert(data);
 
-      await Share.share(jsonString, subject: 'iMaliChat Data Export');
+      await SharePlus.instance.share(
+        ShareParams(text: jsonString, subject: 'iMaliChat Data Export'),
+      );
     } on FirebaseFunctionsException catch (e) {
       if (context.mounted) Navigator.of(context).pop();
       if (context.mounted) {

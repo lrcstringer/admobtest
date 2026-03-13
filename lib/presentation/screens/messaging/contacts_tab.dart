@@ -425,7 +425,7 @@ class _ContactsTabState extends State<ContactsTab> {
                 ),
               ),
               onTap: () {
-                // TODO: Open brand conversation (Phase 4+)
+                // Brand conversations planned for Phase 4+
               },
             ),
           ),
@@ -696,8 +696,8 @@ class _ContactsTabState extends State<ContactsTab> {
             image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
 

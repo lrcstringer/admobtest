@@ -45,7 +45,7 @@ class ContactRequestsScreen extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: requests.length,
-            separatorBuilder: (_, __) => Divider(
+            separatorBuilder: (_, _) => Divider(
               height: 0.5,
               thickness: 0.5,
               color: AppColors.chatSurface.withValues(alpha: 0.3),
@@ -167,8 +167,8 @@ class ContactRequestsScreen extends StatelessWidget {
             image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
         ),
-        placeholder: (_, __) => initialsWidget,
-        errorWidget: (_, __, ___) => initialsWidget,
+        placeholder: (_, _) => initialsWidget,
+        errorWidget: (_, _, _) => initialsWidget,
       );
     }
 

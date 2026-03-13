@@ -59,8 +59,7 @@ class ClientRouter {
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isOnLogin = state.matchedLocation == '/login';
 
-      // TODO: Implement proper brand/client role check using Firebase custom claims
-      // For now, allow any authenticated user in development
+      // Brand/client role check not yet enforced — allows any authenticated user.
       // In production, check: authState.user?.customClaims?['brand'] == true
 
       // Not authenticated -> login

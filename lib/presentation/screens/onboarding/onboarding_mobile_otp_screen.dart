@@ -45,7 +45,7 @@ class _OnboardingMobileOtpScreenState
     final size = MediaQuery.of(context).size;
     final mascotSize = size.width * 0.25;
 
-    // TODO: Replace with actual phone number passed from mobile screen
+    // Placeholder — wire to phone number passed from mobile input screen
     const phoneNumber = '(+27) XXX XXXX';
 
     return Scaffold(
@@ -264,7 +264,7 @@ class _OnboardingMobileOtpScreenState
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      // TODO: Implement resend OTP logic
+                      // Resend OTP not yet wired
                     },
                     child: Text(
                       'Resend',

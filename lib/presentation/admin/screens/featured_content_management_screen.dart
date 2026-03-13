@@ -243,7 +243,7 @@ class _FeaturedContentManagementScreenState
 
     return ListView.separated(
       itemCount: items.length,
-      separatorBuilder: (_, __) => Divider(
+      separatorBuilder: (_, _) => Divider(
         color: AppColors.borderDark,
         height: 1,
       ),
@@ -274,7 +274,7 @@ class _FeaturedContentManagementScreenState
                     width: 60,
                     height: 40,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                         Icons.broken_image,
                         color: AppColors.textTertiary,
                         size: 20),
@@ -678,7 +678,7 @@ class _FeaturedContentManagementScreenState
                                         height: 120,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
+                                        errorBuilder: (_, _, _) =>
                                             Container(
                                           height: 120,
                                           color: AppColors.surface,
@@ -1754,7 +1754,7 @@ class _FeaturedContentManagementScreenState
                             fit: BoxFit.contain)
                         : Image.network(imageUrl,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) =>
+                            errorBuilder: (_, _, _) =>
                                 const SizedBox.shrink()))
                     : Align(
                         alignment: Alignment.centerRight,
@@ -1765,7 +1765,7 @@ class _FeaturedContentManagementScreenState
                                   fit: BoxFit.contain)
                               : Image.network(imageUrl,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (_, _, _) =>
                                       const SizedBox.shrink()),
                         ),
                       ),

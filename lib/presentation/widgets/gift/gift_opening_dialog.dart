@@ -38,7 +38,7 @@ void showGiftOpeningDialog(
     context: context,
     barrierDismissible: false,
     barrierColor: Colors.black87,
-    pageBuilder: (_, __, ___) => _GiftOpeningDialog(
+    pageBuilder: (_, _, _) => _GiftOpeningDialog(
       gift: gift,
       senderName: senderName,
     ),

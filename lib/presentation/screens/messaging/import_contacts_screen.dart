@@ -563,10 +563,12 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
     final referralCode =
         context.read<ReferralBloc>().state.stats?.referralCode;
     final refParam = referralCode != null ? '?ref=$referralCode' : '';
-    Share.share(
-      'Join me on iMaliChat! Download the app and start earning '
-      'tokens while chatting: https://imalichat.app/join$refParam',
-      subject: 'Join iMaliChat',
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'Join me on iMaliChat! Download the app and start earning '
+            'tokens while chatting: https://imalichat.app/join$refParam',
+        subject: 'Join iMaliChat',
+      ),
     );
   }
 
@@ -583,10 +585,12 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
     );
 
     final refParam = referralCode != null ? '?ref=$referralCode' : '';
-    Share.share(
-      'Join me on iMaliChat! Download the app and start earning '
-      'tokens while chatting: https://imalichat.app/join$refParam',
-      subject: 'Join iMaliChat',
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'Join me on iMaliChat! Download the app and start earning '
+            'tokens while chatting: https://imalichat.app/join$refParam',
+        subject: 'Join iMaliChat',
+      ),
     );
   }
 

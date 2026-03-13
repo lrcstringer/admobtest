@@ -90,7 +90,7 @@ class _RewardsListScreenState extends State<RewardsListScreen>
       child: ListView.separated(
         padding: AppSpacing.pagePadding,
         itemCount: items.length,
-        separatorBuilder: (_, __) => AppSpacing.verticalSm,
+        separatorBuilder: (_, _) => AppSpacing.verticalSm,
         itemBuilder: (context, index) => _buildRewardCard(context, items[index]),
       ),
     );

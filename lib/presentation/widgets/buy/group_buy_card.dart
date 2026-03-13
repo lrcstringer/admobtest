@@ -72,7 +72,7 @@ class GroupBuyCard extends StatelessWidget {
                       width: 24,
                       height: 24,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
+                      errorWidget: (_, _, _) => Icon(
                         Icons.store,
                         size: 24,
                         color: AppColors.gold,

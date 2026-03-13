@@ -131,12 +131,12 @@ class MarketplaceListingCard extends StatelessWidget {
       return CachedNetworkImage(
         imageUrl: url,
         fit: BoxFit.cover,
-        placeholder: (_, __) => Shimmer.fromColors(
+        placeholder: (_, _) => Shimmer.fromColors(
           baseColor: AppColors.surface,
           highlightColor: AppColors.surfaceElevated,
           child: Container(color: AppColors.surface),
         ),
-        errorWidget: (_, __, ___) => Container(
+        errorWidget: (_, _, _) => Container(
           color: AppColors.surface,
           child: const Icon(
             Icons.image_not_supported_outlined,

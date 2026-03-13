@@ -178,7 +178,7 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
         mainAxisSpacing: AppSpacing.sm,
       ),
       itemCount: 6,
-      itemBuilder: (_, __) => _buildShimmerCard(),
+      itemBuilder: (_, _) => _buildShimmerCard(),
     );
   }
 

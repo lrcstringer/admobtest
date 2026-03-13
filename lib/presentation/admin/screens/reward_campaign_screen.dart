@@ -251,7 +251,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
         SizedBox(
           width: 220,
           child: DropdownButtonFormField<String>(
-            value: _filterClientId,
+            initialValue: _filterClientId,
             decoration: const InputDecoration(
               labelText: 'Client',
               isDense: true,
@@ -276,7 +276,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
         SizedBox(
           width: 180,
           child: DropdownButtonFormField<String>(
-            value: _filterStatus,
+            initialValue: _filterStatus,
             decoration: const InputDecoration(
               labelText: 'Status',
               isDense: true,
@@ -1145,7 +1145,7 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
                 // Client dropdown (only for create)
                 if (!_isEditing)
                   DropdownButtonFormField<String>(
-                    value: _clientId,
+                    initialValue: _clientId,
                     decoration: const InputDecoration(
                       labelText: 'Client (Sponsor)',
                       border: OutlineInputBorder(),
@@ -1213,7 +1213,7 @@ class _CampaignFormDialogState extends State<_CampaignFormDialog> {
 
                 // Reward type
                 DropdownButtonFormField<String>(
-                  value: _rewardType,
+                  initialValue: _rewardType,
                   decoration: const InputDecoration(
                     labelText: 'Reward Type',
                     border: OutlineInputBorder(),

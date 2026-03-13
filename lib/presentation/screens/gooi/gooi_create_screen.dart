@@ -106,7 +106,7 @@ class _GooiCreateScreenState extends State<GooiCreateScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DropdownButtonFormField<GooiCycleFrequency>(
-                    value: _frequency,
+                    initialValue: _frequency,
                     decoration: const InputDecoration(labelText: 'Cycle Frequency'),
                     items: GooiCycleFrequency.values
                         .map((f) => DropdownMenuItem(value: f, child: Text(f.name.toUpperCase())))
@@ -131,7 +131,7 @@ class _GooiCreateScreenState extends State<GooiCreateScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   DropdownButtonFormField<GooiRosterMethod>(
-                    value: _rosterMethod,
+                    initialValue: _rosterMethod,
                     decoration: const InputDecoration(labelText: 'Roster Method'),
                     items: GooiRosterMethod.values
                         .map((m) => DropdownMenuItem(
@@ -177,7 +177,7 @@ class _GooiCreateScreenState extends State<GooiCreateScreen> {
                     subtitle: const Text('If off, the recipient skips their contribution for that cycle'),
                     value: _recipientContributes,
                     onChanged: (v) => setState(() => _recipientContributes = v),
-                    activeColor: AppColors.teal,
+                    activeThumbColor: AppColors.teal,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   ElevatedButton(

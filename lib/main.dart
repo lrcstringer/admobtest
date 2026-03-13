@@ -1,4 +1,4 @@
-// TODO: Uncomment when enabling App Check after Play Store publish
+// App Check disabled until Play Store publish — Play Integrity requires listing
 // import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -124,8 +124,7 @@ Future<void> main() async {
   // Initialize Google Mobile Ads SDK (don't block app launch)
   MobileAds.instance.initialize();
 
-  // TODO: Activate App Check once app is published to Google Play
-  // Play Integrity requires the app to be listed on Play Store.
+  // App Check disabled — Play Integrity requires the app to be listed on Play Store.
   // SafetyNet has been deprecated and removed by Google.
   // Server-side enforcement is disabled (security.ts enforce=false) so this is safe to skip.
   // Once on Play Store, uncomment and use AndroidProvider.playIntegrity:
@@ -154,7 +153,7 @@ Future<void> main() async {
     GetIt.instance<RaspService>().initialize();
   }
 
-  // TODO: Re-enable screenshot prevention before production release
+  // Screenshot prevention disabled during development — re-enable before production release
   // Enable screenshot prevention (skip in debug for testing)
   // if (!kDebugMode) {
   //   final screenshotService = GetIt.instance<ScreenshotPreventionService>();

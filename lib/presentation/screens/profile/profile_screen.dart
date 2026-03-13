@@ -479,8 +479,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final jsonString =
           const JsonEncoder.withIndent('  ').convert(data);
 
-      await Share.share(jsonString,
-          subject: 'iMaliChat Data Export');
+      await SharePlus.instance.share(
+          ShareParams(text: jsonString, subject: 'iMaliChat Data Export'));
     } on FirebaseFunctionsException catch (e) {
       if (context.mounted) Navigator.of(context).pop();
       if (context.mounted) {

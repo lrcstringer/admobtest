@@ -32,7 +32,7 @@ class BrandPartnersStrip extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: brands.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, index) =>
                 _BrandHeroCard(brand: brands[index], onTap: onBrandTap),
           ),
@@ -82,8 +82,8 @@ class _BrandHeroCard extends StatelessWidget {
               CachedNetworkImage(
                 imageUrl: brand.heroImageUrl!,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => _gradientBg(brandColor),
-                errorWidget: (_, __, ___) => _gradientBg(brandColor),
+                placeholder: (_, _) => _gradientBg(brandColor),
+                errorWidget: (_, _, _) => _gradientBg(brandColor),
               )
             else
               _gradientBg(brandColor),
@@ -168,8 +168,8 @@ class _BrandHeroCard extends StatelessWidget {
           width: 28,
           height: 28,
           fit: BoxFit.contain,
-          placeholder: (_, __) => _logoFallback(brandColor),
-          errorWidget: (_, __, ___) => _logoFallback(brandColor),
+          placeholder: (_, _) => _logoFallback(brandColor),
+          errorWidget: (_, _, _) => _logoFallback(brandColor),
         ),
       );
     }
