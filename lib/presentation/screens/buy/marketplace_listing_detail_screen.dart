@@ -62,7 +62,7 @@ class _MarketplaceListingDetailScreenState
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Listing'),
-          backgroundColor: AppColors.surface,
+          backgroundColor: AppColors.buyCard,
           actions: [
             IconButton(
               icon: const Icon(Icons.share_outlined),
@@ -87,7 +87,7 @@ class _MarketplaceListingDetailScreenState
             return Center(
               child: Text(
                 state.errorMessage ?? 'Listing not found',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: const TextStyle(color: AppColors.buyTextSecondary),
               ),
             );
           }
@@ -129,7 +129,7 @@ class _MarketplaceListingDetailScreenState
                       Text(
                         listing.title,
                         style: const TextStyle(
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -155,12 +155,12 @@ class _MarketplaceListingDetailScreenState
                               if (listing.favouriteCount > 0) ...[
                                 const Icon(Icons.favorite_border,
                                     size: 14,
-                                    color: AppColors.textSecondary),
+                                    color: AppColors.buyTextSecondary),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${listing.favouriteCount} saves',
                                   style: const TextStyle(
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.buyTextSecondary,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -171,12 +171,12 @@ class _MarketplaceListingDetailScreenState
                               if (listing.renewalCount > 0) ...[
                                 const Icon(Icons.autorenew,
                                     size: 14,
-                                    color: AppColors.textSecondary),
+                                    color: AppColors.buyTextSecondary),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${listing.renewalCount} renewals',
                                   style: const TextStyle(
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.buyTextSecondary,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -189,7 +189,7 @@ class _MarketplaceListingDetailScreenState
                       Text(
                         listing.description,
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                           fontSize: 14,
                           height: 1.5,
                         ),
@@ -211,14 +211,14 @@ class _MarketplaceListingDetailScreenState
                         children: [
                           const Icon(
                             Icons.local_shipping_outlined,
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             size: 16,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             listing.deliveryMethod.displayName,
                             style: const TextStyle(
-                              color: AppColors.textSecondary,
+                              color: AppColors.buyTextSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -228,7 +228,7 @@ class _MarketplaceListingDetailScreenState
                             Text(
                               '(${listing.deliveryFee} tokens)',
                               style: const TextStyle(
-                                color: AppColors.textTertiary,
+                                color: AppColors.buyTextTertiary,
                                 fontSize: 12,
                               ),
                             ),
@@ -244,14 +244,14 @@ class _MarketplaceListingDetailScreenState
                           children: [
                             const Icon(
                               Icons.location_on_outlined,
-                              color: AppColors.textSecondary,
+                              color: AppColors.buyTextSecondary,
                               size: 16,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               listing.location!,
                               style: const TextStyle(
-                                color: AppColors.textSecondary,
+                                color: AppColors.buyTextSecondary,
                                 fontSize: 13,
                               ),
                             ),
@@ -273,9 +273,9 @@ class _MarketplaceListingDetailScreenState
           return Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: const BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               border: Border(
-                top: BorderSide(color: AppColors.border, width: 0.5),
+                top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
               ),
             ),
             child: SafeArea(
@@ -338,10 +338,10 @@ class _MarketplaceListingDetailScreenState
       return AspectRatio(
         aspectRatio: 1.2,
         child: Container(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           child: const Icon(
             Icons.storefront_outlined,
-            color: AppColors.textHint,
+            color: AppColors.buyTextTertiary,
             size: 64,
           ),
         ),
@@ -356,15 +356,15 @@ class _MarketplaceListingDetailScreenState
           imageUrl: images[index],
           fit: BoxFit.cover,
           placeholder: (_, _) => Shimmer.fromColors(
-            baseColor: AppColors.surface,
-            highlightColor: AppColors.surfaceElevated,
-            child: Container(color: AppColors.surface),
+            baseColor: AppColors.buyCard,
+            highlightColor: AppColors.buyCard,
+            child: Container(color: AppColors.buyCard),
           ),
           errorWidget: (_, _, _) => Container(
-            color: AppColors.surfaceElevated,
+            color: AppColors.buyCard,
             child: const Icon(
               Icons.image_not_supported_outlined,
-              color: AppColors.textHint,
+              color: AppColors.buyTextTertiary,
             ),
           ),
         ),
@@ -380,15 +380,15 @@ class _MarketplaceListingDetailScreenState
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: AppColors.buyCardBorder, width: 0.5),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor: AppColors.surface,
+              backgroundColor: AppColors.buyCard,
               backgroundImage: listing.providerPhotoUrl != null
                   ? CachedNetworkImageProvider(listing.providerPhotoUrl!)
                   : null,
@@ -398,7 +398,7 @@ class _MarketplaceListingDetailScreenState
                           ? listing.providerName[0].toUpperCase()
                           : '?',
                       style: const TextStyle(
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     )
@@ -412,7 +412,7 @@ class _MarketplaceListingDetailScreenState
                   Text(
                     listing.providerName,
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -429,7 +429,7 @@ class _MarketplaceListingDetailScreenState
             ),
             const Icon(
               Icons.chevron_right,
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
             ),
           ],
         ),
@@ -439,21 +439,21 @@ class _MarketplaceListingDetailScreenState
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceElevated,
+      baseColor: AppColors.buyCard,
+      highlightColor: AppColors.buyCard,
       child: Column(
         children: [
-          Container(height: 300, color: AppColors.surface),
+          Container(height: 300, color: AppColors.buyCard),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(height: 24, width: 200, color: AppColors.surface),
+                Container(height: 24, width: 200, color: AppColors.buyCard),
                 const SizedBox(height: 12),
-                Container(height: 16, width: 100, color: AppColors.surface),
+                Container(height: 16, width: 100, color: AppColors.buyCard),
                 const SizedBox(height: 16),
-                Container(height: 60, color: AppColors.surface),
+                Container(height: 60, color: AppColors.buyCard),
               ],
             ),
           ),
@@ -468,7 +468,7 @@ class _MarketplaceListingDetailScreenState
 
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: AppColors.surfaceElevated,
+      backgroundColor: AppColors.buyCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -481,7 +481,7 @@ class _MarketplaceListingDetailScreenState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: AppColors.buyCardBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -493,7 +493,7 @@ class _MarketplaceListingDetailScreenState
               ),
               title: const Text(
                 'Share to Chat',
-                style: TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.buyTextPrimary),
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -505,11 +505,11 @@ class _MarketplaceListingDetailScreenState
             ListTile(
               leading: const Icon(
                 Icons.copy,
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
               ),
               title: const Text(
                 'Copy Link',
-                style: TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.buyTextPrimary),
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -522,7 +522,7 @@ class _MarketplaceListingDetailScreenState
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Link copied!'),
-                    backgroundColor: AppColors.success,
+                    backgroundColor: AppColors.buySuccess,
                   ),
                 );
               },
@@ -556,14 +556,14 @@ class _MarketplaceListingDetailScreenState
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.buyCard,
         title: const Text(
           'Confirm Purchase',
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.buyTextPrimary),
         ),
         content: Text(
           'Buy "${listing.title}" for R$priceZar (${listing.priceTokens} tokens)?',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: const TextStyle(color: AppColors.buyTextSecondary, fontSize: 14),
         ),
         actions: [
           TextButton(

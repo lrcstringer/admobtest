@@ -28,7 +28,7 @@ class TrustBadge extends StatelessWidget {
         children: [
           Icon(
             Icons.verified,
-            color: AppColors.success,
+            color: AppColors.buySuccess,
             size: _iconSize,
           ),
           if (size != TrustBadgeSize.small) ...[
@@ -36,7 +36,7 @@ class TrustBadge extends StatelessWidget {
             Text(
               'Verified',
               style: TextStyle(
-                color: AppColors.success,
+                color: AppColors.buySuccess,
                 fontSize: _fontSize,
                 fontWeight: FontWeight.w600,
               ),
@@ -64,9 +64,9 @@ class TrustBadge extends StatelessWidget {
   }
 
   Color get _scoreColor {
-    if (score < 2.0) return AppColors.error;
-    if (score < 3.5) return AppColors.warning;
-    return AppColors.success;
+    if (score < 2.0) return AppColors.buyError;
+    if (score < 3.5) return AppColors.buyWarning;
+    return AppColors.buySuccess;
   }
 
   double get _iconSize {

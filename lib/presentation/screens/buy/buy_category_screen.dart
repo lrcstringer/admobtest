@@ -93,7 +93,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearError());
@@ -102,7 +102,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.successMessage!),
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.buySuccess,
             ),
           );
           context.read<PurchaseBloc>().add(const PurchaseEvent.clearSuccess());
@@ -205,10 +205,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.store_outlined, size: 48,
-                color: AppColors.textTertiary.withValues(alpha: 0.5)),
+                color: AppColors.buyTextTertiary.withValues(alpha: 0.5)),
             const SizedBox(height: 12),
             const Text('No providers available',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                style: TextStyle(color: AppColors.buyTextSecondary, fontSize: 14)),
             const SizedBox(height: 12),
             AppButton(
               text: 'Retry',
@@ -256,9 +256,9 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+          border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -289,7 +289,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: AppColors.buyTextPrimary,
                 ),
               ),
             ),
@@ -322,8 +322,8 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
 
   Widget _buildProviderShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
+      baseColor: AppColors.buyShimmerBase,
+      highlightColor: AppColors.buyShimmerHigh,
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -335,7 +335,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
         itemCount: 6,
         itemBuilder: (_, _) => Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.buyCard,
             borderRadius: BorderRadius.circular(16),
           ),
         ),
@@ -364,16 +364,16 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
               controller: _searchController,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+              style: const TextStyle(color: AppColors.buyTextPrimary, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Search products...',
-                hintStyle: const TextStyle(color: AppColors.textHint),
+                hintStyle: const TextStyle(color: AppColors.buyTextTertiary),
                 prefixIcon:
-                    const Icon(Icons.search, color: AppColors.textHint, size: 20),
+                    const Icon(Icons.search, color: AppColors.buyTextTertiary, size: 20),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear,
-                            color: AppColors.textHint, size: 18),
+                            color: AppColors.buyTextTertiary, size: 18),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
@@ -381,7 +381,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: AppColors.buyCard,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -410,7 +410,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                             ? 'No products available'
                             : 'No products match "$_searchQuery"',
                         style: const TextStyle(
-                            color: AppColors.textSecondary, fontSize: 14),
+                            color: AppColors.buyTextSecondary, fontSize: 14),
                       ),
                     )
                   : ListView.builder(
@@ -433,9 +433,9 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: AppColors.buyCard,
         border: Border(
-          bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.3)),
+          bottom: BorderSide(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
         ),
       ),
       child: Column(
@@ -446,7 +446,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -455,24 +455,24 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
               Expanded(
                 child: TextField(
                   controller: _recipientController,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: const TextStyle(color: AppColors.buyTextPrimary),
                   decoration: InputDecoration(
                     hintText: _getRecipientHint(
                         state.selectedProvider?.category),
                     hintStyle:
-                        const TextStyle(color: AppColors.textHint),
+                        const TextStyle(color: AppColors.buyTextTertiary),
                     suffixIcon: _buildRecipientSuffix(state),
                     filled: true,
-                    fillColor: AppColors.surface,
+                    fillColor: AppColors.buyCard,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                          color: AppColors.border.withValues(alpha: 0.5)),
+                          color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                          color: AppColors.border.withValues(alpha: 0.5)),
+                          color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -529,9 +529,9 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       number,
                       style: const TextStyle(fontSize: 12),
                     ),
-                    backgroundColor: AppColors.surface,
+                    backgroundColor: AppColors.buyCard,
                     side: BorderSide(
-                        color: AppColors.border.withValues(alpha: 0.5)),
+                        color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                     onPressed: () {
                       _recipientController.text = number;
                       context.read<PurchaseBloc>().add(
@@ -561,10 +561,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
       );
     }
     if (state.isRecipientValid == true) {
-      return const Icon(Icons.check_circle, color: AppColors.success);
+      return const Icon(Icons.check_circle, color: AppColors.buySuccess);
     }
     if (state.isRecipientValid == false) {
-      return const Icon(Icons.error, color: AppColors.error);
+      return const Icon(Icons.error, color: AppColors.buyError);
     }
     return null;
   }
@@ -594,10 +594,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: AppColors.buyCard,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border.withValues(alpha: 0.3),
+              color: isSelected ? AppColors.primary : AppColors.buyCardBorder.withValues(alpha: 0.3),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -612,7 +612,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                       ),
                     ),
                     if (product.description != null) ...[
@@ -620,7 +620,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       Text(
                         product.description!,
                         style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -630,7 +630,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       Text(
                         'Valid for ${product.validity}',
                         style: const TextStyle(
-                          color: AppColors.textTertiary,
+                          color: AppColors.buyTextTertiary,
                           fontSize: 12,
                         ),
                       ),
@@ -648,13 +648,13 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       fontSize: 17,
                       color: product.isActive
                           ? AppColors.tokenGold
-                          : AppColors.textTertiary,
+                          : AppColors.buyTextTertiary,
                     ),
                   ),
                   Text(
                     '${product.priceTokens} tokens',
                     style: const TextStyle(
-                      color: AppColors.textTertiary,
+                      color: AppColors.buyTextTertiary,
                       fontSize: 12,
                     ),
                   ),
@@ -664,13 +664,13 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
+                        color: AppColors.buyError.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         'Out of stock',
                         style: TextStyle(
-                          color: AppColors.error,
+                          color: AppColors.buyError,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
@@ -692,8 +692,8 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
 
   Widget _buildProductShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
+      baseColor: AppColors.buyShimmerBase,
+      highlightColor: AppColors.buyShimmerHigh,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
@@ -702,7 +702,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
           child: Container(
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),

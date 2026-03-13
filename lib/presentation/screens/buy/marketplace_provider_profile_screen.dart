@@ -40,7 +40,7 @@ class _MarketplaceProviderProfileScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Provider'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
         actions: [
           IconButton(
             icon: const Icon(Icons.flag_outlined),
@@ -61,7 +61,7 @@ class _MarketplaceProviderProfileScreenState
             return Center(
               child: Text(
                 state.errorMessage ?? 'Provider not found',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: const TextStyle(color: AppColors.buyTextSecondary),
               ),
             );
           }
@@ -73,12 +73,12 @@ class _MarketplaceProviderProfileScreenState
                 // Profile header
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  color: AppColors.surfaceElevated,
+                  color: AppColors.buyCard,
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 32,
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: AppColors.buyCard,
                         backgroundImage: provider.photoUrl != null
                             ? CachedNetworkImageProvider(provider.photoUrl!)
                             : null,
@@ -88,7 +88,7 @@ class _MarketplaceProviderProfileScreenState
                                     ? provider.displayName[0].toUpperCase()
                                     : '?',
                                 style: const TextStyle(
-                                  color: AppColors.textPrimary,
+                                  color: AppColors.buyTextPrimary,
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -103,7 +103,7 @@ class _MarketplaceProviderProfileScreenState
                             Text(
                               provider.displayName,
                               style: const TextStyle(
-                                color: AppColors.textPrimary,
+                                color: AppColors.buyTextPrimary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -156,7 +156,7 @@ class _MarketplaceProviderProfileScreenState
                         const Text(
                           'About',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -165,7 +165,7 @@ class _MarketplaceProviderProfileScreenState
                         Text(
                           provider.bio!,
                           style: const TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             fontSize: 14,
                             height: 1.5,
                           ),
@@ -189,7 +189,7 @@ class _MarketplaceProviderProfileScreenState
                         const Text(
                           'Services',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -198,7 +198,7 @@ class _MarketplaceProviderProfileScreenState
                         Text(
                           provider.servicesDescription!,
                           style: const TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             fontSize: 14,
                             height: 1.5,
                           ),
@@ -217,7 +217,7 @@ class _MarketplaceProviderProfileScreenState
                   child: const Text(
                     'Vouches',
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -235,9 +235,9 @@ class _MarketplaceProviderProfileScreenState
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: const BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.buyCard,
           border: Border(
-            top: BorderSide(color: AppColors.border, width: 0.5),
+            top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
           ),
         ),
         child: SafeArea(
@@ -271,7 +271,7 @@ class _MarketplaceProviderProfileScreenState
           Text(
             value,
             style: const TextStyle(
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -279,7 +279,7 @@ class _MarketplaceProviderProfileScreenState
           Text(
             label,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               fontSize: 11,
             ),
           ),
@@ -290,20 +290,20 @@ class _MarketplaceProviderProfileScreenState
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceElevated,
+      baseColor: AppColors.buyCard,
+      highlightColor: AppColors.buyCard,
       child: Column(
         children: [
-          Container(height: 100, color: AppColors.surface),
+          Container(height: 100, color: AppColors.buyCard),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(height: 20, width: 150, color: AppColors.surface),
+                Container(height: 20, width: 150, color: AppColors.buyCard),
                 const SizedBox(height: 12),
-                Container(height: 60, color: AppColors.surface),
+                Container(height: 60, color: AppColors.buyCard),
               ],
             ),
           ),

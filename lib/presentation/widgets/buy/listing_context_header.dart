@@ -27,10 +27,10 @@ class ListingContextHeader extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.sm),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           border: Border(
             bottom: BorderSide(
-              color: AppColors.border,
+              color: AppColors.buyCardBorder,
               width: 0.5,
             ),
           ),
@@ -63,7 +63,7 @@ class ListingContextHeader extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -84,7 +84,7 @@ class ListingContextHeader extends StatelessWidget {
 
             const Icon(
               Icons.chevron_right,
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               size: 20,
             ),
           ],
@@ -95,10 +95,10 @@ class ListingContextHeader extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      color: AppColors.surface,
+      color: AppColors.buyCard,
       child: const Icon(
         Icons.storefront_outlined,
-        color: AppColors.textHint,
+        color: AppColors.buyTextTertiary,
         size: 20,
       ),
     );

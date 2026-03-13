@@ -30,7 +30,7 @@ class MyRegularsDock extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -60,12 +60,12 @@ class MyRegularsDock extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: regular.isPinned
                 ? AppColors.gold.withValues(alpha: 0.4)
-                : AppColors.border.withValues(alpha: 0.5),
+                : AppColors.buyCardBorder.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -84,7 +84,7 @@ class MyRegularsDock extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
               ),
             ),
             if (regular.isPinned) ...[
@@ -105,7 +105,7 @@ class MyRegularsDock extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: AppColors.border,
+            color: AppColors.buyCardBorder,
             style: BorderStyle.solid,
             width: 1,
           ),
@@ -113,14 +113,14 @@ class MyRegularsDock extends StatelessWidget {
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.add, size: 16, color: AppColors.textTertiary),
+            Icon(Icons.add, size: 16, color: AppColors.buyTextTertiary),
             SizedBox(width: 4),
             Text(
               'Add',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textTertiary,
+                color: AppColors.buyTextTertiary,
               ),
             ),
           ],
@@ -146,7 +146,7 @@ class MyRegularsEmptyDock extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -154,10 +154,10 @@ class MyRegularsEmptyDock extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.3),
+                color: AppColors.buyCardBorder.withValues(alpha: 0.3),
               ),
             ),
             child: const Text(
@@ -165,7 +165,7 @@ class MyRegularsEmptyDock extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textTertiary,
+                color: AppColors.buyTextTertiary,
               ),
             ),
           ),

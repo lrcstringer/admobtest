@@ -30,7 +30,7 @@ class BuySuccessScreen extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.check_circle,
-                      color: AppColors.success,
+                      color: AppColors.buySuccess,
                       size: 80,
                     ),
                     const SizedBox(height: 24),
@@ -66,12 +66,12 @@ class BuySuccessScreen extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: AppColors.buySuccess.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.check_circle,
-                    color: AppColors.success,
+                    color: AppColors.buySuccess,
                     size: 60,
                   ),
                 ),
@@ -89,7 +89,7 @@ class BuySuccessScreen extends StatelessWidget {
                 Text(
                   'Your ${purchase.categoryDisplayName.toLowerCase()} purchase has been completed.',
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: AppColors.buyTextSecondary,
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.center,
@@ -204,7 +204,7 @@ class BuySuccessScreen extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors.buyTextSecondary,
             fontSize: 14,
           ),
         ),
@@ -277,7 +277,7 @@ class BuySuccessScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 16,
-                        color: AppColors.textTertiary,
+                        color: AppColors.buyTextTertiary,
                       ),
                     ),
                   ],

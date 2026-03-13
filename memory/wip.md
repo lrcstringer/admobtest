@@ -1,49 +1,31 @@
-# WIP: Chat Tab UI/UX Overhaul — 34 Items — COMPLETE
+# WIP: Buy Tab Light Theme Migration + Fixes
 
-## What we built
-Complete UI/UX overhaul of the Chat tab messaging screens — 22 items from the initial audit (5 phases) + 12 additional polish items across 3 rounds of refinement.
+## What we did
+Complete visual overhaul of the Buy tab to match the light commerce theme spec from `buy_tab_complete.md`.
 
-## Status: ALL 34 ITEMS COMPLETE
+## Status: COMPLETE
 
-### Initial Audit — 22 Items (5 Phases) ✓
-See session-log.md for details.
+### Changes made
+1. **Full color token migration** — ~68 Buy tab files migrated from dark tokens to Buy light tokens (`buyBackground`, `buyCard`, `buyTextPrimary`, etc.)
+2. **buy_services_screen.dart rewritten** — Removed My Regulars, gradient background, old marketplace/group buy cards. Added Option B marketplace card (white + cyan accent), white group buys card (green accent), 1px layer dividers, green cluster opt-in
+3. **buy_category_tile.dart updated** — Dense chip spec: 8px radius, 11px/w600 label, 18px icon, compact padding (5,4,8,4), 6px gaps
+4. **buy_category_grid.dart updated** — 6px spacing/runSpacing
+5. **buy_layer_divider.dart updated** — 1px line + 16px vertical padding (not 8px solid block)
+6. **Featured Items filter fix** — `_filterFeaturedByCommunity()` now shows ALL items when user has no clusters (was incorrectly hiding community-targeted items)
+7. **HTML mockup created** — `docs/buy_screen_mockup.html` showing pixel-accurate rendering
 
-### Round 1 — Refinement Opportunities (4 items) ✓
-- Double-tap-to-react uses quick ❤️ toggle instead of context menu
-- "+" reaction button wired to full emoji picker dialog (32 emojis)
-- Wallpaper selection wired to ChatBackground with state
-- All showModalBottomSheet replaced with showIMaliBottomSheet
+### Key decisions
+- AppBar stays dark (spec requirement) — icons/text on AppBar use `AppColors.textPrimary` (white), NOT `buyTextPrimary`
+- Featured Items: users with no clusters see all items; users with clusters see global + matching community items
 
-### Round 2 — Wow-Factor Features (5 items) ✓
-- Reaction pop animation (TweenAnimationBuilder + elasticOut)
-- Bubble press-and-hold scale (AnimatedScale 0.97x)
-- Send button morph animation (AnimatedSwitcher + RotationTransition)
-- Floating sticky date header (scroll-driven, auto-hide with Timer)
-- Unread message divider (captured on first build before markAsRead)
+### Files modified
+- `lib/presentation/screens/buy/buy_services_screen.dart` (major rewrite)
+- `lib/presentation/widgets/buy/buy_category_tile.dart` (dense chip spec)
+- `lib/presentation/widgets/buy/buy_category_grid.dart` (6px spacing)
+- `lib/presentation/widgets/buy/buy_layer_divider.dart` (1px line)
+- ~64 other Buy tab screen/widget files (token migration)
+- `docs/buy_screen_mockup.html` (new)
 
-### Round 3 — Micro-Polish (3 items) ✓
-- Swipe-to-reply haptic feedback (one-shot flag pattern)
-- Tap reply-context scroll-to-message with highlight (AnimatedContainer)
-- Image loading shimmer placeholders (shimmer package)
-
-### Skipped (by design)
-- AppBar typing subtitle — decided against because AppBar is not Chat-specific, would create coupling
-
-## Key Decision
-AppBar typing subtitle skipped: the AppBar is a general-purpose component shared across conversation types. Typing indicators stay in the message list area (TypingIndicator widget) where they belong.
-
-## Files Modified (cumulative)
-- `lib/presentation/widgets/messaging/message_bubble.dart`
-- `lib/presentation/screens/messaging/conversation_detail_screen.dart`
-- `lib/presentation/widgets/messaging/message_input_bar.dart`
-- `lib/presentation/widgets/messaging/message_context_menu.dart`
-- `lib/presentation/screens/messaging/messaging_screen.dart`
-- `lib/presentation/widgets/messaging/reaction_picker.dart`
-- `lib/presentation/widgets/messaging/voice_player_widget.dart`
-- `lib/presentation/widgets/messaging/chat_background.dart`
-- `lib/presentation/widgets/messaging/conversation_list_tile.dart`
-- `lib/presentation/widgets/messaging/token_actions_sheet.dart`
-- `lib/presentation/widgets/messaging/typing_indicator.dart`
-- `lib/presentation/widgets/messaging/date_separator.dart`
-- `lib/presentation/theme/app_colors.dart`
-- And others (see session-log for full list)
+### Not yet done
+- No commit made (user hasn't asked)
+- Audit plan batches 1-7 not started (separate from visual overhaul)

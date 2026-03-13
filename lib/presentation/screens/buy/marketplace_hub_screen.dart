@@ -62,13 +62,13 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
         children: [
           // Category tabs
           Container(
-            color: AppColors.surface,
+            color: AppColors.buyCard,
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary,
+              unselectedLabelColor: AppColors.buyTextSecondary,
               indicatorColor: AppColors.primary,
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: const TextStyle(
@@ -184,11 +184,11 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
 
   Widget _buildShimmerCard() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceElevated,
+      baseColor: AppColors.buyCard,
+      highlightColor: AppColors.buyCard,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
         ),
       ),
@@ -202,11 +202,11 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const Icon(Icons.error_outline, color: AppColors.buyError, size: 48),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: const TextStyle(color: AppColors.buyTextSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -231,7 +231,7 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
           children: [
             Icon(
               isSearching ? Icons.search_off : Icons.storefront_outlined,
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               size: 48,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -239,7 +239,7 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
               isSearching
                   ? 'No listings match your search'
                   : 'No listings yet in this category',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: const TextStyle(color: AppColors.buyTextSecondary),
               textAlign: TextAlign.center,
             ),
           ],

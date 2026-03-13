@@ -56,7 +56,7 @@ class _BuyQrScannerState extends State<BuyQrScanner> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.buyCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -67,7 +67,7 @@ class _BuyQrScannerState extends State<BuyQrScanner> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.textTertiary,
+              color: AppColors.buyTextTertiary,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -77,13 +77,13 @@ class _BuyQrScannerState extends State<BuyQrScanner> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           const SizedBox(height: 4),
           const Text(
             'Point your camera at the meter or utility bill',
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: AppColors.buyTextSecondary),
           ),
           const SizedBox(height: 16),
           // Camera view
@@ -108,7 +108,7 @@ class _BuyQrScannerState extends State<BuyQrScanner> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+              style: TextStyle(color: AppColors.buyTextSecondary, fontSize: 15),
             ),
           ),
           const SizedBox(height: 16),

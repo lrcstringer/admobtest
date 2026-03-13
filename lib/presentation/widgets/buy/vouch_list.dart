@@ -20,7 +20,7 @@ class VouchList extends StatelessWidget {
         child: Center(
           child: Text(
             'No vouches yet',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style: TextStyle(color: AppColors.buyTextSecondary, fontSize: 13),
           ),
         ),
       );
@@ -31,7 +31,7 @@ class VouchList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: vouches.length,
       separatorBuilder: (_, _) => const Divider(
-        color: AppColors.border,
+        color: AppColors.buyCardBorder,
         height: 1,
       ),
       itemBuilder: (_, index) => _VouchCard(vouch: vouches[index]),
@@ -57,7 +57,7 @@ class _VouchCard extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 16,
-            backgroundColor: AppColors.surfaceElevated,
+            backgroundColor: AppColors.buyCard,
             backgroundImage: vouch.voucherPhotoUrl != null
                 ? CachedNetworkImageProvider(vouch.voucherPhotoUrl!)
                 : null,
@@ -67,7 +67,7 @@ class _VouchCard extends StatelessWidget {
                         ? vouch.voucherName[0].toUpperCase()
                         : '?',
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -87,7 +87,7 @@ class _VouchCard extends StatelessWidget {
                       child: Text(
                         vouch.voucherName,
                         style: const TextStyle(
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -102,8 +102,8 @@ class _VouchCard extends StatelessWidget {
                         i < vouch.rating ? Icons.star_rounded : Icons.star_outline_rounded,
                         size: 14,
                         color: i < vouch.rating
-                            ? AppColors.warning
-                            : AppColors.textTertiary,
+                            ? AppColors.buyWarning
+                            : AppColors.buyTextTertiary,
                       ),
                     ),
                   ],
@@ -113,7 +113,7 @@ class _VouchCard extends StatelessWidget {
                   Text(
                     vouch.comment!,
                     style: const TextStyle(
-                      color: AppColors.textSecondary,
+                      color: AppColors.buyTextSecondary,
                       fontSize: 12,
                     ),
                     maxLines: 3,
@@ -124,7 +124,7 @@ class _VouchCard extends StatelessWidget {
                 Text(
                   DateFormat.yMMMd().format(vouch.createdAt),
                   style: const TextStyle(
-                    color: AppColors.textTertiary,
+                    color: AppColors.buyTextTertiary,
                     fontSize: 10,
                   ),
                 ),

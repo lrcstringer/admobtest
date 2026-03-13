@@ -51,7 +51,7 @@ class TrendingStrip extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
               ),
             ),
           ),
@@ -66,10 +66,10 @@ class TrendingStrip extends StatelessWidget {
       child: Container(
         width: 110,
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.border.withValues(alpha: 0.5),
+            color: AppColors.buyCardBorder.withValues(alpha: 0.5),
           ),
         ),
         child: Column(
@@ -87,19 +87,19 @@ class TrendingStrip extends StatelessWidget {
                         imageUrl: item.imageUrl!,
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
-                          color: AppColors.surface,
+                          color: AppColors.buyCard,
                         ),
                         errorWidget: (_, _, _) => Container(
-                          color: AppColors.surface,
+                          color: AppColors.buyCard,
                           child: const Icon(
                             Icons.image,
-                            color: AppColors.textTertiary,
+                            color: AppColors.buyTextTertiary,
                             size: 24,
                           ),
                         ),
                       )
                     : Container(
-                        color: AppColors.surface,
+                        color: AppColors.buyCard,
                         child: const Icon(
                           Icons.local_fire_department,
                           color: AppColors.tertiary,
@@ -121,7 +121,7 @@ class TrendingStrip extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -132,7 +132,7 @@ class TrendingStrip extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 10,
-                        color: AppColors.textTertiary,
+                        color: AppColors.buyTextTertiary,
                       ),
                     ),
                 ],
@@ -184,7 +184,7 @@ class _PulsingDotState extends State<_PulsingDot>
         width: 8,
         height: 8,
         decoration: const BoxDecoration(
-          color: AppColors.error,
+          color: AppColors.buyError,
           shape: BoxShape.circle,
         ),
       ),

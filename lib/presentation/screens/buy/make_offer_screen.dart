@@ -77,7 +77,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
               content: Text(
                 'Offer of R${_amountController.text} submitted for ${widget.listingTitle}',
               ),
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.buySuccess,
             ),
           );
           context.pop();
@@ -93,7 +93,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
       child: Scaffold(
       appBar: AppBar(
         title: const Text('Make an Offer'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -106,9 +106,9 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: AppColors.buyCard,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border, width: 0.5),
+                  border: Border.all(color: AppColors.buyCardBorder, width: 0.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +116,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                     Text(
                       widget.listingTitle,
                       style: const TextStyle(
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -125,7 +125,7 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                     Text(
                       'Listed price: R${_priceZar.toStringAsFixed(2)}',
                       style: const TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -139,20 +139,20 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 controller: _amountController,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: const TextStyle(color: AppColors.buyTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Your offer (ZAR)',
                   prefixText: 'R',
                   hintText: '0.00',
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: AppColors.buyCard,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
@@ -178,19 +178,19 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 controller: _messageController,
                 maxLines: 3,
                 maxLength: 500,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: const TextStyle(color: AppColors.buyTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Message to seller (optional)',
                   hintText: 'Explain your offer...',
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: AppColors.buyCard,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),

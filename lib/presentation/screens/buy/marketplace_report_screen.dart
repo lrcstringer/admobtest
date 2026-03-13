@@ -49,7 +49,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Report ${isListing ? 'Listing' : 'Seller'}'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listener: (context, state) {
@@ -57,7 +57,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.reportSuccessMessage!),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.buySuccess,
               ),
             );
             context
@@ -69,7 +69,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
           }
@@ -87,7 +87,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                         'Why are you reporting this '
                         '${isListing ? 'listing' : 'seller'}?',
                         style: const TextStyle(
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -96,7 +96,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                       const Text(
                         'Your report helps keep the marketplace safe',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -116,12 +116,12 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                   color: _selectedReason == reason
                                       ? AppColors.primary
                                           .withValues(alpha: 0.1)
-                                      : AppColors.surfaceElevated,
+                                      : AppColors.buyCard,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: _selectedReason == reason
                                         ? AppColors.primary
-                                        : AppColors.border,
+                                        : AppColors.buyCardBorder,
                                     width: _selectedReason == reason
                                         ? 1.5
                                         : 0.5,
@@ -135,7 +135,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                           : Icons.radio_button_unchecked,
                                       color: _selectedReason == reason
                                           ? AppColors.primary
-                                          : AppColors.textSecondary,
+                                          : AppColors.buyTextSecondary,
                                       size: 20,
                                     ),
                                     const SizedBox(width: AppSpacing.sm),
@@ -144,7 +144,7 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                                       style: TextStyle(
                                         color: _selectedReason == reason
                                             ? AppColors.primary
-                                            : AppColors.textPrimary,
+                                            : AppColors.buyTextPrimary,
                                         fontSize: 14,
                                       ),
                                     ),
@@ -174,9 +174,9 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: const BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.buyCard,
                   border: Border(
-                    top: BorderSide(color: AppColors.border, width: 0.5),
+                    top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
                   ),
                 ),
                 child: SafeArea(

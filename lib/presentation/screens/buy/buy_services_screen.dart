@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/buy_category.dart';
-import '../../../domain/entities/buy_regular.dart';
 import '../../../domain/entities/featured_item.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/buy_tab/buy_tab_bloc.dart';
@@ -14,13 +13,10 @@ import '../../theme/app_colors.dart';
 import '../../widgets/buy/cluster_picker_sheet.dart';
 import '../../widgets/buy/brand_partners_strip.dart';
 import '../../widgets/buy/buy_category_grid.dart';
-import '../../widgets/buy/buy_layer_divider.dart';
 import '../../widgets/buy/buy_offline_banner.dart';
 import '../../widgets/buy/buy_section_header.dart';
 import '../../widgets/buy/featured_carousel.dart';
-import '../../widgets/buy/my_regulars_dock.dart';
 import '../../widgets/common/app_button.dart';
-import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
 class BuyServicesScreen extends StatefulWidget {
@@ -32,7 +28,6 @@ class BuyServicesScreen extends StatefulWidget {
 
 class _BuyServicesScreenState extends State<BuyServicesScreen> {
   final _scrollController = ScrollController();
-  final _utilitiesGridKey = GlobalKey();
 
   @override
   void initState() {
@@ -49,6 +44,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: 'Buy',
         extraActions: [
@@ -59,92 +55,75 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: const [0.0, 0.35, 1.0],
-            colors: [
-              AppColors.goldGradient[0].withValues(alpha: 0.25),
-              AppColors.background,
-              AppColors.background,
-            ],
-          ),
-        ),
-        child: BlocConsumer<BuyTabBloc, BuyTabState>(
-          listener: (context, state) {
-            if (state.errorMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage!),
-                  backgroundColor: AppColors.error,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                final bloc = context.read<BuyTabBloc>();
-                bloc.add(const BuyTabEvent.refreshBuyTab());
-                await bloc.stream
-                    .firstWhere((s) => !s.isRefreshing)
-                    .timeout(
-                      const Duration(seconds: 10),
-                      onTimeout: () => bloc.state,
-                    );
-              },
-              color: AppColors.primary,
-              child: CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  // Offline banner
-                  if (state.isOffline)
-                    SliverToBoxAdapter(
-                      child:
-                          BuyOfflineBanner(lastSyncedAt: state.lastSyncedAt),
-                    ),
-
-                  // ── Layer 1: Featured ──
-                  _buildLayer1(state),
-
-                  const SliverToBoxAdapter(child: BuyLayerDivider()),
-
-                  // ── Layer 2: Utilities Hub ──
-                  _buildMyRegulars(state),
-
-                  SliverToBoxAdapter(
-                    child: BuySectionHeader(
-                      key: _utilitiesGridKey,
-                      title: 'Utilities',
-                    ),
-                  ),
-
-                  SliverToBoxAdapter(
-                    child: _buildCategorySection(state),
-                  ),
-
-                  const SliverToBoxAdapter(child: BuyLayerDivider()),
-
-                  // ── Layer 3: Intengiso Marketplace ──
-                  SliverToBoxAdapter(
-                    child: _buildMarketplaceEntry(state),
-                  ),
-
-                  const SliverToBoxAdapter(child: BuyLayerDivider()),
-
-                  // ── Layer 4: Hlangana Group Buys ──
-                  SliverToBoxAdapter(
-                    child: _buildGroupBuysHub(),
-                  ),
-
-                  const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
-                ],
+      body: BlocConsumer<BuyTabBloc, BuyTabState>(
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColors.buyError,
               ),
             );
-          },
-        ),
+          }
+        },
+        builder: (context, state) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              final bloc = context.read<BuyTabBloc>();
+              bloc.add(const BuyTabEvent.refreshBuyTab());
+              await bloc.stream
+                  .firstWhere((s) => !s.isRefreshing)
+                  .timeout(
+                    const Duration(seconds: 10),
+                    onTimeout: () => bloc.state,
+                  );
+            },
+            color: AppColors.primary,
+            backgroundColor: AppColors.buyCard,
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                // Offline banner
+                if (state.isOffline)
+                  SliverToBoxAdapter(
+                    child:
+                        BuyOfflineBanner(lastSyncedAt: state.lastSyncedAt),
+                  ),
+
+                // ── Layer 1: Featured + Brand Partners ──
+                _buildLayer1(state),
+
+                // Layer divider: 1px line + 16px padding
+                const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                // ── Layer 2: Utilities ──
+                SliverToBoxAdapter(
+                  child: BuySectionHeader(title: 'Utilities'),
+                ),
+
+                SliverToBoxAdapter(
+                  child: _buildCategorySection(state),
+                ),
+
+                const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                // ── Layer 3: Marketplace + Group Buys ──
+                SliverToBoxAdapter(
+                  child: _buildMarketplaceEntry(),
+                ),
+
+                const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                // ── Layer 4: Hlangana Group Buys ──
+                SliverToBoxAdapter(
+                  child: _buildGroupBuysHub(),
+                ),
+
+                const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -182,16 +161,16 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                 child: Container(
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
+                    color: AppColors.buyCard,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: AppColors.border.withValues(alpha: 0.3)),
+                        color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
                   ),
                   child: const Center(
                     child: Text(
                       'No featured items for your community',
                       style: TextStyle(
-                        color: AppColors.textTertiary,
+                        color: AppColors.buyTextTertiary,
                         fontSize: 13,
                       ),
                     ),
@@ -221,11 +200,12 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     final userClusters =
         context.read<AuthBloc>().state.user?.profile?.selectedClusters ?? [];
     if (userClusters.isEmpty) {
-      // No clusters selected — show only global items
-      return items.where((i) => i.communityIds.isEmpty).toList();
+      // No clusters selected → show global items (empty communityIds)
+      // plus all community-targeted items (user hasn't opted into filtering)
+      return items;
     }
     return items.where((i) {
-      if (i.communityIds.isEmpty) return true; // global
+      if (i.communityIds.isEmpty) return true;
       return i.communityIds.any((c) => userClusters.contains(c));
     }).toList();
   }
@@ -244,7 +224,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Could not open link'),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
           }
@@ -259,153 +239,16 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Shimmer.fromColors(
-        baseColor: AppColors.shimmerBase,
-        highlightColor: AppColors.shimmerHighlight,
+        baseColor: AppColors.buyShimmerBase,
+        highlightColor: AppColors.buyShimmerHigh,
         child: Container(
           height: 160,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.buyCard,
             borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
-    );
-  }
-
-  // ─── Layer 2: My Regulars ────────────────────────────────
-
-  Widget _buildMyRegulars(BuyTabState state) {
-    if (state.regulars.isEmpty) {
-      return const SliverToBoxAdapter(child: MyRegularsEmptyDock());
-    }
-
-    return SliverToBoxAdapter(
-      child: MyRegularsDock(
-        regulars: state.regulars,
-        onRegularTap: (regular) {
-          // Quick-buy: navigate to category with pre-filled data
-          final routeId =
-              regular.purchaseCategoryMapping ?? regular.providerId;
-          context.go(
-            '/buy/category/$routeId',
-            extra: {
-              'name': regular.providerName,
-              'emoji': regular.categoryEmoji ?? '📦',
-              'quickBuyProviderId': regular.providerId,
-              'quickBuyProductId': regular.productId,
-              'quickBuyRecipient': regular.recipientNumber,
-            },
-          );
-        },
-        onRegularLongPress: (regular) => _showRegularOptionsSheet(regular),
-        onAddTap: _scrollToUtilitiesGrid,
-      ),
-    );
-  }
-
-  void _scrollToUtilitiesGrid() {
-    final keyContext = _utilitiesGridKey.currentContext;
-    if (keyContext != null) {
-      Scrollable.ensureVisible(
-        keyContext,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _showRegularOptionsSheet(BuyRegular regular) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.surfaceElevated,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Text(
-                  regular.providerName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  regular.isPinned
-                      ? Icons.push_pin_outlined
-                      : Icons.push_pin,
-                  color: AppColors.primary,
-                ),
-                title: Text(
-                  regular.isPinned ? 'Unpin from top' : 'Pin to top',
-                  style: const TextStyle(color: AppColors.textPrimary),
-                ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  context.read<BuyTabBloc>().add(
-                        BuyTabEvent.toggleRegularPin(
-                          regularId: regular.id,
-                          isPinned: !regular.isPinned,
-                        ),
-                      );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        regular.isPinned
-                            ? '${regular.providerName} unpinned'
-                            : '${regular.providerName} pinned to top',
-                      ),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading:
-                    const Icon(Icons.delete_outline, color: AppColors.error),
-                title: const Text(
-                  'Remove from regulars',
-                  style: TextStyle(color: AppColors.error),
-                ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  context.read<BuyTabBloc>().add(
-                        BuyTabEvent.deleteRegular(
-                          regularId: regular.id,
-                        ),
-                      );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content:
-                          Text('${regular.providerName} removed from regulars'),
-                      backgroundColor: AppColors.textSecondary,
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -433,7 +276,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   void _onCategoryTap(BuyCategory category) {
     if (category.isComingSoon) return;
 
-    // VAS categories → existing provider flow
+    // All categories go to BuyCategoryScreen via purchaseCategoryMapping
     if (category.purchaseCategoryMapping != null &&
         category.purchaseCategoryMapping!.isNotEmpty) {
       context.go(
@@ -443,14 +286,10 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
       return;
     }
 
-    // Marketplace categories → subcategory list
+    // Fallback for categories without mapping
     context.go(
-      '/buy/subcategories/${category.id}',
-      extra: {
-        'name': category.name,
-        'emoji': category.iconEmoji,
-        'subcategories': category.subcategories,
-      },
+      '/buy/category/${category.id}',
+      extra: {'name': category.name, 'emoji': category.iconEmoji},
     );
   }
 
@@ -458,20 +297,19 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Shimmer.fromColors(
-        baseColor: AppColors.shimmerBase,
-        highlightColor: AppColors.shimmerHighlight,
+        baseColor: AppColors.buyShimmerBase,
+        highlightColor: AppColors.buyShimmerHigh,
         child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: List.generate(8, (i) {
-            // Vary widths to look natural
-            final widths = [80.0, 100.0, 90.0, 110.0, 85.0, 95.0, 105.0, 75.0];
+          spacing: 6,
+          runSpacing: 6,
+          children: List.generate(10, (i) {
+            final widths = [72.0, 64.0, 58.0, 78.0, 66.0, 82.0, 70.0, 60.0, 74.0, 68.0];
             return Container(
               width: widths[i],
-              height: 36,
+              height: 28,
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.buyCard,
+                borderRadius: BorderRadius.circular(8),
               ),
             );
           }),
@@ -483,163 +321,184 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   Widget _buildErrorState(String message) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: BrandCard(
-        gradient: BrandGradient.none,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const Icon(Icons.error_outline, color: AppColors.error, size: 40),
-              const SizedBox(height: 12),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.buyCard,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.buyCardBorder),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.buyShadow,
+              blurRadius: 4,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline,
+                color: AppColors.buyError, size: 40),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.buyTextSecondary,
               ),
-              const SizedBox(height: 16),
-              AppButton(
-                text: 'Retry',
-                onPressed: () => context
-                    .read<BuyTabBloc>()
-                    .add(const BuyTabEvent.refreshBuyTab()),
-                variant: AppButtonVariant.outline,
-                size: AppButtonSize.small,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              text: 'Retry',
+              onPressed: () => context
+                  .read<BuyTabBloc>()
+                  .add(const BuyTabEvent.refreshBuyTab()),
+              variant: AppButtonVariant.outline,
+              size: AppButtonSize.small,
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // ─── Layer 3: Marketplace Entry ─────────────────────────
+  // ─── Layer 3: Marketplace Entry (Option B — Elevated Hero) ───
 
-  Widget _buildMarketplaceEntry(BuyTabState state) {
-    final hasThumbnails = state.trendingThumbnails.isNotEmpty;
-    final hasStats =
-        state.marketplaceListingCount > 0 || state.marketplaceSellerCount > 0;
-
+  Widget _buildMarketplaceEntry() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: GestureDetector(
         onTap: () => context.go('/buy/marketplace'),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: AppColors.secondaryGradient,
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                AppColors.buyMarketplaceAccent.withValues(alpha: 0.06),
+                AppColors.buyCard,
+              ],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.buyCardBorder),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+              const BoxShadow(
+                color: AppColors.buyShadow,
+                blurRadius: 4,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: IntrinsicHeight(
+            child: Row(
               children: [
-                // Thumbnails row
-                if (hasThumbnails)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: SizedBox(
-                      height: 56,
-                      child: Row(
-                        children: state.trendingThumbnails
-                            .take(3)
-                            .toList()
-                            .asMap()
-                            .entries
-                            .map((entry) {
-                          return Transform.translate(
-                            offset: Offset(-8.0 * entry.key, 0),
-                            child: Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 2,
-                                ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  entry.value,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => Container(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.15),
-                                    child: const Icon(Icons.image,
-                                        color: Colors.white54, size: 20),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                // Title + subtitle
-                const Text(
-                  'Intengiso Marketplace',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Buy & sell in your community \u2014 with trust',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white70,
-                  ),
-                ),
-                // Stats pills
-                if (hasStats)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Row(
-                      children: [
-                        if (state.marketplaceListingCount > 0)
-                          _buildStatPill(
-                            '${state.marketplaceListingCount} listings',
-                            Icons.storefront_rounded,
-                          ),
-                        if (state.marketplaceListingCount > 0 &&
-                            state.marketplaceSellerCount > 0)
-                          const SizedBox(width: 8),
-                        if (state.marketplaceSellerCount > 0)
-                          _buildStatPill(
-                            '${state.marketplaceSellerCount} sellers',
-                            Icons.people_rounded,
-                          ),
+                // Left accent bar (gold → amber gradient)
+                Container(
+                  width: 4,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.buyMarketplaceAccent,
+                        AppColors.buyMarketplaceAccentDark,
                       ],
                     ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
+                    ),
                   ),
-                // CTA button
-                const SizedBox(height: 14),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Explore Marketplace',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0974FF),
-                      ),
+                ),
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Marketplace logo
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.asset(
+                                'assets/images/intengisomarketplace.png',
+                                width: 112,
+                                height: 112,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Intengiso',
+                                    style: TextStyle(
+                                      fontSize: 21,
+                                      fontWeight: FontWeight.w800,
+                                      fontFeatures: const [
+                                        FontFeature.enable('smcp'),
+                                      ],
+                                      letterSpacing: 0.5,
+                                      color: AppColors.buyTextPrimary,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Marketplace',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.buyTextPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  const Text(
+                                    'Buy & sell in your community \u2014 with trust',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.buyTextSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        // Full-width CTA button (gold → amber gradient)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.buyMarketplaceAccent,
+                                AppColors.buyMarketplaceAccentDark,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Explore Marketplace \u2192',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -647,31 +506,6 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatPill(String text, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -689,79 +523,123 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           // Show opt-in prompt if no clusters selected
           if (!hasClusters) _buildClusterOptIn(),
 
-          // Always show the group buys card
+          // Group buys card — white with green accent
           GestureDetector(
             onTap: () => context.go('/buy/group-buys'),
             child: Container(
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF6C3FC5), Color(0xFF9B59B6)],
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    AppColors.buyGroupBuyAccent.withValues(alpha: 0.02),
+                    AppColors.buyCard,
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.buyCardBorder),
+                boxShadow: const [
+                  BoxShadow(
+                    color: AppColors.buyShadow,
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              child: IntrinsicHeight(
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child:
-                                Text('\u{1F91D}', style: TextStyle(fontSize: 22)),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hlangana Group Buys',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Pool tokens together for bigger discounts',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
+                    // Left accent bar (green)
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                      width: 4,
+                      decoration: const BoxDecoration(
+                        color: AppColors.buyGroupBuyAccent,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          bottomLeft: Radius.circular(14),
+                        ),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'Browse Deals',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF6C3FC5),
-                          ),
+                    ),
+                    // Content
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                // Group Buys logo
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    'assets/images/hlanganibuyergroup.png',
+                                    width: 112,
+                                    height: 112,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Hlangana',
+                                        style: TextStyle(
+                                          fontSize: 21,
+                                          fontWeight: FontWeight.w800,
+                                          fontFeatures: const [
+                                            FontFeature.enable('smcp'),
+                                          ],
+                                          letterSpacing: 0.5,
+                                          color: AppColors.buyTextPrimary,
+                                        ),
+                                      ),
+                                      const Text(
+                                        'Group Buys',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.buyTextPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      const Text(
+                                        'Pool tokens together for bigger discounts',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.buyTextSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            // CTA button (green)
+                            Container(
+                              width: double.infinity,
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: AppColors.buyGroupBuyAccent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'Browse Deals',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -778,53 +656,85 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   Widget _buildClusterOptIn() {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.location_on, color: AppColors.primary, size: 28),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select your area',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'See group buy deals near you',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              final result = await ClusterPickerSheet.show(context);
-              if (result != null && result.isNotEmpty && mounted) {
-                context.read<ProfileBloc>().add(
-                      ProfileEvent.updateProfile(
-                        selectedClusters: result,
-                      ),
-                    );
-              }
-            },
-            child: const Text('Set up'),
+        color: AppColors.buyCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.buyCardBorder),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.buyShadow,
+            blurRadius: 2,
+            offset: Offset(0, 1),
           ),
         ],
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            // Green accent bar — ties to Hlangana card below
+            Container(
+              width: 4,
+              decoration: const BoxDecoration(
+                color: AppColors.buyGroupBuyAccent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  bottomLeft: Radius.circular(14),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_on,
+                        color: AppColors.buyGroupBuyAccent, size: 28),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Select your area',
+                            style: TextStyle(
+                              color: AppColors.buyTextPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'See group buy deals near you',
+                            style: TextStyle(
+                              color: AppColors.buyTextSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final result = await ClusterPickerSheet.show(context);
+                        if (result != null && result.isNotEmpty && mounted) {
+                          context.read<ProfileBloc>().add(
+                                ProfileEvent.updateProfile(
+                                  selectedClusters: result,
+                                ),
+                              );
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.buyGroupBuyAccent,
+                      ),
+                      child: const Text('Set up'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -837,14 +747,14 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           Icon(
             Icons.shopping_bag_outlined,
             size: 48,
-            color: AppColors.textTertiary.withValues(alpha: 0.5),
+            color: AppColors.buyTextTertiary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 12),
           const Text(
             'No categories available',
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
             ),
           ),
           const SizedBox(height: 12),
@@ -857,6 +767,23 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             size: AppButtonSize.small,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Layer divider: 1px line with 16px padding above and below.
+class _BuyLayerDivider extends StatelessWidget {
+  const _BuyLayerDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Container(
+        height: 1,
+        width: double.infinity,
+        color: AppColors.buyDivider,
       ),
     );
   }

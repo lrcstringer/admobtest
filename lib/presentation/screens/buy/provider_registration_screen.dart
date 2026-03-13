@@ -33,7 +33,7 @@ class _ProviderRegistrationBody extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Become a Seller'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
       ),
       body: BlocConsumer<ProviderRegistrationBloc, ProviderRegistrationState>(
         listener: (context, state) {
@@ -41,7 +41,7 @@ class _ProviderRegistrationBody extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.successMessage ?? 'Registration submitted'),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.buySuccess,
               ),
             );
             context.pop();
@@ -50,7 +50,7 @@ class _ProviderRegistrationBody extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
           }
@@ -89,7 +89,7 @@ class _ProviderRegistrationBody extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.symmetric(horizontal: 2),
               decoration: BoxDecoration(
-                color: isActive ? AppColors.primary : AppColors.border,
+                color: isActive ? AppColors.primary : AppColors.buyCardBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -117,9 +117,9 @@ class _ProviderRegistrationBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: const BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.buyCard,
         border: Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
+          top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
         ),
       ),
       child: SafeArea(
@@ -171,7 +171,7 @@ class _StepNameBio extends StatelessWidget {
         const Text(
           'Tell us about yourself',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: AppColors.buyTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -179,7 +179,7 @@ class _StepNameBio extends StatelessWidget {
         const SizedBox(height: 4),
         const Text(
           'This info appears on your seller profile',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: TextStyle(color: AppColors.buyTextSecondary, fontSize: 13),
         ),
         const SizedBox(height: AppSpacing.lg),
         TextField(
@@ -227,7 +227,7 @@ class _StepCategoryServices extends StatelessWidget {
         const Text(
           'What do you offer?',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: AppColors.buyTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -236,7 +236,7 @@ class _StepCategoryServices extends StatelessWidget {
         const Text(
           'Category',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: AppColors.buyTextPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -254,9 +254,9 @@ class _StepCategoryServices extends StatelessWidget {
                   .read<ProviderRegistrationBloc>()
                   .add(ProviderRegistrationEvent.updateCategory(cat)),
               selectedColor: AppColors.primary.withValues(alpha: 0.2),
-              backgroundColor: AppColors.surfaceElevated,
+              backgroundColor: AppColors.buyCard,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : AppColors.buyTextPrimary,
               ),
             );
           }).toList(),
@@ -295,7 +295,7 @@ class _StepConfirm extends StatelessWidget {
         const Text(
           'Confirm your details',
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: AppColors.buyTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -323,7 +323,7 @@ class _StepConfirm extends StatelessWidget {
                 child: Text(
                   'Your registration will be reviewed by an admin. '
                   'You\'ll be notified once approved.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  style: TextStyle(color: AppColors.buyTextSecondary, fontSize: 12),
                 ),
               ),
             ],
@@ -342,7 +342,7 @@ class _StepConfirm extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               fontSize: 12,
             ),
           ),
@@ -350,7 +350,7 @@ class _StepConfirm extends StatelessWidget {
           Text(
             value.isEmpty ? '—' : value,
             style: const TextStyle(
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
               fontSize: 14,
             ),
           ),

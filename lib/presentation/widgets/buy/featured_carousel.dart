@@ -139,20 +139,20 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
           child: Container(
             height: 180,
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
             ),
             child: const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.schedule, color: AppColors.textTertiary, size: 32),
+                  Icon(Icons.schedule, color: AppColors.buyTextTertiary, size: 32),
                   SizedBox(height: 8),
                   Text(
                     'Featured content coming soon',
                     style: TextStyle(
-                      color: AppColors.textTertiary,
+                      color: AppColors.buyTextTertiary,
                       fontSize: 13,
                     ),
                   ),
@@ -518,7 +518,7 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
           width: isActive ? 20 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : AppColors.textTertiary,
+            color: isActive ? AppColors.primary : AppColors.buyTextTertiary,
             borderRadius: BorderRadius.circular(3),
           ),
         );
@@ -629,10 +629,10 @@ class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
       content = _buildPoster();
     } else {
       content = Shimmer.fromColors(
-        baseColor: AppColors.shimmerBase,
-        highlightColor: AppColors.shimmerHighlight,
+        baseColor: AppColors.buyShimmerBase,
+        highlightColor: AppColors.buyShimmerHigh,
         child: Container(
-          color: AppColors.surface,
+          color: AppColors.buyCard,
         ),
       );
     }

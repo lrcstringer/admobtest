@@ -73,14 +73,14 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             SnackBar(
               content:
                   Text('Coupon claimed: ${state.lastClaimedCouponCode}'),
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.buySuccess,
             ),
           );
         } else if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
         }
@@ -101,7 +101,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            backgroundColor: AppColors.background,
+            backgroundColor: AppColors.buyBackground,
             elevation: 0,
             actions: [
               if (storefront != null)
@@ -112,7 +112,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                           ),
                         )
                       : Icon(
@@ -120,8 +120,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                               ? Icons.favorite
                               : Icons.favorite_border,
                           color: state.isFollowing
-                              ? AppColors.error
-                              : AppColors.textSecondary,
+                              ? AppColors.buyError
+                              : AppColors.buyTextSecondary,
                         ),
                   onPressed: state.isTogglingFollow
                       ? null
@@ -133,7 +133,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 ),
             ],
           ),
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.buyBackground,
           body: state.isLoading
               ? _buildLoading()
               : storefront != null
@@ -148,15 +148,15 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   Widget _buildLoading() {
     return Shimmer.fromColors(
-      baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
+      baseColor: AppColors.buyShimmerBase,
+      highlightColor: AppColors.buyShimmerHigh,
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Container(
             height: 180,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -164,7 +164,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
           Container(
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -172,7 +172,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
           Container(
             height: 120,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -188,14 +188,14 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const Icon(Icons.error_outline, color: AppColors.buyError, size: 48),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -258,7 +258,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         child: CachedNetworkImage(
           imageUrl: heroImage,
           fit: BoxFit.cover,
-          placeholder: (_, _) => Container(color: AppColors.surfaceElevated),
+          placeholder: (_, _) => Container(color: AppColors.buyCard),
           errorWidget: (_, _, _) => _buildGradientHero(storefront),
         ),
       );
@@ -347,7 +347,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
+                              color: AppColors.buyTextPrimary,
                             ),
                           ),
                         ),
@@ -365,7 +365,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         storefront.tagline!,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                         ),
                       ),
                     ],
@@ -398,7 +398,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: AppColors.buyTextPrimary,
                   ),
                 ),
                 if (storefront.ratingCount != null) ...[
@@ -407,7 +407,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     '(${storefront.ratingCount})',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.textTertiary,
+                      color: AppColors.buyTextTertiary,
                     ),
                   ),
                 ],
@@ -453,7 +453,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         color = AppColors.gold;
       case TrustBadge.localBusiness:
         icon = Icons.location_on;
-        color = AppColors.success;
+        color = AppColors.buySuccess;
       case TrustBadge.newBrand:
         icon = Icons.fiber_new;
         color = AppColors.info;
@@ -564,10 +564,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.surfaceElevated,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.5),
+                color: AppColors.buyCardBorder.withValues(alpha: 0.5),
               ),
             ),
             child: Center(
@@ -583,7 +583,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
         ],
@@ -625,7 +625,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
               ),
             ),
           ),
@@ -677,7 +677,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           const SizedBox(height: 10),
@@ -712,9 +712,9 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       child: Container(
         width: width,
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.buyCardBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -730,18 +730,18 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         imageUrl: product.imageUrl!,
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
-                          color: AppColors.shimmerBase,
+                          color: AppColors.buyShimmerBase,
                         ),
                         errorWidget: (_, _, _) => Container(
-                          color: AppColors.surface,
+                          color: AppColors.buyCard,
                           child: const Icon(Icons.image_outlined,
-                              color: AppColors.textHint),
+                              color: AppColors.buyTextTertiary),
                         ),
                       )
                     : Container(
-                        color: AppColors.surface,
+                        color: AppColors.buyCard,
                         child: const Icon(Icons.shopping_bag_outlined,
-                            color: AppColors.textHint, size: 32),
+                            color: AppColors.buyTextTertiary, size: 32),
                       ),
               ),
             ),
@@ -759,7 +759,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                       ),
                     ),
                     const Spacer(),
@@ -779,7 +779,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                             'Out of stock',
                             style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.error,
+                              color: AppColors.buyError,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -793,7 +793,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 10,
-                          color: AppColors.textTertiary,
+                          color: AppColors.buyTextTertiary,
                         ),
                       ),
                     ],
@@ -827,7 +827,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             fit: BoxFit.cover,
             placeholder: (_, _) => Container(
               height: 100,
-              color: AppColors.surfaceElevated,
+              color: AppColors.buyCard,
             ),
             errorWidget: (_, _, _) => const SizedBox.shrink(),
           ),
@@ -863,7 +863,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                         ),
                       ),
                       if (promo.description != null) ...[
@@ -872,7 +872,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                           promo.description!,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                           ),
                         ),
                       ],
@@ -917,13 +917,13 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     fit: BoxFit.cover,
                     placeholder: (_, _) => Container(
                       width: 180,
-                      color: AppColors.surfaceElevated,
+                      color: AppColors.buyCard,
                     ),
                     errorWidget: (_, _, _) => Container(
                       width: 180,
-                      color: AppColors.surfaceElevated,
+                      color: AppColors.buyCard,
                       child: const Icon(Icons.broken_image,
-                          color: AppColors.textTertiary),
+                          color: AppColors.buyTextTertiary),
                     ),
                   ),
                 );
@@ -959,7 +959,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceElevated,
+      backgroundColor: AppColors.buyCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -979,9 +979,9 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.buyCardBorder),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1010,7 +1010,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                     ),
                   ),
                 ),
@@ -1037,7 +1037,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   height: 1.4,
                 ),
               ),
@@ -1068,7 +1068,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 storefront.description!,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   height: 1.5,
                 ),
               ),
@@ -1107,10 +1107,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
+                    color: AppColors.buyCard,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.border.withValues(alpha: 0.5),
+                      color: AppColors.buyCardBorder.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Row(
@@ -1119,7 +1119,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                       Icon(
                         _socialIcon(entry.key),
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -1127,7 +1127,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                         ),
                       ),
                     ],
@@ -1202,9 +1202,9 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 return Container(
                   width: 260,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
+                    color: AppColors.buyCard,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1221,11 +1221,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
-                                  placeholder: (_, _) => Container(color: AppColors.shimmerBase),
-                                  errorWidget: (_, _, _) => Container(color: AppColors.shimmerBase),
+                                  placeholder: (_, _) => Container(color: AppColors.buyShimmerBase),
+                                  errorWidget: (_, _, _) => Container(color: AppColors.buyShimmerBase),
                                 )
                               else
-                                Container(color: AppColors.shimmerBase),
+                                Container(color: AppColors.buyShimmerBase),
                               const Center(
                                 child: Icon(Icons.play_circle_fill, size: 48, color: Colors.white70),
                               ),
@@ -1278,11 +1278,11 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 gradient: LinearGradient(
                   colors: [
                     (AppColors.parseHex(storefront.accentColor)).withValues(alpha: 0.1),
-                    AppColors.surfaceElevated,
+                    AppColors.buyCard,
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -1310,7 +1310,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         if (coupon.description != null)
                           Text(
                             coupon.description!,
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                            style: const TextStyle(color: AppColors.buyTextSecondary, fontSize: 12),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1321,8 +1321,8 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                             '${(coupon.maxClaims! - coupon.claimCount).clamp(0, coupon.maxClaims!)} of ${coupon.maxClaims} claims remaining',
                             style: TextStyle(
                               color: (coupon.maxClaims! - coupon.claimCount) <= 5
-                                  ? AppColors.error
-                                  : AppColors.textTertiary,
+                                  ? AppColors.buyError
+                                  : AppColors.buyTextTertiary,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1384,14 +1384,14 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: AppColors.buyTextPrimary,
                 ),
               ),
               children: [
                 Text(
                   faq.answer,
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: AppColors.buyTextSecondary,
                     fontSize: 13,
                     height: 1.5,
                   ),
@@ -1419,16 +1419,16 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
+                color: AppColors.buyCard,
                 borderRadius: BorderRadius.circular(12),
                 border:
-                    Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                    Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
               ),
               child: const Center(
                 child: Text(
                   'No testimonials yet',
                   style:
-                      TextStyle(color: AppColors.textTertiary, fontSize: 13),
+                      TextStyle(color: AppColors.buyTextTertiary, fontSize: 13),
                 ),
               ),
             ),
@@ -1481,13 +1481,13 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceElevated,
+                color: AppColors.buyCard,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on, color: AppColors.textSecondary, size: 20),
+                  const Icon(Icons.location_on, color: AppColors.buyTextSecondary, size: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -1499,7 +1499,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                         ),
                         Text(
                           loc.address,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          style: const TextStyle(color: AppColors.buyTextSecondary, fontSize: 12),
                         ),
                       ],
                     ),
@@ -1518,7 +1518,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   Widget _buildDivider() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Divider(color: AppColors.border, thickness: 0.5),
+      child: Divider(color: AppColors.buyCardBorder, thickness: 0.5),
     );
   }
 
@@ -1540,7 +1540,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               style: const TextStyle(
                 fontSize: 14,
                 height: 1.6,
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
               ),
             ),
           );
@@ -1578,14 +1578,14 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: AppColors.textTertiary),
+          Icon(icon, size: 16, color: AppColors.buyTextTertiary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
               ),
             ),
           ),
@@ -1664,7 +1664,7 @@ class _SectionTitle extends StatelessWidget {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
       ),
     );
@@ -1718,7 +1718,7 @@ class _StorefrontHeroSection extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                       ),
                     ),
                     if (subtitle != null) ...[
@@ -1727,7 +1727,7 @@ class _StorefrontHeroSection extends StatelessWidget {
                         subtitle,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                         ),
                       ),
                     ],
@@ -1782,10 +1782,10 @@ class _StorefrontQuickActionsLegacy extends StatelessWidget {
                             width: 56,
                             height: 56,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceElevated,
+                              color: AppColors.buyCard,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: AppColors.border.withValues(alpha: 0.5),
+                                color: AppColors.buyCardBorder.withValues(alpha: 0.5),
                               ),
                             ),
                             child: Center(
@@ -1804,7 +1804,7 @@ class _StorefrontQuickActionsLegacy extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textPrimary,
+                              color: AppColors.buyTextPrimary,
                             ),
                           ),
                         ],
@@ -1855,10 +1855,10 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: AppColors.buyCard,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppColors.border.withValues(alpha: 0.5)),
+                      color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1874,17 +1874,17 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                                   imageUrl: imageUrl,
                                   fit: BoxFit.cover,
                                   placeholder: (_, _) =>
-                                      Container(color: AppColors.surface),
+                                      Container(color: AppColors.buyCard),
                                   errorWidget: (_, _, _) => Container(
-                                    color: AppColors.surface,
+                                    color: AppColors.buyCard,
                                     child: const Icon(Icons.image,
-                                        color: AppColors.textTertiary),
+                                        color: AppColors.buyTextTertiary),
                                   ),
                                 )
                               : Container(
-                                  color: AppColors.surface,
+                                  color: AppColors.buyCard,
                                   child: const Icon(Icons.shopping_bag,
-                                      color: AppColors.textTertiary),
+                                      color: AppColors.buyTextTertiary),
                                 ),
                         ),
                       ),
@@ -1901,7 +1901,7 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              color: AppColors.buyTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -1985,7 +1985,7 @@ class _StorefrontAboutLegacy extends StatelessWidget {
                 description,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   height: 1.5,
                 ),
               ),
@@ -2006,14 +2006,14 @@ class _StorefrontAboutLegacy extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: AppColors.textTertiary),
+          Icon(icon, size: 16, color: AppColors.buyTextTertiary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
               ),
             ),
           ),
@@ -2080,7 +2080,7 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: AppColors.buyTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -2088,7 +2088,7 @@ class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
                         '${storefront.ratingCount} reviews',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: AppColors.textTertiary,
+                          color: AppColors.buyTextTertiary,
                         ),
                       ),
                     ],
@@ -2208,14 +2208,14 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Review submitted successfully'),
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.buySuccess,
             ),
           );
         } else if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
         }
@@ -2238,7 +2238,7 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: AppColors.buyCardBorder,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -2249,7 +2249,7 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
               const Text(
                 'Write a Review',
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: AppColors.buyTextPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -2280,21 +2280,21 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                 maxLength: 500,
                 maxLines: 3,
                 style: const TextStyle(
-                  color: AppColors.textPrimary,
+                  color: AppColors.buyTextPrimary,
                   fontSize: 14,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Add a comment (optional)',
-                  hintStyle: const TextStyle(color: AppColors.textHint),
+                  hintStyle: const TextStyle(color: AppColors.buyTextTertiary),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: AppColors.buyCard,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: const BorderSide(color: AppColors.buyCardBorder),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
@@ -2315,8 +2315,8 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
                               ? null
                               : () => Navigator.of(context).pop(),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.textSecondary,
-                            side: const BorderSide(color: AppColors.border),
+                            foregroundColor: AppColors.buyTextSecondary,
+                            side: const BorderSide(color: AppColors.buyCardBorder),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius:
@@ -2381,7 +2381,7 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
           child: Text(
             label,
             style: const TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),

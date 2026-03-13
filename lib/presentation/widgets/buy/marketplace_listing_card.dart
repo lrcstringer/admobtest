@@ -27,9 +27,9 @@ class MarketplaceListingCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: AppColors.buyCardBorder, width: 0.5),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -50,7 +50,7 @@ class MarketplaceListingCard extends StatelessWidget {
                   Text(
                     listing.title,
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -77,13 +77,13 @@ class MarketplaceListingCard extends StatelessWidget {
                                 ? Icons.swap_horiz
                                 : Icons.store_outlined,
                         size: 12,
-                        color: AppColors.textTertiary,
+                        color: AppColors.buyTextTertiary,
                       ),
                       const SizedBox(width: 3),
                       Text(
                         listing.deliveryMethod.displayName,
                         style: const TextStyle(
-                          color: AppColors.textTertiary,
+                          color: AppColors.buyTextTertiary,
                           fontSize: 10,
                         ),
                       ),
@@ -107,7 +107,7 @@ class MarketplaceListingCard extends StatelessWidget {
                         child: Text(
                           listing.providerName,
                           style: const TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             fontSize: 11,
                           ),
                           maxLines: 1,
@@ -132,24 +132,24 @@ class MarketplaceListingCard extends StatelessWidget {
         imageUrl: url,
         fit: BoxFit.cover,
         placeholder: (_, _) => Shimmer.fromColors(
-          baseColor: AppColors.surface,
-          highlightColor: AppColors.surfaceElevated,
-          child: Container(color: AppColors.surface),
+          baseColor: AppColors.buyCard,
+          highlightColor: AppColors.buyCard,
+          child: Container(color: AppColors.buyCard),
         ),
         errorWidget: (_, _, _) => Container(
-          color: AppColors.surface,
+          color: AppColors.buyCard,
           child: const Icon(
             Icons.image_not_supported_outlined,
-            color: AppColors.textHint,
+            color: AppColors.buyTextTertiary,
           ),
         ),
       );
     }
     return Container(
-      color: AppColors.surface,
+      color: AppColors.buyCard,
       child: const Icon(
         Icons.storefront_outlined,
-        color: AppColors.textHint,
+        color: AppColors.buyTextTertiary,
         size: 32,
       ),
     );

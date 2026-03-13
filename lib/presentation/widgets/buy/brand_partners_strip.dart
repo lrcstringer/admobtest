@@ -69,7 +69,7 @@ class _BrandHeroCard extends StatelessWidget {
           border: Border.all(
             color: brand.isPremium
                 ? AppColors.gold.withValues(alpha: 0.4)
-                : AppColors.border.withValues(alpha: 0.5),
+                : AppColors.buyCardBorder.withValues(alpha: 0.5),
             width: brand.isPremium ? 1.5 : 1,
           ),
         ),

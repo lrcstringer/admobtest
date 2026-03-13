@@ -69,11 +69,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
         children: [
           // Tabs
           Container(
-            color: AppColors.surface,
+            color: AppColors.buyCard,
             child: TabBar(
               controller: _tabController,
               labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary,
+              unselectedLabelColor: AppColors.buyTextSecondary,
               indicatorColor: AppColors.primary,
               indicatorSize: TabBarIndicatorSize.label,
               labelStyle: const TextStyle(
@@ -254,8 +254,8 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
+      baseColor: AppColors.buyShimmerBase,
+      highlightColor: AppColors.buyShimmerHigh,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: 4,
@@ -263,7 +263,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
           height: 160,
           margin: const EdgeInsets.only(bottom: AppSpacing.sm),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.buyCard,
             borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
           ),
         ),
@@ -278,11 +278,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const Icon(Icons.error_outline, color: AppColors.buyError, size: 48),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: const TextStyle(color: AppColors.buyTextSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -308,14 +308,14 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
           children: [
             Icon(
               Icons.groups_outlined,
-              color: AppColors.textHint,
+              color: AppColors.buyTextTertiary,
               size: 64,
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
               title,
               style: const TextStyle(
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -324,7 +324,7 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
             Text(
               subtitle,
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
                 fontSize: 13,
               ),
               textAlign: TextAlign.center,
@@ -356,16 +356,16 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.15)
-              : AppColors.surface,
+              : AppColors.buyCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.buyCardBorder,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            color: isSelected ? AppColors.primary : AppColors.buyTextSecondary,
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),

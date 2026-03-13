@@ -48,7 +48,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Listing'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listener: (context, state) {
@@ -56,7 +56,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Listing created — now live!'),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.buySuccess,
               ),
             );
             context
@@ -68,7 +68,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
           }
@@ -87,7 +87,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         const Text(
                           'What are you selling?',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -96,7 +96,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         const Text(
                           'Your listing goes live immediately',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             fontSize: 13,
                           ),
                         ),
@@ -135,7 +135,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         const Text(
                           'Category',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -155,11 +155,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                   setState(() => _selectedCategory = cat),
                               selectedColor:
                                   AppColors.primary.withValues(alpha: 0.2),
-                              backgroundColor: AppColors.surfaceElevated,
+                              backgroundColor: AppColors.buyCard,
                               labelStyle: TextStyle(
                                 color: isSelected
                                     ? AppColors.primary
-                                    : AppColors.textPrimary,
+                                    : AppColors.buyTextPrimary,
                               ),
                             );
                           }).toList(),
@@ -199,7 +199,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             return Text(
                               '≈ R${zar.toStringAsFixed(2)} ZAR',
                               style: const TextStyle(
-                                color: AppColors.textSecondary,
+                                color: AppColors.buyTextSecondary,
                                 fontSize: 12,
                               ),
                             );
@@ -222,7 +222,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         const Text(
                           'Photos',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -239,9 +239,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: const BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.buyCard,
                   border: Border(
-                    top: BorderSide(color: AppColors.border, width: 0.5),
+                    top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
                   ),
                 ),
                 child: SafeArea(
@@ -301,7 +301,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             width: 24,
                             height: 24,
                             decoration: const BoxDecoration(
-                              color: AppColors.error,
+                              color: AppColors.buyError,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -324,24 +324,24 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: AppColors.buyCardBorder),
                       borderRadius:
                           BorderRadius.circular(AppSpacing.radiusSm),
-                      color: AppColors.surfaceElevated,
+                      color: AppColors.buyCard,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(
                           Icons.add_photo_alternate_outlined,
-                          color: AppColors.textHint,
+                          color: AppColors.buyTextTertiary,
                           size: 28,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${_selectedImages.length}/$_maxImages',
                           style: const TextStyle(
-                            color: AppColors.textHint,
+                            color: AppColors.buyTextTertiary,
                             fontSize: 11,
                           ),
                         ),
@@ -357,7 +357,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
             padding: EdgeInsets.only(top: 4),
             child: Text(
               'Add up to 5 photos',
-              style: TextStyle(color: AppColors.textHint, fontSize: 12),
+              style: TextStyle(color: AppColors.buyTextTertiary, fontSize: 12),
             ),
           ),
       ],
@@ -385,7 +385,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select a category'),
-          backgroundColor: AppColors.error,
+          backgroundColor: AppColors.buyError,
         ),
       );
       return;
@@ -421,7 +421,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(resultState.errorMessage!),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
           return;
@@ -431,7 +431,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Failed to upload images'),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
           return;
@@ -456,7 +456,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to upload images: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.buyError,
           ),
         );
         return;

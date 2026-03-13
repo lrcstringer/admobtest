@@ -27,7 +27,7 @@ class BuySectionHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: AppColors.buyTextPrimary,
             ),
           ),
           if (actionText != null && onActionTap != null)

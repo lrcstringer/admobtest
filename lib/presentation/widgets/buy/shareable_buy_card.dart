@@ -52,7 +52,7 @@ class ShareableBuyCard extends StatelessWidget {
         width: 230,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: accentColor.withValues(alpha: 0.3),
@@ -107,7 +107,7 @@ class ShareableBuyCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -120,7 +120,7 @@ class ShareableBuyCard extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: const TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -174,11 +174,11 @@ class ShareableBuyCard extends StatelessWidget {
 
   Widget _placeholderImage() {
     return Container(
-      color: AppColors.surface,
+      color: AppColors.buyCard,
       child: Center(
         child: Icon(
           isGroupBuy ? Icons.groups_outlined : Icons.storefront_outlined,
-          color: AppColors.textHint,
+          color: AppColors.buyTextTertiary,
           size: 36,
         ),
       ),

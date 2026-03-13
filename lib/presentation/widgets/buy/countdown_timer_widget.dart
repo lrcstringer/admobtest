@@ -82,13 +82,13 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
         style: TextStyle(
           fontSize: widget.fontSize,
           fontWeight: FontWeight.w700,
-          color: AppColors.textTertiary,
+          color: AppColors.buyTextTertiary,
         ),
       );
     }
 
     final isUrgent = _remaining.inHours < 24;
-    final color = isUrgent ? AppColors.error : AppColors.primary;
+    final color = isUrgent ? AppColors.buyError : AppColors.primary;
 
     return Text(
       _formatDuration(_remaining),

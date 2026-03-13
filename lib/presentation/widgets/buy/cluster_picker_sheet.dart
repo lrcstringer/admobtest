@@ -23,7 +23,7 @@ class ClusterPickerSheet extends StatefulWidget {
     return showModalBottomSheet<List<String>>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceElevated,
+      backgroundColor: AppColors.buyCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -60,7 +60,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: AppColors.buyCardBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -76,7 +76,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
                         Text(
                           'My Areas',
                           style: TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
@@ -85,7 +85,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
                         Text(
                           'Select areas where you can collect group buy items',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: AppColors.buyTextSecondary,
                             fontSize: 12,
                           ),
                         ),
@@ -152,13 +152,13 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
                   size: 20,
                   color: allSelected
                       ? AppColors.primary
-                      : AppColors.textHint,
+                      : AppColors.buyTextTertiary,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   province,
                   style: const TextStyle(
-                    color: AppColors.textPrimary,
+                    color: AppColors.buyTextPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -184,7 +184,7 @@ class _ClusterPickerSheetState extends State<ClusterPickerSheet> {
             title: Text(
               cluster,
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
                 fontSize: 13,
               ),
             ),

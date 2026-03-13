@@ -170,7 +170,7 @@ class _PurchaseSummaryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.chatSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.buyCardBorder),
       ),
       child: Column(
         children: [
@@ -225,14 +225,14 @@ class _SummaryRow extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
               fontSize: 14,
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              color: isSecondary ? AppColors.textSecondary : null,
+              color: isSecondary ? AppColors.buyTextSecondary : null,
               fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
               fontSize: isBold ? 16 : 14,
             ),
@@ -341,7 +341,7 @@ class _WalletCard extends StatelessWidget {
                   : AppColors.chatSurface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.buyCardBorder,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -354,7 +354,7 @@ class _WalletCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary.withValues(alpha: 0.15)
-                    : AppColors.border.withValues(alpha: 0.3),
+                    : AppColors.buyCardBorder.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -363,10 +363,10 @@ class _WalletCard extends StatelessWidget {
                     : Icons.wallet,
                 size: 20,
                 color: effectiveDisabled
-                    ? AppColors.textSecondary
+                    ? AppColors.buyTextSecondary
                     : isSelected
                         ? AppColors.primary
-                        : AppColors.textPrimary,
+                        : AppColors.buyTextPrimary,
               ),
             ),
             const SizedBox(width: 12),
@@ -382,7 +382,7 @@ class _WalletCard extends StatelessWidget {
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: effectiveDisabled
-                          ? AppColors.textSecondary
+                          ? AppColors.buyTextSecondary
                           : isSelected
                               ? AppColors.primary
                               : null,
@@ -393,7 +393,7 @@ class _WalletCard extends StatelessWidget {
                       allowedCategories!.join(', '),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                       ),
                     ),
                 ],
@@ -409,8 +409,8 @@ class _WalletCard extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: effectiveDisabled
-                        ? AppColors.error
-                        : AppColors.textPrimary,
+                        ? AppColors.buyError
+                        : AppColors.buyTextPrimary,
                   ),
                 ),
                 if (effectiveDisabled)
@@ -418,7 +418,7 @@ class _WalletCard extends StatelessWidget {
                     'Insufficient',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.error,
+                      color: AppColors.buyError,
                     ),
                   ),
               ],

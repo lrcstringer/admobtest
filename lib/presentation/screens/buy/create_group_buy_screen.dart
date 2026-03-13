@@ -46,7 +46,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.successMessage ?? 'Deal suggestion submitted!'),
-              backgroundColor: AppColors.success,
+              backgroundColor: AppColors.buySuccess,
             ),
           );
           context
@@ -58,7 +58,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
+              backgroundColor: AppColors.buyError,
             ),
           );
           context
@@ -70,7 +70,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Suggest a Deal'),
-            backgroundColor: AppColors.surface,
+            backgroundColor: AppColors.buyCard,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.md),
@@ -149,7 +149,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                     Text(
                       '= R${((int.tryParse(_estimatedPriceController.text) ?? 0) / 100).toStringAsFixed(2)}',
                       style: const TextStyle(
-                        color: AppColors.textHint,
+                        color: AppColors.buyTextTertiary,
                         fontSize: 11,
                       ),
                     ),
@@ -173,7 +173,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                     title: const Text(
                       'I want to be first to join',
                       style: TextStyle(
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -181,7 +181,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
                     subtitle: const Text(
                       'We\'ll notify you when the deal goes live',
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -211,7 +211,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
     return Text(
       text,
       style: const TextStyle(
-        color: AppColors.textPrimary,
+        color: AppColors.buyTextPrimary,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -230,19 +230,19 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      style: const TextStyle(color: AppColors.buyTextPrimary, fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textHint),
+        hintStyle: const TextStyle(color: AppColors.buyTextTertiary),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: AppColors.buyCard,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.buyCardBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.buyCardBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
@@ -250,7 +250,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(color: AppColors.buyError),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,

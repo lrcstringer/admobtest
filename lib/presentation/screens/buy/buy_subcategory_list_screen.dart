@@ -33,8 +33,8 @@ class BuySubcategoryListScreen extends StatelessWidget {
             stops: const [0.0, 0.35, 1.0],
             colors: [
               AppColors.goldGradient[0].withValues(alpha: 0.15),
-              AppColors.background,
-              AppColors.background,
+              AppColors.buyBackground,
+              AppColors.buyBackground,
             ],
           ),
         ),
@@ -67,7 +67,7 @@ class BuySubcategoryListScreen extends StatelessWidget {
         content: Text('${sub.name} — coming soon!'),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.buyCard,
       ),
     );
   }
@@ -80,14 +80,14 @@ class BuySubcategoryListScreen extends StatelessWidget {
           Icon(
             Icons.category_outlined,
             size: 48,
-            color: AppColors.textTertiary.withValues(alpha: 0.5),
+            color: AppColors.buyTextTertiary.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 12),
           const Text(
             'No subcategories yet',
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: AppColors.buyTextSecondary,
             ),
           ),
           const SizedBox(height: 4),
@@ -95,7 +95,7 @@ class BuySubcategoryListScreen extends StatelessWidget {
             'Check back soon!',
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textTertiary,
+              color: AppColors.buyTextTertiary,
             ),
           ),
         ],
@@ -128,10 +128,10 @@ class _SubcategoryTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.border.withValues(alpha: 0.4),
+            color: AppColors.buyCardBorder.withValues(alpha: 0.4),
           ),
         ),
         child: Row(
@@ -141,7 +141,7 @@ class _SubcategoryTile extends StatelessWidget {
               width: 24,
               height: 24,
               colorFilter: ColorFilter.mode(
-                AppColors.textPrimary,
+                AppColors.buyTextPrimary,
                 BlendMode.srcIn,
               ),
               placeholderBuilder: (_) => Text(
@@ -158,13 +158,13 @@ class _SubcategoryTile extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: AppColors.buyTextPrimary,
                 ),
               ),
             ),
             const Icon(
               Icons.chevron_right,
-              color: AppColors.textTertiary,
+              color: AppColors.buyTextTertiary,
               size: 20,
             ),
           ],

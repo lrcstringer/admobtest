@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Screen — Exact Mockup (as coded)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #2a2a2a;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .phone {
+    width: 375px;
+    height: 812px;
+    background: #F5F7FA;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── AppBar (stays dark) ── */
+  .appbar {
+    background: linear-gradient(135deg, #142978 0%, #0C1124 100%);
+    padding: 48px 16px 12px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .appbar .crown {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #FF9900, #FF328C);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: #fff;
+  }
+  .appbar .title {
+    font-size: 20px; font-weight: 700; color: #fff;
+    margin-left: 12px; flex: 1;
+  }
+  .appbar .history-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 20px; cursor: pointer;
+  }
+
+  /* ── Scrollable body ── */
+  .body {
+    flex: 1;
+    overflow-y: auto;
+    background: #F5F7FA;
+  }
+
+  /* ── Layer divider: 1px line + 16px padding ── */
+  .layer-divider {
+    padding: 16px 0;
+  }
+  .layer-divider .line {
+    height: 1px;
+    background: #EAECF0;
+  }
+
+  /* ── Layer 1: Featured Carousel ── */
+  .featured-carousel {
+    padding: 12px 20px 8px;
+  }
+  .featured-card {
+    width: 100%;
+    height: 160px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #FF328C, #A011FF);
+  }
+  .featured-card .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+  }
+  .featured-card .content {
+    position: absolute; bottom: 14px; left: 16px; right: 16px;
+    color: #fff;
+  }
+  .featured-card .badge {
+    background: #FFB82C; color: #0D1028;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px;
+    display: inline-block; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .featured-card .content h3 {
+    font-size: 16px; font-weight: 700; margin-bottom: 2px;
+  }
+  .featured-card .content p {
+    font-size: 11px; opacity: 0.8;
+  }
+  .featured-dots {
+    display: flex; justify-content: center; gap: 5px; margin-top: 8px;
+  }
+  .featured-dots .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #94A3B8;
+  }
+  .featured-dots .dot.active {
+    background: #FF328C; width: 16px; border-radius: 3px;
+  }
+
+  /* ── Brand Partners Strip ── */
+  .section-header {
+    padding: 12px 20px;
+    font-size: 18px; font-weight: 600;
+    color: #1A1A2E;
+  }
+  .brand-strip {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 8px;
+    overflow-x: auto;
+  }
+  .brand-strip::-webkit-scrollbar { display: none; }
+  .brand-card {
+    width: 140px; min-width: 140px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #E8ECF1;
+    flex-shrink: 0;
+  }
+  .brand-card .bg {
+    position: absolute; inset: 0;
+  }
+  .brand-card .dark-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+  }
+  .brand-card .brand-content {
+    position: absolute; inset: 0;
+    padding: 10px;
+    display: flex; flex-direction: column;
+  }
+  .brand-card .logo {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff;
+  }
+  .brand-card .brand-name {
+    font-size: 12px; font-weight: 700; color: #fff;
+    margin-top: auto;
+  }
+  .brand-card .brand-tagline {
+    font-size: 9px; color: rgba(255,255,255,0.8);
+    margin-top: 2px;
+  }
+  .brand-card.premium { border-color: rgba(255,184,44,0.4); border-width: 1.5px; }
+
+  /* ── Utilities chips ── */
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px 4px 5px;
+    background: #FFFFFF;
+    border: 1px solid #E8ECF1;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .chip:hover { border-color: #08C2F4; }
+  .chip .icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+  .chip .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1A1A2E;
+    white-space: nowrap;
+  }
+  .chip.disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .chip.disabled:hover { border-color: #E8ECF1; }
+  .chip .soon-badge {
+    font-size: 7px; font-weight: 700;
+    background: #F59E0B; color: #0D1028;
+    padding: 1px 4px; border-radius: 4px;
+    margin-left: 3px;
+  }
+
+  /* ── Marketplace entry card (Option B) ── */
+  .marketplace-card {
+    margin: 8px 20px;
+    border-radius: 14px;
+    border: 1px solid #E8ECF1;
+    background: linear-gradient(to right, rgba(212,136,43,0.06), #FFFFFF);
+    box-shadow: 0 2px 8px rgba(212,136,43,0.12), 0 1px 4px rgba(0,0,0,0.05);
+    display: flex;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .marketplace-card .accent-bar {
+    width: 4px;
+    background: linear-gradient(to bottom, #D4882B, #8B5E1A);
+    border-radius: 14px 0 0 14px;
+    flex-shrink: 0;
+  }
+  .marketplace-card .mc-content {
+    flex: 1;
+    padding: 16px;
+  }
+  .marketplace-card .mc-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .marketplace-card .mc-icon {
+    width: 112px; height: 112px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .marketplace-card .mc-icon img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .marketplace-card .mc-brand {
+    font-size: 21px; font-weight: 800; color: #1A1A2E;
+    font-variant: small-caps; letter-spacing: 0.5px;
+  }
+  .marketplace-card .mc-desc {
+    font-size: 20px; font-weight: 400; color: #1A1A2E;
+  }
+  .marketplace-card .mc-subtitle {
+    font-size: 13px; color: #64748B; margin-top: 2px;
+  }
+  .marketplace-card .mc-cta {
+    margin-top: 14px;
+    width: 100%;
+    padding: 12px 0;
+    background: linear-gradient(to right, #D4882B, #8B5E1A);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+  }
+
+  /* ── Cluster opt-in card ── */
+  .cluster-optin {
+    margin: 0 20px 12px;
+    background: #FFFFFF;
+    border-radius: 14px;
+    border: 1px solid #E8ECF1;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    display: flex;
+    overflow: hidden;
+  }
+  .cluster-optin .optin-accent {
+    width: 4px;
+    background: #059669;
+    border-radius: 14px 0 0 14px;
+    flex-shrink: 0;
+  }
+  .cluster-optin .optin-content {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cluster-optin .loc-icon {
+    font-size: 24px; color: #059669; flex-shrink: 0;
+  }
+  .cluster-optin .optin-text { flex: 1; }
+  .cluster-optin .optin-title {
+    font-size: 14px; font-weight: 600; color: #1A1A2E;
+  }
+  .cluster-optin .optin-sub {
+    font-size: 12px; color: #64748B; margin-top: 2px;
+  }
+  .cluster-optin .setup-btn {
+    font-size: 14px; font-weight: 600; color: #059669;
+    cursor: pointer; background: none; border: none; padding: 8px 12px;
+  }
+
+  /* ── Group buys card ── */
+  .groupbuy-card {
+    margin: 8px 20px;
+    border-radius: 14px;
+    border: 1px solid #E8ECF1;
+    background: linear-gradient(to right, rgba(5,150,105,0.02), #FFFFFF);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    display: flex;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .groupbuy-card .accent-bar {
+    width: 4px;
+    background: #059669;
+    border-radius: 14px 0 0 14px;
+    flex-shrink: 0;
+  }
+  .groupbuy-card .gb-content {
+    flex: 1;
+    padding: 16px;
+  }
+  .groupbuy-card .gb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .groupbuy-card .gb-icon {
+    width: 112px; height: 112px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .groupbuy-card .gb-icon img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .groupbuy-card .gb-brand {
+    font-size: 21px; font-weight: 800; color: #1A1A2E;
+    font-variant: small-caps; letter-spacing: 0.5px;
+  }
+  .groupbuy-card .gb-desc {
+    font-size: 20px; font-weight: 400; color: #1A1A2E;
+  }
+  .groupbuy-card .gb-subtitle {
+    font-size: 13px; color: #64748B; margin-top: 2px;
+  }
+  .groupbuy-card .gb-cta {
+    margin-top: 14px;
+    width: 100%;
+    padding: 12px 0;
+    background: #059669;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+  }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    background: #0C1124;
+    display: flex;
+    padding: 8px 0 24px;
+    flex-shrink: 0;
+  }
+  .bottom-nav .tab {
+    flex: 1;
+    text-align: center;
+    font-size: 10px;
+    color: #8899A6;
+    padding-top: 6px;
+  }
+  .bottom-nav .tab .tab-icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+  .bottom-nav .tab.active { color: #FF328C; }
+
+  /* ── Annotations ── */
+  .annotation {
+    position: absolute;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 9px;
+    color: #666;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+</style>
+</head>
+<body>
+
+<div style="display: flex; gap: 40px; align-items: flex-start;">
+
+<!-- ════ PHONE MOCKUP ════ -->
+<div class="phone">
+
+  <!-- AppBar -->
+  <div class="appbar">
+    <div class="crown">iM</div>
+    <div class="title">Buy</div>
+    <div class="history-icon">&#x1F552;</div>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="body">
+
+    <!-- ════ LAYER 1: Featured Carousel ════ -->
+    <div class="featured-carousel">
+      <div class="featured-card">
+        <div class="overlay"></div>
+        <div class="content">
+          <div class="badge">Featured</div>
+          <h3>Summer Data Deals</h3>
+          <p>Get 2GB bonus on all data bundles</p>
+        </div>
+      </div>
+      <div class="featured-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- Brand Partners Strip -->
+    <div class="section-header">Brand Partners</div>
+    <div class="brand-strip">
+      <div class="brand-card premium">
+        <div class="bg" style="background:linear-gradient(135deg,#E50000,#B00000);"></div>
+        <div class="dark-overlay"></div>
+        <div class="brand-content">
+          <div class="logo">V</div>
+          <div class="brand-name">Vodacom</div>
+          <div class="brand-tagline">Stay connected</div>
+        </div>
+      </div>
+      <div class="brand-card">
+        <div class="bg" style="background:linear-gradient(135deg,#FFCC00,#E5A800);"></div>
+        <div class="dark-overlay"></div>
+        <div class="brand-content">
+          <div class="logo">M</div>
+          <div class="brand-name">MTN</div>
+          <div class="brand-tagline">Y'ello deals</div>
+        </div>
+      </div>
+      <div class="brand-card">
+        <div class="bg" style="background:linear-gradient(135deg,#0071BB,#005A96);"></div>
+        <div class="dark-overlay"></div>
+        <div class="brand-content">
+          <div class="logo">T</div>
+          <div class="brand-name">Telkom</div>
+          <div class="brand-tagline">More for less</div>
+        </div>
+      </div>
+      <div class="brand-card">
+        <div class="bg" style="background:linear-gradient(135deg,#F57F17,#E65100);"></div>
+        <div class="dark-overlay"></div>
+        <div class="brand-content">
+          <div class="logo">P</div>
+          <div class="brand-name">PEP</div>
+          <div class="brand-tagline">Pay less, live more</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer divider -->
+    <div class="layer-divider"><div class="line"></div></div>
+
+    <!-- ════ LAYER 2: Utilities ════ -->
+    <div class="section-header">Utilities</div>
+    <div class="chip-grid">
+      <div class="chip">
+        <div class="icon">&#x26A1;</div>
+        <div class="label">Electricity</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F4F1;</div>
+        <div class="label">Airtime</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F4F6;</div>
+        <div class="label">Data</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F3AB;</div>
+        <div class="label">Vouchers</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F393;</div>
+        <div class="label">School</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F3DB;</div>
+        <div class="label">Municipal</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F6E1;</div>
+        <div class="label">Insurance</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x26B0;</div>
+        <div class="label">Funeral</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F465;</div>
+        <div class="label">Stokvel</div>
+      </div>
+      <div class="chip">
+        <div class="icon">&#x1F3AE;</div>
+        <div class="label">Gaming</div>
+      </div>
+    </div>
+
+    <!-- Layer divider -->
+    <div class="layer-divider"><div class="line"></div></div>
+
+    <!-- ════ LAYER 3: Marketplace (Option B — Elevated Hero) ════ -->
+    <div class="marketplace-card">
+      <div class="accent-bar"></div>
+      <div class="mc-content">
+        <div class="mc-row">
+          <div class="mc-icon"><img src="../assets/images/intengisomarketplace.png" alt="Intengiso Marketplace"></div>
+          <div>
+            <div class="mc-brand">Intengiso</div>
+            <div class="mc-desc">Marketplace</div>
+            <div class="mc-subtitle">Buy &amp; sell in your community &mdash; with trust</div>
+          </div>
+        </div>
+        <div class="mc-cta">Explore Marketplace &rarr;</div>
+      </div>
+    </div>
+
+    <!-- Layer divider -->
+    <div class="layer-divider"><div class="line"></div></div>
+
+    <!-- ════ LAYER 4: Hlangana Group Buys ════ -->
+
+    <!-- Cluster opt-in (shown when no clusters set) -->
+    <div class="cluster-optin">
+      <div class="optin-accent"></div>
+      <div class="optin-content">
+        <div class="loc-icon">&#x1F4CD;</div>
+        <div class="optin-text">
+          <div class="optin-title">Select your area</div>
+          <div class="optin-sub">See group buy deals near you</div>
+        </div>
+        <button class="setup-btn">Set up</button>
+      </div>
+    </div>
+
+    <!-- Group buys card -->
+    <div class="groupbuy-card">
+      <div class="accent-bar"></div>
+      <div class="gb-content">
+        <div class="gb-row">
+          <div class="gb-icon"><img src="../assets/images/hlanganibuyergroup.png" alt="Hlangana Group Buys"></div>
+          <div>
+            <div class="gb-brand">Hlangana</div>
+            <div class="gb-desc">Group Buys</div>
+            <div class="gb-subtitle">Pool tokens together for bigger discounts</div>
+          </div>
+        </div>
+        <div class="gb-cta">Browse Deals</div>
+      </div>
+    </div>
+
+    <!-- Bottom padding -->
+    <div style="height:24px;"></div>
+
+  </div>
+
+  <!-- Bottom nav bar -->
+  <div class="bottom-nav">
+    <div class="tab">
+      <div class="tab-icon">&#x1F3E0;</div>
+      Home
+    </div>
+    <div class="tab">
+      <div class="tab-icon">&#x1F4B0;</div>
+      Earn
+    </div>
+    <div class="tab">
+      <div class="tab-icon">&#x1F4AC;</div>
+      Chat
+    </div>
+    <div class="tab active">
+      <div class="tab-icon">&#x1F6D2;</div>
+      Buy
+    </div>
+    <div class="tab">
+      <div class="tab-icon">&#x1F4B3;</div>
+      Wallet
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ SPEC LEGEND ════ -->
+<div style="color:#ccc; font-size:12px; max-width:280px; line-height:1.7;">
+  <h3 style="color:#fff; margin-bottom:12px; font-size:16px;">Color Key</h3>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#F5F7FA;border:1px solid #999;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#F5F7FA</code> buyBackground</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#FFFFFF;border:1px solid #999;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#FFFFFF</code> buyCard</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#E8ECF1;border:1px solid #999;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#E8ECF1</code> buyCardBorder</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#EAECF0;border:1px solid #999;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#EAECF0</code> buyDivider</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#1A1A2E;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#1A1A2E</code> buyTextPrimary</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#64748B;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#64748B</code> buyTextSecondary</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#94A3B8;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#94A3B8</code> buyTextTertiary</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#08C2F4;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#08C2F4</code> buyMarketplaceAccent</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#0974FF;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#0974FF</code> buyMarketplaceAccentDark</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#059669;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#059669</code> buyGroupBuyAccent</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#F59E0B;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#F59E0B</code> buyWarning (SOON)</div>
+  <div><span style="display:inline-block;width:14px;height:14px;background:#FF328C;border-radius:3px;vertical-align:middle;margin-right:6px;"></span> <code>#FF328C</code> primary (active tab)</div>
+
+  <h3 style="color:#fff; margin: 20px 0 12px; font-size:16px;">Layout Specs</h3>
+  <div><strong>AppBar:</strong> Dark gradient (unchanged)</div>
+  <div><strong>Body bg:</strong> Solid #F5F7FA</div>
+  <div><strong>Dividers:</strong> 1px #EAECF0 + 16px padding</div>
+  <div><strong>Chips:</strong> 8px radius, 4/8/4/5 padding, 6px gap, 11px/w600 label, 18px icon</div>
+  <div><strong>Marketplace:</strong> Option B — white card, 4px cyan→blue accent bar, 64px logo image, gradient CTA</div>
+  <div><strong>Group Buys:</strong> White card, 4px green accent bar, 64px logo image, solid green CTA</div>
+  <div><strong>Cluster opt-in:</strong> White card, green border @0.3, green icon + btn</div>
+  <div><strong>Brand cards:</strong> 140×100px, r:12, gradient bg, dark overlay, logo+name+tagline</div>
+  <div><strong>Featured:</strong> Full-width, r:12, h:160, dark overlay, badge+title+desc, page dots</div>
+
+  <h3 style="color:#fff; margin: 20px 0 12px; font-size:16px;">Removed</h3>
+  <div style="color:#F87171;">&#x2717; My Regulars dock</div>
+  <div style="color:#F87171;">&#x2717; 8px solid block dividers</div>
+  <div style="color:#F87171;">&#x2717; Purple gradient group buys card</div>
+  <div style="color:#F87171;">&#x2717; Cyan gradient marketplace card</div>
+  <div style="color:#F87171;">&#x2717; Gold→dark gradient background</div>
+  <div style="color:#F87171;">&#x2717; 20px pill radius on chips</div>
+  <div style="color:#F87171;">&#x2717; Subcategory navigation path</div>
+</div>
+
+</div>
+
+</body>
+</html>

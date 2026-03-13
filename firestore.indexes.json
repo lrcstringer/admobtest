@@ -1012,6 +1012,16 @@
       "collectionGroup": "brandReviews",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "brandId", "order": "ASCENDING" },
+        { "fieldPath": "isRemovedByAdmin", "order": "ASCENDING" },
+        { "fieldPath": "isFiltered", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "brandReviews",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "orderId", "order": "ASCENDING" },
         { "fieldPath": "userId", "order": "ASCENDING" }
       ]
@@ -1022,6 +1032,16 @@
       "fields": [
         { "fieldPath": "brandId", "order": "ASCENDING" },
         { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "brandProducts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "storefrontId", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "isDeleted", "order": "ASCENDING" },
         { "fieldPath": "sortOrder", "order": "ASCENDING" }
       ]
     },
@@ -1074,13 +1094,6 @@
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "dueDate", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "cycles",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "cycleNumber", "order": "ASCENDING" }
       ]
     },
     {

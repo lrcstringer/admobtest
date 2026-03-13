@@ -51,12 +51,12 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Orders'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.primary,
           labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondary,
+          unselectedLabelColor: AppColors.buyTextSecondary,
           tabs: const [
             Tab(text: 'My Purchases'),
             Tab(text: 'My Sales'),
@@ -69,7 +69,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.successMessage!),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.buySuccess,
               ),
             );
             context
@@ -80,7 +80,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
             context
@@ -125,14 +125,14 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
               isBuyer
                   ? Icons.shopping_bag_outlined
                   : Icons.storefront_outlined,
-              color: AppColors.textHint,
+              color: AppColors.buyTextTertiary,
               size: 48,
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
               isBuyer ? 'No purchases yet' : 'No sales yet',
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
                 fontSize: 14,
               ),
             ),
@@ -165,9 +165,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: AppColors.surfaceElevated,
+          color: AppColors.buyCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border, width: 0.5),
+          border: Border.all(color: AppColors.buyCardBorder, width: 0.5),
         ),
         child: Row(
           children: [
@@ -176,7 +176,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: AppColors.buyCard,
                 borderRadius: BorderRadius.circular(8),
                 image: order.thumbnailUrl != null
                     ? DecorationImage(
@@ -188,7 +188,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
               child: order.thumbnailUrl == null
                   ? const Icon(
                       Icons.storefront_outlined,
-                      color: AppColors.textHint,
+                      color: AppColors.buyTextTertiary,
                       size: 20,
                     )
                   : null,
@@ -203,7 +203,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
                   Text(
                     order.listingTitle,
                     style: const TextStyle(
-                      color: AppColors.textPrimary,
+                      color: AppColors.buyTextPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -216,7 +216,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
                         ? 'from ${order.sellerName}'
                         : 'from ${order.buyerName}',
                     style: const TextStyle(
-                      color: AppColors.textSecondary,
+                      color: AppColors.buyTextSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -243,23 +243,23 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
     final Color color;
     switch (status) {
       case OrderStatus.pending:
-        color = AppColors.textSecondary;
+        color = AppColors.buyTextSecondary;
       case OrderStatus.escrowed:
         color = AppColors.secondary;
       case OrderStatus.fulfilled:
-        color = AppColors.warning;
+        color = AppColors.buyWarning;
       case OrderStatus.completed:
-        color = AppColors.success;
+        color = AppColors.buySuccess;
       case OrderStatus.disputed:
-        color = AppColors.error;
+        color = AppColors.buyError;
       case OrderStatus.refunding:
-        color = AppColors.warning;
+        color = AppColors.buyWarning;
       case OrderStatus.refunded:
         color = AppColors.secondary;
       case OrderStatus.cancelled:
-        color = AppColors.textHint;
+        color = AppColors.buyTextTertiary;
       case OrderStatus.failed:
-        color = AppColors.error;
+        color = AppColors.buyError;
     }
 
     return Container(
@@ -281,8 +281,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surfaceElevated,
+      baseColor: AppColors.buyCard,
+      highlightColor: AppColors.buyCard,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: 5,
@@ -291,7 +291,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
           child: Container(
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),

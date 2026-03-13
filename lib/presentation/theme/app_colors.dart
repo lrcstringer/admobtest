@@ -232,8 +232,8 @@ class AppColors {
   // Feature Accents
   static const Color buyGroupBuyAccent = Color(0xFF059669);
   static const Color buyGroupBuyAccentLight = Color(0xFF10B981);
-  static const Color buyMarketplaceAccent = Color(0xFF08C2F4);
-  static const Color buyMarketplaceAccentDark = Color(0xFF0974FF);
+  static const Color buyMarketplaceAccent = Color(0xFFD4882B);
+  static const Color buyMarketplaceAccentDark = Color(0xFF8B5E1A);
 
   // Offline Banner
   static const Color buyOfflineBg = Color(0xFFFFF8E1);

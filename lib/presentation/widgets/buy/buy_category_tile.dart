@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../domain/entities/buy_category.dart';
 import '../../theme/app_colors.dart';
 
-/// Compact pill-shaped chip: inline SVG icon + text.
+/// Dense chip: 18px icon + 11px label, 8px radius, compact padding.
 class BuyCategoryTile extends StatelessWidget {
   final BuyCategory category;
   final VoidCallback onTap;
@@ -25,41 +25,46 @@ class BuyCategoryTile extends StatelessWidget {
       child: Opacity(
         opacity: isDisabled ? 0.55 : 1.0,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.fromLTRB(5, 4, 8, 4),
           decoration: BoxDecoration(
-            color: _bgColor,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.border.withValues(alpha: 0.6),
-            ),
+            color: AppColors.buyCard,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.buyCardBorder),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.buyShadow,
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildIcon(context),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               Flexible(
                 child: Text(
                   category.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                     color: isDisabled
-                        ? AppColors.textTertiary
-                        : AppColors.textPrimary,
+                        ? AppColors.buyTextTertiary
+                        : AppColors.buyTextPrimary,
                   ),
                 ),
               ),
               if (category.isComingSoon) ...[
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
-                    color: AppColors.warning,
-                    borderRadius: BorderRadius.circular(6),
+                    color: AppColors.buyWarning,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
                     'SOON',
@@ -78,23 +83,15 @@ class BuyCategoryTile extends StatelessWidget {
     );
   }
 
-  Color get _bgColor {
-    if (category.backgroundColor != null) {
-      return AppColors.parseHex(category.backgroundColor!)
-          .withValues(alpha: 0.12);
-    }
-    return AppColors.surfaceElevated;
-  }
-
   Widget _buildIcon(BuildContext context) {
     // Priority: logoUrl (network) > SVG asset > emoji fallback
     if (category.logoUrl != null && category.logoUrl!.isNotEmpty) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(3),
         child: CachedNetworkImage(
           imageUrl: category.logoUrl!,
-          width: 20,
-          height: 20,
+          width: 18,
+          height: 18,
           fit: BoxFit.contain,
           placeholder: (_, _) => _svgOrEmojiIcon(context),
           errorWidget: (_, _, _) => _svgOrEmojiIcon(context),
@@ -106,7 +103,7 @@ class BuyCategoryTile extends StatelessWidget {
 
   Widget _svgOrEmojiIcon(BuildContext context) {
     final iconColor =
-        category.isComingSoon ? AppColors.textTertiary : AppColors.textPrimary;
+        category.isComingSoon ? AppColors.buyTextTertiary : AppColors.buyTextPrimary;
     return SvgPicture.asset(
       category.iconSvgPath,
       width: 18,
@@ -118,6 +115,6 @@ class BuyCategoryTile extends StatelessWidget {
 
   Widget get _emojiIcon => Text(
         category.iconEmoji,
-        style: const TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 14),
       );
 }

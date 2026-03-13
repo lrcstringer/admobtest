@@ -41,8 +41,8 @@ class GroupBuyProgressBar extends StatelessWidget {
               return LinearProgressIndicator(
                 value: value,
                 minHeight: height,
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation(AppColors.success),
+                backgroundColor: AppColors.buyCardBorder,
+                valueColor: const AlwaysStoppedAnimation(AppColors.buySuccess),
               );
             },
           ),
@@ -56,7 +56,7 @@ class GroupBuyProgressBar extends StatelessWidget {
               Text(
                 '$currentAmount / $targetAmount tokens',
                 style: const TextStyle(
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   fontSize: 12,
                 ),
               ),
@@ -64,8 +64,8 @@ class GroupBuyProgressBar extends StatelessWidget {
                 '$percent%',
                 style: TextStyle(
                   color: progress >= 1.0
-                      ? AppColors.success
-                      : AppColors.textSecondary,
+                      ? AppColors.buySuccess
+                      : AppColors.buyTextSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),

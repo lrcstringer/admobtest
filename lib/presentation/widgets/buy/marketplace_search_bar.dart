@@ -53,26 +53,26 @@ class _MarketplaceSearchBarState extends State<MarketplaceSearchBar> {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: AppColors.buyCard,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border, width: 0.5),
+        border: Border.all(color: AppColors.buyCardBorder, width: 0.5),
       ),
       child: TextField(
         controller: _controller,
         onChanged: _onChanged,
         style: const TextStyle(
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
           fontSize: 14,
         ),
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: const TextStyle(
-            color: AppColors.textHint,
+            color: AppColors.buyTextTertiary,
             fontSize: 14,
           ),
           prefixIcon: const Icon(
             Icons.search,
-            color: AppColors.textSecondary,
+            color: AppColors.buyTextSecondary,
             size: 20,
           ),
           suffixIcon: ValueListenableBuilder<TextEditingValue>(
@@ -82,7 +82,7 @@ class _MarketplaceSearchBarState extends State<MarketplaceSearchBar> {
               return IconButton(
                 icon: const Icon(
                   Icons.close,
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   size: 18,
                 ),
                 onPressed: _onClear,

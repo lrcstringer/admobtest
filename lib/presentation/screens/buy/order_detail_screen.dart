@@ -35,7 +35,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Details'),
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.buyCard,
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
@@ -50,7 +50,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.successMessage!),
-                backgroundColor: AppColors.success,
+                backgroundColor: AppColors.buySuccess,
               ),
             );
             context
@@ -65,7 +65,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
+                backgroundColor: AppColors.buyError,
               ),
             );
             context
@@ -83,7 +83,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             return const Center(
               child: Text(
                 'Order not found',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: AppColors.buyTextSecondary),
               ),
             );
           }
@@ -104,7 +104,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(AppSpacing.md),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceElevated,
+                          color: AppColors.buyCard,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -113,7 +113,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               width: 56,
                               height: 56,
                               decoration: BoxDecoration(
-                                color: AppColors.surface,
+                                color: AppColors.buyCard,
                                 borderRadius: BorderRadius.circular(8),
                                 image: order.thumbnailUrl != null
                                     ? DecorationImage(
@@ -126,7 +126,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               child: order.thumbnailUrl == null
                                   ? const Icon(
                                       Icons.storefront_outlined,
-                                      color: AppColors.textHint,
+                                      color: AppColors.buyTextTertiary,
                                     )
                                   : null,
                             ),
@@ -138,7 +138,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                   Text(
                                     order.listingTitle,
                                     style: const TextStyle(
-                                      color: AppColors.textPrimary,
+                                      color: AppColors.buyTextPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -198,7 +198,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: AppColors.error.withValues(alpha: 0.1),
+                            color: AppColors.buyError.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -207,12 +207,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               const Row(
                                 children: [
                                   Icon(Icons.warning_amber_rounded,
-                                      color: AppColors.error, size: 18),
+                                      color: AppColors.buyError, size: 18),
                                   SizedBox(width: 8),
                                   Text(
                                     'Dispute',
                                     style: TextStyle(
-                                      color: AppColors.error,
+                                      color: AppColors.buyError,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -223,7 +223,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               Text(
                                 order.disputeReason!,
                                 style: const TextStyle(
-                                  color: AppColors.textSecondary,
+                                  color: AppColors.buyTextSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -293,7 +293,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Text(
               label,
               style: const TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.buyTextSecondary,
                 fontSize: 12,
               ),
             ),
@@ -302,7 +302,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             child: Text(
               value,
               style: const TextStyle(
-                color: AppColors.textPrimary,
+                color: AppColors.buyTextPrimary,
                 fontSize: 13,
               ),
             ),
@@ -377,9 +377,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: const BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.buyCard,
         border: Border(
-          top: BorderSide(color: AppColors.border, width: 0.5),
+          top: BorderSide(color: AppColors.buyCardBorder, width: 0.5),
         ),
       ),
       child: SafeArea(
@@ -392,15 +392,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.buyCard,
         title: const Text(
           'Confirm Receipt?',
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.buyTextPrimary),
         ),
         content: const Text(
           'This releases payment to the seller. '
           'Make sure you received your item.',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.buyTextSecondary),
         ),
         actions: [
           TextButton(
@@ -416,7 +416,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             },
             child: const Text(
               'Confirm',
-              style: TextStyle(color: AppColors.success),
+              style: TextStyle(color: AppColors.buySuccess),
             ),
           ),
         ],
@@ -429,10 +429,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceElevated,
+        backgroundColor: AppColors.buyCard,
         title: const Text(
           'Raise a Dispute',
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.buyTextPrimary),
         ),
         content: TextField(
           controller: controller,
@@ -457,7 +457,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             },
             child: const Text(
               'Submit',
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: AppColors.buyError),
             ),
           ),
         ],
@@ -488,7 +488,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Text(
                   'Offer History',
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    color: AppColors.buyTextPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -528,8 +528,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     height: 8,
                     decoration: BoxDecoration(
                       color: offer.status.isTerminal
-                          ? AppColors.success
-                          : AppColors.warning,
+                          ? AppColors.buySuccess
+                          : AppColors.buyWarning,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -538,8 +538,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     'Status: ${offer.status.name}',
                     style: TextStyle(
                       color: offer.status.isTerminal
-                          ? AppColors.success
-                          : AppColors.warning,
+                          ? AppColors.buySuccess
+                          : AppColors.buyWarning,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -552,7 +552,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               Text(
                 '"${offer.message!}"',
                 style: const TextStyle(
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
                 ),
@@ -599,7 +599,7 @@ class _OfferStep extends StatelessWidget {
                 height: 8,
                 decoration: BoxDecoration(
                   color: isFirst
-                      ? AppColors.textSecondary
+                      ? AppColors.buyTextSecondary
                       : AppColors.secondary,
                   shape: BoxShape.circle,
                 ),
@@ -607,7 +607,7 @@ class _OfferStep extends StatelessWidget {
               Container(
                 width: 1,
                 height: 20,
-                color: AppColors.border,
+                color: AppColors.buyCardBorder,
               ),
             ],
           ),
@@ -619,14 +619,14 @@ class _OfferStep extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    color: AppColors.textSecondary,
+                    color: AppColors.buyTextSecondary,
                     fontSize: 12,
                   ),
                 ),
                 Text(
                   '$amount tokens (R$zarAmount)',
                   style: const TextStyle(
-                    color: AppColors.textPrimary,
+                    color: AppColors.buyTextPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -638,7 +638,7 @@ class _OfferStep extends StatelessWidget {
             Text(
               '${date!.day}/${date!.month}/${date!.year}',
               style: const TextStyle(
-                color: AppColors.textHint,
+                color: AppColors.buyTextTertiary,
                 fontSize: 11,
               ),
             ),

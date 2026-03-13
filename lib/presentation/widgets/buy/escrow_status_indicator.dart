@@ -43,12 +43,12 @@ class EscrowStatusIndicator extends StatelessWidget {
 
     switch (status) {
       case OrderStatus.disputed:
-        color = AppColors.warning;
+        color = AppColors.buyWarning;
         icon = Icons.warning_amber_rounded;
         label = 'Disputed';
         break;
       case OrderStatus.refunding:
-        color = AppColors.warning;
+        color = AppColors.buyWarning;
         icon = Icons.hourglass_bottom_rounded;
         label = 'Refunding';
         break;
@@ -58,7 +58,7 @@ class EscrowStatusIndicator extends StatelessWidget {
         label = 'Refunded';
         break;
       case OrderStatus.cancelled:
-        color = AppColors.error;
+        color = AppColors.buyError;
         icon = Icons.cancel_outlined;
         label = 'Cancelled';
         break;
@@ -122,10 +122,10 @@ class EscrowStatusIndicator extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isActive
-                  ? AppColors.success
-                  : AppColors.surfaceElevated,
+                  ? AppColors.buySuccess
+                  : AppColors.buyCard,
               border: Border.all(
-                color: isActive ? AppColors.success : AppColors.border,
+                color: isActive ? AppColors.buySuccess : AppColors.buyCardBorder,
                 width: isCurrent ? 2 : 1,
               ),
             ),
@@ -137,7 +137,7 @@ class EscrowStatusIndicator extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isActive ? AppColors.textPrimary : AppColors.textTertiary,
+              color: isActive ? AppColors.buyTextPrimary : AppColors.buyTextTertiary,
               fontSize: 10,
               fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -155,7 +155,7 @@ class EscrowStatusIndicator extends StatelessWidget {
       child: Container(
         height: 2,
         margin: const EdgeInsets.only(bottom: 16),
-        color: isActive ? AppColors.success : AppColors.border,
+        color: isActive ? AppColors.buySuccess : AppColors.buyCardBorder,
       ),
     );
   }

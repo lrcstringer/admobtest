@@ -32,12 +32,12 @@ class BuyFailureScreen extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
+                    color: AppColors.buyError.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.error_outline,
-                    color: AppColors.error,
+                    color: AppColors.buyError,
                     size: 60,
                   ),
                 ),
@@ -57,17 +57,17 @@ class BuyFailureScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.05),
+                    color: AppColors.buyError.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.3),
+                      color: AppColors.buyError.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.info_outline,
-                        color: AppColors.error,
+                        color: AppColors.buyError,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -75,7 +75,7 @@ class BuyFailureScreen extends StatelessWidget {
                         child: Text(
                           errorMessage,
                           style: const TextStyle(
-                            color: AppColors.textPrimary,
+                            color: AppColors.buyTextPrimary,
                             fontSize: 14,
                           ),
                         ),
@@ -128,7 +128,7 @@ class BuyFailureScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: AppColors.buyCard,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -155,7 +155,7 @@ class BuyFailureScreen extends StatelessWidget {
                       const Text(
                         'Your tokens have not been deducted. If you believe this is an error, please try again or contact support.',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.buyTextSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -231,7 +231,7 @@ class BuyFailureScreen extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors.buyTextSecondary,
             fontSize: 14,
           ),
         ),

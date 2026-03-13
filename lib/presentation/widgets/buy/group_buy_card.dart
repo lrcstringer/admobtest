@@ -43,18 +43,18 @@ class GroupBuyCard extends StatelessWidget {
             colors: [
               Color.alphaBlend(
                 accentColor.withValues(alpha: 0.06),
-                AppColors.surface,
+                AppColors.buyCard,
               ),
               Color.alphaBlend(
                 accentColor.withValues(alpha: 0.02),
-                AppColors.surface,
+                AppColors.buyCard,
               ),
             ],
           ),
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
           border: Border.all(
             color: isTerminal
-                ? AppColors.border
+                ? AppColors.buyCardBorder
                 : accentColor.withValues(alpha: 0.3),
           ),
         ),
@@ -90,8 +90,8 @@ class GroupBuyCard extends StatelessWidget {
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: isTerminal
-                          ? AppColors.textTertiary
-                          : AppColors.textPrimary,
+                          ? AppColors.buyTextTertiary
+                          : AppColors.buyTextPrimary,
                     ),
                   ),
                 ),
@@ -114,7 +114,7 @@ class GroupBuyCard extends StatelessWidget {
               children: [
                 // Countdown
                 if (!isTerminal) ...[
-                  Icon(Icons.timer_outlined, size: 14, color: AppColors.textSecondary),
+                  Icon(Icons.timer_outlined, size: 14, color: AppColors.buyTextSecondary),
                   const SizedBox(width: 4),
                   Expanded(
                     child: CountdownTimerWidget(
@@ -128,14 +128,14 @@ class GroupBuyCard extends StatelessWidget {
                       groupBuy.status.displayName,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppColors.textTertiary,
+                        color: AppColors.buyTextTertiary,
                       ),
                     ),
                   ),
                 ],
 
                 // Participants
-                Icon(Icons.people_outline, size: 14, color: AppColors.textSecondary),
+                Icon(Icons.people_outline, size: 14, color: AppColors.buyTextSecondary),
                 const SizedBox(width: 4),
                 Text(
                   groupBuy.maxParticipants != null
@@ -143,7 +143,7 @@ class GroupBuyCard extends StatelessWidget {
                       : '${groupBuy.participantCount} joined',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: AppColors.buyTextSecondary,
                   ),
                 ),
               ],
@@ -162,7 +162,7 @@ class GroupBuyCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.error,
+                        color: AppColors.buyError,
                       ),
                     )
                   else if (isBrand && groupBuy.discountPercent != null)
@@ -224,7 +224,7 @@ class GroupBuyCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: isTerminal
-            ? AppColors.border
+            ? AppColors.buyCardBorder
             : accentColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -233,7 +233,7 @@ class GroupBuyCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: isTerminal ? AppColors.textTertiary : accentColor,
+          color: isTerminal ? AppColors.buyTextTertiary : accentColor,
         ),
       ),
     );

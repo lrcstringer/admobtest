@@ -32,7 +32,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
+                  color: AppColors.buyCard,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: AppColors.secondary, size: 24),
@@ -47,7 +47,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: AppColors.buyTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -55,7 +55,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: AppColors.buyTextSecondary,
                       ),
                     ),
                   ],
@@ -65,7 +65,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.15),
+                  color: AppColors.buyWarning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
@@ -73,7 +73,7 @@ class BuyComingSoonTeaser extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.warning,
+                    color: AppColors.buyWarning,
                   ),
                 ),
               ),

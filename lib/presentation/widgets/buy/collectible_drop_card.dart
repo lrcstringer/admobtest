@@ -79,11 +79,11 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: AppColors.buyCard,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDisabled
-              ? AppColors.border
+              ? AppColors.buyCardBorder
               : AppColors.gold.withValues(alpha: 0.3),
         ),
       ),
@@ -102,8 +102,8 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: isDisabled
-                        ? AppColors.textTertiary
-                        : AppColors.textPrimary,
+                        ? AppColors.buyTextTertiary
+                        : AppColors.buyTextPrimary,
                   ),
                 ),
               ),
@@ -111,7 +111,7 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: isDisabled
-                      ? AppColors.border
+                      ? AppColors.buyCardBorder
                       : AppColors.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -124,7 +124,7 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: isDisabled ? AppColors.textTertiary : AppColors.gold,
+                    color: isDisabled ? AppColors.buyTextTertiary : AppColors.gold,
                   ),
                 ),
               ),
@@ -155,9 +155,9 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                   child: LinearProgressIndicator(
                     value: progress.clamp(0.0, 1.0),
                     minHeight: 6,
-                    backgroundColor: AppColors.border,
+                    backgroundColor: AppColors.buyCardBorder,
                     valueColor: AlwaysStoppedAnimation(
-                      isDisabled ? AppColors.textTertiary : AppColors.success,
+                      isDisabled ? AppColors.buyTextTertiary : AppColors.buySuccess,
                     ),
                   ),
                 ),
@@ -167,7 +167,7 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                 '${widget.claimedQuantity} of ${widget.totalQuantity}',
                 style: const TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: AppColors.buyTextSecondary,
                 ),
               ),
             ],
@@ -184,7 +184,7 @@ class _CollectibleDropCardState extends State<CollectibleDropCard> {
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.error,
+                      color: AppColors.buyError,
                     ),
                   )
                 else

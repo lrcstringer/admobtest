@@ -45,18 +45,18 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
                   children: [
                     Icon(Icons.receipt_long_outlined,
                         size: 48,
-                        color: AppColors.textTertiary.withValues(alpha: 0.5)),
+                        color: AppColors.buyTextTertiary.withValues(alpha: 0.5)),
                     const SizedBox(height: 12),
                     const Text(
                       'No purchases yet',
                       style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 14),
+                          color: AppColors.buyTextSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     const Text(
                       'Your purchase history will appear here',
                       style: TextStyle(
-                          color: AppColors.textTertiary, fontSize: 13),
+                          color: AppColors.buyTextTertiary, fontSize: 13),
                     ),
                   ],
                 ),
@@ -94,9 +94,9 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
+        color: AppColors.buyCard,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.buyCardBorder.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -123,14 +123,14 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: AppColors.textPrimary,
+                    color: AppColors.buyTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${purchase.recipientNumber ?? ''} \u00b7 ${purchase.statusDisplayName}',
                   style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12),
+                      color: AppColors.buyTextSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -149,7 +149,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
               Text(
                 _formatDate(purchase.createdAt),
                 style: const TextStyle(
-                    color: AppColors.textTertiary, fontSize: 11),
+                    color: AppColors.buyTextTertiary, fontSize: 11),
               ),
             ],
           ),
@@ -160,8 +160,8 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
 
   Widget _buildShimmer() {
     return Shimmer.fromColors(
-      baseColor: AppColors.shimmerBase,
-      highlightColor: AppColors.shimmerHighlight,
+      baseColor: AppColors.buyShimmerBase,
+      highlightColor: AppColors.buyShimmerHigh,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
@@ -170,7 +170,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
           child: Container(
             height: 68,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buyCard,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -211,12 +211,12 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
   Color _getStatusColor(PurchaseStatus status) {
     switch (status) {
       case PurchaseStatus.completed:
-        return AppColors.success;
+        return AppColors.buySuccess;
       case PurchaseStatus.pending:
       case PurchaseStatus.processing:
-        return AppColors.warning;
+        return AppColors.buyWarning;
       case PurchaseStatus.failed:
-        return AppColors.error;
+        return AppColors.buyError;
       case PurchaseStatus.refunded:
         return AppColors.secondary;
     }

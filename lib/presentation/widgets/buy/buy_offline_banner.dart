@@ -13,13 +13,13 @@ class BuyOfflineBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.warning.withValues(alpha: 0.15),
+      color: AppColors.buyWarning.withValues(alpha: 0.15),
       child: Row(
         children: [
           const Icon(
             Icons.wifi_off_rounded,
             size: 16,
-            color: AppColors.warning,
+            color: AppColors.buyWarning,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -27,7 +27,7 @@ class BuyOfflineBanner extends StatelessWidget {
               _buildMessage(),
               style: const TextStyle(
                 fontSize: 12,
-                color: AppColors.warning,
+                color: AppColors.buyWarning,
                 fontWeight: FontWeight.w500,
               ),
             ),
