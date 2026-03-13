@@ -47,6 +47,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: 'Buy',
+        backgroundColor: AppColors.background,
         extraActions: [
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.textPrimary),

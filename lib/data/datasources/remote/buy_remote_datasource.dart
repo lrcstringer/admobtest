@@ -142,10 +142,12 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
     // Server-side filter: only fetch items whose schedule hasn't expired.
     // Items without scheduledEnd are open-ended and always included.
     // Client-side isCurrentlyActive check provides defense-in-depth.
+    // Note: isDeleted filter removed from query — Firestore treats a missing
+    // field as != false, so docs without isDeleted would be silently excluded.
+    // Client-side isCurrentlyActiveAt() checks isDeleted as defense-in-depth.
     final snapshot = await _firestore
         .collection('featuredItems')
         .where('isActive', isEqualTo: true)
-        .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
         .limit(50)
         .get();
