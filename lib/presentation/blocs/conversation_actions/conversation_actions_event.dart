@@ -1,7 +1,7 @@
 part of 'conversation_actions_bloc.dart';
 
 @freezed
-class ConversationActionsEvent with _$ConversationActionsEvent {
+abstract class ConversationActionsEvent with _$ConversationActionsEvent {
   /// Mark all messages as read
   const factory ConversationActionsEvent.markAsRead(String conversationId) =
       _MarkAsRead;

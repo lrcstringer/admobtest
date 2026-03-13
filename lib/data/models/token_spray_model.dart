@@ -8,7 +8,7 @@ import '../../domain/enums/spray_status.dart';
 part 'token_spray_model.freezed.dart';
 
 @freezed
-class TokenSprayModel with _$TokenSprayModel {
+abstract class TokenSprayModel with _$TokenSprayModel {
   const factory TokenSprayModel({
     required String id,
     required String communityId,

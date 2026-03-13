@@ -37,7 +37,7 @@ enum LedgerEntryType {
 
 /// Individual ledger entry within a journal
 @freezed
-class LedgerEntry with _$LedgerEntry {
+abstract class LedgerEntry with _$LedgerEntry {
   const factory LedgerEntry({
     required String id,
     required String accountId,
@@ -66,7 +66,7 @@ enum LedgerReferenceType {
 /// Ledger journal entity
 /// Represents an immutable double-entry bookkeeping record
 @freezed
-class LedgerJournal with _$LedgerJournal {
+abstract class LedgerJournal with _$LedgerJournal {
   const factory LedgerJournal({
     required String id,
     required String idempotencyKey,

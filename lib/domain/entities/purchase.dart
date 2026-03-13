@@ -10,7 +10,7 @@ part 'purchase.freezed.dart';
 
 /// Purchase entity representing a service purchase
 @freezed
-class Purchase with _$Purchase {
+abstract class Purchase with _$Purchase {
   const factory Purchase({
     required String id,
     required String subAccountId,

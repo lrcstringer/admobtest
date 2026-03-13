@@ -7,7 +7,7 @@ import '../mappers/brand_review_mapper.dart';
 part 'brand_review_model.freezed.dart';
 
 @freezed
-class BrandReviewModel with _$BrandReviewModel {
+abstract class BrandReviewModel with _$BrandReviewModel {
   const factory BrandReviewModel({
     required String id,
     required String brandId,

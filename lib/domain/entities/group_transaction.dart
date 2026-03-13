@@ -38,7 +38,7 @@ enum GroupTransactionStatus {
 ///
 /// Represents a financial transaction within a group (contributions, withdrawals, payouts).
 @freezed
-class GroupTransaction with _$GroupTransaction {
+abstract class GroupTransaction with _$GroupTransaction {
   const factory GroupTransaction({
     required String id,
     required String groupId,
@@ -148,7 +148,7 @@ class GroupTransaction with _$GroupTransaction {
 /// Represents a transaction awaiting approval from authorized members.
 /// Includes transaction details for display purposes.
 @freezed
-class PendingApproval with _$PendingApproval {
+abstract class PendingApproval with _$PendingApproval {
   const factory PendingApproval({
     required String id,
     required String groupId,

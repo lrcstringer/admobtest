@@ -11,7 +11,7 @@ part 'daily_score.g.dart';
 /// Score Formula:
 /// finalScore = (engagementsCompleted × streakMultiplier) + assistScore
 @freezed
-class DailyScore with _$DailyScore {
+abstract class DailyScore with _$DailyScore {
   const factory DailyScore({
     /// Date in YYYY-MM-DD format (SAST timezone)
     required String date,

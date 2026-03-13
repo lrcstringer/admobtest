@@ -4,7 +4,7 @@ part of 'conversation_bloc.dart';
 enum ConversationStatus { initial, loading, loaded, error }
 
 @freezed
-class ConversationState with _$ConversationState {
+abstract class ConversationState with _$ConversationState {
   const factory ConversationState({
     @Default(ConversationStatus.initial) ConversationStatus status,
     @Default([]) List<Conversation> conversations,

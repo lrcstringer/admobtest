@@ -9,7 +9,7 @@ import '../mappers/brand_storefront_mapper.dart';
 part 'brand_storefront_model.freezed.dart';
 
 @freezed
-class BrandStorefrontModel with _$BrandStorefrontModel {
+abstract class BrandStorefrontModel with _$BrandStorefrontModel {
   const factory BrandStorefrontModel({
     required String id,
     required String brandId,

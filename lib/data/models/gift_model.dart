@@ -8,7 +8,7 @@ import '../../domain/enums/gift_style.dart';
 part 'gift_model.freezed.dart';
 
 @freezed
-class GiftModel with _$GiftModel {
+abstract class GiftModel with _$GiftModel {
   const factory GiftModel({
     required String id,
     required String senderId,
@@ -136,7 +136,7 @@ class GiftModel with _$GiftModel {
 }
 
 @freezed
-class GiftStatsModel with _$GiftStatsModel {
+abstract class GiftStatsModel with _$GiftStatsModel {
   const factory GiftStatsModel({
     @Default(0) int totalSent,
     @Default(0) int totalReceived,

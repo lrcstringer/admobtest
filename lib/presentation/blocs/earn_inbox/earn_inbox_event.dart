@@ -1,7 +1,7 @@
 part of 'earn_inbox_bloc.dart';
 
 @freezed
-class EarnInboxEvent with _$EarnInboxEvent {
+abstract class EarnInboxEvent with _$EarnInboxEvent {
   /// Load the full inbox (clients + notifications)
   const factory EarnInboxEvent.loadInbox() = _LoadInbox;
 

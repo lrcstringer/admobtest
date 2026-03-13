@@ -8,7 +8,7 @@ part 'e2ee_types.g.dart';
 /// This is stored locally on the device and NEVER uploaded to the server.
 /// Contains the identity key pair, signed pre-key, and one-time pre-keys.
 @freezed
-class KeyBundle with _$KeyBundle {
+abstract class KeyBundle with _$KeyBundle {
   const factory KeyBundle({
     /// The long-term identity key pair (X25519), base64-encoded as "priv|pub".
     required String identityKeyPair,
@@ -71,7 +71,7 @@ class KeyBundle with _$KeyBundle {
 ///
 /// Used by the sender to establish an X3DH session with the recipient.
 @freezed
-class PublicKeyBundle with _$PublicKeyBundle {
+abstract class PublicKeyBundle with _$PublicKeyBundle {
   const factory PublicKeyBundle({
     /// The recipient's public identity key (X25519), base64-encoded.
     required String identityKey,
@@ -118,7 +118,7 @@ class PublicKeyBundle with _$PublicKeyBundle {
 
 /// Metadata about a user's encrypted key backup stored on the server.
 @freezed
-class BackupMetadata with _$BackupMetadata {
+abstract class BackupMetadata with _$BackupMetadata {
   const factory BackupMetadata({
     /// Whether a backup exists on the server.
     required bool backupExists,

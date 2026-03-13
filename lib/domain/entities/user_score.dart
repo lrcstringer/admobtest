@@ -5,7 +5,7 @@ part 'user_score.g.dart';
 
 /// User score for leaderboard
 @freezed
-class UserScore with _$UserScore {
+abstract class UserScore with _$UserScore {
   const factory UserScore({
     required String userId,
     required String displayName,

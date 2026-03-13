@@ -12,7 +12,7 @@ part 'community_transaction_model.g.dart';
 /// Maps between Firestore document and CommunityTransaction entity.
 /// Subcollection: communities/{communityId}/transactions/{transactionId}
 @freezed
-class CommunityTransactionModel with _$CommunityTransactionModel {
+abstract class CommunityTransactionModel with _$CommunityTransactionModel {
   const factory CommunityTransactionModel({
     required String id,
     required String communityId,
@@ -149,7 +149,7 @@ String _transactionTypeToString(CommunityTransactionType type) {
 /// Maps between Firestore document and CommunityApproval entity.
 /// Subcollection: communities/{communityId}/pendingApprovals/{approvalId}
 @freezed
-class CommunityApprovalModel with _$CommunityApprovalModel {
+abstract class CommunityApprovalModel with _$CommunityApprovalModel {
   const factory CommunityApprovalModel({
     required String id,
     required String communityId,

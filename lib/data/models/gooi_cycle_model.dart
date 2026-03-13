@@ -7,7 +7,7 @@ import '../../domain/enums/gooi_cycle_status.dart';
 part 'gooi_cycle_model.freezed.dart';
 
 @freezed
-class GooiCycleModel with _$GooiCycleModel {
+abstract class GooiCycleModel with _$GooiCycleModel {
   const factory GooiCycleModel({
     required String id,
     required int cycleNumber,

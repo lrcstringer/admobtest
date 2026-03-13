@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'group_buy_contribution.freezed.dart';
 
 @freezed
-class GroupBuyContribution with _$GroupBuyContribution {
+abstract class GroupBuyContribution with _$GroupBuyContribution {
   const factory GroupBuyContribution({
     required String id,
     required String userId,

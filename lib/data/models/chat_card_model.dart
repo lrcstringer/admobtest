@@ -9,7 +9,7 @@ import '../../domain/enums/chat_card_type.dart';
 part 'chat_card_model.freezed.dart';
 
 @freezed
-class ChatCardModel with _$ChatCardModel {
+abstract class ChatCardModel with _$ChatCardModel {
   const factory ChatCardModel({
     required String id,
     required String threadId,

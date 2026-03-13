@@ -7,7 +7,7 @@ part 'earn_thread.g.dart';
 
 /// Earn thread representing a campaign/brand's earn messages
 @freezed
-class EarnThread with _$EarnThread {
+abstract class EarnThread with _$EarnThread {
   const factory EarnThread({
     required String id,
     // Client fields (renamed from brand)

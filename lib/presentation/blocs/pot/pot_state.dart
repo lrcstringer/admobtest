@@ -3,7 +3,7 @@ part of 'pot_bloc.dart';
 enum PotStatus { initial, loading, success, failure }
 
 @freezed
-class PotState with _$PotState {
+abstract class PotState with _$PotState {
   const factory PotState({
     @Default(PotStatus.initial) PotStatus status,
     PotPool? dailyPot,

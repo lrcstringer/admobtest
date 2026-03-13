@@ -11,7 +11,7 @@ part 'daily_score_model.g.dart';
 /// Maps between Firestore document and DailyScore entity.
 /// Collection: users/{userId}/dailyScores/{YYYY-MM-DD}
 @freezed
-class DailyScoreModel with _$DailyScoreModel {
+abstract class DailyScoreModel with _$DailyScoreModel {
   const factory DailyScoreModel({
     required String date,
     required int engagementsCompleted,

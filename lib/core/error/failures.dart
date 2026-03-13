@@ -4,7 +4,7 @@ part 'failures.freezed.dart';
 
 /// Represents all possible failure states in the application
 @freezed
-class Failure with _$Failure {
+abstract class Failure with _$Failure {
   // Network failures
   const factory Failure.network({String? message}) = NetworkFailure;
   const factory Failure.timeout() = TimeoutFailure;

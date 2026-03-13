@@ -1,7 +1,7 @@
 part of 'gift_bloc.dart';
 
 @freezed
-class GiftState with _$GiftState {
+abstract class GiftState with _$GiftState {
   const factory GiftState({
     @Default([]) List<Gift> sentGifts,
     @Default([]) List<Gift> receivedGifts,

@@ -5,7 +5,7 @@ import '../../domain/entities/buy_category.dart';
 part 'buy_category_model.freezed.dart';
 
 @freezed
-class BuyCategoryModel with _$BuyCategoryModel {
+abstract class BuyCategoryModel with _$BuyCategoryModel {
   const factory BuyCategoryModel({
     required String id,
     required String name,

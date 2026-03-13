@@ -6,7 +6,7 @@ part 'sa_location.g.dart';
 /// South African location entity for the shipped location database (~22K rows).
 /// Used for location autocomplete and geohash-based proximity queries.
 @freezed
-class SaLocation with _$SaLocation {
+abstract class SaLocation with _$SaLocation {
   const factory SaLocation({
     required String id,
     required String name,

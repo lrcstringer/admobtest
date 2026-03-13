@@ -9,7 +9,7 @@ part 'community.g.dart';
 
 /// Community settings (extends GroupSettings with messaging controls)
 @freezed
-class CommunitySettings with _$CommunitySettings {
+abstract class CommunitySettings with _$CommunitySettings {
   const factory CommunitySettings({
     @Default(100) int maxMembers,
     @Default(true) bool allowMemberInvites,
@@ -76,7 +76,7 @@ class CommunitySettings with _$CommunitySettings {
 ///
 /// Collection: communities/{communityId}
 @freezed
-class Community with _$Community {
+abstract class Community with _$Community {
   const factory Community({
     required String id,
     required CommunityType type,

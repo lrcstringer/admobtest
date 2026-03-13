@@ -8,7 +8,7 @@ enum CashoutRequestStatus {
 }
 
 @freezed
-class CashoutState with _$CashoutState {
+abstract class CashoutState with _$CashoutState {
   const factory CashoutState({
     @Default([]) List<Cashout> history,
     @Default(false) bool isLoadingHistory,

@@ -5,7 +5,7 @@ part 'inbox_thread.g.dart';
 
 /// Thread within a client group in the earn inbox
 @freezed
-class InboxThread with _$InboxThread {
+abstract class InboxThread with _$InboxThread {
   const factory InboxThread({
     required String id,
     required String title,

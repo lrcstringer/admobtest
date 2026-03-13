@@ -1,7 +1,7 @@
 part of 'pot_bloc.dart';
 
 @freezed
-class PotEvent with _$PotEvent {
+abstract class PotEvent with _$PotEvent {
   /// Load current daily pot
   const factory PotEvent.loadDailyPot() = _LoadDailyPot;
 

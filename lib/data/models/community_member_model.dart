@@ -14,7 +14,7 @@ part 'community_member_model.g.dart';
 /// Maps between Firestore document and CommunityMember entity.
 /// Subcollection: communities/{communityId}/members/{userId}
 @freezed
-class CommunityMemberModel with _$CommunityMemberModel {
+abstract class CommunityMemberModel with _$CommunityMemberModel {
   const factory CommunityMemberModel({
     required String id,
     required String communityId,

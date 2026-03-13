@@ -7,7 +7,7 @@ import 'location_data.dart';
 part 'marketplace_provider.freezed.dart';
 
 @freezed
-class MarketplaceProvider with _$MarketplaceProvider {
+abstract class MarketplaceProvider with _$MarketplaceProvider {
   const factory MarketplaceProvider({
     required String id,
     required String userId,

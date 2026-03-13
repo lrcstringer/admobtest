@@ -1,7 +1,7 @@
 part of 'admin_earn_bloc.dart';
 
 @freezed
-class AdminEarnEvent with _$AdminEarnEvent {
+abstract class AdminEarnEvent with _$AdminEarnEvent {
   // Statistics
   const factory AdminEarnEvent.loadStatistics() = _LoadStatistics;
   const factory AdminEarnEvent.loadTargetingOptions() = _LoadTargetingOptions;

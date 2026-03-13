@@ -4,7 +4,7 @@ part 'brand_account.freezed.dart';
 
 /// Brand account entity representing a client brand that users can follow.
 @freezed
-class BrandAccount with _$BrandAccount {
+abstract class BrandAccount with _$BrandAccount {
   const factory BrandAccount({
     required String id,
     required String name,

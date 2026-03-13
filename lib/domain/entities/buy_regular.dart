@@ -4,7 +4,7 @@ part 'buy_regular.freezed.dart';
 
 /// A user's frequently-purchased VAS product shortcut.
 @freezed
-class BuyRegular with _$BuyRegular {
+abstract class BuyRegular with _$BuyRegular {
   const factory BuyRegular({
     required String id,
     required String providerId,

@@ -1,7 +1,7 @@
 part of 'gooi_formation_bloc.dart';
 
 @freezed
-class GooiFormationEvent with _$GooiFormationEvent {
+abstract class GooiFormationEvent with _$GooiFormationEvent {
   const factory GooiFormationEvent.createGroup({
     required String name,
     required int contributionAmount,

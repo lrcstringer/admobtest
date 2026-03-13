@@ -1,7 +1,7 @@
 part of 'token_pool_bloc.dart';
 
 @freezed
-class TokenPoolEvent with _$TokenPoolEvent {
+abstract class TokenPoolEvent with _$TokenPoolEvent {
   // Pool lifecycle
   const factory TokenPoolEvent.createPool({
     required PoolMode mode,

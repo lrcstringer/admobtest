@@ -7,7 +7,7 @@ import '../../domain/entities/chat_thread.dart';
 part 'chat_thread_model.freezed.dart';
 
 @freezed
-class ChatThreadModel with _$ChatThreadModel {
+abstract class ChatThreadModel with _$ChatThreadModel {
   const factory ChatThreadModel({
     required String id,
     required String type,

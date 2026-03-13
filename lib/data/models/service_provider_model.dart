@@ -7,7 +7,7 @@ import 'purchase_category_helpers.dart';
 part 'service_provider_model.freezed.dart';
 
 @freezed
-class ServiceProviderModel with _$ServiceProviderModel {
+abstract class ServiceProviderModel with _$ServiceProviderModel {
   const factory ServiceProviderModel({
     required String id,
     required String name,
@@ -110,7 +110,7 @@ class ServiceProviderModel with _$ServiceProviderModel {
 }
 
 @freezed
-class ServiceProductModel with _$ServiceProductModel {
+abstract class ServiceProductModel with _$ServiceProductModel {
   const factory ServiceProductModel({
     required String id,
     required String providerId,

@@ -7,7 +7,7 @@ enum CommunityLoadingStatus { initial, loading, loaded, error }
 enum CommunityOperationStatus { idle, processing, success, failure }
 
 @freezed
-class CommunityState with _$CommunityState {
+abstract class CommunityState with _$CommunityState {
   const factory CommunityState({
     // Status
     @Default(CommunityLoadingStatus.initial) CommunityLoadingStatus status,

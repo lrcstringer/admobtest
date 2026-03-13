@@ -1,7 +1,7 @@
 part of 'order_bloc.dart';
 
 @freezed
-class OrderEvent with _$OrderEvent {
+abstract class OrderEvent with _$OrderEvent {
   /// Load orders where user is the buyer
   const factory OrderEvent.loadBuyerOrders() = _LoadBuyerOrders;
 

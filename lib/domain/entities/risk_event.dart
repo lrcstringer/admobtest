@@ -49,7 +49,7 @@ enum RiskEventStatus {
 
 /// A risk event that may require step-up authentication.
 @freezed
-class RiskEvent with _$RiskEvent {
+abstract class RiskEvent with _$RiskEvent {
   const factory RiskEvent({
     required String eventId,
     required String userId,

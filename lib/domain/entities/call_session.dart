@@ -9,7 +9,7 @@ part 'call_session.freezed.dart';
 ///
 /// No JSON serialization — that lives in the data layer model.
 @freezed
-class CallSession with _$CallSession {
+abstract class CallSession with _$CallSession {
   const factory CallSession({
     required String callId,
     required String conversationId,

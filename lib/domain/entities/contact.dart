@@ -12,7 +12,7 @@ enum ContactStatus {
 
 /// Contact entity representing a user connection
 @freezed
-class Contact with _$Contact {
+abstract class Contact with _$Contact {
   const factory Contact({
     required String id,
     required String userId,

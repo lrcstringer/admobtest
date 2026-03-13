@@ -7,7 +7,7 @@ import '../mappers/featured_item_mapper.dart';
 part 'featured_item_model.freezed.dart';
 
 @freezed
-class FeaturedItemModel with _$FeaturedItemModel {
+abstract class FeaturedItemModel with _$FeaturedItemModel {
   const factory FeaturedItemModel({
     required String id,
     required String title,

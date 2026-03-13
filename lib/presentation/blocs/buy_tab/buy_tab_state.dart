@@ -1,7 +1,7 @@
 part of 'buy_tab_bloc.dart';
 
 @freezed
-class BuyTabState with _$BuyTabState {
+abstract class BuyTabState with _$BuyTabState {
   const factory BuyTabState({
     @Default(false) bool isLoading,
     @Default(false) bool isRefreshing,

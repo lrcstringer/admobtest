@@ -7,7 +7,7 @@ import '../../domain/enums/pot_type.dart';
 part 'pot_pool_model.freezed.dart';
 
 @freezed
-class PotPoolModel with _$PotPoolModel {
+abstract class PotPoolModel with _$PotPoolModel {
   const factory PotPoolModel({
     required String id,
     required String type,
@@ -126,7 +126,7 @@ class PotPoolModel with _$PotPoolModel {
 }
 
 @freezed
-class PotWinnerModel with _$PotWinnerModel {
+abstract class PotWinnerModel with _$PotWinnerModel {
   const factory PotWinnerModel({
     required String userId,
     required String displayName,

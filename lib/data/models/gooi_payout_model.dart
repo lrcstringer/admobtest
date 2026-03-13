@@ -7,7 +7,7 @@ import '../../domain/enums/gooi_payout_status.dart';
 part 'gooi_payout_model.freezed.dart';
 
 @freezed
-class GooiPayoutModel with _$GooiPayoutModel {
+abstract class GooiPayoutModel with _$GooiPayoutModel {
   const factory GooiPayoutModel({
     required String id,
     required String cycleId,

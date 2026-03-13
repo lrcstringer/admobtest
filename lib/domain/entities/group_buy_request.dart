@@ -6,7 +6,7 @@ part 'group_buy_request.freezed.dart';
 
 /// A user-submitted suggestion for a group buy deal.
 @freezed
-class GroupBuyRequest with _$GroupBuyRequest {
+abstract class GroupBuyRequest with _$GroupBuyRequest {
   const factory GroupBuyRequest({
     required String id,
     required String userId,

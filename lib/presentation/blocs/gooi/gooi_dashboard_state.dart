@@ -1,7 +1,7 @@
 part of 'gooi_dashboard_bloc.dart';
 
 @freezed
-class GooiDashboardState with _$GooiDashboardState {
+abstract class GooiDashboardState with _$GooiDashboardState {
   const factory GooiDashboardState({
     @Default(false) bool isLoading,
     @Default(false) bool isRefreshing,

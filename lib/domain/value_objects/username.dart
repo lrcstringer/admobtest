@@ -6,7 +6,7 @@ part 'username.freezed.dart';
 
 /// Value object representing a validated username
 @freezed
-class Username with _$Username {
+abstract class Username with _$Username {
   const factory Username(String value) = _Username;
   const Username._();
 

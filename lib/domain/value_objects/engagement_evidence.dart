@@ -5,7 +5,7 @@ part 'engagement_evidence.g.dart';
 
 /// Metadata for a file uploaded during an upload engagement
 @freezed
-class UploadedFileEvidence with _$UploadedFileEvidence {
+abstract class UploadedFileEvidence with _$UploadedFileEvidence {
   const factory UploadedFileEvidence({
     required String url,
     required String type, // 'video' or 'image'
@@ -22,7 +22,7 @@ class UploadedFileEvidence with _$UploadedFileEvidence {
 
 /// Evidence collected during engagement for fraud prevention
 @freezed
-class EngagementEvidence with _$EngagementEvidence {
+abstract class EngagementEvidence with _$EngagementEvidence {
   const factory EngagementEvidence({
     /// Device fingerprint hash
     required String deviceFingerprint,

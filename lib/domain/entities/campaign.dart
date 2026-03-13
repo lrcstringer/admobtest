@@ -5,7 +5,7 @@ part 'campaign.g.dart';
 
 /// Represents an advertising/earning campaign from brands
 @freezed
-class Campaign with _$Campaign {
+abstract class Campaign with _$Campaign {
   const factory Campaign({
     required String id,
     required String brandId,

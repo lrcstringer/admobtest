@@ -1,7 +1,7 @@
 part of 'call_bloc.dart';
 
 @freezed
-class CallState with _$CallState {
+abstract class CallState with _$CallState {
   const factory CallState({
     @Default(CallStatus.idle) CallStatus status,
     String? callId,

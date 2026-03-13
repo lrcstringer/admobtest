@@ -35,7 +35,7 @@ enum QuestionType {
 
 /// Branch rule: if user selects [optionValue], skip to [goToQuestionId]
 @freezed
-class BranchRule with _$BranchRule {
+abstract class BranchRule with _$BranchRule {
   const factory BranchRule({
     required String optionValue,
     required String goToQuestionId,
@@ -47,7 +47,7 @@ class BranchRule with _$BranchRule {
 
 /// Survey question for earn opportunity — supports 6 question types + branching
 @freezed
-class SurveyQuestion with _$SurveyQuestion {
+abstract class SurveyQuestion with _$SurveyQuestion {
   const factory SurveyQuestion({
     required String id,
     required String text,
@@ -100,7 +100,7 @@ enum BonusIntervalType {
 
 /// Earn opportunity (ad + survey combo)
 @freezed
-class EarnOpportunity with _$EarnOpportunity {
+abstract class EarnOpportunity with _$EarnOpportunity {
   const factory EarnOpportunity({
     required String id,
     required String threadId,

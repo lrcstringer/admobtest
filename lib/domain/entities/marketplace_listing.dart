@@ -9,7 +9,7 @@ import 'location_data.dart';
 part 'marketplace_listing.freezed.dart';
 
 @freezed
-class MarketplaceListing with _$MarketplaceListing {
+abstract class MarketplaceListing with _$MarketplaceListing {
   const factory MarketplaceListing({
     required String id,
     required String title,

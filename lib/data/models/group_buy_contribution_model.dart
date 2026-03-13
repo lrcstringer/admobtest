@@ -6,7 +6,7 @@ import '../../domain/entities/group_buy_contribution.dart';
 part 'group_buy_contribution_model.freezed.dart';
 
 @freezed
-class GroupBuyContributionModel with _$GroupBuyContributionModel {
+abstract class GroupBuyContributionModel with _$GroupBuyContributionModel {
   const factory GroupBuyContributionModel({
     required String id,
     required String userId,

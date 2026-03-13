@@ -8,7 +8,7 @@ part 'user_engagement_stats.g.dart';
 /// Tracks user's streak and engagement history.
 /// Stored at userEngagementStats/{userId} in Firestore.
 @freezed
-class UserEngagementStats with _$UserEngagementStats {
+abstract class UserEngagementStats with _$UserEngagementStats {
   const factory UserEngagementStats({
     required String userId,
     /// Current consecutive days with completions

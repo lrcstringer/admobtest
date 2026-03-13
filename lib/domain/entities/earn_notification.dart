@@ -5,7 +5,7 @@ part 'earn_notification.g.dart';
 
 /// In-app earn notification displayed at the top of the earn inbox
 @freezed
-class EarnNotification with _$EarnNotification {
+abstract class EarnNotification with _$EarnNotification {
   const factory EarnNotification({
     required String id,
     required String type, // new_client, new_thread, new_opportunity, expiry_warning

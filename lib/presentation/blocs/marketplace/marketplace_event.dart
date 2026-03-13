@@ -1,7 +1,7 @@
 part of 'marketplace_bloc.dart';
 
 @freezed
-class MarketplaceEvent with _$MarketplaceEvent {
+abstract class MarketplaceEvent with _$MarketplaceEvent {
   /// Load listings for a category
   const factory MarketplaceEvent.loadListings({
     String? category,

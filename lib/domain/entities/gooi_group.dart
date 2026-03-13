@@ -9,7 +9,7 @@ part 'gooi_group.freezed.dart';
 part 'gooi_group.g.dart';
 
 @freezed
-class GooiGroup with _$GooiGroup {
+abstract class GooiGroup with _$GooiGroup {
   const factory GooiGroup({
     required String id,
     required String name,
@@ -54,7 +54,7 @@ class GooiGroup with _$GooiGroup {
 }
 
 @freezed
-class GooiCycleSummary with _$GooiCycleSummary {
+abstract class GooiCycleSummary with _$GooiCycleSummary {
   const factory GooiCycleSummary({
     required int cycleNumber,
     required GooiCycleStatus status,

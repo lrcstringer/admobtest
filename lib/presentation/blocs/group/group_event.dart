@@ -1,7 +1,7 @@
 part of 'group_bloc.dart';
 
 @freezed
-class GroupEvent with _$GroupEvent {
+abstract class GroupEvent with _$GroupEvent {
   // Group loading events
   const factory GroupEvent.loadUserGroups() = _LoadUserGroups;
   const factory GroupEvent.watchUserGroups() = _WatchUserGroups;

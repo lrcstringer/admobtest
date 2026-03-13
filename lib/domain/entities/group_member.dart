@@ -104,7 +104,7 @@ class GroupPermissions {
 ///
 /// Represents a user's membership in a group with their role and status.
 @freezed
-class GroupMember with _$GroupMember {
+abstract class GroupMember with _$GroupMember {
   const factory GroupMember({
     required String id,
     required String groupId,

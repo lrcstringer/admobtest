@@ -7,7 +7,7 @@ import '../../domain/enums/group_buy_request_status.dart';
 part 'group_buy_request_model.freezed.dart';
 
 @freezed
-class GroupBuyRequestModel with _$GroupBuyRequestModel {
+abstract class GroupBuyRequestModel with _$GroupBuyRequestModel {
   const factory GroupBuyRequestModel({
     required String id,
     required String userId,

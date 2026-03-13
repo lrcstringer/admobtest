@@ -4,7 +4,7 @@ part 'seller_dashboard.freezed.dart';
 
 /// Typed value object for seller dashboard analytics.
 @freezed
-class SellerDashboard with _$SellerDashboard {
+abstract class SellerDashboard with _$SellerDashboard {
   const factory SellerDashboard({
     @Default(0) int totalListings,
     @Default(0) int activeListings,

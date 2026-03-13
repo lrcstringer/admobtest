@@ -7,7 +7,7 @@ import '../../domain/enums/conversation_type.dart';
 part 'conversation_model.freezed.dart';
 
 @freezed
-class ConversationModel with _$ConversationModel {
+abstract class ConversationModel with _$ConversationModel {
   const factory ConversationModel({
     required String id,
     required String type,

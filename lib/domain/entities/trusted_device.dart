@@ -5,7 +5,7 @@ part 'trusted_device.g.dart';
 
 /// Represents a trusted device registered for cryptographic authentication.
 @freezed
-class TrustedDevice with _$TrustedDevice {
+abstract class TrustedDevice with _$TrustedDevice {
   const factory TrustedDevice({
     required String deviceId,
     required String userId,

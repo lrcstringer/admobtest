@@ -7,7 +7,7 @@ part 'token_amount.freezed.dart';
 
 /// Value object representing a validated token amount
 @freezed
-class TokenAmount with _$TokenAmount {
+abstract class TokenAmount with _$TokenAmount {
   const factory TokenAmount(int value) = _TokenAmount;
   const TokenAmount._();
 

@@ -1,7 +1,7 @@
 part of 'gift_bloc.dart';
 
 @freezed
-class GiftEvent with _$GiftEvent {
+abstract class GiftEvent with _$GiftEvent {
   // Send
   const factory GiftEvent.sendGift({
     required String recipientId,

@@ -1,7 +1,7 @@
 part of 'gooi_formation_bloc.dart';
 
 @freezed
-class GooiFormationState with _$GooiFormationState {
+abstract class GooiFormationState with _$GooiFormationState {
   const factory GooiFormationState({
     @Default(false) bool isLoading,
     @Default(false) bool isActionInProgress,

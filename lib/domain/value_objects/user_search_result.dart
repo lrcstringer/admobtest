@@ -4,7 +4,7 @@ part 'user_search_result.freezed.dart';
 part 'user_search_result.g.dart';
 
 @freezed
-class UserSearchResult with _$UserSearchResult {
+abstract class UserSearchResult with _$UserSearchResult {
   const factory UserSearchResult({
     required String userId,
     required String displayName,

@@ -1,7 +1,7 @@
 part of 'home_bloc.dart';
 
 @freezed
-class HomeEvent with _$HomeEvent {
+abstract class HomeEvent with _$HomeEvent {
   /// Load dashboard data (earn opportunities and pots)
   const factory HomeEvent.loadDashboard() = _LoadDashboard;
 

@@ -3,7 +3,7 @@ part of 'contact_bloc.dart';
 enum ContactLoadingStatus { initial, loading, loaded, error }
 
 @freezed
-class ContactState with _$ContactState {
+abstract class ContactState with _$ContactState {
   const factory ContactState({
     @Default(ContactLoadingStatus.initial) ContactLoadingStatus status,
     @Default([]) List<Contact> contacts,

@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'brand_review.freezed.dart';
 
 @freezed
-class BrandReview with _$BrandReview {
+abstract class BrandReview with _$BrandReview {
   const factory BrandReview({
     required String id,
     required String brandId,

@@ -7,7 +7,7 @@ import '../../domain/enums/gooi_contribution_status.dart';
 part 'gooi_contribution_model.freezed.dart';
 
 @freezed
-class GooiContributionModel with _$GooiContributionModel {
+abstract class GooiContributionModel with _$GooiContributionModel {
   const factory GooiContributionModel({
     required String id,
     required String cycleId,

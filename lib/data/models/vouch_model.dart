@@ -6,7 +6,7 @@ import '../../domain/entities/vouch.dart';
 part 'vouch_model.freezed.dart';
 
 @freezed
-class VouchModel with _$VouchModel {
+abstract class VouchModel with _$VouchModel {
   const factory VouchModel({
     required String id,
     required String voucherId,

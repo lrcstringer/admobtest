@@ -1,7 +1,7 @@
 part of 'auth_bloc.dart';
 
 @freezed
-class AuthEvent with _$AuthEvent {
+abstract class AuthEvent with _$AuthEvent {
   /// Check initial authentication state
   const factory AuthEvent.checkAuthStatus() = _CheckAuthStatus;
 

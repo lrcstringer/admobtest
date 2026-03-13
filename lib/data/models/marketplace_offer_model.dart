@@ -7,7 +7,7 @@ import '../../domain/enums/offer_status.dart';
 part 'marketplace_offer_model.freezed.dart';
 
 @freezed
-class MarketplaceOfferModel with _$MarketplaceOfferModel {
+abstract class MarketplaceOfferModel with _$MarketplaceOfferModel {
   const factory MarketplaceOfferModel({
     required String id,
     required String listingId,

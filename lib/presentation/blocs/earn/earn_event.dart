@@ -1,7 +1,7 @@
 part of 'earn_bloc.dart';
 
 @freezed
-class EarnEvent with _$EarnEvent {
+abstract class EarnEvent with _$EarnEvent {
   /// Load eligible threads for the current user (via Cloud Function)
   const factory EarnEvent.loadThreads() = _LoadThreads;
 

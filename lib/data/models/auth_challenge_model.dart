@@ -7,7 +7,7 @@ part 'auth_challenge_model.freezed.dart';
 part 'auth_challenge_model.g.dart';
 
 @freezed
-class AuthChallengeModel with _$AuthChallengeModel {
+abstract class AuthChallengeModel with _$AuthChallengeModel {
   const factory AuthChallengeModel({
     required String challengeId,
     required String userId,

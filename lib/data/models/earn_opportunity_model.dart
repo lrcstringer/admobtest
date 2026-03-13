@@ -7,7 +7,7 @@ import '../../domain/entities/targeting_criteria.dart';
 part 'earn_opportunity_model.freezed.dart';
 
 @freezed
-class BranchRuleModel with _$BranchRuleModel {
+abstract class BranchRuleModel with _$BranchRuleModel {
   const factory BranchRuleModel({
     required String optionValue,
     required String goToQuestionId,
@@ -45,7 +45,7 @@ class BranchRuleModel with _$BranchRuleModel {
 }
 
 @freezed
-class SurveyQuestionModel with _$SurveyQuestionModel {
+abstract class SurveyQuestionModel with _$SurveyQuestionModel {
   const factory SurveyQuestionModel({
     required String id,
     required String text,
@@ -231,7 +231,7 @@ class SurveyQuestionModel with _$SurveyQuestionModel {
 }
 
 @freezed
-class EarnOpportunityModel with _$EarnOpportunityModel {
+abstract class EarnOpportunityModel with _$EarnOpportunityModel {
   const factory EarnOpportunityModel({
     required String id,
     required String threadId,

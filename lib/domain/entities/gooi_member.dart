@@ -7,7 +7,7 @@ part 'gooi_member.freezed.dart';
 part 'gooi_member.g.dart';
 
 @freezed
-class GooiMember with _$GooiMember {
+abstract class GooiMember with _$GooiMember {
   const factory GooiMember({
     required String id,
     required String userId,

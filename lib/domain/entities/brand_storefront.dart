@@ -46,7 +46,7 @@ enum SectionColourMode { brandLight, brandDark, brandAccent, custom }
 // ─── Sub-entities ───────────────────────────────────────
 
 @freezed
-class QuickAction with _$QuickAction {
+abstract class QuickAction with _$QuickAction {
   const factory QuickAction({
     required String label,
     required String iconEmoji,
@@ -57,7 +57,7 @@ class QuickAction with _$QuickAction {
 }
 
 @freezed
-class StorefrontPromo with _$StorefrontPromo {
+abstract class StorefrontPromo with _$StorefrontPromo {
   const factory StorefrontPromo({
     required String title,
     String? description,
@@ -69,7 +69,7 @@ class StorefrontPromo with _$StorefrontPromo {
 
 /// Legacy section model — kept for backward compat reads only.
 @freezed
-class StorefrontSection with _$StorefrontSection {
+abstract class StorefrontSection with _$StorefrontSection {
   const factory StorefrontSection({
     required String type,
     String? title,
@@ -82,7 +82,7 @@ class StorefrontSection with _$StorefrontSection {
 
 /// Per-section display settings (Spec §4.7.6)
 @freezed
-class SectionSettings with _$SectionSettings {
+abstract class SectionSettings with _$SectionSettings {
   const factory SectionSettings({
     @Default(SectionColourMode.brandLight) SectionColourMode colourMode,
     String? customBgColor,
@@ -98,7 +98,7 @@ class SectionSettings with _$SectionSettings {
 
 /// Showcase video entry (Spec §4.8)
 @freezed
-class ShowcaseVideo with _$ShowcaseVideo {
+abstract class ShowcaseVideo with _$ShowcaseVideo {
   const factory ShowcaseVideo({
     required String url,
     String? thumbnailUrl,
@@ -110,7 +110,7 @@ class ShowcaseVideo with _$ShowcaseVideo {
 
 /// Storefront coupon (Spec §4.8.3)
 @freezed
-class StorefrontCoupon with _$StorefrontCoupon {
+abstract class StorefrontCoupon with _$StorefrontCoupon {
   const factory StorefrontCoupon({
     required String id,
     required String code,
@@ -126,7 +126,7 @@ class StorefrontCoupon with _$StorefrontCoupon {
 
 /// FAQ item (Spec §4.8)
 @freezed
-class FaqItem with _$FaqItem {
+abstract class FaqItem with _$FaqItem {
   const factory FaqItem({
     required String question,
     required String answer,
@@ -137,7 +137,7 @@ class FaqItem with _$FaqItem {
 
 /// Brand physical location (Spec §4.8)
 @freezed
-class BrandLocation with _$BrandLocation {
+abstract class BrandLocation with _$BrandLocation {
   const factory BrandLocation({
     required String name,
     required String address,
@@ -152,7 +152,7 @@ class BrandLocation with _$BrandLocation {
 // ─── Main Entity ────────────────────────────────────────
 
 @freezed
-class BrandStorefront with _$BrandStorefront {
+abstract class BrandStorefront with _$BrandStorefront {
   const factory BrandStorefront({
     required String id,
     required String brandId,

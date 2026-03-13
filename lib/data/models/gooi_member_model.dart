@@ -8,7 +8,7 @@ import '../../domain/enums/gooi_member_status.dart';
 part 'gooi_member_model.freezed.dart';
 
 @freezed
-class GooiMemberModel with _$GooiMemberModel {
+abstract class GooiMemberModel with _$GooiMemberModel {
   const factory GooiMemberModel({
     required String id,
     required String userId,

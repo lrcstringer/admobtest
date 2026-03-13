@@ -1,7 +1,7 @@
 part of 'feature_flag_bloc.dart';
 
 @freezed
-class FeatureFlagState with _$FeatureFlagState {
+abstract class FeatureFlagState with _$FeatureFlagState {
   const factory FeatureFlagState({
     @Default(false) bool isLoading,
     @Default([]) List<FeatureFlag> flags,

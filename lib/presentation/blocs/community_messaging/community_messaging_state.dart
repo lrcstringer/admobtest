@@ -1,7 +1,7 @@
 part of 'community_messaging_bloc.dart';
 
 @freezed
-class CommunityMessagingState with _$CommunityMessagingState {
+abstract class CommunityMessagingState with _$CommunityMessagingState {
   const factory CommunityMessagingState({
     required String communityId,
     @Default([]) List<Message> messages,

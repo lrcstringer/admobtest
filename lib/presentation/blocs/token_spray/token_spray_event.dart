@@ -1,7 +1,7 @@
 part of 'token_spray_bloc.dart';
 
 @freezed
-class TokenSprayEvent with _$TokenSprayEvent {
+abstract class TokenSprayEvent with _$TokenSprayEvent {
   const factory TokenSprayEvent.createSpray({
     required String recipientId,
     required SprayOccasion occasion,

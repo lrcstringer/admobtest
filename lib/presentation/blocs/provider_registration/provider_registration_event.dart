@@ -1,7 +1,7 @@
 part of 'provider_registration_bloc.dart';
 
 @freezed
-class ProviderRegistrationEvent with _$ProviderRegistrationEvent {
+abstract class ProviderRegistrationEvent with _$ProviderRegistrationEvent {
   /// Update display name
   const factory ProviderRegistrationEvent.updateName(String name) = _UpdateName;
 

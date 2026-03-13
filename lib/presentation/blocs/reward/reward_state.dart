@@ -8,7 +8,7 @@ enum RewardLoadStatus {
 }
 
 @freezed
-class RewardState with _$RewardState {
+abstract class RewardState with _$RewardState {
   const factory RewardState({
     @Default([]) List<RewardItem> items,
     RewardItem? selectedItem,

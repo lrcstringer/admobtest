@@ -7,7 +7,7 @@ part 'saved_listing.freezed.dart';
 /// A saved/favourited marketplace listing.
 /// Stored locally in Drift and synced to Firestore `users/{uid}/favourites`.
 @freezed
-class SavedListing with _$SavedListing {
+abstract class SavedListing with _$SavedListing {
   const factory SavedListing({
     required String listingId,
     required DateTime savedAt,

@@ -7,7 +7,7 @@ import '../../domain/enums/reward_enums.dart';
 part 'reward_item_model.freezed.dart';
 
 @freezed
-class RewardItemModel with _$RewardItemModel {
+abstract class RewardItemModel with _$RewardItemModel {
   const factory RewardItemModel({
     required String id,
     required String campaignId,

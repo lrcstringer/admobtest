@@ -7,7 +7,7 @@ import '../enums/refund_type.dart';
 part 'buy_order.freezed.dart';
 
 @freezed
-class BuyOrder with _$BuyOrder {
+abstract class BuyOrder with _$BuyOrder {
   const factory BuyOrder({
     required String id,
     required String buyerId,

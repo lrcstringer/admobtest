@@ -14,7 +14,7 @@ enum CashoutMethod {
 
 /// Cashout entity representing a withdrawal request
 @freezed
-class Cashout with _$Cashout {
+abstract class Cashout with _$Cashout {
   const factory Cashout({
     required String id,
     required String walletId,

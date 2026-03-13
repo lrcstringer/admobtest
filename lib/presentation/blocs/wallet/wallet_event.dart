@@ -1,7 +1,7 @@
 part of 'wallet_bloc.dart';
 
 @freezed
-class WalletEvent with _$WalletEvent {
+abstract class WalletEvent with _$WalletEvent {
   /// Load ledger account, journals, and engagement stats
   const factory WalletEvent.loadLedger() = _LoadLedger;
 

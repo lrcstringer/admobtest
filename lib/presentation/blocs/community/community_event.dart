@@ -1,7 +1,7 @@
 part of 'community_bloc.dart';
 
 @freezed
-class CommunityEvent with _$CommunityEvent {
+abstract class CommunityEvent with _$CommunityEvent {
   // =========================================================================
   // COMMUNITY LIST
   // =========================================================================

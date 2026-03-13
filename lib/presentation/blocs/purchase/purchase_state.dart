@@ -1,7 +1,7 @@
 part of 'purchase_bloc.dart';
 
 @freezed
-class PurchaseState with _$PurchaseState {
+abstract class PurchaseState with _$PurchaseState {
   const factory PurchaseState({
     @Default(false) bool isLoadingProviders,
     @Default(false) bool isLoadingProducts,

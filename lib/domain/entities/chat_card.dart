@@ -8,7 +8,7 @@ part 'chat_card.g.dart';
 /// Chat card representing a message/action in a chat
 /// @deprecated Use [Message] entity instead.
 @freezed
-class ChatCard with _$ChatCard {
+abstract class ChatCard with _$ChatCard {
   const factory ChatCard({
     required String id,
     required String threadId,

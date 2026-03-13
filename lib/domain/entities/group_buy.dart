@@ -8,7 +8,7 @@ import '../enums/sponsor_type.dart';
 part 'group_buy.freezed.dart';
 
 @freezed
-class GroupBuy with _$GroupBuy {
+abstract class GroupBuy with _$GroupBuy {
   const factory GroupBuy({
     required String id,
     required String title,

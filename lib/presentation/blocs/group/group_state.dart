@@ -1,7 +1,7 @@
 part of 'group_bloc.dart';
 
 @freezed
-class GroupState with _$GroupState {
+abstract class GroupState with _$GroupState {
   const factory GroupState({
     // Status
     @Default(GroupLoadingStatus.initial) GroupLoadingStatus status,

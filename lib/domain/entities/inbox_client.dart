@@ -7,7 +7,7 @@ part 'inbox_client.g.dart';
 
 /// Client group in the earn inbox, containing its eligible threads
 @freezed
-class InboxClient with _$InboxClient {
+abstract class InboxClient with _$InboxClient {
   const factory InboxClient({
     required String clientId,
     required String clientName,

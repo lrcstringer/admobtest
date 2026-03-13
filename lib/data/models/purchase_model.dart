@@ -9,7 +9,7 @@ import 'purchase_category_helpers.dart';
 part 'purchase_model.freezed.dart';
 
 @freezed
-class PurchaseModel with _$PurchaseModel {
+abstract class PurchaseModel with _$PurchaseModel {
   const factory PurchaseModel({
     required String id,
     required String subAccountId,

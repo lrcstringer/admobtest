@@ -7,7 +7,7 @@ import '../mappers/brand_product_mapper.dart';
 part 'brand_product_model.freezed.dart';
 
 @freezed
-class BrandProductModel with _$BrandProductModel {
+abstract class BrandProductModel with _$BrandProductModel {
   const factory BrandProductModel({
     required String id,
     required String brandId,

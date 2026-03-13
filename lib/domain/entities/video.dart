@@ -5,7 +5,7 @@ part 'video.g.dart';
 
 /// Represents a video ad that users can watch to earn tokens
 @freezed
-class Video with _$Video {
+abstract class Video with _$Video {
   const factory Video({
     required String id,
     required String campaignId,

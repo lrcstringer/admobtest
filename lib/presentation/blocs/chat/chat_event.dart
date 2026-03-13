@@ -1,7 +1,7 @@
 part of 'chat_bloc.dart';
 
 @freezed
-class ChatEvent with _$ChatEvent {
+abstract class ChatEvent with _$ChatEvent {
   /// Load all chat threads
   const factory ChatEvent.loadThreads() = _LoadThreads;
 

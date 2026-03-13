@@ -21,7 +21,7 @@ enum EngagementPhase {
 }
 
 @freezed
-class EarnState with _$EarnState {
+abstract class EarnState with _$EarnState {
   const factory EarnState({
     @Default(EarnStatus.initial) EarnStatus status,
     @Default([]) List<EarnThread> threads,

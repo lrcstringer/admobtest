@@ -19,7 +19,7 @@ enum ChallengeStatus {
 
 /// A push-based login challenge sent to a trusted device.
 @freezed
-class AuthChallenge with _$AuthChallenge {
+abstract class AuthChallenge with _$AuthChallenge {
   const factory AuthChallenge({
     required String challengeId,
     required String userId,

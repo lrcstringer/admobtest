@@ -8,7 +8,7 @@ part 'reward_campaign.g.dart';
 /// Reward campaign entity — a batch of non-fungible reward items
 /// linked to a client (sponsor) and optionally to earn opportunities.
 @freezed
-class RewardCampaign with _$RewardCampaign {
+abstract class RewardCampaign with _$RewardCampaign {
   const factory RewardCampaign({
     required String id,
     required String clientId,

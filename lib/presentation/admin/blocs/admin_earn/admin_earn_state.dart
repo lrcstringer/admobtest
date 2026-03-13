@@ -3,7 +3,7 @@ part of 'admin_earn_bloc.dart';
 enum AdminEarnStatus { initial, loading, loaded, error }
 
 @freezed
-class AdminEarnState with _$AdminEarnState {
+abstract class AdminEarnState with _$AdminEarnState {
   const factory AdminEarnState({
     // Status
     @Default(AdminEarnStatus.initial) AdminEarnStatus status,

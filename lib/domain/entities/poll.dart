@@ -13,7 +13,7 @@ enum PollStatus {
 
 /// A single poll option
 @freezed
-class PollOption with _$PollOption {
+abstract class PollOption with _$PollOption {
   const factory PollOption({
     required String id,
     required String text,
@@ -25,7 +25,7 @@ class PollOption with _$PollOption {
 
 /// First-class poll entity with atomic counters
 @freezed
-class Poll with _$Poll {
+abstract class Poll with _$Poll {
   const factory Poll({
     required String id,
     required String opportunityId,
@@ -80,7 +80,7 @@ class Poll with _$Poll {
 
 /// User's response to a poll
 @freezed
-class PollResponse with _$PollResponse {
+abstract class PollResponse with _$PollResponse {
   const factory PollResponse({
     required String userId,
     required String pollId,
@@ -109,7 +109,7 @@ class PollResponse with _$PollResponse {
 
 /// Aggregated poll results
 @freezed
-class PollResults with _$PollResults {
+abstract class PollResults with _$PollResults {
   const factory PollResults({
     required int totalRespondents,
     required Map<String, int> optionCounts,

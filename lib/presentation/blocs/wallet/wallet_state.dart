@@ -1,7 +1,7 @@
 part of 'wallet_bloc.dart';
 
 @freezed
-class WalletState with _$WalletState {
+abstract class WalletState with _$WalletState {
   const factory WalletState({
     @Default(WalletStatus.initial) WalletStatus status,
     LedgerAccount? ledgerAccount,

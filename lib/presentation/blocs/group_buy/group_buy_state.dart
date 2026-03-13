@@ -1,7 +1,7 @@
 part of 'group_buy_bloc.dart';
 
 @freezed
-class GroupBuyState with _$GroupBuyState {
+abstract class GroupBuyState with _$GroupBuyState {
   const GroupBuyState._();
 
   const factory GroupBuyState({

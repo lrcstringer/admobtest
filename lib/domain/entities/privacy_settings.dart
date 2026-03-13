@@ -7,7 +7,7 @@ part 'privacy_settings.g.dart';
 
 /// Per-user privacy configuration
 @freezed
-class PrivacySettings with _$PrivacySettings {
+abstract class PrivacySettings with _$PrivacySettings {
   const factory PrivacySettings({
     /// Who can find this user via search
     @Default(Discoverability.everyone) Discoverability discoverability,

@@ -9,7 +9,7 @@ import '../../domain/enums/pool_status.dart';
 part 'token_pool_model.freezed.dart';
 
 @freezed
-class TokenPoolModel with _$TokenPoolModel {
+abstract class TokenPoolModel with _$TokenPoolModel {
   const factory TokenPoolModel({
     required String id,
     required String mode,

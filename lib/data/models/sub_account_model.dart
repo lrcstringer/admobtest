@@ -11,7 +11,7 @@ part 'sub_account_model.g.dart';
 /// Maps between Firestore document and SubAccount entity.
 /// Collection: ledgerAccounts/{userId}/subAccounts/{subAccountId}
 @freezed
-class SubAccountModel with _$SubAccountModel {
+abstract class SubAccountModel with _$SubAccountModel {
   const factory SubAccountModel({
     required String id,
     required String userId,

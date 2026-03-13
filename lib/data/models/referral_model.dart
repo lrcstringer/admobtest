@@ -6,7 +6,7 @@ import '../../domain/entities/referral.dart';
 part 'referral_model.freezed.dart';
 
 @freezed
-class ReferralModel with _$ReferralModel {
+abstract class ReferralModel with _$ReferralModel {
   const factory ReferralModel({
     required String id,
     required String referrerUserId,
@@ -149,7 +149,7 @@ class ReferralModel with _$ReferralModel {
 }
 
 @freezed
-class ReferralStatsModel with _$ReferralStatsModel {
+abstract class ReferralStatsModel with _$ReferralStatsModel {
   const factory ReferralStatsModel({
     required int totalReferrals,
     required int pendingReferrals,

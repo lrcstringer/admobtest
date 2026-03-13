@@ -6,7 +6,7 @@ import '../../domain/entities/buy_regular.dart';
 part 'buy_regular_model.freezed.dart';
 
 @freezed
-class BuyRegularModel with _$BuyRegularModel {
+abstract class BuyRegularModel with _$BuyRegularModel {
   const factory BuyRegularModel({
     required String id,
     required String providerId,

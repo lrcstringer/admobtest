@@ -5,7 +5,7 @@ part 'pot_distribution.g.dart';
 
 /// Represents how a pot's prize pool is distributed among winners
 @freezed
-class PotDistribution with _$PotDistribution {
+abstract class PotDistribution with _$PotDistribution {
   const factory PotDistribution({
     required String id,
     required String potPoolId,
@@ -27,7 +27,7 @@ class PotDistribution with _$PotDistribution {
 
 /// Represents a single winner's allocation from a pot distribution
 @freezed
-class PotWinnerAllocation with _$PotWinnerAllocation {
+abstract class PotWinnerAllocation with _$PotWinnerAllocation {
   const factory PotWinnerAllocation({
     required String userId,
     required int rank,

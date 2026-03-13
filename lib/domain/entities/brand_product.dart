@@ -5,7 +5,7 @@ part 'brand_product.freezed.dart';
 enum FulfilmentType { digital, physical, catalog }
 
 @freezed
-class BrandProduct with _$BrandProduct {
+abstract class BrandProduct with _$BrandProduct {
   const factory BrandProduct({
     required String id,
     required String brandId,

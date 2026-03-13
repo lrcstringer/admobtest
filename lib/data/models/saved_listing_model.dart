@@ -7,7 +7,7 @@ import '../../domain/enums/listing_status.dart';
 part 'saved_listing_model.freezed.dart';
 
 @freezed
-class SavedListingModel with _$SavedListingModel {
+abstract class SavedListingModel with _$SavedListingModel {
   const factory SavedListingModel({
     required String listingId,
     required DateTime savedAt,

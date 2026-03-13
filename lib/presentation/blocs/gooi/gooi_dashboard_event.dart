@@ -1,7 +1,7 @@
 part of 'gooi_dashboard_bloc.dart';
 
 @freezed
-class GooiDashboardEvent with _$GooiDashboardEvent {
+abstract class GooiDashboardEvent with _$GooiDashboardEvent {
   const factory GooiDashboardEvent.loadGroup(String groupId) = _LoadGroup;
   const factory GooiDashboardEvent.refreshGroup() = _RefreshGroup;
   const factory GooiDashboardEvent.contribute({String? subAccountId}) = _Contribute;

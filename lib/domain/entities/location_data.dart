@@ -6,7 +6,7 @@ part 'location_data.g.dart';
 /// Structured location value object used by marketplace listings and user profiles.
 /// Represents a specific location within South Africa's province → city → suburb hierarchy.
 @freezed
-class LocationData with _$LocationData {
+abstract class LocationData with _$LocationData {
   const factory LocationData({
     String? provinceId,
     String? province,

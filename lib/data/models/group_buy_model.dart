@@ -10,7 +10,7 @@ import '../../domain/enums/sponsor_type.dart';
 part 'group_buy_model.freezed.dart';
 
 @freezed
-class GroupBuyModel with _$GroupBuyModel {
+abstract class GroupBuyModel with _$GroupBuyModel {
   const factory GroupBuyModel({
     required String id,
     required String title,

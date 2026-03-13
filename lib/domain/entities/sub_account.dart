@@ -13,7 +13,7 @@ part 'sub_account.g.dart';
 /// The main wallet is the ledger account itself (id='main' in UI).
 /// Sub-accounts are optional user-created wallets or brand-restricted wallets.
 @freezed
-class SubAccount with _$SubAccount {
+abstract class SubAccount with _$SubAccount {
   const factory SubAccount({
     required String id,
     required String userId,

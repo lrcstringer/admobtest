@@ -6,7 +6,7 @@ part 'gooi_contribution.freezed.dart';
 part 'gooi_contribution.g.dart';
 
 @freezed
-class GooiContribution with _$GooiContribution {
+abstract class GooiContribution with _$GooiContribution {
   const factory GooiContribution({
     required String id,
     required String cycleId,

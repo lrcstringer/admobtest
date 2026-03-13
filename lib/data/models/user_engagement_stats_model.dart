@@ -11,7 +11,7 @@ part 'user_engagement_stats_model.g.dart';
 /// Maps between Firestore document and UserEngagementStats entity.
 /// Collection: userEngagementStats/{userId}
 @freezed
-class UserEngagementStatsModel with _$UserEngagementStatsModel {
+abstract class UserEngagementStatsModel with _$UserEngagementStatsModel {
   const factory UserEngagementStatsModel({
     required String userId,
     required int currentStreak,

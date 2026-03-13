@@ -5,7 +5,7 @@ part 'survey.g.dart';
 
 /// Represents a survey that users can complete to earn tokens
 @freezed
-class Survey with _$Survey {
+abstract class Survey with _$Survey {
   const factory Survey({
     required String id,
     required String campaignId,
@@ -27,7 +27,7 @@ class Survey with _$Survey {
 
 /// Represents a single question within a survey
 @freezed
-class SurveyQuestion with _$SurveyQuestion {
+abstract class SurveyQuestion with _$SurveyQuestion {
   const factory SurveyQuestion({
     required String id,
     required String text,

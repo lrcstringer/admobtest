@@ -9,7 +9,7 @@ import '../../domain/enums/refund_type.dart';
 part 'buy_order_model.freezed.dart';
 
 @freezed
-class BuyOrderModel with _$BuyOrderModel {
+abstract class BuyOrderModel with _$BuyOrderModel {
   const factory BuyOrderModel({
     required String id,
     required String buyerId,

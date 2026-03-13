@@ -19,7 +19,7 @@ part 'community_transaction.g.dart';
 ///
 /// Subcollection: communities/{communityId}/transactions/{transactionId}
 @freezed
-class CommunityTransaction with _$CommunityTransaction {
+abstract class CommunityTransaction with _$CommunityTransaction {
   const factory CommunityTransaction({
     required String id,
     required String communityId,
@@ -114,7 +114,7 @@ class CommunityTransaction with _$CommunityTransaction {
 ///
 /// Subcollection: communities/{communityId}/pendingApprovals/{approvalId}
 @freezed
-class CommunityApproval with _$CommunityApproval {
+abstract class CommunityApproval with _$CommunityApproval {
   const factory CommunityApproval({
     required String id,
     required String communityId,

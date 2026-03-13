@@ -6,7 +6,7 @@ part 'gooi_payout.freezed.dart';
 part 'gooi_payout.g.dart';
 
 @freezed
-class GooiPayout with _$GooiPayout {
+abstract class GooiPayout with _$GooiPayout {
   const factory GooiPayout({
     required String id,
     required String cycleId,

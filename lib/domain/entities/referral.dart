@@ -14,7 +14,7 @@ enum ReferralStatus {
 
 /// Referral entity representing a user referral
 @freezed
-class Referral with _$Referral {
+abstract class Referral with _$Referral {
   const factory Referral({
     required String id,
     required String referrerUserId,
@@ -68,7 +68,7 @@ class Referral with _$Referral {
 
 /// Referral statistics
 @freezed
-class ReferralStats with _$ReferralStats {
+abstract class ReferralStats with _$ReferralStats {
   const factory ReferralStats({
     required int totalReferrals,
     required int pendingReferrals,

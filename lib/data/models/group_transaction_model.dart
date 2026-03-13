@@ -12,7 +12,7 @@ part 'group_transaction_model.g.dart';
 /// Maps between Firestore document and GroupTransaction entity.
 /// Collection: groups/{groupId}/transactions/{transactionId}
 @freezed
-class GroupTransactionModel with _$GroupTransactionModel {
+abstract class GroupTransactionModel with _$GroupTransactionModel {
   const factory GroupTransactionModel({
     required String id,
     required String groupId,
@@ -127,7 +127,7 @@ String _transactionTypeToString(GroupTransactionType type) {
 /// Maps between Firestore document and PendingApproval entity.
 /// Collection: groups/{groupId}/pendingApprovals/{approvalId}
 @freezed
-class PendingApprovalModel with _$PendingApprovalModel {
+abstract class PendingApprovalModel with _$PendingApprovalModel {
   const factory PendingApprovalModel({
     required String id,
     required String groupId,

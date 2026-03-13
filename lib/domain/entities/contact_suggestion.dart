@@ -12,7 +12,7 @@ enum SuggestionSource {
 
 /// A suggested contact the user may know
 @freezed
-class ContactSuggestion with _$ContactSuggestion {
+abstract class ContactSuggestion with _$ContactSuggestion {
   const factory ContactSuggestion({
     required String userId,
     required String displayName,

@@ -13,7 +13,7 @@ import '../../domain/enums/spray_status.dart';
 part 'message_model.freezed.dart';
 
 @freezed
-class MessageModel with _$MessageModel {
+abstract class MessageModel with _$MessageModel {
   const factory MessageModel({
     required String id,
 

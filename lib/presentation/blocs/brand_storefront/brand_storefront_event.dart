@@ -1,7 +1,7 @@
 part of 'brand_storefront_bloc.dart';
 
 @freezed
-class BrandStorefrontEvent with _$BrandStorefrontEvent {
+abstract class BrandStorefrontEvent with _$BrandStorefrontEvent {
   /// Load a single brand storefront by ID.
   /// [orderId] — optional completed-order ID passed from navigation (e.g. "My
   /// Orders") to enable the review submission flow.

@@ -7,7 +7,7 @@ part 'engagement.g.dart';
 
 /// Engagement entity representing a user's interaction with an earn opportunity
 @freezed
-class Engagement with _$Engagement {
+abstract class Engagement with _$Engagement {
   const factory Engagement({
     required String id,
     required String userId,
@@ -84,7 +84,7 @@ class Engagement with _$Engagement {
 
 /// Type-discriminated survey response — supports all 6 question types
 @freezed
-class SurveyResponse with _$SurveyResponse {
+abstract class SurveyResponse with _$SurveyResponse {
   const factory SurveyResponse({
     required String questionId,
     required String questionType,

@@ -1,7 +1,7 @@
 part of 'gooi_list_bloc.dart';
 
 @freezed
-class GooiListState with _$GooiListState {
+abstract class GooiListState with _$GooiListState {
   const factory GooiListState({
     @Default(false) bool isLoading,
     @Default(false) bool isRefreshing,

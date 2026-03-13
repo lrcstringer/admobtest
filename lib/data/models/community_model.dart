@@ -12,7 +12,7 @@ part 'community_model.g.dart';
 
 /// Data model for CommunitySettings
 @freezed
-class CommunitySettingsModel with _$CommunitySettingsModel {
+abstract class CommunitySettingsModel with _$CommunitySettingsModel {
   const factory CommunitySettingsModel({
     @Default(100) int maxMembers,
     @Default(true) bool allowMemberInvites,
@@ -64,7 +64,7 @@ class CommunitySettingsModel with _$CommunitySettingsModel {
 /// Maps between Firestore document and Community entity.
 /// Collection: communities/{communityId}
 @freezed
-class CommunityModel with _$CommunityModel {
+abstract class CommunityModel with _$CommunityModel {
   const factory CommunityModel({
     required String id,
     required String type,

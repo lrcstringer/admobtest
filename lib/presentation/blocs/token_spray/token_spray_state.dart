@@ -1,7 +1,7 @@
 part of 'token_spray_bloc.dart';
 
 @freezed
-class TokenSprayState with _$TokenSprayState {
+abstract class TokenSprayState with _$TokenSprayState {
   const factory TokenSprayState({
     required String communityId,
     TokenSpray? activeSpray,

@@ -8,7 +8,7 @@ enum ProfileStatus {
 }
 
 @freezed
-class ProfileState with _$ProfileState {
+abstract class ProfileState with _$ProfileState {
   const factory ProfileState({
     @Default(ProfileStatus.initial) ProfileStatus status,
     User? user,

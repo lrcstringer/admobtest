@@ -5,7 +5,7 @@ part 'service_provider.freezed.dart';
 
 /// Service provider entity for Buy Services
 @freezed
-class ServiceProvider with _$ServiceProvider {
+abstract class ServiceProvider with _$ServiceProvider {
   const factory ServiceProvider({
     required String id,
     required String name,
@@ -41,7 +41,7 @@ class ServiceProvider with _$ServiceProvider {
 
 /// Service product (airtime bundle, data package, etc.)
 @freezed
-class ServiceProduct with _$ServiceProduct {
+abstract class ServiceProduct with _$ServiceProduct {
   const factory ServiceProduct({
     required String id,
     required String providerId,

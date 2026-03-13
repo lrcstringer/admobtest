@@ -9,7 +9,7 @@ part 'group_model.g.dart';
 
 /// Data model for GroupSettings
 @freezed
-class GroupSettingsModel with _$GroupSettingsModel {
+abstract class GroupSettingsModel with _$GroupSettingsModel {
   const factory GroupSettingsModel({
     required int requireApprovalAbove,
     required bool allowMemberWithdrawals,
@@ -46,7 +46,7 @@ class GroupSettingsModel with _$GroupSettingsModel {
 
 /// Data model for StokvelSettings
 @freezed
-class StokvelSettingsModel with _$StokvelSettingsModel {
+abstract class StokvelSettingsModel with _$StokvelSettingsModel {
   const factory StokvelSettingsModel({
     required String payoutType,
     required String payoutSchedule,
@@ -93,7 +93,7 @@ String _snakeToCamel(String s) {
 /// Maps between Firestore document and Group entity.
 /// Collection: groups/{groupId}
 @freezed
-class GroupModel with _$GroupModel {
+abstract class GroupModel with _$GroupModel {
   const factory GroupModel({
     required String id,
     required String type,

@@ -9,7 +9,7 @@ import '../../domain/enums/seller_level.dart';
 part 'marketplace_provider_model.freezed.dart';
 
 @freezed
-class MarketplaceProviderModel with _$MarketplaceProviderModel {
+abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
   const factory MarketplaceProviderModel({
     required String id,
     required String userId,

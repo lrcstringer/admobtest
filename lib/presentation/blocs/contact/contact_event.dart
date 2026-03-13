@@ -1,7 +1,7 @@
 part of 'contact_bloc.dart';
 
 @freezed
-class ContactEvent with _$ContactEvent {
+abstract class ContactEvent with _$ContactEvent {
   /// Start watching accepted contacts
   const factory ContactEvent.watchContacts() = _WatchContacts;
 

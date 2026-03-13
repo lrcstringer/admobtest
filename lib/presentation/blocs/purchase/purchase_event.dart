@@ -1,7 +1,7 @@
 part of 'purchase_bloc.dart';
 
 @freezed
-class PurchaseEvent with _$PurchaseEvent {
+abstract class PurchaseEvent with _$PurchaseEvent {
   /// Load all service providers
   const factory PurchaseEvent.loadProviders() = _LoadProviders;
 

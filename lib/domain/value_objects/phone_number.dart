@@ -6,7 +6,7 @@ part 'phone_number.freezed.dart';
 
 /// Value object representing a validated South African phone number
 @freezed
-class PhoneNumber with _$PhoneNumber {
+abstract class PhoneNumber with _$PhoneNumber {
   const factory PhoneNumber(String value) = _PhoneNumber;
   const PhoneNumber._();
 

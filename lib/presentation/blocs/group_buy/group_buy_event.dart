@@ -1,7 +1,7 @@
 part of 'group_buy_bloc.dart';
 
 @freezed
-class GroupBuyEvent with _$GroupBuyEvent {
+abstract class GroupBuyEvent with _$GroupBuyEvent {
   /// Load active group buys (optionally filtered by community)
   const factory GroupBuyEvent.loadActiveGroupBuys({String? communityId}) =
       _LoadActiveGroupBuys;

@@ -8,7 +8,7 @@ part 'reward_item.g.dart';
 /// Reward item entity — a single non-fungible reward allocated to a user.
 /// Code value is only populated on detail fetch (decrypted server-side).
 @freezed
-class RewardItem with _$RewardItem {
+abstract class RewardItem with _$RewardItem {
   const factory RewardItem({
     required String id,
     required String campaignId,

@@ -6,7 +6,7 @@ part 'gooi_cycle.freezed.dart';
 part 'gooi_cycle.g.dart';
 
 @freezed
-class GooiCycle with _$GooiCycle {
+abstract class GooiCycle with _$GooiCycle {
   const factory GooiCycle({
     required String id,
     required int cycleNumber,

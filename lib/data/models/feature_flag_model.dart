@@ -6,7 +6,7 @@ import '../../domain/entities/feature_flag.dart';
 part 'feature_flag_model.freezed.dart';
 
 @freezed
-class FeatureFlagModel with _$FeatureFlagModel {
+abstract class FeatureFlagModel with _$FeatureFlagModel {
   const factory FeatureFlagModel({
     required String id,
     required String featureKey,

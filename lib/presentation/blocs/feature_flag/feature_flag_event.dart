@@ -1,7 +1,7 @@
 part of 'feature_flag_bloc.dart';
 
 @freezed
-class FeatureFlagEvent with _$FeatureFlagEvent {
+abstract class FeatureFlagEvent with _$FeatureFlagEvent {
   /// Load all feature flags from remote
   const factory FeatureFlagEvent.loadFeatureFlags() = _LoadFeatureFlags;
 

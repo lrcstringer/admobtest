@@ -6,7 +6,7 @@ part 'targeting_criteria.g.dart';
 /// Targeting criteria for audience filtering
 /// Used on EarnThread and EarnOpportunity for server-side targeting
 @freezed
-class TargetingCriteria with _$TargetingCriteria {
+abstract class TargetingCriteria with _$TargetingCriteria {
   const factory TargetingCriteria({
     /// Filter by gender(s)
     List<String>? genders,

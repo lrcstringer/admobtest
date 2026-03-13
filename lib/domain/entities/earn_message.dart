@@ -5,7 +5,7 @@ part 'earn_message.g.dart';
 
 /// Represents a message within an earn thread (ad viewing, survey response, etc.)
 @freezed
-class EarnMessage with _$EarnMessage {
+abstract class EarnMessage with _$EarnMessage {
   const factory EarnMessage({
     required String id,
     required String threadId,

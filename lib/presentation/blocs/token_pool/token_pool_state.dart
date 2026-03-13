@@ -1,7 +1,7 @@
 part of 'token_pool_bloc.dart';
 
 @freezed
-class TokenPoolState with _$TokenPoolState {
+abstract class TokenPoolState with _$TokenPoolState {
   const factory TokenPoolState({
     @Default([]) List<TokenPool> myPools,
     TokenPool? activePool,

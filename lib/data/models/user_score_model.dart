@@ -6,7 +6,7 @@ import '../../domain/entities/user_score.dart';
 part 'user_score_model.freezed.dart';
 
 @freezed
-class UserScoreModel with _$UserScoreModel {
+abstract class UserScoreModel with _$UserScoreModel {
   const factory UserScoreModel({
     required String userId,
     required String displayName,

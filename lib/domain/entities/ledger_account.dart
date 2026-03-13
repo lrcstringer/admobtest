@@ -30,7 +30,7 @@ enum LedgerAccountStatus {
 /// Ledger account entity
 /// Represents an account in the Trust Ledger double-entry bookkeeping system
 @freezed
-class LedgerAccount with _$LedgerAccount {
+abstract class LedgerAccount with _$LedgerAccount {
   const factory LedgerAccount({
     required String id,
     required LedgerAccountType type,

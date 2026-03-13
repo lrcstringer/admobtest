@@ -1,7 +1,7 @@
 part of 'call_bloc.dart';
 
 @freezed
-class CallEvent with _$CallEvent {
+abstract class CallEvent with _$CallEvent {
   // ── Outgoing call ──
   const factory CallEvent.initiateCall({
     required String conversationId,

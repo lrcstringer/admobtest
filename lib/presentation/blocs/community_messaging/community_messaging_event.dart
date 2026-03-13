@@ -1,7 +1,7 @@
 part of 'community_messaging_bloc.dart';
 
 @freezed
-class CommunityMessagingEvent with _$CommunityMessagingEvent {
+abstract class CommunityMessagingEvent with _$CommunityMessagingEvent {
   /// Load messages (paginated, for scroll-back)
   const factory CommunityMessagingEvent.loadMessages({int? limit}) =
       _LoadMessages;

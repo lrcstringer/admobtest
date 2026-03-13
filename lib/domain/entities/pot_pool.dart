@@ -6,7 +6,7 @@ part 'pot_pool.g.dart';
 
 /// Pot pool entity representing a daily/weekly jackpot
 @freezed
-class PotPool with _$PotPool {
+abstract class PotPool with _$PotPool {
   const factory PotPool({
     required String id,
     required PotType type,
@@ -56,7 +56,7 @@ class PotPool with _$PotPool {
 
 /// Winner of a pot distribution
 @freezed
-class PotWinner with _$PotWinner {
+abstract class PotWinner with _$PotWinner {
   const factory PotWinner({
     required String userId,
     required String displayName,

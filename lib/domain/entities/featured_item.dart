@@ -4,7 +4,7 @@ part 'featured_item.freezed.dart';
 
 /// A featured/promoted item in the Buy tab carousel.
 @freezed
-class FeaturedItem with _$FeaturedItem {
+abstract class FeaturedItem with _$FeaturedItem {
   const factory FeaturedItem({
     required String id,
     required String title,

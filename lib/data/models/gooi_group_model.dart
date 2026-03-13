@@ -10,7 +10,7 @@ import '../../domain/enums/gooi_roster_method.dart';
 part 'gooi_group_model.freezed.dart';
 
 @freezed
-class GooiGroupModel with _$GooiGroupModel {
+abstract class GooiGroupModel with _$GooiGroupModel {
   const factory GooiGroupModel({
     required String id,
     required String name,

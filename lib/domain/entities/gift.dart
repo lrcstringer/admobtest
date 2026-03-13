@@ -6,7 +6,7 @@ part 'gift.freezed.dart';
 part 'gift.g.dart';
 
 @freezed
-class Gift with _$Gift {
+abstract class Gift with _$Gift {
   const factory Gift({
     required String id,
     required String senderId,
@@ -46,7 +46,7 @@ class Gift with _$Gift {
 }
 
 @freezed
-class GiftStats with _$GiftStats {
+abstract class GiftStats with _$GiftStats {
   const factory GiftStats({
     required int totalSent,
     required int totalReceived,

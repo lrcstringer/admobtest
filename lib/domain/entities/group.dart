@@ -52,7 +52,7 @@ enum PayoutType {
 
 /// Group settings
 @freezed
-class GroupSettings with _$GroupSettings {
+abstract class GroupSettings with _$GroupSettings {
   const factory GroupSettings({
     required int requireApprovalAbove,
     required bool allowMemberWithdrawals,
@@ -91,7 +91,7 @@ class GroupSettings with _$GroupSettings {
 
 /// Extended settings for stokvel groups
 @freezed
-class StokvelSettings with _$StokvelSettings {
+abstract class StokvelSettings with _$StokvelSettings {
   const factory StokvelSettings({
     required PayoutType payoutType,
     required String payoutSchedule,
@@ -121,7 +121,7 @@ class StokvelSettings with _$StokvelSettings {
 ///
 /// Represents a shared account for multiple users (stokvels, family, organizations, clubs).
 @freezed
-class Group with _$Group {
+abstract class Group with _$Group {
   const factory Group({
     required String id,
     required GroupType type,

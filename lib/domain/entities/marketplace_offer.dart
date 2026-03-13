@@ -7,7 +7,7 @@ part 'marketplace_offer.freezed.dart';
 /// An offer made on a marketplace listing.
 /// Lifecycle: pending → accepted/declined/countered/expired/withdrawn.
 @freezed
-class MarketplaceOffer with _$MarketplaceOffer {
+abstract class MarketplaceOffer with _$MarketplaceOffer {
   const factory MarketplaceOffer({
     required String id,
     required String listingId,

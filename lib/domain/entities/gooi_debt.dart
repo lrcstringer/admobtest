@@ -6,7 +6,7 @@ part 'gooi_debt.freezed.dart';
 part 'gooi_debt.g.dart';
 
 @freezed
-class GooiDebt with _$GooiDebt {
+abstract class GooiDebt with _$GooiDebt {
   const factory GooiDebt({
     required String id,
     required String userId,

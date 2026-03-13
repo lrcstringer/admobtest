@@ -1,7 +1,7 @@
 part of 'cashout_bloc.dart';
 
 @freezed
-class CashoutEvent with _$CashoutEvent {
+abstract class CashoutEvent with _$CashoutEvent {
   /// Load cashout history
   const factory CashoutEvent.loadHistory({int? limit}) = _LoadHistory;
 

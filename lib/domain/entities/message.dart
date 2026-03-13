@@ -11,7 +11,7 @@ part 'message.g.dart';
 
 /// Media attachment on a message
 @freezed
-class MessageMedia with _$MessageMedia {
+abstract class MessageMedia with _$MessageMedia {
   const factory MessageMedia({
     required String url,
     String? thumbnailUrl,
@@ -35,7 +35,7 @@ class MessageMedia with _$MessageMedia {
 
 /// Reply-to context embedded in a message
 @freezed
-class MessageReply with _$MessageReply {
+abstract class MessageReply with _$MessageReply {
   const factory MessageReply({
     required String messageId,
     required String senderName,
@@ -49,7 +49,7 @@ class MessageReply with _$MessageReply {
 
 /// Embedded gift data within a message
 @freezed
-class GiftMessageData with _$GiftMessageData {
+abstract class GiftMessageData with _$GiftMessageData {
   const factory GiftMessageData({
     required String giftId,
     required int amount,
@@ -67,7 +67,7 @@ class GiftMessageData with _$GiftMessageData {
 
 /// Embedded token spray data within a message
 @freezed
-class TokenSprayMessageData with _$TokenSprayMessageData {
+abstract class TokenSprayMessageData with _$TokenSprayMessageData {
   const factory TokenSprayMessageData({
     required String sprayId,
     required String recipientId,
@@ -86,7 +86,7 @@ class TokenSprayMessageData with _$TokenSprayMessageData {
 
 /// Embedded group gift data within a message (Group Sasaza delivery)
 @freezed
-class GroupGiftMessageData with _$GroupGiftMessageData {
+abstract class GroupGiftMessageData with _$GroupGiftMessageData {
   const factory GroupGiftMessageData({
     required String poolId,
     required int amount,
@@ -107,7 +107,7 @@ class GroupGiftMessageData with _$GroupGiftMessageData {
 
 /// Metadata for forwarded messages
 @freezed
-class ForwardedFrom with _$ForwardedFrom {
+abstract class ForwardedFrom with _$ForwardedFrom {
   const factory ForwardedFrom({
     required String messageId,
     required String conversationId,
@@ -120,7 +120,7 @@ class ForwardedFrom with _$ForwardedFrom {
 
 /// E2EE metadata attached to encrypted messages
 @freezed
-class E2eeMetadata with _$E2eeMetadata {
+abstract class E2eeMetadata with _$E2eeMetadata {
   const factory E2eeMetadata({
     required String protocol,
     String? senderKeyChainId,
@@ -138,7 +138,7 @@ class E2eeMetadata with _$E2eeMetadata {
 
 /// X3DH key exchange header for initial P2P messages
 @freezed
-class X3dhHeader with _$X3dhHeader {
+abstract class X3dhHeader with _$X3dhHeader {
   const factory X3dhHeader({
     required String identityKey,
     required String ephemeralKey,
@@ -158,7 +158,7 @@ class X3dhHeader with _$X3dhHeader {
 /// Subcollection: conversations/{id}/messages/{messageId}
 ///            or: communities/{id}/messages/{messageId}
 @freezed
-class Message with _$Message {
+abstract class Message with _$Message {
   const factory Message({
     required String id,
 

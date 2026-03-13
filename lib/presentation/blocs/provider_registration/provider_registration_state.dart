@@ -1,7 +1,7 @@
 part of 'provider_registration_bloc.dart';
 
 @freezed
-class ProviderRegistrationState with _$ProviderRegistrationState {
+abstract class ProviderRegistrationState with _$ProviderRegistrationState {
   const factory ProviderRegistrationState({
     @Default(0) int currentStep,
     @Default('') String displayName,

@@ -7,7 +7,7 @@ part 'user_profile.g.dart';
 
 /// User profile information
 @freezed
-class UserProfile with _$UserProfile {
+abstract class UserProfile with _$UserProfile {
   const factory UserProfile({
     required String displayName,
     String? username,

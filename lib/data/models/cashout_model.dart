@@ -7,7 +7,7 @@ import '../../domain/enums/cashout_status.dart';
 part 'cashout_model.freezed.dart';
 
 @freezed
-class CashoutModel with _$CashoutModel {
+abstract class CashoutModel with _$CashoutModel {
   const factory CashoutModel({
     required String id,
     required String walletId,

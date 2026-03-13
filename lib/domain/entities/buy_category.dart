@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'buy_category.freezed.dart';
 
 @freezed
-class BuySubcategory with _$BuySubcategory {
+abstract class BuySubcategory with _$BuySubcategory {
   const factory BuySubcategory({
     required String id,
     required String name,
@@ -12,7 +12,7 @@ class BuySubcategory with _$BuySubcategory {
 }
 
 @freezed
-class BuyCategory with _$BuyCategory {
+abstract class BuyCategory with _$BuyCategory {
   const factory BuyCategory({
     required String id,
     required String name,

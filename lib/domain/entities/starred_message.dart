@@ -8,7 +8,7 @@ part 'starred_message.g.dart';
 /// Stored in `users/{userId}/starredMessages/{conversationId}_{messageId}`.
 /// Per-user, private — other users don't see your stars.
 @freezed
-class StarredMessage with _$StarredMessage {
+abstract class StarredMessage with _$StarredMessage {
   const factory StarredMessage({
     required String messageId,
     required String conversationId,

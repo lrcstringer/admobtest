@@ -7,7 +7,7 @@ import '../../domain/enums/gooi_debt_status.dart';
 part 'gooi_debt_model.freezed.dart';
 
 @freezed
-class GooiDebtModel with _$GooiDebtModel {
+abstract class GooiDebtModel with _$GooiDebtModel {
   const factory GooiDebtModel({
     required String id,
     required String userId,

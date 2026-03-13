@@ -13,7 +13,7 @@ part 'community_member.g.dart';
 ///
 /// Subcollection: communities/{communityId}/members/{userId}
 @freezed
-class CommunityMember with _$CommunityMember {
+abstract class CommunityMember with _$CommunityMember {
   const factory CommunityMember({
     required String id,
     required String communityId,

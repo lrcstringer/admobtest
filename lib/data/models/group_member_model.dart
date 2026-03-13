@@ -12,7 +12,7 @@ part 'group_member_model.g.dart';
 /// Maps between Firestore document and GroupMember entity.
 /// Collection: groups/{groupId}/members/{memberId}
 @freezed
-class GroupMemberModel with _$GroupMemberModel {
+abstract class GroupMemberModel with _$GroupMemberModel {
   const factory GroupMemberModel({
     required String id,
     required String groupId,

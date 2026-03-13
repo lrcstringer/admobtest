@@ -1,7 +1,7 @@
 part of 'marketplace_bloc.dart';
 
 @freezed
-class MarketplaceState with _$MarketplaceState {
+abstract class MarketplaceState with _$MarketplaceState {
   const factory MarketplaceState({
     @Default(false) bool isLoading,
     @Default(false) bool isLoadingMore,

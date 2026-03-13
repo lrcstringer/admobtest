@@ -13,7 +13,7 @@ enum ChatThreadType {
 /// Chat thread representing a conversation
 /// @deprecated Use [Conversation] entity instead.
 @freezed
-class ChatThread with _$ChatThread {
+abstract class ChatThread with _$ChatThread {
   const factory ChatThread({
     required String id,
     required ChatThreadType type,

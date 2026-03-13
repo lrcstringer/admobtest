@@ -11,7 +11,7 @@ import '../../domain/enums/service_area_type.dart';
 part 'marketplace_listing_model.freezed.dart';
 
 @freezed
-class MarketplaceListingModel with _$MarketplaceListingModel {
+abstract class MarketplaceListingModel with _$MarketplaceListingModel {
   const factory MarketplaceListingModel({
     required String id,
     required String title,

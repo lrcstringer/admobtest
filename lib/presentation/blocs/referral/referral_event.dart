@@ -1,7 +1,7 @@
 part of 'referral_bloc.dart';
 
 @freezed
-class ReferralEvent with _$ReferralEvent {
+abstract class ReferralEvent with _$ReferralEvent {
   /// Load referral stats
   const factory ReferralEvent.loadStats() = _LoadStats;
 

@@ -1,7 +1,7 @@
 part of 'conversation_bloc.dart';
 
 @freezed
-class ConversationEvent with _$ConversationEvent {
+abstract class ConversationEvent with _$ConversationEvent {
   // =========================================================================
   // CONVERSATION LIST
   // =========================================================================

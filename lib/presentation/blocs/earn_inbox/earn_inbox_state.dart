@@ -3,7 +3,7 @@ part of 'earn_inbox_bloc.dart';
 enum EarnInboxStatus { initial, loading, loaded, error }
 
 @freezed
-class EarnInboxState with _$EarnInboxState {
+abstract class EarnInboxState with _$EarnInboxState {
   const factory EarnInboxState({
     @Default(EarnInboxStatus.initial) EarnInboxStatus status,
     @Default([]) List<InboxClient> clients,

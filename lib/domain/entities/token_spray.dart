@@ -6,7 +6,7 @@ part 'token_spray.freezed.dart';
 part 'token_spray.g.dart';
 
 @freezed
-class SprayContribution with _$SprayContribution {
+abstract class SprayContribution with _$SprayContribution {
   const factory SprayContribution({
     required int amount,
     required DateTime contributedAt,
@@ -19,7 +19,7 @@ class SprayContribution with _$SprayContribution {
 }
 
 @freezed
-class SprayTopContributor with _$SprayTopContributor {
+abstract class SprayTopContributor with _$SprayTopContributor {
   const factory SprayTopContributor({
     required String userId,
     required String displayName,
@@ -32,7 +32,7 @@ class SprayTopContributor with _$SprayTopContributor {
 }
 
 @freezed
-class TokenSpray with _$TokenSpray {
+abstract class TokenSpray with _$TokenSpray {
   const factory TokenSpray({
     required String id,
     required String communityId,

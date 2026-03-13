@@ -9,7 +9,7 @@ part 'token_pool.g.dart';
 
 /// Per-user aggregated contribution in a token pool
 @freezed
-class PoolContribution with _$PoolContribution {
+abstract class PoolContribution with _$PoolContribution {
   const factory PoolContribution({
     required String userId,
     required String displayName,
@@ -25,7 +25,7 @@ class PoolContribution with _$PoolContribution {
 
 /// A single payout entry in a distribution
 @freezed
-class PoolPayout with _$PoolPayout {
+abstract class PoolPayout with _$PoolPayout {
   const factory PoolPayout({
     required String userId,
     required String displayName,
@@ -44,7 +44,7 @@ class PoolPayout with _$PoolPayout {
 ///
 /// Collection: tokenPools/{poolId}
 @freezed
-class TokenPool with _$TokenPool {
+abstract class TokenPool with _$TokenPool {
   const factory TokenPool({
     required String id,
     required PoolMode mode,

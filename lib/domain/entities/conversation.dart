@@ -6,7 +6,7 @@ part 'conversation.g.dart';
 
 /// Denormalized participant info stored on the conversation document
 @freezed
-class ParticipantInfo with _$ParticipantInfo {
+abstract class ParticipantInfo with _$ParticipantInfo {
   const factory ParticipantInfo({
     required String displayName,
     String? avatarUrl,
@@ -21,7 +21,7 @@ class ParticipantInfo with _$ParticipantInfo {
 /// Represents a direct message thread between two users.
 /// Collection: conversations/{conversationId}
 @freezed
-class Conversation with _$Conversation {
+abstract class Conversation with _$Conversation {
   const factory Conversation({
     required String id,
     required ConversationType type,

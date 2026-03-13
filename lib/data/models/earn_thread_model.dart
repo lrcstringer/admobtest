@@ -7,7 +7,7 @@ import '../../domain/entities/targeting_criteria.dart';
 part 'earn_thread_model.freezed.dart';
 
 @freezed
-class EarnThreadModel with _$EarnThreadModel {
+abstract class EarnThreadModel with _$EarnThreadModel {
   const factory EarnThreadModel({
     required String id,
     // Client fields

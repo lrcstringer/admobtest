@@ -9,7 +9,7 @@ part 'engagement_model.freezed.dart';
 
 /// Type-discriminated survey response model
 @freezed
-class SurveyResponseModel with _$SurveyResponseModel {
+abstract class SurveyResponseModel with _$SurveyResponseModel {
   const factory SurveyResponseModel({
     required String questionId,
     required String questionType,
@@ -119,7 +119,7 @@ class SurveyResponseModel with _$SurveyResponseModel {
 typedef EngagementAnswerModel = SurveyResponseModel;
 
 @freezed
-class EngagementEvidenceModel with _$EngagementEvidenceModel {
+abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
   const factory EngagementEvidenceModel({
     required String deviceFingerprint,
     String? integrityToken,
@@ -279,7 +279,7 @@ class EngagementEvidenceModel with _$EngagementEvidenceModel {
 }
 
 @freezed
-class EngagementModel with _$EngagementModel {
+abstract class EngagementModel with _$EngagementModel {
   const factory EngagementModel({
     required String id,
     required String userId,
