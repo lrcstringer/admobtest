@@ -1,16 +1,69 @@
-# WIP: BATCH 5 — Flutter BLoC + Plumbing Fixes
+# WIP: Fix All 144 Re-Audit Issues (Post-Fix Round 2)
 
-## Status: COMPLETE (pending build_runner)
+## Status: COMPLETE
 
-## Fixes
-1. **Fix 1 (F2-H4)**: Added `orderId` (optional) to `submitBrandReview` chain: event -> bloc -> repo -> impl -> CF call data map. Updated `_ReviewSubmissionSheet` and `_showReviewBottomSheet` to accept and pass orderId.
-2. **Fix 2 (F2-G2)**: Hydrated `isFollowing` from server in `_onLoadStorefront`. Added `isFollowingBrand` method to: `BuyRemoteDataSource` (checks `brandStorefronts/{id}/followers/{uid}` subcollection), `BuyRepositoryImpl`, `BuyRepository`.
-3. **Fix 3 (F2-G1)**: Removed dead `mutualFollowers` and `mutualFollowerCount` fields from `BrandStorefrontState`.
-4. **Fix 4 (F4-J6 + F3-J2)**: Added `StepUpAuthService` dependency to `OrderBloc` and `PurchaseBloc`. Step-up auth check added before `_onBuyItem` and `_onMakePurchase`.
-5. **Fix 5 (C3-2)**: Wired `completeGroupBuy` CF: event, state (`isCompleting`), bloc handler, repository, impl, datasource.
-6. **Fix 6 (F2-J4)**: Wired `showChatButton` — conditional chat button in `_buildBrandHeader`. Updated method signature to accept `BuildContext`.
-7. **Fix 7 (F4-J5)**: Added `PaymentProtectionExplainer` widget to `MarketplaceListingDetailScreen` above provider card.
-8. **Fix 8 (F5-F5)**: Added FCM notification to organizer in `leaveGroupBuy` CF after escrow refund.
+## Verification Results
+- `npm run build` (TypeScript): PASS — zero errors
+- `dart run build_runner build`: PASS — 71 outputs generated
+- `flutter analyze lib/`: PASS — zero errors (432 info-level lints only, all pre-existing)
+- Zero TODOs from our fixes in any CF or Flutter file
 
-## Next Step
-Run `dart run build_runner build --delete-conflicting-outputs` to regenerate freezed files.
+## Summary of All Changes
+
+### marketplace.ts — 8 fixes
+- R4-1: refundType format consistency (snake_case everywhere)
+- R4-3: Deterministic order ID on offer accept
+- R4-8: proposeResolution amount bounds validation
+- Added missing fields to offer-accept order doc
+- renewListing renewalExpiresAt field
+
+### groupBuys.ts — 15 fixes
+- R5-1: deliveryAddress in joinGroupBuy
+- R5-3: collectedCount decrement on leave
+- R5-4/R5-5: confirmCollection restricted + idempotent
+- R5-9: Batched cancellation refunds
+- R5-10: Expired query batch limit
+- R5-11: Wallet validation on leave
+- R5-12: Organizer name fallback
+- FCM target-met notification
+- Contribution amount validation
+- Leave blocking for terminal statuses
+- Auto-completion past collection deadline
+
+### buyAdmin.ts + adminAuth.ts — 18 fixes + 2 executors
+- R6-1: requireAppCheck on 5 new CFs
+- R6-3: Field validation (type/fulfilmentType enums)
+- R6-4: Suspend cascade to pending/flagged
+- R6-5: organizerId validation
+- R6-6: 90-day max extension
+- R6-7: Contributor eligibility filter
+- R6-8: Voucher code dedup/validation
+- R6-9: Deterministic IDs
+- R6-10: Finance admin permissions
+- Maker-checker, notifications, cascading deletes, ordering conflicts
+
+### brands.ts + purchases.ts — 10 fixes
+- R2-6: Coupon validation + redeemStorefrontCoupon CF
+- R3-4: Purchase record failure admin alerting
+- R3-5: Provider isActive re-check
+- Electricity validation, soft-delete filtering, clear error messages
+
+### Flutter domain/data — 17 fixes
+- R1-1/R1-2: FeaturedItem isDeleted + opacity parsing
+- R1-4: Cache TTL
+- R2-2/R2-3/R2-4/R2-5: Coupon filter, follow guard, review refresh, followedAt
+- R3-2/R3-3: isDeleted query filter, regex alignment
+- R4-5: Make Offer wired to MarketplaceEvent.makeOffer
+- R5-1: deliveryAddress full chain wiring
+- R16/R17: Buy confirmation dialog, delivery method display
+- getOffer + loadLinkedOffer for offer chain display
+
+### Flutter presentation — 25+ fixes
+- Video lifecycle, timer nulling, community filtering
+- Admin schedule pre-population, video loading state, empty states
+- Rating validation, dead state removal, product navigation
+- Reviews pagination, coupon counts, follow optimistic update
+- Fee breakdown, search debounce, out-of-stock indicator
+- Contribution history, deadline extension UI, address validation
+- Group buy filters, share flow, progress animation, expired visual
+- Offer chain display, seller dashboard screen

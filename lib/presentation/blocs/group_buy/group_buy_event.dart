@@ -28,6 +28,7 @@ class GroupBuyEvent with _$GroupBuyEvent {
     required String groupBuyId,
     required int amount,
     required String walletId,
+    String? deliveryAddress,
   }) = _JoinGroupBuy;
 
   /// Load admin-curated group buys for the hub (Buy tab)

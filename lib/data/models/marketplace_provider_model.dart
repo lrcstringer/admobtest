@@ -40,6 +40,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
     DateTime? suspendedAt,
     DateTime? bannedAt,
     LocationData? profileLocation,
+    @Default(0) double ratingSum,
   }) = _MarketplaceProviderModel;
 
   const MarketplaceProviderModel._();
@@ -84,6 +85,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       disputeRate: (json['disputeRate'] as num?)?.toDouble() ?? 0.0,
       cancellationRate:
           (json['cancellationRate'] as num?)?.toDouble() ?? 0.0,
+      ratingSum: (json['ratingSum'] as num?)?.toDouble() ?? 0,
       suspensionReason: json['suspensionReason'] as String?,
       suspensionTrigger: json['suspensionTrigger'] as String?,
       suspendedAt: json['suspendedAt'] is Timestamp
@@ -126,6 +128,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       'reportCount': reportCount,
       'disputeRate': disputeRate,
       'cancellationRate': cancellationRate,
+      'ratingSum': ratingSum,
       if (suspensionReason != null) 'suspensionReason': suspensionReason,
       if (suspensionTrigger != null) 'suspensionTrigger': suspensionTrigger,
       if (suspendedAt != null)
@@ -161,6 +164,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       reportCount: reportCount,
       disputeRate: disputeRate,
       cancellationRate: cancellationRate,
+      ratingSum: ratingSum,
       suspensionReason: suspensionReason,
       suspensionTrigger: suspensionTrigger,
       suspendedAt: suspendedAt,
@@ -194,6 +198,7 @@ class MarketplaceProviderModel with _$MarketplaceProviderModel {
       reportCount: entity.reportCount,
       disputeRate: entity.disputeRate,
       cancellationRate: entity.cancellationRate,
+      ratingSum: entity.ratingSum,
       suspensionReason: entity.suspensionReason,
       suspensionTrigger: entity.suspensionTrigger,
       suspendedAt: entity.suspendedAt,

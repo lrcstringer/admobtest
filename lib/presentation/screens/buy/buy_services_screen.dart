@@ -140,10 +140,14 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
         if (state.isLoading && !hasFeatured && !hasBrands)
           _buildFeaturedShimmer(),
 
-        // Featured carousel
+        // Featured carousel (only currently active items, filtered by community)
         if (hasFeatured)
           FeaturedCarousel(
-            items: state.featuredItems,
+            items: _filterFeaturedByCommunity(
+              state.featuredItems
+                  .where((i) => i.isCurrentlyActive)
+                  .toList(),
+            ),
             onItemTap: _onFeaturedItemTap,
           ),
 
@@ -155,6 +159,21 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
           ),
       ]),
     );
+  }
+
+  /// Filter featured items by user's community clusters.
+  /// Items with empty communityIds are global and always shown.
+  List<FeaturedItem> _filterFeaturedByCommunity(List<FeaturedItem> items) {
+    final userClusters =
+        context.read<AuthBloc>().state.user?.profile?.selectedClusters ?? [];
+    if (userClusters.isEmpty) {
+      // No clusters selected — show only global items
+      return items.where((i) => i.communityIds.isEmpty).toList();
+    }
+    return items.where((i) {
+      if (i.communityIds.isEmpty) return true; // global
+      return i.communityIds.any((c) => userClusters.contains(c));
+    }).toList();
   }
 
   void _onFeaturedItemTap(FeaturedItem item) {

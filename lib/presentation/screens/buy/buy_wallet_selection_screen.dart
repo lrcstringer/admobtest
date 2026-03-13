@@ -189,13 +189,19 @@ class _PurchaseSummaryCard extends StatelessWidget {
           _SummaryRow(label: 'Recipient', value: recipientNumber),
           const Divider(height: 24),
           _SummaryRow(
-            label: 'Amount',
+            label: 'Price',
             value: '${product.priceTokens} tokens',
             isBold: true,
           ),
-          if (product.priceZar > 0)
+          _SummaryRow(
+            label: 'ZAR equivalent',
+            value: 'R${(product.priceTokens / 100).toStringAsFixed(2)}',
+            isSecondary: true,
+          ),
+          if (product.priceZar > 0 &&
+              product.priceZar != product.priceTokens / 100)
             _SummaryRow(
-              label: '',
+              label: 'Retail value',
               value: 'R${product.priceZar.toStringAsFixed(2)}',
               isSecondary: true,
             ),

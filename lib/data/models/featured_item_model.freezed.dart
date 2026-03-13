@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FeaturedItemModel {
 
- String get id; String get title; String? get subtitle; String? get imageUrl; String? get videoUrl; String get type; String? get deepLinkRoute; String? get brandId; List<String> get communityIds; bool get isActive; int get sortOrder; DateTime? get scheduledStart; DateTime? get scheduledEnd; String get bgGradientType; String? get brandName; String? get ctaText; String? get bgColorHex; double get colorIntensity; double get imageOpacity; String get imageLayout;
+ String get id; String get title; String? get subtitle; String? get imageUrl; String? get videoUrl; String get type; String? get deepLinkRoute; String? get brandId; List<String> get communityIds; bool get isActive; int get sortOrder; DateTime? get scheduledStart; DateTime? get scheduledEnd; String get bgGradientType; String? get brandName; String? get ctaText; String? get bgColorHex; double get colorIntensity; double get imageOpacity; String get imageLayout; bool get isDeleted;
 /// Create a copy of FeaturedItemModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $FeaturedItemModelCopyWith<FeaturedItemModel> get copyWith => _$FeaturedItemMode
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeaturedItemModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other.communityIds, communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FeaturedItemModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other.communityIds, communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout]);
+int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout,isDeleted]);
 
 @override
 String toString() {
-  return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
+  return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout, isDeleted: $isDeleted)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $FeaturedItemModelCopyWith<$Res>  {
   factory $FeaturedItemModelCopyWith(FeaturedItemModel value, $Res Function(FeaturedItemModel) _then) = _$FeaturedItemModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String? subtitle, String? imageUrl, String? videoUrl, String type, String? deepLinkRoute, String? brandId, List<String> communityIds, bool isActive, int sortOrder, DateTime? scheduledStart, DateTime? scheduledEnd, String bgGradientType, String? brandName, String? ctaText, String? bgColorHex, double colorIntensity, double imageOpacity, String imageLayout
+ String id, String title, String? subtitle, String? imageUrl, String? videoUrl, String type, String? deepLinkRoute, String? brandId, List<String> communityIds, bool isActive, int sortOrder, DateTime? scheduledStart, DateTime? scheduledEnd, String bgGradientType, String? brandName, String? ctaText, String? bgColorHex, double colorIntensity, double imageOpacity, String imageLayout, bool isDeleted
 });
 
 
@@ -62,7 +62,7 @@ class _$FeaturedItemModelCopyWithImpl<$Res>
 
 /// Create a copy of FeaturedItemModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? subtitle = freezed,Object? imageUrl = freezed,Object? videoUrl = freezed,Object? type = null,Object? deepLinkRoute = freezed,Object? brandId = freezed,Object? communityIds = null,Object? isActive = null,Object? sortOrder = null,Object? scheduledStart = freezed,Object? scheduledEnd = freezed,Object? bgGradientType = null,Object? brandName = freezed,Object? ctaText = freezed,Object? bgColorHex = freezed,Object? colorIntensity = null,Object? imageOpacity = null,Object? imageLayout = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? subtitle = freezed,Object? imageUrl = freezed,Object? videoUrl = freezed,Object? type = null,Object? deepLinkRoute = freezed,Object? brandId = freezed,Object? communityIds = null,Object? isActive = null,Object? sortOrder = null,Object? scheduledStart = freezed,Object? scheduledEnd = freezed,Object? bgGradientType = null,Object? brandName = freezed,Object? ctaText = freezed,Object? bgColorHex = freezed,Object? colorIntensity = null,Object? imageOpacity = null,Object? imageLayout = null,Object? isDeleted = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -84,7 +84,8 @@ as String?,bgColorHex: freezed == bgColorHex ? _self.bgColorHex : bgColorHex // 
 as String?,colorIntensity: null == colorIntensity ? _self.colorIntensity : colorIntensity // ignore: cast_nullable_to_non_nullable
 as double,imageOpacity: null == imageOpacity ? _self.imageOpacity : imageOpacity // ignore: cast_nullable_to_non_nullable
 as double,imageLayout: null == imageLayout ? _self.imageLayout : imageLayout // ignore: cast_nullable_to_non_nullable
-as String,
+as String,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -169,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout,  bool isDeleted)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FeaturedItemModel() when $default != null:
-return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout);case _:
+return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout,_that.isDeleted);case _:
   return orElse();
 
 }
@@ -190,10 +191,10 @@ return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout,  bool isDeleted)  $default,) {final _that = this;
 switch (_that) {
 case _FeaturedItemModel():
-return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout);case _:
+return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout,_that.isDeleted);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +211,10 @@ return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? subtitle,  String? imageUrl,  String? videoUrl,  String type,  String? deepLinkRoute,  String? brandId,  List<String> communityIds,  bool isActive,  int sortOrder,  DateTime? scheduledStart,  DateTime? scheduledEnd,  String bgGradientType,  String? brandName,  String? ctaText,  String? bgColorHex,  double colorIntensity,  double imageOpacity,  String imageLayout,  bool isDeleted)?  $default,) {final _that = this;
 switch (_that) {
 case _FeaturedItemModel() when $default != null:
-return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout);case _:
+return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUrl,_that.type,_that.deepLinkRoute,_that.brandId,_that.communityIds,_that.isActive,_that.sortOrder,_that.scheduledStart,_that.scheduledEnd,_that.bgGradientType,_that.brandName,_that.ctaText,_that.bgColorHex,_that.colorIntensity,_that.imageOpacity,_that.imageLayout,_that.isDeleted);case _:
   return null;
 
 }
@@ -225,7 +226,7 @@ return $default(_that.id,_that.title,_that.subtitle,_that.imageUrl,_that.videoUr
 
 
 class _FeaturedItemModel extends FeaturedItemModel {
-  const _FeaturedItemModel({required this.id, required this.title, this.subtitle, this.imageUrl, this.videoUrl, this.type = 'campaign', this.deepLinkRoute, this.brandId, final  List<String> communityIds = const [], this.isActive = true, this.sortOrder = 0, this.scheduledStart, this.scheduledEnd, this.bgGradientType = 'goldOrange', this.brandName, this.ctaText, this.bgColorHex, this.colorIntensity = 0.4, this.imageOpacity = 0.3, this.imageLayout = 'right'}): _communityIds = communityIds,super._();
+  const _FeaturedItemModel({required this.id, required this.title, this.subtitle, this.imageUrl, this.videoUrl, this.type = 'campaign', this.deepLinkRoute, this.brandId, final  List<String> communityIds = const [], this.isActive = true, this.sortOrder = 0, this.scheduledStart, this.scheduledEnd, this.bgGradientType = 'goldOrange', this.brandName, this.ctaText, this.bgColorHex, this.colorIntensity = 0.4, this.imageOpacity = 0.3, this.imageLayout = 'right', this.isDeleted = false}): _communityIds = communityIds,super._();
   
 
 @override final  String id;
@@ -254,6 +255,7 @@ class _FeaturedItemModel extends FeaturedItemModel {
 @override@JsonKey() final  double colorIntensity;
 @override@JsonKey() final  double imageOpacity;
 @override@JsonKey() final  String imageLayout;
+@override@JsonKey() final  bool isDeleted;
 
 /// Create a copy of FeaturedItemModel
 /// with the given fields replaced by the non-null parameter values.
@@ -265,16 +267,16 @@ _$FeaturedItemModelCopyWith<_FeaturedItemModel> get copyWith => __$FeaturedItemM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeaturedItemModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other._communityIds, _communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FeaturedItemModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&(identical(other.type, type) || other.type == type)&&(identical(other.deepLinkRoute, deepLinkRoute) || other.deepLinkRoute == deepLinkRoute)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&const DeepCollectionEquality().equals(other._communityIds, _communityIds)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.scheduledStart, scheduledStart) || other.scheduledStart == scheduledStart)&&(identical(other.scheduledEnd, scheduledEnd) || other.scheduledEnd == scheduledEnd)&&(identical(other.bgGradientType, bgGradientType) || other.bgGradientType == bgGradientType)&&(identical(other.brandName, brandName) || other.brandName == brandName)&&(identical(other.ctaText, ctaText) || other.ctaText == ctaText)&&(identical(other.bgColorHex, bgColorHex) || other.bgColorHex == bgColorHex)&&(identical(other.colorIntensity, colorIntensity) || other.colorIntensity == colorIntensity)&&(identical(other.imageOpacity, imageOpacity) || other.imageOpacity == imageOpacity)&&(identical(other.imageLayout, imageLayout) || other.imageLayout == imageLayout)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(_communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout]);
+int get hashCode => Object.hashAll([runtimeType,id,title,subtitle,imageUrl,videoUrl,type,deepLinkRoute,brandId,const DeepCollectionEquality().hash(_communityIds),isActive,sortOrder,scheduledStart,scheduledEnd,bgGradientType,brandName,ctaText,bgColorHex,colorIntensity,imageOpacity,imageLayout,isDeleted]);
 
 @override
 String toString() {
-  return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout)';
+  return 'FeaturedItemModel(id: $id, title: $title, subtitle: $subtitle, imageUrl: $imageUrl, videoUrl: $videoUrl, type: $type, deepLinkRoute: $deepLinkRoute, brandId: $brandId, communityIds: $communityIds, isActive: $isActive, sortOrder: $sortOrder, scheduledStart: $scheduledStart, scheduledEnd: $scheduledEnd, bgGradientType: $bgGradientType, brandName: $brandName, ctaText: $ctaText, bgColorHex: $bgColorHex, colorIntensity: $colorIntensity, imageOpacity: $imageOpacity, imageLayout: $imageLayout, isDeleted: $isDeleted)';
 }
 
 
@@ -285,7 +287,7 @@ abstract mixin class _$FeaturedItemModelCopyWith<$Res> implements $FeaturedItemM
   factory _$FeaturedItemModelCopyWith(_FeaturedItemModel value, $Res Function(_FeaturedItemModel) _then) = __$FeaturedItemModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String? subtitle, String? imageUrl, String? videoUrl, String type, String? deepLinkRoute, String? brandId, List<String> communityIds, bool isActive, int sortOrder, DateTime? scheduledStart, DateTime? scheduledEnd, String bgGradientType, String? brandName, String? ctaText, String? bgColorHex, double colorIntensity, double imageOpacity, String imageLayout
+ String id, String title, String? subtitle, String? imageUrl, String? videoUrl, String type, String? deepLinkRoute, String? brandId, List<String> communityIds, bool isActive, int sortOrder, DateTime? scheduledStart, DateTime? scheduledEnd, String bgGradientType, String? brandName, String? ctaText, String? bgColorHex, double colorIntensity, double imageOpacity, String imageLayout, bool isDeleted
 });
 
 
@@ -302,7 +304,7 @@ class __$FeaturedItemModelCopyWithImpl<$Res>
 
 /// Create a copy of FeaturedItemModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? subtitle = freezed,Object? imageUrl = freezed,Object? videoUrl = freezed,Object? type = null,Object? deepLinkRoute = freezed,Object? brandId = freezed,Object? communityIds = null,Object? isActive = null,Object? sortOrder = null,Object? scheduledStart = freezed,Object? scheduledEnd = freezed,Object? bgGradientType = null,Object? brandName = freezed,Object? ctaText = freezed,Object? bgColorHex = freezed,Object? colorIntensity = null,Object? imageOpacity = null,Object? imageLayout = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? subtitle = freezed,Object? imageUrl = freezed,Object? videoUrl = freezed,Object? type = null,Object? deepLinkRoute = freezed,Object? brandId = freezed,Object? communityIds = null,Object? isActive = null,Object? sortOrder = null,Object? scheduledStart = freezed,Object? scheduledEnd = freezed,Object? bgGradientType = null,Object? brandName = freezed,Object? ctaText = freezed,Object? bgColorHex = freezed,Object? colorIntensity = null,Object? imageOpacity = null,Object? imageLayout = null,Object? isDeleted = null,}) {
   return _then(_FeaturedItemModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -324,7 +326,8 @@ as String?,bgColorHex: freezed == bgColorHex ? _self.bgColorHex : bgColorHex // 
 as String?,colorIntensity: null == colorIntensity ? _self.colorIntensity : colorIntensity // ignore: cast_nullable_to_non_nullable
 as double,imageOpacity: null == imageOpacity ? _self.imageOpacity : imageOpacity // ignore: cast_nullable_to_non_nullable
 as double,imageLayout: null == imageLayout ? _self.imageLayout : imageLayout // ignore: cast_nullable_to_non_nullable
-as String,
+as String,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

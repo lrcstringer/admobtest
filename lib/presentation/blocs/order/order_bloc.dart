@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/security/step_up_auth_service.dart';
 import '../../../domain/entities/buy_order.dart';
+import '../../../domain/entities/marketplace_offer.dart';
 import '../../../domain/repositories/marketplace_repository.dart';
 
 part 'order_bloc.freezed.dart';
@@ -27,6 +28,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<_CancelOrder>(_onCancelOrder);
     on<_DisputeOrder>(_onDisputeOrder);
     on<_VouchForProvider>(_onVouchForProvider);
+    on<_LoadLinkedOffer>(_onLoadLinkedOffer);
     on<_ClearMessages>(_onClearMessages);
   }
 
@@ -259,6 +261,17 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         isProcessing: false,
         successMessage: 'Vouch submitted — thank you!',
       )),
+    );
+  }
+
+  Future<void> _onLoadLinkedOffer(
+    _LoadLinkedOffer event,
+    Emitter<OrderState> emit,
+  ) async {
+    final result = await _repository.getOffer(event.offerId);
+    result.fold(
+      (_) {}, // Non-critical — offer data is supplementary
+      (offer) => emit(state.copyWith(linkedOffer: offer)),
     );
   }
 

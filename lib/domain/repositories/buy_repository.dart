@@ -69,6 +69,10 @@ abstract class BuyRepository {
   /// Check if the current user is following a brand
   Future<Either<Failure, bool>> isFollowingBrand(String brandId);
 
+  /// Get follow status including followedAt timestamp
+  Future<Either<Failure, ({bool isFollowing, DateTime? followedAt})>>
+      getFollowStatus(String brandId);
+
   /// Toggle follow/unfollow for a brand
   Future<Either<Failure, bool>> toggleBrandFollow(String brandId);
 }

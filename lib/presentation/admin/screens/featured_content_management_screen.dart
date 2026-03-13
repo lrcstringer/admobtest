@@ -55,10 +55,11 @@ class _FeaturedContentManagementScreenState
         });
       }
     } catch (e) {
-      // Fallback: direct Firestore read
+      // Fallback: direct Firestore read (active items only)
       try {
         final snapshot = await FirebaseFirestore.instance
             .collection('featuredItems')
+            .where('isActive', isEqualTo: true)
             .orderBy('sortOrder')
             .get();
         if (mounted) {
@@ -85,15 +86,15 @@ class _FeaturedContentManagementScreenState
         final start = i['scheduledStart'];
         if (start == null) return false;
         final startDate = start is Timestamp ? start.toDate() : DateTime.tryParse(start.toString());
-        return startDate != null && startDate.isAfter(DateTime.now()) && i['isActive'] != true;
+        return startDate != null && startDate.isAfter(DateTime.now().toUtc());
       }).toList();
 
   List<Map<String, dynamic>> get _expiredItems =>
       _items.where((i) {
         final end = i['scheduledEnd'];
-        if (end == null) return i['isActive'] != true;
+        if (end == null) return false;
         final endDate = end is Timestamp ? end.toDate() : DateTime.tryParse(end.toString());
-        return endDate != null && endDate.isBefore(DateTime.now());
+        return endDate != null && endDate.isBefore(DateTime.now().toUtc());
       }).toList();
 
   @override
@@ -533,6 +534,26 @@ class _FeaturedContentManagementScreenState
     var bgGradient = existing?['bgGradientType'] as String? ?? 'goldOrange';
     var isActive = existing?['isActive'] as bool? ?? true;
     var saving = false;
+
+    // Scheduling state
+    DateTime? scheduledStart;
+    DateTime? scheduledEnd;
+    final existingStart = existing?['scheduledStart'];
+    final existingEnd = existing?['scheduledEnd'];
+    if (existingStart != null) {
+      scheduledStart = existingStart is Timestamp
+          ? existingStart.toDate()
+          : DateTime.tryParse(existingStart.toString());
+    }
+    if (existingEnd != null) {
+      scheduledEnd = existingEnd is Timestamp
+          ? existingEnd.toDate()
+          : DateTime.tryParse(existingEnd.toString());
+    }
+
+    // Community filtering
+    final communityIdsCtrl = TextEditingController(
+        text: (existing?['communityIds'] as List<dynamic>?)?.join(', ') ?? '');
 
     // Image upload state
     Uint8List? pickedImageBytes;
@@ -1010,6 +1031,132 @@ class _FeaturedContentManagementScreenState
                         onChanged: (v) =>
                             setInnerState(() => isActive = v),
                       ),
+                      const SizedBox(height: 12),
+
+                      // ── Scheduling ──
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Schedule (optional)',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary)),
+                      ),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          scheduledStart != null
+                              ? 'Start: ${scheduledStart!.day}/${scheduledStart!.month}/${scheduledStart!.year} '
+                                  '${scheduledStart!.hour.toString().padLeft(2, '0')}:${scheduledStart!.minute.toString().padLeft(2, '0')}'
+                              : 'Scheduled Start: Not set',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheduledStart != null
+                                ? AppColors.textPrimary
+                                : AppColors.textTertiary,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.calendar_today, size: 18),
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: ctx,
+                                  initialDate: scheduledStart ?? DateTime.now(),
+                                  firstDate: DateTime.now().subtract(const Duration(days: 1)),
+                                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                                );
+                                if (date != null && ctx.mounted) {
+                                  final time = await showTimePicker(
+                                    context: ctx,
+                                    initialTime: TimeOfDay.fromDateTime(
+                                        scheduledStart ?? DateTime.now()),
+                                  );
+                                  if (time != null) {
+                                    setInnerState(() {
+                                      scheduledStart = DateTime(
+                                          date.year, date.month, date.day,
+                                          time.hour, time.minute);
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            if (scheduledStart != null)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () =>
+                                    setInnerState(() => scheduledStart = null),
+                              ),
+                          ],
+                        ),
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          scheduledEnd != null
+                              ? 'End: ${scheduledEnd!.day}/${scheduledEnd!.month}/${scheduledEnd!.year} '
+                                  '${scheduledEnd!.hour.toString().padLeft(2, '0')}:${scheduledEnd!.minute.toString().padLeft(2, '0')}'
+                              : 'Scheduled End: Not set',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheduledEnd != null
+                                ? AppColors.textPrimary
+                                : AppColors.textTertiary,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.calendar_today, size: 18),
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: ctx,
+                                  initialDate: scheduledEnd ?? DateTime.now().add(const Duration(days: 7)),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                                );
+                                if (date != null && ctx.mounted) {
+                                  final time = await showTimePicker(
+                                    context: ctx,
+                                    initialTime: scheduledEnd != null
+                                        ? TimeOfDay.fromDateTime(scheduledEnd!)
+                                        : const TimeOfDay(hour: 23, minute: 59),
+                                  );
+                                  if (time != null) {
+                                    setInnerState(() {
+                                      scheduledEnd = DateTime(
+                                          date.year, date.month, date.day,
+                                          time.hour, time.minute);
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            if (scheduledEnd != null)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () =>
+                                    setInnerState(() => scheduledEnd = null),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // ── Community filtering ──
+                      TextFormField(
+                        controller: communityIdsCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Community IDs (comma-separated, empty = all)',
+                          hintText: 'community1,community2',
+                          helperText: 'Leave empty to show to all users',
+                          helperMaxLines: 2,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1024,8 +1171,29 @@ class _FeaturedContentManagementScreenState
                 onPressed: saving
                     ? null
                     : () async {
-                        if (!formKey.currentState!.validate()) return;
                         setInnerState(() => saving = true);
+                        if (!formKey.currentState!.validate()) {
+                          setInnerState(() => saving = false);
+                          return;
+                        }
+
+                        // Validate 1-hour minimum window between start and end
+                        if (scheduledStart != null && scheduledEnd != null) {
+                          final minEnd = scheduledStart!.add(const Duration(hours: 1));
+                          if (scheduledEnd!.isBefore(minEnd)) {
+                            setInnerState(() => saving = false);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Scheduled end must be at least 1 hour after start',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                        }
                         try {
                           final fn = isEdit
                               ? 'adminUpdateFeaturedItem'
@@ -1082,6 +1250,15 @@ class _FeaturedContentManagementScreenState
                             'sortOrder':
                                 int.tryParse(sortOrderCtrl.text) ?? 0,
                             'isActive': isActive,
+                            'scheduledStart':
+                                scheduledStart?.toUtc().toIso8601String(),
+                            'scheduledEnd':
+                                scheduledEnd?.toUtc().toIso8601String(),
+                            'communityIds': communityIdsCtrl.text
+                                .split(',')
+                                .map((s) => s.trim())
+                                .where((s) => s.isNotEmpty)
+                                .toList(),
                           };
 
                           final result =

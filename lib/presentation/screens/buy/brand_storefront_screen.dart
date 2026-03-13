@@ -631,7 +631,11 @@ class _BrandStorefrontBody extends StatelessWidget {
       {double? width}) {
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to product detail when screen exists
+        // Navigate to product detail using brand and product IDs
+        context.push(
+          '/buy/brand/${product.brandId}/product/${product.id}',
+          extra: product,
+        );
       },
       child: Container(
         width: width,
@@ -863,94 +867,10 @@ class _BrandStorefrontBody extends StatelessWidget {
   // ─── Reviews ─────────────────────────────────────────────
 
   Widget _buildReviews(BuildContext context, BrandStorefront storefront) {
-    final state = context.watch<BrandStorefrontBloc>().state;
-    final visibleReviews =
-        state.reviews.where((r) => r.isVisible).take(3).toList();
-
-    if ((storefront.ratingCount == null || storefront.ratingCount == 0) &&
-        visibleReviews.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Summary card
-          if (storefront.ratingCount != null && storefront.ratingCount! > 0)
-            BrandCard(
-              gradient: BrandGradient.none,
-              child: Row(
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        storefront.averageRating?.toStringAsFixed(1) ?? '—',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${storefront.ratingCount} reviews',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textTertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Row(
-                      children: List.generate(
-                        5,
-                        (i) => Icon(
-                          i < (storefront.averageRating ?? 0).round()
-                              ? Icons.star
-                              : Icons.star_border,
-                          size: 20,
-                          color: AppColors.gold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // Recent review cards
-          if (visibleReviews.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ...visibleReviews.map(_buildReviewCard),
-          ],
-
-          // Write a Review button
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.rate_review_outlined, size: 18),
-              label: const Text('Write a Review'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () => _showReviewBottomSheet(
-                context,
-                storefront.brandId,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return _PaginatedReviewsSection(
+      storefront: storefront,
+      onWriteReview: () => _showReviewBottomSheet(context, storefront.brandId),
+      buildReviewCard: _buildReviewCard,
     );
   }
 
@@ -1249,6 +1169,7 @@ class _BrandStorefrontBody extends StatelessWidget {
 
   Widget _buildCouponCenter(BuildContext context, BrandStorefront storefront) {
     final coupons = storefront.coupons
+        .where((c) => c.isActive != false)
         .where((c) => c.expiresAt == null || c.expiresAt!.isAfter(DateTime.now()))
         .toList();
     if (coupons.isEmpty) return const SizedBox.shrink();
@@ -1304,6 +1225,20 @@ class _BrandStorefrontBody extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                        // Show remaining claims
+                        if (coupon.maxClaims != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            '${(coupon.maxClaims! - coupon.claimCount).clamp(0, coupon.maxClaims!)} of ${coupon.maxClaims} claims remaining',
+                            style: TextStyle(
+                              color: (coupon.maxClaims! - coupon.claimCount) <= 5
+                                  ? AppColors.error
+                                  : AppColors.textTertiary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -1990,6 +1925,140 @@ class _StorefrontAboutLegacy extends StatelessWidget {
 
 // ─── Review Submission Bottom Sheet ───────────────────────
 
+/// Paginated reviews section: shows first 10, then "Load more" in batches of 10.
+class _PaginatedReviewsSection extends StatefulWidget {
+  final BrandStorefront storefront;
+  final VoidCallback onWriteReview;
+  final Widget Function(BrandReview) buildReviewCard;
+
+  const _PaginatedReviewsSection({
+    required this.storefront,
+    required this.onWriteReview,
+    required this.buildReviewCard,
+  });
+
+  @override
+  State<_PaginatedReviewsSection> createState() =>
+      _PaginatedReviewsSectionState();
+}
+
+class _PaginatedReviewsSectionState extends State<_PaginatedReviewsSection> {
+  static const _pageSize = 10;
+  int _visibleCount = _pageSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<BrandStorefrontBloc>().state;
+    final allVisible = state.reviews.where((r) => r.isVisible).toList();
+    final storefront = widget.storefront;
+
+    if ((storefront.ratingCount == null || storefront.ratingCount == 0) &&
+        allVisible.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final displayedReviews = allVisible.take(_visibleCount).toList();
+    final hasMore = allVisible.length > _visibleCount;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Summary card
+          if (storefront.ratingCount != null && storefront.ratingCount! > 0)
+            BrandCard(
+              gradient: BrandGradient.none,
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        storefront.averageRating?.toStringAsFixed(1) ?? '\u2014',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${storefront.ratingCount} reviews',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Row(
+                      children: List.generate(
+                        5,
+                        (i) => Icon(
+                          i < (storefront.averageRating ?? 0).round()
+                              ? Icons.star
+                              : Icons.star_border,
+                          size: 20,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Review cards (paginated)
+          if (displayedReviews.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ...displayedReviews.map(widget.buildReviewCard),
+          ],
+
+          // "Load more" button
+          if (hasMore) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () =>
+                    setState(() => _visibleCount += _pageSize),
+                child: Text(
+                  'Show more reviews (${allVisible.length - _visibleCount} remaining)',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Write a Review button
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.rate_review_outlined, size: 18),
+              label: const Text('Write a Review'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: widget.onWriteReview,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ReviewSubmissionSheet extends StatefulWidget {
   final String brandId;
   final String? orderId;
@@ -2230,10 +2299,13 @@ class _ReviewSubmissionSheetState extends State<_ReviewSubmissionSheet> {
   }
 
   void _onSubmit() {
+    final orderId = widget.orderId;
+    if (orderId == null || orderId.isEmpty) return;
+
     context.read<BrandStorefrontBloc>().add(
           BrandStorefrontEvent.submitReview(
             brandId: widget.brandId,
-            orderId: widget.orderId,
+            orderId: orderId,
             qualityRating: _qualityRating,
             valueRating: _valueRating,
             serviceRating: _serviceRating,

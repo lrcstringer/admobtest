@@ -55,7 +55,7 @@ extension OrderEventPatterns on OrderEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult Function( _LoadSellerOrders value)?  loadSellerOrders,TResult Function( _SelectOrder value)?  selectOrder,TResult Function( _BuyItem value)?  buyItem,TResult Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult Function( _ConfirmReceipt value)?  confirmReceipt,TResult Function( _CancelOrder value)?  cancelOrder,TResult Function( _DisputeOrder value)?  disputeOrder,TResult Function( _VouchForProvider value)?  vouchForProvider,TResult Function( _ClearMessages value)?  clearMessages,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult Function( _LoadSellerOrders value)?  loadSellerOrders,TResult Function( _SelectOrder value)?  selectOrder,TResult Function( _BuyItem value)?  buyItem,TResult Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult Function( _ConfirmReceipt value)?  confirmReceipt,TResult Function( _CancelOrder value)?  cancelOrder,TResult Function( _DisputeOrder value)?  disputeOrder,TResult Function( _VouchForProvider value)?  vouchForProvider,TResult Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult Function( _ClearMessages value)?  clearMessages,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
@@ -67,7 +67,8 @@ return confirmFulfilment(_that);case _ConfirmReceipt() when confirmReceipt != nu
 return confirmReceipt(_that);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that);case _VouchForProvider() when vouchForProvider != null:
-return vouchForProvider(_that);case _ClearMessages() when clearMessages != null:
+return vouchForProvider(_that);case _LoadLinkedOffer() when loadLinkedOffer != null:
+return loadLinkedOffer(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _:
   return orElse();
 
@@ -86,7 +87,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyerOrders value)  loadBuyerOrders,required TResult Function( _LoadSellerOrders value)  loadSellerOrders,required TResult Function( _SelectOrder value)  selectOrder,required TResult Function( _BuyItem value)  buyItem,required TResult Function( _ConfirmFulfilment value)  confirmFulfilment,required TResult Function( _ConfirmReceipt value)  confirmReceipt,required TResult Function( _CancelOrder value)  cancelOrder,required TResult Function( _DisputeOrder value)  disputeOrder,required TResult Function( _VouchForProvider value)  vouchForProvider,required TResult Function( _ClearMessages value)  clearMessages,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadBuyerOrders value)  loadBuyerOrders,required TResult Function( _LoadSellerOrders value)  loadSellerOrders,required TResult Function( _SelectOrder value)  selectOrder,required TResult Function( _BuyItem value)  buyItem,required TResult Function( _ConfirmFulfilment value)  confirmFulfilment,required TResult Function( _ConfirmReceipt value)  confirmReceipt,required TResult Function( _CancelOrder value)  cancelOrder,required TResult Function( _DisputeOrder value)  disputeOrder,required TResult Function( _VouchForProvider value)  vouchForProvider,required TResult Function( _LoadLinkedOffer value)  loadLinkedOffer,required TResult Function( _ClearMessages value)  clearMessages,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders():
@@ -98,7 +99,8 @@ return confirmFulfilment(_that);case _ConfirmReceipt():
 return confirmReceipt(_that);case _CancelOrder():
 return cancelOrder(_that);case _DisputeOrder():
 return disputeOrder(_that);case _VouchForProvider():
-return vouchForProvider(_that);case _ClearMessages():
+return vouchForProvider(_that);case _LoadLinkedOffer():
+return loadLinkedOffer(_that);case _ClearMessages():
 return clearMessages(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -116,7 +118,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult? Function( _LoadSellerOrders value)?  loadSellerOrders,TResult? Function( _SelectOrder value)?  selectOrder,TResult? Function( _BuyItem value)?  buyItem,TResult? Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult? Function( _ConfirmReceipt value)?  confirmReceipt,TResult? Function( _CancelOrder value)?  cancelOrder,TResult? Function( _DisputeOrder value)?  disputeOrder,TResult? Function( _VouchForProvider value)?  vouchForProvider,TResult? Function( _ClearMessages value)?  clearMessages,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadBuyerOrders value)?  loadBuyerOrders,TResult? Function( _LoadSellerOrders value)?  loadSellerOrders,TResult? Function( _SelectOrder value)?  selectOrder,TResult? Function( _BuyItem value)?  buyItem,TResult? Function( _ConfirmFulfilment value)?  confirmFulfilment,TResult? Function( _ConfirmReceipt value)?  confirmReceipt,TResult? Function( _CancelOrder value)?  cancelOrder,TResult? Function( _DisputeOrder value)?  disputeOrder,TResult? Function( _VouchForProvider value)?  vouchForProvider,TResult? Function( _LoadLinkedOffer value)?  loadLinkedOffer,TResult? Function( _ClearMessages value)?  clearMessages,}){
 final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
@@ -128,7 +130,8 @@ return confirmFulfilment(_that);case _ConfirmReceipt() when confirmReceipt != nu
 return confirmReceipt(_that);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that);case _VouchForProvider() when vouchForProvider != null:
-return vouchForProvider(_that);case _ClearMessages() when clearMessages != null:
+return vouchForProvider(_that);case _LoadLinkedOffer() when loadLinkedOffer != null:
+return loadLinkedOffer(_that);case _ClearMessages() when clearMessages != null:
 return clearMessages(_that);case _:
   return null;
 
@@ -146,7 +149,7 @@ return clearMessages(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyerOrders,TResult Function()?  loadSellerOrders,TResult Function( String orderId)?  selectOrder,TResult Function( String listingId,  String walletId)?  buyItem,TResult Function( String orderId)?  confirmFulfilment,TResult Function( String orderId)?  confirmReceipt,TResult Function( String orderId)?  cancelOrder,TResult Function( String orderId,  String reason)?  disputeOrder,TResult Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult Function()?  clearMessages,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadBuyerOrders,TResult Function()?  loadSellerOrders,TResult Function( String orderId)?  selectOrder,TResult Function( String listingId,  String walletId)?  buyItem,TResult Function( String orderId)?  confirmFulfilment,TResult Function( String orderId)?  confirmReceipt,TResult Function( String orderId)?  cancelOrder,TResult Function( String orderId,  String reason)?  disputeOrder,TResult Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult Function( String offerId)?  loadLinkedOffer,TResult Function()?  clearMessages,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
 return loadBuyerOrders();case _LoadSellerOrders() when loadSellerOrders != null:
@@ -157,7 +160,8 @@ return confirmFulfilment(_that.orderId);case _ConfirmReceipt() when confirmRecei
 return confirmReceipt(_that.orderId);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that.orderId);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider() when vouchForProvider != null:
-return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _ClearMessages() when clearMessages != null:
+return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer() when loadLinkedOffer != null:
+return loadLinkedOffer(_that.offerId);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _:
   return orElse();
 
@@ -176,7 +180,7 @@ return clearMessages();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyerOrders,required TResult Function()  loadSellerOrders,required TResult Function( String orderId)  selectOrder,required TResult Function( String listingId,  String walletId)  buyItem,required TResult Function( String orderId)  confirmFulfilment,required TResult Function( String orderId)  confirmReceipt,required TResult Function( String orderId)  cancelOrder,required TResult Function( String orderId,  String reason)  disputeOrder,required TResult Function( String providerId,  String orderId,  int rating,  String? comment)  vouchForProvider,required TResult Function()  clearMessages,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadBuyerOrders,required TResult Function()  loadSellerOrders,required TResult Function( String orderId)  selectOrder,required TResult Function( String listingId,  String walletId)  buyItem,required TResult Function( String orderId)  confirmFulfilment,required TResult Function( String orderId)  confirmReceipt,required TResult Function( String orderId)  cancelOrder,required TResult Function( String orderId,  String reason)  disputeOrder,required TResult Function( String providerId,  String orderId,  int rating,  String? comment)  vouchForProvider,required TResult Function( String offerId)  loadLinkedOffer,required TResult Function()  clearMessages,}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders():
 return loadBuyerOrders();case _LoadSellerOrders():
@@ -187,7 +191,8 @@ return confirmFulfilment(_that.orderId);case _ConfirmReceipt():
 return confirmReceipt(_that.orderId);case _CancelOrder():
 return cancelOrder(_that.orderId);case _DisputeOrder():
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider():
-return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _ClearMessages():
+return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer():
+return loadLinkedOffer(_that.offerId);case _ClearMessages():
 return clearMessages();case _:
   throw StateError('Unexpected subclass');
 
@@ -205,7 +210,7 @@ return clearMessages();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyerOrders,TResult? Function()?  loadSellerOrders,TResult? Function( String orderId)?  selectOrder,TResult? Function( String listingId,  String walletId)?  buyItem,TResult? Function( String orderId)?  confirmFulfilment,TResult? Function( String orderId)?  confirmReceipt,TResult? Function( String orderId)?  cancelOrder,TResult? Function( String orderId,  String reason)?  disputeOrder,TResult? Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult? Function()?  clearMessages,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadBuyerOrders,TResult? Function()?  loadSellerOrders,TResult? Function( String orderId)?  selectOrder,TResult? Function( String listingId,  String walletId)?  buyItem,TResult? Function( String orderId)?  confirmFulfilment,TResult? Function( String orderId)?  confirmReceipt,TResult? Function( String orderId)?  cancelOrder,TResult? Function( String orderId,  String reason)?  disputeOrder,TResult? Function( String providerId,  String orderId,  int rating,  String? comment)?  vouchForProvider,TResult? Function( String offerId)?  loadLinkedOffer,TResult? Function()?  clearMessages,}) {final _that = this;
 switch (_that) {
 case _LoadBuyerOrders() when loadBuyerOrders != null:
 return loadBuyerOrders();case _LoadSellerOrders() when loadSellerOrders != null:
@@ -216,7 +221,8 @@ return confirmFulfilment(_that.orderId);case _ConfirmReceipt() when confirmRecei
 return confirmReceipt(_that.orderId);case _CancelOrder() when cancelOrder != null:
 return cancelOrder(_that.orderId);case _DisputeOrder() when disputeOrder != null:
 return disputeOrder(_that.orderId,_that.reason);case _VouchForProvider() when vouchForProvider != null:
-return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _ClearMessages() when clearMessages != null:
+return vouchForProvider(_that.providerId,_that.orderId,_that.rating,_that.comment);case _LoadLinkedOffer() when loadLinkedOffer != null:
+return loadLinkedOffer(_that.offerId);case _ClearMessages() when clearMessages != null:
 return clearMessages();case _:
   return null;
 
@@ -764,6 +770,72 @@ as String?,
 /// @nodoc
 
 
+class _LoadLinkedOffer implements OrderEvent {
+  const _LoadLinkedOffer(this.offerId);
+  
+
+ final  String offerId;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadLinkedOfferCopyWith<_LoadLinkedOffer> get copyWith => __$LoadLinkedOfferCopyWithImpl<_LoadLinkedOffer>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadLinkedOffer&&(identical(other.offerId, offerId) || other.offerId == offerId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,offerId);
+
+@override
+String toString() {
+  return 'OrderEvent.loadLinkedOffer(offerId: $offerId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$LoadLinkedOfferCopyWith<$Res> implements $OrderEventCopyWith<$Res> {
+  factory _$LoadLinkedOfferCopyWith(_LoadLinkedOffer value, $Res Function(_LoadLinkedOffer) _then) = __$LoadLinkedOfferCopyWithImpl;
+@useResult
+$Res call({
+ String offerId
+});
+
+
+
+
+}
+/// @nodoc
+class __$LoadLinkedOfferCopyWithImpl<$Res>
+    implements _$LoadLinkedOfferCopyWith<$Res> {
+  __$LoadLinkedOfferCopyWithImpl(this._self, this._then);
+
+  final _LoadLinkedOffer _self;
+  final $Res Function(_LoadLinkedOffer) _then;
+
+/// Create a copy of OrderEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? offerId = null,}) {
+  return _then(_LoadLinkedOffer(
+null == offerId ? _self.offerId : offerId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class _ClearMessages implements OrderEvent {
   const _ClearMessages();
   
@@ -796,7 +868,7 @@ String toString() {
 /// @nodoc
 mixin _$OrderState {
 
- bool get isLoading; bool get isLoadingDetail; bool get isProcessing; List<BuyOrder> get buyerOrders; List<BuyOrder> get sellerOrders; BuyOrder? get selectedOrder; String? get errorMessage; String? get successMessage;
+ bool get isLoading; bool get isLoadingDetail; bool get isProcessing; List<BuyOrder> get buyerOrders; List<BuyOrder> get sellerOrders; BuyOrder? get selectedOrder; MarketplaceOffer? get linkedOffer; String? get errorMessage; String? get successMessage;
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -807,16 +879,16 @@ $OrderStateCopyWith<OrderState> get copyWith => _$OrderStateCopyWithImpl<OrderSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isProcessing, isProcessing) || other.isProcessing == isProcessing)&&const DeepCollectionEquality().equals(other.buyerOrders, buyerOrders)&&const DeepCollectionEquality().equals(other.sellerOrders, sellerOrders)&&(identical(other.selectedOrder, selectedOrder) || other.selectedOrder == selectedOrder)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isProcessing, isProcessing) || other.isProcessing == isProcessing)&&const DeepCollectionEquality().equals(other.buyerOrders, buyerOrders)&&const DeepCollectionEquality().equals(other.sellerOrders, sellerOrders)&&(identical(other.selectedOrder, selectedOrder) || other.selectedOrder == selectedOrder)&&(identical(other.linkedOffer, linkedOffer) || other.linkedOffer == linkedOffer)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isLoadingDetail,isProcessing,const DeepCollectionEquality().hash(buyerOrders),const DeepCollectionEquality().hash(sellerOrders),selectedOrder,errorMessage,successMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,isLoadingDetail,isProcessing,const DeepCollectionEquality().hash(buyerOrders),const DeepCollectionEquality().hash(sellerOrders),selectedOrder,linkedOffer,errorMessage,successMessage);
 
 @override
 String toString() {
-  return 'OrderState(isLoading: $isLoading, isLoadingDetail: $isLoadingDetail, isProcessing: $isProcessing, buyerOrders: $buyerOrders, sellerOrders: $sellerOrders, selectedOrder: $selectedOrder, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'OrderState(isLoading: $isLoading, isLoadingDetail: $isLoadingDetail, isProcessing: $isProcessing, buyerOrders: $buyerOrders, sellerOrders: $sellerOrders, selectedOrder: $selectedOrder, linkedOffer: $linkedOffer, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -827,11 +899,11 @@ abstract mixin class $OrderStateCopyWith<$Res>  {
   factory $OrderStateCopyWith(OrderState value, $Res Function(OrderState) _then) = _$OrderStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool isLoadingDetail, bool isProcessing, List<BuyOrder> buyerOrders, List<BuyOrder> sellerOrders, BuyOrder? selectedOrder, String? errorMessage, String? successMessage
+ bool isLoading, bool isLoadingDetail, bool isProcessing, List<BuyOrder> buyerOrders, List<BuyOrder> sellerOrders, BuyOrder? selectedOrder, MarketplaceOffer? linkedOffer, String? errorMessage, String? successMessage
 });
 
 
-$BuyOrderCopyWith<$Res>? get selectedOrder;
+$BuyOrderCopyWith<$Res>? get selectedOrder;$MarketplaceOfferCopyWith<$Res>? get linkedOffer;
 
 }
 /// @nodoc
@@ -844,7 +916,7 @@ class _$OrderStateCopyWithImpl<$Res>
 
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLoadingDetail = null,Object? isProcessing = null,Object? buyerOrders = null,Object? sellerOrders = null,Object? selectedOrder = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLoadingDetail = null,Object? isProcessing = null,Object? buyerOrders = null,Object? sellerOrders = null,Object? selectedOrder = freezed,Object? linkedOffer = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingDetail: null == isLoadingDetail ? _self.isLoadingDetail : isLoadingDetail // ignore: cast_nullable_to_non_nullable
@@ -852,7 +924,8 @@ as bool,isProcessing: null == isProcessing ? _self.isProcessing : isProcessing /
 as bool,buyerOrders: null == buyerOrders ? _self.buyerOrders : buyerOrders // ignore: cast_nullable_to_non_nullable
 as List<BuyOrder>,sellerOrders: null == sellerOrders ? _self.sellerOrders : sellerOrders // ignore: cast_nullable_to_non_nullable
 as List<BuyOrder>,selectedOrder: freezed == selectedOrder ? _self.selectedOrder : selectedOrder // ignore: cast_nullable_to_non_nullable
-as BuyOrder?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as BuyOrder?,linkedOffer: freezed == linkedOffer ? _self.linkedOffer : linkedOffer // ignore: cast_nullable_to_non_nullable
+as MarketplaceOffer?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -868,6 +941,18 @@ $BuyOrderCopyWith<$Res>? get selectedOrder {
 
   return $BuyOrderCopyWith<$Res>(_self.selectedOrder!, (value) {
     return _then(_self.copyWith(selectedOrder: value));
+  });
+}/// Create a copy of OrderState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MarketplaceOfferCopyWith<$Res>? get linkedOffer {
+    if (_self.linkedOffer == null) {
+    return null;
+  }
+
+  return $MarketplaceOfferCopyWith<$Res>(_self.linkedOffer!, (value) {
+    return _then(_self.copyWith(linkedOffer: value));
   });
 }
 }
@@ -951,10 +1036,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  MarketplaceOffer? linkedOffer,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderState() when $default != null:
-return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.linkedOffer,_that.errorMessage,_that.successMessage);case _:
   return orElse();
 
 }
@@ -972,10 +1057,10 @@ return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.b
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  MarketplaceOffer? linkedOffer,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
 switch (_that) {
 case _OrderState():
-return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.linkedOffer,_that.errorMessage,_that.successMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -992,10 +1077,10 @@ return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.b
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLoadingDetail,  bool isProcessing,  List<BuyOrder> buyerOrders,  List<BuyOrder> sellerOrders,  BuyOrder? selectedOrder,  MarketplaceOffer? linkedOffer,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderState() when $default != null:
-return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.buyerOrders,_that.sellerOrders,_that.selectedOrder,_that.linkedOffer,_that.errorMessage,_that.successMessage);case _:
   return null;
 
 }
@@ -1007,7 +1092,7 @@ return $default(_that.isLoading,_that.isLoadingDetail,_that.isProcessing,_that.b
 
 
 class _OrderState implements OrderState {
-  const _OrderState({this.isLoading = false, this.isLoadingDetail = false, this.isProcessing = false, final  List<BuyOrder> buyerOrders = const [], final  List<BuyOrder> sellerOrders = const [], this.selectedOrder, this.errorMessage, this.successMessage}): _buyerOrders = buyerOrders,_sellerOrders = sellerOrders;
+  const _OrderState({this.isLoading = false, this.isLoadingDetail = false, this.isProcessing = false, final  List<BuyOrder> buyerOrders = const [], final  List<BuyOrder> sellerOrders = const [], this.selectedOrder, this.linkedOffer, this.errorMessage, this.successMessage}): _buyerOrders = buyerOrders,_sellerOrders = sellerOrders;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -1028,6 +1113,7 @@ class _OrderState implements OrderState {
 }
 
 @override final  BuyOrder? selectedOrder;
+@override final  MarketplaceOffer? linkedOffer;
 @override final  String? errorMessage;
 @override final  String? successMessage;
 
@@ -1041,16 +1127,16 @@ _$OrderStateCopyWith<_OrderState> get copyWith => __$OrderStateCopyWithImpl<_Ord
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isProcessing, isProcessing) || other.isProcessing == isProcessing)&&const DeepCollectionEquality().equals(other._buyerOrders, _buyerOrders)&&const DeepCollectionEquality().equals(other._sellerOrders, _sellerOrders)&&(identical(other.selectedOrder, selectedOrder) || other.selectedOrder == selectedOrder)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isProcessing, isProcessing) || other.isProcessing == isProcessing)&&const DeepCollectionEquality().equals(other._buyerOrders, _buyerOrders)&&const DeepCollectionEquality().equals(other._sellerOrders, _sellerOrders)&&(identical(other.selectedOrder, selectedOrder) || other.selectedOrder == selectedOrder)&&(identical(other.linkedOffer, linkedOffer) || other.linkedOffer == linkedOffer)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isLoadingDetail,isProcessing,const DeepCollectionEquality().hash(_buyerOrders),const DeepCollectionEquality().hash(_sellerOrders),selectedOrder,errorMessage,successMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,isLoadingDetail,isProcessing,const DeepCollectionEquality().hash(_buyerOrders),const DeepCollectionEquality().hash(_sellerOrders),selectedOrder,linkedOffer,errorMessage,successMessage);
 
 @override
 String toString() {
-  return 'OrderState(isLoading: $isLoading, isLoadingDetail: $isLoadingDetail, isProcessing: $isProcessing, buyerOrders: $buyerOrders, sellerOrders: $sellerOrders, selectedOrder: $selectedOrder, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'OrderState(isLoading: $isLoading, isLoadingDetail: $isLoadingDetail, isProcessing: $isProcessing, buyerOrders: $buyerOrders, sellerOrders: $sellerOrders, selectedOrder: $selectedOrder, linkedOffer: $linkedOffer, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -1061,11 +1147,11 @@ abstract mixin class _$OrderStateCopyWith<$Res> implements $OrderStateCopyWith<$
   factory _$OrderStateCopyWith(_OrderState value, $Res Function(_OrderState) _then) = __$OrderStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool isLoadingDetail, bool isProcessing, List<BuyOrder> buyerOrders, List<BuyOrder> sellerOrders, BuyOrder? selectedOrder, String? errorMessage, String? successMessage
+ bool isLoading, bool isLoadingDetail, bool isProcessing, List<BuyOrder> buyerOrders, List<BuyOrder> sellerOrders, BuyOrder? selectedOrder, MarketplaceOffer? linkedOffer, String? errorMessage, String? successMessage
 });
 
 
-@override $BuyOrderCopyWith<$Res>? get selectedOrder;
+@override $BuyOrderCopyWith<$Res>? get selectedOrder;@override $MarketplaceOfferCopyWith<$Res>? get linkedOffer;
 
 }
 /// @nodoc
@@ -1078,7 +1164,7 @@ class __$OrderStateCopyWithImpl<$Res>
 
 /// Create a copy of OrderState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLoadingDetail = null,Object? isProcessing = null,Object? buyerOrders = null,Object? sellerOrders = null,Object? selectedOrder = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLoadingDetail = null,Object? isProcessing = null,Object? buyerOrders = null,Object? sellerOrders = null,Object? selectedOrder = freezed,Object? linkedOffer = freezed,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_OrderState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingDetail: null == isLoadingDetail ? _self.isLoadingDetail : isLoadingDetail // ignore: cast_nullable_to_non_nullable
@@ -1086,7 +1172,8 @@ as bool,isProcessing: null == isProcessing ? _self.isProcessing : isProcessing /
 as bool,buyerOrders: null == buyerOrders ? _self._buyerOrders : buyerOrders // ignore: cast_nullable_to_non_nullable
 as List<BuyOrder>,sellerOrders: null == sellerOrders ? _self._sellerOrders : sellerOrders // ignore: cast_nullable_to_non_nullable
 as List<BuyOrder>,selectedOrder: freezed == selectedOrder ? _self.selectedOrder : selectedOrder // ignore: cast_nullable_to_non_nullable
-as BuyOrder?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as BuyOrder?,linkedOffer: freezed == linkedOffer ? _self.linkedOffer : linkedOffer // ignore: cast_nullable_to_non_nullable
+as MarketplaceOffer?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -1103,6 +1190,18 @@ $BuyOrderCopyWith<$Res>? get selectedOrder {
 
   return $BuyOrderCopyWith<$Res>(_self.selectedOrder!, (value) {
     return _then(_self.copyWith(selectedOrder: value));
+  });
+}/// Create a copy of OrderState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MarketplaceOfferCopyWith<$Res>? get linkedOffer {
+    if (_self.linkedOffer == null) {
+    return null;
+  }
+
+  return $MarketplaceOfferCopyWith<$Res>(_self.linkedOffer!, (value) {
+    return _then(_self.copyWith(linkedOffer: value));
   });
 }
 }

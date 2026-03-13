@@ -48,6 +48,11 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   }
   const product = productDoc.data()!;
 
+  // Validate product is still active
+  if (!product.isActive || product.isDeleted) {
+    throw new HttpsError("failed-precondition", "Product is no longer available");
+  }
+
   // Get provider details
   const providerDoc = await db.collection("serviceProviders").doc(product.providerId).get();
   if (!providerDoc.exists) {
@@ -55,9 +60,34 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   }
   const provider = providerDoc.data()!;
 
+  // Validate provider is still active
+  if (!provider.isActive || provider.isDeleted) {
+    throw new HttpsError("failed-precondition", "Service provider is no longer available");
+  }
+
   const tokenAmount = product.priceTokens || 0;
   const zarAmount = product.priceZar || 0;
   const purchaseCategory = provider.category || "airtime";
+
+  // Validate recipient number format
+  if (recipientNumber) {
+    if (purchaseCategory === "airtime" || purchaseCategory === "data") {
+      const cleaned = recipientNumber.replace(/\D/g, "");
+      if (cleaned.length !== 10 || !cleaned.startsWith("0")) {
+        throw new HttpsError("invalid-argument", "Invalid phone number format. Must be 10 digits starting with 0");
+      }
+    } else if (purchaseCategory === "electricity") {
+      // Reject inputs containing letters — only digits, spaces, and hyphens allowed
+      if (/[a-zA-Z]/.test(recipientNumber)) {
+        throw new HttpsError("invalid-argument", "Invalid meter number. Must contain only digits");
+      }
+      const cleaned = recipientNumber.replace(/[\s-]/g, "");
+      // After removing spaces/hyphens, must be exactly 11-13 digits with no other characters
+      if (!/^\d{11,13}$/.test(cleaned)) {
+        throw new HttpsError("invalid-argument", "Invalid meter number. Must be exactly 11-13 digits");
+      }
+    }
+  }
 
   // Pre-validate balance — fast-fail optimization only.
   // The authoritative balance check happens inside processPurchaseTransaction(),
@@ -131,6 +161,18 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    // Re-check product and provider availability before committing to ledger transaction
+    const freshProduct = await db.collection("serviceProducts").doc(productId).get();
+    if (!freshProduct.exists || !freshProduct.data()!.isActive || freshProduct.data()!.isDeleted) {
+      throw new HttpsError("failed-precondition", "Product became unavailable during processing. No tokens were deducted.");
+    }
+
+    // R3-5: Re-check provider isActive right before ledger debit
+    const freshProvider = await db.collection("serviceProviders").doc(product.providerId).get();
+    if (!freshProvider.exists || !freshProvider.data()!.isActive || freshProvider.data()!.isDeleted) {
+      throw new HttpsError("failed-precondition", "Service provider became unavailable during processing. No tokens were deducted.");
+    }
+
     // Process purchase through the Trust Ledger system
     const ledgerResult = await processPurchaseTransaction(
       userId,
@@ -153,10 +195,38 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
       throw new Error(ledgerResult.error || "Ledger transaction failed");
     }
 
-    // Update purchase with ledger reference
-    await purchaseRef.update({
-      ledgerJournalId: ledgerResult.journalId,
-    });
+    // R3-4: Update purchase with ledger reference — if this fails after debit,
+    // create an admin alert so the orphaned debit can be investigated
+    try {
+      await purchaseRef.update({
+        ledgerJournalId: ledgerResult.journalId,
+      });
+    } catch (updateError) {
+      // Ledger debit succeeded but purchase record update failed — create admin alert
+      logger.error("CRITICAL: Ledger debit succeeded but purchase record update failed", {
+        purchaseId: purchaseRef.id,
+        journalId: ledgerResult.journalId,
+        userId,
+        tokenAmount,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      });
+      await db.collection("adminAlerts").add({
+        type: "orphaned_debit",
+        severity: "critical",
+        purchaseId: purchaseRef.id,
+        journalId: ledgerResult.journalId,
+        userId,
+        tokenAmount,
+        message: "Ledger debit succeeded but purchase record update failed. Manual review required.",
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        resolved: false,
+      }).catch((alertErr: unknown) =>
+        logger.error("Failed to create admin alert for orphaned debit:", alertErr)
+      );
+      // Re-throw to trigger ledger reversal in the outer catch block
+      throw updateError;
+    }
 
     // Simulate VAS provider API call
     const purchaseData = {
@@ -235,7 +305,17 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
     }
 
     const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new HttpsError("internal", `Purchase failed: ${errorMessage}`);
+
+    // If no ledger journal was created, tokens were never deducted — tell the user
+    // they can safely retry. Check the purchase doc for ledgerJournalId presence.
+    const finalSnap = await purchaseRef.get().catch(() => null);
+    const hadLedgerDebit = finalSnap?.exists && finalSnap.data()?.ledgerJournalId;
+
+    if (hadLedgerDebit) {
+      throw new HttpsError("internal", `Purchase failed: ${errorMessage}. Your tokens have been refunded.`);
+    } else {
+      throw new HttpsError("internal", `Purchase failed: ${errorMessage}. No tokens were deducted — you can safely retry.`);
+    }
   }
 });
 

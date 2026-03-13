@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../domain/entities/featured_item.dart';
@@ -42,9 +43,13 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
   @override
   void didUpdateWidget(covariant FeaturedCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.items.length != widget.items.length) {
-      // Items list changed — reset page and timer
+    final oldActive =
+        oldWidget.items.where((i) => i.isCurrentlyActive).toList();
+    final newActive =
+        widget.items.where((i) => i.isCurrentlyActive).toList();
+    if (oldActive.length != newActive.length) {
       _autoAdvanceTimer?.cancel();
+      _autoAdvanceTimer = null;
       _currentPage = 0;
       _pageController.dispose();
       _pageController = PageController();
@@ -55,6 +60,7 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
   @override
   void dispose() {
     _autoAdvanceTimer?.cancel();
+    _autoAdvanceTimer = null;
     _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -66,24 +72,28 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
       _startAutoAdvance();
     } else {
       _autoAdvanceTimer?.cancel();
+      _autoAdvanceTimer = null;
     }
   }
 
   void _startAutoAdvance() {
     _autoAdvanceTimer?.cancel();
-    if (widget.items.length <= 1) return;
+    final activeItems =
+        widget.items.where((item) => item.isCurrentlyActive).toList();
+    if (activeItems.length <= 1) return;
 
     _autoAdvanceTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (_isUserInteracting || !mounted) return;
-
-      final nextPage = (_currentPage + 1) % widget.items.length;
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
+      if (!mounted || _isUserInteracting) return;
+      final items =
+          widget.items.where((item) => item.isCurrentlyActive).toList();
+      if (items.isEmpty) return;
+      if (!_pageController.hasClients) return;
+      final nextPage = (_currentPage + 1) % items.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
@@ -104,7 +114,41 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.items.isEmpty) return const SizedBox.shrink();
+    final activeItems =
+        widget.items.where((item) => item.isCurrentlyActive).toList();
+    if (activeItems.isEmpty) {
+      // Issue 6: Show placeholder when all items are outside their schedule
+      if (widget.items.isNotEmpty) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceElevated,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+            ),
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.schedule, color: AppColors.textTertiary, size: 32),
+                  SizedBox(height: 8),
+                  Text(
+                    'Featured content coming soon',
+                    style: TextStyle(
+                      color: AppColors.textTertiary,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -117,6 +161,7 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
               onPanDown: (_) {
                 _isUserInteracting = true;
                 _autoAdvanceTimer?.cancel();
+                _autoAdvanceTimer = null;
               },
               onPanCancel: () {
                 _isUserInteracting = false;
@@ -128,19 +173,21 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
               },
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: widget.items.length,
+                itemCount: activeItems.length,
                 onPageChanged: (index) {
-                  setState(() => _currentPage = index);
+                  if (index < activeItems.length) {
+                    setState(() => _currentPage = index);
+                  }
                 },
                 itemBuilder: (context, index) {
-                  return _buildCard(widget.items[index]);
+                  return _buildCard(activeItems[index]);
                 },
               ),
             ),
           ),
-          if (widget.items.length > 1) ...[
+          if (activeItems.length > 1) ...[
             const SizedBox(height: 10),
-            _buildDotIndicators(),
+            _buildDotIndicators(activeItems.length),
           ],
         ],
       ),
@@ -149,7 +196,11 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
 
   /// Parse a hex color string like '#FF6429' to a [Color].
   Color _hexToColor(String hex) {
-    return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return const Color(0xFFB82C00); // fallback color
+    }
   }
 
   Widget _buildCard(FeaturedItem item) {
@@ -457,10 +508,10 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
     }
   }
 
-  Widget _buildDotIndicators() {
+  Widget _buildDotIndicators(int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(widget.items.length, (index) {
+      children: List.generate(count, (index) {
         final isActive = index == _currentPage;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -499,47 +550,81 @@ class _FeaturedVideoPlayer extends StatefulWidget {
 }
 
 class _FeaturedVideoPlayerState extends State<_FeaturedVideoPlayer> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   bool _initialized = false;
+  bool _disposed = false;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
-    _controller.initialize().then((_) {
-      if (!mounted) return;
-      _controller.setLooping(true);
-      _controller.setVolume(0);
-      _controller.play();
+    _initializeController(widget.videoUrl);
+  }
+
+  @override
+  void didUpdateWidget(covariant _FeaturedVideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoUrl != widget.videoUrl) {
+      _controller?.dispose();
+      _controller = null;
+      _initialized = false;
+      _initializeController(widget.videoUrl);
+    }
+  }
+
+  void _initializeController(String url) {
+    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+    _controller = controller;
+    controller.initialize().then((_) {
+      if (_disposed || !mounted) return;
+      // Guard: controller may have been replaced by didUpdateWidget
+      if (_controller != controller) return;
+      controller.setLooping(true);
+      controller.setVolume(0);
+      controller.play();
       setState(() => _initialized = true);
     }).catchError((_) {
+      if (_disposed || !mounted) return;
       // Silently fall back to poster image on error
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _disposed = true;
+    _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final content = _initialized
-        ? FittedBox(
-            fit: widget.isCustom ? BoxFit.contain : BoxFit.cover,
-            alignment: widget.isFullImage
-                ? Alignment.center
-                : Alignment.centerRight,
-            clipBehavior: Clip.hardEdge,
-            child: SizedBox(
-              width: _controller.value.size.width,
-              height: _controller.value.size.height,
-              child: VideoPlayer(_controller),
-            ),
-          )
-        : _buildPoster();
+    final controller = _controller;
+    final Widget content;
+    if (_initialized && controller != null && controller.value.isInitialized) {
+      content = FittedBox(
+        fit: widget.isCustom ? BoxFit.contain : BoxFit.cover,
+        alignment: widget.isFullImage
+            ? Alignment.center
+            : Alignment.centerRight,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: controller.value.size.width,
+          height: controller.value.size.height,
+          child: VideoPlayer(controller),
+        ),
+      );
+    } else if (!_initialized && controller != null) {
+      // Issue 5: Show shimmer while video is initializing
+      content = Shimmer.fromColors(
+        baseColor: AppColors.shimmerBase,
+        highlightColor: AppColors.shimmerHighlight,
+        child: Container(
+          color: AppColors.surface,
+        ),
+      );
+    } else {
+      content = _buildPoster();
+    }
 
     if (widget.isCustom) {
       return Opacity(opacity: widget.opacity, child: content);

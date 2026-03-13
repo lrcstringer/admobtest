@@ -28,6 +28,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
     @Default(0.4) double colorIntensity,
     @Default(0.3) double imageOpacity,
     @Default('right') String imageLayout,
+    @Default(false) bool isDeleted,
   }) = _FeaturedItemModel;
 
   const FeaturedItemModel._();
@@ -35,7 +36,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
   factory FeaturedItemModel.fromJson(Map<String, dynamic> json) {
     return FeaturedItemModel(
       id: json['id'] as String? ?? '',
-      title: json['title'] as String? ?? '',
+      title: json['title'] as String? ?? '[Untitled]',
       subtitle: json['subtitle'] as String?,
       imageUrl: json['imageUrl'] as String?,
       videoUrl: json['videoUrl'] as String?,
@@ -63,8 +64,11 @@ class FeaturedItemModel with _$FeaturedItemModel {
       ctaText: json['ctaText'] as String?,
       bgColorHex: json['bgColorHex'] as String?,
       colorIntensity: (json['colorIntensity'] as num?)?.toDouble() ?? 0.4,
-      imageOpacity: (json['imageOpacity'] as num?)?.toDouble() ?? 0.3,
+      imageOpacity: (json['imageOpacity'] as num?)?.toDouble()
+          ?? (json['opacity'] as num?)?.toDouble()
+          ?? 1.0,
       imageLayout: json['imageLayout'] as String? ?? 'right',
+      isDeleted: json['isDeleted'] as bool? ?? false,
     );
   }
 
@@ -91,6 +95,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
       'colorIntensity': colorIntensity,
       'imageOpacity': imageOpacity,
       'imageLayout': imageLayout,
+      'isDeleted': isDeleted,
     };
   }
 
@@ -116,6 +121,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
       colorIntensity: colorIntensity,
       imageOpacity: imageOpacity,
       imageLayout: imageLayout,
+      isDeleted: isDeleted,
     );
   }
 
@@ -141,6 +147,7 @@ class FeaturedItemModel with _$FeaturedItemModel {
       colorIntensity: entity.colorIntensity,
       imageOpacity: entity.imageOpacity,
       imageLayout: entity.imageLayout,
+      isDeleted: entity.isDeleted,
     );
   }
 }

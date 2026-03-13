@@ -127,6 +127,7 @@ void main() {
         seed: () => const BrandStorefrontState(isSubmittingReview: true),
         act: (bloc) => bloc.add(const BrandStorefrontEvent.submitReview(
           brandId: 'b1',
+          orderId: 'order1',
           qualityRating: 5,
           valueRating: 5,
           serviceRating: 5,
@@ -140,6 +141,7 @@ void main() {
         seed: () => const BrandStorefrontState(reviewSubmitSuccess: true),
         act: (bloc) => bloc.add(const BrandStorefrontEvent.submitReview(
           brandId: 'b1',
+          orderId: 'order1',
           qualityRating: 5,
           valueRating: 5,
           serviceRating: 5,

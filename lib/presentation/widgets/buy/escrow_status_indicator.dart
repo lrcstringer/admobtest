@@ -17,6 +17,7 @@ class EscrowStatusIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     // Terminal deviation states
     if (status == OrderStatus.disputed ||
+        status == OrderStatus.refunding ||
         status == OrderStatus.refunded ||
         status == OrderStatus.cancelled) {
       return _buildTerminalState();
@@ -45,6 +46,11 @@ class EscrowStatusIndicator extends StatelessWidget {
         color = AppColors.warning;
         icon = Icons.warning_amber_rounded;
         label = 'Disputed';
+        break;
+      case OrderStatus.refunding:
+        color = AppColors.warning;
+        icon = Icons.hourglass_bottom_rounded;
+        label = 'Refunding';
         break;
       case OrderStatus.refunded:
         color = AppColors.secondary;

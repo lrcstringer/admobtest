@@ -545,9 +545,31 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     _ToggleFavourite event,
     Emitter<MarketplaceState> emit,
   ) async {
+    // Snapshot for revert on failure
+    final previousItems = List<SavedListing>.from(state.savedItems);
     final isSaved =
-        state.savedItems.any((item) => item.listingId == event.listingId);
+        previousItems.any((item) => item.listingId == event.listingId);
 
+    // Optimistic update — toggle immediately in UI
+    if (isSaved) {
+      emit(state.copyWith(
+        savedItems: previousItems
+            .where((item) => item.listingId != event.listingId)
+            .toList(),
+      ));
+    } else {
+      emit(state.copyWith(
+        savedItems: [
+          ...previousItems,
+          SavedListing(
+            listingId: event.listingId,
+            savedAt: DateTime.now(),
+          ),
+        ],
+      ));
+    }
+
+    // Perform the actual server call
     late final Either<Failure, void> toggleResult;
     if (isSaved) {
       toggleResult = await _savedListingRepository.remove(event.listingId);
@@ -558,21 +580,25 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
       ));
     }
 
-    // Handle result synchronously — no async in fold callback
+    // Handle result — revert on failure, refresh on success
     final failure = toggleResult.fold<Failure?>(
       (failure) => failure,
       (_) => null,
     );
 
     if (failure != null) {
-      emit(state.copyWith(errorMessage: failure.displayMessage));
+      // Revert to previous state on failure
+      emit(state.copyWith(
+        savedItems: previousItems,
+        errorMessage: failure.displayMessage,
+      ));
       return;
     }
 
-    // Refresh the full list from the source of truth
+    // Refresh from source of truth for consistency
     final refreshResult = await _savedListingRepository.getAll();
     refreshResult.fold(
-      (_) {}, // Non-critical — keep existing list
+      (_) {}, // Non-critical — keep optimistic state
       (items) => emit(state.copyWith(savedItems: items)),
     );
   }

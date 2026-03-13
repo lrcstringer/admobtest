@@ -9,6 +9,7 @@ class OrderState with _$OrderState {
     @Default([]) List<BuyOrder> buyerOrders,
     @Default([]) List<BuyOrder> sellerOrders,
     BuyOrder? selectedOrder,
+    MarketplaceOffer? linkedOffer,
     String? errorMessage,
     String? successMessage,
   }) = _OrderState;

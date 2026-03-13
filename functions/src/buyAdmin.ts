@@ -410,6 +410,73 @@ export const adminCreateFeaturedItem = onCall(
       throw new HttpsError("invalid-argument", "title is required");
     }
 
+    // Validate scheduled dates
+    if (scheduledStart && scheduledEnd) {
+      const start = new Date(scheduledStart);
+      const end = new Date(scheduledEnd);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new HttpsError("invalid-argument", "Invalid date format for scheduled dates");
+      }
+      if (start >= end) {
+        throw new HttpsError("invalid-argument", "scheduledStart must be before scheduledEnd");
+      }
+    }
+
+    // Validate hex color format
+    if (bgColorHex) {
+      const hexPattern = /^#?[0-9A-Fa-f]{6}(,#?[0-9A-Fa-f]{6})?$/;
+      if (!hexPattern.test(bgColorHex)) {
+        throw new HttpsError("invalid-argument", "bgColorHex must be valid hex color format (e.g., #FF5500 or FF5500,00AAFF)");
+      }
+    }
+
+    // Validate gradient type
+    if (bgGradientType) {
+      const validGradients = ["goldOrange", "cyanBlue", "pinkPurple", "logo", "custom"];
+      if (!validGradients.includes(bgGradientType)) {
+        throw new HttpsError("invalid-argument", `bgGradientType must be one of: ${validGradients.join(", ")}`);
+      }
+    }
+
+    // Validate image layout
+    if (imageLayout) {
+      if (!["full", "right"].includes(imageLayout)) {
+        throw new HttpsError("invalid-argument", "imageLayout must be 'full' or 'right'");
+      }
+    }
+
+    // Validate type
+    if (type) {
+      const validTypes = ["campaign", "promotion", "trending", "collectible"];
+      if (!validTypes.includes(type)) {
+        throw new HttpsError("invalid-argument", `type must be one of: ${validTypes.join(", ")}`);
+      }
+    }
+
+    // Validate URLs
+    if (imageUrl && !imageUrl.startsWith("https://") && !imageUrl.startsWith("gs://")) {
+      throw new HttpsError("invalid-argument", "imageUrl must be a valid HTTPS or GCS URL");
+    }
+    if (videoUrl && !videoUrl.startsWith("https://") && !videoUrl.startsWith("gs://")) {
+      throw new HttpsError("invalid-argument", "videoUrl must be a valid HTTPS or GCS URL");
+    }
+
+    // Check for ordering conflicts if sortOrder is provided
+    if (sortOrder !== undefined && sortOrder !== null) {
+      const conflictSnap = await db
+        .collection("featuredItems")
+        .where("sortOrder", "==", sortOrder)
+        .where("isActive", "==", true)
+        .limit(1)
+        .get();
+      if (!conflictSnap.empty) {
+        throw new HttpsError(
+          "already-exists",
+          `A featured item already exists at sort order ${sortOrder}. Use a different order or update the existing item first.`
+        );
+      }
+    }
+
     const data: Record<string, unknown> = {
       title: title.trim(),
       subtitle: subtitle || null,
@@ -425,8 +492,8 @@ export const adminCreateFeaturedItem = onCall(
       brandName: brandName || null,
       ctaText: ctaText || null,
       bgColorHex: bgColorHex || null,
-      colorIntensity: colorIntensity ?? 0.4,
-      imageOpacity: imageOpacity ?? 0.3,
+      colorIntensity: colorIntensity != null ? Math.max(0, Math.min(1, colorIntensity)) : 0.4,
+      imageOpacity: imageOpacity != null ? Math.max(0, Math.min(1, imageOpacity)) : 1.0,
       imageLayout: imageLayout || "right",
       scheduledStart: scheduledStart ? admin.firestore.Timestamp.fromDate(new Date(scheduledStart)) : null,
       scheduledEnd: scheduledEnd ? admin.firestore.Timestamp.fromDate(new Date(scheduledEnd)) : null,
@@ -486,10 +553,90 @@ export const adminUpdateFeaturedItem = onCall(
       throw new HttpsError("invalid-argument", "itemId is required");
     }
 
+    // Validate scheduled dates
+    if (scheduledStart && scheduledEnd) {
+      const start = new Date(scheduledStart);
+      const end = new Date(scheduledEnd);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new HttpsError("invalid-argument", "Invalid date format for scheduled dates");
+      }
+      if (start >= end) {
+        throw new HttpsError("invalid-argument", "scheduledStart must be before scheduledEnd");
+      }
+    }
+
+    // Validate hex color format
+    if (fields.bgColorHex) {
+      const hexPattern = /^#?[0-9A-Fa-f]{6}(,#?[0-9A-Fa-f]{6})?$/;
+      if (!hexPattern.test(fields.bgColorHex)) {
+        throw new HttpsError("invalid-argument", "bgColorHex must be valid hex color format (e.g., #FF5500 or FF5500,00AAFF)");
+      }
+    }
+
+    // Validate gradient type
+    if (fields.bgGradientType) {
+      const validGradients = ["goldOrange", "cyanBlue", "pinkPurple", "logo", "custom"];
+      if (!validGradients.includes(fields.bgGradientType)) {
+        throw new HttpsError("invalid-argument", `bgGradientType must be one of: ${validGradients.join(", ")}`);
+      }
+    }
+
+    // Validate image layout
+    if (fields.imageLayout) {
+      if (!["full", "right"].includes(fields.imageLayout)) {
+        throw new HttpsError("invalid-argument", "imageLayout must be 'full' or 'right'");
+      }
+    }
+
+    // Validate type
+    if (fields.type) {
+      const validTypes = ["campaign", "promotion", "trending", "collectible"];
+      if (!validTypes.includes(fields.type)) {
+        throw new HttpsError("invalid-argument", `type must be one of: ${validTypes.join(", ")}`);
+      }
+    }
+
+    // Validate URLs
+    if (fields.imageUrl && !fields.imageUrl.startsWith("https://") && !fields.imageUrl.startsWith("gs://")) {
+      throw new HttpsError("invalid-argument", "imageUrl must be a valid HTTPS or GCS URL");
+    }
+    if (fields.videoUrl && !fields.videoUrl.startsWith("https://") && !fields.videoUrl.startsWith("gs://")) {
+      throw new HttpsError("invalid-argument", "videoUrl must be a valid HTTPS or GCS URL");
+    }
+
+    // Clamp opacity values
+    if (fields.colorIntensity != null) {
+      fields.colorIntensity = Math.max(0, Math.min(1, fields.colorIntensity));
+    }
+    if (fields.imageOpacity != null) {
+      fields.imageOpacity = Math.max(0, Math.min(1, fields.imageOpacity));
+    }
+
     const ref = db.collection("featuredItems").doc(itemId);
     const doc = await ref.get();
     if (!doc.exists) {
       throw new HttpsError("not-found", `Featured item '${itemId}' not found`);
+    }
+
+    // Check for ordering conflicts if sortOrder is changing
+    if (fields.sortOrder !== undefined && fields.sortOrder !== null) {
+      const currentSortOrder = doc.data()?.sortOrder;
+      if (fields.sortOrder !== currentSortOrder) {
+        const conflictSnap = await db
+          .collection("featuredItems")
+          .where("sortOrder", "==", fields.sortOrder)
+          .where("isActive", "==", true)
+          .limit(1)
+          .get();
+        // Exclude self from conflict check
+        const hasConflict = conflictSnap.docs.some((d) => d.id !== itemId);
+        if (hasConflict) {
+          throw new HttpsError(
+            "already-exists",
+            `A featured item already exists at sort order ${fields.sortOrder}. Use a different order or update the existing item first.`
+          );
+        }
+      }
     }
 
     const updates: Record<string, unknown> = {
@@ -577,10 +724,13 @@ export const adminListBrandStorefronts = onCall(
     );
 
     const snapshot = await db.collection("brandStorefronts").get();
-    const storefronts = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    // Filter out soft-deleted storefronts
+    const storefronts = snapshot.docs
+      .filter((doc) => doc.data().isDeleted !== true)
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
     return { storefronts };
   }
@@ -628,6 +778,31 @@ export const adminCreateBrandStorefront = onCall(
         "invalid-argument",
         "brandName and brandId are required"
       );
+    }
+
+    // Validate coupon fields within sections
+    if (sections && Array.isArray(sections)) {
+      for (const section of sections as Array<{ type?: string; coupons?: Array<Record<string, unknown>> }>) {
+        if (section.coupons && Array.isArray(section.coupons)) {
+          for (const coupon of section.coupons) {
+            if (coupon.maxClaims !== undefined && coupon.maxClaims !== null) {
+              const maxClaims = Number(coupon.maxClaims);
+              if (!Number.isInteger(maxClaims) || maxClaims < 1) {
+                throw new HttpsError("invalid-argument", "Coupon maxClaims must be a positive integer");
+              }
+            }
+            if (coupon.expiresAt !== undefined && coupon.expiresAt !== null) {
+              const expiryDate = new Date(coupon.expiresAt as string);
+              if (isNaN(expiryDate.getTime())) {
+                throw new HttpsError("invalid-argument", "Coupon expiresAt must be a valid date");
+              }
+              if (expiryDate.getTime() < Date.now()) {
+                throw new HttpsError("invalid-argument", "Coupon expiresAt must be a future date");
+              }
+            }
+          }
+        }
+      }
     }
 
     const data = {
@@ -687,6 +862,31 @@ export const adminUpdateBrandStorefront = onCall(
 
     if (!storefrontId) {
       throw new HttpsError("invalid-argument", "storefrontId is required");
+    }
+
+    // Validate coupon fields within sections if sections are being updated
+    if (fields.sections && Array.isArray(fields.sections)) {
+      for (const section of fields.sections as Array<{ type?: string; coupons?: Array<Record<string, unknown>> }>) {
+        if (section.coupons && Array.isArray(section.coupons)) {
+          for (const coupon of section.coupons) {
+            if (coupon.maxClaims !== undefined && coupon.maxClaims !== null) {
+              const maxClaims = Number(coupon.maxClaims);
+              if (!Number.isInteger(maxClaims) || maxClaims < 1) {
+                throw new HttpsError("invalid-argument", "Coupon maxClaims must be a positive integer");
+              }
+            }
+            if (coupon.expiresAt !== undefined && coupon.expiresAt !== null) {
+              const expiryDate = new Date(coupon.expiresAt as string);
+              if (isNaN(expiryDate.getTime())) {
+                throw new HttpsError("invalid-argument", "Coupon expiresAt must be a valid date");
+              }
+              if (expiryDate.getTime() < Date.now()) {
+                throw new HttpsError("invalid-argument", "Coupon expiresAt must be a future date");
+              }
+            }
+          }
+        }
+      }
     }
 
     const ref = db.collection("brandStorefronts").doc(storefrontId);
@@ -886,11 +1086,11 @@ export const adminSuspendProvider = onCall(
       suspensionReason: reason || null,
     });
 
-    // Cascade: remove all active listings (batch-size safe: chunks of 499)
+    // Cascade: remove all active/paused/pending/flagged listings (batch-size safe: chunks of 499)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
-      .where("status", "==", "active")
+      .where("status", "in", ["active", "paused", "pending", "flagged"])
       .get();
 
     const listingDocs = listingsSnap.docs;
@@ -1672,6 +1872,17 @@ export const adminExtendGroupBuyDeadline = onCall(
       throw new HttpsError("invalid-argument", "New deadline must be in the future");
     }
 
+    // New deadline must be later than the current deadline
+    const currentDeadline = data.deadline.toDate();
+    if (newDeadlineDate <= currentDeadline) {
+      throw new HttpsError("invalid-argument", "New deadline must be later than the current deadline");
+    }
+
+    // Maximum extension limit: 90 days from now
+    if (newDeadlineDate.getTime() > Date.now() + 90 * 24 * 60 * 60 * 1000) {
+      throw new HttpsError("invalid-argument", "Deadline cannot be extended more than 90 days from now");
+    }
+
     await db.collection("groupBuys").doc(groupBuyId).update({
       deadline: admin.firestore.Timestamp.fromDate(newDeadlineDate),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1886,6 +2097,17 @@ export const adminCreateBrandGroupBuy = onCall(
       brandLogoUrl,
       discountPercent,
       communityId,
+      imageUrl,
+      originalPrice,
+      category,
+      deliveryFee,
+      collectionDeadline,
+      fulfilmentInstructions,
+      fulfilmentType,
+      type,
+      clusters,
+      addresses,
+      organizerId,
     } = request.data ?? {};
 
     if (!title || !targetAmount || !deadline) {
@@ -1904,8 +2126,18 @@ export const adminCreateBrandGroupBuy = onCall(
       throw new HttpsError("not-found", `Brand client ${brandId} not found`);
     }
     const brandData = brandDoc.data()!;
-    const brandOrganizerId = brandData.userId || brandId;
+    let brandOrganizerId = brandData.userId || brandId;
     const brandName = brandData.name || brandData.displayName || brandId;
+
+    // If an explicit organizerId is provided, verify the user exists
+    if (organizerId && typeof organizerId === "string") {
+      try {
+        await admin.auth().getUser(organizerId);
+        brandOrganizerId = organizerId;
+      } catch {
+        throw new HttpsError("not-found", `Organizer user ${organizerId} not found`);
+      }
+    }
 
     const deadlineDate = new Date(deadline);
     if (isNaN(deadlineDate.getTime()) || deadlineDate <= new Date()) {
@@ -1929,7 +2161,22 @@ export const adminCreateBrandGroupBuy = onCall(
       sponsorType: "brand",
       brandId,
       brandLogoUrl: brandLogoUrl || null,
+      brandName: brandName || null,
       discountPercent: discountPercent || null,
+      imageUrl: imageUrl || null,
+      originalPrice: originalPrice || null,
+      category: category || null,
+      deliveryFee: deliveryFee || 0,
+      collectionDeadline: collectionDeadline ? admin.firestore.Timestamp.fromDate(new Date(collectionDeadline)) : null,
+      fulfilmentInstructions: fulfilmentInstructions || null,
+      fulfilmentType: fulfilmentType || "digital",
+      type: type || "digital",
+      clusters: clusters || [],
+      addresses: addresses || [],
+      voucherCodes: [],
+      organizerSuccessRate: 1.0,
+      deliveryStatus: null,
+      createdByAdmin: true,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -2644,11 +2891,11 @@ export const adminBanProvider = onCall(
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Remove all active/paused listings (batch-size safe: chunks of 499)
+    // Remove all active/paused/pending/flagged listings (batch-size safe: chunks of 499)
     const listingsSnap = await db
       .collection("marketplaceListings")
       .where("providerId", "==", providerId)
-      .where("status", "in", ["active", "paused"])
+      .where("status", "in", ["active", "paused", "pending", "flagged"])
       .get();
 
     const listingDocs = listingsSnap.docs;
@@ -2710,6 +2957,25 @@ export const adminBanProvider = onCall(
       }
     }
 
+    // Notify the provider about the ban
+    if (provider.userId) {
+      try {
+        await db.collection("notifications").add({
+          userId: provider.userId,
+          type: "providerBanned",
+          title: "Account Banned",
+          body: reason
+            ? `Your provider account has been banned: ${reason}`
+            : "Your provider account has been banned.",
+          data: { providerId },
+          isRead: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        logger.warn("Failed to create ban notification:", err);
+      }
+    }
+
     await logAdminAction(adminCtx.uid, "buy:banProvider", "adminBanProvider", {
       providerId,
       reason,
@@ -2763,6 +3029,23 @@ export const adminReinstateProvider = onCall(
       // Preserve warningCount for audit trail — don't reset to 0
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+
+    // Notify the provider about reinstatement
+    if (provider.userId) {
+      try {
+        await db.collection("notifications").add({
+          userId: provider.userId,
+          type: "providerReinstated",
+          title: "Account Reinstated",
+          body: "Your provider account has been reinstated. You can now resume selling.",
+          data: { providerId },
+          isRead: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        logger.warn("Failed to create reinstatement notification:", err);
+      }
+    }
 
     await logAdminAction(adminCtx.uid, "buy:reinstateProvider", "adminReinstateProvider", {
       providerId,
@@ -3302,6 +3585,24 @@ export const adminCreateVasProvider = onCall(
       throw new HttpsError("invalid-argument", "name, code, and category are required");
     }
 
+    // Validate category
+    const validCategories = ["airtime", "data", "electricity", "voucher", "marketplace", "school", "municipal", "insurance", "funeral", "stokvel", "gaming", "other"];
+    if (!validCategories.includes(category)) {
+      throw new HttpsError("invalid-argument", `category must be one of: ${validCategories.join(", ")}`);
+    }
+
+    // Validate provider name length
+    const trimmedName = name.trim();
+    if (trimmedName.length > 100) {
+      throw new HttpsError("invalid-argument", "Provider name must be 100 characters or less");
+    }
+
+    // Validate provider code length
+    const trimmedCode = code.trim().toLowerCase();
+    if (trimmedCode.length < 2 || trimmedCode.length > 20) {
+      throw new HttpsError("invalid-argument", "Provider code must be 2-20 characters");
+    }
+
     // Check code uniqueness
     const existing = await db
       .collection("serviceProviders")
@@ -3449,6 +3750,27 @@ export const adminDeleteVasProvider = onCall(
       throw new HttpsError("not-found", "VAS provider not found");
     }
 
+    // Soft-delete all provider's products as part of the cascade
+    const allProducts = await db.collection("serviceProducts")
+      .where("providerId", "==", providerId)
+      .where("isDeleted", "==", false)
+      .get();
+
+    if (!allProducts.empty) {
+      for (let i = 0; i < allProducts.docs.length; i += 499) {
+        const chunk = allProducts.docs.slice(i, i + 499);
+        const productBatch = db.batch();
+        for (const productDoc of chunk) {
+          productBatch.update(productDoc.ref, {
+            isActive: false,
+            isDeleted: true,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+        await productBatch.commit();
+      }
+    }
+
     await ref.update({
       isActive: false,
       isDeleted: true,
@@ -3477,9 +3799,16 @@ export const adminListVasProducts = onCall(
       "adminListVasProducts"
     );
 
-    const { providerId, includeInactive } = request.data;
+    const { providerId, includeInactive, startAfterId } = request.data;
     if (!providerId || typeof providerId !== "string") {
       throw new HttpsError("invalid-argument", "providerId is required");
+    }
+
+    // Validate startAfterId if provided
+    if (startAfterId !== undefined && startAfterId !== null) {
+      if (typeof startAfterId !== "string" || startAfterId.trim().length === 0) {
+        throw new HttpsError("invalid-argument", "startAfterId must be a non-empty string");
+      }
     }
 
     let query: admin.firestore.Query = db
@@ -3491,7 +3820,16 @@ export const adminListVasProducts = onCall(
       query = query.where("isActive", "==", true);
     }
 
-    const snapshot = await query.orderBy("sortOrder").get();
+    query = query.orderBy("sortOrder");
+
+    if (startAfterId && typeof startAfterId === "string" && startAfterId.trim().length > 0) {
+      const startAfterDoc = await db.collection("serviceProducts").doc(startAfterId).get();
+      if (startAfterDoc.exists) {
+        query = query.startAfter(startAfterDoc);
+      }
+    }
+
+    const snapshot = await query.get();
     const products = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -3525,14 +3863,27 @@ export const adminCreateVasProduct = onCall(
       throw new HttpsError("invalid-argument", "priceZar must be a positive number");
     }
 
+    // Validate token price bounds
+    const priceTokens = Math.round(priceZar * 100);
+    if (priceTokens <= 0 || priceTokens > 1000000) {
+      throw new HttpsError("invalid-argument", "Calculated token price must be between 1 and 1,000,000 tokens");
+    }
+
     // Verify provider exists
     const providerDoc = await db.collection("serviceProviders").doc(providerId).get();
     if (!providerDoc.exists) {
       throw new HttpsError("not-found", "VAS provider not found");
     }
 
+    // Deterministic product ID based on provider and product code
+    const productId = `${providerId}_${code.trim().toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+    const productRef = db.collection("serviceProducts").doc(productId);
+    const existingProduct = await productRef.get();
+    if (existingProduct.exists && !existingProduct.data()!.isDeleted) {
+      throw new HttpsError("already-exists", "Product with this provider and code already exists");
+    }
+
     // Batch: create product + increment counter atomically
-    const productRef = db.collection("serviceProducts").doc();
     const batch = db.batch();
     batch.set(productRef, {
       id: productRef.id,
@@ -3541,7 +3892,7 @@ export const adminCreateVasProduct = onCall(
       name: name.trim(),
       code: code.trim(),
       priceZar,
-      priceTokens: Math.round(priceZar * 100),
+      priceTokens,
       validity: validity || null,
       metadata: metadata || {},
       sortOrder: sortOrder || 0,
@@ -3953,5 +4304,324 @@ export const migrateListingCategories = onCall(
       `Category migration by ${adminCtx.email}: ${migrated} migrated, ${skipped} skipped, ${unmapped.length} unmapped`
     );
     return { success: true, migrated, skipped, unmapped };
+  }
+);
+
+// ============================================================================
+// GROUP BUY REQUEST APPROVAL/REJECTION
+// ============================================================================
+
+/**
+ * Approve a group buy request — creates a curated group buy from it.
+ */
+export const adminApproveGroupBuyRequest = onCall(
+  { labels: { area: "buy_admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminApproveGroupBuyRequest");
+    const adminCtx = await requireAdminPermission(request, "buy:approveGroupBuyRequest", "adminApproveGroupBuyRequest");
+    const { requestId, groupBuyTitle, targetAmount, deadline, description, type, fulfilmentType, clusters, imageUrl } = request.data;
+
+    if (!requestId) throw new HttpsError("invalid-argument", "requestId is required");
+    if (!groupBuyTitle || !targetAmount || !deadline) {
+      throw new HttpsError("invalid-argument", "groupBuyTitle, targetAmount, and deadline are required");
+    }
+
+    const requestRef = db.collection("groupBuyRequests").doc(requestId);
+    const requestDoc = await requestRef.get();
+    if (!requestDoc.exists) throw new HttpsError("not-found", "Request not found");
+    if (requestDoc.data()!.status !== "pending") {
+      throw new HttpsError("failed-precondition", "Request is not in pending status");
+    }
+
+    const reqData = requestDoc.data()!;
+
+    // Maker-checker: group buy approval is a financial operation
+    const { pendingActionId } = await createPendingAction(
+      adminCtx,
+      "buy:approveGroupBuyRequest",
+      "adminApproveGroupBuyRequest",
+      {
+        requestId,
+        groupBuyTitle,
+        targetAmount,
+        deadline,
+        description: description || reqData.description || "",
+        type: type || "digital",
+        fulfilmentType: fulfilmentType || "digital",
+        clusters: clusters || [],
+        imageUrl: imageUrl || null,
+        communityId: reqData.communityId || null,
+      },
+      `Approve group buy request "${groupBuyTitle}" with target ${targetAmount} tokens`
+    );
+
+    await logAdminAction(adminCtx.uid, "adminApproveGroupBuyRequest", "pending", {
+      requestId,
+      pendingActionId,
+      groupBuyTitle,
+    });
+
+    return { success: true, pendingActionId, requiresApproval: true };
+  }
+);
+
+/**
+ * Reject a group buy request.
+ */
+export const adminRejectGroupBuyRequest = onCall(
+  { labels: { area: "buy_admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminRejectGroupBuyRequest");
+    const adminCtx = await requireAdminPermission(request, "buy:rejectGroupBuyRequest", "adminRejectGroupBuyRequest");
+    const { requestId, rejectionReason } = request.data;
+
+    if (!requestId) throw new HttpsError("invalid-argument", "requestId is required");
+
+    const requestRef = db.collection("groupBuyRequests").doc(requestId);
+    const requestDoc = await requestRef.get();
+    if (!requestDoc.exists) throw new HttpsError("not-found", "Request not found");
+    if (requestDoc.data()!.status !== "pending") {
+      throw new HttpsError("failed-precondition", "Request is not in pending status");
+    }
+
+    const reqData = requestDoc.data()!;
+
+    await requestRef.update({
+      status: "declined",
+      rejectionReason: rejectionReason || null,
+      reviewedBy: adminCtx.uid,
+      reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Notify the requester about rejection
+    const requesterUserId = reqData.userId || reqData.requesterId;
+    if (requesterUserId) {
+      try {
+        await db.collection("notifications").add({
+          userId: requesterUserId,
+          type: "groupBuyRequestRejected",
+          title: "Group Buy Request Declined",
+          body: rejectionReason
+            ? `Your group buy request was declined: ${rejectionReason}`
+            : "Your group buy request was declined.",
+          data: { requestId },
+          isRead: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        logger.warn("Failed to create rejection notification:", err);
+      }
+    }
+
+    await logAdminAction(adminCtx.uid, "adminRejectGroupBuyRequest", "success", {
+      requestId,
+      rejectionReason: rejectionReason || "No reason provided",
+      notifiedUserId: requesterUserId || null,
+    });
+
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// CURATED GROUP BUY CREATION
+// ============================================================================
+
+/**
+ * Create an admin-curated group buy (not brand-sponsored).
+ */
+export const adminCreateCuratedGroupBuy = onCall(
+  { labels: { area: "buy_admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateCuratedGroupBuy");
+    const adminCtx = await requireAdminPermission(request, "buy:createCuratedGroupBuy", "adminCreateCuratedGroupBuy");
+    const { title, description, targetAmount, deadline, type, fulfilmentType, clusters, addresses, imageUrl, originalPrice, category, deliveryFee, collectionDeadline, fulfilmentInstructions, termsAndConditions } = request.data;
+
+    if (!title || !targetAmount || !deadline) {
+      throw new HttpsError("invalid-argument", "title, targetAmount, and deadline are required");
+    }
+    if (typeof targetAmount !== "number" || targetAmount <= 0) {
+      throw new HttpsError("invalid-argument", "targetAmount must be a positive number");
+    }
+    if (description !== undefined && typeof description !== "string") {
+      throw new HttpsError("invalid-argument", "description must be a string");
+    }
+    const validTypes = ["digital", "physical"];
+    if (type && !validTypes.includes(type)) {
+      throw new HttpsError("invalid-argument", `type must be one of: ${validTypes.join(", ")}`);
+    }
+    const validFulfilmentTypes = ["digital", "physical", "collection"];
+    if (fulfilmentType && !validFulfilmentTypes.includes(fulfilmentType)) {
+      throw new HttpsError("invalid-argument", `fulfilmentType must be one of: ${validFulfilmentTypes.join(", ")}`);
+    }
+    const deadlineDate = new Date(deadline);
+    if (isNaN(deadlineDate.getTime()) || deadlineDate <= new Date()) {
+      throw new HttpsError("invalid-argument", "deadline must be a valid future date");
+    }
+
+    const titleSlug = title.trim().toLowerCase().replace(/\s+/g, "_").substring(0, 30);
+    const groupBuyRef = db.collection("groupBuys").doc(`curated_${titleSlug}_${Date.now()}`);
+    await groupBuyRef.set({
+      id: groupBuyRef.id,
+      title: title.trim(),
+      description: description?.trim() || "",
+      targetAmount,
+      currentAmount: 0,
+      participantCount: 0,
+      minParticipants: 2,
+      maxParticipants: null,
+      status: "open",
+      deadline: admin.firestore.Timestamp.fromDate(deadlineDate),
+      organizerId: null,
+      organizerName: "iMaliChat Curated",
+      communityId: null,
+      brandId: null,
+      brandName: null,
+      brandLogoUrl: null,
+      discountPercent: null,
+      linkedListingId: null,
+      createdByAdmin: true,
+      type: type || "digital",
+      fulfilmentType: fulfilmentType || "digital",
+      clusters: clusters || [],
+      addresses: addresses || [],
+      voucherCodes: [],
+      imageUrl: imageUrl || null,
+      originalPrice: originalPrice || null,
+      collectionDeadline: collectionDeadline ? admin.firestore.Timestamp.fromDate(new Date(collectionDeadline)) : null,
+      deliveryStatus: null,
+      fulfilmentInstructions: fulfilmentInstructions || null,
+      category: category || null,
+      deliveryFee: deliveryFee || 0,
+      organizerSuccessRate: 1.0,
+      termsAndConditions: termsAndConditions?.trim() || null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "adminCreateCuratedGroupBuy", "success", {
+      groupBuyId: groupBuyRef.id,
+      title: title.trim(),
+      targetAmount,
+    });
+
+    return { success: true, groupBuyId: groupBuyRef.id };
+  }
+);
+
+// ============================================================================
+// GROUP BUY VOUCHER DISTRIBUTION
+// ============================================================================
+
+/**
+ * Upload voucher codes for a group buy.
+ */
+export const adminUploadGroupBuyVouchers = onCall(
+  { labels: { area: "buy_admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUploadGroupBuyVouchers");
+    const adminCtx = await requireAdminPermission(request, "buy:uploadGroupBuyVouchers", "adminUploadGroupBuyVouchers");
+    const { groupBuyId, voucherCodes } = request.data;
+
+    if (!groupBuyId) throw new HttpsError("invalid-argument", "groupBuyId is required");
+    if (!Array.isArray(voucherCodes) || voucherCodes.length === 0) {
+      throw new HttpsError("invalid-argument", "voucherCodes must be a non-empty array");
+    }
+
+    // Filter out empty strings and validate
+    const validCodes = voucherCodes.filter((c: unknown) => typeof c === "string" && (c as string).trim().length > 0);
+    if (validCodes.length === 0) {
+      throw new HttpsError("invalid-argument", "No valid voucher codes provided after filtering empty strings");
+    }
+
+    // Check for duplicates within batch
+    const uniqueCodes = [...new Set(validCodes.map((c: string) => c.trim()))];
+    if (uniqueCodes.length !== validCodes.length) {
+      throw new HttpsError("invalid-argument", "Duplicate voucher codes detected in batch");
+    }
+
+    const gbRef = db.collection("groupBuys").doc(groupBuyId);
+    const gbDoc = await gbRef.get();
+    if (!gbDoc.exists) throw new HttpsError("not-found", "Group buy not found");
+    if (!["targetMet", "completed"].includes(gbDoc.data()!.status)) {
+      throw new HttpsError("failed-precondition", "Group buy must be in targetMet or completed status");
+    }
+
+    await gbRef.update({
+      voucherCodes: uniqueCodes,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "adminUploadGroupBuyVouchers", "success", {
+      groupBuyId,
+      voucherCount: uniqueCodes.length,
+    });
+
+    return { success: true, voucherCount: uniqueCodes.length };
+  }
+);
+
+/**
+ * Distribute voucher codes to group buy contributors.
+ */
+export const adminDistributeGroupBuyVouchers = onCall(
+  { labels: { area: "buy_admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminDistributeGroupBuyVouchers");
+    const adminCtx = await requireAdminPermission(request, "buy:distributeGroupBuyVouchers", "adminDistributeGroupBuyVouchers");
+    const { groupBuyId } = request.data;
+
+    if (!groupBuyId) throw new HttpsError("invalid-argument", "groupBuyId is required");
+
+    const gbRef = db.collection("groupBuys").doc(groupBuyId);
+    const gbDoc = await gbRef.get();
+    if (!gbDoc.exists) throw new HttpsError("not-found", "Group buy not found");
+    const gbData = gbDoc.data()!;
+
+    // Only distribute vouchers for completed group buys
+    if (gbData.status !== "completed") {
+      throw new HttpsError("failed-precondition", `Group buy must be in "completed" status, currently "${gbData.status}"`);
+    }
+
+    if (!gbData.voucherCodes || gbData.voucherCodes.length === 0) {
+      throw new HttpsError("failed-precondition", "No voucher codes uploaded for this group buy");
+    }
+
+    const contribsSnap = await db.collection("groupBuys").doc(groupBuyId)
+      .collection("contributions")
+      .where("hasCollected", "!=", true)
+      .get();
+
+    // Filter to only eligible contributions (not refunded, with positive amount)
+    const eligibleContribs = contribsSnap.docs.filter((doc) => {
+      const data = doc.data();
+      return data.status !== "refunded" && (data.amount > 0);
+    });
+
+    if (eligibleContribs.length === 0) {
+      return { success: true, distributed: 0, message: "No eligible contributions to distribute to" };
+    }
+
+    if (gbData.voucherCodes.length < eligibleContribs.length) {
+      throw new HttpsError("failed-precondition", `Not enough voucher codes (${gbData.voucherCodes.length}) for eligible contributions (${eligibleContribs.length})`);
+    }
+
+    // Maker-checker: voucher distribution is a financial operation
+    const { pendingActionId } = await createPendingAction(
+      adminCtx,
+      "buy:distributeGroupBuyVouchers",
+      "adminDistributeGroupBuyVouchers",
+      { groupBuyId, eligibleCount: eligibleContribs.length, voucherCount: gbData.voucherCodes.length },
+      `Distribute ${eligibleContribs.length} vouchers for group buy "${gbData.title || groupBuyId}"`
+    );
+
+    await logAdminAction(adminCtx.uid, "adminDistributeGroupBuyVouchers", "pending", {
+      groupBuyId,
+      pendingActionId,
+      eligibleContributions: eligibleContribs.length,
+    });
+
+    return { success: true, pendingActionId, requiresApproval: true };
   }
 );

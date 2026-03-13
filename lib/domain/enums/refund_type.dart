@@ -4,6 +4,7 @@ enum RefundType {
   deliveryTimeout,
   adminAction,
   confirmationTimeout,
+  autoUnresponsiveSeller,
 }
 
 extension RefundTypeX on RefundType {
@@ -19,6 +20,8 @@ extension RefundTypeX on RefundType {
         return 'Admin Action';
       case RefundType.confirmationTimeout:
         return 'Confirmation Timeout';
+      case RefundType.autoUnresponsiveSeller:
+        return 'Auto: Unresponsive Seller';
     }
   }
 }

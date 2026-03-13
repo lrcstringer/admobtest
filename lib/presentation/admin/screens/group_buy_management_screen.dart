@@ -576,7 +576,6 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     final sourceUrl = item['sourceUrl'] as String? ?? '';
     final status = item['status'] as String? ?? 'pending';
     final createdAtStr = _formatTimestamp(item['createdAt']);
-    final id = item['id'] as String;
 
     final (Color statusColor, String statusLabel) = switch (status) {
       'approved' => (AppColors.success, 'Approved'),
@@ -671,16 +670,14 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                       IconButton(
                         icon: Icon(Icons.check_circle,
                             size: 18, color: AppColors.success),
-                        tooltip: 'Approve',
-                        onPressed: () =>
-                            _updateSuggestionStatus(id, 'approved'),
+                        tooltip: 'Approve & Create Group Buy',
+                        onPressed: () => _showApproveDialog(item),
                       ),
                       IconButton(
                         icon: Icon(Icons.cancel,
                             size: 18, color: AppColors.error),
-                        tooltip: 'Decline',
-                        onPressed: () =>
-                            _updateSuggestionStatus(id, 'declined'),
+                        tooltip: 'Reject',
+                        onPressed: () => _showRejectDialog(item),
                       ),
                     ],
                   )
@@ -691,32 +688,220 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
     );
   }
 
-  Future<void> _updateSuggestionStatus(
-      String suggestionId, String newStatus) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('groupBuyRequests')
-          .doc(suggestionId)
-          .update({
-        'status': newStatus,
-        'reviewedAt': FieldValue.serverTimestamp(),
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Suggestion ${newStatus == 'approved' ? 'approved' : 'declined'}'),
+  void _showApproveDialog(Map<String, dynamic> request) {
+    final requestId = request['id'] as String;
+    final titleCtrl = TextEditingController(
+        text: request['description']?.toString().substring(
+                0,
+                (request['description']?.toString().length ?? 0).clamp(0, 50)) ??
+            '');
+    final targetAmountCtrl = TextEditingController(
+        text: request['estimatedPrice'] != null
+            ? ((request['estimatedPrice'] as num) * 100).round().toString()
+            : '');
+    DateTime? deadline;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surfaceElevated,
+          title: const Text('Approve & Create Group Buy'),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Request from: ${request['userName'] ?? 'Unknown'}',
+                    style: const TextStyle(
+                        fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                  if (request['description'] != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Description: ${request['description']}',
+                      style: const TextStyle(
+                          fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: titleCtrl,
+                    decoration:
+                        const InputDecoration(labelText: 'Group Buy Title *'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: targetAmountCtrl,
+                    decoration: const InputDecoration(
+                        labelText: 'Target Amount (tokens) *'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      deadline != null
+                          ? 'Deadline: ${deadline!.day}/${deadline!.month}/${deadline!.year}'
+                          : 'Pick deadline',
+                      style: TextStyle(
+                        color: deadline != null
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: ctx,
+                        initialDate:
+                            DateTime.now().add(const Duration(days: 7)),
+                        firstDate: DateTime.now(),
+                        lastDate:
+                            DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (date != null) {
+                        setDialogState(() => deadline = date);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
-        );
-        _loadData();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success),
+              onPressed: () async {
+                final title = titleCtrl.text.trim();
+                final targetAmount =
+                    int.tryParse(targetAmountCtrl.text.trim());
+                if (title.isEmpty || targetAmount == null || targetAmount <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content:
+                            Text('Please fill in title and target amount')),
+                  );
+                  return;
+                }
+                try {
+                  await _functions
+                      .httpsCallable('adminApproveGroupBuyRequest')
+                      .call<dynamic>({
+                    'requestId': requestId,
+                    'groupBuyTitle': title,
+                    'targetAmount': targetAmount,
+                    if (deadline != null)
+                      'deadline': deadline!.toUtc().toIso8601String(),
+                  });
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  _loadData();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              'Request approved and group buy created')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Approve'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRejectDialog(Map<String, dynamic> request) {
+    final requestId = request['id'] as String;
+    final reasonCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text('Reject Request'),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'From: ${request['userName'] ?? 'Unknown'}',
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary),
+              ),
+              if (request['description'] != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  request['description'].toString(),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.textSecondary),
+                ),
+              ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: reasonCtrl,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                    labelText: 'Rejection Reason (optional)'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () async {
+              try {
+                await _functions
+                    .httpsCallable('adminRejectGroupBuyRequest')
+                    .call<dynamic>({
+                  'requestId': requestId,
+                  'rejectionReason': reasonCtrl.text.trim(),
+                });
+                if (ctx.mounted) Navigator.pop(ctx);
+                _loadData();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Request rejected')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
   }
 
   // ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import '../../core/error/failures.dart';
 import '../entities/buy_order.dart';
 import '../entities/marketplace_listing.dart';
+import '../entities/marketplace_offer.dart';
 import '../entities/marketplace_provider.dart';
 import '../entities/vouch.dart';
 
@@ -119,6 +120,9 @@ abstract class MarketplaceRepository {
 
   /// Renew an expired listing
   Future<Either<Failure, void>> renewListing(String listingId);
+
+  /// Get a single offer by ID
+  Future<Either<Failure, MarketplaceOffer>> getOffer(String offerId);
 
   /// Make an offer on a listing
   Future<Either<Failure, String>> makeOffer({

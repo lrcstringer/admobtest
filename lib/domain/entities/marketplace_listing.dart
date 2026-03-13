@@ -59,6 +59,12 @@ class MarketplaceListing with _$MarketplaceListing {
     return expiresAt!.difference(DateTime.now()).inDays;
   }
 
+  /// Testable version that accepts an optional reference time
+  int? getDaysUntilExpiry([DateTime? referenceTime]) {
+    if (expiresAt == null) return null;
+    return expiresAt!.difference(referenceTime ?? DateTime.now()).inDays;
+  }
+
   /// Whether listing expires within 7 days
   bool get isExpiringSoon {
     final days = daysUntilExpiry;

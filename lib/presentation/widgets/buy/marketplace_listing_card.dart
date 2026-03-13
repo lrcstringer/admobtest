@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/marketplace_listing.dart';
+import '../../../domain/enums/delivery_method.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../common/token_display.dart';
@@ -65,6 +66,30 @@ class MarketplaceListingCard extends StatelessWidget {
                     showZar: true,
                   ),
                   const SizedBox(height: 6),
+
+                  // Delivery method
+                  Row(
+                    children: [
+                      Icon(
+                        listing.deliveryMethod == DeliveryMethod.delivery
+                            ? Icons.local_shipping_outlined
+                            : listing.deliveryMethod == DeliveryMethod.both
+                                ? Icons.swap_horiz
+                                : Icons.store_outlined,
+                        size: 12,
+                        color: AppColors.textTertiary,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        listing.deliveryMethod.displayName,
+                        style: const TextStyle(
+                          color: AppColors.textTertiary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
 
                   // Provider row
                   Row(

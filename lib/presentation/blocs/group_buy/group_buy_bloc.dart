@@ -142,6 +142,7 @@ class GroupBuyBloc extends Bloc<GroupBuyEvent, GroupBuyState> {
       groupBuyId: event.groupBuyId,
       amount: event.amount,
       walletId: event.walletId,
+      deliveryAddress: event.deliveryAddress,
     );
     result.fold(
       (failure) => emit(state.copyWith(

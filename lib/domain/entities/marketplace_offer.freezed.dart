@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MarketplaceOffer {
 
- String get id; String get listingId; String get buyerId; String get sellerId; int get offerAmount; int get originalPrice; OfferStatus get status; int? get counterAmount; String? get chatConversationId; DateTime? get expiresAt; DateTime get createdAt; DateTime? get respondedAt;
+ String get id; String get listingId; String get buyerId; String get sellerId; int get offerAmount; int get originalPrice; OfferStatus get status; int? get counterAmount; String? get chatConversationId; DateTime? get expiresAt; DateTime get createdAt; DateTime? get respondedAt; String? get listingTitle; String? get buyerName; String? get sellerName; double? get offerZar; double? get counterZar; String? get message;
 /// Create a copy of MarketplaceOffer
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $MarketplaceOfferCopyWith<MarketplaceOffer> get copyWith => _$MarketplaceOfferCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.listingTitle, listingTitle) || other.listingTitle == listingTitle)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.offerZar, offerZar) || other.offerZar == offerZar)&&(identical(other.counterZar, counterZar) || other.counterZar == counterZar)&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt);
+int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt,listingTitle,buyerName,sellerName,offerZar,counterZar,message);
 
 @override
 String toString() {
-  return 'MarketplaceOffer(id: $id, listingId: $listingId, buyerId: $buyerId, sellerId: $sellerId, offerAmount: $offerAmount, originalPrice: $originalPrice, status: $status, counterAmount: $counterAmount, chatConversationId: $chatConversationId, expiresAt: $expiresAt, createdAt: $createdAt, respondedAt: $respondedAt)';
+  return 'MarketplaceOffer(id: $id, listingId: $listingId, buyerId: $buyerId, sellerId: $sellerId, offerAmount: $offerAmount, originalPrice: $originalPrice, status: $status, counterAmount: $counterAmount, chatConversationId: $chatConversationId, expiresAt: $expiresAt, createdAt: $createdAt, respondedAt: $respondedAt, listingTitle: $listingTitle, buyerName: $buyerName, sellerName: $sellerName, offerZar: $offerZar, counterZar: $counterZar, message: $message)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $MarketplaceOfferCopyWith<$Res>  {
   factory $MarketplaceOfferCopyWith(MarketplaceOffer value, $Res Function(MarketplaceOffer) _then) = _$MarketplaceOfferCopyWithImpl;
 @useResult
 $Res call({
- String id, String listingId, String buyerId, String sellerId, int offerAmount, int originalPrice, OfferStatus status, int? counterAmount, String? chatConversationId, DateTime? expiresAt, DateTime createdAt, DateTime? respondedAt
+ String id, String listingId, String buyerId, String sellerId, int offerAmount, int originalPrice, OfferStatus status, int? counterAmount, String? chatConversationId, DateTime? expiresAt, DateTime createdAt, DateTime? respondedAt, String? listingTitle, String? buyerName, String? sellerName, double? offerZar, double? counterZar, String? message
 });
 
 
@@ -62,7 +62,7 @@ class _$MarketplaceOfferCopyWithImpl<$Res>
 
 /// Create a copy of MarketplaceOffer
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? listingId = null,Object? buyerId = null,Object? sellerId = null,Object? offerAmount = null,Object? originalPrice = null,Object? status = null,Object? counterAmount = freezed,Object? chatConversationId = freezed,Object? expiresAt = freezed,Object? createdAt = null,Object? respondedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? listingId = null,Object? buyerId = null,Object? sellerId = null,Object? offerAmount = null,Object? originalPrice = null,Object? status = null,Object? counterAmount = freezed,Object? chatConversationId = freezed,Object? expiresAt = freezed,Object? createdAt = null,Object? respondedAt = freezed,Object? listingTitle = freezed,Object? buyerName = freezed,Object? sellerName = freezed,Object? offerZar = freezed,Object? counterZar = freezed,Object? message = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,listingId: null == listingId ? _self.listingId : listingId // ignore: cast_nullable_to_non_nullable
@@ -76,7 +76,13 @@ as int?,chatConversationId: freezed == chatConversationId ? _self.chatConversati
 as String?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,respondedAt: freezed == respondedAt ? _self.respondedAt : respondedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,listingTitle: freezed == listingTitle ? _self.listingTitle : listingTitle // ignore: cast_nullable_to_non_nullable
+as String?,buyerName: freezed == buyerName ? _self.buyerName : buyerName // ignore: cast_nullable_to_non_nullable
+as String?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
+as String?,offerZar: freezed == offerZar ? _self.offerZar : offerZar // ignore: cast_nullable_to_non_nullable
+as double?,counterZar: freezed == counterZar ? _self.counterZar : counterZar // ignore: cast_nullable_to_non_nullable
+as double?,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -161,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt,  String? listingTitle,  String? buyerName,  String? sellerName,  double? offerZar,  double? counterZar,  String? message)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MarketplaceOffer() when $default != null:
-return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt);case _:
+return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt,_that.listingTitle,_that.buyerName,_that.sellerName,_that.offerZar,_that.counterZar,_that.message);case _:
   return orElse();
 
 }
@@ -182,10 +188,10 @@ return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offe
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt,  String? listingTitle,  String? buyerName,  String? sellerName,  double? offerZar,  double? counterZar,  String? message)  $default,) {final _that = this;
 switch (_that) {
 case _MarketplaceOffer():
-return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt);case _:
+return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt,_that.listingTitle,_that.buyerName,_that.sellerName,_that.offerZar,_that.counterZar,_that.message);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +208,10 @@ return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offe
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String listingId,  String buyerId,  String sellerId,  int offerAmount,  int originalPrice,  OfferStatus status,  int? counterAmount,  String? chatConversationId,  DateTime? expiresAt,  DateTime createdAt,  DateTime? respondedAt,  String? listingTitle,  String? buyerName,  String? sellerName,  double? offerZar,  double? counterZar,  String? message)?  $default,) {final _that = this;
 switch (_that) {
 case _MarketplaceOffer() when $default != null:
-return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt);case _:
+return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offerAmount,_that.originalPrice,_that.status,_that.counterAmount,_that.chatConversationId,_that.expiresAt,_that.createdAt,_that.respondedAt,_that.listingTitle,_that.buyerName,_that.sellerName,_that.offerZar,_that.counterZar,_that.message);case _:
   return null;
 
 }
@@ -217,7 +223,7 @@ return $default(_that.id,_that.listingId,_that.buyerId,_that.sellerId,_that.offe
 
 
 class _MarketplaceOffer extends MarketplaceOffer {
-  const _MarketplaceOffer({required this.id, required this.listingId, required this.buyerId, required this.sellerId, required this.offerAmount, required this.originalPrice, required this.status, this.counterAmount, this.chatConversationId, this.expiresAt, required this.createdAt, this.respondedAt}): super._();
+  const _MarketplaceOffer({required this.id, required this.listingId, required this.buyerId, required this.sellerId, required this.offerAmount, required this.originalPrice, required this.status, this.counterAmount, this.chatConversationId, this.expiresAt, required this.createdAt, this.respondedAt, this.listingTitle, this.buyerName, this.sellerName, this.offerZar, this.counterZar, this.message}): super._();
   
 
 @override final  String id;
@@ -232,6 +238,12 @@ class _MarketplaceOffer extends MarketplaceOffer {
 @override final  DateTime? expiresAt;
 @override final  DateTime createdAt;
 @override final  DateTime? respondedAt;
+@override final  String? listingTitle;
+@override final  String? buyerName;
+@override final  String? sellerName;
+@override final  double? offerZar;
+@override final  double? counterZar;
+@override final  String? message;
 
 /// Create a copy of MarketplaceOffer
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +255,16 @@ _$MarketplaceOfferCopyWith<_MarketplaceOffer> get copyWith => __$MarketplaceOffe
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceOffer&&(identical(other.id, id) || other.id == id)&&(identical(other.listingId, listingId) || other.listingId == listingId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.offerAmount, offerAmount) || other.offerAmount == offerAmount)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.status, status) || other.status == status)&&(identical(other.counterAmount, counterAmount) || other.counterAmount == counterAmount)&&(identical(other.chatConversationId, chatConversationId) || other.chatConversationId == chatConversationId)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.listingTitle, listingTitle) || other.listingTitle == listingTitle)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.offerZar, offerZar) || other.offerZar == offerZar)&&(identical(other.counterZar, counterZar) || other.counterZar == counterZar)&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt);
+int get hashCode => Object.hash(runtimeType,id,listingId,buyerId,sellerId,offerAmount,originalPrice,status,counterAmount,chatConversationId,expiresAt,createdAt,respondedAt,listingTitle,buyerName,sellerName,offerZar,counterZar,message);
 
 @override
 String toString() {
-  return 'MarketplaceOffer(id: $id, listingId: $listingId, buyerId: $buyerId, sellerId: $sellerId, offerAmount: $offerAmount, originalPrice: $originalPrice, status: $status, counterAmount: $counterAmount, chatConversationId: $chatConversationId, expiresAt: $expiresAt, createdAt: $createdAt, respondedAt: $respondedAt)';
+  return 'MarketplaceOffer(id: $id, listingId: $listingId, buyerId: $buyerId, sellerId: $sellerId, offerAmount: $offerAmount, originalPrice: $originalPrice, status: $status, counterAmount: $counterAmount, chatConversationId: $chatConversationId, expiresAt: $expiresAt, createdAt: $createdAt, respondedAt: $respondedAt, listingTitle: $listingTitle, buyerName: $buyerName, sellerName: $sellerName, offerZar: $offerZar, counterZar: $counterZar, message: $message)';
 }
 
 
@@ -263,7 +275,7 @@ abstract mixin class _$MarketplaceOfferCopyWith<$Res> implements $MarketplaceOff
   factory _$MarketplaceOfferCopyWith(_MarketplaceOffer value, $Res Function(_MarketplaceOffer) _then) = __$MarketplaceOfferCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String listingId, String buyerId, String sellerId, int offerAmount, int originalPrice, OfferStatus status, int? counterAmount, String? chatConversationId, DateTime? expiresAt, DateTime createdAt, DateTime? respondedAt
+ String id, String listingId, String buyerId, String sellerId, int offerAmount, int originalPrice, OfferStatus status, int? counterAmount, String? chatConversationId, DateTime? expiresAt, DateTime createdAt, DateTime? respondedAt, String? listingTitle, String? buyerName, String? sellerName, double? offerZar, double? counterZar, String? message
 });
 
 
@@ -280,7 +292,7 @@ class __$MarketplaceOfferCopyWithImpl<$Res>
 
 /// Create a copy of MarketplaceOffer
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? listingId = null,Object? buyerId = null,Object? sellerId = null,Object? offerAmount = null,Object? originalPrice = null,Object? status = null,Object? counterAmount = freezed,Object? chatConversationId = freezed,Object? expiresAt = freezed,Object? createdAt = null,Object? respondedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? listingId = null,Object? buyerId = null,Object? sellerId = null,Object? offerAmount = null,Object? originalPrice = null,Object? status = null,Object? counterAmount = freezed,Object? chatConversationId = freezed,Object? expiresAt = freezed,Object? createdAt = null,Object? respondedAt = freezed,Object? listingTitle = freezed,Object? buyerName = freezed,Object? sellerName = freezed,Object? offerZar = freezed,Object? counterZar = freezed,Object? message = freezed,}) {
   return _then(_MarketplaceOffer(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,listingId: null == listingId ? _self.listingId : listingId // ignore: cast_nullable_to_non_nullable
@@ -294,7 +306,13 @@ as int?,chatConversationId: freezed == chatConversationId ? _self.chatConversati
 as String?,expiresAt: freezed == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,respondedAt: freezed == respondedAt ? _self.respondedAt : respondedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,listingTitle: freezed == listingTitle ? _self.listingTitle : listingTitle // ignore: cast_nullable_to_non_nullable
+as String?,buyerName: freezed == buyerName ? _self.buyerName : buyerName // ignore: cast_nullable_to_non_nullable
+as String?,sellerName: freezed == sellerName ? _self.sellerName : sellerName // ignore: cast_nullable_to_non_nullable
+as String?,offerZar: freezed == offerZar ? _self.offerZar : offerZar // ignore: cast_nullable_to_non_nullable
+as double?,counterZar: freezed == counterZar ? _self.counterZar : counterZar // ignore: cast_nullable_to_non_nullable
+as double?,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

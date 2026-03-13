@@ -92,12 +92,14 @@ class GroupBuyRepositoryImpl implements GroupBuyRepository {
     required String groupBuyId,
     required int amount,
     required String walletId,
+    String? deliveryAddress,
   }) async {
     try {
       await _remoteDataSource.joinGroupBuy(
         groupBuyId: groupBuyId,
         amount: amount,
         walletId: walletId,
+        deliveryAddress: deliveryAddress,
       );
       return const Right(null);
     } catch (e) {

@@ -29,12 +29,14 @@ import '../screens/buy/buy_transactions_screen.dart';
 import '../screens/buy/buy_wallet_selection_screen.dart';
 import '../screens/buy/create_listing_screen.dart';
 import '../screens/buy/marketplace_hub_screen.dart';
+import '../screens/buy/make_offer_screen.dart';
 import '../screens/buy/marketplace_listing_detail_screen.dart';
 import '../screens/buy/marketplace_provider_profile_screen.dart';
 import '../screens/buy/marketplace_report_screen.dart';
 import '../screens/buy/my_orders_screen.dart';
 import '../screens/buy/order_detail_screen.dart';
 import '../screens/buy/provider_registration_screen.dart';
+import '../screens/buy/seller_dashboard_screen.dart';
 import '../screens/buy/group_buy_list_screen.dart';
 import '../screens/buy/group_buy_detail_screen.dart';
 import '../screens/buy/create_group_buy_screen.dart';
@@ -1236,7 +1238,31 @@ class AppRouter {
                           ),
                         ],
                       ),
-                      // 10.6.6) Report listing or provider
+                      // 10.6.6) Make Offer
+                      GoRoute(
+                        path: 'make-offer',
+                        name: 'makeOffer',
+                        builder: (context, state) {
+                          final extra =
+                              state.extra as Map<String, dynamic>;
+                          return MakeOfferScreen(
+                            listingId:
+                                extra['listingId'] as String,
+                            listingPriceTokens:
+                                extra['listingPriceTokens'] as int,
+                            listingTitle:
+                                extra['listingTitle'] as String,
+                          );
+                        },
+                      ),
+                      // 10.6.7) Seller Dashboard
+                      GoRoute(
+                        path: 'seller-dashboard',
+                        name: 'sellerDashboard',
+                        builder: (context, state) =>
+                            const SellerDashboardScreen(),
+                      ),
+                      // 10.6.8) Report listing or provider
                       GoRoute(
                         path: 'report/:targetType/:targetId',
                         name: 'marketplaceReport',

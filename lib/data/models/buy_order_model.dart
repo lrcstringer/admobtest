@@ -46,11 +46,15 @@ class BuyOrderModel with _$BuyOrderModel {
     RefundType? refundType,
     String? disputeDetails,
     @Default([]) List<String> disputePhotos,
+    String? offerId,
     String? sellerDisputeResponse,
     @Default([]) List<String> sellerDisputePhotos,
     String? sellerProposedResolution,
     int? disputeResolutionAmount,
     String? disputeResolutionNote,
+    DateTime? sellerRespondedAt,
+    @Default(false) bool adminReviewRequired,
+    String? adminReviewReason,
     DateTime? refundedAt,
     @Default(0) int version,
   }) = _BuyOrderModel;
@@ -98,6 +102,7 @@ class BuyOrderModel with _$BuyOrderModel {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      offerId: json['offerId'] as String?,
       sellerDisputeResponse: json['sellerDisputeResponse'] as String?,
       sellerDisputePhotos: (json['sellerDisputePhotos'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -107,6 +112,9 @@ class BuyOrderModel with _$BuyOrderModel {
       disputeResolutionAmount:
           (json['disputeResolutionAmount'] as num?)?.toInt(),
       disputeResolutionNote: json['disputeResolutionNote'] as String?,
+      sellerRespondedAt: _parseDateTimeNullable(json['sellerRespondedAt']),
+      adminReviewRequired: json['adminReviewRequired'] as bool? ?? false,
+      adminReviewReason: json['adminReviewReason'] as String?,
       refundedAt: _parseDateTimeNullable(json['refundedAt']),
       version: (json['version'] as num?)?.toInt() ?? 0,
     );
@@ -161,6 +169,11 @@ class BuyOrderModel with _$BuyOrderModel {
         'disputeResolutionAmount': disputeResolutionAmount,
       if (disputeResolutionNote != null)
         'disputeResolutionNote': disputeResolutionNote,
+      if (offerId != null) 'offerId': offerId,
+      if (sellerRespondedAt != null)
+        'sellerRespondedAt': Timestamp.fromDate(sellerRespondedAt!),
+      if (adminReviewRequired) 'adminReviewRequired': adminReviewRequired,
+      if (adminReviewReason != null) 'adminReviewReason': adminReviewReason,
       if (refundedAt != null) 'refundedAt': Timestamp.fromDate(refundedAt!),
       'version': version,
     };
@@ -202,11 +215,15 @@ class BuyOrderModel with _$BuyOrderModel {
       refundType: refundType,
       disputeDetails: disputeDetails,
       disputePhotos: disputePhotos,
+      offerId: offerId,
       sellerDisputeResponse: sellerDisputeResponse,
       sellerDisputePhotos: sellerDisputePhotos,
       sellerProposedResolution: sellerProposedResolution,
       disputeResolutionAmount: disputeResolutionAmount,
       disputeResolutionNote: disputeResolutionNote,
+      sellerRespondedAt: sellerRespondedAt,
+      adminReviewRequired: adminReviewRequired,
+      adminReviewReason: adminReviewReason,
       refundedAt: refundedAt,
       version: version,
     );
@@ -248,11 +265,15 @@ class BuyOrderModel with _$BuyOrderModel {
       refundType: entity.refundType,
       disputeDetails: entity.disputeDetails,
       disputePhotos: entity.disputePhotos,
+      offerId: entity.offerId,
       sellerDisputeResponse: entity.sellerDisputeResponse,
       sellerDisputePhotos: entity.sellerDisputePhotos,
       sellerProposedResolution: entity.sellerProposedResolution,
       disputeResolutionAmount: entity.disputeResolutionAmount,
       disputeResolutionNote: entity.disputeResolutionNote,
+      sellerRespondedAt: entity.sellerRespondedAt,
+      adminReviewRequired: entity.adminReviewRequired,
+      adminReviewReason: entity.adminReviewReason,
       refundedAt: entity.refundedAt,
       version: entity.version,
     );
@@ -269,6 +290,8 @@ OrderStatus _parseOrderStatus(String? value) {
       return OrderStatus.completed;
     case 'disputed':
       return OrderStatus.disputed;
+    case 'refunding':
+      return OrderStatus.refunding;
     case 'refunded':
       return OrderStatus.refunded;
     case 'cancelled':
@@ -305,6 +328,10 @@ DeliveryMethod? _parseDeliveryMethod(String? value) {
 
 RefundType? _parseRefundType(String? value) {
   if (value == null) return null;
+  // Handle snake_case from backend
+  if (value == 'auto_unresponsive_seller') {
+    return RefundType.autoUnresponsiveSeller;
+  }
   return RefundType.values.firstWhere(
     (e) => e.name == value,
     orElse: () => RefundType.buyerDispute,

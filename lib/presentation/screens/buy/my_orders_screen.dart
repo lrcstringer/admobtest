@@ -252,6 +252,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
         color = AppColors.success;
       case OrderStatus.disputed:
         color = AppColors.error;
+      case OrderStatus.refunding:
+        color = AppColors.warning;
       case OrderStatus.refunded:
         color = AppColors.secondary;
       case OrderStatus.cancelled:

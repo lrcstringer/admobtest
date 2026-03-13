@@ -23,6 +23,12 @@ import { LedgerConfig } from "./ledger/types";
 
 const db = admin.firestore();
 
+function requireAuth(request: { auth?: { uid: string } }): void {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
+  }
+}
+
 // ============================================================================
 // PROVIDER REGISTRATION
 // ============================================================================
@@ -135,39 +141,57 @@ export const createMarketplaceListing = onCall(
     const provider = providerSnap.docs[0].data();
     const providerId = providerSnap.docs[0].id;
 
+    // Validate image URLs
+    if (imageUrls && Array.isArray(imageUrls)) {
+      for (const url of imageUrls) {
+        if (typeof url !== "string" || (!url.startsWith("https://") && !url.startsWith("gs://"))) {
+          throw new HttpsError("invalid-argument", "Image URLs must be valid HTTPS or GCS URLs");
+        }
+      }
+    }
+
     const titleHash = title.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 20);
     const dateBucket = new Date().toISOString().split("T")[0];
-    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}`);
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    const listingRef = db.collection("marketplaceListings").doc(`${providerId}_${titleHash}_${dateBucket}_${randomSuffix}`);
     const now = admin.firestore.Timestamp.now();
     const expiresAt = admin.firestore.Timestamp.fromMillis(
       now.toMillis() + 90 * 24 * 60 * 60 * 1000
     );
 
-    const priceZar = priceTokens / LedgerConfig.TOKENS_PER_ZAR;
+    const priceZar = Math.round((priceTokens / LedgerConfig.TOKENS_PER_ZAR) * 100) / 100;
 
-    await listingRef.set({
-      id: listingRef.id,
-      title: title.trim(),
-      description: description.trim(),
-      category,
-      subCategory: subCategory || null,
-      priceTokens,
-      priceZar,
-      images: imageUrls || [],
-      thumbnailUrl: imageUrls?.[0] || null,
-      providerId,
-      providerName: provider.displayName,
-      providerPhotoUrl: provider.photoUrl || null,
-      providerTrustScore: provider.trustScore || 0,
-      providerIsVerified: provider.isVerified || false,
-      communityId: provider.communityId || null,
-      location: location?.trim() || null,
-      status: "active",
-      viewCount: 0,
-      reportCount: 0,
-      expiresAt,
-      createdAt: now,
-      updatedAt: now,
+    // Transaction to check doc doesn't already exist before setting
+    await db.runTransaction(async (tx) => {
+      const existingDoc = await tx.get(listingRef);
+      if (existingDoc.exists) {
+        throw new HttpsError("already-exists", "Listing ID collision — please try again");
+      }
+
+      tx.set(listingRef, {
+        id: listingRef.id,
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        subCategory: subCategory || null,
+        priceTokens,
+        priceZar,
+        images: imageUrls || [],
+        thumbnailUrl: imageUrls?.[0] || null,
+        providerId,
+        providerName: provider.displayName,
+        providerPhotoUrl: provider.photoUrl || null,
+        providerTrustScore: provider.trustScore || 0,
+        providerIsVerified: provider.isVerified || false,
+        communityId: provider.communityId || null,
+        location: location?.trim() || null,
+        status: "active",
+        viewCount: 0,
+        reportCount: 0,
+        expiresAt,
+        createdAt: now,
+        updatedAt: now,
+      });
     });
 
     logger.info(`Listing created: ${listingRef.id} by provider ${providerId}`);
@@ -241,6 +265,12 @@ export const buyMarketplaceItem = onCall(
         throw new HttpsError("failed-precondition", "This listing is no longer available");
       }
 
+      // Validate seller is an approved provider
+      const providerApprovalDoc = await tx.get(db.collection("marketplaceProviders").doc(listing.providerId));
+      if (providerApprovalDoc.exists && providerApprovalDoc.data()!.status !== "approved") {
+        throw new HttpsError("failed-precondition", "Seller is not an approved provider");
+      }
+
       // If an order already exists for this buyer+listing, check its state
       if (existingOrder.exists) {
         const existingStatus = existingOrder.data()!.status;
@@ -301,6 +331,8 @@ export const buyMarketplaceItem = onCall(
         disputeResolution: null,
         chatConversationId: null,
         thumbnailUrl: listing.thumbnailUrl || null,
+        deliveryDeadline: admin.firestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        buyerConfirmationDeadline: admin.firestore.Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000),
         createdAt: now,
         escrowedAt: null,
         fulfilledAt: null,
@@ -323,7 +355,8 @@ export const buyMarketplaceItem = onCall(
         userId,
         txData.priceTokens,
         orderRef.id,
-        `Marketplace purchase: ${txData.title}`
+        `Marketplace purchase: ${txData.title}`,
+        `marketplace_escrow_${orderRef.id}`
       );
     } catch (escrowError) {
       // Revert: re-activate listing and mark order as failed
@@ -456,7 +489,8 @@ export const confirmMarketplaceReceipt = onCall(
         txResult.sellerId,
         txResult.amount,
         orderId,
-        `Marketplace payment released: ${txResult.listingTitle}`
+        `Marketplace payment released: ${txResult.listingTitle}`,
+        `marketplace_release_${orderId}`
       );
     } catch (releaseError) {
       logger.error(`Escrow release failed for order ${orderId}, reverting to fulfilled`, releaseError);
@@ -637,28 +671,28 @@ export const vouchForProvider = onCall(
     if (!providerId) {
       throw new HttpsError("invalid-argument", "Provider ID is required");
     }
+    if (!orderId) {
+      throw new HttpsError("invalid-argument", "orderId is required for vouching");
+    }
     if (typeof rating !== "number" || rating < 1 || rating > 5) {
       throw new HttpsError("invalid-argument", "Rating must be between 1 and 5");
     }
 
-    // Validate order exists and is completed (if orderId provided)
-    if (orderId) {
-      const orderDoc = await db.collection("buyOrders").doc(orderId).get();
-      if (!orderDoc.exists) {
-        throw new HttpsError("not-found", "Order not found");
-      }
-      const order = orderDoc.data()!;
-      if (order.status !== "completed") {
-        throw new HttpsError("failed-precondition", "Order must be completed to vouch");
-      }
-      if (order.buyerId !== userId) {
-        throw new HttpsError("permission-denied", "Only the buyer can vouch for this order");
-      }
+    // Validate order exists and is completed
+    const orderDoc = await db.collection("buyOrders").doc(orderId).get();
+    if (!orderDoc.exists) {
+      throw new HttpsError("not-found", "Order not found");
+    }
+    const order = orderDoc.data()!;
+    if (order.status !== "completed") {
+      throw new HttpsError("failed-precondition", "Order must be completed to vouch");
+    }
+    if (order.buyerId !== userId) {
+      throw new HttpsError("permission-denied", "Only the buyer can vouch for this order");
     }
 
     // Use deterministic doc ID to prevent duplicate vouches at the Firestore level.
-    // If orderId is provided, key on userId_orderId; otherwise userId_providerId.
-    const vouchDocId = orderId ? `${userId}_${orderId}` : `${userId}_${providerId}`;
+    const vouchDocId = `${userId}_${orderId}`;
     const vouchRef = db.collection("vouches").doc(vouchDocId);
     const providerRef = db.collection("providers").doc(providerId);
 
@@ -925,7 +959,7 @@ export const updateMarketplaceListing = onCall(
         throw new HttpsError("invalid-argument", "Price must be a positive integer");
       }
       updates.priceTokens = priceTokens;
-      updates.priceZar = priceTokens / LedgerConfig.TOKENS_PER_ZAR;
+      updates.priceZar = Math.round((priceTokens / LedgerConfig.TOKENS_PER_ZAR) * 100) / 100;
     }
     if (imageUrls !== undefined) {
       if (!Array.isArray(imageUrls)) {
@@ -981,6 +1015,21 @@ export const toggleMarketplaceListingStatus = onCall(
       const providerDoc = await tx.get(db.collection("providers").doc(listing.providerId));
       if (!providerDoc.exists || providerDoc.data()!.userId !== userId) {
         throw new HttpsError("permission-denied", "Only the listing owner can change status");
+      }
+
+      const currentStatus = listing.status as string;
+      const actionToStatus: Record<string, string> = {
+        pause: "paused",
+        unpause: "active",
+        markSold: "sold",
+      };
+      const newStatus = actionToStatus[action];
+      const validTransitions: Record<string, string[]> = {
+        active: ["paused", "sold"],
+        paused: ["active", "sold"],
+      };
+      if (!validTransitions[currentStatus]?.includes(newStatus)) {
+        throw new HttpsError("failed-precondition", `Cannot transition from ${currentStatus} to ${newStatus}`);
       }
 
       const now = admin.firestore.FieldValue.serverTimestamp();
@@ -1063,9 +1112,14 @@ export const renewMarketplaceListing = onCall(
         now.toMillis() + 90 * 24 * 60 * 60 * 1000
       );
 
+      const renewalExpiresAt = admin.firestore.Timestamp.fromMillis(
+        now.toMillis() + 30 * 24 * 60 * 60 * 1000
+      );
+
       tx.update(listingRef, {
         status: "active",
         expiresAt: newExpiry,
+        renewalExpiresAt,
         renewalCount: admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
@@ -1186,6 +1240,17 @@ export const makeOffer = onCall(
       throw new HttpsError("invalid-argument", "Offer amount must be a positive integer");
     }
 
+    // Rate limit: max 20 offers per user per day
+    const today = new Date().toISOString().split("T")[0];
+    const recentOffers = await db.collection("marketplaceOffers")
+      .where("buyerId", "==", userId)
+      .where("createdAt", ">=", admin.firestore.Timestamp.fromDate(new Date(today)))
+      .limit(20)
+      .get();
+    if (recentOffers.size >= 20) {
+      throw new HttpsError("resource-exhausted", "Maximum 20 offers per day. Please try again tomorrow.");
+    }
+
     const listingDoc = await db.collection("marketplaceListings").doc(listingId).get();
     if (!listingDoc.exists) {
       throw new HttpsError("not-found", "Listing not found");
@@ -1199,7 +1264,7 @@ export const makeOffer = onCall(
     // Can't offer on your own listing
     const providerDoc = await db.collection("providers").doc(listing.providerId).get();
     if (providerDoc.exists && providerDoc.data()!.userId === userId) {
-      throw new HttpsError("failed-precondition", "You cannot make an offer on your own listing");
+      throw new HttpsError("invalid-argument", "You cannot make an offer on your own listing");
     }
 
     // Offer amount must be less than listing price (use Buy Now for full price)
@@ -1313,8 +1378,8 @@ export const respondToOffer = onCall(
         // Read listing to enforce upper bound on counter offers
         const listingDoc = await tx.get(db.collection("marketplaceListings").doc(offer.listingId));
         const listingPrice = listingDoc.exists ? listingDoc.data()!.priceTokens : offer.originalPrice;
-        if (counterAmount > listingPrice * 2) {
-          throw new HttpsError("invalid-argument", "Counter offer cannot exceed twice the listing price");
+        if (counterAmount > listingPrice) {
+          throw new HttpsError("invalid-argument", "Counter offer cannot exceed listing price");
         }
         tx.update(offerRef, {
           status: "countered",
@@ -1340,7 +1405,8 @@ export const respondToOffer = onCall(
       tx.update(listingRef, { status: "pending" });
 
       // Create order at offer price (escrow done outside transaction)
-      const orderRef = db.collection("buyOrders").doc();
+      // Deterministic ID: retries reuse the same order doc instead of creating duplicates
+      const orderRef = db.collection("buyOrders").doc(`offer_${offerRef.id}`);
       tx.set(orderRef, {
         id: orderRef.id,
         buyerId: offer.buyerId,
@@ -1356,10 +1422,15 @@ export const respondToOffer = onCall(
         escrowJournalId: null,
         releaseJournalId: null,
         refundJournalId: null,
+        refundType: null,
+        deliveryMethod: null,
+        deliveryFee: 0,
         disputeReason: null,
         disputeResolution: null,
         chatConversationId: null,
         thumbnailUrl: listingDoc.data()!.thumbnailUrl || null,
+        deliveryDeadline: admin.firestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        buyerConfirmationDeadline: admin.firestore.Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000),
         createdAt: now,
         escrowedAt: null,
         fulfilledAt: null,
@@ -1383,7 +1454,8 @@ export const respondToOffer = onCall(
           offer.buyerId,
           offer.offerAmount,
           result.orderId,
-          `Marketplace offer accepted: ${offer.listingTitle}`
+          `Marketplace offer accepted: ${offer.listingTitle}`,
+          `offer_escrow_${orderRef.id}`
         );
         await orderRef.update({
           status: "escrowed",
@@ -1473,7 +1545,8 @@ export const sellerInitiatedRefund = onCall(
         orderData.buyerId,
         orderData.amount,
         orderId,
-        `Seller-initiated refund: ${orderData.listingTitle}`
+        `Seller-initiated refund: ${orderData.listingTitle}`,
+        `seller_refund_${orderId}`
       );
       await orderRef.update({
         status: "refunded",
@@ -1644,6 +1717,11 @@ export const checkDeliveryTimers = onSchedule(
     let skipped = 0;
     for (const doc of overdueOrders.docs) {
       const order = doc.data();
+      // Guard: skip if already completed
+      if (order.status === "completed" || order.completedAt) {
+        skipped++;
+        continue;
+      }
       // Guard: skip if escrow was never processed or already released
       if (!order.escrowJournalId || order.releaseJournalId) {
         skipped++;
@@ -1765,8 +1843,19 @@ export const autoRefundUnresponsiveSeller = onSchedule(
     let skipped = 0;
     for (const doc of staleOrders.docs) {
       const order = doc.data();
-      // Guard: skip if escrow was never processed or already refunded
-      if (!order.escrowJournalId || order.refundJournalId) {
+      // Guard: skip if already refunded
+      if (order.refundJournalId) {
+        skipped++;
+        continue;
+      }
+      // Flag for admin review if escrowJournalId is missing
+      if (!order.escrowJournalId) {
+        logger.warn(`Order ${doc.id} has no escrowJournalId — flagging for admin review`);
+        await doc.ref.update({
+          adminReviewRequired: true,
+          adminReviewReason: "Missing escrowJournalId during auto-refund",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
         skipped++;
         continue;
       }
@@ -1796,6 +1885,36 @@ export const autoRefundUnresponsiveSeller = onSchedule(
     }
 
     logger.info(`Auto-refunded ${refunded}/${staleOrders.size} unresponsive seller orders (${skipped} skipped)`);
+
+    // Also check for orders stuck in "refunding" for more than 24 hours
+    const stuckRefundingOrders = await db.collection("buyOrders")
+      .where("status", "==", "refunding")
+      .where("updatedAt", "<=", admin.firestore.Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000))
+      .limit(50)
+      .get();
+
+    for (const doc of stuckRefundingOrders.docs) {
+      try {
+        const order = doc.data();
+        if (order.escrowJournalId && !order.refundJournalId) {
+          const refundResult = await refundMarketplaceEscrow(
+            order.buyerId,
+            order.amount,
+            doc.id,
+            `Retry refund for stuck order: ${order.listingTitle}`,
+            `seller_refund_retry_${doc.id}`
+          );
+          await doc.ref.update({
+            status: "refunded",
+            refundJournalId: refundResult || null,
+            refundType: "seller_initiated",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+      } catch (err) {
+        logger.warn(`Failed to retry refund for stuck order ${doc.id}`, err);
+      }
+    }
   }
 );
 
@@ -1833,19 +1952,17 @@ export const sendReviewReminder = onSchedule(
     }
 
     let sent = 0;
+    let skipped = 0;
     for (const doc of completedOrders.docs) {
       const order = doc.data();
 
-      // Check if vouch already exists
-      const vouchExists = await db
-        .collection("vouches")
-        .where("providerId", "==", order.sellerId)
-        .where("voucherId", "==", order.buyerId)
-        .where("orderId", "==", doc.id)
-        .limit(1)
-        .get();
-
-      if (!vouchExists.empty) continue;
+      // Check if vouch already exists using deterministic vouch ID
+      const vouchId = `${order.buyerId}_${doc.id}`;
+      const existingVouch = await db.collection("vouches").doc(vouchId).get();
+      if (existingVouch.exists) {
+        skipped++;
+        continue;
+      }
 
       // Get buyer FCM token
       const buyerDoc = await db.collection("users").doc(order.buyerId).get();
@@ -1911,5 +2028,141 @@ export const expireOffers = onSchedule(
     await batch.commit();
 
     logger.info(`Expired ${expiredOffers.size} offers`);
+  }
+);
+
+// ============================================================================
+// DISPUTE MANAGEMENT
+// ============================================================================
+
+/**
+ * Seller responds to a dispute raised by the buyer.
+ */
+export const respondToDispute = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    requireAuth(request);
+    requireAppCheck(request, "respondToDispute");
+    const userId = request.auth!.uid;
+    const { orderId, response, photoUrls, proposedResolution, proposedResolutionAmount } = request.data;
+
+    if (!orderId || !response) throw new HttpsError("invalid-argument", "orderId and response are required");
+    if (response.length > 2000) throw new HttpsError("invalid-argument", "Response must be under 2000 characters");
+    if (photoUrls && photoUrls.length > 5) throw new HttpsError("invalid-argument", "Maximum 5 photos allowed");
+    if (photoUrls) {
+      for (const url of photoUrls) {
+        if (typeof url !== "string" || !url.startsWith("https://")) {
+          throw new HttpsError("invalid-argument", "Photo URLs must be valid HTTPS URLs");
+        }
+      }
+    }
+
+    const orderRef = db.collection("buyOrders").doc(orderId);
+    await db.runTransaction(async (tx) => {
+      const orderDoc = await tx.get(orderRef);
+      if (!orderDoc.exists) throw new HttpsError("not-found", "Order not found");
+      const order = orderDoc.data()!;
+      if (order.sellerId !== userId) throw new HttpsError("permission-denied", "Only seller can respond to dispute");
+      if (order.status !== "disputed") throw new HttpsError("failed-precondition", "Order is not in disputed status");
+
+      tx.update(orderRef, {
+        sellerDisputeResponse: response,
+        sellerDisputePhotos: photoUrls || [],
+        sellerProposedResolution: proposedResolution || null,
+        disputeResolutionAmount: proposedResolutionAmount || null,
+        sellerRespondedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    return { success: true };
+  }
+);
+
+/**
+ * Buyer adds additional evidence (photos/details) to an existing dispute.
+ */
+export const addDisputeEvidence = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    requireAuth(request);
+    requireAppCheck(request, "addDisputeEvidence");
+    const userId = request.auth!.uid;
+    const { orderId, photoUrls, additionalDetails } = request.data;
+
+    if (!orderId) throw new HttpsError("invalid-argument", "orderId is required");
+    if (!photoUrls || !Array.isArray(photoUrls) || photoUrls.length === 0) {
+      throw new HttpsError("invalid-argument", "At least one photo URL is required");
+    }
+    if (photoUrls.length > 10) throw new HttpsError("invalid-argument", "Maximum 10 photos allowed");
+    for (const url of photoUrls) {
+      if (typeof url !== "string" || !url.startsWith("https://")) {
+        throw new HttpsError("invalid-argument", "Photo URLs must be valid HTTPS URLs");
+      }
+    }
+
+    const orderRef = db.collection("buyOrders").doc(orderId);
+    await db.runTransaction(async (tx) => {
+      const orderDoc = await tx.get(orderRef);
+      if (!orderDoc.exists) throw new HttpsError("not-found", "Order not found");
+      const order = orderDoc.data()!;
+      if (order.buyerId !== userId) throw new HttpsError("permission-denied", "Only buyer can add dispute evidence");
+      if (order.status !== "disputed") throw new HttpsError("failed-precondition", "Order is not in disputed status");
+
+      const existingPhotos: string[] = order.disputePhotos || [];
+      const allPhotos = [...existingPhotos, ...photoUrls].slice(0, 10);
+
+      tx.update(orderRef, {
+        disputePhotos: allPhotos,
+        disputeDetails: additionalDetails ? `${order.disputeDetails || ""}\n\n--- Additional evidence ---\n${additionalDetails}` : order.disputeDetails,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    return { success: true };
+  }
+);
+
+/**
+ * Seller proposes a resolution for a disputed order (full/partial refund, replacement, or no refund).
+ */
+export const proposeResolution = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    requireAuth(request);
+    requireAppCheck(request, "proposeResolution");
+    const userId = request.auth!.uid;
+    const { orderId, resolutionType, refundAmount } = request.data;
+
+    if (!orderId || !resolutionType) throw new HttpsError("invalid-argument", "orderId and resolutionType required");
+    if (!["full_refund", "partial_refund", "replacement", "no_refund"].includes(resolutionType)) {
+      throw new HttpsError("invalid-argument", "Invalid resolution type");
+    }
+    if (resolutionType === "partial_refund" && (!refundAmount || typeof refundAmount !== "number" || refundAmount <= 0)) {
+      throw new HttpsError("invalid-argument", "Partial refund requires positive refundAmount");
+    }
+    if (typeof refundAmount === "number" && refundAmount < 0) {
+      throw new HttpsError("invalid-argument", "Resolution amount cannot be negative");
+    }
+
+    const orderRef = db.collection("buyOrders").doc(orderId);
+    await db.runTransaction(async (tx) => {
+      const orderDoc = await tx.get(orderRef);
+      if (!orderDoc.exists) throw new HttpsError("not-found", "Order not found");
+      const order = orderDoc.data()!;
+      if (order.sellerId !== userId) throw new HttpsError("permission-denied", "Only seller can propose resolution");
+      if (order.status !== "disputed") throw new HttpsError("failed-precondition", "Order must be in disputed status");
+      if (typeof refundAmount === "number" && refundAmount > order.amount) {
+        throw new HttpsError("invalid-argument", "Resolution amount cannot exceed order amount");
+      }
+
+      tx.update(orderRef, {
+        sellerProposedResolution: resolutionType,
+        disputeResolutionAmount: resolutionType === "partial_refund" ? refundAmount : null,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    return { success: true };
   }
 );

@@ -178,6 +178,13 @@ export type AdminPermission =
   | "buy:seedVasProviders"
   // Buy migration
   | "buy:migrateCategories"
+  // Buy group buy requests & curated group buys
+  | "buy:approveGroupBuyRequest"
+  | "buy:rejectGroupBuyRequest"
+  | "buy:createCuratedGroupBuy"
+  // Buy voucher distribution
+  | "buy:uploadGroupBuyVouchers"
+  | "buy:distributeGroupBuyVouchers"
   // Pending actions (maker-checker)
   | "pending:list"
   | "pending:approve"
@@ -193,6 +200,8 @@ export const MAKER_CHECKER_ACTIONS: ReadonlySet<AdminPermission> = new Set([
   "buy:resolveDispute",
   "buy:forceCompleteGroupBuy",
   "buy:forceCancelGroupBuy",
+  "buy:approveGroupBuyRequest",
+  "buy:distributeGroupBuyVouchers",
 ]);
 
 export interface AdminContext {
@@ -290,6 +299,13 @@ const platformAdminPerms: AdminPermission[] = [
   "buy:seedVasProviders",
   // Buy migration
   "buy:migrateCategories",
+  // Buy group buy requests & curated group buys
+  "buy:approveGroupBuyRequest",
+  "buy:rejectGroupBuyRequest",
+  "buy:createCuratedGroupBuy",
+  // Buy voucher distribution
+  "buy:uploadGroupBuyVouchers",
+  "buy:distributeGroupBuyVouchers",
 ];
 
 const financeAdminPerms: AdminPermission[] = [
@@ -339,6 +355,8 @@ const financeAdminPerms: AdminPermission[] = [
   "buy:partialRefund",
   "buy:requireReturn",
   "buy:escalateToSms",
+  "buy:distributeGroupBuyVouchers",
+  "buy:uploadGroupBuyVouchers",
 ];
 
 const campaignAdminPerms: AdminPermission[] = [
@@ -1340,6 +1358,14 @@ async function executePendingAction(
     case "adminForceCancelGroupBuy": {
       const { executeForceCancelGroupBuy } = await import("./buyAdminExecutors");
       return executeForceCancelGroupBuy(action.payload);
+    }
+    case "adminApproveGroupBuyRequest": {
+      const { executeApproveGroupBuyRequest } = await import("./buyAdminExecutors");
+      return executeApproveGroupBuyRequest(action.payload);
+    }
+    case "adminDistributeGroupBuyVouchers": {
+      const { executeDistributeGroupBuyVouchers } = await import("./buyAdminExecutors");
+      return executeDistributeGroupBuyVouchers(action.payload);
     }
     default:
       throw new Error(`Unknown pending action: ${action.functionName}`);

@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../models/buy_order_model.dart';
 import '../../models/marketplace_listing_model.dart';
+import '../../models/marketplace_offer_model.dart';
 import '../../models/marketplace_provider_model.dart';
 import '../../models/vouch_model.dart';
 
@@ -132,6 +133,9 @@ abstract class MarketplaceRemoteDataSource {
     required String orderId,
     String? reason,
   });
+
+  /// Get a single offer by ID (Firestore read)
+  Future<MarketplaceOfferModel?> getOffer(String offerId);
 
   /// Get seller dashboard analytics (calls CF)
   Future<Map<String, dynamic>> getSellerDashboard();
@@ -487,6 +491,14 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
       'orderId': orderId,
       if (reason != null) 'reason': reason,
     });
+  }
+
+  @override
+  Future<MarketplaceOfferModel?> getOffer(String offerId) async {
+    final doc =
+        await _firestore.collection('marketplaceOffers').doc(offerId).get();
+    if (!doc.exists || doc.data() == null) return null;
+    return MarketplaceOfferModel.fromJson({...doc.data()!, 'id': doc.id});
   }
 
   @override

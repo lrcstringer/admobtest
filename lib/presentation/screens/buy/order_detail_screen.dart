@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../domain/entities/marketplace_offer.dart';
+import '../../../domain/enums/delivery_method.dart';
+import '../../../domain/enums/offer_status.dart';
 import '../../../domain/enums/order_status.dart';
 import '../../blocs/order/order_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -36,6 +39,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
+          // Auto-load linked offer when order is selected
+          if (state.selectedOrder?.offerId != null &&
+              state.linkedOffer == null) {
+            context.read<OrderBloc>().add(
+                  OrderEvent.loadLinkedOffer(state.selectedOrder!.offerId!),
+                );
+          }
           if (state.successMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -164,6 +174,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       if (order.cancelledAt != null)
                         _buildInfoRow(
                             'Cancelled', _formatDate(order.cancelledAt!)),
+
+                      // Delivery info
+                      if (order.deliveryMethod != null)
+                        _buildInfoRow(
+                            'Delivery', order.deliveryMethod!.displayName),
+                      if (order.deliveryFee != null &&
+                          order.deliveryFee! > 0)
+                        _buildInfoRow('Delivery Fee',
+                            '${order.deliveryFee} tokens'),
+                      if (order.deliveryDeadline != null)
+                        _buildInfoRow('Delivery By',
+                            _formatDate(order.deliveryDeadline!)),
+
+                      // Offer/counter-offer history
+                      if (state.linkedOffer != null)
+                        _buildOfferHistory(state.linkedOffer!),
 
                       // Dispute info
                       if (order.status == OrderStatus.disputed &&
@@ -439,9 +465,185 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
+  Widget _buildOfferHistory(MarketplaceOffer offer) {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.secondary.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.secondary.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.handshake_outlined,
+                    color: AppColors.secondary, size: 18),
+                SizedBox(width: 8),
+                Text(
+                  'Offer History',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Step 1: Original listing price
+            _OfferStep(
+              label: 'Listing price',
+              amount: offer.originalPrice,
+              date: null,
+              isFirst: true,
+            ),
+            // Step 2: Buyer's offer
+            _OfferStep(
+              label: 'Offer by ${offer.buyerName ?? 'Buyer'}',
+              amount: offer.offerAmount,
+              date: offer.createdAt,
+              isFirst: false,
+            ),
+            // Step 3: Counter-offer (if any)
+            if (offer.counterAmount != null)
+              _OfferStep(
+                label: 'Counter by ${offer.sellerName ?? 'Seller'}',
+                amount: offer.counterAmount!,
+                date: offer.respondedAt,
+                isFirst: false,
+              ),
+            // Step 4: Final status
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: offer.status.isTerminal
+                          ? AppColors.success
+                          : AppColors.warning,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Status: ${offer.status.name}',
+                    style: TextStyle(
+                      color: offer.status.isTerminal
+                          ? AppColors.success
+                          : AppColors.warning,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (offer.message != null && offer.message!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                '"${offer.message!}"',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   String _formatDate(DateTime dt) {
     return '${dt.day}/${dt.month}/${dt.year} '
         '${dt.hour.toString().padLeft(2, '0')}:'
         '${dt.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _OfferStep extends StatelessWidget {
+  final String label;
+  final int amount;
+  final DateTime? date;
+  final bool isFirst;
+
+  const _OfferStep({
+    required this.label,
+    required this.amount,
+    required this.date,
+    required this.isFirst,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final zarAmount = (amount / 100).toStringAsFixed(2);
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isFirst
+                      ? AppColors.textSecondary
+                      : AppColors.secondary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 20,
+                color: AppColors.border,
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  '$amount tokens (R$zarAmount)',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (date != null)
+            Text(
+              '${date!.day}/${date!.month}/${date!.year}',
+              style: const TextStyle(
+                color: AppColors.textHint,
+                fontSize: 11,
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

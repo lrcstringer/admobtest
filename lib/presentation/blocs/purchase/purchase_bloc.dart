@@ -196,6 +196,16 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
       return;
     }
 
+    // Local format check — catch obviously invalid numbers before server call
+    final category =
+        state.selectedProvider?.category ?? PurchaseCategory.airtime;
+    if (!_isRecipientFormatValid(state.recipientNumber!, category)) {
+      emit(state.copyWith(
+        errorMessage: 'Invalid recipient number format',
+      ));
+      return;
+    }
+
     emit(state.copyWith(isPurchasing: true));
 
     // Step-up auth before VAS purchase
@@ -305,6 +315,26 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
       isRecipientValid: null,
       recentRecipients: [],
     ));
+  }
+
+  /// Basic local format validation for recipient numbers by category.
+  bool _isRecipientFormatValid(String number, PurchaseCategory category) {
+    final trimmed = number.trim();
+    if (trimmed.isEmpty) return false;
+
+    switch (category) {
+      case PurchaseCategory.airtime:
+      case PurchaseCategory.data:
+        // SA mobile: 10 digits starting with 0, or 11+ with country code
+        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed) ||
+            RegExp(r'^\+?27[6-8]\d{8}$').hasMatch(trimmed);
+      case PurchaseCategory.electricity:
+        // Meter numbers: 11-13 digits
+        return RegExp(r'^\d{11,13}$').hasMatch(trimmed);
+      default:
+        // Other categories: at least 5 alphanumeric characters
+        return trimmed.length >= 5;
+    }
   }
 
   void _onClearError(

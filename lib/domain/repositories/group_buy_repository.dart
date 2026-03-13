@@ -36,6 +36,7 @@ abstract class GroupBuyRepository {
     required String groupBuyId,
     required int amount,
     required String walletId,
+    String? deliveryAddress,
   });
 
   /// Get admin-curated group buys for the hub

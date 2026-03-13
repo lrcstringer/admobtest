@@ -37,6 +37,7 @@ class MarketplaceProvider with _$MarketplaceProvider {
     DateTime? suspendedAt,
     DateTime? bannedAt,
     LocationData? profileLocation,
+    @Default(0) double ratingSum,
     String? servicesDescription,
   }) = _MarketplaceProvider;
 

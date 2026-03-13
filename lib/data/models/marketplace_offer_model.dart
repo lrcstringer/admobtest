@@ -21,6 +21,12 @@ class MarketplaceOfferModel with _$MarketplaceOfferModel {
     DateTime? expiresAt,
     required DateTime createdAt,
     DateTime? respondedAt,
+    String? listingTitle,
+    String? buyerName,
+    String? sellerName,
+    double? offerZar,
+    double? counterZar,
+    String? message,
   }) = _MarketplaceOfferModel;
 
   const MarketplaceOfferModel._();
@@ -39,6 +45,12 @@ class MarketplaceOfferModel with _$MarketplaceOfferModel {
       expiresAt: _parseDateTimeNullable(json['expiresAt']),
       createdAt: _parseDateTime(json['createdAt']),
       respondedAt: _parseDateTimeNullable(json['respondedAt']),
+      listingTitle: json['listingTitle'] as String?,
+      buyerName: json['buyerName'] as String?,
+      sellerName: json['sellerName'] as String?,
+      offerZar: (json['offerZar'] as num?)?.toDouble(),
+      counterZar: (json['counterZar'] as num?)?.toDouble(),
+      message: json['message'] as String?,
     );
   }
 
@@ -57,6 +69,12 @@ class MarketplaceOfferModel with _$MarketplaceOfferModel {
       'createdAt': Timestamp.fromDate(createdAt),
       if (respondedAt != null)
         'respondedAt': Timestamp.fromDate(respondedAt!),
+      if (listingTitle != null) 'listingTitle': listingTitle,
+      if (buyerName != null) 'buyerName': buyerName,
+      if (sellerName != null) 'sellerName': sellerName,
+      if (offerZar != null) 'offerZar': offerZar,
+      if (counterZar != null) 'counterZar': counterZar,
+      if (message != null) 'message': message,
     };
   }
 
@@ -74,6 +92,12 @@ class MarketplaceOfferModel with _$MarketplaceOfferModel {
       expiresAt: expiresAt,
       createdAt: createdAt,
       respondedAt: respondedAt,
+      listingTitle: listingTitle,
+      buyerName: buyerName,
+      sellerName: sellerName,
+      offerZar: offerZar,
+      counterZar: counterZar,
+      message: message,
     );
   }
 
@@ -91,6 +115,12 @@ class MarketplaceOfferModel with _$MarketplaceOfferModel {
       expiresAt: entity.expiresAt,
       createdAt: entity.createdAt,
       respondedAt: entity.respondedAt,
+      listingTitle: entity.listingTitle,
+      buyerName: entity.buyerName,
+      sellerName: entity.sellerName,
+      offerZar: entity.offerZar,
+      counterZar: entity.counterZar,
+      message: entity.message,
     );
   }
 }

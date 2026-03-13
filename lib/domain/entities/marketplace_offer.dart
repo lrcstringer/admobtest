@@ -21,6 +21,12 @@ class MarketplaceOffer with _$MarketplaceOffer {
     DateTime? expiresAt,
     required DateTime createdAt,
     DateTime? respondedAt,
+    String? listingTitle,
+    String? buyerName,
+    String? sellerName,
+    double? offerZar,
+    double? counterZar,
+    String? message,
   }) = _MarketplaceOffer;
 
   const MarketplaceOffer._();

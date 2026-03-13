@@ -444,6 +444,17 @@ class BuyRepositoryImpl implements BuyRepository {
   }
 
   @override
+  Future<Either<Failure, ({bool isFollowing, DateTime? followedAt})>>
+      getFollowStatus(String brandId) async {
+    try {
+      final status = await _remoteDataSource.getFollowStatus(brandId);
+      return Right(status);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> toggleBrandFollow(String brandId) async {
     try {
       final result =

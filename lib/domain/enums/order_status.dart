@@ -5,6 +5,7 @@ enum OrderStatus {
   fulfilled,
   completed,
   disputed,
+  refunding,
   refunded,
   cancelled,
 }
@@ -22,6 +23,8 @@ extension OrderStatusX on OrderStatus {
         return 'Completed';
       case OrderStatus.disputed:
         return 'Disputed';
+      case OrderStatus.refunding:
+        return 'Refunding';
       case OrderStatus.refunded:
         return 'Refunded';
       case OrderStatus.cancelled:
@@ -33,7 +36,8 @@ extension OrderStatusX on OrderStatus {
       this == OrderStatus.pending ||
       this == OrderStatus.escrowed ||
       this == OrderStatus.fulfilled ||
-      this == OrderStatus.disputed;
+      this == OrderStatus.disputed ||
+      this == OrderStatus.refunding;
 
   bool get isTerminal =>
       this == OrderStatus.completed ||

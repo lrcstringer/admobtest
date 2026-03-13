@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 import '../../core/error/failures.dart';
 import '../../domain/entities/buy_order.dart';
 import '../../domain/entities/marketplace_listing.dart';
+import '../../domain/entities/marketplace_offer.dart';
 import '../../domain/entities/marketplace_provider.dart';
 import '../../domain/entities/vouch.dart';
 import '../../domain/repositories/marketplace_repository.dart';
@@ -342,6 +343,19 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
     try {
       await _remoteDataSource.renewListing(listingId: listingId);
       return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, MarketplaceOffer>> getOffer(String offerId) async {
+    try {
+      final model = await _remoteDataSource.getOffer(offerId);
+      if (model == null) {
+        return const Left(ServerFailure(message: 'Offer not found'));
+      }
+      return Right(model.toEntity());
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

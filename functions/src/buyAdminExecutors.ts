@@ -358,3 +358,157 @@ export async function executeResolveDispute(
 
   return { orderId, resolution };
 }
+
+/**
+ * Execute group buy request approval after maker-checker.
+ * Creates the group buy and marks the request as approved.
+ */
+export async function executeApproveGroupBuyRequest(
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const {
+    requestId,
+    groupBuyTitle,
+    targetAmount,
+    deadline,
+    description,
+    type,
+    fulfilmentType,
+    clusters,
+    imageUrl,
+    communityId,
+  } = payload as {
+    requestId: string;
+    groupBuyTitle: string;
+    targetAmount: number;
+    deadline: string;
+    description: string;
+    type: string;
+    fulfilmentType: string;
+    clusters: string[];
+    imageUrl: string | null;
+    communityId: string | null;
+  };
+
+  const requestRef = db.collection("groupBuyRequests").doc(requestId);
+  const requestDoc = await requestRef.get();
+  if (!requestDoc.exists) {
+    throw new Error("Request not found");
+  }
+  if (requestDoc.data()!.status !== "pending") {
+    throw new Error("Request is no longer in pending status");
+  }
+
+  const approvalSlug = groupBuyTitle.trim().toLowerCase().replace(/\s+/g, "_").substring(0, 30);
+  const groupBuyRef = db.collection("groupBuys").doc(`approved_${approvalSlug}_${Date.now()}`);
+
+  const batch = db.batch();
+  batch.set(groupBuyRef, {
+    id: groupBuyRef.id,
+    title: groupBuyTitle,
+    description: description || "",
+    targetAmount,
+    currentAmount: 0,
+    participantCount: 0,
+    minParticipants: 2,
+    maxParticipants: null,
+    status: "open",
+    deadline: admin.firestore.Timestamp.fromDate(new Date(deadline)),
+    organizerId: null,
+    organizerName: "iMaliChat Curated",
+    communityId: communityId || null,
+    brandId: null,
+    brandName: null,
+    brandLogoUrl: null,
+    discountPercent: null,
+    linkedListingId: null,
+    createdByAdmin: true,
+    type: type || "digital",
+    fulfilmentType: fulfilmentType || "digital",
+    clusters: clusters || [],
+    addresses: [],
+    voucherCodes: [],
+    imageUrl: imageUrl || null,
+    originalPrice: null,
+    collectionDeadline: null,
+    deliveryStatus: null,
+    fulfilmentInstructions: null,
+    category: null,
+    deliveryFee: 0,
+    organizerSuccessRate: 1.0,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  batch.update(requestRef, {
+    status: "approved",
+    convertedGroupBuyId: groupBuyRef.id,
+    reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await batch.commit();
+
+  logger.info(`Group buy request ${requestId} approved, created group buy ${groupBuyRef.id}`);
+  return { requestId, groupBuyId: groupBuyRef.id };
+}
+
+/**
+ * Execute voucher distribution after maker-checker approval.
+ */
+export async function executeDistributeGroupBuyVouchers(
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { groupBuyId } = payload as { groupBuyId: string };
+
+  const gbRef = db.collection("groupBuys").doc(groupBuyId);
+  const gbDoc = await gbRef.get();
+  if (!gbDoc.exists) {
+    throw new Error("Group buy not found");
+  }
+  const gbData = gbDoc.data()!;
+
+  if (gbData.status !== "completed") {
+    throw new Error(`Group buy must be in "completed" status, currently "${gbData.status}"`);
+  }
+
+  if (!gbData.voucherCodes || gbData.voucherCodes.length === 0) {
+    throw new Error("No voucher codes uploaded for this group buy");
+  }
+
+  const contribsSnap = await db.collection("groupBuys").doc(groupBuyId)
+    .collection("contributions")
+    .where("hasCollected", "!=", true)
+    .get();
+
+  // Filter to only eligible contributions (not refunded, with positive amount)
+  const eligibleContribs = contribsSnap.docs.filter((doc) => {
+    const data = doc.data();
+    return data.status !== "refunded" && (data.amount > 0);
+  });
+
+  if (eligibleContribs.length === 0) {
+    return { groupBuyId, distributed: 0, message: "No eligible contributions" };
+  }
+
+  if (gbData.voucherCodes.length < eligibleContribs.length) {
+    throw new Error(`Not enough voucher codes (${gbData.voucherCodes.length}) for eligible contributions (${eligibleContribs.length})`);
+  }
+
+  const batch = db.batch();
+  let distributed = 0;
+
+  eligibleContribs.forEach((doc, index) => {
+    batch.update(doc.ref, {
+      voucherCode: gbData.voucherCodes[index],
+      hasCollected: true,
+      collectedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    distributed++;
+  });
+
+  await batch.commit();
+
+  logger.info(`Distributed ${distributed} vouchers for group buy ${groupBuyId}`);
+  return { groupBuyId, distributed };
+}

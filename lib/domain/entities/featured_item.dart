@@ -43,6 +43,8 @@ class FeaturedItem with _$FeaturedItem {
 
     /// Image layout: 'full' (entire card) or 'right' (right half only).
     @Default('right') String imageLayout,
+
+    @Default(false) bool isDeleted,
   }) = _FeaturedItem;
 
   const FeaturedItem._();
@@ -50,7 +52,7 @@ class FeaturedItem with _$FeaturedItem {
   bool get isScheduled => scheduledStart != null || scheduledEnd != null;
 
   bool get isCurrentlyActive {
-    if (!isActive) return false;
+    if (!isActive || isDeleted) return false;
     final now = DateTime.now().toUtc();
     if (scheduledStart != null && now.isBefore(scheduledStart!)) return false;
     if (scheduledEnd != null && now.isAfter(scheduledEnd!)) return false;

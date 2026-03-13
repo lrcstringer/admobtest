@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +35,9 @@ class BuyCategoryScreen extends StatefulWidget {
 
 class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   final _recipientController = TextEditingController();
+  final _searchController = TextEditingController();
+  Timer? _searchDebounce;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -50,6 +55,9 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   @override
   void dispose() {
     _recipientController.dispose();
+    _searchController.dispose();
+    _searchDebounce?.cancel();
+    _searchDebounce = null;
     super.dispose();
   }
 
@@ -261,22 +269,78 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   // ── Products View ──
 
   Widget _buildProductsView(BuildContext context, PurchaseState state) {
+    // Filter products by search query
+    final filteredProducts = _searchQuery.isEmpty
+        ? state.products
+        : state.products
+            .where((p) =>
+                p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+            .toList();
+
     return Column(
       children: [
         _buildRecipientInput(context, state),
+
+        // Product search field with debounce
+        if (state.products.length > 5)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                hintStyle: const TextStyle(color: AppColors.textHint),
+                prefixIcon:
+                    const Icon(Icons.search, color: AppColors.textHint, size: 20),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear,
+                            color: AppColors.textHint, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) {
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(
+                  const Duration(milliseconds: 300),
+                  () {
+                    if (mounted) setState(() => _searchQuery = value.trim());
+                  },
+                );
+              },
+            ),
+          ),
+
         Expanded(
           child: state.isLoadingProducts
               ? _buildProductShimmer()
-              : state.products.isEmpty
-                  ? const Center(
-                      child: Text('No products available',
-                          style: TextStyle(
-                              color: AppColors.textSecondary, fontSize: 14)))
+              : filteredProducts.isEmpty
+                  ? Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No products available'
+                            : 'No products match "$_searchQuery"',
+                        style: const TextStyle(
+                            color: AppColors.textSecondary, fontSize: 14),
+                      ),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
-                      itemCount: state.products.length,
+                      itemCount: filteredProducts.length,
                       itemBuilder: (context, index) {
-                        final product = state.products[index];
+                        final product = filteredProducts[index];
                         final isSelected =
                             state.selectedProduct?.id == product.id;
                         return _buildProductCard(
@@ -466,10 +530,12 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                 children: [
                   Text(
                     product.formattedPrice,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
-                      color: AppColors.tokenGold,
+                      color: product.isActive
+                          ? AppColors.tokenGold
+                          : AppColors.textTertiary,
                     ),
                   ),
                   Text(
@@ -479,6 +545,25 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       fontSize: 12,
                     ),
                   ),
+                  if (!product.isActive) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Out of stock',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
               if (isSelected) ...[

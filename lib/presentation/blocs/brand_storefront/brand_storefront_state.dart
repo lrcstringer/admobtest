@@ -14,6 +14,8 @@ class BrandStorefrontState with _$BrandStorefrontState {
     @Default(false) bool isClaimingCoupon,
     @Default({}) Set<String> claimedCouponIds,
     @Default(false) bool isFollowing,
+    DateTime? followedAt,
+    @Default(false) bool isTogglingFollow,
     String? errorMessage,
   }) = _BrandStorefrontState;
 }

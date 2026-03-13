@@ -26,6 +26,10 @@ class BrandReviewModel with _$BrandReviewModel {
 
   const BrandReviewModel._();
 
+  /// Whether all three rating dimensions have been provided (non-zero)
+  bool get hasAllRatings =>
+      qualityRating > 0 && valueRating > 0 && serviceRating > 0;
+
   factory BrandReviewModel.fromJson(Map<String, dynamic> json) {
     return BrandReviewModel(
       id: json['id'] as String? ?? '',

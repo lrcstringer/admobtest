@@ -41,6 +41,9 @@ class OrderEvent with _$OrderEvent {
     String? comment,
   }) = _VouchForProvider;
 
+  /// Load the offer linked to an order (if any)
+  const factory OrderEvent.loadLinkedOffer(String offerId) = _LoadLinkedOffer;
+
   /// Clear any success/error messages
   const factory OrderEvent.clearMessages() = _ClearMessages;
 }

@@ -255,19 +255,21 @@ class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
     required String number,
     required String category,
   }) async {
-    // Basic validation based on category
-    final cleanedNumber = number.replaceAll(RegExp(r'[^0-9]'), '');
+    final trimmed = number.trim();
+    if (trimmed.isEmpty) return false;
 
     switch (category) {
       case 'airtime':
       case 'data':
-        // SA mobile numbers: 10 digits starting with 0
-        return cleanedNumber.length == 10 && cleanedNumber.startsWith('0');
+        // SA mobile: 10 digits starting with 06/07/08, or with +27 country code
+        return RegExp(r'^0[6-8]\d{8}$').hasMatch(trimmed) ||
+            RegExp(r'^\+?27[6-8]\d{8}$').hasMatch(trimmed);
       case 'electricity':
-        // Meter numbers: typically 11-13 digits
-        return cleanedNumber.length >= 11 && cleanedNumber.length <= 13;
+        // Meter numbers: 11-13 digits
+        return RegExp(r'^\d{11,13}$').hasMatch(trimmed);
       default:
-        return cleanedNumber.length >= 10;
+        // Other categories: at least 5 alphanumeric characters
+        return trimmed.length >= 5;
     }
   }
 }

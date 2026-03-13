@@ -16,8 +16,14 @@ import {
   refundGroupBuyContribution,
 } from "./ledger/groupBuyEscrow";
 import { validateMainWalletBalance, getSubAccount } from "./ledger";
+import { requireAdminPermission } from "./adminAuth";
 
 const db = admin.firestore();
+
+// Helper: deterministic contribution doc ID
+function getContributionDocId(userId: string, groupBuyId: string): string {
+  return `${userId}_${groupBuyId}`;
+}
 
 // ============================================================================
 // CREATE GROUP BUY
@@ -71,6 +77,9 @@ export const createGroupBuy = onCall(
     if (typeof minPart !== "number" || minPart < 2) {
       throw new HttpsError("invalid-argument", "Minimum participants must be at least 2");
     }
+    if (maxPart !== null && maxPart !== undefined && maxPart <= 0) {
+      throw new HttpsError("invalid-argument", "Maximum participants must be greater than 0");
+    }
     if (maxPart !== null && (typeof maxPart !== "number" || maxPart < minPart)) {
       throw new HttpsError("invalid-argument", "Maximum participants must be >= minimum participants");
     }
@@ -78,8 +87,16 @@ export const createGroupBuy = onCall(
     // Get user profile for organizer name
     const userDoc = await db.collection("users").doc(userId).get();
     const userData = userDoc.data();
-    const organizerName = userData?.displayName || "Unknown";
+    const organizerName = userData?.displayName || userData?.email || "Unknown Organizer";
     const communityId = userData?.communityId || null;
+
+    // Validate linked listing if provided
+    if (linkedListingId) {
+      const listingDoc = await db.collection("marketplaceListings").doc(linkedListingId).get();
+      if (!listingDoc.exists || listingDoc.data()!.status !== "active") {
+        throw new HttpsError("not-found", "Linked listing not found or is not active");
+      }
+    }
 
     // Deterministic ID prevents duplicate creation on client retry.
     // Uses userId + title hash + date bucket.
@@ -108,6 +125,20 @@ export const createGroupBuy = onCall(
       brandName: null,
       brandLogoUrl: null,
       discountPercent: null,
+      createdByAdmin: false,
+      type: "digital",
+      fulfilmentType: "digital",
+      clusters: [],
+      addresses: [],
+      voucherCodes: [],
+      imageUrl: null,
+      originalPrice: null,
+      collectionDeadline: null,
+      deliveryStatus: null,
+      fulfilmentInstructions: null,
+      category: null,
+      deliveryFee: 0,
+      organizerSuccessRate: 1.0,
       createdAt: now,
       updatedAt: now,
     });
@@ -135,7 +166,7 @@ export const joinGroupBuy = onCall(
     requireAppCheck(request, "joinGroupBuy");
 
     const userId = request.auth.uid;
-    const { groupBuyId, amount, walletId } = request.data;
+    const { groupBuyId, amount, walletId, deliveryAddress } = request.data;
 
     if (!groupBuyId || typeof groupBuyId !== "string") {
       throw new HttpsError("invalid-argument", "groupBuyId is required");
@@ -165,7 +196,8 @@ export const joinGroupBuy = onCall(
     // This prevents TOCTOU races: concurrent joins exceeding maxParticipants
     const groupBuyRef = db.collection("groupBuys").doc(groupBuyId);
     // Deterministic ID prevents duplicate contributions on client retry
-    const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
+    const contribDocId = getContributionDocId(userId, groupBuyId);
+    const contribRef = groupBuyRef.collection("contributions").doc(contribDocId);
 
     const result = await db.runTransaction(async (tx) => {
       const groupBuyDoc = await tx.get(groupBuyRef);
@@ -189,34 +221,51 @@ export const joinGroupBuy = onCall(
         throw new HttpsError("failed-precondition", "This group buy is full");
       }
 
-      // Check duplicate via deterministic doc ID (cheaper than a query)
+      // Check duplicate via deterministic doc ID — tolerate retries where escrow failed
       const existingContrib = await tx.get(contribRef);
+      let isRetry = false;
       if (existingContrib.exists) {
-        throw new HttpsError("already-exists", "You have already joined this group buy");
+        const existing = existingContrib.data()!;
+        if (existing.journalId && existing.journalId !== "") {
+          // Fully completed contribution — true duplicate
+          throw new HttpsError("already-exists", "You have already joined this group buy");
+        }
+        // Contribution exists but escrow wasn't completed — allow retry
+        // Don't create new contribution or update counts, just proceed to escrow
+        isRetry = true;
       }
 
       // Calculate target status using transactional read values
-      const newAmount = groupBuy.currentAmount + amount;
+      const newAmount = isRetry ? groupBuy.currentAmount : groupBuy.currentAmount + amount;
       const targetMet = newAmount >= groupBuy.targetAmount;
 
-      // Write contribution + update group buy atomically within transaction
-      tx.set(contribRef, {
-        id: contribRef.id,
-        userId,
-        userName,
-        amount,
-        journalId: "", // Placeholder — updated after escrow
-        contributedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      if (!isRetry) {
+        // Write contribution + update group buy atomically within transaction
+        tx.set(contribRef, {
+          id: contribRef.id,
+          userId,
+          userName,
+          amount,
+          journalId: "", // Placeholder — updated after escrow
+          walletId: walletId || "primary",
+          deliveryAddress: deliveryAddress || null,
+          contributedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-      tx.update(groupBuyRef, {
-        currentAmount: admin.firestore.FieldValue.increment(amount),
-        participantCount: admin.firestore.FieldValue.increment(1),
-        status: targetMet ? "targetMet" : "open",
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+        const statusUpdate: Record<string, unknown> = {
+          currentAmount: admin.firestore.FieldValue.increment(amount),
+          participantCount: admin.firestore.FieldValue.increment(1),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        // Only flip status if currently "open" — prevents redundant writes on concurrent joins
+        if (groupBuy.status === "open" && targetMet) {
+          statusUpdate.status = "targetMet";
+        }
 
-      return { newAmount, targetMet, title: groupBuy.title };
+        tx.update(groupBuyRef, statusUpdate);
+      }
+
+      return { newAmount, targetMet, title: groupBuy.title, isRetry };
     });
 
     // Process escrow AFTER transaction succeeds (ledger has its own idempotency).
@@ -252,6 +301,32 @@ export const joinGroupBuy = onCall(
       `User ${userId} joined group buy ${groupBuyId} with ${amount} tokens. ` +
       `New total: ${result.newAmount}/${result.title}. Target met: ${result.targetMet}`
     );
+
+    // Issue #11: Notify organizer when group buy reaches target
+    if (result.targetMet) {
+      try {
+        const groupBuyDoc = await groupBuyRef.get();
+        const groupBuy = groupBuyDoc.data();
+        if (groupBuy && groupBuy.organizerId && groupBuy.organizerId !== userId) {
+          const organizerDoc = await db.collection("users").doc(groupBuy.organizerId).get();
+          const organizerToken = organizerDoc.data()?.fcmToken;
+          if (organizerToken) {
+            await admin.messaging().send({
+              token: organizerToken,
+              notification: {
+                title: "Group buy target reached!",
+                body: `"${result.title}" has reached its target amount. You can now complete the deal.`,
+              },
+              data: { type: "groupBuyTargetMet", groupBuyId },
+            });
+          }
+        }
+        logger.info(`Target-met notification sent for group buy ${groupBuyId}`);
+      } catch (notifErr) {
+        // Notification failure is non-critical
+        logger.warn(`Failed to send target-met notification for group buy ${groupBuyId}`, notifErr);
+      }
+    }
 
     return {
       success: true,
@@ -296,8 +371,19 @@ export const completeGroupBuy = onCall(
 
       const groupBuy = groupBuyDoc.data()!;
 
-      // Only organizer can complete
-      if (groupBuy.organizerId !== userId) {
+      // Only organizer can complete — or admins for admin-curated deals
+      const isOrganizer = groupBuy.organizerId === userId;
+      const isCreatedByAdmin = groupBuy.createdByAdmin === true;
+      let isAdmin = false;
+      if (!isOrganizer && isCreatedByAdmin) {
+        try {
+          await requireAdminPermission(request, "buy:forceCompleteGroupBuy", "completeGroupBuy");
+          isAdmin = true;
+        } catch {
+          // Not an admin — fall through to permission denied
+        }
+      }
+      if (!isOrganizer && !isAdmin) {
         throw new HttpsError("permission-denied", "Only the organizer can complete this group buy");
       }
 
@@ -391,7 +477,15 @@ export const leaveGroupBuy = onCall(
       const groupBuy = groupBuyDoc.data()!;
 
       if (userId === groupBuy.organizerId) {
-        throw new HttpsError("failed-precondition", "Organizers must cancel the group buy instead of leaving");
+        throw new HttpsError("failed-precondition", "Organizers cannot leave their own group buy. Use cancel instead.");
+      }
+
+      // Prevent leaving when in terminal or cancelling states
+      if (["cancelling", "cancelled", "completed"].includes(groupBuy.status)) {
+        throw new HttpsError(
+          "failed-precondition",
+          `Cannot leave a group buy with status: ${groupBuy.status}`
+        );
       }
 
       // Only allow leaving when status is "open"
@@ -403,7 +497,7 @@ export const leaveGroupBuy = onCall(
       }
 
       // Find user's contribution via deterministic doc ID (cheaper than query)
-      const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
+      const contribRef = groupBuyRef.collection("contributions").doc(getContributionDocId(userId, groupBuyId));
       const contribDoc = await tx.get(contribRef);
 
       if (!contribDoc.exists) {
@@ -413,15 +507,40 @@ export const leaveGroupBuy = onCall(
       const contrib = contribDoc.data()!;
 
       // Delete contribution and update group buy atomically
-      tx.delete(contribRef);
-      tx.update(groupBuyRef, {
+      const groupBuyUpdate: Record<string, unknown> = {
         currentAmount: admin.firestore.FieldValue.increment(-contrib.amount),
         participantCount: admin.firestore.FieldValue.increment(-1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
 
-      return { amount: contrib.amount, title: groupBuy.title };
+      // R5-3: Decrement collectedCount if the contribution had been collected
+      if (contrib.hasCollected === true) {
+        groupBuyUpdate.collectedCount = admin.firestore.FieldValue.increment(-1);
+      }
+
+      tx.delete(contribRef);
+      tx.update(groupBuyRef, groupBuyUpdate);
+
+      return {
+        amount: contrib.amount,
+        title: groupBuy.title,
+        walletId: contrib.walletId || "primary",
+        hasCollected: contrib.hasCollected === true,
+      };
     });
+
+    // R5-11: Validate the contribution's walletId is still valid before refunding
+    let refundWalletId = result.walletId;
+    if (refundWalletId && refundWalletId !== "primary") {
+      const walletDoc = await getSubAccount(userId, refundWalletId);
+      if (!walletDoc) {
+        logger.warn(
+          `Wallet ${refundWalletId} no longer exists for user ${userId}. ` +
+          `Falling back to primary wallet for refund.`
+        );
+        refundWalletId = "primary";
+      }
+    }
 
     // Refund escrow AFTER transaction succeeds (ledger has its own idempotency).
     // If refund fails, run a compensating transaction to re-add the contribution.
@@ -437,13 +556,14 @@ export const leaveGroupBuy = onCall(
       const userDoc = await db.collection("users").doc(userId).get();
       const userName = userDoc.data()?.displayName || "Unknown";
       await db.runTransaction(async (tx) => {
-        const contribRef = groupBuyRef.collection("contributions").doc(`${userId}_${groupBuyId}`);
+        const contribRef = groupBuyRef.collection("contributions").doc(getContributionDocId(userId, groupBuyId));
         tx.set(contribRef, {
           id: contribRef.id,
           userId,
           userName,
           amount: result.amount,
           journalId: "",
+          walletId: result.walletId || "primary",
           contributedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         tx.update(groupBuyRef, {
@@ -566,20 +686,20 @@ export const checkExpiredGroupBuys = onSchedule(
   async () => {
     const now = admin.firestore.Timestamp.now();
 
-    // Find open or targetMet group buys that are past deadline
+    // R5-10: Limit to 20 per run to prevent timeout on large result sets
     const expiredSnapshot = await db
       .collection("groupBuys")
-      .where("status", "in", ["open", "targetMet"])
+      .where("status", "in", ["open"])
       .where("deadline", "<=", now)
       .orderBy("deadline")
+      .limit(20)
       .get();
 
     if (expiredSnapshot.empty) {
       logger.info("No expired group buys found");
-      return;
+    } else {
+      logger.info(`Found ${expiredSnapshot.size} expired group buys to process`);
     }
-
-    logger.info(`Found ${expiredSnapshot.size} expired group buys to process`);
 
     for (const doc of expiredSnapshot.docs) {
       const groupBuy = doc.data();
@@ -631,6 +751,30 @@ export const checkExpiredGroupBuys = onSchedule(
         logger.error(`Error processing expired group buy ${groupBuyId}:`, err);
       }
     }
+
+    // Issue #15: Auto-complete group buys with status "targetMet" past their collectionDeadline
+    const pastCollectionDeadline = await db
+      .collection("groupBuys")
+      .where("status", "==", "targetMet")
+      .where("collectionDeadline", "<=", now)
+      .limit(20)
+      .get();
+
+    if (!pastCollectionDeadline.empty) {
+      logger.info(`Found ${pastCollectionDeadline.size} targetMet group buys past collection deadline`);
+    }
+
+    for (const doc of pastCollectionDeadline.docs) {
+      try {
+        await doc.ref.update({
+          status: "completed",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        logger.info(`Auto-completed group buy ${doc.id} (past collection deadline)`);
+      } catch (err) {
+        logger.error(`Error auto-completing group buy ${doc.id}:`, err);
+      }
+    }
   }
 );
 
@@ -676,17 +820,19 @@ export const confirmGroupBuyCollection = onCall(
       const groupBuy = groupBuyDoc.data()!;
       const contrib = contribDoc.data()!;
 
-      // Only organizer or the contributor can confirm
-      if (userId !== groupBuy.organizerId && userId !== contrib.userId) {
-        throw new HttpsError("permission-denied", "Only the organizer or contributor can confirm collection");
+      // Verify the contribution belongs to the calling user
+      if (contrib.userId !== userId) {
+        throw new HttpsError("permission-denied", "You can only confirm collection for your own contribution");
       }
 
-      if (contrib.hasCollected) {
+      // R5-4/R5-5: Idempotency guard — if already collected, return early
+      if (contrib.hasCollected === true) {
         throw new HttpsError("failed-precondition", "Already marked as collected");
       }
 
-      if (!["completed", "targetMet"].includes(groupBuy.status)) {
-        throw new HttpsError("failed-precondition", "Group buy must be completed or target met");
+      // Only allow collection confirmation when group buy is completed
+      if (groupBuy.status !== "completed") {
+        throw new HttpsError("failed-precondition", "Group buy must be completed before confirming collection");
       }
 
       tx.update(contribRef, {
@@ -739,28 +885,47 @@ export const cancelCommunityGroupBuy = onCall(
       }
       const data = doc.data()!;
 
-      if (data.organizerId !== userId) {
+      // Only organizer can cancel — or admins for admin-curated deals
+      const isOrganizer = data.organizerId === userId;
+      const isCreatedByAdmin = data.createdByAdmin === true;
+      let isAdmin = false;
+      if (!isOrganizer && isCreatedByAdmin) {
+        try {
+          await requireAdminPermission(request, "buy:forceCancelGroupBuy", "cancelCommunityGroupBuy");
+          isAdmin = true;
+        } catch {
+          // Not an admin — fall through to permission denied
+        }
+      }
+      if (!isOrganizer && !isAdmin) {
         throw new HttpsError("permission-denied", "Only the organizer can cancel this group buy");
       }
-      if (!["open", "targetMet"].includes(data.status)) {
+      if (!["open", "targetMet", "cancelling"].includes(data.status)) {
         throw new HttpsError("failed-precondition", `Cannot cancel a group buy with status: ${data.status}`);
       }
 
-      tx.update(groupBuyRef, {
-        status: "cancelling",
-        cancelReason: reason?.trim() || "Cancelled by organizer",
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      // Only update status/reason if not already cancelling (re-invocation case)
+      if (data.status !== "cancelling") {
+        tx.update(groupBuyRef, {
+          status: "cancelling",
+          cancelReason: reason?.trim() || "Cancelled by organizer",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
 
       return data;
     });
 
-    // Refund all contributions
-    const contribs = await groupBuyRef.collection("contributions").get();
+    // R5-9: Batch refunds — process max 50 per invocation to avoid timeout.
+    const BATCH_LIMIT = 50;
+    const contribs = await groupBuyRef.collection("contributions").limit(BATCH_LIMIT + 1).get();
+    const hasMore = contribs.size > BATCH_LIMIT;
+    const docsToProcess = hasMore ? contribs.docs.slice(0, BATCH_LIMIT) : contribs.docs;
+
     let refunded = 0;
     let failed = 0;
 
-    for (const contribDoc of contribs.docs) {
+    for (const contribDoc of docsToProcess) {
       const contrib = contribDoc.data();
       try {
         await refundGroupBuyContribution(
@@ -769,6 +934,8 @@ export const cancelCommunityGroupBuy = onCall(
           groupBuyId,
           `Group buy cancelled: ${groupBuyData.title}`
         );
+        // Delete the contribution after successful refund so re-invocation skips it
+        await contribDoc.ref.delete();
         refunded++;
       } catch (err) {
         failed++;
@@ -776,16 +943,30 @@ export const cancelCommunityGroupBuy = onCall(
       }
     }
 
+    if (hasMore) {
+      // More contributors remain — keep status as "cancelling" for re-invocation
+      await groupBuyRef.update({
+        refundedCount: admin.firestore.FieldValue.increment(refunded),
+        failedRefundCount: admin.firestore.FieldValue.increment(failed),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      logger.info(
+        `Group buy ${groupBuyId} partial cancel: processed ${refunded}/${docsToProcess.length}. ` +
+        `More contributors remain — re-invoke to continue.`
+      );
+      return { success: true, partial: true, processed: refunded, failedCount: failed };
+    }
+
     await groupBuyRef.update({
       status: "cancelled",
-      refundedCount: refunded,
-      failedRefundCount: failed,
+      refundedCount: admin.firestore.FieldValue.increment(refunded),
+      failedRefundCount: admin.firestore.FieldValue.increment(failed),
       cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    logger.info(`Group buy ${groupBuyId} cancelled by organizer ${userId}. Refunded ${refunded}/${contribs.size}`);
-    return { success: true, refundedCount: refunded, failedCount: failed };
+    logger.info(`Group buy ${groupBuyId} cancelled by ${userId}. Refunded ${refunded}/${docsToProcess.length}`);
+    return { success: true, partial: false, refundedCount: refunded, failedCount: failed };
   }
 );
 

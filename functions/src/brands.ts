@@ -66,13 +66,49 @@ export const claimStorefrontCoupon = onCall(
         throw new HttpsError("not-found", "Storefront not found");
       }
 
+      // Find the coupon within storefront sections to validate maxClaims and expiry
+      const storefrontData = storefrontDoc.data()!;
+      const sections = storefrontData.sections as Array<{ type?: string; coupons?: Array<{ id?: string; maxClaims?: number; expiresAt?: string }> }> | undefined;
+      let couponDef: { id?: string; maxClaims?: number; expiresAt?: string } | undefined;
+
+      if (sections) {
+        for (const section of sections) {
+          if (section.coupons) {
+            couponDef = section.coupons.find((c) => c.id === couponId);
+            if (couponDef) break;
+          }
+        }
+      }
+
+      // Validate coupon expiry — reject if coupon has a past expiresAt
+      if (couponDef?.expiresAt) {
+        const expiryDate = new Date(couponDef.expiresAt);
+        if (!isNaN(expiryDate.getTime()) && expiryDate.getTime() < Date.now()) {
+          throw new HttpsError("failed-precondition", "This coupon has expired");
+        }
+      }
+
+      // Validate maxClaims — check total claims for this coupon across all users
+      if (couponDef?.maxClaims && couponDef.maxClaims > 0) {
+        const existingClaims = await db
+          .collection("storefrontCoupons")
+          .where("storefrontId", "==", storefrontId)
+          .where("couponId", "==", couponId)
+          .count()
+          .get();
+        const currentClaimCount = existingClaims.data().count;
+        if (currentClaimCount >= couponDef.maxClaims) {
+          throw new HttpsError("resource-exhausted", "This coupon has reached its maximum number of claims");
+        }
+      }
+
       tx.set(claimRef, {
         id: claimDocId,
         storefrontId,
         userId,
         couponId,
         couponCode: couponCode || null,
-        brandId: storefrontDoc.data()!.brandId || storefrontId,
+        brandId: storefrontData.brandId || storefrontId,
         claimedAt: admin.firestore.FieldValue.serverTimestamp(),
         isRedeemed: false,
         redeemedAt: null,
@@ -81,6 +117,47 @@ export const claimStorefrontCoupon = onCall(
 
     logger.info(`Coupon ${couponId} claimed by ${userId} from storefront ${storefrontId}`);
     return { success: true, couponCode: couponCode || couponId };
+  }
+);
+
+/**
+ * Redeem a previously claimed coupon (mark it as used).
+ * Updates the claim doc with isRedeemed: true and redeemedAt timestamp.
+ */
+export const redeemStorefrontCoupon = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    const userId = requireAuth(request);
+    requireAppCheck(request, "redeemStorefrontCoupon");
+
+    const { storefrontId, couponId } = request.data;
+    if (!storefrontId || !couponId) {
+      throw new HttpsError("invalid-argument", "storefrontId and couponId are required");
+    }
+
+    const claimDocId = `${storefrontId}_${userId}_${couponId}`;
+    const claimRef = db.collection("storefrontCoupons").doc(claimDocId);
+
+    await db.runTransaction(async (tx) => {
+      const claimDoc = await tx.get(claimRef);
+
+      if (!claimDoc.exists) {
+        throw new HttpsError("not-found", "Coupon claim not found. You must claim the coupon before redeeming it.");
+      }
+
+      const claimData = claimDoc.data()!;
+      if (claimData.isRedeemed) {
+        throw new HttpsError("already-exists", "This coupon has already been redeemed");
+      }
+
+      tx.update(claimRef, {
+        isRedeemed: true,
+        redeemedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    logger.info(`Coupon ${couponId} redeemed by ${userId} from storefront ${storefrontId}`);
+    return { success: true };
   }
 );
 
@@ -136,11 +213,6 @@ export const recordStorefrontView = onCall(
     }
     const brandId = storefrontDoc.data()!.brandId || storefrontId;
 
-    // Increment total view count on storefront
-    await storefrontDoc.ref.update({
-      totalViews: admin.firestore.FieldValue.increment(1),
-    });
-
     // Record daily analytics — use deterministic visitor doc instead of
     // unbounded array to avoid hitting Firestore's 1MB doc limit on popular brands.
     const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
@@ -162,10 +234,15 @@ export const recordStorefrontView = onCall(
     );
 
     // Track unique visitors via deterministic subcollection doc (bounded per-user).
-    // Transaction prevents race: two concurrent calls could both see !exists and double-increment.
+    // Transaction also atomically increments the storefront totalViews counter
+    // to avoid race conditions with concurrent view recordings.
     const visitorRef = dailyRef.collection("visitors").doc(userId);
     await db.runTransaction(async (tx) => {
       const visitorDoc = await tx.get(visitorRef);
+      // Increment total view count on storefront inside the transaction
+      tx.update(storefrontDoc.ref, {
+        totalViews: admin.firestore.FieldValue.increment(1),
+      });
       if (!visitorDoc.exists) {
         tx.set(visitorRef, { viewedAt: admin.firestore.FieldValue.serverTimestamp() });
         tx.update(dailyRef, {
@@ -188,7 +265,6 @@ export const recordStorefrontView = onCall(
 export const getBrandAnalytics = onCall(
   { labels: { area: "social" } },
   async (request) => {
-    requireAuth(request);
     requireAppCheck(request, "getBrandAnalytics");
     await requireAdminPermission(request, "buy:getBrandAnalytics", "getBrandAnalytics");
 
@@ -274,20 +350,20 @@ export const toggleBrandFollow = onCall(
       const isCurrentlyFollowing = followerDoc.exists;
 
       if (isCurrentlyFollowing) {
-        // Unfollow
+        // Unfollow — verify brand exists
+        if (!clientDoc.exists) {
+          throw new HttpsError("not-found", "Brand not found");
+        }
         tx.update(userRef, {
           followedBrands: admin.firestore.FieldValue.arrayRemove(brandId),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         tx.delete(followerRef);
-        if (clientDoc.exists) {
-          const currentCount = clientDoc.data()?.followerCount || 0;
-          if (currentCount > 0) {
-            tx.update(clientRef, {
-              followerCount: admin.firestore.FieldValue.increment(-1),
-            });
-          }
-        }
+        const currentCount = clientDoc.data()?.followerCount || 0;
+        const newCount = Math.max(0, currentCount - 1);
+        tx.update(clientRef, {
+          followerCount: newCount,
+        });
         return false;
       } else {
         // Follow — verify brand is active
@@ -311,5 +387,40 @@ export const toggleBrandFollow = onCall(
 
     logger.info(`toggleBrandFollow: user ${userId} ${isFollowing ? "followed" : "unfollowed"} brand ${brandId}`);
     return { success: true, isFollowing };
+  }
+);
+
+// ============================================================================
+// BRAND STOREFRONT LISTING (consumer-facing, filters soft-deleted)
+// ============================================================================
+
+/**
+ * List active brand storefronts for consumers.
+ * Filters out soft-deleted and inactive storefronts.
+ */
+export const getActiveBrandStorefronts = onCall(
+  { labels: { area: "social" } },
+  async (request) => {
+    requireAuth(request);
+    requireAppCheck(request, "getActiveBrandStorefronts");
+
+    const snapshot = await db
+      .collection("brandStorefronts")
+      .where("isActive", "==", true)
+      .get();
+
+    // Additional client-side filter for isDeleted to handle docs
+    // that may have isDeleted set without isActive being toggled
+    const storefronts = snapshot.docs
+      .filter((doc) => {
+        const data = doc.data();
+        return data.isDeleted !== true;
+      })
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+    return { success: true, storefronts };
   }
 );

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../domain/enums/delivery_method.dart';
 import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -126,6 +127,47 @@ class _MarketplaceListingDetailScreenState
                       ),
                       const SizedBox(height: AppSpacing.md),
 
+                      // Favourite & renewal counts
+                      if (listing.favouriteCount > 0 ||
+                          listing.renewalCount > 0)
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: Row(
+                            children: [
+                              if (listing.favouriteCount > 0) ...[
+                                const Icon(Icons.favorite_border,
+                                    size: 14,
+                                    color: AppColors.textSecondary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${listing.favouriteCount} saves',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                              if (listing.favouriteCount > 0 &&
+                                  listing.renewalCount > 0)
+                                const SizedBox(width: 12),
+                              if (listing.renewalCount > 0) ...[
+                                const Icon(Icons.autorenew,
+                                    size: 14,
+                                    color: AppColors.textSecondary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${listing.renewalCount} renewals',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+
                       // Description
                       Text(
                         listing.description,
@@ -146,6 +188,37 @@ class _MarketplaceListingDetailScreenState
                       _buildProviderCard(listing),
 
                       const SizedBox(height: AppSpacing.lg),
+
+                      // Delivery method
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.local_shipping_outlined,
+                            color: AppColors.textSecondary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            listing.deliveryMethod.displayName,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
+                          ),
+                          if (listing.deliveryFee != null &&
+                              listing.deliveryFee! > 0) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '(${listing.deliveryFee} tokens)',
+                              style: const TextStyle(
+                                color: AppColors.textTertiary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
 
                       // Location
                       if (listing.location != null &&
@@ -189,22 +262,49 @@ class _MarketplaceListingDetailScreenState
               ),
             ),
             child: SafeArea(
-              child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: AppButton(
-                      text: 'Contact Seller',
-                      variant: AppButtonVariant.secondary,
-                      onPressed: _onContactSeller,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          text: 'Contact Seller',
+                          variant: AppButtonVariant.secondary,
+                          onPressed: _onContactSeller,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: AppButton(
-                      text: 'Buy Now',
-                      variant: AppButtonVariant.primary,
-                      onPressed: () => _onBuy(state.selectedListing!.id),
-                    ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          text: 'Make Offer',
+                          variant: AppButtonVariant.outline,
+                          onPressed: () {
+                            final listing = state.selectedListing!;
+                            context.push(
+                              '/buy/marketplace/make-offer',
+                              extra: {
+                                'listingId': listing.id,
+                                'listingPriceTokens': listing.priceTokens,
+                                'listingTitle': listing.title,
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: AppButton(
+                          text: 'Buy Now',
+                          variant: AppButtonVariant.primary,
+                          onPressed: () => _onBuy(state.selectedListing!.id),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -417,11 +517,54 @@ class _MarketplaceListingDetailScreenState
   }
 
   void _onContactSeller() {
-    // TODO: E2EE chat integration (Phase 3.7)
+    final listing = context.read<MarketplaceBloc>().state.selectedListing;
+    if (listing == null) return;
+    context.push(
+      '/chat/conversation/${listing.providerId}',
+      extra: {
+        'recipientName': listing.providerName,
+        'context': 'marketplace_listing',
+        'listingId': listing.id,
+      },
+    );
   }
 
   void _onBuy(String listingId) {
-    // Navigate to wallet selection for purchase
-    context.push('/buy/marketplace/orders', extra: {'listingId': listingId});
+    final listing = context.read<MarketplaceBloc>().state.selectedListing;
+    if (listing == null) return;
+
+    final priceZar = (listing.priceTokens / 100).toStringAsFixed(2);
+
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceElevated,
+        title: const Text(
+          'Confirm Purchase',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: Text(
+          'Buy "${listing.title}" for R$priceZar (${listing.priceTokens} tokens)?',
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Buy Now'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true && mounted) {
+        context.push(
+          '/buy/marketplace/orders',
+          extra: {'listingId': listingId},
+        );
+      }
+    });
   }
 }

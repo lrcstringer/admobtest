@@ -20,13 +20,14 @@ export async function processMarketplaceEscrow(
   buyerId: string,
   amount: number,
   orderId: string,
-  description: string
+  description: string,
+  overrideIdempotencyKey?: string
 ): Promise<string> {
   await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(buyerId)]);
 
   const buyerAccountId = AccountId.user(buyerId);
   const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
-  const idempotencyKey = IdempotencyKey.marketplaceEscrow(orderId);
+  const idempotencyKey = overrideIdempotencyKey || IdempotencyKey.marketplaceEscrow(orderId);
 
   const result = await postJournal({
     idempotencyKey,
@@ -56,13 +57,14 @@ export async function releaseMarketplaceEscrow(
   sellerId: string,
   amount: number,
   orderId: string,
-  description: string
+  description: string,
+  overrideIdempotencyKey?: string
 ): Promise<string> {
   await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(sellerId)]);
 
   const sellerAccountId = AccountId.user(sellerId);
   const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
-  const idempotencyKey = IdempotencyKey.marketplaceRelease(orderId);
+  const idempotencyKey = overrideIdempotencyKey || IdempotencyKey.marketplaceRelease(orderId);
 
   const result = await postJournal({
     idempotencyKey,
@@ -92,13 +94,14 @@ export async function refundMarketplaceEscrow(
   buyerId: string,
   amount: number,
   orderId: string,
-  description: string
+  description: string,
+  overrideIdempotencyKey?: string
 ): Promise<string> {
   await Promise.all([ensureSystemAccounts(), getOrCreateUserAccount(buyerId)]);
 
   const buyerAccountId = AccountId.user(buyerId);
   const escrowAccountId = SystemAccounts.MARKETPLACE_ESCROW;
-  const idempotencyKey = IdempotencyKey.marketplaceRefund(orderId);
+  const idempotencyKey = overrideIdempotencyKey || IdempotencyKey.marketplaceRefund(orderId);
 
   const result = await postJournal({
     idempotencyKey,

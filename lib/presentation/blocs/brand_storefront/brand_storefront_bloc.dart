@@ -65,12 +65,15 @@ class BrandStorefrontBloc
         (ids) => emit(state.copyWith(claimedCouponIds: ids)),
       );
 
-      // Hydrate follow status from server
+      // Hydrate follow status (including followedAt) from server
       final followResult =
-          await _buyRepository.isFollowingBrand(storefront.brandId);
+          await _buyRepository.getFollowStatus(storefront.brandId);
       followResult.fold(
         (_) {}, // Non-critical — default false
-        (isFollowing) => emit(state.copyWith(isFollowing: isFollowing)),
+        (status) => emit(state.copyWith(
+          isFollowing: status.isFollowing,
+          followedAt: status.followedAt,
+        )),
       );
     }
   }
@@ -121,6 +124,29 @@ class BrandStorefrontBloc
       return;
     }
 
+    // Validate all 3 rating dimensions are explicitly set (not default 0)
+    final hasAllRatings = event.qualityRating >= 1 &&
+        event.valueRating >= 1 &&
+        event.serviceRating >= 1;
+    if (!hasAllRatings) {
+      emit(state.copyWith(
+        isSubmittingReview: false,
+        errorMessage: 'Please rate all three categories before submitting',
+      ));
+      return;
+    }
+
+    // Validate ratings are within 1-5 range
+    if (event.qualityRating > 5 ||
+        event.valueRating > 5 ||
+        event.serviceRating > 5) {
+      emit(state.copyWith(
+        isSubmittingReview: false,
+        errorMessage: 'All ratings must be between 1 and 5',
+      ));
+      return;
+    }
+
     emit(state.copyWith(
       isSubmittingReview: true,
       reviewSubmitSuccess: false,
@@ -146,8 +172,11 @@ class BrandStorefrontBloc
           isSubmittingReview: false,
           reviewSubmitSuccess: true,
         ));
-        // Reload reviews to reflect the new submission
+        // Reload reviews and storefront to reflect the new submission
         add(BrandStorefrontEvent.loadReviews(event.brandId));
+        if (state.storefront != null) {
+          add(BrandStorefrontEvent.loadStorefront(state.storefront!.id));
+        }
       },
     );
   }
@@ -190,8 +219,13 @@ class BrandStorefrontBloc
     _ToggleFollow event,
     Emitter<BrandStorefrontState> emit,
   ) async {
+    if (state.isTogglingFollow) return;
+
     // Optimistic UI: toggle immediately
-    emit(state.copyWith(isFollowing: !state.isFollowing));
+    emit(state.copyWith(
+      isFollowing: !state.isFollowing,
+      isTogglingFollow: true,
+    ));
 
     final result = await _buyRepository.toggleBrandFollow(event.brandId);
 
@@ -200,10 +234,14 @@ class BrandStorefrontBloc
         // Revert on failure
         emit(state.copyWith(
           isFollowing: !state.isFollowing,
+          isTogglingFollow: false,
           errorMessage: failure.displayMessage,
         ));
       },
-      (isFollowing) => emit(state.copyWith(isFollowing: isFollowing)),
+      (isFollowing) => emit(state.copyWith(
+        isFollowing: isFollowing,
+        isTogglingFollow: false,
+      )),
     );
   }
 }

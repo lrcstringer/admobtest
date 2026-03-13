@@ -155,14 +155,14 @@ return updateDeliveryStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function( String groupBuyId)?  completeGroupBuy,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? communityId)?  loadActiveGroupBuys,TResult Function( String id)?  loadGroupBuy,TResult Function()?  loadMyGroupBuys,TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult Function( List<String> userClusters)?  loadHubGroupBuys,TResult Function( String groupBuyId)?  leaveGroupBuy,TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult Function( String groupBuyId)?  completeGroupBuy,TResult Function()?  clearMessages,TResult Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
 return loadGroupBuy(_that.id);case _LoadMyGroupBuys() when loadMyGroupBuys != null:
 return loadMyGroupBuys();case _CreateGroupBuy() when createGroupBuy != null:
 return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.deadline,_that.linkedListingId,_that.minParticipants,_that.maxParticipants);case _JoinGroupBuy() when joinGroupBuy != null:
-return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
+return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId,_that.deliveryAddress);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal() when suggestDeal != null:
 return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy() when completeGroupBuy != null:
@@ -188,14 +188,14 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function( String groupBuyId)  completeGroupBuy,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? communityId)  loadActiveGroupBuys,required TResult Function( String id)  loadGroupBuy,required TResult Function()  loadMyGroupBuys,required TResult Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)  createGroupBuy,required TResult Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)  joinGroupBuy,required TResult Function( List<String> userClusters)  loadHubGroupBuys,required TResult Function( String groupBuyId)  leaveGroupBuy,required TResult Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)  suggestDeal,required TResult Function( String groupBuyId)  completeGroupBuy,required TResult Function()  clearMessages,required TResult Function( String groupBuyId,  String contributionId)  confirmCollection,required TResult Function( String groupBuyId,  String? reason)  cancelGroupBuy,required TResult Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)  updateDeliveryStatus,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys():
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy():
 return loadGroupBuy(_that.id);case _LoadMyGroupBuys():
 return loadMyGroupBuys();case _CreateGroupBuy():
 return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.deadline,_that.linkedListingId,_that.minParticipants,_that.maxParticipants);case _JoinGroupBuy():
-return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys():
+return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId,_that.deliveryAddress);case _LoadHubGroupBuys():
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy():
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal():
 return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy():
@@ -220,14 +220,14 @@ return updateDeliveryStatus(_that.groupBuyId,_that.deliveryStatus,_that.tracking
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function( String groupBuyId)?  completeGroupBuy,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? communityId)?  loadActiveGroupBuys,TResult? Function( String id)?  loadGroupBuy,TResult? Function()?  loadMyGroupBuys,TResult? Function( String title,  String description,  int targetAmount,  DateTime deadline,  String? linkedListingId,  int minParticipants,  int? maxParticipants)?  createGroupBuy,TResult? Function( String groupBuyId,  int amount,  String walletId,  String? deliveryAddress)?  joinGroupBuy,TResult? Function( List<String> userClusters)?  loadHubGroupBuys,TResult? Function( String groupBuyId)?  leaveGroupBuy,TResult? Function( String description,  String brandOrStore,  int? estimatedPrice,  String? sourceUrl,  String? imageUrl,  bool wantsToJoin)?  suggestDeal,TResult? Function( String groupBuyId)?  completeGroupBuy,TResult? Function()?  clearMessages,TResult? Function( String groupBuyId,  String contributionId)?  confirmCollection,TResult? Function( String groupBuyId,  String? reason)?  cancelGroupBuy,TResult? Function( String groupBuyId,  String deliveryStatus,  String? trackingInfo)?  updateDeliveryStatus,}) {final _that = this;
 switch (_that) {
 case _LoadActiveGroupBuys() when loadActiveGroupBuys != null:
 return loadActiveGroupBuys(_that.communityId);case _LoadGroupBuy() when loadGroupBuy != null:
 return loadGroupBuy(_that.id);case _LoadMyGroupBuys() when loadMyGroupBuys != null:
 return loadMyGroupBuys();case _CreateGroupBuy() when createGroupBuy != null:
 return createGroupBuy(_that.title,_that.description,_that.targetAmount,_that.deadline,_that.linkedListingId,_that.minParticipants,_that.maxParticipants);case _JoinGroupBuy() when joinGroupBuy != null:
-return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
+return joinGroupBuy(_that.groupBuyId,_that.amount,_that.walletId,_that.deliveryAddress);case _LoadHubGroupBuys() when loadHubGroupBuys != null:
 return loadHubGroupBuys(_that.userClusters);case _LeaveGroupBuy() when leaveGroupBuy != null:
 return leaveGroupBuy(_that.groupBuyId);case _SuggestDeal() when suggestDeal != null:
 return suggestDeal(_that.description,_that.brandOrStore,_that.estimatedPrice,_that.sourceUrl,_that.imageUrl,_that.wantsToJoin);case _CompleteGroupBuy() when completeGroupBuy != null:
@@ -489,12 +489,13 @@ as int?,
 
 
 class _JoinGroupBuy implements GroupBuyEvent {
-  const _JoinGroupBuy({required this.groupBuyId, required this.amount, required this.walletId});
+  const _JoinGroupBuy({required this.groupBuyId, required this.amount, required this.walletId, this.deliveryAddress});
   
 
  final  String groupBuyId;
  final  int amount;
  final  String walletId;
+ final  String? deliveryAddress;
 
 /// Create a copy of GroupBuyEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -506,16 +507,16 @@ _$JoinGroupBuyCopyWith<_JoinGroupBuy> get copyWith => __$JoinGroupBuyCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JoinGroupBuy&&(identical(other.groupBuyId, groupBuyId) || other.groupBuyId == groupBuyId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.walletId, walletId) || other.walletId == walletId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _JoinGroupBuy&&(identical(other.groupBuyId, groupBuyId) || other.groupBuyId == groupBuyId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,groupBuyId,amount,walletId);
+int get hashCode => Object.hash(runtimeType,groupBuyId,amount,walletId,deliveryAddress);
 
 @override
 String toString() {
-  return 'GroupBuyEvent.joinGroupBuy(groupBuyId: $groupBuyId, amount: $amount, walletId: $walletId)';
+  return 'GroupBuyEvent.joinGroupBuy(groupBuyId: $groupBuyId, amount: $amount, walletId: $walletId, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -526,7 +527,7 @@ abstract mixin class _$JoinGroupBuyCopyWith<$Res> implements $GroupBuyEventCopyW
   factory _$JoinGroupBuyCopyWith(_JoinGroupBuy value, $Res Function(_JoinGroupBuy) _then) = __$JoinGroupBuyCopyWithImpl;
 @useResult
 $Res call({
- String groupBuyId, int amount, String walletId
+ String groupBuyId, int amount, String walletId, String? deliveryAddress
 });
 
 
@@ -543,12 +544,13 @@ class __$JoinGroupBuyCopyWithImpl<$Res>
 
 /// Create a copy of GroupBuyEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? groupBuyId = null,Object? amount = null,Object? walletId = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? groupBuyId = null,Object? amount = null,Object? walletId = null,Object? deliveryAddress = freezed,}) {
   return _then(_JoinGroupBuy(
 groupBuyId: null == groupBuyId ? _self.groupBuyId : groupBuyId // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int,walletId: null == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
-as String,
+as String,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

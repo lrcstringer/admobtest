@@ -25,6 +25,7 @@ abstract class GroupBuyRemoteDataSource {
     required String groupBuyId,
     required int amount,
     required String walletId,
+    String? deliveryAddress,
   });
   Future<List<GroupBuyModel>> getHubGroupBuys({
     List<String> userClusters = const [],
@@ -174,6 +175,7 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
     required String groupBuyId,
     required int amount,
     required String walletId,
+    String? deliveryAddress,
   }) async {
     await _functions
         .httpsCallable('joinGroupBuy')
@@ -181,6 +183,7 @@ class GroupBuyRemoteDataSourceImpl implements GroupBuyRemoteDataSource {
       'groupBuyId': groupBuyId,
       'amount': amount,
       'walletId': walletId,
+      if (deliveryAddress != null) 'deliveryAddress': deliveryAddress,
     });
   }
 

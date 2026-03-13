@@ -1436,11 +1436,26 @@ class AppDatabase extends _$AppDatabase {
 
   // ============ FEATURED ITEMS OPERATIONS ============
 
-  Future<List<LocalFeaturedItem>> getFeaturedItems() {
-    return (select(localFeaturedItems)
+  static const _featuredItemsTtl = Duration(minutes: 30);
+
+  Future<List<LocalFeaturedItem>> getFeaturedItems() async {
+    final items = await (select(localFeaturedItems)
           ..where((f) => f.isActive.equals(true))
           ..orderBy([(f) => OrderingTerm.asc(f.sortOrder)]))
         .get();
+
+    if (items.isEmpty) return [];
+
+    // TTL check: if the most recent syncedAt is older than 30 minutes,
+    // return empty list to force a refresh from the remote source.
+    final latestSync = items
+        .map((i) => i.syncedAt)
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+    if (DateTime.now().difference(latestSync) > _featuredItemsTtl) {
+      return [];
+    }
+
+    return items;
   }
 
   Future<void> upsertFeaturedItems(

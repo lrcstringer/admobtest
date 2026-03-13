@@ -34,6 +34,9 @@ abstract class BuyRemoteDataSource {
   /// Submit a review for a brand
   Future<void> submitBrandReview(BrandReviewModel review);
 
+  /// Check if the current user is following a brand, and when they followed
+  Future<({bool isFollowing, DateTime? followedAt})> getFollowStatus(String brandId);
+
   /// Check if the current user is following a brand
   Future<bool> isFollowingBrand(String brandId);
 
@@ -106,6 +109,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
     final snapshot = await _firestore
         .collection('featuredItems')
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
         .get();
 
@@ -121,6 +125,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
     final snapshot = await _firestore
         .collection('brandStorefronts')
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .get();
 
     return snapshot.docs.map((doc) {
@@ -147,6 +152,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .doc(brandId)
         .collection('products')
         .where('isActive', isEqualTo: true)
+        .where('isDeleted', isEqualTo: false)
         .orderBy('sortOrder')
         .get();
 
@@ -185,9 +191,10 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   }
 
   @override
-  Future<bool> isFollowingBrand(String brandId) async {
+  Future<({bool isFollowing, DateTime? followedAt})> getFollowStatus(
+      String brandId) async {
     final uid = _firebaseAuth.currentUser?.uid;
-    if (uid == null) return false;
+    if (uid == null) return (isFollowing: false, followedAt: null);
 
     final doc = await _firestore
         .collection('brandStorefronts')
@@ -195,7 +202,20 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .collection('followers')
         .doc(uid)
         .get();
-    return doc.exists;
+    if (!doc.exists) return (isFollowing: false, followedAt: null);
+
+    final data = doc.data();
+    DateTime? followedAt;
+    if (data != null && data['followedAt'] is Timestamp) {
+      followedAt = (data['followedAt'] as Timestamp).toDate();
+    }
+    return (isFollowing: true, followedAt: followedAt);
+  }
+
+  @override
+  Future<bool> isFollowingBrand(String brandId) async {
+    final status = await getFollowStatus(brandId);
+    return status.isFollowing;
   }
 
   @override
