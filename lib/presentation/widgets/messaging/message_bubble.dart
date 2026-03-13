@@ -1,12 +1,13 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -102,6 +103,12 @@ class _MessageBubbleState extends State<MessageBubble>
   double _swipeOffset = 0;
   static const _swipeThreshold = 64.0;
 
+  /// Press-and-hold scale state for tactile feedback.
+  bool _isPressed = false;
+
+  /// Whether haptic has already fired for the current swipe gesture.
+  bool _swipeHapticFired = false;
+
   String? get _effectiveAvatarUrl {
     final url = widget.avatarUrl ?? widget.message.senderAvatarUrl;
     return (url != null && url.isNotEmpty) ? url : null;
@@ -123,20 +130,28 @@ class _MessageBubbleState extends State<MessageBubble>
     if (widget.onSwipeReply != null) {
       result = GestureDetector(
         onHorizontalDragUpdate: (details) {
+          final prevOffset = _swipeOffset;
           setState(() {
             // Swipe right for received, left for sent
             final delta = widget.isMe ? -details.delta.dx : details.delta.dx;
             _swipeOffset = (_swipeOffset + delta).clamp(0.0, _swipeThreshold * 1.5);
           });
+          // Fire haptic once when crossing the threshold
+          if (!_swipeHapticFired && prevOffset < _swipeThreshold && _swipeOffset >= _swipeThreshold) {
+            _swipeHapticFired = true;
+            HapticFeedback.mediumImpact();
+          }
         },
         onHorizontalDragEnd: (_) {
           if (_swipeOffset >= _swipeThreshold) {
             widget.onSwipeReply!(widget.message);
           }
           setState(() => _swipeOffset = 0);
+          _swipeHapticFired = false;
         },
         onHorizontalDragCancel: () {
           setState(() => _swipeOffset = 0);
+          _swipeHapticFired = false;
         },
         child: Stack(
           children: [
@@ -201,7 +216,16 @@ class _MessageBubbleState extends State<MessageBubble>
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: widget.onLongPress,
-        child: Container(
+        onLongPressDown: widget.onLongPress != null
+            ? (_) => setState(() => _isPressed = true)
+            : null,
+        onLongPressUp: () => setState(() => _isPressed = false),
+        onLongPressCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: _isPressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeInOut,
+          child: Container(
           margin: EdgeInsets.symmetric(vertical: verticalMargin),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -287,6 +311,7 @@ class _MessageBubbleState extends State<MessageBubble>
           ),
         ),
       ),
+      ),
     );
 
     return _wrapWithGestures(child: bubble);
@@ -309,8 +334,8 @@ class _MessageBubbleState extends State<MessageBubble>
             image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
         ),
-        placeholder: (_, __) => _buildInitialsSquare(size, radius),
-        errorWidget: (_, __, ___) => _buildInitialsSquare(size, radius),
+        placeholder: (_, _) => _buildInitialsSquare(size, radius),
+        errorWidget: (_, _, _) => _buildInitialsSquare(size, radius),
       );
     }
     return _buildInitialsSquare(size, radius);
@@ -576,19 +601,19 @@ class _MessageBubbleState extends State<MessageBubble>
                       height: 100,
                       fit: BoxFit.cover,
                       fadeInDuration: const Duration(milliseconds: 200),
-                      placeholder: (_, __) => Container(
-                        width: 120,
-                        height: 100,
-                        color: AppColors.chatSurface.withValues(alpha: 0.5),
-                        child: const Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                      placeholder: (_, _) => Shimmer.fromColors(
+                        baseColor: AppColors.chatSurface,
+                        highlightColor: AppColors.chatSurface.withValues(alpha: 0.5),
+                        child: Container(
+                          width: 120,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: AppColors.chatSurface,
+                            borderRadius: AppSpacing.borderRadiusSm,
                           ),
                         ),
                       ),
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         width: 120,
                         height: 60,
                         color: AppColors.chatSurface,
@@ -705,11 +730,21 @@ class _MessageBubbleState extends State<MessageBubble>
         mainAxisSize: MainAxisSize.min,
         children: widget.message.reactions.entries
             .where((e) => e.value.isNotEmpty)
-            .map((entry) => Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Text(
-                    '${entry.key} ${entry.value.length}',
-                    style: Theme.of(context).textTheme.labelSmall,
+            .map((entry) => TweenAnimationBuilder<double>(
+                  key: ValueKey('${widget.message.id}_${entry.key}'),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.elasticOut,
+                  builder: (_, scale, child) => Transform.scale(
+                    scale: scale,
+                    child: child,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Text(
+                      '${entry.key} ${entry.value.length}',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
                   ),
                 ))
             .toList(),
@@ -1652,15 +1687,15 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Container(
-        width: 120,
-        height: 100,
-        color: AppColors.chatSurface,
-        child: const Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
+      return Shimmer.fromColors(
+        baseColor: AppColors.chatSurface,
+        highlightColor: AppColors.chatSurface.withValues(alpha: 0.5),
+        child: Container(
+          width: 120,
+          height: 100,
+          decoration: BoxDecoration(
+            color: AppColors.chatSurface,
+            borderRadius: BorderRadius.circular(4),
           ),
         ),
       );

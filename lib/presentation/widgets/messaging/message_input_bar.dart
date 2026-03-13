@@ -165,40 +165,52 @@ class _MessageInputBarState extends State<MessageInputBar> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Right button: Plus (attachment) when empty, Send when has text
-              _hasText
-                  ? IconButton.filled(
-                      onPressed: widget.isSending
-                          ? null
-                          : () {
-                              HapticFeedback.lightImpact();
-                              setState(() => _showSentCheck = true);
-                              widget.onSend();
-                              // Brief check-mark flash, then revert
-                              Future.delayed(
-                                  const Duration(milliseconds: 600), () {
-                                if (mounted) {
-                                  setState(() => _showSentCheck = false);
-                                }
-                              });
-                            },
-                      icon: widget.isSending
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.textOnPrimary,
-                              ),
-                            )
-                          : _showSentCheck
-                              ? const Icon(Icons.check)
-                              : const Icon(Icons.send),
-                    )
-                  : IconButton.filled(
-                      onPressed: widget.onAttachment,
-                      icon: const Icon(Icons.add),
-                    ),
+              // Right button: morphs between Plus (attachment) and Send
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) {
+                  return RotationTransition(
+                    turns: Tween(begin: 0.5, end: 1.0).animate(animation),
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: _hasText
+                    ? IconButton.filled(
+                        key: const ValueKey('send'),
+                        onPressed: widget.isSending
+                            ? null
+                            : () {
+                                HapticFeedback.lightImpact();
+                                setState(() => _showSentCheck = true);
+                                widget.onSend();
+                                Future.delayed(
+                                    const Duration(milliseconds: 600), () {
+                                  if (mounted) {
+                                    setState(() => _showSentCheck = false);
+                                  }
+                                });
+                              },
+                        icon: widget.isSending
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.textOnPrimary,
+                                ),
+                              )
+                            : _showSentCheck
+                                ? const Icon(Icons.check)
+                                : const Icon(Icons.send),
+                      )
+                    : IconButton.filled(
+                        key: const ValueKey('attach'),
+                        onPressed: widget.onAttachment,
+                        icon: const Icon(Icons.add),
+                      ),
+              ),
             ],
           ),
         ),

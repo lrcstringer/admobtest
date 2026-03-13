@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/utils/chat_date_formatter.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/services/audio_playback_service.dart';
 import '../../../core/services/conversation_export_service.dart';
@@ -41,7 +42,6 @@ import '../../widgets/messaging/message_input_bar.dart';
 import '../../widgets/messaging/forward_conversation_picker.dart';
 import '../../widgets/messaging/message_search_bar.dart';
 import '../../widgets/messaging/message_context_menu.dart';
-import '../../widgets/messaging/reaction_picker.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 import '../../widgets/messaging/typing_indicator.dart';
 import '../../widgets/messaging/video_message_recorder.dart';
@@ -83,6 +83,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   /// Previous message count — used to detect new arrivals.
   int _previousMessageCount = 0;
 
+  /// Sticky date header — the date currently visible at the top of the message list.
+  DateTime? _stickyDate;
+
+  /// Whether the sticky header should be visible (hidden when not scrolled).
+  bool _stickyDateVisible = false;
+
+  /// Timer to auto-hide the sticky date header after scrolling stops.
+  Timer? _stickyDateTimer;
+
+  /// Initial unread count captured on screen open (before markAsRead clears it).
+  int? _initialUnreadCount;
+
+  /// Temporarily highlighted message ID (for scroll-to-reply flash).
+  String? _highlightedMessageId;
+
   @override
   void initState() {
     super.initState();
@@ -105,6 +120,54 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         if (!isUp) _newMessageCount = 0;
       });
     }
+
+    // Show sticky date header while actively scrolling
+    _stickyDateTimer?.cancel();
+    if (!_stickyDateVisible && _scrollController.offset > 10) {
+      setState(() => _stickyDateVisible = true);
+    }
+    _stickyDateTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _stickyDateVisible = false);
+    });
+  }
+
+  /// Estimate which message date is visible at the top of the viewport.
+  void _updateStickyDate(List<Message> messages, ScrollNotification notification) {
+    if (messages.isEmpty) return;
+    // In a reverse list, higher scroll offset = older messages (higher index).
+    // Estimate top-visible index from scroll offset and average item height (~70px).
+    final viewportHeight = notification.metrics.viewportDimension;
+    final offset = notification.metrics.pixels;
+    const estimatedItemHeight = 70.0;
+    final topIndex = ((offset + viewportHeight) / estimatedItemHeight)
+        .floor()
+        .clamp(0, messages.length - 1);
+    final topDate = messages[topIndex].createdAt;
+    if (_stickyDate == null || !DateSeparator.isSameDay(_stickyDate!, topDate)) {
+      setState(() => _stickyDate = topDate);
+    }
+  }
+
+  /// Scroll to a specific message by ID and briefly highlight it.
+  void _scrollToMessage(String messageId, List<Message> messages) {
+    final index = messages.indexWhere((m) => m.id == messageId);
+    if (index == -1) return;
+
+    // In a reverse ListView, the pixel offset for index i is approximately i * estimatedItemHeight.
+    const estimatedItemHeight = 70.0;
+    final targetOffset = index * estimatedItemHeight;
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+
+    // Flash highlight
+    setState(() => _highlightedMessageId = messageId);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _highlightedMessageId = null);
+    });
   }
 
   void _scrollToBottom() {
@@ -130,6 +193,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         isTyping: false,
       ),
     );
+    _stickyDateTimer?.cancel();
     _messageController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
@@ -171,6 +235,11 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       child: BlocBuilder<ConversationBloc, ConversationState>(
         builder: (context, state) {
           final conv = state.selectedConversation;
+
+          // Capture initial unread count once (before markAsRead zeroes it).
+          if (_initialUnreadCount == null && conv != null) {
+            _initialUnreadCount = conv.unreadCountFor(currentUserId);
+          }
 
           return Scaffold(
             appBar: _isMultiSelectMode
@@ -373,6 +442,43 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       child: Stack(
                         children: [
                           _buildMessageList(context, state, currentUserId),
+                          // Floating sticky date header (WhatsApp-style)
+                          if (_stickyDate != null)
+                            Positioned(
+                              top: 8,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: AnimatedOpacity(
+                                  opacity: _stickyDateVisible ? 1.0 : 0.0,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.chatSurface,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.1),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Text(
+                                      ChatDateFormatter.formatDateHeader(_stickyDate!),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: AppColors.textSecondary),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           // "New messages ↓" floating pill
                           if (_isScrolledUp && _newMessageCount > 0)
                             Positioned(
@@ -599,7 +705,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     // renders at the bottom — so newest messages appear at the bottom (WhatsApp style).
     final messages = state.messages;
 
-    return ListView.builder(
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        _updateStickyDate(messages, notification);
+        return false;
+      },
+      child: ListView.builder(
       controller: _scrollController,
       reverse: true,
       addAutomaticKeepAlives: false,
@@ -619,6 +730,13 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               messages[index + 1].createdAt,
             );
 
+        // Unread divider: show above the oldest unread message.
+        // In reversed list, unread msgs are indices 0..(unread-1).
+        // The divider sits at the boundary = index (unread - 1).
+        final unread = _initialUnreadCount ?? 0;
+        final showUnreadDivider =
+            unread > 0 && !isMe && index == unread - 1;
+
         final otherName = state.selectedConversation
             ?.getOtherParticipant(currentUserId)
             .displayName;
@@ -633,6 +751,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         final showAvatar = showTail; // avatar on last message of cluster
 
         final isSelected = _selectedMessageIds.contains(message.id);
+        final isHighlighted = _highlightedMessageId == message.id;
 
         final bubble = GestureDetector(
           onTap: _isMultiSelectMode
@@ -647,13 +766,36 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                     }
                   })
               : null,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
             color: isSelected
                 ? AppColors.primary.withValues(alpha: 0.1)
-                : Colors.transparent,
+                : isHighlighted
+                    ? AppColors.accent.withValues(alpha: 0.15)
+                    : Colors.transparent,
             child: Column(
               key: ValueKey(message.id),
               children: [
+                if (showUnreadDivider)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        const Expanded(child: Divider(color: AppColors.primary, thickness: 1)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            '$unread new message${unread > 1 ? 's' : ''}',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const Expanded(child: Divider(color: AppColors.primary, thickness: 1)),
+                      ],
+                    ),
+                  ),
                 if (showDate) DateSeparator(date: message.createdAt),
                 MessageBubble(
                   message: message,
@@ -679,6 +821,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   onTokenRequestAction: message.isTokenTransfer
                       ? (accepted) =>
                             _handleTokenRequestAction(context, message, accepted)
+                      : null,
+                  onReplyTap: message.replyTo != null
+                      ? () => _scrollToMessage(
+                            message.replyTo!.messageId,
+                            state.messages,
+                          )
                       : null,
                   onImageTap: message.hasMedia && message.media != null
                       ? () => context.push(
@@ -732,6 +880,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
 
         return bubble;
       },
+    ),
     );
   }
 
@@ -860,7 +1009,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       maxHeight: 1920,
       imageQuality: 85,
     );
-    if (image != null && mounted) {
+    if (image != null && context.mounted) {
       _openMediaCompose(
         context,
         recipientId,
@@ -884,7 +1033,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       maxHeight: 1920,
       imageQuality: 85,
     );
-    if (image != null && mounted) {
+    if (image != null && context.mounted) {
       _openMediaCompose(
         context,
         recipientId,
@@ -912,7 +1061,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (result != null &&
         result.files.isNotEmpty &&
         result.files.first.path != null &&
-        mounted) {
+        context.mounted) {
       _openMediaCompose(
         context,
         recipientId,
@@ -1076,34 +1225,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     _messageController.clear();
   }
 
-  /// Message currently being replied to (shown above input bar).
-  Message? _replyingTo;
-
-  /// Message currently being edited (replaces input text).
-  Message? _editingMessage;
-
   void _startReply(Message message) {
-    setState(() {
-      _replyingTo = message;
-      _editingMessage = null;
-    });
+    // Reply-indicator UI will be built in a follow-up pass.
   }
-
-  void _cancelReply() => setState(() => _replyingTo = null);
 
   void _startEdit(Message message) {
-    setState(() {
-      _editingMessage = message;
-      _replyingTo = null;
-      _messageController.text = message.textContent ?? '';
-    });
-  }
-
-  void _cancelEdit() {
-    setState(() {
-      _editingMessage = null;
-      _messageController.clear();
-    });
+    _messageController.text = message.textContent ?? '';
   }
 
   /// Quick-toggle ❤️ reaction on double-tap (no context menu).
@@ -1202,7 +1329,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       currentUserId: currentUserId,
     );
 
-    if (targetConvId != null && mounted) {
+    if (targetConvId != null && context.mounted) {
       context.read<ConversationBloc>().add(
         ConversationEvent.forwardMessage(
           sourceConversationId: widget.conversationId,
@@ -1213,31 +1340,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Message forwarded')));
-    }
-  }
-
-  void _showReactionPicker(BuildContext context, Message message) async {
-    final actionsBloc = context.read<ConversationActionsBloc>();
-    final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
-    final emoji = await showReactionPicker(context);
-    if (emoji != null && mounted) {
-      if (message.hasReacted(currentUserId, emoji)) {
-        actionsBloc.add(
-          ConversationActionsEvent.removeReaction(
-            conversationId: widget.conversationId,
-            messageId: message.id,
-            emoji: emoji,
-          ),
-        );
-      } else {
-        actionsBloc.add(
-          ConversationActionsEvent.addReaction(
-            conversationId: widget.conversationId,
-            messageId: message.id,
-            emoji: emoji,
-          ),
-        );
-      }
     }
   }
 
@@ -1693,7 +1795,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !context.mounted) return;
 
     context.read<ConversationBloc>().add(
       ConversationEvent.clearChat(conversationId),
@@ -1725,7 +1827,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !context.mounted) return;
 
     context.read<ConversationActionsBloc>().add(
       ConversationActionsEvent.deleteMessageForEveryone(
