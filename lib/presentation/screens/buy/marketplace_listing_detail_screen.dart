@@ -60,9 +60,10 @@ class _MarketplaceListingDetailScreenState
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
           title: const Text('Listing'),
-          backgroundColor: AppColors.buyCard,
+          backgroundColor: AppColors.background,
           actions: [
             IconButton(
               icon: const Icon(Icons.share_outlined),

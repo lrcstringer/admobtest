@@ -84,20 +84,9 @@ class _EditListingScreenState extends State<EditListingScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.background,
         title: const Text(
           'Edit Listing',
-          style: TextStyle(
-            color: AppColors.buyTextPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.buyTextPrimary),
-          onPressed: () => context.pop(),
         ),
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(

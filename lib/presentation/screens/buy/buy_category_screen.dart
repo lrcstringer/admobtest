@@ -14,7 +14,6 @@ import '../../theme/app_colors.dart';
 import '../../widgets/buy/buy_qr_scanner.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 /// VAS Category drill-down: Provider grid → Product list → Recipient input.
 class BuyCategoryScreen extends StatefulWidget {
@@ -163,10 +162,12 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             }
           },
           child: Scaffold(
+            backgroundColor: AppColors.buyBackground,
             appBar: IMaliAppBar(
               title: _getTitle(state),
+              backgroundColor: AppColors.background,
             ),
-            body: WaveBackground(child: _buildBody(context, state)),
+            body: _buildBody(context, state),
             floatingActionButton: _buildFab(context, state),
           ),
         );

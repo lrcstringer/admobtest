@@ -24,7 +24,11 @@ class BuySubcategoryListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IMaliAppBar(title: categoryName),
+      backgroundColor: AppColors.buyBackground,
+      appBar: IMaliAppBar(
+        title: categoryName,
+        backgroundColor: AppColors.background,
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

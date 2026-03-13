@@ -38,9 +38,10 @@ class _MarketplaceProviderProfileScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Provider'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
         actions: [
           IconButton(
             icon: const Icon(Icons.flag_outlined),

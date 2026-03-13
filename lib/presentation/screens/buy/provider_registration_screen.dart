@@ -31,9 +31,10 @@ class _ProviderRegistrationBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Become a Seller'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
       ),
       body: BlocConsumer<ProviderRegistrationBloc, ProviderRegistrationState>(
         listener: (context, state) {

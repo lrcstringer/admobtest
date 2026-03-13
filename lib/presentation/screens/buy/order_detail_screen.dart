@@ -33,9 +33,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Order Details'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {

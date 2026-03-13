@@ -91,9 +91,10 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
         }
       },
       child: Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Make an Offer'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),

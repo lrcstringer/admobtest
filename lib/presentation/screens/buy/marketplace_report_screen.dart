@@ -47,9 +47,10 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
     final isListing = widget.targetType == 'listing';
 
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: Text('Report ${isListing ? 'Listing' : 'Seller'}'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listener: (context, state) {

@@ -36,20 +36,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.background,
         title: const Text(
           'My Listings',
           style: TextStyle(
-            color: AppColors.buyTextPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.buyTextPrimary),
-          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

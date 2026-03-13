@@ -70,16 +70,9 @@ class _GroupBuyCollectionScreenState
       child: Scaffold(
         backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.buyCard,
-          foregroundColor: AppColors.buyTextPrimary,
-          elevation: 0,
+          backgroundColor: AppColors.background,
           title: const Text(
             'Collect Your Item',
-            style: TextStyle(
-              color: AppColors.buyTextPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
           ),
         ),
         body: BlocBuilder<GroupBuyBloc, GroupBuyState>(

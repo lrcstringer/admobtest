@@ -101,8 +101,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            backgroundColor: AppColors.buyBackground,
-            elevation: 0,
+            backgroundColor: AppColors.background,
             actions: [
               if (storefront != null)
                 IconButton(

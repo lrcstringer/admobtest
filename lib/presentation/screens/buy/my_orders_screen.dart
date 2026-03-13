@@ -49,9 +49,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('My Orders'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.buyMarketplaceAccent,

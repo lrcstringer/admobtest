@@ -11,7 +11,6 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 class BuyWalletSelectionScreen extends StatefulWidget {
   const BuyWalletSelectionScreen({super.key});
@@ -65,9 +64,12 @@ class _BuyWalletSelectionScreenState extends State<BuyWalletSelectionScreen> {
           final categoryName = category.name;
 
           return Scaffold(
-            appBar: IMaliAppBar(title: 'Confirm Purchase'),
-            body: WaveBackground(
-              child: Column(
+            backgroundColor: AppColors.buyBackground,
+            appBar: IMaliAppBar(
+              title: 'Confirm Purchase',
+              backgroundColor: AppColors.background,
+            ),
+            body: Column(
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
@@ -131,7 +133,6 @@ class _BuyWalletSelectionScreenState extends State<BuyWalletSelectionScreen> {
                   ),
                 ],
               ),
-            ),
           );
         },
       ),

@@ -64,7 +64,11 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IMaliAppBar(title: 'Hlangana Deals'),
+      backgroundColor: AppColors.buyBackground,
+      appBar: IMaliAppBar(
+        title: 'Hlangana Deals',
+        backgroundColor: AppColors.background,
+      ),
       body: Column(
         children: [
           // Tabs

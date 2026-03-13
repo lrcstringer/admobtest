@@ -6,7 +6,6 @@ import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 class BuyFailureScreen extends StatelessWidget {
   const BuyFailureScreen({super.key});
@@ -19,9 +18,12 @@ class BuyFailureScreen extends StatelessWidget {
         final product = state.selectedProduct;
 
         return Scaffold(
-          appBar: IMaliAppBar(title: 'Purchase Failed'),
-          body: WaveBackground(
-            child: SingleChildScrollView(
+          backgroundColor: AppColors.buyBackground,
+          appBar: IMaliAppBar(
+            title: 'Purchase Failed',
+            backgroundColor: AppColors.background,
+          ),
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -217,7 +219,6 @@ class BuyFailureScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
           ),
         );
       },

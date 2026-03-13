@@ -57,7 +57,11 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IMaliAppBar(title: 'Intengiso'),
+      backgroundColor: AppColors.buyBackground,
+      appBar: IMaliAppBar(
+        title: 'Intengiso',
+        backgroundColor: AppColors.background,
+      ),
       body: Column(
         children: [
           // Category tabs

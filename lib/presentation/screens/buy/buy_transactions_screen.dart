@@ -7,7 +7,6 @@ import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 /// Full transaction history screen for the Buy tab.
 ///
@@ -36,9 +35,12 @@ class _BuyTransactionsScreenState extends State<BuyTransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const IMaliAppBar(title: 'Buy Transactions'),
-      body: WaveBackground(
-        child: BlocBuilder<PurchaseBloc, PurchaseState>(
+      backgroundColor: AppColors.buyBackground,
+      appBar: const IMaliAppBar(
+        title: 'Buy Transactions',
+        backgroundColor: AppColors.background,
+      ),
+      body: BlocBuilder<PurchaseBloc, PurchaseState>(
           builder: (context, state) {
             if (state.isLoadingHistory && state.history.isEmpty) {
               return _buildShimmer();
@@ -74,7 +76,6 @@ class _BuyTransactionsScreenState extends State<BuyTransactionsScreen> {
             );
           },
         ),
-      ),
     );
   }
 

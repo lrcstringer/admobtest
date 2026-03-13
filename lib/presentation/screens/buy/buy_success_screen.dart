@@ -9,7 +9,6 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 class BuySuccessScreen extends StatelessWidget {
   const BuySuccessScreen({super.key});
@@ -22,9 +21,12 @@ class BuySuccessScreen extends StatelessWidget {
 
         if (purchase == null) {
           return Scaffold(
-            appBar: IMaliAppBar(title: 'Purchase Successful'),
-            body: WaveBackground(
-              child: Center(
+            backgroundColor: AppColors.buyBackground,
+            appBar: IMaliAppBar(
+              title: 'Purchase Successful',
+              backgroundColor: AppColors.background,
+            ),
+            body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -50,14 +52,16 @@ class BuySuccessScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
           );
         }
 
         return Scaffold(
-          appBar: IMaliAppBar(title: 'Purchase Successful'),
-          body: WaveBackground(
-            child: SingleChildScrollView(
+          backgroundColor: AppColors.buyBackground,
+          appBar: IMaliAppBar(
+            title: 'Purchase Successful',
+            backgroundColor: AppColors.background,
+          ),
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
@@ -186,7 +190,6 @@ class BuySuccessScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
           ),
         );
       },

@@ -68,9 +68,10 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
       },
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.buyBackground,
           appBar: AppBar(
             title: const Text('Suggest a Deal'),
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: AppColors.background,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.md),

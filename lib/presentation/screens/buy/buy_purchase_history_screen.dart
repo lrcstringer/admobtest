@@ -7,7 +7,6 @@ import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
 
 /// Full-page VAS purchase history screen.
 class BuyPurchaseHistoryScreen extends StatefulWidget {
@@ -30,9 +29,12 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const IMaliAppBar(title: 'Purchase History'),
-      body: WaveBackground(
-        child: BlocBuilder<PurchaseBloc, PurchaseState>(
+      backgroundColor: AppColors.buyBackground,
+      appBar: const IMaliAppBar(
+        title: 'Purchase History',
+        backgroundColor: AppColors.background,
+      ),
+      body: BlocBuilder<PurchaseBloc, PurchaseState>(
           builder: (context, state) {
             if (state.isLoadingHistory) {
               return _buildShimmer();
@@ -85,7 +87,6 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
             );
           },
         ),
-      ),
     );
   }
 

@@ -33,20 +33,13 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.background,
         title: const Text(
           'Seller Portal',
           style: TextStyle(
-            color: AppColors.buyTextPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.buyTextPrimary),
-          onPressed: () => context.pop(),
         ),
       ),
       body: BlocBuilder<MarketplaceBloc, MarketplaceState>(

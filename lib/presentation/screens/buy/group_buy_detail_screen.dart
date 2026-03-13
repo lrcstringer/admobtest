@@ -88,9 +88,10 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
         final groupBuy = state.selectedGroupBuy;
 
         return Scaffold(
+          backgroundColor: AppColors.buyBackground,
           appBar: AppBar(
             title: Text(groupBuy?.title ?? 'Group Buy'),
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: AppColors.background,
             actions: [
               IconButton(
                 icon: const Icon(Icons.share_outlined),

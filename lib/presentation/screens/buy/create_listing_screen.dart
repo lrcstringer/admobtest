@@ -46,9 +46,10 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Create Listing'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: AppColors.background,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listener: (context, state) {
