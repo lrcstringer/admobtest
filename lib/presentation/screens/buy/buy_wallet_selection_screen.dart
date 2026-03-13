@@ -43,16 +43,7 @@ class _BuyWalletSelectionScreenState extends State<BuyWalletSelectionScreen> {
               curr.errorMessage != null &&
               curr.isPurchasing == false,
           listener: (context, state) {
-            // Show error as snackbar — user stays on this screen to retry
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: AppColors.error,
-              ),
-            );
-            context
-                .read<PurchaseBloc>()
-                .add(const PurchaseEvent.clearError());
+            context.go('/buy/wallet-selection/failure');
           },
         ),
       ],

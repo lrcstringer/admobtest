@@ -480,8 +480,14 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                           const BorderSide(color: AppColors.primary),
                     ),
                   ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: _isNumericCategory(
+                          state.selectedProvider?.category)
+                      ? TextInputType.number
+                      : TextInputType.text,
+                  inputFormatters: _isNumericCategory(
+                          state.selectedProvider?.category)
+                      ? [FilteringTextInputFormatter.digitsOnly]
+                      : [],
                   onChanged: (value) {
                     context
                         .read<PurchaseBloc>()
@@ -744,6 +750,17 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
         return 'Phone Number';
       default:
         return 'Recipient';
+    }
+  }
+
+  bool _isNumericCategory(PurchaseCategory? category) {
+    switch (category) {
+      case PurchaseCategory.airtime:
+      case PurchaseCategory.data:
+      case PurchaseCategory.electricity:
+        return true;
+      default:
+        return false;
     }
   }
 

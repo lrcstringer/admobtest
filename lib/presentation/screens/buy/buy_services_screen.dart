@@ -230,12 +230,26 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     }).toList();
   }
 
-  void _onFeaturedItemTap(FeaturedItem item) {
+  Future<void> _onFeaturedItemTap(FeaturedItem item) async {
     final route = item.deepLinkRoute;
     if (route == null || route.isEmpty) return;
 
     if (route.startsWith('http://') || route.startsWith('https://')) {
-      launchUrl(Uri.parse(route), mode: LaunchMode.externalApplication);
+      final uri = Uri.tryParse(route);
+      if (uri != null) {
+        try {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } on Exception {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Could not open link'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        }
+      }
     } else {
       context.push(route);
     }
