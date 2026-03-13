@@ -22,6 +22,7 @@ import '../../widgets/messaging/chat_background.dart';
 import '../../widgets/messaging/community_list_tile.dart';
 import '../../widgets/messaging/conversation_list_tile.dart';
 import '../../widgets/messaging/quick_action_strip.dart';
+import '../../widgets/messaging/imali_bottom_sheet.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 import '../../blocs/token_pool/token_pool_bloc.dart';
 import '../../widgets/pool/pool_list_tile.dart';
@@ -1122,22 +1123,10 @@ class _MessagingScreenState extends State<MessagingScreen>
 
   void _showChatsSheet(BuildContext context) {
     final currentUser = context.read<AuthBloc>().state.user;
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dragHandle(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'New Conversation',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-            ),
+      title: 'New Conversation',
+      children: [
             AppSpacing.verticalMd,
             _sheetOption(
               icon: Icons.person,
@@ -1145,7 +1134,7 @@ class _MessagingScreenState extends State<MessagingScreen>
               title: 'New Chat',
               subtitle: 'Send a message to a contact',
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.push('/chat/new');
               },
             ),
@@ -1155,7 +1144,7 @@ class _MessagingScreenState extends State<MessagingScreen>
               title: 'My QR Code',
               subtitle: 'Let others scan to chat with you',
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.push('/home/qr-code', extra: {
                   'userId': currentUser?.id ?? '',
                   'displayName':
@@ -1169,14 +1158,12 @@ class _MessagingScreenState extends State<MessagingScreen>
               title: 'Scan QR Code',
               subtitle: "Scan someone's code to start chatting",
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.push('/scan');
               },
             ),
             AppSpacing.verticalLg,
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -1190,13 +1177,9 @@ class _MessagingScreenState extends State<MessagingScreen>
     final currentUserId =
         context.read<AuthBloc>().state.user?.id ?? '';
 
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dragHandle(),
+      children: [
             ListTile(
               leading: Icon(
                 conv.isPinnedFor(currentUserId)
@@ -1207,7 +1190,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                 conv.isPinnedFor(currentUserId) ? 'Unpin Chat' : 'Pin Chat',
               ),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.read<ConversationActionsBloc>().add(
                       ConversationActionsEvent.togglePin(
                         conversationId: conv.id,
@@ -1226,7 +1209,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                 conv.isMutedFor(currentUserId) ? 'Unmute' : 'Mute',
               ),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.read<ConversationActionsBloc>().add(
                       ConversationActionsEvent.toggleMute(
                         conversationId: conv.id,
@@ -1239,32 +1222,25 @@ class _MessagingScreenState extends State<MessagingScreen>
               leading: const Icon(Icons.archive_outlined),
               title: const Text('Archive'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context
                     .read<ConversationActionsBloc>()
                     .add(ConversationActionsEvent.archiveConversation(conv.id));
               },
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
   void _showCommunityOptions(BuildContext context, Community comm) {
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _dragHandle(),
+      children: [
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('Community Info'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.push('/chat/community/${comm.id}');
               },
             ),
@@ -1272,14 +1248,11 @@ class _MessagingScreenState extends State<MessagingScreen>
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Leave Community'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _confirmLeaveCommunity(context, comm);
               },
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -1336,17 +1309,6 @@ class _MessagingScreenState extends State<MessagingScreen>
     );
   }
 
-  Widget _dragHandle() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: AppColors.textHint,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
 }
 
 /// Helper for sorting inbox items by pinned + timestamp.

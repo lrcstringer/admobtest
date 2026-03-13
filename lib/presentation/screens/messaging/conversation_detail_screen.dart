@@ -32,6 +32,7 @@ import '../../blocs/conversation_actions/conversation_actions_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/messaging/chat_background.dart' show ChatBackground, ChatThemePicker, ChatThemeStyle;
+import '../../widgets/messaging/imali_bottom_sheet.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/media_compose_screen.dart';
 import '../../widgets/messaging/media_picker_widget.dart';
@@ -69,6 +70,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   /// Multi-select mode state.
   bool _isMultiSelectMode = false;
   final Set<String> _selectedMessageIds = {};
+
+  /// Current chat wallpaper theme.
+  ChatThemeStyle _chatTheme = ChatThemeStyle.defaultDoodle;
 
   /// True when user has scrolled up away from the newest messages.
   bool _isScrolledUp = false;
@@ -285,7 +289,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   ),
             body: Stack(
               children: [
-                const Positioned.fill(child: ChatBackground()),
+                Positioned.fill(child: ChatBackground(theme: _chatTheme)),
                 Column(
                   children: [
                     // Search bar
@@ -671,7 +675,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                       : (msg) => _startReply(msg),
                   onDoubleTapReact: _isMultiSelectMode
                       ? null
-                      : (msg) => _onMessageLongPress(context, msg, state),
+                      : (msg) => _quickToggleReaction(context, msg),
                   onTokenRequestAction: message.isTokenTransfer
                       ? (accepted) =>
                             _handleTokenRequestAction(context, message, accepted)
@@ -1102,6 +1106,28 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     });
   }
 
+  /// Quick-toggle ❤️ reaction on double-tap (no context menu).
+  void _quickToggleReaction(BuildContext context, Message msg) {
+    const emoji = '❤️';
+    final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
+    final actionsBloc = context.read<ConversationActionsBloc>();
+    HapticFeedback.lightImpact();
+
+    if (msg.hasReacted(currentUserId, emoji)) {
+      actionsBloc.add(ConversationActionsEvent.removeReaction(
+        conversationId: widget.conversationId,
+        messageId: msg.id,
+        emoji: emoji,
+      ));
+    } else {
+      actionsBloc.add(ConversationActionsEvent.addReaction(
+        conversationId: widget.conversationId,
+        messageId: msg.id,
+        emoji: emoji,
+      ));
+    }
+  }
+
   void _onMessageLongPress(
     BuildContext context,
     Message message,
@@ -1319,21 +1345,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (conv == null) return;
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
 
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+      children: [
             ListTile(
               leading: Icon(
                 conv.isMutedFor(currentUserId)
@@ -1344,7 +1358,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 conv.isMutedFor(currentUserId) ? 'Unmute Chat' : 'Mute Chat',
               ),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 context.read<ConversationActionsBloc>().add(
                   ConversationActionsEvent.toggleMute(
                     conversationId: conv.id,
@@ -1367,7 +1381,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
               subtitle: conv.hasDisappearingMessages ? null : const Text('Off'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _showDisappearingMessagesDialog(context, conv);
               },
             ),
@@ -1377,15 +1391,14 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               subtitle: const Text('Coming soon'),
               enabled: false,
               onTap: () {
-                Navigator.pop(ctx);
-                // TODO: Wire up AI chat summary
+                Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.wallpaper_outlined),
               title: const Text('Chat Wallpaper'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _showWallpaperPicker(context);
               },
             ),
@@ -1393,7 +1406,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               leading: const Icon(Icons.ios_share_outlined),
               title: const Text('Export Chat'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _showExportOptions(context, conv);
               },
             ),
@@ -1404,7 +1417,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
               title: const Text('Clear Chat'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _confirmClearChat(context, conv.id);
               },
             ),
@@ -1412,7 +1425,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               leading: const Icon(Icons.block_outlined, color: AppColors.error),
               title: const Text('Block User'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _confirmBlockUser(
                   context,
                   conv.otherParticipantId(currentUserId),
@@ -1424,7 +1437,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               leading: const Icon(Icons.flag_outlined, color: AppColors.error),
               title: const Text('Report User'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _reportUser(
                   context,
                   conv.otherParticipantId(currentUserId),
@@ -1432,10 +1445,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 );
               },
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -1443,10 +1453,9 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     showModalBottomSheet(
       context: context,
       builder: (_) => ChatThemePicker(
-        current: ChatThemeStyle.defaultDoodle,
+        current: _chatTheme,
         onSelected: (theme) {
-          // TODO: persist per-conversation theme preference
-          setState(() {});
+          setState(() => _chatTheme = theme);
         },
       ),
     );
@@ -1456,27 +1465,16 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     final currentUserId = context.read<AuthBloc>().state.user?.id ?? '';
     final convName = conv.displayNameFor(currentUserId);
 
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textHint,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+      title: 'Export Chat',
+      children: [
             ListTile(
               leading: const Icon(Icons.text_snippet_outlined),
               title: const Text('Without Media'),
               subtitle: const Text('Export as text file'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _exportChat(
                   context,
                   conversationId: conv.id,
@@ -1492,7 +1490,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               subtitle:
                   const Text('Export as ZIP with photos, videos & documents'),
               onTap: () {
-                Navigator.pop(ctx);
+                Navigator.pop(context);
                 _exportChat(
                   context,
                   conversationId: conv.id,
@@ -1502,10 +1500,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 );
               },
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
@@ -1609,35 +1604,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   ) {
     final currentDuration = conv.disappearingMessagesDuration;
 
-    showModalBottomSheet(
+    showIMaliBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textHint,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                'Disappearing Messages',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
+      title: 'Disappearing Messages',
+      children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -1649,29 +1619,26 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            _buildDurationOption(ctx, 'Off', null, currentDuration),
+            _buildDurationOption(context, 'Off', null, currentDuration),
             _buildDurationOption(
-              ctx,
+              context,
               '24 hours',
               const Duration(hours: 24),
               currentDuration,
             ),
             _buildDurationOption(
-              ctx,
+              context,
               '7 days',
               const Duration(days: 7),
               currentDuration,
             ),
             _buildDurationOption(
-              ctx,
+              context,
               '90 days',
               const Duration(days: 90),
               currentDuration,
             ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+      ],
     );
   }
 

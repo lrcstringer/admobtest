@@ -214,7 +214,14 @@ class _MessageContextMenuSheet extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: ReactionPicker(
-                  onReactionSelected: onReactWithEmoji,
+                  onReactionSelected: (emoji) async {
+                    if (emoji == '+') {
+                      final picked = await _showFullEmojiPickerDialog(context);
+                      if (picked != null) onReactWithEmoji(picked);
+                    } else {
+                      onReactWithEmoji(emoji);
+                    }
+                  },
                 ),
               ),
               const Divider(height: 1, color: AppColors.divider),
@@ -300,6 +307,59 @@ class _MessageContextMenuSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Full emoji grid shown when the user taps "+" on the reaction picker.
+///
+/// Returns the selected emoji string, or null if dismissed.
+Future<String?> _showFullEmojiPickerDialog(BuildContext context) {
+  const allEmoji = [
+    '❤️', '👍', '👎', '😂', '😮', '😢', '🙏', '🔥',
+    '🎉', '💯', '👏', '🤔', '😍', '🥰', '😭', '😡',
+    '🤣', '😊', '🙄', '😏', '🤗', '😱', '💀', '👀',
+    '✅', '❌', '💪', '🫡', '🤝', '💔', '🥳', '😇',
+  ];
+
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) => Dialog(
+      backgroundColor: AppColors.surfaceElevated,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Choose Reaction',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 8,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemCount: allEmoji.length,
+              itemBuilder: (_, i) => InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.pop(ctx, allEmoji[i]);
+                },
+                child: Center(
+                  child: Text(allEmoji[i], style: const TextStyle(fontSize: 24)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _ActionTile extends StatelessWidget {
