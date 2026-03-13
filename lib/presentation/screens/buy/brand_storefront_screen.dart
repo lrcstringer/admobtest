@@ -123,10 +123,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
           backgroundColor: AppColors.background,
           body: state.isLoading
               ? _buildLoading()
-              : state.errorMessage != null
-                  ? _buildError(context, state.errorMessage!)
-                  : storefront != null
-                      ? _buildStorefront(context, storefront)
+              : storefront != null
+                  ? _buildStorefront(context, storefront)
+                  : state.errorMessage != null
+                      ? _buildError(context, state.errorMessage!)
                       : _buildError(context, 'Storefront not found'),
         );
       },

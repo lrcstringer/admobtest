@@ -326,7 +326,7 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
       'couponId': couponId,
       if (couponCode != null) 'couponCode': couponCode,
     });
-    return result.data['couponCode'] as String;
+    return (result.data['couponCode'] as String?) ?? couponCode ?? couponId;
   }
 
   @override
