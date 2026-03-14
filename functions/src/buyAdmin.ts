@@ -402,6 +402,7 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity,
       imageOpacity,
       imageLayout,
+      showTitle,
       scheduledStart,
       scheduledEnd,
     } = request.data as {
@@ -422,6 +423,7 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity?: number;
       imageOpacity?: number;
       imageLayout?: string;
+      showTitle?: boolean;
       scheduledStart?: string;
       scheduledEnd?: string;
     };
@@ -476,7 +478,7 @@ export const adminCreateFeaturedItem = onCall(
 
     // Validate type
     if (type) {
-      const validTypes = ["campaign", "promotion", "trending", "collectible"];
+      const validTypes = ["none", "campaign", "promotion", "trending", "collectible"];
       if (!validTypes.includes(type)) {
         throw new HttpsError("invalid-argument", `type must be one of: ${validTypes.join(", ")}`);
       }
@@ -530,6 +532,7 @@ export const adminCreateFeaturedItem = onCall(
       colorIntensity: colorIntensity != null ? Math.max(0, Math.min(1, colorIntensity)) : 0.4,
       imageOpacity: imageOpacity != null ? Math.max(0, Math.min(1, imageOpacity)) : 1.0,
       imageLayout: imageLayout || "right",
+      showTitle: showTitle !== false,
       scheduledStart: scheduledStart ? admin.firestore.Timestamp.fromDate(new Date(scheduledStart)) : null,
       scheduledEnd: scheduledEnd ? admin.firestore.Timestamp.fromDate(new Date(scheduledEnd)) : null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -581,6 +584,7 @@ export const adminUpdateFeaturedItem = onCall(
       colorIntensity?: number;
       imageOpacity?: number;
       imageLayout?: string;
+      showTitle?: boolean;
       scheduledStart?: string;
       scheduledEnd?: string;
     };
@@ -626,7 +630,7 @@ export const adminUpdateFeaturedItem = onCall(
 
     // Validate type
     if (fields.type) {
-      const validTypes = ["campaign", "promotion", "trending", "collectible"];
+      const validTypes = ["none", "campaign", "promotion", "trending", "collectible"];
       if (!validTypes.includes(fields.type)) {
         throw new HttpsError("invalid-argument", `type must be one of: ${validTypes.join(", ")}`);
       }

@@ -548,6 +548,7 @@ class _FeaturedContentManagementScreenState
     var type = existing?['type'] as String? ?? 'campaign';
     var bgGradient = existing?['bgGradientType'] as String? ?? 'goldOrange';
     var isActive = existing?['isActive'] as bool? ?? true;
+    var showTitle = existing?['showTitle'] as bool? ?? true;
     var saving = false;
 
     // Scheduling state
@@ -616,7 +617,20 @@ class _FeaturedContentManagementScreenState
                         validator: (v) =>
                             v == null || v.isEmpty ? 'Required' : null,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Text('Show title on card',
+                              style: TextStyle(fontSize: 13)),
+                          const Spacer(),
+                          Switch(
+                            value: showTitle,
+                            onChanged: (v) =>
+                                setInnerState(() => showTitle = v),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       TextFormField(
                         controller: subtitleCtrl,
                         decoration:
@@ -945,6 +959,9 @@ class _FeaturedContentManagementScreenState
                             const InputDecoration(labelText: 'Type'),
                         items: const [
                           DropdownMenuItem(
+                              value: 'none',
+                              child: Text('None')),
+                          DropdownMenuItem(
                               value: 'campaign',
                               child: Text('Campaign')),
                           DropdownMenuItem(
@@ -1017,6 +1034,7 @@ class _FeaturedContentManagementScreenState
                           hasImage: hasImage,
                           imageLayout: imageLayout,
                           title: titleCtrl.text,
+                          showTitle: showTitle,
                           type: type,
                           brandName: brandNameCtrl.text,
                           ctaText: ctaTextCtrl.text,
@@ -1255,6 +1273,7 @@ class _FeaturedContentManagementScreenState
                             'imageOpacity':
                                 bgGradient == 'custom' ? imageOpacity : 1.0,
                             'imageLayout': imageLayout,
+                            'showTitle': showTitle,
                             'brandName': brandNameCtrl.text.trim().isEmpty
                                 ? null
                                 : brandNameCtrl.text.trim(),
@@ -1508,6 +1527,7 @@ class _FeaturedContentManagementScreenState
     required bool hasImage,
     required String imageLayout,
     required String title,
+    required bool showTitle,
     required String type,
     required String brandName,
     required String ctaText,
@@ -1540,6 +1560,7 @@ class _FeaturedContentManagementScreenState
             imgOpacity: imageOpacity,
             imgLayout: imageLayout,
             title: title.isEmpty ? 'Card Title' : title,
+            showTitle: showTitle,
             type: type,
             brandName: brandName,
             ctaText: ctaText,
@@ -1695,6 +1716,7 @@ class _FeaturedContentManagementScreenState
     required double imgOpacity,
     required String imgLayout,
     required String title,
+    required bool showTitle,
     required String type,
     required String brandName,
     required String ctaText,
@@ -1781,21 +1803,22 @@ class _FeaturedContentManagementScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: _previewBadgeColor(type),
-                      borderRadius: BorderRadius.circular(10),
+                  if (type != 'none')
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _previewBadgeColor(type),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        type.toUpperCase(),
+                        style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
                     ),
-                    child: Text(
-                      type.toUpperCase(),
-                      style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white),
-                    ),
-                  ),
                   const SizedBox(height: 4),
                   if (brandName.isNotEmpty)
                     Text(
@@ -1808,17 +1831,18 @@ class _FeaturedContentManagementScreenState
                       ),
                     ),
                   const Spacer(),
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      height: 1.2,
+                  if (showTitle)
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
                   if (ctaText.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Container(

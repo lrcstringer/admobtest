@@ -44,6 +44,9 @@ abstract class FeaturedItem with _$FeaturedItem {
     /// Image layout: 'full' (entire card) or 'right' (right half only).
     @Default('right') String imageLayout,
 
+    /// Whether the title text is visible on the card.
+    @Default(true) bool showTitle,
+
     @Default(false) bool isDeleted,
 
     @Default(null) DateTime? createdAt,

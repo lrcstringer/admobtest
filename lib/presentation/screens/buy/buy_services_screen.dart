@@ -28,15 +28,27 @@ class BuyServicesScreen extends StatefulWidget {
 
 class _BuyServicesScreenState extends State<BuyServicesScreen> {
   final _scrollController = ScrollController();
+  bool _showScrollFade = true;
 
   @override
   void initState() {
     super.initState();
     context.read<BuyTabBloc>().add(const BuyTabEvent.loadBuyTab());
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    // Hide the fade once the user has scrolled past the initial viewport
+    if (_scrollController.offset > 40 && _showScrollFade) {
+      setState(() => _showScrollFade = false);
+    } else if (_scrollController.offset <= 40 && !_showScrollFade) {
+      setState(() => _showScrollFade = true);
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -81,46 +93,73 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
             },
             color: AppColors.buyMarketplaceAccent,
             backgroundColor: AppColors.buyCard,
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                // Offline banner
-                if (state.isOffline)
-                  SliverToBoxAdapter(
-                    child:
-                        BuyOfflineBanner(lastSyncedAt: state.lastSyncedAt),
+            child: Stack(
+              children: [
+                CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    // Offline banner
+                    if (state.isOffline)
+                      SliverToBoxAdapter(
+                        child:
+                            BuyOfflineBanner(lastSyncedAt: state.lastSyncedAt),
+                      ),
+
+                    // ── Layer 1: Featured + Brand Partners ──
+                    _buildLayer1(state),
+
+                    // Layer divider: 1px line + 16px padding
+                    const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                    // ── Layer 2: Utilities ──
+                    SliverToBoxAdapter(
+                      child: BuySectionHeader(title: 'Utilities'),
+                    ),
+
+                    SliverToBoxAdapter(
+                      child: _buildCategorySection(state),
+                    ),
+
+                    const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                    // ── Layer 3: Marketplace + Group Buys ──
+                    SliverToBoxAdapter(
+                      child: _buildMarketplaceEntry(),
+                    ),
+
+                    const SliverToBoxAdapter(child: _BuyLayerDivider()),
+
+                    // ── Layer 4: Hlangana Group Buys ──
+                    SliverToBoxAdapter(
+                      child: _buildGroupBuysHub(),
+                    ),
+
+                    const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+                  ],
+                ),
+
+                // Bottom fade-out hint — disappears after user scrolls
+                if (_showScrollFade)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 48,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.buyBackground.withValues(alpha: 0),
+                              AppColors.buyBackground,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-
-                // ── Layer 1: Featured + Brand Partners ──
-                _buildLayer1(state),
-
-                // Layer divider: 1px line + 16px padding
-                const SliverToBoxAdapter(child: _BuyLayerDivider()),
-
-                // ── Layer 2: Utilities ──
-                SliverToBoxAdapter(
-                  child: BuySectionHeader(title: 'Utilities'),
-                ),
-
-                SliverToBoxAdapter(
-                  child: _buildCategorySection(state),
-                ),
-
-                const SliverToBoxAdapter(child: _BuyLayerDivider()),
-
-                // ── Layer 3: Marketplace + Group Buys ──
-                SliverToBoxAdapter(
-                  child: _buildMarketplaceEntry(),
-                ),
-
-                const SliverToBoxAdapter(child: _BuyLayerDivider()),
-
-                // ── Layer 4: Hlangana Group Buys ──
-                SliverToBoxAdapter(
-                  child: _buildGroupBuysHub(),
-                ),
-
-                const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
               ],
             ),
           );

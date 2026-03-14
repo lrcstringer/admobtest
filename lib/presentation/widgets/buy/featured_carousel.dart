@@ -377,20 +377,22 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
                     ],
 
                     Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          item.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
+                      child: item.showTitle
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                item.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  height: 1.2,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ),
 
                     if (item.subtitle != null &&
@@ -451,6 +453,7 @@ class _FeaturedCarouselState extends State<FeaturedCarousel>
   }
 
   Widget _buildBadge(String type) {
+    if (type == 'none') return const SizedBox.shrink();
     final (label, bg, fg) = _badgeConfigForType(type);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

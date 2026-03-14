@@ -29,6 +29,7 @@ abstract class FeaturedItemModel with _$FeaturedItemModel {
     @Default(0.4) double colorIntensity,
     @Default(1.0) double imageOpacity,
     @Default('right') String imageLayout,
+    @Default(true) bool showTitle,
     @Default(false) bool isDeleted,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -72,6 +73,7 @@ abstract class FeaturedItemModel with _$FeaturedItemModel {
           ?? (json['opacity'] as num?)?.toDouble()
           ?? 1.0,
       imageLayout: json['imageLayout'] as String? ?? 'right',
+      showTitle: json['showTitle'] as bool? ?? true,
       isDeleted: json['isDeleted'] as bool? ?? false,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
@@ -109,6 +111,7 @@ abstract class FeaturedItemModel with _$FeaturedItemModel {
       'colorIntensity': colorIntensity,
       'imageOpacity': imageOpacity,
       'imageLayout': imageLayout,
+      'showTitle': showTitle,
       'isDeleted': isDeleted,
       if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
       if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
