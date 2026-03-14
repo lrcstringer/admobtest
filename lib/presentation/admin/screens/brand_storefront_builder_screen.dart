@@ -515,7 +515,7 @@ class _BrandStorefrontBuilderScreenState
                   TextButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      context.pop();
+                      context.go('/buy-brand-storefronts');
                     },
                     child: const Text('Discard'),
                   ),
@@ -523,7 +523,7 @@ class _BrandStorefrontBuilderScreenState
                     onPressed: () async {
                       Navigator.of(ctx).pop();
                       await _save();
-                      if (mounted) context.pop();
+                      if (mounted) context.go('/buy-brand-storefronts');
                     },
                     child: const Text('Save & Exit'),
                   ),
@@ -531,7 +531,7 @@ class _BrandStorefrontBuilderScreenState
               ),
             );
           } else {
-            context.pop();
+            context.go('/buy-brand-storefronts');
           }
         },
       ),
