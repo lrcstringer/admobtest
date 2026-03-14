@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../domain/enums/listing_status.dart';
 import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -24,6 +25,7 @@ class MarketplaceHubScreen extends StatefulWidget {
 class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  bool _bannerDismissed = false;
 
   static const _categories = MarketplaceCategory.values;
 
@@ -33,6 +35,10 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
     _tabController = TabController(length: _categories.length, vsync: this);
     _tabController.addListener(_onTabChanged);
     _loadCategory(_categories.first);
+    // Load seller status for FAB gating
+    context
+        .read<MarketplaceBloc>()
+        .add(const MarketplaceEvent.loadSellerPortal());
   }
 
   @override
@@ -102,6 +108,92 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
             ),
           ),
 
+          // Become a Seller banner (non-sellers only)
+          BlocBuilder<MarketplaceBloc, MarketplaceState>(
+            buildWhen: (prev, curr) =>
+                prev.currentSellerProfile != curr.currentSellerProfile ||
+                prev.isLoadingSellerPortal != curr.isLoadingSellerPortal,
+            builder: (context, state) {
+              final isRegistered = state.currentSellerProfile != null &&
+                  state.currentSellerProfile!.isActive;
+              if (isRegistered ||
+                  state.isLoadingSellerPortal ||
+                  _bannerDismissed) {
+                return const SizedBox.shrink();
+              }
+              return Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.buyMarketplaceAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  border: Border.all(
+                    color:
+                        AppColors.buyMarketplaceAccent.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.storefront_outlined,
+                      color: AppColors.buyMarketplaceAccent,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Want to sell? Register in 30 seconds',
+                        style: TextStyle(
+                          color: AppColors.buyTextPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () =>
+                          context.push('/buy/marketplace/register'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.buyMarketplaceAccent,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Start',
+                          style: TextStyle(
+                            color: AppColors.textOnPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () =>
+                          setState(() => _bannerDismissed = true),
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: AppColors.buyTextTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
           // Listing grid
           Expanded(
             child: BlocBuilder<MarketplaceBloc, MarketplaceState>(
@@ -160,14 +252,43 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/buy/marketplace/create-listing'),
-        backgroundColor: AppColors.buyMarketplaceAccent,
-        icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
-        label: const Text(
-          'Sell',
-          style: TextStyle(color: AppColors.textOnPrimary),
-        ),
+      floatingActionButton: BlocBuilder<MarketplaceBloc, MarketplaceState>(
+        buildWhen: (prev, curr) =>
+            prev.currentSellerProfile != curr.currentSellerProfile,
+        builder: (context, state) {
+          final seller = state.currentSellerProfile;
+          return FloatingActionButton.extended(
+            onPressed: () {
+              if (seller == null || !seller.isActive) {
+                context.push('/buy/marketplace/register');
+                return;
+              }
+              // Check listing limit
+              final activeCount = state.listings
+                  .where((l) =>
+                      l.providerId == seller.id && l.status == ListingStatus.active)
+                  .length;
+              if (activeCount >= seller.maxActiveListings) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'You have reached your limit of ${seller.maxActiveListings} active listings',
+                    ),
+                    backgroundColor: AppColors.buyWarning,
+                  ),
+                );
+                return;
+              }
+              context.push('/buy/marketplace/create-listing');
+            },
+            backgroundColor: AppColors.buyMarketplaceAccent,
+            icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
+            label: const Text(
+              'Sell',
+              style: TextStyle(color: AppColors.textOnPrimary),
+            ),
+          );
+        },
       ),
     );
   }

@@ -432,7 +432,7 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
  * Process engagement completion and reward user
  */
 export const processEngagement = onCall(
-  { timeoutSeconds: 120, memory: "512MiB", cpu: 1, minInstances: 1, concurrency: 10, labels: { area: "earn" } },
+  { timeoutSeconds: 120, memory: "512MiB", cpu: 1, minInstances: 0, concurrency: 10, labels: { area: "earn" } },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError(

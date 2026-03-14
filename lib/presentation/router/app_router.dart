@@ -35,7 +35,8 @@ import '../screens/buy/marketplace_provider_profile_screen.dart';
 import '../screens/buy/marketplace_report_screen.dart';
 import '../screens/buy/my_orders_screen.dart';
 import '../screens/buy/order_detail_screen.dart';
-import '../screens/buy/provider_registration_screen.dart';
+import '../screens/buy/seller_registration_screen.dart';
+import '../screens/buy/edit_seller_profile_screen.dart';
 import '../screens/buy/seller_dashboard_screen.dart';
 import '../screens/buy/group_buy_list_screen.dart';
 import '../screens/buy/group_buy_detail_screen.dart';
@@ -1214,12 +1215,19 @@ class AppRouter {
                           );
                         },
                       ),
-                      // 10.6.3) Provider registration
+                      // 10.6.3) Seller registration
                       GoRoute(
                         path: 'register',
-                        name: 'providerRegistration',
+                        name: 'sellerRegistration',
                         builder: (context, state) =>
-                            const ProviderRegistrationScreen(),
+                            const SellerRegistrationScreen(),
+                      ),
+                      // 10.6.3b) Edit seller profile
+                      GoRoute(
+                        path: 'edit-profile',
+                        name: 'editSellerProfile',
+                        builder: (context, state) =>
+                            const EditSellerProfileScreen(),
                       ),
                       // 10.6.4) Create listing
                       GoRoute(

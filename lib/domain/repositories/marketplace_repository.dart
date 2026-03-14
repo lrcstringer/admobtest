@@ -25,6 +25,9 @@ abstract class MarketplaceRepository {
   /// Get a marketplace provider profile
   Future<Either<Failure, MarketplaceProvider>> getProvider(String id);
 
+  /// Get the current user's seller profile
+  Future<Either<Failure, MarketplaceProvider?>> getCurrentSellerProfile();
+
   /// Get provider's listings
   Future<Either<Failure, List<MarketplaceListing>>> getProviderListings(
       String providerId, {String? statusFilter});
@@ -41,15 +44,25 @@ abstract class MarketplaceRepository {
   /// Get a single order by ID
   Future<Either<Failure, BuyOrder>> getOrder(String id);
 
-  /// Register as a marketplace provider
+  /// Register as a marketplace seller
   Future<Either<Failure, String>> registerProvider({
     required String displayName,
+    String? photoUrl,
+    required Map<String, bool> contactPreferences,
+  });
+
+  /// Update seller profile
+  Future<Either<Failure, void>> updateSellerProfile({
     String? bio,
     String? photoUrl,
-    String? servicesDescription,
-    String? communityId,
-    String? category,
+    Map<String, bool>? contactPreferences,
   });
+
+  /// Request de-registration as a seller (7-day cooling-off)
+  Future<Either<Failure, void>> deregisterProvider();
+
+  /// Cancel pending de-registration
+  Future<Either<Failure, void>> cancelDeregistration();
 
   /// Create a marketplace listing
   Future<Either<Failure, String>> createListing({

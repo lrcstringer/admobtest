@@ -169,7 +169,7 @@ const GIFT_CLAIM_EXPIRY_DAYS = 7;
  * 5. FCM notifications to invitees
  */
 export const createTokenPool = onCall(
-  { labels: { area: "pools" }, minInstances: 1 },
+  { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "createTokenPool");
@@ -606,7 +606,7 @@ export const contributeToPool = onCall(
  * Creates a groupGift message in the organizer↔recipient P2P conversation.
  */
 export const sendGroupGift = onCall(
-  { labels: { area: "pools" }, minInstances: 1 },
+  { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "sendGroupGift");
@@ -952,7 +952,7 @@ export const openGroupGift = onCall(
  * Recipient claims the group gift. Status update only — tokens already transferred during send.
  */
 export const claimGroupGift = onCall(
-  { labels: { area: "pools" }, minInstances: 1 },
+  { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
     requireAppCheck(request, "claimGroupGift");

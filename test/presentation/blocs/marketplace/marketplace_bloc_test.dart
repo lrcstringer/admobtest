@@ -1295,8 +1295,9 @@ void main() {
         'guard: does nothing when already registering',
         build: () => buildBloc(),
         seed: () => const MarketplaceState(isRegistering: true),
-        act: (bloc) => bloc.add(const MarketplaceEvent.registerProvider(
+        act: (bloc) => bloc.add(MarketplaceEvent.registerProvider(
           displayName: 'Test Provider',
+          contactPreferences: const {'chat': true, 'phone': false},
         )),
         expect: () => [],
       );
@@ -1306,25 +1307,24 @@ void main() {
         build: () {
           when(() => mockRepository.registerProvider(
                 displayName: any(named: 'displayName'),
-                bio: any(named: 'bio'),
                 photoUrl: any(named: 'photoUrl'),
-                servicesDescription: any(named: 'servicesDescription'),
-                communityId: any(named: 'communityId'),
-                category: any(named: 'category'),
+                contactPreferences: any(named: 'contactPreferences'),
               )).thenAnswer((_) async => const Right('providerId'));
+          when(() => mockRepository.getProvider(any()))
+              .thenAnswer((_) async => const Left(Failure.network()));
           return buildBloc();
         },
-        act: (bloc) => bloc.add(const MarketplaceEvent.registerProvider(
+        act: (bloc) => bloc.add(MarketplaceEvent.registerProvider(
           displayName: 'Test Provider',
-          bio: 'A bio',
+          contactPreferences: const {'chat': true, 'phone': false},
         )),
         expect: () => [
           isA<MarketplaceState>()
               .having((s) => s.isRegistering, 'isRegistering', true),
           isA<MarketplaceState>()
               .having((s) => s.isRegistering, 'isRegistering', false)
-              .having((s) => s.successMessage, 'msg',
-                  'Provider registered successfully'),
+              .having(
+                  (s) => s.registrationSuccess, 'registrationSuccess', true),
         ],
       );
 
@@ -1333,16 +1333,14 @@ void main() {
         build: () {
           when(() => mockRepository.registerProvider(
                 displayName: any(named: 'displayName'),
-                bio: any(named: 'bio'),
                 photoUrl: any(named: 'photoUrl'),
-                servicesDescription: any(named: 'servicesDescription'),
-                communityId: any(named: 'communityId'),
-                category: any(named: 'category'),
+                contactPreferences: any(named: 'contactPreferences'),
               )).thenAnswer((_) async => const Left(Failure.network()));
           return buildBloc();
         },
-        act: (bloc) => bloc.add(const MarketplaceEvent.registerProvider(
+        act: (bloc) => bloc.add(MarketplaceEvent.registerProvider(
           displayName: 'Test Provider',
+          contactPreferences: const {'chat': true, 'phone': false},
         )),
         expect: () => [
           isA<MarketplaceState>()

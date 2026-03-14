@@ -145,7 +145,7 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
  * Send a text or media message in a conversation.
  * Writes message to subcollection and updates parent lastMessage + unreadCounts.
  */
-export const sendConversationMessage = onCall({ labels: { area: "social" }, minInstances: 1 }, async (request) => {
+export const sendConversationMessage = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "sendConversationMessage");
 
@@ -402,7 +402,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" }, minI
  * Mark a conversation as read for the current user.
  * Resets unreadCounts.{userId} to 0.
  */
-export const markConversationRead = onCall({ labels: { area: "social" }, minInstances: 1 }, async (request) => {
+export const markConversationRead = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "markConversationRead");
 
@@ -742,7 +742,7 @@ export const acceptConversationRequest = onCall(
  * If the user has already reacted with this emoji, removes it.
  * Otherwise, adds it.
  */
-export const toggleMessageReaction = onCall({ labels: { area: "social" }, minInstances: 1 }, async (request) => {
+export const toggleMessageReaction = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
   requireAppCheck(request, "toggleMessageReaction");
 

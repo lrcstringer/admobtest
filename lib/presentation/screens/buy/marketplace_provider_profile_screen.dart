@@ -128,7 +128,7 @@ class _MarketplaceProviderProfileScreenState
                     children: [
                       _buildStat(
                         '${provider.completedOrders}',
-                        'Orders',
+                        provider.completedOrders == 1 ? 'Sale' : 'Sales',
                         Icons.shopping_bag_outlined,
                       ),
                       _buildStat(

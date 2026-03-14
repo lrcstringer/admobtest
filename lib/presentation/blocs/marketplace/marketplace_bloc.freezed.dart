@@ -55,7 +55,7 @@ extension MarketplaceEventPatterns on MarketplaceEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadListings value)?  loadListings,TResult Function( _LoadMore value)?  loadMore,TResult Function( _SearchListings value)?  searchListings,TResult Function( _ClearSearch value)?  clearSearch,TResult Function( _SelectListing value)?  selectListing,TResult Function( _LoadProviderProfile value)?  loadProviderProfile,TResult Function( _LoadProviderVouches value)?  loadProviderVouches,TResult Function( _ReportListing value)?  reportListing,TResult Function( _ReportProvider value)?  reportProvider,TResult Function( _CreateListing value)?  createListing,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _UpdateListing value)?  updateListing,TResult Function( _ToggleListingStatus value)?  toggleListingStatus,TResult Function( _RenewListing value)?  renewListing,TResult Function( _MakeOffer value)?  makeOffer,TResult Function( _RespondToOffer value)?  respondToOffer,TResult Function( _SellerRefund value)?  sellerRefund,TResult Function( _LoadMyListings value)?  loadMyListings,TResult Function( _LoadSavedItems value)?  loadSavedItems,TResult Function( _LoadSellerPortal value)?  loadSellerPortal,TResult Function( _ToggleFavourite value)?  toggleFavourite,TResult Function( _UploadImages value)?  uploadImages,TResult Function( _RegisterProvider value)?  registerProvider,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadListings value)?  loadListings,TResult Function( _LoadMore value)?  loadMore,TResult Function( _SearchListings value)?  searchListings,TResult Function( _ClearSearch value)?  clearSearch,TResult Function( _SelectListing value)?  selectListing,TResult Function( _LoadProviderProfile value)?  loadProviderProfile,TResult Function( _LoadProviderVouches value)?  loadProviderVouches,TResult Function( _ReportListing value)?  reportListing,TResult Function( _ReportProvider value)?  reportProvider,TResult Function( _CreateListing value)?  createListing,TResult Function( _ClearMessages value)?  clearMessages,TResult Function( _UpdateListing value)?  updateListing,TResult Function( _ToggleListingStatus value)?  toggleListingStatus,TResult Function( _RenewListing value)?  renewListing,TResult Function( _MakeOffer value)?  makeOffer,TResult Function( _RespondToOffer value)?  respondToOffer,TResult Function( _SellerRefund value)?  sellerRefund,TResult Function( _LoadMyListings value)?  loadMyListings,TResult Function( _LoadSavedItems value)?  loadSavedItems,TResult Function( _LoadSellerPortal value)?  loadSellerPortal,TResult Function( _ToggleFavourite value)?  toggleFavourite,TResult Function( _UploadImages value)?  uploadImages,TResult Function( _RegisterProvider value)?  registerProvider,TResult Function( _UpdateSellerProfile value)?  updateSellerProfile,TResult Function( _DeregisterSeller value)?  deregisterSeller,TResult Function( _CancelDeregistration value)?  cancelDeregistration,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadListings() when loadListings != null:
@@ -81,7 +81,10 @@ return loadSavedItems(_that);case _LoadSellerPortal() when loadSellerPortal != n
 return loadSellerPortal(_that);case _ToggleFavourite() when toggleFavourite != null:
 return toggleFavourite(_that);case _UploadImages() when uploadImages != null:
 return uploadImages(_that);case _RegisterProvider() when registerProvider != null:
-return registerProvider(_that);case _:
+return registerProvider(_that);case _UpdateSellerProfile() when updateSellerProfile != null:
+return updateSellerProfile(_that);case _DeregisterSeller() when deregisterSeller != null:
+return deregisterSeller(_that);case _CancelDeregistration() when cancelDeregistration != null:
+return cancelDeregistration(_that);case _:
   return orElse();
 
 }
@@ -99,7 +102,7 @@ return registerProvider(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadListings value)  loadListings,required TResult Function( _LoadMore value)  loadMore,required TResult Function( _SearchListings value)  searchListings,required TResult Function( _ClearSearch value)  clearSearch,required TResult Function( _SelectListing value)  selectListing,required TResult Function( _LoadProviderProfile value)  loadProviderProfile,required TResult Function( _LoadProviderVouches value)  loadProviderVouches,required TResult Function( _ReportListing value)  reportListing,required TResult Function( _ReportProvider value)  reportProvider,required TResult Function( _CreateListing value)  createListing,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _UpdateListing value)  updateListing,required TResult Function( _ToggleListingStatus value)  toggleListingStatus,required TResult Function( _RenewListing value)  renewListing,required TResult Function( _MakeOffer value)  makeOffer,required TResult Function( _RespondToOffer value)  respondToOffer,required TResult Function( _SellerRefund value)  sellerRefund,required TResult Function( _LoadMyListings value)  loadMyListings,required TResult Function( _LoadSavedItems value)  loadSavedItems,required TResult Function( _LoadSellerPortal value)  loadSellerPortal,required TResult Function( _ToggleFavourite value)  toggleFavourite,required TResult Function( _UploadImages value)  uploadImages,required TResult Function( _RegisterProvider value)  registerProvider,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadListings value)  loadListings,required TResult Function( _LoadMore value)  loadMore,required TResult Function( _SearchListings value)  searchListings,required TResult Function( _ClearSearch value)  clearSearch,required TResult Function( _SelectListing value)  selectListing,required TResult Function( _LoadProviderProfile value)  loadProviderProfile,required TResult Function( _LoadProviderVouches value)  loadProviderVouches,required TResult Function( _ReportListing value)  reportListing,required TResult Function( _ReportProvider value)  reportProvider,required TResult Function( _CreateListing value)  createListing,required TResult Function( _ClearMessages value)  clearMessages,required TResult Function( _UpdateListing value)  updateListing,required TResult Function( _ToggleListingStatus value)  toggleListingStatus,required TResult Function( _RenewListing value)  renewListing,required TResult Function( _MakeOffer value)  makeOffer,required TResult Function( _RespondToOffer value)  respondToOffer,required TResult Function( _SellerRefund value)  sellerRefund,required TResult Function( _LoadMyListings value)  loadMyListings,required TResult Function( _LoadSavedItems value)  loadSavedItems,required TResult Function( _LoadSellerPortal value)  loadSellerPortal,required TResult Function( _ToggleFavourite value)  toggleFavourite,required TResult Function( _UploadImages value)  uploadImages,required TResult Function( _RegisterProvider value)  registerProvider,required TResult Function( _UpdateSellerProfile value)  updateSellerProfile,required TResult Function( _DeregisterSeller value)  deregisterSeller,required TResult Function( _CancelDeregistration value)  cancelDeregistration,}){
 final _that = this;
 switch (_that) {
 case _LoadListings():
@@ -125,7 +128,10 @@ return loadSavedItems(_that);case _LoadSellerPortal():
 return loadSellerPortal(_that);case _ToggleFavourite():
 return toggleFavourite(_that);case _UploadImages():
 return uploadImages(_that);case _RegisterProvider():
-return registerProvider(_that);case _:
+return registerProvider(_that);case _UpdateSellerProfile():
+return updateSellerProfile(_that);case _DeregisterSeller():
+return deregisterSeller(_that);case _CancelDeregistration():
+return cancelDeregistration(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -142,7 +148,7 @@ return registerProvider(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadListings value)?  loadListings,TResult? Function( _LoadMore value)?  loadMore,TResult? Function( _SearchListings value)?  searchListings,TResult? Function( _ClearSearch value)?  clearSearch,TResult? Function( _SelectListing value)?  selectListing,TResult? Function( _LoadProviderProfile value)?  loadProviderProfile,TResult? Function( _LoadProviderVouches value)?  loadProviderVouches,TResult? Function( _ReportListing value)?  reportListing,TResult? Function( _ReportProvider value)?  reportProvider,TResult? Function( _CreateListing value)?  createListing,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _UpdateListing value)?  updateListing,TResult? Function( _ToggleListingStatus value)?  toggleListingStatus,TResult? Function( _RenewListing value)?  renewListing,TResult? Function( _MakeOffer value)?  makeOffer,TResult? Function( _RespondToOffer value)?  respondToOffer,TResult? Function( _SellerRefund value)?  sellerRefund,TResult? Function( _LoadMyListings value)?  loadMyListings,TResult? Function( _LoadSavedItems value)?  loadSavedItems,TResult? Function( _LoadSellerPortal value)?  loadSellerPortal,TResult? Function( _ToggleFavourite value)?  toggleFavourite,TResult? Function( _UploadImages value)?  uploadImages,TResult? Function( _RegisterProvider value)?  registerProvider,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadListings value)?  loadListings,TResult? Function( _LoadMore value)?  loadMore,TResult? Function( _SearchListings value)?  searchListings,TResult? Function( _ClearSearch value)?  clearSearch,TResult? Function( _SelectListing value)?  selectListing,TResult? Function( _LoadProviderProfile value)?  loadProviderProfile,TResult? Function( _LoadProviderVouches value)?  loadProviderVouches,TResult? Function( _ReportListing value)?  reportListing,TResult? Function( _ReportProvider value)?  reportProvider,TResult? Function( _CreateListing value)?  createListing,TResult? Function( _ClearMessages value)?  clearMessages,TResult? Function( _UpdateListing value)?  updateListing,TResult? Function( _ToggleListingStatus value)?  toggleListingStatus,TResult? Function( _RenewListing value)?  renewListing,TResult? Function( _MakeOffer value)?  makeOffer,TResult? Function( _RespondToOffer value)?  respondToOffer,TResult? Function( _SellerRefund value)?  sellerRefund,TResult? Function( _LoadMyListings value)?  loadMyListings,TResult? Function( _LoadSavedItems value)?  loadSavedItems,TResult? Function( _LoadSellerPortal value)?  loadSellerPortal,TResult? Function( _ToggleFavourite value)?  toggleFavourite,TResult? Function( _UploadImages value)?  uploadImages,TResult? Function( _RegisterProvider value)?  registerProvider,TResult? Function( _UpdateSellerProfile value)?  updateSellerProfile,TResult? Function( _DeregisterSeller value)?  deregisterSeller,TResult? Function( _CancelDeregistration value)?  cancelDeregistration,}){
 final _that = this;
 switch (_that) {
 case _LoadListings() when loadListings != null:
@@ -168,7 +174,10 @@ return loadSavedItems(_that);case _LoadSellerPortal() when loadSellerPortal != n
 return loadSellerPortal(_that);case _ToggleFavourite() when toggleFavourite != null:
 return toggleFavourite(_that);case _UploadImages() when uploadImages != null:
 return uploadImages(_that);case _RegisterProvider() when registerProvider != null:
-return registerProvider(_that);case _:
+return registerProvider(_that);case _UpdateSellerProfile() when updateSellerProfile != null:
+return updateSellerProfile(_that);case _DeregisterSeller() when deregisterSeller != null:
+return deregisterSeller(_that);case _CancelDeregistration() when cancelDeregistration != null:
+return cancelDeregistration(_that);case _:
   return null;
 
 }
@@ -185,7 +194,7 @@ return registerProvider(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? category,  String? communityId)?  loadListings,TResult Function()?  loadMore,TResult Function( String query)?  searchListings,TResult Function()?  clearSearch,TResult Function( String id)?  selectListing,TResult Function( String providerId)?  loadProviderProfile,TResult Function( String providerId)?  loadProviderVouches,TResult Function( String listingId,  String reason,  String? description)?  reportListing,TResult Function( String providerId,  String reason,  String? description)?  reportProvider,TResult Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  createListing,TResult Function()?  clearMessages,TResult Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  updateListing,TResult Function( String listingId,  String action)?  toggleListingStatus,TResult Function( String listingId)?  renewListing,TResult Function( String listingId,  int offerAmount,  String? message)?  makeOffer,TResult Function( String offerId,  String action,  int? counterAmount)?  respondToOffer,TResult Function( String orderId,  String? reason)?  sellerRefund,TResult Function()?  loadMyListings,TResult Function()?  loadSavedItems,TResult Function()?  loadSellerPortal,TResult Function( String listingId)?  toggleFavourite,TResult Function( List<Uint8List> imageData,  String listingId)?  uploadImages,TResult Function( String displayName,  String? bio,  String? photoUrl,  String? servicesDescription,  String? communityId,  String? category)?  registerProvider,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? category,  String? communityId)?  loadListings,TResult Function()?  loadMore,TResult Function( String query)?  searchListings,TResult Function()?  clearSearch,TResult Function( String id)?  selectListing,TResult Function( String providerId)?  loadProviderProfile,TResult Function( String providerId)?  loadProviderVouches,TResult Function( String listingId,  String reason,  String? description)?  reportListing,TResult Function( String providerId,  String reason,  String? description)?  reportProvider,TResult Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  createListing,TResult Function()?  clearMessages,TResult Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  updateListing,TResult Function( String listingId,  String action)?  toggleListingStatus,TResult Function( String listingId)?  renewListing,TResult Function( String listingId,  int offerAmount,  String? message)?  makeOffer,TResult Function( String offerId,  String action,  int? counterAmount)?  respondToOffer,TResult Function( String orderId,  String? reason)?  sellerRefund,TResult Function()?  loadMyListings,TResult Function()?  loadSavedItems,TResult Function()?  loadSellerPortal,TResult Function( String listingId)?  toggleFavourite,TResult Function( List<Uint8List> imageData,  String listingId)?  uploadImages,TResult Function( String displayName,  String? photoUrl,  Map<String, bool> contactPreferences)?  registerProvider,TResult Function( String? bio,  String? photoUrl,  Map<String, bool>? contactPreferences)?  updateSellerProfile,TResult Function()?  deregisterSeller,TResult Function()?  cancelDeregistration,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadListings() when loadListings != null:
 return loadListings(_that.category,_that.communityId);case _LoadMore() when loadMore != null:
@@ -210,7 +219,10 @@ return loadSavedItems();case _LoadSellerPortal() when loadSellerPortal != null:
 return loadSellerPortal();case _ToggleFavourite() when toggleFavourite != null:
 return toggleFavourite(_that.listingId);case _UploadImages() when uploadImages != null:
 return uploadImages(_that.imageData,_that.listingId);case _RegisterProvider() when registerProvider != null:
-return registerProvider(_that.displayName,_that.bio,_that.photoUrl,_that.servicesDescription,_that.communityId,_that.category);case _:
+return registerProvider(_that.displayName,_that.photoUrl,_that.contactPreferences);case _UpdateSellerProfile() when updateSellerProfile != null:
+return updateSellerProfile(_that.bio,_that.photoUrl,_that.contactPreferences);case _DeregisterSeller() when deregisterSeller != null:
+return deregisterSeller();case _CancelDeregistration() when cancelDeregistration != null:
+return cancelDeregistration();case _:
   return orElse();
 
 }
@@ -228,7 +240,7 @@ return registerProvider(_that.displayName,_that.bio,_that.photoUrl,_that.service
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? category,  String? communityId)  loadListings,required TResult Function()  loadMore,required TResult Function( String query)  searchListings,required TResult Function()  clearSearch,required TResult Function( String id)  selectListing,required TResult Function( String providerId)  loadProviderProfile,required TResult Function( String providerId)  loadProviderVouches,required TResult Function( String listingId,  String reason,  String? description)  reportListing,required TResult Function( String providerId,  String reason,  String? description)  reportProvider,required TResult Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)  createListing,required TResult Function()  clearMessages,required TResult Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)  updateListing,required TResult Function( String listingId,  String action)  toggleListingStatus,required TResult Function( String listingId)  renewListing,required TResult Function( String listingId,  int offerAmount,  String? message)  makeOffer,required TResult Function( String offerId,  String action,  int? counterAmount)  respondToOffer,required TResult Function( String orderId,  String? reason)  sellerRefund,required TResult Function()  loadMyListings,required TResult Function()  loadSavedItems,required TResult Function()  loadSellerPortal,required TResult Function( String listingId)  toggleFavourite,required TResult Function( List<Uint8List> imageData,  String listingId)  uploadImages,required TResult Function( String displayName,  String? bio,  String? photoUrl,  String? servicesDescription,  String? communityId,  String? category)  registerProvider,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? category,  String? communityId)  loadListings,required TResult Function()  loadMore,required TResult Function( String query)  searchListings,required TResult Function()  clearSearch,required TResult Function( String id)  selectListing,required TResult Function( String providerId)  loadProviderProfile,required TResult Function( String providerId)  loadProviderVouches,required TResult Function( String listingId,  String reason,  String? description)  reportListing,required TResult Function( String providerId,  String reason,  String? description)  reportProvider,required TResult Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)  createListing,required TResult Function()  clearMessages,required TResult Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)  updateListing,required TResult Function( String listingId,  String action)  toggleListingStatus,required TResult Function( String listingId)  renewListing,required TResult Function( String listingId,  int offerAmount,  String? message)  makeOffer,required TResult Function( String offerId,  String action,  int? counterAmount)  respondToOffer,required TResult Function( String orderId,  String? reason)  sellerRefund,required TResult Function()  loadMyListings,required TResult Function()  loadSavedItems,required TResult Function()  loadSellerPortal,required TResult Function( String listingId)  toggleFavourite,required TResult Function( List<Uint8List> imageData,  String listingId)  uploadImages,required TResult Function( String displayName,  String? photoUrl,  Map<String, bool> contactPreferences)  registerProvider,required TResult Function( String? bio,  String? photoUrl,  Map<String, bool>? contactPreferences)  updateSellerProfile,required TResult Function()  deregisterSeller,required TResult Function()  cancelDeregistration,}) {final _that = this;
 switch (_that) {
 case _LoadListings():
 return loadListings(_that.category,_that.communityId);case _LoadMore():
@@ -253,7 +265,10 @@ return loadSavedItems();case _LoadSellerPortal():
 return loadSellerPortal();case _ToggleFavourite():
 return toggleFavourite(_that.listingId);case _UploadImages():
 return uploadImages(_that.imageData,_that.listingId);case _RegisterProvider():
-return registerProvider(_that.displayName,_that.bio,_that.photoUrl,_that.servicesDescription,_that.communityId,_that.category);case _:
+return registerProvider(_that.displayName,_that.photoUrl,_that.contactPreferences);case _UpdateSellerProfile():
+return updateSellerProfile(_that.bio,_that.photoUrl,_that.contactPreferences);case _DeregisterSeller():
+return deregisterSeller();case _CancelDeregistration():
+return cancelDeregistration();case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -270,7 +285,7 @@ return registerProvider(_that.displayName,_that.bio,_that.photoUrl,_that.service
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? category,  String? communityId)?  loadListings,TResult? Function()?  loadMore,TResult? Function( String query)?  searchListings,TResult? Function()?  clearSearch,TResult? Function( String id)?  selectListing,TResult? Function( String providerId)?  loadProviderProfile,TResult? Function( String providerId)?  loadProviderVouches,TResult? Function( String listingId,  String reason,  String? description)?  reportListing,TResult? Function( String providerId,  String reason,  String? description)?  reportProvider,TResult? Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  createListing,TResult? Function()?  clearMessages,TResult? Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  updateListing,TResult? Function( String listingId,  String action)?  toggleListingStatus,TResult? Function( String listingId)?  renewListing,TResult? Function( String listingId,  int offerAmount,  String? message)?  makeOffer,TResult? Function( String offerId,  String action,  int? counterAmount)?  respondToOffer,TResult? Function( String orderId,  String? reason)?  sellerRefund,TResult? Function()?  loadMyListings,TResult? Function()?  loadSavedItems,TResult? Function()?  loadSellerPortal,TResult? Function( String listingId)?  toggleFavourite,TResult? Function( List<Uint8List> imageData,  String listingId)?  uploadImages,TResult? Function( String displayName,  String? bio,  String? photoUrl,  String? servicesDescription,  String? communityId,  String? category)?  registerProvider,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? category,  String? communityId)?  loadListings,TResult? Function()?  loadMore,TResult? Function( String query)?  searchListings,TResult? Function()?  clearSearch,TResult? Function( String id)?  selectListing,TResult? Function( String providerId)?  loadProviderProfile,TResult? Function( String providerId)?  loadProviderVouches,TResult? Function( String listingId,  String reason,  String? description)?  reportListing,TResult? Function( String providerId,  String reason,  String? description)?  reportProvider,TResult? Function( String title,  String description,  String category,  String? subCategory,  int priceTokens,  List<String> imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  createListing,TResult? Function()?  clearMessages,TResult? Function( String listingId,  String? title,  String? description,  String? category,  int? priceTokens,  List<String>? imageUrls,  String? location,  String? deliveryMethod,  int? deliveryFee,  String? serviceAreaType,  Map<String, dynamic>? locationData)?  updateListing,TResult? Function( String listingId,  String action)?  toggleListingStatus,TResult? Function( String listingId)?  renewListing,TResult? Function( String listingId,  int offerAmount,  String? message)?  makeOffer,TResult? Function( String offerId,  String action,  int? counterAmount)?  respondToOffer,TResult? Function( String orderId,  String? reason)?  sellerRefund,TResult? Function()?  loadMyListings,TResult? Function()?  loadSavedItems,TResult? Function()?  loadSellerPortal,TResult? Function( String listingId)?  toggleFavourite,TResult? Function( List<Uint8List> imageData,  String listingId)?  uploadImages,TResult? Function( String displayName,  String? photoUrl,  Map<String, bool> contactPreferences)?  registerProvider,TResult? Function( String? bio,  String? photoUrl,  Map<String, bool>? contactPreferences)?  updateSellerProfile,TResult? Function()?  deregisterSeller,TResult? Function()?  cancelDeregistration,}) {final _that = this;
 switch (_that) {
 case _LoadListings() when loadListings != null:
 return loadListings(_that.category,_that.communityId);case _LoadMore() when loadMore != null:
@@ -295,7 +310,10 @@ return loadSavedItems();case _LoadSellerPortal() when loadSellerPortal != null:
 return loadSellerPortal();case _ToggleFavourite() when toggleFavourite != null:
 return toggleFavourite(_that.listingId);case _UploadImages() when uploadImages != null:
 return uploadImages(_that.imageData,_that.listingId);case _RegisterProvider() when registerProvider != null:
-return registerProvider(_that.displayName,_that.bio,_that.photoUrl,_that.servicesDescription,_that.communityId,_that.category);case _:
+return registerProvider(_that.displayName,_that.photoUrl,_that.contactPreferences);case _UpdateSellerProfile() when updateSellerProfile != null:
+return updateSellerProfile(_that.bio,_that.photoUrl,_that.contactPreferences);case _DeregisterSeller() when deregisterSeller != null:
+return deregisterSeller();case _CancelDeregistration() when cancelDeregistration != null:
+return cancelDeregistration();case _:
   return null;
 
 }
@@ -1655,15 +1673,18 @@ as String,
 
 
 class _RegisterProvider implements MarketplaceEvent {
-  const _RegisterProvider({required this.displayName, this.bio, this.photoUrl, this.servicesDescription, this.communityId, this.category});
+  const _RegisterProvider({required this.displayName, this.photoUrl, required final  Map<String, bool> contactPreferences}): _contactPreferences = contactPreferences;
   
 
  final  String displayName;
- final  String? bio;
  final  String? photoUrl;
- final  String? servicesDescription;
- final  String? communityId;
- final  String? category;
+ final  Map<String, bool> _contactPreferences;
+ Map<String, bool> get contactPreferences {
+  if (_contactPreferences is EqualUnmodifiableMapView) return _contactPreferences;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_contactPreferences);
+}
+
 
 /// Create a copy of MarketplaceEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -1675,16 +1696,16 @@ _$RegisterProviderCopyWith<_RegisterProvider> get copyWith => __$RegisterProvide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RegisterProvider&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.servicesDescription, servicesDescription) || other.servicesDescription == servicesDescription)&&(identical(other.communityId, communityId) || other.communityId == communityId)&&(identical(other.category, category) || other.category == category));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RegisterProvider&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&const DeepCollectionEquality().equals(other._contactPreferences, _contactPreferences));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,displayName,bio,photoUrl,servicesDescription,communityId,category);
+int get hashCode => Object.hash(runtimeType,displayName,photoUrl,const DeepCollectionEquality().hash(_contactPreferences));
 
 @override
 String toString() {
-  return 'MarketplaceEvent.registerProvider(displayName: $displayName, bio: $bio, photoUrl: $photoUrl, servicesDescription: $servicesDescription, communityId: $communityId, category: $category)';
+  return 'MarketplaceEvent.registerProvider(displayName: $displayName, photoUrl: $photoUrl, contactPreferences: $contactPreferences)';
 }
 
 
@@ -1695,7 +1716,7 @@ abstract mixin class _$RegisterProviderCopyWith<$Res> implements $MarketplaceEve
   factory _$RegisterProviderCopyWith(_RegisterProvider value, $Res Function(_RegisterProvider) _then) = __$RegisterProviderCopyWithImpl;
 @useResult
 $Res call({
- String displayName, String? bio, String? photoUrl, String? servicesDescription, String? communityId, String? category
+ String displayName, String? photoUrl, Map<String, bool> contactPreferences
 });
 
 
@@ -1712,15 +1733,12 @@ class __$RegisterProviderCopyWithImpl<$Res>
 
 /// Create a copy of MarketplaceEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? displayName = null,Object? bio = freezed,Object? photoUrl = freezed,Object? servicesDescription = freezed,Object? communityId = freezed,Object? category = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? displayName = null,Object? photoUrl = freezed,Object? contactPreferences = null,}) {
   return _then(_RegisterProvider(
 displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
-as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
-as String?,servicesDescription: freezed == servicesDescription ? _self.servicesDescription : servicesDescription // ignore: cast_nullable_to_non_nullable
-as String?,communityId: freezed == communityId ? _self.communityId : communityId // ignore: cast_nullable_to_non_nullable
-as String?,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
-as String?,
+as String,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
+as String?,contactPreferences: null == contactPreferences ? _self._contactPreferences : contactPreferences // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>,
   ));
 }
 
@@ -1728,12 +1746,154 @@ as String?,
 }
 
 /// @nodoc
+
+
+class _UpdateSellerProfile implements MarketplaceEvent {
+  const _UpdateSellerProfile({this.bio, this.photoUrl, final  Map<String, bool>? contactPreferences}): _contactPreferences = contactPreferences;
+  
+
+ final  String? bio;
+ final  String? photoUrl;
+ final  Map<String, bool>? _contactPreferences;
+ Map<String, bool>? get contactPreferences {
+  final value = _contactPreferences;
+  if (value == null) return null;
+  if (_contactPreferences is EqualUnmodifiableMapView) return _contactPreferences;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+
+/// Create a copy of MarketplaceEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateSellerProfileCopyWith<_UpdateSellerProfile> get copyWith => __$UpdateSellerProfileCopyWithImpl<_UpdateSellerProfile>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateSellerProfile&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&const DeepCollectionEquality().equals(other._contactPreferences, _contactPreferences));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,bio,photoUrl,const DeepCollectionEquality().hash(_contactPreferences));
+
+@override
+String toString() {
+  return 'MarketplaceEvent.updateSellerProfile(bio: $bio, photoUrl: $photoUrl, contactPreferences: $contactPreferences)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdateSellerProfileCopyWith<$Res> implements $MarketplaceEventCopyWith<$Res> {
+  factory _$UpdateSellerProfileCopyWith(_UpdateSellerProfile value, $Res Function(_UpdateSellerProfile) _then) = __$UpdateSellerProfileCopyWithImpl;
+@useResult
+$Res call({
+ String? bio, String? photoUrl, Map<String, bool>? contactPreferences
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateSellerProfileCopyWithImpl<$Res>
+    implements _$UpdateSellerProfileCopyWith<$Res> {
+  __$UpdateSellerProfileCopyWithImpl(this._self, this._then);
+
+  final _UpdateSellerProfile _self;
+  final $Res Function(_UpdateSellerProfile) _then;
+
+/// Create a copy of MarketplaceEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? bio = freezed,Object? photoUrl = freezed,Object? contactPreferences = freezed,}) {
+  return _then(_UpdateSellerProfile(
+bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
+as String?,contactPreferences: freezed == contactPreferences ? _self._contactPreferences : contactPreferences // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class _DeregisterSeller implements MarketplaceEvent {
+  const _DeregisterSeller();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DeregisterSeller);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'MarketplaceEvent.deregisterSeller()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class _CancelDeregistration implements MarketplaceEvent {
+  const _CancelDeregistration();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CancelDeregistration);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'MarketplaceEvent.cancelDeregistration()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
 mixin _$MarketplaceState {
 
  bool get isLoading; bool get isLoadingMore; bool get isLoadingDetail; bool get isLoadingProvider; List<MarketplaceListing> get listings; List<MarketplaceListing> get filteredListings; bool get hasMore; MarketplaceListing? get selectedListing; MarketplaceProvider? get selectedProvider;/// Vouches for the currently viewed provider profile
  List<Vouch> get providerVouches; bool get isSearching; String get searchQuery;/// Current category filter — used for pagination in loadMore
  String? get activeCategory;/// Current community filter — used for pagination in loadMore
- String? get activeCommunityId; bool get isCreating; bool get isReporting; bool get isUpdating; bool get isTogglingStatus; bool get isMakingOffer; bool get isRespondingToOffer; bool get isRefunding; bool get isRenewing; bool get isLoadingMyListings; bool get isLoadingSaved; bool get isLoadingSellerPortal; List<MarketplaceListing> get myListings; List<SavedListing> get savedItems; MarketplaceProvider? get currentSellerProfile; SellerDashboard? get sellerDashboard; String? get createSuccessId; String? get errorMessage; String? get reportSuccessMessage; String? get successMessage; bool get isUploadingImages; List<String> get uploadedImageUrls; bool get isRegistering; bool get isTogglingFavourite;
+ String? get activeCommunityId; bool get isCreating; bool get isReporting; bool get isUpdating; bool get isTogglingStatus; bool get isMakingOffer; bool get isRespondingToOffer; bool get isRefunding; bool get isRenewing; bool get isLoadingMyListings; bool get isLoadingSaved; bool get isLoadingSellerPortal; List<MarketplaceListing> get myListings; List<SavedListing> get savedItems; MarketplaceProvider? get currentSellerProfile; SellerDashboard? get sellerDashboard; String? get createSuccessId; String? get errorMessage; String? get reportSuccessMessage; String? get successMessage; bool get isUploadingImages; List<String> get uploadedImageUrls; bool get isRegistering; bool get registrationSuccess; bool get isTogglingFavourite; bool get isDeregistering; bool get isUpdatingProfile;
 /// Create a copy of MarketplaceState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1744,16 +1904,16 @@ $MarketplaceStateCopyWith<MarketplaceState> get copyWith => _$MarketplaceStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isLoadingProvider, isLoadingProvider) || other.isLoadingProvider == isLoadingProvider)&&const DeepCollectionEquality().equals(other.listings, listings)&&const DeepCollectionEquality().equals(other.filteredListings, filteredListings)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.selectedListing, selectedListing) || other.selectedListing == selectedListing)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&const DeepCollectionEquality().equals(other.providerVouches, providerVouches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.activeCategory, activeCategory) || other.activeCategory == activeCategory)&&(identical(other.activeCommunityId, activeCommunityId) || other.activeCommunityId == activeCommunityId)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isReporting, isReporting) || other.isReporting == isReporting)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.isTogglingStatus, isTogglingStatus) || other.isTogglingStatus == isTogglingStatus)&&(identical(other.isMakingOffer, isMakingOffer) || other.isMakingOffer == isMakingOffer)&&(identical(other.isRespondingToOffer, isRespondingToOffer) || other.isRespondingToOffer == isRespondingToOffer)&&(identical(other.isRefunding, isRefunding) || other.isRefunding == isRefunding)&&(identical(other.isRenewing, isRenewing) || other.isRenewing == isRenewing)&&(identical(other.isLoadingMyListings, isLoadingMyListings) || other.isLoadingMyListings == isLoadingMyListings)&&(identical(other.isLoadingSaved, isLoadingSaved) || other.isLoadingSaved == isLoadingSaved)&&(identical(other.isLoadingSellerPortal, isLoadingSellerPortal) || other.isLoadingSellerPortal == isLoadingSellerPortal)&&const DeepCollectionEquality().equals(other.myListings, myListings)&&const DeepCollectionEquality().equals(other.savedItems, savedItems)&&(identical(other.currentSellerProfile, currentSellerProfile) || other.currentSellerProfile == currentSellerProfile)&&(identical(other.sellerDashboard, sellerDashboard) || other.sellerDashboard == sellerDashboard)&&(identical(other.createSuccessId, createSuccessId) || other.createSuccessId == createSuccessId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportSuccessMessage, reportSuccessMessage) || other.reportSuccessMessage == reportSuccessMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.isUploadingImages, isUploadingImages) || other.isUploadingImages == isUploadingImages)&&const DeepCollectionEquality().equals(other.uploadedImageUrls, uploadedImageUrls)&&(identical(other.isRegistering, isRegistering) || other.isRegistering == isRegistering)&&(identical(other.isTogglingFavourite, isTogglingFavourite) || other.isTogglingFavourite == isTogglingFavourite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MarketplaceState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isLoadingProvider, isLoadingProvider) || other.isLoadingProvider == isLoadingProvider)&&const DeepCollectionEquality().equals(other.listings, listings)&&const DeepCollectionEquality().equals(other.filteredListings, filteredListings)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.selectedListing, selectedListing) || other.selectedListing == selectedListing)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&const DeepCollectionEquality().equals(other.providerVouches, providerVouches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.activeCategory, activeCategory) || other.activeCategory == activeCategory)&&(identical(other.activeCommunityId, activeCommunityId) || other.activeCommunityId == activeCommunityId)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isReporting, isReporting) || other.isReporting == isReporting)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.isTogglingStatus, isTogglingStatus) || other.isTogglingStatus == isTogglingStatus)&&(identical(other.isMakingOffer, isMakingOffer) || other.isMakingOffer == isMakingOffer)&&(identical(other.isRespondingToOffer, isRespondingToOffer) || other.isRespondingToOffer == isRespondingToOffer)&&(identical(other.isRefunding, isRefunding) || other.isRefunding == isRefunding)&&(identical(other.isRenewing, isRenewing) || other.isRenewing == isRenewing)&&(identical(other.isLoadingMyListings, isLoadingMyListings) || other.isLoadingMyListings == isLoadingMyListings)&&(identical(other.isLoadingSaved, isLoadingSaved) || other.isLoadingSaved == isLoadingSaved)&&(identical(other.isLoadingSellerPortal, isLoadingSellerPortal) || other.isLoadingSellerPortal == isLoadingSellerPortal)&&const DeepCollectionEquality().equals(other.myListings, myListings)&&const DeepCollectionEquality().equals(other.savedItems, savedItems)&&(identical(other.currentSellerProfile, currentSellerProfile) || other.currentSellerProfile == currentSellerProfile)&&(identical(other.sellerDashboard, sellerDashboard) || other.sellerDashboard == sellerDashboard)&&(identical(other.createSuccessId, createSuccessId) || other.createSuccessId == createSuccessId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportSuccessMessage, reportSuccessMessage) || other.reportSuccessMessage == reportSuccessMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.isUploadingImages, isUploadingImages) || other.isUploadingImages == isUploadingImages)&&const DeepCollectionEquality().equals(other.uploadedImageUrls, uploadedImageUrls)&&(identical(other.isRegistering, isRegistering) || other.isRegistering == isRegistering)&&(identical(other.registrationSuccess, registrationSuccess) || other.registrationSuccess == registrationSuccess)&&(identical(other.isTogglingFavourite, isTogglingFavourite) || other.isTogglingFavourite == isTogglingFavourite)&&(identical(other.isDeregistering, isDeregistering) || other.isDeregistering == isDeregistering)&&(identical(other.isUpdatingProfile, isUpdatingProfile) || other.isUpdatingProfile == isUpdatingProfile));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,isLoading,isLoadingMore,isLoadingDetail,isLoadingProvider,const DeepCollectionEquality().hash(listings),const DeepCollectionEquality().hash(filteredListings),hasMore,selectedListing,selectedProvider,const DeepCollectionEquality().hash(providerVouches),isSearching,searchQuery,activeCategory,activeCommunityId,isCreating,isReporting,isUpdating,isTogglingStatus,isMakingOffer,isRespondingToOffer,isRefunding,isRenewing,isLoadingMyListings,isLoadingSaved,isLoadingSellerPortal,const DeepCollectionEquality().hash(myListings),const DeepCollectionEquality().hash(savedItems),currentSellerProfile,sellerDashboard,createSuccessId,errorMessage,reportSuccessMessage,successMessage,isUploadingImages,const DeepCollectionEquality().hash(uploadedImageUrls),isRegistering,isTogglingFavourite]);
+int get hashCode => Object.hashAll([runtimeType,isLoading,isLoadingMore,isLoadingDetail,isLoadingProvider,const DeepCollectionEquality().hash(listings),const DeepCollectionEquality().hash(filteredListings),hasMore,selectedListing,selectedProvider,const DeepCollectionEquality().hash(providerVouches),isSearching,searchQuery,activeCategory,activeCommunityId,isCreating,isReporting,isUpdating,isTogglingStatus,isMakingOffer,isRespondingToOffer,isRefunding,isRenewing,isLoadingMyListings,isLoadingSaved,isLoadingSellerPortal,const DeepCollectionEquality().hash(myListings),const DeepCollectionEquality().hash(savedItems),currentSellerProfile,sellerDashboard,createSuccessId,errorMessage,reportSuccessMessage,successMessage,isUploadingImages,const DeepCollectionEquality().hash(uploadedImageUrls),isRegistering,registrationSuccess,isTogglingFavourite,isDeregistering,isUpdatingProfile]);
 
 @override
 String toString() {
-  return 'MarketplaceState(isLoading: $isLoading, isLoadingMore: $isLoadingMore, isLoadingDetail: $isLoadingDetail, isLoadingProvider: $isLoadingProvider, listings: $listings, filteredListings: $filteredListings, hasMore: $hasMore, selectedListing: $selectedListing, selectedProvider: $selectedProvider, providerVouches: $providerVouches, isSearching: $isSearching, searchQuery: $searchQuery, activeCategory: $activeCategory, activeCommunityId: $activeCommunityId, isCreating: $isCreating, isReporting: $isReporting, isUpdating: $isUpdating, isTogglingStatus: $isTogglingStatus, isMakingOffer: $isMakingOffer, isRespondingToOffer: $isRespondingToOffer, isRefunding: $isRefunding, isRenewing: $isRenewing, isLoadingMyListings: $isLoadingMyListings, isLoadingSaved: $isLoadingSaved, isLoadingSellerPortal: $isLoadingSellerPortal, myListings: $myListings, savedItems: $savedItems, currentSellerProfile: $currentSellerProfile, sellerDashboard: $sellerDashboard, createSuccessId: $createSuccessId, errorMessage: $errorMessage, reportSuccessMessage: $reportSuccessMessage, successMessage: $successMessage, isUploadingImages: $isUploadingImages, uploadedImageUrls: $uploadedImageUrls, isRegistering: $isRegistering, isTogglingFavourite: $isTogglingFavourite)';
+  return 'MarketplaceState(isLoading: $isLoading, isLoadingMore: $isLoadingMore, isLoadingDetail: $isLoadingDetail, isLoadingProvider: $isLoadingProvider, listings: $listings, filteredListings: $filteredListings, hasMore: $hasMore, selectedListing: $selectedListing, selectedProvider: $selectedProvider, providerVouches: $providerVouches, isSearching: $isSearching, searchQuery: $searchQuery, activeCategory: $activeCategory, activeCommunityId: $activeCommunityId, isCreating: $isCreating, isReporting: $isReporting, isUpdating: $isUpdating, isTogglingStatus: $isTogglingStatus, isMakingOffer: $isMakingOffer, isRespondingToOffer: $isRespondingToOffer, isRefunding: $isRefunding, isRenewing: $isRenewing, isLoadingMyListings: $isLoadingMyListings, isLoadingSaved: $isLoadingSaved, isLoadingSellerPortal: $isLoadingSellerPortal, myListings: $myListings, savedItems: $savedItems, currentSellerProfile: $currentSellerProfile, sellerDashboard: $sellerDashboard, createSuccessId: $createSuccessId, errorMessage: $errorMessage, reportSuccessMessage: $reportSuccessMessage, successMessage: $successMessage, isUploadingImages: $isUploadingImages, uploadedImageUrls: $uploadedImageUrls, isRegistering: $isRegistering, registrationSuccess: $registrationSuccess, isTogglingFavourite: $isTogglingFavourite, isDeregistering: $isDeregistering, isUpdatingProfile: $isUpdatingProfile)';
 }
 
 
@@ -1764,7 +1924,7 @@ abstract mixin class $MarketplaceStateCopyWith<$Res>  {
   factory $MarketplaceStateCopyWith(MarketplaceState value, $Res Function(MarketplaceState) _then) = _$MarketplaceStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool isLoadingMore, bool isLoadingDetail, bool isLoadingProvider, List<MarketplaceListing> listings, List<MarketplaceListing> filteredListings, bool hasMore, MarketplaceListing? selectedListing, MarketplaceProvider? selectedProvider, List<Vouch> providerVouches, bool isSearching, String searchQuery, String? activeCategory, String? activeCommunityId, bool isCreating, bool isReporting, bool isUpdating, bool isTogglingStatus, bool isMakingOffer, bool isRespondingToOffer, bool isRefunding, bool isRenewing, bool isLoadingMyListings, bool isLoadingSaved, bool isLoadingSellerPortal, List<MarketplaceListing> myListings, List<SavedListing> savedItems, MarketplaceProvider? currentSellerProfile, SellerDashboard? sellerDashboard, String? createSuccessId, String? errorMessage, String? reportSuccessMessage, String? successMessage, bool isUploadingImages, List<String> uploadedImageUrls, bool isRegistering, bool isTogglingFavourite
+ bool isLoading, bool isLoadingMore, bool isLoadingDetail, bool isLoadingProvider, List<MarketplaceListing> listings, List<MarketplaceListing> filteredListings, bool hasMore, MarketplaceListing? selectedListing, MarketplaceProvider? selectedProvider, List<Vouch> providerVouches, bool isSearching, String searchQuery, String? activeCategory, String? activeCommunityId, bool isCreating, bool isReporting, bool isUpdating, bool isTogglingStatus, bool isMakingOffer, bool isRespondingToOffer, bool isRefunding, bool isRenewing, bool isLoadingMyListings, bool isLoadingSaved, bool isLoadingSellerPortal, List<MarketplaceListing> myListings, List<SavedListing> savedItems, MarketplaceProvider? currentSellerProfile, SellerDashboard? sellerDashboard, String? createSuccessId, String? errorMessage, String? reportSuccessMessage, String? successMessage, bool isUploadingImages, List<String> uploadedImageUrls, bool isRegistering, bool registrationSuccess, bool isTogglingFavourite, bool isDeregistering, bool isUpdatingProfile
 });
 
 
@@ -1781,7 +1941,7 @@ class _$MarketplaceStateCopyWithImpl<$Res>
 
 /// Create a copy of MarketplaceState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLoadingMore = null,Object? isLoadingDetail = null,Object? isLoadingProvider = null,Object? listings = null,Object? filteredListings = null,Object? hasMore = null,Object? selectedListing = freezed,Object? selectedProvider = freezed,Object? providerVouches = null,Object? isSearching = null,Object? searchQuery = null,Object? activeCategory = freezed,Object? activeCommunityId = freezed,Object? isCreating = null,Object? isReporting = null,Object? isUpdating = null,Object? isTogglingStatus = null,Object? isMakingOffer = null,Object? isRespondingToOffer = null,Object? isRefunding = null,Object? isRenewing = null,Object? isLoadingMyListings = null,Object? isLoadingSaved = null,Object? isLoadingSellerPortal = null,Object? myListings = null,Object? savedItems = null,Object? currentSellerProfile = freezed,Object? sellerDashboard = freezed,Object? createSuccessId = freezed,Object? errorMessage = freezed,Object? reportSuccessMessage = freezed,Object? successMessage = freezed,Object? isUploadingImages = null,Object? uploadedImageUrls = null,Object? isRegistering = null,Object? isTogglingFavourite = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLoadingMore = null,Object? isLoadingDetail = null,Object? isLoadingProvider = null,Object? listings = null,Object? filteredListings = null,Object? hasMore = null,Object? selectedListing = freezed,Object? selectedProvider = freezed,Object? providerVouches = null,Object? isSearching = null,Object? searchQuery = null,Object? activeCategory = freezed,Object? activeCommunityId = freezed,Object? isCreating = null,Object? isReporting = null,Object? isUpdating = null,Object? isTogglingStatus = null,Object? isMakingOffer = null,Object? isRespondingToOffer = null,Object? isRefunding = null,Object? isRenewing = null,Object? isLoadingMyListings = null,Object? isLoadingSaved = null,Object? isLoadingSellerPortal = null,Object? myListings = null,Object? savedItems = null,Object? currentSellerProfile = freezed,Object? sellerDashboard = freezed,Object? createSuccessId = freezed,Object? errorMessage = freezed,Object? reportSuccessMessage = freezed,Object? successMessage = freezed,Object? isUploadingImages = null,Object? uploadedImageUrls = null,Object? isRegistering = null,Object? registrationSuccess = null,Object? isTogglingFavourite = null,Object? isDeregistering = null,Object? isUpdatingProfile = null,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
@@ -1819,7 +1979,10 @@ as String?,successMessage: freezed == successMessage ? _self.successMessage : su
 as String?,isUploadingImages: null == isUploadingImages ? _self.isUploadingImages : isUploadingImages // ignore: cast_nullable_to_non_nullable
 as bool,uploadedImageUrls: null == uploadedImageUrls ? _self.uploadedImageUrls : uploadedImageUrls // ignore: cast_nullable_to_non_nullable
 as List<String>,isRegistering: null == isRegistering ? _self.isRegistering : isRegistering // ignore: cast_nullable_to_non_nullable
+as bool,registrationSuccess: null == registrationSuccess ? _self.registrationSuccess : registrationSuccess // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingFavourite: null == isTogglingFavourite ? _self.isTogglingFavourite : isTogglingFavourite // ignore: cast_nullable_to_non_nullable
+as bool,isDeregistering: null == isDeregistering ? _self.isDeregistering : isDeregistering // ignore: cast_nullable_to_non_nullable
+as bool,isUpdatingProfile: null == isUpdatingProfile ? _self.isUpdatingProfile : isUpdatingProfile // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -1953,10 +2116,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool isTogglingFavourite)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool registrationSuccess,  bool isTogglingFavourite,  bool isDeregistering,  bool isUpdatingProfile)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MarketplaceState() when $default != null:
-return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.isTogglingFavourite);case _:
+return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.registrationSuccess,_that.isTogglingFavourite,_that.isDeregistering,_that.isUpdatingProfile);case _:
   return orElse();
 
 }
@@ -1974,10 +2137,10 @@ return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool isTogglingFavourite)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool registrationSuccess,  bool isTogglingFavourite,  bool isDeregistering,  bool isUpdatingProfile)  $default,) {final _that = this;
 switch (_that) {
 case _MarketplaceState():
-return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.isTogglingFavourite);case _:
+return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.registrationSuccess,_that.isTogglingFavourite,_that.isDeregistering,_that.isUpdatingProfile);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1994,10 +2157,10 @@ return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool isTogglingFavourite)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLoadingMore,  bool isLoadingDetail,  bool isLoadingProvider,  List<MarketplaceListing> listings,  List<MarketplaceListing> filteredListings,  bool hasMore,  MarketplaceListing? selectedListing,  MarketplaceProvider? selectedProvider,  List<Vouch> providerVouches,  bool isSearching,  String searchQuery,  String? activeCategory,  String? activeCommunityId,  bool isCreating,  bool isReporting,  bool isUpdating,  bool isTogglingStatus,  bool isMakingOffer,  bool isRespondingToOffer,  bool isRefunding,  bool isRenewing,  bool isLoadingMyListings,  bool isLoadingSaved,  bool isLoadingSellerPortal,  List<MarketplaceListing> myListings,  List<SavedListing> savedItems,  MarketplaceProvider? currentSellerProfile,  SellerDashboard? sellerDashboard,  String? createSuccessId,  String? errorMessage,  String? reportSuccessMessage,  String? successMessage,  bool isUploadingImages,  List<String> uploadedImageUrls,  bool isRegistering,  bool registrationSuccess,  bool isTogglingFavourite,  bool isDeregistering,  bool isUpdatingProfile)?  $default,) {final _that = this;
 switch (_that) {
 case _MarketplaceState() when $default != null:
-return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.isTogglingFavourite);case _:
+return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.isLoadingProvider,_that.listings,_that.filteredListings,_that.hasMore,_that.selectedListing,_that.selectedProvider,_that.providerVouches,_that.isSearching,_that.searchQuery,_that.activeCategory,_that.activeCommunityId,_that.isCreating,_that.isReporting,_that.isUpdating,_that.isTogglingStatus,_that.isMakingOffer,_that.isRespondingToOffer,_that.isRefunding,_that.isRenewing,_that.isLoadingMyListings,_that.isLoadingSaved,_that.isLoadingSellerPortal,_that.myListings,_that.savedItems,_that.currentSellerProfile,_that.sellerDashboard,_that.createSuccessId,_that.errorMessage,_that.reportSuccessMessage,_that.successMessage,_that.isUploadingImages,_that.uploadedImageUrls,_that.isRegistering,_that.registrationSuccess,_that.isTogglingFavourite,_that.isDeregistering,_that.isUpdatingProfile);case _:
   return null;
 
 }
@@ -2009,7 +2172,7 @@ return $default(_that.isLoading,_that.isLoadingMore,_that.isLoadingDetail,_that.
 
 
 class _MarketplaceState implements MarketplaceState {
-  const _MarketplaceState({this.isLoading = false, this.isLoadingMore = false, this.isLoadingDetail = false, this.isLoadingProvider = false, final  List<MarketplaceListing> listings = const [], final  List<MarketplaceListing> filteredListings = const [], this.hasMore = true, this.selectedListing, this.selectedProvider, final  List<Vouch> providerVouches = const [], this.isSearching = false, this.searchQuery = '', this.activeCategory, this.activeCommunityId, this.isCreating = false, this.isReporting = false, this.isUpdating = false, this.isTogglingStatus = false, this.isMakingOffer = false, this.isRespondingToOffer = false, this.isRefunding = false, this.isRenewing = false, this.isLoadingMyListings = false, this.isLoadingSaved = false, this.isLoadingSellerPortal = false, final  List<MarketplaceListing> myListings = const [], final  List<SavedListing> savedItems = const [], this.currentSellerProfile, this.sellerDashboard, this.createSuccessId, this.errorMessage, this.reportSuccessMessage, this.successMessage, this.isUploadingImages = false, final  List<String> uploadedImageUrls = const [], this.isRegistering = false, this.isTogglingFavourite = false}): _listings = listings,_filteredListings = filteredListings,_providerVouches = providerVouches,_myListings = myListings,_savedItems = savedItems,_uploadedImageUrls = uploadedImageUrls;
+  const _MarketplaceState({this.isLoading = false, this.isLoadingMore = false, this.isLoadingDetail = false, this.isLoadingProvider = false, final  List<MarketplaceListing> listings = const [], final  List<MarketplaceListing> filteredListings = const [], this.hasMore = true, this.selectedListing, this.selectedProvider, final  List<Vouch> providerVouches = const [], this.isSearching = false, this.searchQuery = '', this.activeCategory, this.activeCommunityId, this.isCreating = false, this.isReporting = false, this.isUpdating = false, this.isTogglingStatus = false, this.isMakingOffer = false, this.isRespondingToOffer = false, this.isRefunding = false, this.isRenewing = false, this.isLoadingMyListings = false, this.isLoadingSaved = false, this.isLoadingSellerPortal = false, final  List<MarketplaceListing> myListings = const [], final  List<SavedListing> savedItems = const [], this.currentSellerProfile, this.sellerDashboard, this.createSuccessId, this.errorMessage, this.reportSuccessMessage, this.successMessage, this.isUploadingImages = false, final  List<String> uploadedImageUrls = const [], this.isRegistering = false, this.registrationSuccess = false, this.isTogglingFavourite = false, this.isDeregistering = false, this.isUpdatingProfile = false}): _listings = listings,_filteredListings = filteredListings,_providerVouches = providerVouches,_myListings = myListings,_savedItems = savedItems,_uploadedImageUrls = uploadedImageUrls;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -2088,7 +2251,10 @@ class _MarketplaceState implements MarketplaceState {
 }
 
 @override@JsonKey() final  bool isRegistering;
+@override@JsonKey() final  bool registrationSuccess;
 @override@JsonKey() final  bool isTogglingFavourite;
+@override@JsonKey() final  bool isDeregistering;
+@override@JsonKey() final  bool isUpdatingProfile;
 
 /// Create a copy of MarketplaceState
 /// with the given fields replaced by the non-null parameter values.
@@ -2100,16 +2266,16 @@ _$MarketplaceStateCopyWith<_MarketplaceState> get copyWith => __$MarketplaceStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isLoadingProvider, isLoadingProvider) || other.isLoadingProvider == isLoadingProvider)&&const DeepCollectionEquality().equals(other._listings, _listings)&&const DeepCollectionEquality().equals(other._filteredListings, _filteredListings)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.selectedListing, selectedListing) || other.selectedListing == selectedListing)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&const DeepCollectionEquality().equals(other._providerVouches, _providerVouches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.activeCategory, activeCategory) || other.activeCategory == activeCategory)&&(identical(other.activeCommunityId, activeCommunityId) || other.activeCommunityId == activeCommunityId)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isReporting, isReporting) || other.isReporting == isReporting)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.isTogglingStatus, isTogglingStatus) || other.isTogglingStatus == isTogglingStatus)&&(identical(other.isMakingOffer, isMakingOffer) || other.isMakingOffer == isMakingOffer)&&(identical(other.isRespondingToOffer, isRespondingToOffer) || other.isRespondingToOffer == isRespondingToOffer)&&(identical(other.isRefunding, isRefunding) || other.isRefunding == isRefunding)&&(identical(other.isRenewing, isRenewing) || other.isRenewing == isRenewing)&&(identical(other.isLoadingMyListings, isLoadingMyListings) || other.isLoadingMyListings == isLoadingMyListings)&&(identical(other.isLoadingSaved, isLoadingSaved) || other.isLoadingSaved == isLoadingSaved)&&(identical(other.isLoadingSellerPortal, isLoadingSellerPortal) || other.isLoadingSellerPortal == isLoadingSellerPortal)&&const DeepCollectionEquality().equals(other._myListings, _myListings)&&const DeepCollectionEquality().equals(other._savedItems, _savedItems)&&(identical(other.currentSellerProfile, currentSellerProfile) || other.currentSellerProfile == currentSellerProfile)&&(identical(other.sellerDashboard, sellerDashboard) || other.sellerDashboard == sellerDashboard)&&(identical(other.createSuccessId, createSuccessId) || other.createSuccessId == createSuccessId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportSuccessMessage, reportSuccessMessage) || other.reportSuccessMessage == reportSuccessMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.isUploadingImages, isUploadingImages) || other.isUploadingImages == isUploadingImages)&&const DeepCollectionEquality().equals(other._uploadedImageUrls, _uploadedImageUrls)&&(identical(other.isRegistering, isRegistering) || other.isRegistering == isRegistering)&&(identical(other.isTogglingFavourite, isTogglingFavourite) || other.isTogglingFavourite == isTogglingFavourite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MarketplaceState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLoadingMore, isLoadingMore) || other.isLoadingMore == isLoadingMore)&&(identical(other.isLoadingDetail, isLoadingDetail) || other.isLoadingDetail == isLoadingDetail)&&(identical(other.isLoadingProvider, isLoadingProvider) || other.isLoadingProvider == isLoadingProvider)&&const DeepCollectionEquality().equals(other._listings, _listings)&&const DeepCollectionEquality().equals(other._filteredListings, _filteredListings)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore)&&(identical(other.selectedListing, selectedListing) || other.selectedListing == selectedListing)&&(identical(other.selectedProvider, selectedProvider) || other.selectedProvider == selectedProvider)&&const DeepCollectionEquality().equals(other._providerVouches, _providerVouches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.activeCategory, activeCategory) || other.activeCategory == activeCategory)&&(identical(other.activeCommunityId, activeCommunityId) || other.activeCommunityId == activeCommunityId)&&(identical(other.isCreating, isCreating) || other.isCreating == isCreating)&&(identical(other.isReporting, isReporting) || other.isReporting == isReporting)&&(identical(other.isUpdating, isUpdating) || other.isUpdating == isUpdating)&&(identical(other.isTogglingStatus, isTogglingStatus) || other.isTogglingStatus == isTogglingStatus)&&(identical(other.isMakingOffer, isMakingOffer) || other.isMakingOffer == isMakingOffer)&&(identical(other.isRespondingToOffer, isRespondingToOffer) || other.isRespondingToOffer == isRespondingToOffer)&&(identical(other.isRefunding, isRefunding) || other.isRefunding == isRefunding)&&(identical(other.isRenewing, isRenewing) || other.isRenewing == isRenewing)&&(identical(other.isLoadingMyListings, isLoadingMyListings) || other.isLoadingMyListings == isLoadingMyListings)&&(identical(other.isLoadingSaved, isLoadingSaved) || other.isLoadingSaved == isLoadingSaved)&&(identical(other.isLoadingSellerPortal, isLoadingSellerPortal) || other.isLoadingSellerPortal == isLoadingSellerPortal)&&const DeepCollectionEquality().equals(other._myListings, _myListings)&&const DeepCollectionEquality().equals(other._savedItems, _savedItems)&&(identical(other.currentSellerProfile, currentSellerProfile) || other.currentSellerProfile == currentSellerProfile)&&(identical(other.sellerDashboard, sellerDashboard) || other.sellerDashboard == sellerDashboard)&&(identical(other.createSuccessId, createSuccessId) || other.createSuccessId == createSuccessId)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.reportSuccessMessage, reportSuccessMessage) || other.reportSuccessMessage == reportSuccessMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage)&&(identical(other.isUploadingImages, isUploadingImages) || other.isUploadingImages == isUploadingImages)&&const DeepCollectionEquality().equals(other._uploadedImageUrls, _uploadedImageUrls)&&(identical(other.isRegistering, isRegistering) || other.isRegistering == isRegistering)&&(identical(other.registrationSuccess, registrationSuccess) || other.registrationSuccess == registrationSuccess)&&(identical(other.isTogglingFavourite, isTogglingFavourite) || other.isTogglingFavourite == isTogglingFavourite)&&(identical(other.isDeregistering, isDeregistering) || other.isDeregistering == isDeregistering)&&(identical(other.isUpdatingProfile, isUpdatingProfile) || other.isUpdatingProfile == isUpdatingProfile));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,isLoading,isLoadingMore,isLoadingDetail,isLoadingProvider,const DeepCollectionEquality().hash(_listings),const DeepCollectionEquality().hash(_filteredListings),hasMore,selectedListing,selectedProvider,const DeepCollectionEquality().hash(_providerVouches),isSearching,searchQuery,activeCategory,activeCommunityId,isCreating,isReporting,isUpdating,isTogglingStatus,isMakingOffer,isRespondingToOffer,isRefunding,isRenewing,isLoadingMyListings,isLoadingSaved,isLoadingSellerPortal,const DeepCollectionEquality().hash(_myListings),const DeepCollectionEquality().hash(_savedItems),currentSellerProfile,sellerDashboard,createSuccessId,errorMessage,reportSuccessMessage,successMessage,isUploadingImages,const DeepCollectionEquality().hash(_uploadedImageUrls),isRegistering,isTogglingFavourite]);
+int get hashCode => Object.hashAll([runtimeType,isLoading,isLoadingMore,isLoadingDetail,isLoadingProvider,const DeepCollectionEquality().hash(_listings),const DeepCollectionEquality().hash(_filteredListings),hasMore,selectedListing,selectedProvider,const DeepCollectionEquality().hash(_providerVouches),isSearching,searchQuery,activeCategory,activeCommunityId,isCreating,isReporting,isUpdating,isTogglingStatus,isMakingOffer,isRespondingToOffer,isRefunding,isRenewing,isLoadingMyListings,isLoadingSaved,isLoadingSellerPortal,const DeepCollectionEquality().hash(_myListings),const DeepCollectionEquality().hash(_savedItems),currentSellerProfile,sellerDashboard,createSuccessId,errorMessage,reportSuccessMessage,successMessage,isUploadingImages,const DeepCollectionEquality().hash(_uploadedImageUrls),isRegistering,registrationSuccess,isTogglingFavourite,isDeregistering,isUpdatingProfile]);
 
 @override
 String toString() {
-  return 'MarketplaceState(isLoading: $isLoading, isLoadingMore: $isLoadingMore, isLoadingDetail: $isLoadingDetail, isLoadingProvider: $isLoadingProvider, listings: $listings, filteredListings: $filteredListings, hasMore: $hasMore, selectedListing: $selectedListing, selectedProvider: $selectedProvider, providerVouches: $providerVouches, isSearching: $isSearching, searchQuery: $searchQuery, activeCategory: $activeCategory, activeCommunityId: $activeCommunityId, isCreating: $isCreating, isReporting: $isReporting, isUpdating: $isUpdating, isTogglingStatus: $isTogglingStatus, isMakingOffer: $isMakingOffer, isRespondingToOffer: $isRespondingToOffer, isRefunding: $isRefunding, isRenewing: $isRenewing, isLoadingMyListings: $isLoadingMyListings, isLoadingSaved: $isLoadingSaved, isLoadingSellerPortal: $isLoadingSellerPortal, myListings: $myListings, savedItems: $savedItems, currentSellerProfile: $currentSellerProfile, sellerDashboard: $sellerDashboard, createSuccessId: $createSuccessId, errorMessage: $errorMessage, reportSuccessMessage: $reportSuccessMessage, successMessage: $successMessage, isUploadingImages: $isUploadingImages, uploadedImageUrls: $uploadedImageUrls, isRegistering: $isRegistering, isTogglingFavourite: $isTogglingFavourite)';
+  return 'MarketplaceState(isLoading: $isLoading, isLoadingMore: $isLoadingMore, isLoadingDetail: $isLoadingDetail, isLoadingProvider: $isLoadingProvider, listings: $listings, filteredListings: $filteredListings, hasMore: $hasMore, selectedListing: $selectedListing, selectedProvider: $selectedProvider, providerVouches: $providerVouches, isSearching: $isSearching, searchQuery: $searchQuery, activeCategory: $activeCategory, activeCommunityId: $activeCommunityId, isCreating: $isCreating, isReporting: $isReporting, isUpdating: $isUpdating, isTogglingStatus: $isTogglingStatus, isMakingOffer: $isMakingOffer, isRespondingToOffer: $isRespondingToOffer, isRefunding: $isRefunding, isRenewing: $isRenewing, isLoadingMyListings: $isLoadingMyListings, isLoadingSaved: $isLoadingSaved, isLoadingSellerPortal: $isLoadingSellerPortal, myListings: $myListings, savedItems: $savedItems, currentSellerProfile: $currentSellerProfile, sellerDashboard: $sellerDashboard, createSuccessId: $createSuccessId, errorMessage: $errorMessage, reportSuccessMessage: $reportSuccessMessage, successMessage: $successMessage, isUploadingImages: $isUploadingImages, uploadedImageUrls: $uploadedImageUrls, isRegistering: $isRegistering, registrationSuccess: $registrationSuccess, isTogglingFavourite: $isTogglingFavourite, isDeregistering: $isDeregistering, isUpdatingProfile: $isUpdatingProfile)';
 }
 
 
@@ -2120,7 +2286,7 @@ abstract mixin class _$MarketplaceStateCopyWith<$Res> implements $MarketplaceSta
   factory _$MarketplaceStateCopyWith(_MarketplaceState value, $Res Function(_MarketplaceState) _then) = __$MarketplaceStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool isLoadingMore, bool isLoadingDetail, bool isLoadingProvider, List<MarketplaceListing> listings, List<MarketplaceListing> filteredListings, bool hasMore, MarketplaceListing? selectedListing, MarketplaceProvider? selectedProvider, List<Vouch> providerVouches, bool isSearching, String searchQuery, String? activeCategory, String? activeCommunityId, bool isCreating, bool isReporting, bool isUpdating, bool isTogglingStatus, bool isMakingOffer, bool isRespondingToOffer, bool isRefunding, bool isRenewing, bool isLoadingMyListings, bool isLoadingSaved, bool isLoadingSellerPortal, List<MarketplaceListing> myListings, List<SavedListing> savedItems, MarketplaceProvider? currentSellerProfile, SellerDashboard? sellerDashboard, String? createSuccessId, String? errorMessage, String? reportSuccessMessage, String? successMessage, bool isUploadingImages, List<String> uploadedImageUrls, bool isRegistering, bool isTogglingFavourite
+ bool isLoading, bool isLoadingMore, bool isLoadingDetail, bool isLoadingProvider, List<MarketplaceListing> listings, List<MarketplaceListing> filteredListings, bool hasMore, MarketplaceListing? selectedListing, MarketplaceProvider? selectedProvider, List<Vouch> providerVouches, bool isSearching, String searchQuery, String? activeCategory, String? activeCommunityId, bool isCreating, bool isReporting, bool isUpdating, bool isTogglingStatus, bool isMakingOffer, bool isRespondingToOffer, bool isRefunding, bool isRenewing, bool isLoadingMyListings, bool isLoadingSaved, bool isLoadingSellerPortal, List<MarketplaceListing> myListings, List<SavedListing> savedItems, MarketplaceProvider? currentSellerProfile, SellerDashboard? sellerDashboard, String? createSuccessId, String? errorMessage, String? reportSuccessMessage, String? successMessage, bool isUploadingImages, List<String> uploadedImageUrls, bool isRegistering, bool registrationSuccess, bool isTogglingFavourite, bool isDeregistering, bool isUpdatingProfile
 });
 
 
@@ -2137,7 +2303,7 @@ class __$MarketplaceStateCopyWithImpl<$Res>
 
 /// Create a copy of MarketplaceState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLoadingMore = null,Object? isLoadingDetail = null,Object? isLoadingProvider = null,Object? listings = null,Object? filteredListings = null,Object? hasMore = null,Object? selectedListing = freezed,Object? selectedProvider = freezed,Object? providerVouches = null,Object? isSearching = null,Object? searchQuery = null,Object? activeCategory = freezed,Object? activeCommunityId = freezed,Object? isCreating = null,Object? isReporting = null,Object? isUpdating = null,Object? isTogglingStatus = null,Object? isMakingOffer = null,Object? isRespondingToOffer = null,Object? isRefunding = null,Object? isRenewing = null,Object? isLoadingMyListings = null,Object? isLoadingSaved = null,Object? isLoadingSellerPortal = null,Object? myListings = null,Object? savedItems = null,Object? currentSellerProfile = freezed,Object? sellerDashboard = freezed,Object? createSuccessId = freezed,Object? errorMessage = freezed,Object? reportSuccessMessage = freezed,Object? successMessage = freezed,Object? isUploadingImages = null,Object? uploadedImageUrls = null,Object? isRegistering = null,Object? isTogglingFavourite = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLoadingMore = null,Object? isLoadingDetail = null,Object? isLoadingProvider = null,Object? listings = null,Object? filteredListings = null,Object? hasMore = null,Object? selectedListing = freezed,Object? selectedProvider = freezed,Object? providerVouches = null,Object? isSearching = null,Object? searchQuery = null,Object? activeCategory = freezed,Object? activeCommunityId = freezed,Object? isCreating = null,Object? isReporting = null,Object? isUpdating = null,Object? isTogglingStatus = null,Object? isMakingOffer = null,Object? isRespondingToOffer = null,Object? isRefunding = null,Object? isRenewing = null,Object? isLoadingMyListings = null,Object? isLoadingSaved = null,Object? isLoadingSellerPortal = null,Object? myListings = null,Object? savedItems = null,Object? currentSellerProfile = freezed,Object? sellerDashboard = freezed,Object? createSuccessId = freezed,Object? errorMessage = freezed,Object? reportSuccessMessage = freezed,Object? successMessage = freezed,Object? isUploadingImages = null,Object? uploadedImageUrls = null,Object? isRegistering = null,Object? registrationSuccess = null,Object? isTogglingFavourite = null,Object? isDeregistering = null,Object? isUpdatingProfile = null,}) {
   return _then(_MarketplaceState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLoadingMore: null == isLoadingMore ? _self.isLoadingMore : isLoadingMore // ignore: cast_nullable_to_non_nullable
@@ -2175,7 +2341,10 @@ as String?,successMessage: freezed == successMessage ? _self.successMessage : su
 as String?,isUploadingImages: null == isUploadingImages ? _self.isUploadingImages : isUploadingImages // ignore: cast_nullable_to_non_nullable
 as bool,uploadedImageUrls: null == uploadedImageUrls ? _self._uploadedImageUrls : uploadedImageUrls // ignore: cast_nullable_to_non_nullable
 as List<String>,isRegistering: null == isRegistering ? _self.isRegistering : isRegistering // ignore: cast_nullable_to_non_nullable
+as bool,registrationSuccess: null == registrationSuccess ? _self.registrationSuccess : registrationSuccess // ignore: cast_nullable_to_non_nullable
 as bool,isTogglingFavourite: null == isTogglingFavourite ? _self.isTogglingFavourite : isTogglingFavourite // ignore: cast_nullable_to_non_nullable
+as bool,isDeregistering: null == isDeregistering ? _self.isDeregistering : isDeregistering // ignore: cast_nullable_to_non_nullable
+as bool,isUpdatingProfile: null == isUpdatingProfile ? _self.isUpdatingProfile : isUpdatingProfile // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

@@ -5,6 +5,8 @@ enum ProviderStatus {
   active,
   suspended,
   banned,
+  deregisteredPending,
+  deregistered,
 }
 
 extension ProviderStatusX on ProviderStatus {
@@ -20,6 +22,10 @@ extension ProviderStatusX on ProviderStatus {
         return 'Suspended';
       case ProviderStatus.banned:
         return 'Banned';
+      case ProviderStatus.deregisteredPending:
+        return 'De-registering';
+      case ProviderStatus.deregistered:
+        return 'De-registered';
     }
   }
 
@@ -39,6 +45,10 @@ extension ProviderStatusX on ProviderStatus {
         return ProviderStatus.suspended;
       case 'banned':
         return ProviderStatus.banned;
+      case 'deregisteredPending':
+        return ProviderStatus.deregisteredPending;
+      case 'deregistered':
+        return ProviderStatus.deregistered;
       case 'rejected': // legacy — treat as banned
         return ProviderStatus.banned;
       default:

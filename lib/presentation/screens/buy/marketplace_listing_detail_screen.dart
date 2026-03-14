@@ -300,7 +300,7 @@ class _MarketplaceListingDetailScreenState
                       Expanded(
                         child: AppButton(
                           text: 'Make Offer',
-                          variant: AppButtonVariant.outline,
+                          variant: AppButtonVariant.secondary,
                           onPressed: () {
                             final listing = state.selectedListing!;
                             context.push(
@@ -337,7 +337,7 @@ class _MarketplaceListingDetailScreenState
   Widget _buildImageCarousel(List<String> images) {
     if (images.isEmpty) {
       return AspectRatio(
-        aspectRatio: 1.2,
+        aspectRatio: 1.8,
         child: Container(
           color: AppColors.buyCard,
           child: const Icon(
@@ -350,7 +350,7 @@ class _MarketplaceListingDetailScreenState
     }
 
     return AspectRatio(
-      aspectRatio: 1.2,
+      aspectRatio: 2.4,
       child: PageView.builder(
         itemCount: images.length,
         itemBuilder: (_, index) => CachedNetworkImage(
@@ -419,11 +419,25 @@ class _MarketplaceListingDetailScreenState
                     ),
                   ),
                   const SizedBox(height: 2),
-                  TrustBadge(
-                    score: (listing.providerTrustScore as num?)?.toDouble() ??
-                        0.0,
-                    isVerified: listing.providerIsVerified == true,
-                    size: TrustBadgeSize.small,
+                  Row(
+                    children: [
+                      TrustBadge(
+                        score: (listing.providerTrustScore as num?)?.toDouble() ??
+                            0.0,
+                        isVerified: listing.providerIsVerified == true,
+                        size: TrustBadgeSize.small,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        listing.providerCompletedOrders == 1
+                            ? '1 sale'
+                            : '${listing.providerCompletedOrders} sales',
+                        style: const TextStyle(
+                          color: AppColors.buyTextTertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

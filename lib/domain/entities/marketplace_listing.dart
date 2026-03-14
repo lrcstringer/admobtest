@@ -42,6 +42,7 @@ abstract class MarketplaceListing with _$MarketplaceListing {
     @Default(0) int renewalCount,
     @Default(0) int totalPausedDays,
     DateTime? pausedAt,
+    @Default(0) int providerCompletedOrders,
   }) = _MarketplaceListing;
 
   const MarketplaceListing._();

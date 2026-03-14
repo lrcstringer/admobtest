@@ -49,6 +49,9 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     on<_ToggleFavourite>(_onToggleFavourite);
     on<_UploadImages>(_onUploadImages);
     on<_RegisterProvider>(_onRegisterProvider);
+    on<_UpdateSellerProfile>(_onUpdateSellerProfile);
+    on<_DeregisterSeller>(_onDeregisterSeller);
+    on<_CancelDeregistration>(_onCancelDeregistration);
   }
 
   Future<void> _onLoadListings(
@@ -517,20 +520,25 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     if (state.isLoadingSellerPortal) return;
     emit(state.copyWith(isLoadingSellerPortal: true, errorMessage: null));
 
-    final result = await _repository.getSellerDashboard();
+    // Load seller profile and dashboard in parallel
+    final results = await Future.wait([
+      _repository.getCurrentSellerProfile(),
+      _repository.getSellerDashboard(),
+    ]);
 
-    result.fold(
-      (failure) => emit(state.copyWith(
-        isLoadingSellerPortal: false,
-        errorMessage: failure.displayMessage,
-      )),
-      (sellerDashboard) {
-        emit(state.copyWith(
-          isLoadingSellerPortal: false,
-          sellerDashboard: sellerDashboard,
-        ));
-      },
-    );
+    final profileResult =
+        results[0] as Either<Failure, MarketplaceProvider?>;
+    final dashboardResult =
+        results[1] as Either<Failure, SellerDashboard>;
+
+    final profile = profileResult.fold((_) => null, (p) => p);
+    final dashboard = dashboardResult.fold((_) => null, (d) => d);
+
+    emit(state.copyWith(
+      isLoadingSellerPortal: false,
+      currentSellerProfile: profile,
+      sellerDashboard: dashboard,
+    ));
   }
 
   Future<void> _onToggleFavourite(
@@ -630,15 +638,16 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
     Emitter<MarketplaceState> emit,
   ) async {
     if (state.isRegistering) return;
-    emit(state.copyWith(isRegistering: true, errorMessage: null));
+    emit(state.copyWith(
+      isRegistering: true,
+      registrationSuccess: false,
+      errorMessage: null,
+    ));
 
     final result = await _repository.registerProvider(
       displayName: event.displayName,
-      bio: event.bio,
       photoUrl: event.photoUrl,
-      servicesDescription: event.servicesDescription,
-      communityId: event.communityId,
-      category: event.category,
+      contactPreferences: event.contactPreferences,
     );
 
     result.fold(
@@ -646,10 +655,90 @@ class MarketplaceBloc extends Bloc<MarketplaceEvent, MarketplaceState> {
         isRegistering: false,
         errorMessage: failure.displayMessage,
       )),
-      (providerId) => emit(state.copyWith(
-        isRegistering: false,
-        successMessage: 'Provider registered successfully',
+      (providerId) {
+        // Reload seller portal to populate currentSellerProfile
+        add(const MarketplaceEvent.loadSellerPortal());
+        emit(state.copyWith(
+          isRegistering: false,
+          registrationSuccess: true,
+          successMessage: 'You are now a seller!',
+        ));
+      },
+    );
+  }
+
+  Future<void> _onUpdateSellerProfile(
+    _UpdateSellerProfile event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    emit(state.copyWith(isUpdatingProfile: true, errorMessage: null));
+
+    final result = await _repository.updateSellerProfile(
+      bio: event.bio,
+      photoUrl: event.photoUrl,
+      contactPreferences: event.contactPreferences,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isUpdatingProfile: false,
+        errorMessage: failure.displayMessage,
       )),
+      (_) {
+        add(const MarketplaceEvent.loadSellerPortal());
+        emit(state.copyWith(
+          isUpdatingProfile: false,
+          successMessage: 'Profile updated',
+        ));
+      },
+    );
+  }
+
+  Future<void> _onDeregisterSeller(
+    _DeregisterSeller event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isDeregistering) return;
+    emit(state.copyWith(isDeregistering: true, errorMessage: null));
+
+    final result = await _repository.deregisterProvider();
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isDeregistering: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        add(const MarketplaceEvent.loadSellerPortal());
+        emit(state.copyWith(
+          isDeregistering: false,
+          successMessage: 'De-registration requested. You have 7 days to change your mind.',
+        ));
+      },
+    );
+  }
+
+  Future<void> _onCancelDeregistration(
+    _CancelDeregistration event,
+    Emitter<MarketplaceState> emit,
+  ) async {
+    if (state.isDeregistering) return;
+    emit(state.copyWith(isDeregistering: true, errorMessage: null));
+
+    final result = await _repository.cancelDeregistration();
+
+    result.fold(
+      (failure) => emit(state.copyWith(
+        isDeregistering: false,
+        errorMessage: failure.displayMessage,
+      )),
+      (_) {
+        add(const MarketplaceEvent.loadSellerPortal());
+        emit(state.copyWith(
+          isDeregistering: false,
+          successMessage: 'De-registration cancelled. Your seller account is active again.',
+        ));
+      },
     );
   }
 

@@ -90,6 +90,8 @@ class _MarketplaceSearchBarState extends State<MarketplaceSearchBar> {
               );
             },
           ),
+          filled: true,
+          fillColor: Colors.transparent,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             vertical: AppSpacing.sm,

@@ -39,21 +39,39 @@ abstract class MarketplaceProvider with _$MarketplaceProvider {
     LocationData? profileLocation,
     @Default(0) double ratingSum,
     String? servicesDescription,
+    // ── Seller registration fields ──
+    @Default({'chat': true, 'phone': false})
+    Map<String, bool> contactPreferences,
+    @Default(3) int maxActiveListings,
+    DateTime? acceptedTermsAt,
+    DateTime? deregistrationRequestedAt,
+    DateTime? deregistrationEffectiveAt,
   }) = _MarketplaceProvider;
 
   const MarketplaceProvider._();
-
 
   /// Computed verified status (admin override takes precedence)
   bool get effectiveVerified =>
       isVerifiedOverride ?? (vouchCount >= 5 && trustScore >= 4.0);
 
   /// Whether provider is active and can create listings
-  bool get isActive => status == ProviderStatus.active;
+  bool get isActive =>
+      status == ProviderStatus.active || status == ProviderStatus.approved;
 
   /// Whether provider is banned permanently
   bool get isBanned => status == ProviderStatus.banned;
 
   /// Whether provider is suspended
   bool get isSuspended => status == ProviderStatus.suspended;
+
+  /// Whether provider is in the 7-day de-registration cooling-off period
+  bool get isDeregistering =>
+      status == ProviderStatus.deregisteredPending;
+
+  /// Days remaining until de-registration takes effect (clamped to 0)
+  int get daysUntilDeregistration {
+    if (deregistrationEffectiveAt == null) return 0;
+    final days = deregistrationEffectiveAt!.difference(DateTime.now()).inDays;
+    return days < 0 ? 0 : days;
+  }
 }

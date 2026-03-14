@@ -150,8 +150,6 @@ import '../../presentation/blocs/marketplace/marketplace_bloc.dart' as _i46;
 import '../../presentation/blocs/order/order_bloc.dart' as _i25;
 import '../../presentation/blocs/pot/pot_bloc.dart' as _i58;
 import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
-import '../../presentation/blocs/provider_registration/provider_registration_bloc.dart'
-    as _i682;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
@@ -690,9 +688,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
     );
     gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
-    gh.factory<_i682.ProviderRegistrationBloc>(
-      () => _i682.ProviderRegistrationBloc(gh<_i631.MarketplaceRepository>()),
-    );
     gh.lazySingleton<_i271.UserRepository>(
       () => _i790.UserRepositoryImpl(
         gh<_i50.UserRemoteDataSource>(),

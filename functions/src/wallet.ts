@@ -35,7 +35,7 @@ const db = admin.firestore();
 /**
  * Process cashout request
  */
-export const processCashout = onCall({ minInstances: 1, concurrency: 10, labels: { area: "wallet" } }, async (request) => {
+export const processCashout = onCall({ minInstances: 0, concurrency: 10, labels: { area: "wallet" } }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }

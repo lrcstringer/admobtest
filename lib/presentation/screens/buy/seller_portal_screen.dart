@@ -420,12 +420,8 @@ class _SellerProfileHeader extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined,
                 size: 20, color: AppColors.buyTextTertiary),
-            onPressed: () {
-              context.push('/buy/marketplace/register', extra: {
-                'editMode': true,
-                'provider': provider,
-              });
-            },
+            onPressed: () =>
+                context.push('/buy/marketplace/edit-profile'),
           ),
         ],
       ),

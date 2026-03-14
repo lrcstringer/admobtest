@@ -41,6 +41,13 @@ abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
     DateTime? bannedAt,
     LocationData? profileLocation,
     @Default(0) double ratingSum,
+    // ── Seller registration fields ──
+    @Default({'chat': true, 'phone': false})
+    Map<String, bool> contactPreferences,
+    @Default(3) int maxActiveListings,
+    DateTime? acceptedTermsAt,
+    DateTime? deregistrationRequestedAt,
+    DateTime? deregistrationEffectiveAt,
   }) = _MarketplaceProviderModel;
 
   const MarketplaceProviderModel._();
@@ -99,6 +106,23 @@ abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
           ? LocationData.fromJson(
               json['profileLocation'] as Map<String, dynamic>)
           : null,
+      // Seller registration fields
+      contactPreferences: (json['contactPreferences'] as Map<String, dynamic>?)
+              ?.map((k, v) => MapEntry(k, v as bool)) ??
+          const {'chat': true, 'phone': false},
+      maxActiveListings:
+          (json['maxActiveListings'] as num?)?.toInt() ?? 3,
+      acceptedTermsAt: json['acceptedTermsAt'] is Timestamp
+          ? (json['acceptedTermsAt'] as Timestamp).toDate()
+          : null,
+      deregistrationRequestedAt:
+          json['deregistrationRequestedAt'] is Timestamp
+              ? (json['deregistrationRequestedAt'] as Timestamp).toDate()
+              : null,
+      deregistrationEffectiveAt:
+          json['deregistrationEffectiveAt'] is Timestamp
+              ? (json['deregistrationEffectiveAt'] as Timestamp).toDate()
+              : null,
     );
   }
 
@@ -137,6 +161,17 @@ abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
       if (bannedAt != null) 'bannedAt': Timestamp.fromDate(bannedAt!),
       if (profileLocation != null)
         'profileLocation': profileLocation!.toJson(),
+      // Seller registration fields
+      'contactPreferences': contactPreferences,
+      'maxActiveListings': maxActiveListings,
+      if (acceptedTermsAt != null)
+        'acceptedTermsAt': Timestamp.fromDate(acceptedTermsAt!),
+      if (deregistrationRequestedAt != null)
+        'deregistrationRequestedAt':
+            Timestamp.fromDate(deregistrationRequestedAt!),
+      if (deregistrationEffectiveAt != null)
+        'deregistrationEffectiveAt':
+            Timestamp.fromDate(deregistrationEffectiveAt!),
     };
   }
 
@@ -171,6 +206,11 @@ abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
       suspendedAt: suspendedAt,
       bannedAt: bannedAt,
       profileLocation: profileLocation,
+      contactPreferences: contactPreferences,
+      maxActiveListings: maxActiveListings,
+      acceptedTermsAt: acceptedTermsAt,
+      deregistrationRequestedAt: deregistrationRequestedAt,
+      deregistrationEffectiveAt: deregistrationEffectiveAt,
     );
   }
 
@@ -205,6 +245,11 @@ abstract class MarketplaceProviderModel with _$MarketplaceProviderModel {
       suspendedAt: entity.suspendedAt,
       bannedAt: entity.bannedAt,
       profileLocation: entity.profileLocation,
+      contactPreferences: entity.contactPreferences,
+      maxActiveListings: entity.maxActiveListings,
+      acceptedTermsAt: entity.acceptedTermsAt,
+      deregistrationRequestedAt: entity.deregistrationRequestedAt,
+      deregistrationEffectiveAt: entity.deregistrationEffectiveAt,
     );
   }
 }

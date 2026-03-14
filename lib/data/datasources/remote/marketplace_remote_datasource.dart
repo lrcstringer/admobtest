@@ -24,6 +24,9 @@ abstract class MarketplaceRemoteDataSource {
   /// Get a marketplace provider profile
   Future<MarketplaceProviderModel?> getProvider(String id);
 
+  /// Get the current user's seller profile (provider doc where id == uid)
+  Future<MarketplaceProviderModel?> getCurrentSellerProfile();
+
   /// Get provider's listings. When [statusFilter] is provided, only listings
   /// with that status are returned; when null, all statuses are included
   /// (for seller's own listing management).
@@ -44,15 +47,25 @@ abstract class MarketplaceRemoteDataSource {
   /// Get a single order by ID
   Future<BuyOrderModel?> getOrder(String id);
 
-  /// Register as a marketplace provider (calls CF)
+  /// Register as a marketplace seller (calls CF)
   Future<String> registerProvider({
     required String displayName,
+    String? photoUrl,
+    required Map<String, bool> contactPreferences,
+  });
+
+  /// Update seller profile (calls CF)
+  Future<void> updateSellerProfile({
     String? bio,
     String? photoUrl,
-    String? servicesDescription,
-    String? communityId,
-    String? category,
+    Map<String, bool>? contactPreferences,
   });
+
+  /// Request de-registration (calls CF)
+  Future<void> deregisterProvider();
+
+  /// Cancel pending de-registration (calls CF)
+  Future<void> cancelDeregistration();
 
   /// Create a marketplace listing (calls CF)
   Future<String> createListing({
@@ -259,6 +272,13 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
   }
 
   @override
+  Future<MarketplaceProviderModel?> getCurrentSellerProfile() async {
+    final uid = _uid;
+    if (uid == null) return null;
+    return getProvider(uid);
+  }
+
+  @override
   Future<List<MarketplaceListingModel>> getProviderListings(
     String providerId, {
     String? statusFilter,
@@ -348,22 +368,40 @@ class MarketplaceRemoteDataSourceImpl implements MarketplaceRemoteDataSource {
   @override
   Future<String> registerProvider({
     required String displayName,
-    String? bio,
     String? photoUrl,
-    String? servicesDescription,
-    String? communityId,
-    String? category,
+    required Map<String, bool> contactPreferences,
   }) async {
     final result =
         await _functions.httpsCallable('registerMarketplaceProvider').call({
       'displayName': displayName,
-      if (bio != null) 'bio': bio,
       if (photoUrl != null) 'photoUrl': photoUrl,
-      if (servicesDescription != null) 'servicesDescription': servicesDescription,
-      if (communityId != null) 'communityId': communityId,
-      if (category != null) 'category': category,
+      'contactPreferences': contactPreferences,
     });
     return result.data['providerId'] as String;
+  }
+
+  @override
+  Future<void> updateSellerProfile({
+    String? bio,
+    String? photoUrl,
+    Map<String, bool>? contactPreferences,
+  }) async {
+    await _functions.httpsCallable('updateSellerProfile').call({
+      if (bio != null) 'bio': bio,
+      if (photoUrl != null) 'photoUrl': photoUrl,
+      if (contactPreferences != null)
+        'contactPreferences': contactPreferences,
+    });
+  }
+
+  @override
+  Future<void> deregisterProvider() async {
+    await _functions.httpsCallable('deregisterProvider').call({});
+  }
+
+  @override
+  Future<void> cancelDeregistration() async {
+    await _functions.httpsCallable('cancelDeregistration').call({});
   }
 
   @override

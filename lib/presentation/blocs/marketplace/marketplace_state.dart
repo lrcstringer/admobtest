@@ -42,6 +42,9 @@ abstract class MarketplaceState with _$MarketplaceState {
     @Default(false) bool isUploadingImages,
     @Default([]) List<String> uploadedImageUrls,
     @Default(false) bool isRegistering,
+    @Default(false) bool registrationSuccess,
     @Default(false) bool isTogglingFavourite,
+    @Default(false) bool isDeregistering,
+    @Default(false) bool isUpdatingProfile,
   }) = _MarketplaceState;
 }

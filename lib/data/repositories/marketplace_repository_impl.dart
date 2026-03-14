@@ -55,6 +55,16 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   }
 
   @override
+  Future<Either<Failure, MarketplaceProvider?>> getCurrentSellerProfile() async {
+    try {
+      final model = await _remoteDataSource.getCurrentSellerProfile();
+      return Right(model?.toEntity());
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, MarketplaceProvider>> getProvider(String id) async {
     try {
       final model = await _remoteDataSource.getProvider(id);
@@ -128,22 +138,54 @@ class MarketplaceRepositoryImpl implements MarketplaceRepository {
   @override
   Future<Either<Failure, String>> registerProvider({
     required String displayName,
-    String? bio,
     String? photoUrl,
-    String? servicesDescription,
-    String? communityId,
-    String? category,
+    required Map<String, bool> contactPreferences,
   }) async {
     try {
       final providerId = await _remoteDataSource.registerProvider(
         displayName: displayName,
-        bio: bio,
         photoUrl: photoUrl,
-        servicesDescription: servicesDescription,
-        communityId: communityId,
-        category: category,
+        contactPreferences: contactPreferences,
       );
       return Right(providerId);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateSellerProfile({
+    String? bio,
+    String? photoUrl,
+    Map<String, bool>? contactPreferences,
+  }) async {
+    try {
+      await _remoteDataSource.updateSellerProfile(
+        bio: bio,
+        photoUrl: photoUrl,
+        contactPreferences: contactPreferences,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deregisterProvider() async {
+    try {
+      await _remoteDataSource.deregisterProvider();
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> cancelDeregistration() async {
+    try {
+      await _remoteDataSource.cancelDeregistration();
+      return const Right(null);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }

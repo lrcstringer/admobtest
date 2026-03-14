@@ -44,6 +44,7 @@ abstract class MarketplaceListingModel with _$MarketplaceListingModel {
     @Default(0) int renewalCount,
     @Default(0) int totalPausedDays,
     DateTime? pausedAt,
+    @Default(0) int providerCompletedOrders,
   }) = _MarketplaceListingModel;
 
   const MarketplaceListingModel._();
@@ -97,6 +98,8 @@ abstract class MarketplaceListingModel with _$MarketplaceListingModel {
       pausedAt: json['pausedAt'] is Timestamp
           ? (json['pausedAt'] as Timestamp).toDate()
           : null,
+      providerCompletedOrders:
+          (json['providerCompletedOrders'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -132,6 +135,7 @@ abstract class MarketplaceListingModel with _$MarketplaceListingModel {
       'renewalCount': renewalCount,
       'totalPausedDays': totalPausedDays,
       if (pausedAt != null) 'pausedAt': Timestamp.fromDate(pausedAt!),
+      'providerCompletedOrders': providerCompletedOrders,
     };
   }
 
@@ -167,6 +171,7 @@ abstract class MarketplaceListingModel with _$MarketplaceListingModel {
       renewalCount: renewalCount,
       totalPausedDays: totalPausedDays,
       pausedAt: pausedAt,
+      providerCompletedOrders: providerCompletedOrders,
     );
   }
 
@@ -202,6 +207,7 @@ abstract class MarketplaceListingModel with _$MarketplaceListingModel {
       renewalCount: entity.renewalCount,
       totalPausedDays: entity.totalPausedDays,
       pausedAt: entity.pausedAt,
+      providerCompletedOrders: entity.providerCompletedOrders,
     );
   }
 }

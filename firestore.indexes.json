@@ -152,6 +152,15 @@
       ]
     },
     {
+      "collectionGroup": "serviceProducts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "providerId", "order": "ASCENDING" },
+        { "fieldPath": "isDeleted", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "ledgerAccounts",
       "queryScope": "COLLECTION",
       "fields": [

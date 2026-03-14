@@ -161,9 +161,35 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
                         controller: _descriptionController,
                         maxLines: 3,
                         maxLength: 300,
-                        decoration: const InputDecoration(
+                        style: const TextStyle(
+                          color: AppColors.buyTextPrimary,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
                           labelText: 'Additional details (optional)',
                           hintText: 'Tell us more about the issue...',
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelStyle: const TextStyle(
+                            color: AppColors.buyTextSecondary,
+                            fontSize: 14,
+                          ),
+                          hintStyle: const TextStyle(
+                            color: AppColors.buyTextTertiary,
+                            fontSize: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                            borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                            borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                            borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+                          ),
                         ),
                       ),
                     ],

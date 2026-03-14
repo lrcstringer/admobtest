@@ -106,9 +106,35 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         // Title
                         TextFormField(
                           controller: _titleController,
-                          decoration: const InputDecoration(
+                          style: const TextStyle(
+                            color: AppColors.buyTextPrimary,
+                            fontSize: 14,
+                          ),
+                          decoration: InputDecoration(
                             labelText: 'Title',
                             hintText: 'e.g. Fresh Vetkoek — 6 pack',
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelStyle: const TextStyle(
+                              color: AppColors.buyTextSecondary,
+                              fontSize: 14,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColors.buyTextTertiary,
+                              fontSize: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+                            ),
                           ),
                           maxLength: 100,
                           validator: (v) => v == null || v.trim().isEmpty
@@ -120,9 +146,35 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         // Description
                         TextFormField(
                           controller: _descriptionController,
-                          decoration: const InputDecoration(
+                          style: const TextStyle(
+                            color: AppColors.buyTextPrimary,
+                            fontSize: 14,
+                          ),
+                          decoration: InputDecoration(
                             labelText: 'Description',
                             hintText: 'Describe what you\'re offering...',
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelStyle: const TextStyle(
+                              color: AppColors.buyTextSecondary,
+                              fontSize: 14,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColors.buyTextTertiary,
+                              fontSize: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+                            ),
                           ),
                           maxLines: 4,
                           maxLength: 500,
@@ -170,10 +222,40 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         // Price
                         TextFormField(
                           controller: _priceController,
-                          decoration: const InputDecoration(
+                          style: const TextStyle(
+                            color: AppColors.buyTextPrimary,
+                            fontSize: 14,
+                          ),
+                          decoration: InputDecoration(
                             labelText: 'Price (tokens)',
                             hintText: 'e.g. 150',
                             suffixText: 'tokens',
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelStyle: const TextStyle(
+                              color: AppColors.buyTextSecondary,
+                              fontSize: 14,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColors.buyTextTertiary,
+                              fontSize: 14,
+                            ),
+                            suffixStyle: const TextStyle(
+                              color: AppColors.buyTextTertiary,
+                              fontSize: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+                            ),
                           ),
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -211,10 +293,40 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         // Location
                         TextFormField(
                           controller: _locationController,
-                          decoration: const InputDecoration(
+                          style: const TextStyle(
+                            color: AppColors.buyTextPrimary,
+                            fontSize: 14,
+                          ),
+                          decoration: InputDecoration(
                             labelText: 'Location (optional)',
                             hintText: 'e.g. Khayelitsha, Cape Town',
-                            prefixIcon: Icon(Icons.location_on_outlined),
+                            prefixIcon: const Icon(
+                              Icons.location_on_outlined,
+                              color: AppColors.buyTextSecondary,
+                              size: 20,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelStyle: const TextStyle(
+                              color: AppColors.buyTextSecondary,
+                              fontSize: 14,
+                            ),
+                            hintStyle: const TextStyle(
+                              color: AppColors.buyTextTertiary,
+                              fontSize: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+                            ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.lg),

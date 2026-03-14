@@ -124,13 +124,24 @@ abstract class MarketplaceEvent with _$MarketplaceEvent {
     required String listingId,
   }) = _UploadImages;
 
-  /// Register as a marketplace provider
+  /// Register as a marketplace seller
   const factory MarketplaceEvent.registerProvider({
     required String displayName,
+    String? photoUrl,
+    required Map<String, bool> contactPreferences,
+  }) = _RegisterProvider;
+
+  /// Update seller profile (bio, photo, contact preferences)
+  const factory MarketplaceEvent.updateSellerProfile({
     String? bio,
     String? photoUrl,
-    String? servicesDescription,
-    String? communityId,
-    String? category,
-  }) = _RegisterProvider;
+    Map<String, bool>? contactPreferences,
+  }) = _UpdateSellerProfile;
+
+  /// Request de-registration as a seller (7-day cooling-off)
+  const factory MarketplaceEvent.deregisterSeller() = _DeregisterSeller;
+
+  /// Cancel pending de-registration
+  const factory MarketplaceEvent.cancelDeregistration() =
+      _CancelDeregistration;
 }

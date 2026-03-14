@@ -438,8 +438,30 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         content: TextField(
           controller: controller,
           maxLines: 3,
-          decoration: const InputDecoration(
+          style: const TextStyle(
+            color: AppColors.buyTextPrimary,
+            fontSize: 14,
+          ),
+          decoration: InputDecoration(
             hintText: 'Describe the issue...',
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: const TextStyle(
+              color: AppColors.buyTextTertiary,
+              fontSize: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              borderSide: const BorderSide(color: AppColors.buyCardBorder, width: 0.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              borderSide: const BorderSide(color: AppColors.buyMarketplaceAccent, width: 1),
+            ),
           ),
         ),
         actions: [

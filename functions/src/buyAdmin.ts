@@ -3385,8 +3385,11 @@ export const adminCreateBrandProduct = onCall(
       "adminCreateBrandProduct"
     );
 
-    const { storefrontId, name, description, priceZar, imageUrl, externalUrl, sortOrder } =
-      request.data;
+    const {
+      storefrontId, name, description, priceZar, imageUrl, externalUrl,
+      sortOrder, isFeatured, category, fulfilmentType, stockCount,
+      contactMethod, voucherInstructions, collectionAddress, deliveryInfo,
+    } = request.data;
 
     if (!storefrontId || !name) {
       throw new HttpsError("invalid-argument", "storefrontId and name are required");
@@ -3398,6 +3401,11 @@ export const adminCreateBrandProduct = onCall(
       throw new HttpsError("not-found", "Storefront not found");
     }
 
+    const validFulfilmentTypes = ["digital", "physical", "catalog"];
+    const safeFulfilment = validFulfilmentTypes.includes(fulfilmentType)
+      ? fulfilmentType
+      : "catalog";
+
     const productRef = db.collection("brandProducts").doc();
     await productRef.set({
       id: productRef.id,
@@ -3405,12 +3413,21 @@ export const adminCreateBrandProduct = onCall(
       brandId: storefrontDoc.data()!.brandId || storefrontId,
       name: name.trim(),
       description: description?.trim() || null,
-      priceZar: priceZar || null,
+      priceZar: priceZar ?? null,
       priceTokens: priceZar ? Math.round(priceZar * 100) : null,
       imageUrl: imageUrl || null,
       externalUrl: externalUrl || null,
       sortOrder: sortOrder || 0,
       isActive: true,
+      isFeatured: isFeatured === true,
+      isDeleted: false,
+      category: category?.trim() || null,
+      fulfilmentType: safeFulfilment,
+      stockCount: typeof stockCount === "number" ? stockCount : null,
+      contactMethod: contactMethod?.trim() || null,
+      voucherInstructions: voucherInstructions?.trim() || null,
+      collectionAddress: collectionAddress?.trim() || null,
+      deliveryInfo: deliveryInfo?.trim() || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -3450,7 +3467,12 @@ export const adminUpdateBrandProduct = onCall(
       throw new HttpsError("not-found", "Product not found");
     }
 
-    const allowedFields = ["name", "description", "priceZar", "imageUrl", "externalUrl", "sortOrder", "isActive"];
+    const allowedFields = [
+      "name", "description", "priceZar", "imageUrl", "externalUrl",
+      "sortOrder", "isActive", "isFeatured", "category", "fulfilmentType",
+      "stockCount", "contactMethod", "voucherInstructions",
+      "collectionAddress", "deliveryInfo",
+    ];
     const safeUpdates: Record<string, unknown> = {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };

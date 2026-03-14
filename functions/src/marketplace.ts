@@ -34,8 +34,9 @@ function requireAuth(request: { auth?: { uid: string } }): void {
 // ============================================================================
 
 /**
- * Register as a marketplace provider.
- * Returns the new provider ID. Status starts as "pending" (admin approval).
+ * Register as a marketplace seller.
+ * Auto-approved — status goes straight to "approved".
+ * Allows re-registration if previously de-registered.
  */
 export const registerMarketplaceProvider = onCall(
   { labels: { area: "marketplace" } },
@@ -46,12 +47,16 @@ export const registerMarketplaceProvider = onCall(
     requireAppCheck(request, "registerMarketplaceProvider");
 
     const userId = request.auth.uid;
-    const { displayName, bio, servicesDescription, photoUrl, communityId } =
-      request.data;
+    const { displayName, photoUrl, contactPreferences } = request.data;
 
     if (!displayName || typeof displayName !== "string" || displayName.trim().length < 2) {
       throw new HttpsError("invalid-argument", "Display name must be at least 2 characters");
     }
+
+    const validContactPrefs = {
+      chat: contactPreferences?.chat !== false,
+      phone: contactPreferences?.phone === true,
+    };
 
     // Use userId as doc ID — deterministic. Transaction prevents duplicate
     // registrations under concurrent requests.
@@ -59,33 +64,59 @@ export const registerMarketplaceProvider = onCall(
 
     await db.runTransaction(async (tx) => {
       const existingDoc = await tx.get(providerRef);
+
       if (existingDoc.exists) {
-        throw new HttpsError("already-exists", "You are already registered as a provider");
+        const existingData = existingDoc.data()!;
+        // Allow re-registration if previously de-registered
+        if (existingData.status === "deregistered") {
+          tx.set(providerRef, {
+            id: providerRef.id,
+            userId,
+            displayName: displayName.trim(),
+            bio: null,
+            photoUrl: photoUrl || null,
+            contactPreferences: validContactPrefs,
+            status: "approved",
+            sellerTier: "new",
+            maxActiveListings: 3,
+            trustScore: 0,
+            vouchCount: 0,
+            completedOrders: 0,
+            isVerified: false,
+            isVerifiedOverride: null,
+            customerIds: [],
+            acceptedTermsAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } else {
+          throw new HttpsError("already-exists", "You are already registered as a seller");
+        }
+      } else {
+        tx.set(providerRef, {
+          id: providerRef.id,
+          userId,
+          displayName: displayName.trim(),
+          bio: null,
+          photoUrl: photoUrl || null,
+          contactPreferences: validContactPrefs,
+          status: "approved",
+          sellerTier: "new",
+          maxActiveListings: 3,
+          trustScore: 0,
+          vouchCount: 0,
+          completedOrders: 0,
+          isVerified: false,
+          isVerifiedOverride: null,
+          customerIds: [],
+          acceptedTermsAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
       }
-
-      const now = admin.firestore.FieldValue.serverTimestamp();
-
-      tx.set(providerRef, {
-        id: providerRef.id,
-        userId,
-        displayName: displayName.trim(),
-        bio: bio?.trim() || null,
-        servicesDescription: servicesDescription?.trim() || null,
-        photoUrl: photoUrl || null,
-        communityId: communityId || null,
-        status: "pending",
-        trustScore: 0,
-        vouchCount: 0,
-        completedOrders: 0,
-        isVerified: false,
-        isVerifiedOverride: null,
-        customerIds: [],
-        createdAt: now,
-        updatedAt: now,
-      });
     });
 
-    logger.info(`Provider registered: ${providerRef.id} by user ${userId}`);
+    logger.info(`Seller registered: ${providerRef.id} by user ${userId}`);
 
     return { success: true, providerId: providerRef.id };
   }
@@ -126,21 +157,38 @@ export const createMarketplaceListing = onCall(
       throw new HttpsError("invalid-argument", "Price must be a positive integer");
     }
 
-    // Verify user is an approved provider
-    const providerSnap = await db
-      .collection("providers")
-      .where("userId", "==", userId)
-      .where("status", "==", "approved")
-      .limit(1)
-      .get();
-    if (providerSnap.empty) {
+    // Verify user is an approved/active seller
+    const providerDoc = await db.collection("providers").doc(userId).get();
+    if (!providerDoc.exists) {
       throw new HttpsError(
         "permission-denied",
-        "You must be an approved provider to create listings"
+        "You must register as a seller before creating listings"
       );
     }
-    const provider = providerSnap.docs[0].data();
-    const providerId = providerSnap.docs[0].id;
+    const provider = providerDoc.data()!;
+    const providerId = providerDoc.id;
+
+    if (provider.status !== "approved" && provider.status !== "active") {
+      throw new HttpsError(
+        "permission-denied",
+        "Your seller account is not active"
+      );
+    }
+
+    // Enforce listing limits based on seller tier
+    const maxListings = provider.maxActiveListings || 3;
+    const activeListingsSnap = await db
+      .collection("marketplaceListings")
+      .where("providerId", "==", providerId)
+      .where("status", "==", "active")
+      .get();
+
+    if (activeListingsSnap.size >= maxListings) {
+      throw new HttpsError(
+        "resource-exhausted",
+        `You can have up to ${maxListings} active listings. Complete more sales to unlock more.`
+      );
+    }
 
     // Validate image URLs
     if (imageUrls && Array.isArray(imageUrls)) {
@@ -196,6 +244,7 @@ export const createMarketplaceListing = onCall(
         providerPhotoUrl: provider.photoUrl || null,
         providerTrustScore: provider.trustScore || 0,
         providerIsVerified: provider.isVerified || false,
+        providerCompletedOrders: provider.completedOrders || 0,
         communityId: provider.communityId || null,
         location: location?.trim() || null,
         deliveryMethod: deliveryMethod || null,
@@ -2223,5 +2272,317 @@ export const proposeResolution = onCall(
     });
 
     return { success: true };
+  }
+);
+
+// ============================================================================
+// SELLER DE-REGISTRATION
+// ============================================================================
+
+/**
+ * Request de-registration as a seller.
+ * 7-day cooling-off period. Listings paused immediately.
+ * Blocked if any pending/inProgress/disputed orders exist.
+ */
+export const deregisterProvider = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "deregisterProvider");
+
+    const userId = request.auth.uid;
+    const providerRef = db.collection("providers").doc(userId);
+    const providerDoc = await providerRef.get();
+
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "Seller account not found");
+    }
+
+    const provider = providerDoc.data()!;
+    if (provider.status !== "approved" && provider.status !== "active") {
+      throw new HttpsError("failed-precondition", "Seller account is not active");
+    }
+
+    // Check for pending escrow orders
+    const pendingOrders = await db
+      .collection("buyOrders")
+      .where("sellerId", "==", userId)
+      .where("status", "in", ["pending", "inProgress", "disputed"])
+      .limit(1)
+      .get();
+
+    if (!pendingOrders.empty) {
+      const count = (await db
+        .collection("buyOrders")
+        .where("sellerId", "==", userId)
+        .where("status", "in", ["pending", "inProgress", "disputed"])
+        .get()).size;
+      throw new HttpsError(
+        "failed-precondition",
+        `Complete or cancel ${count} pending order${count === 1 ? "" : "s"} before de-registering`
+      );
+    }
+
+    const now = admin.firestore.Timestamp.now();
+    const effectiveAt = admin.firestore.Timestamp.fromMillis(
+      now.toMillis() + 7 * 24 * 60 * 60 * 1000
+    );
+
+    const batch = db.batch();
+
+    // Update provider status
+    batch.update(providerRef, {
+      status: "deregisteredPending",
+      deregistrationRequestedAt: now,
+      deregistrationEffectiveAt: effectiveAt,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Pause all active/paused listings
+    const listings = await db
+      .collection("marketplaceListings")
+      .where("providerId", "==", userId)
+      .where("status", "in", ["active", "paused"])
+      .get();
+
+    for (const doc of listings.docs) {
+      batch.update(doc.ref, {
+        status: "paused",
+        pausedReason: "seller_deregistering",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+
+    logger.info(`Seller ${userId} requested de-registration, effective ${effectiveAt.toDate().toISOString()}`);
+
+    return {
+      success: true,
+      effectiveDate: effectiveAt.toDate().toISOString(),
+    };
+  }
+);
+
+/**
+ * Cancel a pending de-registration.
+ * Restores seller to approved status and unpauses listings.
+ */
+export const cancelDeregistration = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "cancelDeregistration");
+
+    const userId = request.auth.uid;
+    const providerRef = db.collection("providers").doc(userId);
+    const providerDoc = await providerRef.get();
+
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "Seller account not found");
+    }
+
+    if (providerDoc.data()!.status !== "deregisteredPending") {
+      throw new HttpsError("failed-precondition", "No pending de-registration to cancel");
+    }
+
+    const batch = db.batch();
+
+    // Restore provider status
+    batch.update(providerRef, {
+      status: "approved",
+      deregistrationRequestedAt: admin.firestore.FieldValue.delete(),
+      deregistrationEffectiveAt: admin.firestore.FieldValue.delete(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Unpause listings that were paused due to de-registration
+    const pausedListings = await db
+      .collection("marketplaceListings")
+      .where("providerId", "==", userId)
+      .where("pausedReason", "==", "seller_deregistering")
+      .get();
+
+    for (const doc of pausedListings.docs) {
+      batch.update(doc.ref, {
+        status: "active",
+        pausedReason: admin.firestore.FieldValue.delete(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+
+    logger.info(`Seller ${userId} cancelled de-registration`);
+
+    return { success: true };
+  }
+);
+
+/**
+ * Update seller profile (bio, photo, contact preferences).
+ */
+export const updateSellerProfile = onCall(
+  { labels: { area: "marketplace" } },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    requireAppCheck(request, "updateSellerProfile");
+
+    const userId = request.auth.uid;
+    const { bio, photoUrl, contactPreferences } = request.data;
+
+    const providerRef = db.collection("providers").doc(userId);
+    const providerDoc = await providerRef.get();
+
+    if (!providerDoc.exists) {
+      throw new HttpsError("not-found", "Seller account not found");
+    }
+
+    const updates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (typeof bio === "string") {
+      updates.bio = bio.trim().substring(0, 200) || null;
+    }
+    if (typeof photoUrl === "string" || photoUrl === null) {
+      updates.photoUrl = photoUrl || null;
+    }
+    if (contactPreferences && typeof contactPreferences === "object") {
+      updates.contactPreferences = {
+        chat: contactPreferences.chat !== false,
+        phone: contactPreferences.phone === true,
+      };
+    }
+
+    await providerRef.update(updates);
+
+    logger.info(`Seller ${userId} updated profile`);
+
+    return { success: true };
+  }
+);
+
+// ============================================================================
+// SCHEDULED: PROCESS DE-REGISTRATIONS
+// ============================================================================
+
+/**
+ * Runs daily. Finalizes de-registrations past the 7-day cooling-off period.
+ */
+export const processDeregistrations = onSchedule(
+  { schedule: "every 24 hours", region: "europe-west1", labels: { area: "marketplace" } },
+  async () => {
+    const now = admin.firestore.Timestamp.now();
+
+    const pendingProviders = await db
+      .collection("providers")
+      .where("status", "==", "deregisteredPending")
+      .where("deregistrationEffectiveAt", "<=", now)
+      .get();
+
+    if (pendingProviders.empty) {
+      logger.info("No de-registrations to process");
+      return;
+    }
+
+    for (const providerDoc of pendingProviders.docs) {
+      const batch = db.batch();
+
+      // Finalize provider de-registration
+      batch.update(providerDoc.ref, {
+        status: "deregistered",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Remove all remaining listings
+      const listings = await db
+        .collection("marketplaceListings")
+        .where("providerId", "==", providerDoc.id)
+        .where("status", "in", ["active", "paused"])
+        .get();
+
+      for (const listingDoc of listings.docs) {
+        batch.update(listingDoc.ref, {
+          status: "removed",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+
+      logger.info(
+        `Provider ${providerDoc.id} deregistered, ${listings.size} listings removed`
+      );
+    }
+  }
+);
+
+// ============================================================================
+// TRIGGER: UPDATE SELLER TIER ON ORDER COMPLETION
+// ============================================================================
+
+/**
+ * Firestore trigger: when a buyOrder status changes to "completed",
+ * update the seller's tier and listing limits.
+ */
+export const onOrderCompleted = onDocumentWritten(
+  "buyOrders/{orderId}",
+  async (event) => {
+    const after = event.data?.after?.data();
+    const before = event.data?.before?.data();
+
+    // Only trigger when status changes to "completed"
+    if (!after || after.status !== "completed") return;
+    if (before?.status === "completed") return;
+
+    const sellerId = after.sellerId;
+    if (!sellerId) return;
+
+    const providerRef = db.collection("providers").doc(sellerId);
+
+    await db.runTransaction(async (tx) => {
+      const providerDoc = await tx.get(providerRef);
+      if (!providerDoc.exists) return;
+
+      const provider = providerDoc.data()!;
+      const newCompletedOrders = (provider.completedOrders || 0) + 1;
+
+      // Determine new tier
+      let newTier: string;
+      let newMaxListings: number;
+      if (newCompletedOrders >= 10) {
+        newTier = "trusted";
+        newMaxListings = 20;
+      } else if (newCompletedOrders >= 3) {
+        newTier = "active";
+        newMaxListings = 10;
+      } else {
+        newTier = "new";
+        newMaxListings = 3;
+      }
+
+      const updates: Record<string, unknown> = {
+        completedOrders: newCompletedOrders,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      // Only update tier if it changed
+      if (newTier !== provider.sellerTier) {
+        updates.sellerTier = newTier;
+        updates.maxActiveListings = newMaxListings;
+        logger.info(
+          `Seller ${sellerId} promoted to tier "${newTier}" (${newCompletedOrders} orders)`
+        );
+      }
+
+      tx.update(providerRef, updates);
+    });
   }
 );

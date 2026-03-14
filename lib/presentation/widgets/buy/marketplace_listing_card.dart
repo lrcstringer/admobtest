@@ -37,7 +37,7 @@ class MarketplaceListingCard extends StatelessWidget {
           children: [
             // Thumbnail image
             AspectRatio(
-              aspectRatio: 1.2,
+              aspectRatio: 1.3,
               child: _buildImage(),
             ),
 
@@ -91,7 +91,7 @@ class MarketplaceListingCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Provider row
+                  // Provider row + sales count
                   Row(
                     children: [
                       if (listing.providerIsVerified == true)
@@ -114,6 +114,13 @@ class MarketplaceListingCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      Text(
+                        _salesLabel(listing.providerCompletedOrders),
+                        style: const TextStyle(
+                          color: AppColors.buyTextTertiary,
+                          fontSize: 10,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -123,6 +130,11 @@ class MarketplaceListingCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _salesLabel(int count) {
+    if (count == 1) return '1 sale';
+    return '$count sales';
   }
 
   Widget _buildImage() {
