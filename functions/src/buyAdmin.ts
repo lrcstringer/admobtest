@@ -3356,19 +3356,31 @@ export const adminListBrandProducts = onCall(
       throw new HttpsError("invalid-argument", "Storefront ID is required");
     }
 
-    const productsSnap = await db
-      .collection("brandProducts")
-      .where("storefrontId", "==", storefrontId)
-      .where("isDeleted", "==", false)
-      .orderBy("sortOrder", "asc")
-      .get();
+    try {
+      const productsSnap = await db
+        .collection("brandProducts")
+        .where("storefrontId", "==", storefrontId)
+        .where("isDeleted", "==", false)
+        .orderBy("sortOrder", "asc")
+        .get();
 
-    const products = productsSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      const products = productsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-    return { success: true, products };
+      return { success: true, products };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error(`adminListBrandProducts failed for ${storefrontId}: ${msg}`);
+      if (msg.includes("index")) {
+        throw new HttpsError(
+          "failed-precondition",
+          `Firestore index not ready yet. Please wait a few minutes and retry. (${msg})`
+        );
+      }
+      throw new HttpsError("internal", `Failed to list products: ${msg}`);
+    }
   }
 );
 

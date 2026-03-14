@@ -10,7 +10,6 @@ import '../../../domain/enums/marketplace_category.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
 
 /// Screen for creating a new marketplace listing.
 /// Goes live immediately — no admin approval required.
@@ -358,14 +357,56 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                   ),
                 ),
                 child: SafeArea(
-                  child: AppButton(
-                    text: 'Publish Listing',
-                    variant: AppButtonVariant.primary,
-                    isLoading: state.isCreating || _isUploadingImages,
-                    loadingText: _isUploadingImages
-                        ? 'Uploading photos...'
-                        : 'Publishing...',
-                    onPressed: _onSubmit,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: (state.isCreating || _isUploadingImages)
+                          ? null
+                          : _onSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buyMarketplaceAccent,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            AppColors.buyMarketplaceAccent.withValues(alpha: 0.5),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusMd),
+                        ),
+                      ),
+                      child: (state.isCreating || _isUploadingImages)
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _isUploadingImages
+                                      ? 'Uploading photos...'
+                                      : 'Publishing...',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Text(
+                              'Publish Listing',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                    ),
                   ),
                 ),
               ),

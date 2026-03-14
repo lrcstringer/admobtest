@@ -16,17 +16,42 @@ class VasCategoryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topRow = categories.take(3).toList();
+    final rest = categories.skip(3).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: categories.map((category) {
-          return VasCategoryTile(
-            category: category,
-            onTap: () => onCategoryTap(category),
-          );
-        }).toList(),
+      child: Column(
+        children: [
+          // First 3 pills — centred, larger
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (int i = 0; i < topRow.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                VasCategoryTile(
+                  category: topRow[i],
+                  onTap: () => onCategoryTap(topRow[i]),
+                  prominent: true,
+                ),
+              ],
+            ],
+          ),
+          if (rest.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 6,
+              runSpacing: 6,
+              children: rest.map((category) {
+                return VasCategoryTile(
+                  category: category,
+                  onTap: () => onCategoryTap(category),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
       ),
     );
   }

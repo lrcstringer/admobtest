@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -75,11 +74,36 @@ Future<String> uploadAdminImage({
     ext = 'svg';
     contentType = 'image/svg+xml';
   } else {
-    final resized = resizeImageForUpload(bytes, resizeTarget);
-    if (resized == null) throw Exception('Failed to process image');
-    uploadBytes = resized.bytes;
-    ext = resized.extension;
-    contentType = resized.contentType;
+    ResizedImage? resized;
+    try {
+      resized = resizeImageForUpload(bytes, resizeTarget);
+    } catch (e) {
+      debugPrint('[uploadAdminImage] Resize threw: $e');
+    }
+
+    if (resized != null) {
+      uploadBytes = resized.bytes;
+      ext = resized.extension;
+      contentType = resized.contentType;
+    } else if (kIsWeb) {
+      // Web fallback: the `image` package can struggle on web.
+      // Upload the original bytes with a best-guess content type.
+      debugPrint('[uploadAdminImage] Resize failed on web — uploading raw');
+      uploadBytes = bytes;
+      final lower = (fileName ?? '').toLowerCase();
+      if (lower.endsWith('.png')) {
+        ext = 'png';
+        contentType = 'image/png';
+      } else if (lower.endsWith('.webp')) {
+        ext = 'webp';
+        contentType = 'image/webp';
+      } else {
+        ext = 'jpg';
+        contentType = 'image/jpeg';
+      }
+    } else {
+      throw Exception('Failed to process image');
+    }
   }
 
   final ref = FirebaseStorage.instance

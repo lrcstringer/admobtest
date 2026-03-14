@@ -69,11 +69,19 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
           child: _buildBrandHeader(context),
         ),
         if (useSectionOrder)
-          ...storefront.sectionOrder.map(
-            (type) => SliverToBoxAdapter(
-              child: _buildSectionByType(context, type, now),
-            ),
-          )
+          ...storefront.sectionOrder
+              .where((type) {
+                final settings = storefront.sectionSettings[type.name];
+                final visible = settings?.isVisible ?? true;
+                debugPrint('[Preview] section=${type.name} '
+                    'hasSettings=${settings != null} visible=$visible');
+                return visible;
+              })
+              .map(
+                (type) => SliverToBoxAdapter(
+                  child: _buildSectionByType(context, type, now),
+                ),
+              )
         else
           ...(storefront.sections.where((s) => s.isVisible).toList()
                 ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder)))
@@ -405,7 +413,7 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            height: 200,
+            height: 220,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),

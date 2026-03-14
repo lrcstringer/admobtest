@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
-
 /// Screen for making an offer on a marketplace listing.
 class MakeOfferScreen extends StatefulWidget {
   final String listingId;
@@ -209,12 +207,49 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
                 builder: (context, state) {
                   return SizedBox(
                     width: double.infinity,
-                    child: AppButton(
-                      text: 'Submit Offer',
-                      variant: AppButtonVariant.primary,
-                      isLoading: state.isMakingOffer,
-                      loadingText: 'Submitting...',
+                    height: 48,
+                    child: ElevatedButton(
                       onPressed: state.isMakingOffer ? null : _submitOffer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buyMarketplaceAccent,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            AppColors.buyMarketplaceAccent.withValues(alpha: 0.5),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusMd),
+                        ),
+                      ),
+                      child: state.isMakingOffer
+                          ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Submitting...',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Text(
+                              'Submit Offer',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                     ),
                   );
                 },

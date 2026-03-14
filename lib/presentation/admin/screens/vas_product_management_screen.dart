@@ -57,10 +57,15 @@ class _VasProductManagementScreenState
         });
         products = (prodResult.data['products'] as List<dynamic>)
             .cast<Map<String, dynamic>>();
-      } catch (_) {
+      } catch (e) {
         if (provider['products'] is List) {
           products = (provider['products'] as List<dynamic>)
               .cast<Map<String, dynamic>>();
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading products: $e')),
+          );
         }
       }
 
@@ -638,6 +643,8 @@ class _VasProductManagementScreenState
                               'validity': validityCtrl.text.trim(),
                             'sortOrder':
                                 int.tryParse(sortCtrl.text.trim()) ?? 0,
+                            if (descCtrl.text.trim().isNotEmpty)
+                              'description': descCtrl.text.trim(),
                             if (metadata != null) 'metadata': metadata,
                             'isActive': isActive,
                           };

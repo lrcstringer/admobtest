@@ -14,9 +14,12 @@ class ResizedImage {
 
 enum ImageResizeTarget {
   clientLogo(200, 200),
+  brandLogo(400, 400),
   threadImage(400, 400),
   opportunityImage(600, 400),
-  featuredImage(800, 400, crop: false);
+  featuredImage(800, 400, crop: false),
+  productImage(600, 600),
+  heroImage(1200, 600);
 
   final int width, height;
   final bool crop;

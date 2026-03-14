@@ -6,8 +6,6 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/marketplace/marketplace_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/app_button.dart';
-
 /// Single-screen seller registration.
 /// Auto-populates name/photo from user profile.
 /// T&Cs checkbox + contact preferences, one "Start Selling" button.
@@ -286,12 +284,54 @@ These terms may be updated. Continued use of the marketplace means you accept an
                   ),
                 ),
                 child: SafeArea(
-                  child: AppButton(
-                    text: 'Start Selling',
-                    variant: AppButtonVariant.primary,
-                    isLoading: state.isRegistering,
-                    loadingText: 'Registering...',
-                    onPressed: _acceptedTerms ? () => _onSubmit(displayName, avatarUrl) : null,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: (_acceptedTerms && !state.isRegistering)
+                          ? () => _onSubmit(displayName, avatarUrl)
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buyMarketplaceAccent,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            AppColors.buyMarketplaceAccent.withValues(alpha: 0.5),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusMd),
+                        ),
+                      ),
+                      child: state.isRegistering
+                          ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Registering...',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Text(
+                              'Start Selling',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                    ),
                   ),
                 ),
               ),

@@ -1055,6 +1055,15 @@
       ]
     },
     {
+      "collectionGroup": "brandProducts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "storefrontId", "order": "ASCENDING" },
+        { "fieldPath": "isDeleted", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "groupBuyRequests",
       "queryScope": "COLLECTION",
       "fields": [

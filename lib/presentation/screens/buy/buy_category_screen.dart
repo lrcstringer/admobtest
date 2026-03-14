@@ -57,6 +57,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
   @override
   void initState() {
     super.initState();
+    // Clear any stale provider/product selection from a previous visit
+    // so the screen always starts on the provider grid.
+    context.read<PurchaseBloc>().add(const PurchaseEvent.resetSelection());
+
     final purchaseCategory = _mapToPurchaseCategory(widget.categoryId);
     if (purchaseCategory != null) {
       context
@@ -122,7 +126,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                 .add(PurchaseEvent.selectProvider(match));
             // Pre-fill recipient
             if (widget.quickBuyRecipient != null) {
-              _recipientController.text = widget.quickBuyRecipient!;
+              _recipientController.text = _isPhoneCategory(
+                      state.selectedProvider?.category)
+                  ? _stripLeadingZero(widget.quickBuyRecipient!)
+                  : widget.quickBuyRecipient!;
               context.read<PurchaseBloc>().add(
                     PurchaseEvent.setRecipientNumber(widget.quickBuyRecipient!),
                   );
@@ -458,6 +465,14 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                   controller: _recipientController,
                   style: const TextStyle(color: AppColors.buyTextPrimary),
                   decoration: InputDecoration(
+                    prefixText: _isPhoneCategory(
+                            state.selectedProvider?.category)
+                        ? '0'
+                        : null,
+                    prefixStyle: const TextStyle(
+                      color: AppColors.buyTextPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
                     hintText: _getRecipientHint(
                         state.selectedProvider?.category),
                     hintStyle:
@@ -481,6 +496,14 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                           const BorderSide(color: AppColors.buyMarketplaceAccent),
                     ),
                   ),
+                  maxLength: _isPhoneCategory(
+                          state.selectedProvider?.category)
+                      ? 9
+                      : null,
+                  buildCounter: _isPhoneCategory(
+                          state.selectedProvider?.category)
+                      ? (_, {required currentLength, required isFocused, required maxLength}) => null
+                      : null,
                   keyboardType: _isNumericCategory(
                           state.selectedProvider?.category)
                       ? TextInputType.number
@@ -490,9 +513,11 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       ? [FilteringTextInputFormatter.digitsOnly]
                       : [],
                   onChanged: (value) {
+                    final full = _fullRecipientNumber(
+                        value, state.selectedProvider?.category);
                     context
                         .read<PurchaseBloc>()
-                        .add(PurchaseEvent.setRecipientNumber(value));
+                        .add(PurchaseEvent.setRecipientNumber(full));
                   },
                   onSubmitted: (_) {
                     context
@@ -534,7 +559,10 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                     side: BorderSide(
                         color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                     onPressed: () {
-                      _recipientController.text = number;
+                      _recipientController.text = _isPhoneCategory(
+                              state.selectedProvider?.category)
+                          ? _stripLeadingZero(number)
+                          : number;
                       context.read<PurchaseBloc>().add(
                             PurchaseEvent.selectRecentRecipient(number),
                           );
@@ -765,13 +793,34 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
     }
   }
 
+  bool _isPhoneCategory(PurchaseCategory? category) {
+    return category == PurchaseCategory.airtime ||
+        category == PurchaseCategory.data;
+  }
+
+  /// Build the full recipient number, prepending '0' for phone categories.
+  String _fullRecipientNumber(String fieldValue, PurchaseCategory? category) {
+    if (_isPhoneCategory(category) && fieldValue.isNotEmpty) {
+      return '0$fieldValue';
+    }
+    return fieldValue;
+  }
+
+  /// Strip the leading '0' for display in the phone field.
+  String _stripLeadingZero(String number) {
+    if (number.startsWith('0') && number.length > 1) {
+      return number.substring(1);
+    }
+    return number;
+  }
+
   String _getRecipientHint(PurchaseCategory? category) {
     switch (category) {
       case PurchaseCategory.electricity:
         return 'Enter meter number';
       case PurchaseCategory.airtime:
       case PurchaseCategory.data:
-        return 'Enter phone number (e.g. 0812345678)';
+        return 'Enter phone number (e.g. 812345678)';
       default:
         return 'Enter recipient';
     }

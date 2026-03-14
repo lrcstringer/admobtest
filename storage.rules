@@ -154,11 +154,19 @@ service firebase.storage {
       allow delete: if false;
     }
 
-    // Brand storefront assets (admin managed)
+    // Brand storefront assets (admin managed) — top-level (logo, hero, banner)
     match /brand_assets/{storefrontId}/{fileName} {
       allow read: if isAuthenticated();
       allow write: if isAdmin()
         && isValidImage();
+      allow delete: if isAdmin();
+    }
+
+    // Brand storefront sub-folders (products, gallery, videos)
+    match /brand_assets/{storefrontId}/{subfolder}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin()
+        && request.resource.size < 50 * 1024 * 1024; // 50MB for videos
       allow delete: if isAdmin();
     }
 

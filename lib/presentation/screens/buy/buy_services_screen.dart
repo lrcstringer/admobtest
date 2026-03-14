@@ -108,12 +108,21 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                     // ── Layer 1: Featured + Brand Partners ──
                     _buildLayer1(state),
 
-                    // Layer divider: 1px line + 16px padding
-                    const SliverToBoxAdapter(child: _BuyLayerDivider()),
-
-                    // ── Layer 2: Utilities ──
+                    // Layer divider with tighter bottom spacing before Buy/Pay
                     SliverToBoxAdapter(
-                      child: BuySectionHeader(title: 'Utilities'),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 4),
+                        child: Container(
+                          height: 1,
+                          width: double.infinity,
+                          color: AppColors.buyDivider,
+                        ),
+                      ),
+                    ),
+
+                    // ── Layer 2: Buy/Pay ──
+                    SliverToBoxAdapter(
+                      child: BuySectionHeader(title: 'Buy/Pay'),
                     ),
 
                     SliverToBoxAdapter(

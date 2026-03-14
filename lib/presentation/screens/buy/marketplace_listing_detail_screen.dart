@@ -686,11 +686,20 @@ class _MarketplaceListingDetailScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.buyMarketplaceAccent),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Buy Now'),
+            child: const Text(
+              'Buy Now',
+              style: TextStyle(
+                color: AppColors.buyMarketplaceAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
