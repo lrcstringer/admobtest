@@ -14,7 +14,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/buy/payment_protection_explainer.dart';
 import '../../widgets/buy/trust_badge.dart';
-import '../../widgets/common/app_button.dart';
 import '../../widgets/common/token_display.dart';
 
 /// Detail screen for a single marketplace listing.
@@ -34,12 +33,34 @@ class MarketplaceListingDetailScreen extends StatefulWidget {
 
 class _MarketplaceListingDetailScreenState
     extends State<MarketplaceListingDetailScreen> {
+  final _scrollController = ScrollController();
+  bool _showScrollHint = true;
+
   @override
   void initState() {
     super.initState();
     context
         .read<MarketplaceBloc>()
         .add(MarketplaceEvent.selectListing(widget.listingId));
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final atBottom = _scrollController.offset >=
+        _scrollController.position.maxScrollExtent - 20;
+    if (atBottom && _showScrollHint) {
+      setState(() => _showScrollHint = false);
+    } else if (!atBottom && !_showScrollHint) {
+      setState(() => _showScrollHint = true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -93,14 +114,17 @@ class _MarketplaceListingDetailScreenState
             );
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image carousel
-                _buildImageCarousel(listing.images),
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image carousel
+                    _buildImageCarousel(listing.images),
 
-                Padding(
+                    Padding(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,6 +289,30 @@ class _MarketplaceListingDetailScreenState
                 ),
               ],
             ),
+          ),
+          // Scroll hint fade
+          if (_showScrollHint)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 32,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.buyBackground.withValues(alpha: 0),
+                        AppColors.buyBackground,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
           );
         },
       ),
@@ -283,43 +331,98 @@ class _MarketplaceListingDetailScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          text: 'Contact Seller',
-                          variant: AppButtonVariant.secondary,
-                          onPressed: _onContactSeller,
+                  // Contact Seller — tertiary (neutral outline)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: _onContactSeller,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.buyTextPrimary,
+                        side: const BorderSide(
+                          color: AppColors.buyCardBorder,
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppSpacing.radiusMd),
                         ),
                       ),
-                    ],
+                      child: const Text(
+                        'Contact Seller',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Row(
                     children: [
+                      // Make Offer — secondary (amber outline)
                       Expanded(
-                        child: AppButton(
-                          text: 'Make Offer',
-                          variant: AppButtonVariant.secondary,
-                          onPressed: () {
-                            final listing = state.selectedListing!;
-                            context.push(
-                              '/buy/marketplace/make-offer',
-                              extra: {
-                                'listingId': listing.id,
-                                'listingPriceTokens': listing.priceTokens,
-                                'listingTitle': listing.title,
-                              },
-                            );
-                          },
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              final listing = state.selectedListing!;
+                              context.push(
+                                '/buy/marketplace/make-offer',
+                                extra: {
+                                  'listingId': listing.id,
+                                  'listingPriceTokens': listing.priceTokens,
+                                  'listingTitle': listing.title,
+                                },
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.buyMarketplaceAccent,
+                              side: const BorderSide(
+                                color: AppColors.buyMarketplaceAccent,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusMd),
+                              ),
+                            ),
+                            child: const Text(
+                              'Make Offer',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
+                      // Buy Now — primary (solid amber)
                       Expanded(
-                        child: AppButton(
-                          text: 'Buy Now',
-                          variant: AppButtonVariant.primary,
-                          onPressed: () => _onBuy(state.selectedListing!.id),
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: () =>
+                                _onBuy(state.selectedListing!.id),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  AppColors.buyMarketplaceAccent,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusMd),
+                              ),
+                            ),
+                            child: const Text(
+                              'Buy Now',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -349,13 +452,13 @@ class _MarketplaceListingDetailScreenState
       );
     }
 
-    return AspectRatio(
-      aspectRatio: 2.4,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 250),
       child: PageView.builder(
         itemCount: images.length,
         itemBuilder: (_, index) => CachedNetworkImage(
           imageUrl: images[index],
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           placeholder: (_, _) => Shimmer.fromColors(
             baseColor: AppColors.buyCard,
             highlightColor: AppColors.buyCard,
