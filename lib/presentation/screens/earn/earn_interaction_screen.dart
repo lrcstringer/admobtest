@@ -23,7 +23,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/brand_card.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Which upload section currently owns the camera controller.
 enum _CameraOwner { none, video, photo }
@@ -553,7 +553,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               ),
               centerTitle: true,
             ),
-            body: WaveBackground(
+            body: TabBackground(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.earnGradient,
+              ),
+              overlayAsset: AppColors.waveOverlay,
               child: _buildContent(state),
             ),
           ),

@@ -17,7 +17,7 @@ import '../../blocs/community/community_bloc.dart';
 import '../../blocs/community_messaging/community_messaging_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/media_compose_screen.dart';
@@ -137,7 +137,13 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                           ],
                         ),
                       ),
-                      body: WaveBackground(
+                      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
                         child: TabBarView(
                           children: [
                             _ChatTab(

@@ -187,6 +187,27 @@ class AppColors {
     Color(0xFFFF328C),
   ];
 
+  // ============ TAB BACKGROUNDS ============
+  // Each tab can define its own gradient and/or overlay.
+  // To experiment, change these values and hot-reload.
+
+  /// Wave overlay asset used by dark-themed tabs.
+  static const String waveOverlay = 'assets/images/wave_feather_fixed_r7.png';
+
+  /// Home tab — dark gradient + wave overlay
+  static const List<Color> homeGradient = backgroundGradient;
+
+  /// Earn tab — dark gradient + wave overlay
+  static const List<Color> earnGradient = backgroundGradient;
+
+  /// Chat tab — dark gradient + wave overlay
+  static const List<Color> chatGradient = backgroundGradient;
+
+  /// Wallet tab — dark gradient + wave overlay
+  static const List<Color> walletGradient = backgroundGradient;
+
+  // Buy tab uses solid buyBackground — no gradient needed.
+
   // ============ CHAT COLORS (iMali-tinted dark theme) ============
   static const Color chatBackground = Color(0xFF0E1018); // Brand-tinted near-black
   static const Color chatAppBar = Color(0xFF0E1018); // Matches body — seamless

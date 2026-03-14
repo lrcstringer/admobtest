@@ -8,7 +8,7 @@ import '../../blocs/chat/chat_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 @Deprecated('Use MessagingScreen instead. Will be removed in a future cleanup PR.')
 class ChatScreen extends StatefulWidget {
@@ -55,7 +55,13 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         },
         builder: (context, state) {
-          return WaveBackground(
+          return TabBackground(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: AppColors.chatGradient,
+            ),
+            overlayAsset: AppColors.waveOverlay,
             child: Column(
               children: [
                 // Quick Actions

@@ -8,7 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 class ReferralScreen extends StatefulWidget {
   const ReferralScreen({super.key});
@@ -32,7 +32,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Invite & Earn'),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: BlocConsumer<ReferralBloc, ReferralState>(
         listener: (context, state) {
           if (state.errorMessage != null) {

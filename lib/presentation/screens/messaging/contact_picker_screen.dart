@@ -9,7 +9,7 @@ import '../../blocs/conversation/conversation_bloc.dart';
 import '../../blocs/user_search/user_search_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen for searching and selecting a user to start a new P2P conversation.
 ///
@@ -103,7 +103,13 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
       appBar: IMaliAppBar(
         title: title,
       ),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: Column(
         children: [
           Padding(

@@ -6,7 +6,7 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Reusable screen for community contribute / withdraw operations.
 ///
@@ -78,7 +78,13 @@ class _CommunityTransactionScreenState
 
         return Scaffold(
           appBar: IMaliAppBar(title: isContribution ? 'Contribute' : 'Withdraw'),
-          body: WaveBackground(
+          body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
             child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(

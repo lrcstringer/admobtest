@@ -10,8 +10,8 @@ abstract class BrandStorefrontEvent with _$BrandStorefrontEvent {
     String? orderId,
   }) = _LoadStorefront;
 
-  /// Load products for the current storefront's brand
-  const factory BrandStorefrontEvent.loadProducts(String brandId) =
+  /// Load products for the current storefront
+  const factory BrandStorefrontEvent.loadProducts(String storefrontId) =
       _LoadProducts;
 
   /// Load reviews for the current storefront's brand

@@ -12,7 +12,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 import '../../widgets/messaging/token_actions_sheet.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -154,7 +154,13 @@ class _WalletScreenState extends State<WalletScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: WaveBackground(
+              child: TabBackground(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.walletGradient,
+                ),
+                overlayAsset: AppColors.waveOverlay,
                 child: Padding(
                   padding: AppSpacing.pagePadding,
                   child: Column(

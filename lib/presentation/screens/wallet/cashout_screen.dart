@@ -14,7 +14,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 class CashoutScreen extends StatefulWidget {
   const CashoutScreen({super.key});
@@ -78,7 +78,13 @@ class _CashoutScreenState extends State<CashoutScreen> {
             final minCashout = 5000; // Minimum 5000 tokens (R50) — matches backend MIN_CASHOUT_AMOUNT
 
             return SingleChildScrollView(
-              child: WaveBackground(
+              child: TabBackground(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.walletGradient,
+                ),
+                overlayAsset: AppColors.waveOverlay,
                 child: Padding(
                   padding: AppSpacing.pagePadding,
                   child: Form(

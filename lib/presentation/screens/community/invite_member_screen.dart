@@ -7,7 +7,7 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen to invite a user to a community by searching for them.
 class InviteMemberScreen extends StatefulWidget {
@@ -56,7 +56,13 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
 
         return Scaffold(
           appBar: const IMaliAppBar(title: 'Invite Member'),
-          body: WaveBackground(
+          body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
             child: SingleChildScrollView(
               padding: AppSpacing.pagePadding,
               child: Form(

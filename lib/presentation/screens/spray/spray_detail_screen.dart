@@ -8,7 +8,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/spray/spray_countdown.dart';
 import '../../widgets/spray/spray_leaderboard.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Detail screen for a token spray with live-updating progress,
 /// contributor list, leaderboard, countdown timer, and contribute button.
@@ -166,7 +166,13 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Token Spray'),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: BlocConsumer<TokenSprayBloc, TokenSprayState>(
         listener: (context, state) {
           if (state.errorMessage != null) {

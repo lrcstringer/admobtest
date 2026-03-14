@@ -6,7 +6,7 @@ import '../../../domain/enums/gift_status.dart';
 import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen showing gift history — sent and received tabs.
 /// Reached via /profile/gift-history
@@ -51,7 +51,13 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
           ],
         ),
       ),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: BlocBuilder<GiftBloc, GiftState>(
           builder: (context, state) {
             if (state.isLoading) {

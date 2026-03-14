@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Chooser screen that lets the user pick between One-to-One Sasaza
 /// (personal gift) and Group Together to Sasaza (group pool).
@@ -28,7 +28,13 @@ class SasazaChooserScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Sasaza'),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(

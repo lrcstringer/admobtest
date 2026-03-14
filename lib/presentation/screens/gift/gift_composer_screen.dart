@@ -9,7 +9,8 @@ import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/gift/gift_style_picker.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen for composing and sending a gift.
 /// Reached via /chat/conversation/:id/send-gift or /chat/send-gift.
@@ -112,7 +113,13 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
             ? 'Sasaza ${_recipientController.text}'
             : 'One-to-One Sasaza',
       ),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
           // Only pop for the current send — _sendInitiated prevents

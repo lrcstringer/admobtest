@@ -10,7 +10,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/chat/chat_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 @Deprecated('Use ConversationDetailScreen instead. Will be removed in a future cleanup PR.')
 class ChatDetailScreen extends StatefulWidget {
@@ -79,7 +79,13 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               ),
             ],
           ),
-          body: WaveBackground(
+          body: TabBackground(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: AppColors.chatGradient,
+            ),
+            overlayAsset: AppColors.waveOverlay,
             child: Column(
               children: [
                 Expanded(

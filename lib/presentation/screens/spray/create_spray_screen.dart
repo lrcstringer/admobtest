@@ -7,7 +7,8 @@ import '../../blocs/community/community_bloc.dart';
 import '../../blocs/token_spray/token_spray_bloc.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen for creating a new token spray celebration in a community.
 /// Reached via /chat/community/:id/create-spray
@@ -71,7 +72,13 @@ class _CreateSprayScreenState extends State<CreateSprayScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Start Token Spray'),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: BlocConsumer<TokenSprayBloc, TokenSprayState>(
         listener: (context, state) {
           if (state.activeSpray != null && !state.isLoading) {

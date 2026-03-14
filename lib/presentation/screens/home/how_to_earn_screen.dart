@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 class HowToEarnScreen extends StatelessWidget {
   const HowToEarnScreen({super.key});
@@ -14,7 +14,13 @@ class HowToEarnScreen extends StatelessWidget {
       appBar: const IMaliAppBar(title: 'How it works'),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: WaveBackground(
+        child: TabBackground(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: AppColors.homeGradient,
+          ),
+          overlayAsset: AppColors.waveOverlay,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
             child: Column(

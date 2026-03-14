@@ -602,8 +602,7 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
           child: CachedNetworkImage(
             imageUrl: storefront.bannerImageUrl!,
             width: double.infinity,
-            height: 100,
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
             placeholder: (_, _) => Container(
               height: 100,
               color: AppColors.buyCard,

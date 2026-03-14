@@ -38,7 +38,7 @@ abstract class BuyRepository {
   Future<Either<Failure, BrandStorefront>> getBrandStorefront(String id);
 
   /// Get products for a brand storefront
-  Future<Either<Failure, List<BrandProduct>>> getBrandProducts(String brandId);
+  Future<Either<Failure, List<BrandProduct>>> getBrandProducts(String storefrontId);
 
   /// Get reviews for a brand
   Future<Either<Failure, List<BrandReview>>> getBrandReviews(String brandId);

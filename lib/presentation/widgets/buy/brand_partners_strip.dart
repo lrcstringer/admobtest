@@ -85,10 +85,19 @@ class _BrandLiveHeroCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: brand.isPremium
-                ? AppColors.gold.withValues(alpha: 0.4)
+                ? AppColors.gold
                 : AppColors.buyCardBorder.withValues(alpha: 0.5),
-            width: brand.isPremium ? 1.5 : 1,
+            width: brand.isPremium ? 2 : 1,
           ),
+          boxShadow: brand.isPremium
+              ? [
+                  BoxShadow(
+                    color: AppColors.gold.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -152,15 +161,28 @@ class _BrandLiveHeroCard extends StatelessWidget {
               ),
             ),
 
-            // Premium badge
+            // Premium verified badge
             if (brand.isPremium)
-              const Positioned(
+              Positioned(
                 top: 4,
                 right: 4,
-                child: Icon(
-                  Icons.star_rounded,
-                  size: 14,
-                  color: AppColors.gold,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: AppColors.goldGradient,
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.verified_rounded,
+                      size: 14, color: Colors.white),
                 ),
               ),
           ],
@@ -194,10 +216,19 @@ class _BrandFallbackCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: brand.isPremium
-                ? AppColors.gold.withValues(alpha: 0.4)
+                ? AppColors.gold
                 : AppColors.buyCardBorder.withValues(alpha: 0.5),
-            width: brand.isPremium ? 1.5 : 1,
+            width: brand.isPremium ? 2 : 1,
           ),
+          boxShadow: brand.isPremium
+              ? [
+                  BoxShadow(
+                    color: AppColors.gold.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(

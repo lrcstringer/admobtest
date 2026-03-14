@@ -55,7 +55,7 @@ class BrandStorefrontBloc
           storefront: storefront,
         ));
         // Auto-load products and reviews via events
-        add(BrandStorefrontEvent.loadProducts(storefront.brandId));
+        add(BrandStorefrontEvent.loadProducts(storefront.id));
         add(BrandStorefrontEvent.loadReviews(storefront.brandId));
         return storefront;
       },
@@ -89,7 +89,7 @@ class BrandStorefrontBloc
   ) async {
     emit(state.copyWith(isLoadingProducts: true));
 
-    final result = await _buyRepository.getBrandProducts(event.brandId);
+    final result = await _buyRepository.getBrandProducts(event.storefrontId);
     result.fold(
       (_) => emit(state.copyWith(isLoadingProducts: false)),
       (products) => emit(state.copyWith(

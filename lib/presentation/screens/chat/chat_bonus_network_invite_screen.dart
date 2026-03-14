@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 import '../../theme/app_colors.dart';
 
 class ChatBonusNetworkInviteScreen extends StatelessWidget {
@@ -11,8 +11,14 @@ class ChatBonusNetworkInviteScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IMaliAppBar(title: 'Invite to Bonus Network'),
-      body: const WaveBackground(
-        child: Center(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.chatGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
+        child: const Center(
           child: Text(
             'Invite to Bonus Network\nComing Soon',
             textAlign: TextAlign.center,

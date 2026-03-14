@@ -140,11 +140,11 @@ return resetReviewState(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String? orderId)?  loadStorefront,TResult Function( String brandId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,TResult Function()?  resetReviewState,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String id,  String? orderId)?  loadStorefront,TResult Function( String storefrontId)?  loadProducts,TResult Function( String brandId)?  loadReviews,TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult Function( String storefrontId)?  recordView,TResult Function( String brandId)?  toggleFollow,TResult Function()?  resetReviewState,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
 return loadStorefront(_that.id,_that.orderId);case _LoadProducts() when loadProducts != null:
-return loadProducts(_that.brandId);case _LoadReviews() when loadReviews != null:
+return loadProducts(_that.storefrontId);case _LoadReviews() when loadReviews != null:
 return loadReviews(_that.brandId);case _SubmitReview() when submitReview != null:
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon() when claimCoupon != null:
 return claimCoupon(_that.storefrontId,_that.couponId,_that.couponCode);case _RecordView() when recordView != null:
@@ -168,11 +168,11 @@ return resetReviewState();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String? orderId)  loadStorefront,required TResult Function( String brandId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,required TResult Function()  resetReviewState,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String id,  String? orderId)  loadStorefront,required TResult Function( String storefrontId)  loadProducts,required TResult Function( String brandId)  loadReviews,required TResult Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)  submitReview,required TResult Function( String storefrontId,  String couponId,  String? couponCode)  claimCoupon,required TResult Function( String storefrontId)  recordView,required TResult Function( String brandId)  toggleFollow,required TResult Function()  resetReviewState,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront():
 return loadStorefront(_that.id,_that.orderId);case _LoadProducts():
-return loadProducts(_that.brandId);case _LoadReviews():
+return loadProducts(_that.storefrontId);case _LoadReviews():
 return loadReviews(_that.brandId);case _SubmitReview():
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon():
 return claimCoupon(_that.storefrontId,_that.couponId,_that.couponCode);case _RecordView():
@@ -195,11 +195,11 @@ return resetReviewState();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String? orderId)?  loadStorefront,TResult? Function( String brandId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,TResult? Function()?  resetReviewState,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String id,  String? orderId)?  loadStorefront,TResult? Function( String storefrontId)?  loadProducts,TResult? Function( String brandId)?  loadReviews,TResult? Function( String brandId,  String orderId,  int qualityRating,  int valueRating,  int serviceRating,  String? comment)?  submitReview,TResult? Function( String storefrontId,  String couponId,  String? couponCode)?  claimCoupon,TResult? Function( String storefrontId)?  recordView,TResult? Function( String brandId)?  toggleFollow,TResult? Function()?  resetReviewState,}) {final _that = this;
 switch (_that) {
 case _LoadStorefront() when loadStorefront != null:
 return loadStorefront(_that.id,_that.orderId);case _LoadProducts() when loadProducts != null:
-return loadProducts(_that.brandId);case _LoadReviews() when loadReviews != null:
+return loadProducts(_that.storefrontId);case _LoadReviews() when loadReviews != null:
 return loadReviews(_that.brandId);case _SubmitReview() when submitReview != null:
 return submitReview(_that.brandId,_that.orderId,_that.qualityRating,_that.valueRating,_that.serviceRating,_that.comment);case _ClaimCoupon() when claimCoupon != null:
 return claimCoupon(_that.storefrontId,_that.couponId,_that.couponCode);case _RecordView() when recordView != null:
@@ -285,10 +285,10 @@ as String?,
 
 
 class _LoadProducts implements BrandStorefrontEvent {
-  const _LoadProducts(this.brandId);
+  const _LoadProducts(this.storefrontId);
   
 
- final  String brandId;
+ final  String storefrontId;
 
 /// Create a copy of BrandStorefrontEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -300,16 +300,16 @@ _$LoadProductsCopyWith<_LoadProducts> get copyWith => __$LoadProductsCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadProducts&&(identical(other.brandId, brandId) || other.brandId == brandId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadProducts&&(identical(other.storefrontId, storefrontId) || other.storefrontId == storefrontId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,brandId);
+int get hashCode => Object.hash(runtimeType,storefrontId);
 
 @override
 String toString() {
-  return 'BrandStorefrontEvent.loadProducts(brandId: $brandId)';
+  return 'BrandStorefrontEvent.loadProducts(storefrontId: $storefrontId)';
 }
 
 
@@ -320,7 +320,7 @@ abstract mixin class _$LoadProductsCopyWith<$Res> implements $BrandStorefrontEve
   factory _$LoadProductsCopyWith(_LoadProducts value, $Res Function(_LoadProducts) _then) = __$LoadProductsCopyWithImpl;
 @useResult
 $Res call({
- String brandId
+ String storefrontId
 });
 
 
@@ -337,9 +337,9 @@ class __$LoadProductsCopyWithImpl<$Res>
 
 /// Create a copy of BrandStorefrontEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? brandId = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? storefrontId = null,}) {
   return _then(_LoadProducts(
-null == brandId ? _self.brandId : brandId // ignore: cast_nullable_to_non_nullable
+null == storefrontId ? _self.storefrontId : storefrontId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

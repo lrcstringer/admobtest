@@ -306,10 +306,10 @@ class BuyRepositoryImpl implements BuyRepository {
 
   @override
   Future<Either<Failure, List<BrandProduct>>> getBrandProducts(
-    String brandId,
+    String storefrontId,
   ) async {
     try {
-      final models = await _remoteDataSource.getBrandProducts(brandId);
+      final models = await _remoteDataSource.getBrandProducts(storefrontId);
       final entities = models.map((m) => m.toEntity()).toList();
       return Right(entities);
     } catch (e) {

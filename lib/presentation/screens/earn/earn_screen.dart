@@ -12,7 +12,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 import '../../widgets/earn/engagement_history_sheet.dart';
 
 class EarnScreen extends StatefulWidget {
@@ -121,8 +121,14 @@ class _EarnScreenState extends State<EarnScreen> {
           builder: (context, state) {
             if (state.status == EarnInboxStatus.loading &&
                 state.clients.isEmpty) {
-              return const WaveBackground(
-                  child: Center(child: CircularProgressIndicator()));
+              return TabBackground(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: AppColors.earnGradient,
+                  ),
+                  overlayAsset: AppColors.waveOverlay,
+                  child: const Center(child: CircularProgressIndicator()));
             }
 
             return RefreshIndicator(
@@ -133,7 +139,13 @@ class _EarnScreenState extends State<EarnScreen> {
               },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                child: WaveBackground(
+                child: TabBackground(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: AppColors.earnGradient,
+                  ),
+                  overlayAsset: AppColors.waveOverlay,
                   child: Padding(
                     padding: AppSpacing.pagePadding,
                     child: Column(

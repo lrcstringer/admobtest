@@ -4,7 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Displays a QR code for a user or community, allowing others to scan
 /// and start a conversation or join a community.
@@ -35,7 +35,13 @@ class QrDisplayScreen extends StatelessWidget {
             ),
         ],
       ),
-      body: WaveBackground(
+      body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
         child: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

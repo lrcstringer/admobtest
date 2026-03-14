@@ -14,7 +14,7 @@ import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Success screen shown after completing an earn engagement
 /// Shows confetti animation, token breakdown (90/5/5), and navigation options
@@ -173,7 +173,13 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
             }
           },
           child: Scaffold(
-            body: WaveBackground(
+            body: TabBackground(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.earnGradient,
+              ),
+              overlayAsset: AppColors.waveOverlay,
               child: Stack(
                 children: [
                   // Main content

@@ -14,7 +14,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Highlight zones synced to intro video playback timestamps.
 enum _HighlightZone { none, potCards, streakDays, inviteFriends, helpIcon }
@@ -268,7 +268,13 @@ class _HomeScreenState extends State<HomeScreen>
                   child: SingleChildScrollView(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
-                    child: WaveBackground(
+                    child: TabBackground(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: AppColors.homeGradient,
+                      ),
+                      overlayAsset: AppColors.waveOverlay,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                         child: Column(

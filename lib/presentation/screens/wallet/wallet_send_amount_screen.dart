@@ -8,7 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 class WalletSendAmountScreen extends StatefulWidget {
   final String recipientUserId;
@@ -112,7 +112,13 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                     state.mainWalletAvailable);
 
             return SingleChildScrollView(
-              child: WaveBackground(
+              child: TabBackground(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.walletGradient,
+                ),
+                overlayAsset: AppColors.waveOverlay,
                 child: Padding(
                   padding: AppSpacing.pagePadding,
                   child: Column(

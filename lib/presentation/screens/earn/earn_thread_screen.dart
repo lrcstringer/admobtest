@@ -8,7 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 class EarnThreadScreen extends StatefulWidget {
   final String threadId;
@@ -38,7 +38,13 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
           appBar: IMaliAppBar(
             title: thread?.title ?? 'Opportunities',
           ),
-          body: WaveBackground(
+          body: TabBackground(
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: AppColors.earnGradient,
+            ),
+            overlayAsset: AppColors.waveOverlay,
             child: _buildBody(context, state),
           ),
         );

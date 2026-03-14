@@ -114,6 +114,26 @@ class _BrandStorefrontBuilderScreenState
     'richText',
   ];
 
+  /// Sections backed by a single field — only one instance allowed.
+  static const _singletonSections = {
+    'quickActions',
+    'featuredProducts',
+    'products',
+    'banner',
+    'promotions',
+    'gallery',
+    'reviews',
+    'about',
+    'socialLinks',
+    'announcementBar',
+    'videoShowcase',
+    'couponCenter',
+    'faq',
+    'testimonials',
+    'locationCard',
+    'richText',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -185,6 +205,7 @@ class _BrandStorefrontBuilderScreenState
         'brandName': '',
         'brandId': '',
         'isActive': false,
+        'isDeleted': false,
         'isDraft': true,
         'tier': 'standard',
         'heroStyle': 'fullBleedImage',
@@ -266,7 +287,15 @@ class _BrandStorefrontBuilderScreenState
 
     final orderRaw = _data['sectionOrder'];
     if (orderRaw is List) {
-      _sectionOrder = orderRaw.cast<String>();
+      final raw = orderRaw.cast<String>();
+      // Deduplicate singleton sections (keep first occurrence)
+      final seen = <String>{};
+      _sectionOrder = raw.where((t) {
+        if (_singletonSections.contains(t)) {
+          return seen.add(t); // returns false if already present
+        }
+        return true; // non-singleton (e.g. divider) can repeat
+      }).toList();
     }
     final settingsRaw = _data['sectionSettings'];
     if (settingsRaw is Map) {
@@ -430,6 +459,8 @@ class _BrandStorefrontBuilderScreenState
     }
 
     _data['isDraft'] = false;
+    _data['isActive'] = true;
+    _data['isDeleted'] = false;
     _data['publishedAt'] = DateTime.now().toIso8601String();
     await _save();
     setState(() => _isPublished = true);
@@ -831,6 +862,19 @@ class _BrandStorefrontBuilderScreenState
             _markDirty();
           },
         ),
+        // Premium Brand toggle
+        SwitchListTile(
+          title: const Text('Premium Brand',
+              style: TextStyle(color: AppColors.textPrimary)),
+          subtitle: const Text('Gold badge and priority placement',
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 12)),
+          value: _data['isPremium'] == true,
+          activeThumbColor: AppColors.gold,
+          onChanged: (v) {
+            _data['isPremium'] = v;
+            _markDirty();
+          },
+        ),
         // Trust Badges
         const SizedBox(height: 16),
         const Text('Trust Badges',
@@ -1063,9 +1107,15 @@ class _BrandStorefrontBuilderScreenState
                   _sectionOrder.add(type);
                   _markDirty();
                 },
-                itemBuilder: (_) => _allSectionTypes
-                    .map((t) => PopupMenuItem(value: t, child: Text(t)))
-                    .toList(),
+                itemBuilder: (_) {
+                  final existing = _sectionOrder.toSet();
+                  return _allSectionTypes
+                      .where((t) =>
+                          !_singletonSections.contains(t) ||
+                          !existing.contains(t))
+                      .map((t) => PopupMenuItem(value: t, child: Text(t)))
+                      .toList();
+                },
               ),
             ],
           ),

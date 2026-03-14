@@ -8,7 +8,7 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Full members list with admin actions (role change, remove).
 class CommunityMembersScreen extends StatelessWidget {
@@ -61,7 +61,13 @@ class CommunityMembersScreen extends StatelessWidget {
                 ),
             ],
           ),
-          body: WaveBackground(
+          body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
             // 8.2 Show empty state instead of infinite spinner when not loading
             child: members.isEmpty &&
                     state.operationStatus == CommunityOperationStatus.processing

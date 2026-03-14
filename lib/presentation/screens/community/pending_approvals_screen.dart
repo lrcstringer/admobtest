@@ -6,7 +6,7 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/wave_background.dart';
+import '../../widgets/common/tab_background.dart';
 
 /// Screen showing pending transaction approvals for a community.
 ///
@@ -44,7 +44,13 @@ class PendingApprovalsScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: IMaliAppBar(title: 'Approvals (${approvals.length})'),
-          body: WaveBackground(
+          body: TabBackground(
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.backgroundGradient,
+        ),
+        overlayAsset: AppColors.waveOverlay,
             child: approvals.isEmpty
               ? _buildEmptyState(context)
               : ListView.builder(

@@ -1,31 +1,28 @@
-# WIP: Buy Tab Light Theme Migration + Fixes
+# WIP: Storefront Builder Enhancements
 
-## What we did
-Complete visual overhaul of the Buy tab to match the light commerce theme spec from `buy_tab_complete.md`.
+## Status: COMMITTED (8bea3c1)
 
-## Status: COMPLETE
+### What was built
+1. **Inline section editors on Dynamic Content tab** — tap any section to edit:
+   - quickActions, banner, promotions, gallery, socialLinks, announcementBar,
+     videoShowcase, couponCenter, faq, locationCard, richText
+   - Non-editable sections (featuredProducts, products, reviews, about, testimonials, divider) show hints
+2. **Pixel-accurate App Preview** — toggle between Sections/App Preview, refresh button, uses StorefrontPreview widget
+3. **Section visibility** — StorefrontPreview respects sectionSettings.isVisible
+4. **Removed Content & Links tab** — banner, announcement, social links now inline in Dynamic Content
 
-### Changes made
-1. **Full color token migration** — ~68 Buy tab files migrated from dark tokens to Buy light tokens (`buyBackground`, `buyCard`, `buyTextPrimary`, etc.)
-2. **buy_services_screen.dart rewritten** — Removed My Regulars, gradient background, old marketplace/group buy cards. Added Option B marketplace card (white + cyan accent), white group buys card (green accent), 1px layer dividers, green cluster opt-in
-3. **buy_category_tile.dart updated** — Dense chip spec: 8px radius, 11px/w600 label, 18px icon, compact padding (5,4,8,4), 6px gaps
-4. **buy_category_grid.dart updated** — 6px spacing/runSpacing
-5. **buy_layer_divider.dart updated** — 1px line + 16px vertical padding (not 8px solid block)
-6. **Featured Items filter fix** — `_filterFeaturedByCommunity()` now shows ALL items when user has no clusters (was incorrectly hiding community-targeted items)
-7. **HTML mockup created** — `docs/buy_screen_mockup.html` showing pixel-accurate rendering
+### Bugs fixed
+- Auto-save duplicate storefront creation: `_save()` now checks `widget.storefrontId ?? _data['id']`
+- Product image upload: `resizeImageForUpload` throws on web → wrapped in try/catch with raw upload fallback
+- Storage rules: added `brand_assets/{storefrontId}/{subfolder}/{fileName}` for products/gallery/videos
+- Featured products overflow: height 200→220
+- Products tab infinite reload: `_productsLoaded` flag
+- CF `adminListBrandProducts`: better error messages, try/catch around Firestore query
 
-### Key decisions
-- AppBar stays dark (spec requirement) — icons/text on AppBar use `AppColors.textPrimary` (white), NOT `buyTextPrimary`
-- Featured Items: users with no clusters see all items; users with clusters see global + matching community items
-
-### Files modified
-- `lib/presentation/screens/buy/buy_services_screen.dart` (major rewrite)
-- `lib/presentation/widgets/buy/buy_category_tile.dart` (dense chip spec)
-- `lib/presentation/widgets/buy/buy_category_grid.dart` (6px spacing)
-- `lib/presentation/widgets/buy/buy_layer_divider.dart` (1px line)
-- ~64 other Buy tab screen/widget files (token migration)
-- `docs/buy_screen_mockup.html` (new)
+### Known remaining issues
+- App Preview may show cached version in browser — user needs to clear site data or use incognito
+- Product image in Firestore doc may have empty imageUrl if created before Storage rules fix
+- Debug prints still in code (can be removed later)
 
 ### Not yet done
-- No commit made (user hasn't asked)
-- Audit plan batches 1-7 not started (separate from visual overhaul)
+- No git push (user hasn't asked)
