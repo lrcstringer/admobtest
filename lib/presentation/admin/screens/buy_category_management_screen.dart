@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 
-/// Admin screen for managing Buy categories (VAS + coming soon).
+/// Admin screen for managing marketplace Buy categories.
 class BuyCategoryManagementScreen extends StatefulWidget {
   const BuyCategoryManagementScreen({super.key});
 
@@ -70,12 +70,12 @@ class _BuyCategoryManagementScreenState
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Buy Categories',
+                          Text('Marketplace Categories',
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold)),
                           SizedBox(height: 4),
-                          Text('Manage VAS and marketplace categories',
+                          Text('Manage marketplace service categories',
                               style: TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondary)),

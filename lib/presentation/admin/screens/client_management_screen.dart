@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
+import '../widgets/svg_aware_image.dart';
 
 const _industries = [
   ('platform', 'Platform (Internal)'),
@@ -573,7 +573,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: (client['avatarImage'] as String?)?.isNotEmpty == true
-                      ? Image.network(
+                      ? svgAwareNetworkImage(
                           client['avatarImage'] as String,
                           fit: BoxFit.cover,
                           width: 36,
@@ -999,7 +999,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -1021,32 +1021,16 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
   }
 
   Future<String> _uploadLogoToStorage(String clientId) async {
-    final resized = resizeImageForUpload(
-      _pickedLogoBytes!,
-      ImageResizeTarget.clientLogo,
+    return uploadAdminImage(
+      bytes: _pickedLogoBytes!,
+      fileName: _pickedLogoName,
+      storagePath: 'client_logos',
+      fileId: clientId,
+      resizeTarget: ImageResizeTarget.clientLogo,
+      onProgress: (p) {
+        if (mounted) setState(() => _uploadProgress = p);
+      },
     );
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('client_logos')
-        .child('$clientId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
-    );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   Future<void> _handleCreate() async {
@@ -1149,8 +1133,9 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
                 child: _pickedLogoBytes != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(7),
-                        child: Image.memory(
+                        child: svgAwareMemoryImage(
                           _pickedLogoBytes!,
+                          fileName: _pickedLogoName,
                           fit: BoxFit.cover,
                         ),
                       )
@@ -1613,7 +1598,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -1636,32 +1621,16 @@ class _EditClientDialogState extends State<_EditClientDialog> {
 
   Future<String> _uploadLogoToStorage() async {
     final clientId = widget.client['id'] as String;
-    final resized = resizeImageForUpload(
-      _pickedLogoBytes!,
-      ImageResizeTarget.clientLogo,
+    return uploadAdminImage(
+      bytes: _pickedLogoBytes!,
+      fileName: _pickedLogoName,
+      storagePath: 'client_logos',
+      fileId: clientId,
+      resizeTarget: ImageResizeTarget.clientLogo,
+      onProgress: (p) {
+        if (mounted) setState(() => _uploadProgress = p);
+      },
     );
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('client_logos')
-        .child('$clientId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
-    );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   Future<void> _handleUpdate() async {
@@ -1895,8 +1864,9 @@ class _EditClientDialogState extends State<_EditClientDialog> {
                             child: _pickedLogoBytes != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(7),
-                                    child: Image.memory(
+                                    child: svgAwareMemoryImage(
                                       _pickedLogoBytes!,
+                                      fileName: _pickedLogoName,
                                       fit: BoxFit.cover,
                                     ),
                                   )
@@ -1904,7 +1874,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
                                     ? ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(7),
-                                        child: Image.network(
+                                        child: svgAwareNetworkImage(
                                           _existingLogoUrl!,
                                           fit: BoxFit.cover,
                                           errorBuilder: (_, _, _) => Icon(

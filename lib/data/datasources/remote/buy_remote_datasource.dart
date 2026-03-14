@@ -9,10 +9,14 @@ import '../../models/brand_storefront_model.dart';
 import '../../models/buy_category_model.dart';
 import '../../models/buy_regular_model.dart';
 import '../../models/featured_item_model.dart';
+import '../../models/vas_category_model.dart';
 
 abstract class BuyRemoteDataSource {
   /// Get all buy categories from Firestore
   Future<List<BuyCategoryModel>> getBuyCategories();
+
+  /// Get all VAS categories from Firestore
+  Future<List<VasCategoryModel>> getVasCategories();
 
   /// Get user's buy regulars from Firestore
   Future<List<BuyRegularModel>> getBuyRegulars();
@@ -88,6 +92,9 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
   CollectionReference<Map<String, dynamic>> get _categoriesCollection =>
       _firestore.collection('buyCategories');
 
+  CollectionReference<Map<String, dynamic>> get _vasCategoriesCollection =>
+      _firestore.collection('vasCategories');
+
   @override
   Future<List<BuyCategoryModel>> getBuyCategories() async {
     final snapshot = await _categoriesCollection
@@ -115,6 +122,20 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
 
     categories.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return categories;
+  }
+
+  @override
+  Future<List<VasCategoryModel>> getVasCategories() async {
+    final snapshot = await _vasCategoriesCollection
+        .where('isActive', isEqualTo: true)
+        .orderBy('sortOrder')
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return VasCategoryModel.fromJson(data);
+    }).toList();
   }
 
   @override

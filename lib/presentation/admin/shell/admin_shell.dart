@@ -32,7 +32,8 @@ const routeRoles = <String, List<String>>{
   ],
   '/pending-actions': ['superAdmin', 'financeAdmin'],
   '/buy-feature-flags': ['superAdmin', 'platformAdmin'],
-  '/buy-categories': ['superAdmin', 'platformAdmin'],
+  '/marketplace-categories': ['superAdmin', 'platformAdmin'],
+  '/buy-vas-categories': ['superAdmin', 'platformAdmin'],
   '/buy-purchases': ['superAdmin', 'financeAdmin', 'auditor'],
   '/buy-featured': ['superAdmin', 'campaignAdmin'],
   '/buy-brand-storefronts': ['superAdmin', 'campaignAdmin'],
@@ -295,8 +296,10 @@ class _AdminSidebar extends StatelessWidget {
                     if (_anySectionVisible(roles, [
                       '/buy-featured',
                       '/buy-brand-storefronts',
-                      '/buy-categories',
+                      '/marketplace-categories',
+                      '/buy-vas-categories',
                       '/buy-purchases',
+                      '/buy-vas-providers',
                       '/buy-providers',
                       '/buy-listings',
                       '/buy-group-buys',
@@ -322,13 +325,21 @@ class _AdminSidebar extends StatelessWidget {
                         path: '/buy-brand-storefronts',
                         isSelected: currentPath == '/buy-brand-storefronts',
                       ),
-                    if (isRouteAllowed('/buy-categories', roles))
+                    if (isRouteAllowed('/marketplace-categories', roles))
                       _NavItem(
                         icon: Icons.category_outlined,
                         selectedIcon: Icons.category,
-                        label: 'Buy Categories',
-                        path: '/buy-categories',
-                        isSelected: currentPath == '/buy-categories',
+                        label: 'Marketplace Categories',
+                        path: '/marketplace-categories',
+                        isSelected: currentPath == '/marketplace-categories',
+                      ),
+                    if (isRouteAllowed('/buy-vas-categories', roles))
+                      _NavItem(
+                        icon: Icons.bolt_outlined,
+                        selectedIcon: Icons.bolt,
+                        label: 'VAS Categories',
+                        path: '/buy-vas-categories',
+                        isSelected: currentPath == '/buy-vas-categories',
                       ),
                     if (isRouteAllowed('/buy-purchases', roles))
                       _NavItem(
@@ -338,11 +349,19 @@ class _AdminSidebar extends StatelessWidget {
                         path: '/buy-purchases',
                         isSelected: currentPath == '/buy-purchases',
                       ),
+                    if (isRouteAllowed('/buy-vas-providers', roles))
+                      _NavItem(
+                        icon: Icons.electrical_services_outlined,
+                        selectedIcon: Icons.electrical_services,
+                        label: 'VAS Providers',
+                        path: '/buy-vas-providers',
+                        isSelected: currentPath == '/buy-vas-providers',
+                      ),
                     if (isRouteAllowed('/buy-providers', roles))
                       _NavItem(
                         icon: Icons.person_search_outlined,
                         selectedIcon: Icons.person_search,
-                        label: 'Providers',
+                        label: 'Marketplace Providers',
                         path: '/buy-providers',
                         isSelected: currentPath == '/buy-providers',
                       ),

@@ -19,9 +19,9 @@ service firebase.storage {
             || request.auth.token.superAdmin == true);
     }
 
-    // Helper function to validate image file
+    // Helper function to validate image file (raster + SVG)
     function isValidImage() {
-      return request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp|bmp)')
+      return request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp|bmp|svg\\+xml)')
         && request.resource.size < 5 * 1024 * 1024; // Max 5MB
     }
 
@@ -105,6 +105,13 @@ service firebase.storage {
 
     // Opportunity images (admin managed)
     match /opportunity_images/{threadId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
+    // VAS provider logos (admin managed)
+    match /vas_provider_logos/{fileName} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() && isValidImage();
       allow delete: if isAdmin();

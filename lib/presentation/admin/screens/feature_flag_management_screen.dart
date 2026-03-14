@@ -522,7 +522,7 @@ class _FeatureFlagManagementScreenState
         backgroundColor: AppColors.cardDark,
         title: const Text('Seed Default Buy Data'),
         content: const Text(
-          'This will create default feature flags and buy categories if they don\'t already exist.\n\n'
+          'This will create default feature flags and marketplace categories if they don\'t already exist.\n\n'
           'Existing data will NOT be overwritten.',
         ),
         actions: [

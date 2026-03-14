@@ -245,6 +245,15 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // VAS categories collection
+    match /vasCategories/{categoryId} {
+      // Authenticated users can read VAS categories
+      allow read: if isAuthenticated();
+
+      // Categories are managed by admin Cloud Functions only
+      allow create, update, delete: if false;
+    }
+
     // Featured items collection
     match /featuredItems/{itemId} {
       // Authenticated users can read featured items

@@ -7,6 +7,7 @@ import '../entities/brand_storefront.dart';
 import '../entities/buy_category.dart';
 import '../entities/buy_regular.dart';
 import '../entities/featured_item.dart';
+import '../entities/vas_category.dart';
 
 abstract class BuyRepository {
   /// Get buy categories (remote, syncs to local cache)
@@ -14,6 +15,9 @@ abstract class BuyRepository {
 
   /// Get cached buy categories from local DB
   Future<Either<Failure, List<BuyCategory>>> getCachedCategories();
+
+  /// Get VAS categories (remote)
+  Future<Either<Failure, List<VasCategory>>> getVasCategories();
 
   /// Get user's buy regulars (remote, syncs to local cache)
   Future<Either<Failure, List<BuyRegular>>> getBuyRegulars();

@@ -4,18 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../domain/entities/buy_category.dart';
 import '../../../domain/entities/featured_item.dart';
+import '../../../domain/entities/vas_category.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/buy_tab/buy_tab_bloc.dart';
 import '../../blocs/profile/profile_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/buy/cluster_picker_sheet.dart';
 import '../../widgets/buy/brand_partners_strip.dart';
-import '../../widgets/buy/buy_category_grid.dart';
 import '../../widgets/buy/buy_offline_banner.dart';
 import '../../widgets/buy/buy_section_header.dart';
 import '../../widgets/buy/featured_carousel.dart';
+import '../../widgets/buy/vas_category_grid.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/imali_app_bar.dart';
 
@@ -256,33 +256,29 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
   // ─── Category Section ────────────────────────────────────
 
   Widget _buildCategorySection(BuyTabState state) {
-    if (state.isLoading && state.categories.isEmpty) {
+    if (state.isLoading && state.vasCategories.isEmpty) {
       return _buildCategoryShimmer();
     }
 
-    if (state.errorMessage != null && state.categories.isEmpty) {
+    if (state.errorMessage != null && state.vasCategories.isEmpty) {
       return _buildErrorState(state.errorMessage!);
     }
 
-    if (state.categories.isEmpty) {
+    if (state.vasCategories.isEmpty) {
       return _buildEmptyState();
     }
 
-    return BuyCategoryGrid(
-      categories: state.categories,
-      onCategoryTap: _onCategoryTap,
+    return VasCategoryGrid(
+      categories: state.vasCategories,
+      onCategoryTap: _onVasCategoryTap,
     );
   }
 
-  void _onCategoryTap(BuyCategory category) {
-    if (category.isComingSoon) return;
-
-    // All categories go to BuyCategoryScreen via purchaseCategoryMapping
-    if (category.purchaseCategoryMapping != null &&
-        category.purchaseCategoryMapping!.isNotEmpty) {
+  void _onVasCategoryTap(VasCategory category) {
+    if (category.purchaseCategoryMapping.isNotEmpty) {
       context.go(
         '/buy/category/${category.purchaseCategoryMapping}',
-        extra: {'name': category.name, 'emoji': category.iconEmoji},
+        extra: {'name': category.name},
       );
       return;
     }
@@ -290,7 +286,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
     // Fallback for categories without mapping
     context.go(
       '/buy/category/${category.id}',
-      extra: {'name': category.name, 'emoji': category.iconEmoji},
+      extra: {'name': category.name},
     );
   }
 

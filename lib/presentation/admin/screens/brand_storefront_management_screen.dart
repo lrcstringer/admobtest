@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../theme/app_colors.dart';
 
@@ -16,18 +17,6 @@ class _BrandStorefrontManagementScreenState
     extends State<BrandStorefrontManagementScreen> {
   bool _isLoading = false;
   List<Map<String, dynamic>> _storefronts = [];
-
-  static const List<String> _defaultSections = [
-    'quickActions',
-    'featuredProducts',
-    'products',
-    'banner',
-    'promotions',
-    'gallery',
-    'reviews',
-    'about',
-    'socialLinks',
-  ];
 
   @override
   void initState() {
@@ -130,7 +119,7 @@ class _BrandStorefrontManagementScreenState
                         foregroundColor: Colors.white,
                         minimumSize: const Size(0, 40),
                       ),
-                      onPressed: () => _showStorefrontDialog(null),
+                      onPressed: () => context.go('/buy-storefront-builder'),
                     ),
                   ],
                 ),
@@ -312,7 +301,8 @@ class _BrandStorefrontManagementScreenState
             color: AppColors.cardDark,
             onSelected: (action) => _onAction(action, sf),
             itemBuilder: (_) => [
-              const PopupMenuItem(value: 'edit', child: Text('Edit')),
+              const PopupMenuItem(
+                  value: 'edit', child: Text('Open Builder')),
               PopupMenuItem(
                 value: 'toggle',
                 child: Text(isActive ? 'Deactivate' : 'Activate'),
@@ -320,14 +310,6 @@ class _BrandStorefrontManagementScreenState
               const PopupMenuItem(
                 value: 'reviews',
                 child: Text('Manage Reviews'),
-              ),
-              const PopupMenuItem(
-                value: 'sections',
-                child: Text('Section Order'),
-              ),
-              const PopupMenuItem(
-                value: 'preview',
-                child: Text('Preview'),
               ),
               const PopupMenuItem(
                 value: 'delete',
@@ -344,7 +326,10 @@ class _BrandStorefrontManagementScreenState
   Future<void> _onAction(String action, Map<String, dynamic> sf) async {
     switch (action) {
       case 'edit':
-        _showStorefrontDialog(sf);
+        final id = sf['id'] as String?;
+        if (id != null) {
+          context.go('/buy-storefront-builder?storefrontId=$id');
+        }
       case 'toggle':
         try {
           await FirebaseFunctions.instanceFor(region: 'africa-south1')
@@ -363,10 +348,6 @@ class _BrandStorefrontManagementScreenState
         }
       case 'reviews':
         _showReviewsDialog(sf);
-      case 'sections':
-        _showSectionOrderDialog(sf);
-      case 'preview':
-        _showPreviewDialog(sf);
       case 'delete':
         final confirmed = await showDialog<bool>(
           context: context,
@@ -422,401 +403,6 @@ class _BrandStorefrontManagementScreenState
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Section Order Dialog
-  // ---------------------------------------------------------------------------
-
-  void _showSectionOrderDialog(Map<String, dynamic> sf) {
-    final storefrontId = sf['id'] as String? ?? '';
-    final rawOrder = sf['sectionOrder'] as List<dynamic>?;
-
-    // Build ordered list: sections from sectionOrder first, then any missing
-    // defaults appended. Track which are enabled.
-    final List<String> currentOrder = rawOrder != null
-        ? rawOrder.map((e) => e.toString()).toList()
-        : List<String>.from(_defaultSections);
-
-    // Ensure all default sections are present
-    for (final section in _defaultSections) {
-      if (!currentOrder.contains(section)) {
-        currentOrder.add(section);
-      }
-    }
-
-    // Track enabled state: if sectionOrder existed, only those are enabled;
-    // otherwise all defaults are enabled.
-    final Set<String> enabledSections = rawOrder != null
-        ? rawOrder.map((e) => e.toString()).toSet()
-        : _defaultSections.toSet();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => _SectionOrderDialogContent(
-        storefrontId: storefrontId,
-        initialOrder: currentOrder,
-        initialEnabled: enabledSections,
-        onSaved: _loadStorefronts,
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Preview Dialog
-  // ---------------------------------------------------------------------------
-
-  void _showPreviewDialog(Map<String, dynamic> sf) {
-    final brandName = sf['brandName'] as String? ?? 'Unknown';
-    final tagline = sf['tagline'] as String? ?? '';
-    final logoUrl = sf['brandLogoUrl'] as String? ?? '';
-    final brandColorHex = sf['brandColor'] as String?;
-    final brandColor = AppColors.parseHex(brandColorHex);
-    final rawOrder = sf['sectionOrder'] as List<dynamic>?;
-    final sectionOrder = rawOrder != null
-        ? rawOrder.map((e) => e.toString()).toList()
-        : List<String>.from(_defaultSections);
-
-    showDialog(
-      context: context,
-      useSafeArea: false,
-      builder: (ctx) => Dialog.fullscreen(
-        backgroundColor: AppColors.backgroundDark,
-        child: Scaffold(
-          backgroundColor: AppColors.backgroundDark,
-          appBar: AppBar(
-            backgroundColor: AppColors.surfaceElevated,
-            title: Text('Preview: $brandName'),
-            leading: IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.of(ctx).pop(),
-            ),
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Hero section
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        brandColor,
-                        brandColor.withValues(alpha: 0.6),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (logoUrl.isNotEmpty)
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              width: 2,
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: Image.network(
-                              logoUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.storefront,
-                                size: 36,
-                                color: AppColors.textTertiary,
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: const BoxDecoration(
-                            color: Colors.white24,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.storefront,
-                            size: 36,
-                            color: Colors.white,
-                          ),
-                        ),
-                      const SizedBox(height: 12),
-                      Text(
-                        brandName,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      if (tagline.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          tagline,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // Section labels in order
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Sections (in display order)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...sectionOrder.map((section) => Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 4),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardDark,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.borderDark),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            _sectionIcon(section),
-                            color: brandColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            _sectionLabel(section),
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  static String _sectionLabel(String key) {
-    return switch (key) {
-      'quickActions' => 'Quick Actions',
-      'featuredProducts' => 'Featured Products',
-      'products' => 'Products',
-      'banner' => 'Banner',
-      'promotions' => 'Promotions',
-      'gallery' => 'Gallery',
-      'reviews' => 'Reviews',
-      'about' => 'About',
-      'socialLinks' => 'Social Links',
-      _ => key,
-    };
-  }
-
-  static IconData _sectionIcon(String key) {
-    return switch (key) {
-      'quickActions' => Icons.flash_on,
-      'featuredProducts' => Icons.star_outline,
-      'products' => Icons.shopping_bag_outlined,
-      'banner' => Icons.image_outlined,
-      'promotions' => Icons.local_offer_outlined,
-      'gallery' => Icons.photo_library_outlined,
-      'reviews' => Icons.rate_review_outlined,
-      'about' => Icons.info_outline,
-      'socialLinks' => Icons.share_outlined,
-      _ => Icons.view_module_outlined,
-    };
-  }
-
-  // ---------------------------------------------------------------------------
-  // Create / Edit Storefront Dialog
-  // ---------------------------------------------------------------------------
-
-  void _showStorefrontDialog(Map<String, dynamic>? existing) {
-    final isEdit = existing != null;
-    final formKey = GlobalKey<FormState>();
-    final brandNameCtrl =
-        TextEditingController(text: existing?['brandName'] as String? ?? '');
-    final brandIdCtrl =
-        TextEditingController(text: existing?['brandId'] as String? ?? '');
-    final taglineCtrl =
-        TextEditingController(text: existing?['tagline'] as String? ?? '');
-    final logoUrlCtrl =
-        TextEditingController(text: existing?['brandLogoUrl'] as String? ?? '');
-    final coverUrlCtrl = TextEditingController(
-        text: existing?['coverImageUrl'] as String? ?? '');
-    final brandColorCtrl =
-        TextEditingController(text: existing?['brandColor'] as String? ?? '');
-    var isActive = existing?['isActive'] as bool? ?? true;
-    var isPremium = existing?['isPremium'] as bool? ?? false;
-    var saving = false;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setInnerState) {
-          return AlertDialog(
-            backgroundColor: AppColors.cardDark,
-            title: Text(isEdit ? 'Edit Storefront' : 'Create Storefront'),
-            content: SizedBox(
-              width: 480,
-              child: Form(
-                key: formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: brandNameCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Brand Name *'),
-                        validator: (v) =>
-                            v == null || v.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: brandIdCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Brand ID *'),
-                        validator: (v) =>
-                            v == null || v.isEmpty ? 'Required' : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: taglineCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Tagline'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: logoUrlCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Logo URL'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: coverUrlCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Cover Image URL'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: brandColorCtrl,
-                        decoration: const InputDecoration(
-                            labelText: 'Brand Color (hex, e.g. #E60000)'),
-                      ),
-                      const SizedBox(height: 12),
-                      SwitchListTile(
-                        value: isActive,
-                        title: const Text('Active'),
-                        onChanged: (v) =>
-                            setInnerState(() => isActive = v),
-                      ),
-                      SwitchListTile(
-                        value: isPremium,
-                        title: const Text('Premium'),
-                        subtitle: const Text(
-                            'Premium brands appear first with gold border'),
-                        onChanged: (v) =>
-                            setInnerState(() => isPremium = v),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        if (!formKey.currentState!.validate()) return;
-                        setInnerState(() => saving = true);
-                        try {
-                          final fn = isEdit
-                              ? 'adminUpdateBrandStorefront'
-                              : 'adminCreateBrandStorefront';
-                          final data = <String, dynamic>{
-                            if (isEdit) 'storefrontId': existing['id'],
-                            'brandName': brandNameCtrl.text.trim(),
-                            'brandId': brandIdCtrl.text.trim(),
-                            'tagline': taglineCtrl.text.trim().isEmpty
-                                ? null
-                                : taglineCtrl.text.trim(),
-                            'brandLogoUrl': logoUrlCtrl.text.trim().isEmpty
-                                ? null
-                                : logoUrlCtrl.text.trim(),
-                            'coverImageUrl':
-                                coverUrlCtrl.text.trim().isEmpty
-                                    ? null
-                                    : coverUrlCtrl.text.trim(),
-                            'brandColor':
-                                brandColorCtrl.text.trim().isEmpty
-                                    ? null
-                                    : brandColorCtrl.text.trim(),
-                            'isActive': isActive,
-                            'isPremium': isPremium,
-                          };
-                          await FirebaseFunctions.instanceFor(
-                                  region: 'africa-south1')
-                              .httpsCallable(fn)
-                              .call<dynamic>(data);
-                          if (ctx.mounted) Navigator.of(ctx).pop();
-                          _loadStorefronts();
-                        } catch (e) {
-                          setInnerState(() => saving = false);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
-                            );
-                          }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                ),
-                child: saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child:
-                            CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(isEdit ? 'Save' : 'Create'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 }
 
 // =============================================================================
@@ -1065,194 +651,6 @@ class _ReviewsDialogContentState extends State<_ReviewsDialogContent> {
                 ),
         ],
       ),
-    );
-  }
-}
-
-// =============================================================================
-// Section Order Dialog (Reorderable list with enable/disable checkboxes)
-// =============================================================================
-
-class _SectionOrderDialogContent extends StatefulWidget {
-  final String storefrontId;
-  final List<String> initialOrder;
-  final Set<String> initialEnabled;
-  final VoidCallback onSaved;
-
-  const _SectionOrderDialogContent({
-    required this.storefrontId,
-    required this.initialOrder,
-    required this.initialEnabled,
-    required this.onSaved,
-  });
-
-  @override
-  State<_SectionOrderDialogContent> createState() =>
-      _SectionOrderDialogContentState();
-}
-
-class _SectionOrderDialogContentState
-    extends State<_SectionOrderDialogContent> {
-  late List<String> _order;
-  late Set<String> _enabled;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _order = List<String>.from(widget.initialOrder);
-    _enabled = Set<String>.from(widget.initialEnabled);
-  }
-
-  Future<void> _save() async {
-    setState(() => _saving = true);
-    try {
-      // Only save enabled sections in the current order
-      final enabledOrder =
-          _order.where((s) => _enabled.contains(s)).toList();
-      await FirebaseFunctions.instanceFor(region: 'africa-south1')
-          .httpsCallable('adminUpdateBrandStorefront')
-          .call<dynamic>({
-        'storefrontId': widget.storefrontId,
-        'sectionOrder': enabledOrder,
-      });
-      if (mounted) {
-        Navigator.of(context).pop();
-        widget.onSaved();
-      }
-    } catch (e) {
-      setState(() => _saving = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
-  }
-
-  String _sectionLabel(String key) {
-    return _BrandStorefrontManagementScreenState._sectionLabel(key);
-  }
-
-  IconData _sectionIcon(String key) {
-    return _BrandStorefrontManagementScreenState._sectionIcon(key);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.cardDark,
-      title: const Text('Section Order'),
-      content: SizedBox(
-        width: 440,
-        height: 480,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Drag to reorder. Uncheck to hide a section.',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ReorderableListView.builder(
-                itemCount: _order.length,
-                onReorder: (oldIdx, newIdx) {
-                  setState(() {
-                    if (newIdx > oldIdx) newIdx--;
-                    final item = _order.removeAt(oldIdx);
-                    _order.insert(newIdx, item);
-                  });
-                },
-                itemBuilder: (ctx, i) {
-                  final section = _order[i];
-                  final isEnabled = _enabled.contains(section);
-                  return Material(
-                    key: ValueKey(section),
-                    color: Colors.transparent,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 4),
-                      decoration: BoxDecoration(
-                        color: isEnabled
-                            ? AppColors.surfaceElevated
-                            : AppColors.surfaceElevated
-                                .withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.borderDark),
-                      ),
-                      child: ListTile(
-                        dense: true,
-                        leading: Checkbox(
-                          value: isEnabled,
-                          activeColor: AppColors.primary,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v == true) {
-                                _enabled.add(section);
-                              } else {
-                                _enabled.remove(section);
-                              }
-                            });
-                          },
-                        ),
-                        title: Row(
-                          children: [
-                            Icon(
-                              _sectionIcon(section),
-                              size: 18,
-                              color: isEnabled
-                                  ? AppColors.textPrimary
-                                  : AppColors.textTertiary,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _sectionLabel(section),
-                              style: TextStyle(
-                                color: isEnabled
-                                    ? AppColors.textPrimary
-                                    : AppColors.textTertiary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: ReorderableDragStartListener(
-                          index: i,
-                          child: const Icon(
-                            Icons.drag_handle,
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _saving ? null : _save,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-          ),
-          child: _saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Save'),
-        ),
-      ],
     );
   }
 }

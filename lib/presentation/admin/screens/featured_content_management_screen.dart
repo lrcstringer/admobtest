@@ -9,6 +9,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
+import '../widgets/svg_aware_image.dart';
 
 class FeaturedContentManagementScreen extends StatefulWidget {
   const FeaturedContentManagementScreen({super.key});
@@ -430,7 +431,7 @@ class _FeaturedContentManagementScreenState
       try {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.custom,
-          allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+          allowedExtensions: adminImageExtensions,
           withData: true,
         );
         if (result != null && result.files.single.bytes != null) {
@@ -517,22 +518,14 @@ class _FeaturedContentManagementScreenState
   }
 
   Future<String?> _uploadFeaturedImage(
-      String itemId, Uint8List imageBytes) async {
-    final resized =
-        resizeImageForUpload(imageBytes, ImageResizeTarget.featuredImage);
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = _storage
-        .ref()
-        .child('featured_images')
-        .child('$itemId.${resized.extension}');
-
-    await ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
+      String itemId, Uint8List imageBytes, String fileName) async {
+    return uploadAdminImage(
+      bytes: imageBytes,
+      fileName: fileName,
+      storagePath: 'featured_images',
+      fileId: itemId,
+      resizeTarget: ImageResizeTarget.featuredImage,
     );
-
-    return ref.getDownloadURL();
   }
 
   void _showItemDialog(Map<String, dynamic>? existing) {
@@ -669,11 +662,12 @@ class _FeaturedContentManagementScreenState
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(6),
                                 child: pickedImageBytes != null
-                                    ? Image.memory(pickedImageBytes!,
+                                    ? svgAwareMemoryImage(pickedImageBytes!,
+                                        fileName: pickedImageName,
                                         height: 120,
                                         width: double.infinity,
                                         fit: BoxFit.cover)
-                                    : Image.network(
+                                    : svgAwareNetworkImage(
                                         imageUrlCtrl.text.trim(),
                                         height: 120,
                                         width: double.infinity,
@@ -1028,6 +1022,7 @@ class _FeaturedContentManagementScreenState
                           ctaText: ctaTextCtrl.text,
                           imageBytes: pickedImageBytes,
                           imageUrl: imageUrlCtrl.text.trim(),
+                          imageName: pickedImageName,
                         ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -1227,7 +1222,8 @@ class _FeaturedContentManagementScreenState
                           if (pickedImageBytes != null && isEdit) {
                             uploadedImageUrl = await _uploadFeaturedImage(
                                 existing['id'] as String,
-                                pickedImageBytes!);
+                                pickedImageBytes!,
+                                pickedImageName ?? 'image.png');
                           }
                           if (pickedVideoBytes != null && isEdit) {
                             uploadedVideoUrl = await _uploadFeaturedVideo(
@@ -1304,7 +1300,9 @@ class _FeaturedContentManagementScreenState
                               if (pickedImageBytes != null) {
                                 updates['imageUrl'] =
                                     await _uploadFeaturedImage(
-                                        newItemId, pickedImageBytes!);
+                                        newItemId,
+                                        pickedImageBytes!,
+                                        pickedImageName ?? 'image.png');
                               }
                               if (pickedVideoBytes != null) {
                                 updates['videoUrl'] =
@@ -1515,6 +1513,7 @@ class _FeaturedContentManagementScreenState
     required String ctaText,
     required Uint8List? imageBytes,
     required String imageUrl,
+    required String? imageName,
   }) {
     final isGradient = selectedColorHex?.contains(',') ?? false;
     final startColor = _parseColor(selectedColorHex);
@@ -1546,6 +1545,7 @@ class _FeaturedContentManagementScreenState
             ctaText: ctaText,
             imageBytes: imageBytes,
             imageUrl: imageUrl,
+            imageName: imageName,
           ),
           const SizedBox(height: 16),
 
@@ -1700,6 +1700,7 @@ class _FeaturedContentManagementScreenState
     required String ctaText,
     required Uint8List? imageBytes,
     required String imageUrl,
+    required String? imageName,
   }) {
     // Resolve colors
     final List<Color> bgColors;
@@ -1750,9 +1751,10 @@ class _FeaturedContentManagementScreenState
                 opacity: imgOpacity,
                 child: isFullImage
                     ? (imageBytes != null
-                        ? Image.memory(imageBytes,
+                        ? svgAwareMemoryImage(imageBytes,
+                            fileName: imageName,
                             fit: BoxFit.contain)
-                        : Image.network(imageUrl,
+                        : svgAwareNetworkImage(imageUrl,
                             fit: BoxFit.contain,
                             errorBuilder: (_, _, _) =>
                                 const SizedBox.shrink()))
@@ -1761,9 +1763,10 @@ class _FeaturedContentManagementScreenState
                         child: FractionallySizedBox(
                           widthFactor: 0.4,
                           child: imageBytes != null
-                              ? Image.memory(imageBytes,
+                              ? svgAwareMemoryImage(imageBytes,
+                                  fileName: imageName,
                                   fit: BoxFit.contain)
-                              : Image.network(imageUrl,
+                              : svgAwareNetworkImage(imageUrl,
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, _, _) =>
                                       const SizedBox.shrink()),

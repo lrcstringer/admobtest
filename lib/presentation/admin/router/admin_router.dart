@@ -14,6 +14,7 @@ import '../screens/account_type_management_screen.dart';
 import '../screens/client_management_screen.dart';
 import '../screens/buy_category_management_screen.dart';
 import '../screens/buy_purchase_monitoring_screen.dart';
+import '../screens/vas_category_management_screen.dart';
 import '../screens/brand_storefront_management_screen.dart';
 import '../screens/brand_storefront_builder_screen.dart';
 import '../screens/vas_provider_management_screen.dart';
@@ -211,10 +212,16 @@ class AdminRouter {
                 const FeatureFlagManagementScreen(),
           ),
           GoRoute(
-            path: '/buy-categories',
-            name: 'adminBuyCategories',
+            path: '/marketplace-categories',
+            name: 'adminMarketplaceCategories',
             builder: (context, state) =>
                 const BuyCategoryManagementScreen(),
+          ),
+          GoRoute(
+            path: '/buy-vas-categories',
+            name: 'adminBuyVasCategories',
+            builder: (context, state) =>
+                const VasCategoryManagementScreen(),
           ),
           GoRoute(
             path: '/buy-purchases',

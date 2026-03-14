@@ -11,6 +11,7 @@ import '../../domain/entities/brand_storefront.dart';
 import '../../domain/entities/buy_category.dart';
 import '../../domain/entities/buy_regular.dart';
 import '../../domain/entities/featured_item.dart';
+import '../../domain/entities/vas_category.dart';
 import '../../domain/repositories/buy_repository.dart';
 import '../datasources/local/app_database.dart';
 import '../datasources/remote/buy_remote_datasource.dart';
@@ -111,6 +112,19 @@ class BuyRepositoryImpl implements BuyRepository {
       return Right(entities);
     } catch (e) {
       return Left(Failure.cacheError(message: e.toString()));
+    }
+  }
+
+  // ============ VAS CATEGORIES ============
+
+  @override
+  Future<Either<Failure, List<VasCategory>>> getVasCategories() async {
+    try {
+      final models = await _remoteDataSource.getVasCategories();
+      final entities = models.map((m) => m.toEntity()).toList();
+      return Right(entities);
+    } catch (e) {
+      return Left(Failure.serverError(message: e.toString()));
     }
   }
 

@@ -6,6 +6,7 @@ abstract class BuyTabState with _$BuyTabState {
     @Default(false) bool isLoading,
     @Default(false) bool isRefreshing,
     @Default([]) List<BuyCategory> categories,
+    @Default([]) List<VasCategory> vasCategories,
     @Default([]) List<BuyRegular> regulars,
     @Default([]) List<FeaturedItem> featuredItems,
     @Default([]) List<BrandStorefront> brandPartners,

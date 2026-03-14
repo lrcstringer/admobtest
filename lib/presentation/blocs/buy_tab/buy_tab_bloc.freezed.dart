@@ -390,7 +390,7 @@ as String,
 /// @nodoc
 mixin _$BuyTabState {
 
- bool get isLoading; bool get isRefreshing; List<BuyCategory> get categories; List<BuyRegular> get regulars; List<FeaturedItem> get featuredItems; List<BrandStorefront> get brandPartners; int get marketplaceListingCount; int get marketplaceSellerCount; List<String> get trendingThumbnails; bool get isOffline; DateTime? get lastSyncedAt; String? get errorMessage;
+ bool get isLoading; bool get isRefreshing; List<BuyCategory> get categories; List<VasCategory> get vasCategories; List<BuyRegular> get regulars; List<FeaturedItem> get featuredItems; List<BrandStorefront> get brandPartners; int get marketplaceListingCount; int get marketplaceSellerCount; List<String> get trendingThumbnails; bool get isOffline; DateTime? get lastSyncedAt; String? get errorMessage;
 /// Create a copy of BuyTabState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -401,16 +401,16 @@ $BuyTabStateCopyWith<BuyTabState> get copyWith => _$BuyTabStateCopyWithImpl<BuyT
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyTabState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&const DeepCollectionEquality().equals(other.categories, categories)&&const DeepCollectionEquality().equals(other.regulars, regulars)&&const DeepCollectionEquality().equals(other.featuredItems, featuredItems)&&const DeepCollectionEquality().equals(other.brandPartners, brandPartners)&&(identical(other.marketplaceListingCount, marketplaceListingCount) || other.marketplaceListingCount == marketplaceListingCount)&&(identical(other.marketplaceSellerCount, marketplaceSellerCount) || other.marketplaceSellerCount == marketplaceSellerCount)&&const DeepCollectionEquality().equals(other.trendingThumbnails, trendingThumbnails)&&(identical(other.isOffline, isOffline) || other.isOffline == isOffline)&&(identical(other.lastSyncedAt, lastSyncedAt) || other.lastSyncedAt == lastSyncedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BuyTabState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&const DeepCollectionEquality().equals(other.categories, categories)&&const DeepCollectionEquality().equals(other.vasCategories, vasCategories)&&const DeepCollectionEquality().equals(other.regulars, regulars)&&const DeepCollectionEquality().equals(other.featuredItems, featuredItems)&&const DeepCollectionEquality().equals(other.brandPartners, brandPartners)&&(identical(other.marketplaceListingCount, marketplaceListingCount) || other.marketplaceListingCount == marketplaceListingCount)&&(identical(other.marketplaceSellerCount, marketplaceSellerCount) || other.marketplaceSellerCount == marketplaceSellerCount)&&const DeepCollectionEquality().equals(other.trendingThumbnails, trendingThumbnails)&&(identical(other.isOffline, isOffline) || other.isOffline == isOffline)&&(identical(other.lastSyncedAt, lastSyncedAt) || other.lastSyncedAt == lastSyncedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isRefreshing,const DeepCollectionEquality().hash(categories),const DeepCollectionEquality().hash(regulars),const DeepCollectionEquality().hash(featuredItems),const DeepCollectionEquality().hash(brandPartners),marketplaceListingCount,marketplaceSellerCount,const DeepCollectionEquality().hash(trendingThumbnails),isOffline,lastSyncedAt,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,isRefreshing,const DeepCollectionEquality().hash(categories),const DeepCollectionEquality().hash(vasCategories),const DeepCollectionEquality().hash(regulars),const DeepCollectionEquality().hash(featuredItems),const DeepCollectionEquality().hash(brandPartners),marketplaceListingCount,marketplaceSellerCount,const DeepCollectionEquality().hash(trendingThumbnails),isOffline,lastSyncedAt,errorMessage);
 
 @override
 String toString() {
-  return 'BuyTabState(isLoading: $isLoading, isRefreshing: $isRefreshing, categories: $categories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, marketplaceListingCount: $marketplaceListingCount, marketplaceSellerCount: $marketplaceSellerCount, trendingThumbnails: $trendingThumbnails, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
+  return 'BuyTabState(isLoading: $isLoading, isRefreshing: $isRefreshing, categories: $categories, vasCategories: $vasCategories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, marketplaceListingCount: $marketplaceListingCount, marketplaceSellerCount: $marketplaceSellerCount, trendingThumbnails: $trendingThumbnails, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
 }
 
 
@@ -421,7 +421,7 @@ abstract mixin class $BuyTabStateCopyWith<$Res>  {
   factory $BuyTabStateCopyWith(BuyTabState value, $Res Function(BuyTabState) _then) = _$BuyTabStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool isRefreshing, List<BuyCategory> categories, List<BuyRegular> regulars, List<FeaturedItem> featuredItems, List<BrandStorefront> brandPartners, int marketplaceListingCount, int marketplaceSellerCount, List<String> trendingThumbnails, bool isOffline, DateTime? lastSyncedAt, String? errorMessage
+ bool isLoading, bool isRefreshing, List<BuyCategory> categories, List<VasCategory> vasCategories, List<BuyRegular> regulars, List<FeaturedItem> featuredItems, List<BrandStorefront> brandPartners, int marketplaceListingCount, int marketplaceSellerCount, List<String> trendingThumbnails, bool isOffline, DateTime? lastSyncedAt, String? errorMessage
 });
 
 
@@ -438,12 +438,13 @@ class _$BuyTabStateCopyWithImpl<$Res>
 
 /// Create a copy of BuyTabState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isRefreshing = null,Object? categories = null,Object? regulars = null,Object? featuredItems = null,Object? brandPartners = null,Object? marketplaceListingCount = null,Object? marketplaceSellerCount = null,Object? trendingThumbnails = null,Object? isOffline = null,Object? lastSyncedAt = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isRefreshing = null,Object? categories = null,Object? vasCategories = null,Object? regulars = null,Object? featuredItems = null,Object? brandPartners = null,Object? marketplaceListingCount = null,Object? marketplaceSellerCount = null,Object? trendingThumbnails = null,Object? isOffline = null,Object? lastSyncedAt = freezed,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
 as bool,categories: null == categories ? _self.categories : categories // ignore: cast_nullable_to_non_nullable
-as List<BuyCategory>,regulars: null == regulars ? _self.regulars : regulars // ignore: cast_nullable_to_non_nullable
+as List<BuyCategory>,vasCategories: null == vasCategories ? _self.vasCategories : vasCategories // ignore: cast_nullable_to_non_nullable
+as List<VasCategory>,regulars: null == regulars ? _self.regulars : regulars // ignore: cast_nullable_to_non_nullable
 as List<BuyRegular>,featuredItems: null == featuredItems ? _self.featuredItems : featuredItems // ignore: cast_nullable_to_non_nullable
 as List<FeaturedItem>,brandPartners: null == brandPartners ? _self.brandPartners : brandPartners // ignore: cast_nullable_to_non_nullable
 as List<BrandStorefront>,marketplaceListingCount: null == marketplaceListingCount ? _self.marketplaceListingCount : marketplaceListingCount // ignore: cast_nullable_to_non_nullable
@@ -537,10 +538,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<VasCategory> vasCategories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BuyTabState() when $default != null:
-return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.vasCategories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -558,10 +559,10 @@ return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regula
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<VasCategory> vasCategories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _BuyTabState():
-return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.vasCategories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -578,10 +579,10 @@ return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regula
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isRefreshing,  List<BuyCategory> categories,  List<VasCategory> vasCategories,  List<BuyRegular> regulars,  List<FeaturedItem> featuredItems,  List<BrandStorefront> brandPartners,  int marketplaceListingCount,  int marketplaceSellerCount,  List<String> trendingThumbnails,  bool isOffline,  DateTime? lastSyncedAt,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _BuyTabState() when $default != null:
-return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
+return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.vasCategories,_that.regulars,_that.featuredItems,_that.brandPartners,_that.marketplaceListingCount,_that.marketplaceSellerCount,_that.trendingThumbnails,_that.isOffline,_that.lastSyncedAt,_that.errorMessage);case _:
   return null;
 
 }
@@ -593,7 +594,7 @@ return $default(_that.isLoading,_that.isRefreshing,_that.categories,_that.regula
 
 
 class _BuyTabState implements BuyTabState {
-  const _BuyTabState({this.isLoading = false, this.isRefreshing = false, final  List<BuyCategory> categories = const [], final  List<BuyRegular> regulars = const [], final  List<FeaturedItem> featuredItems = const [], final  List<BrandStorefront> brandPartners = const [], this.marketplaceListingCount = 0, this.marketplaceSellerCount = 0, final  List<String> trendingThumbnails = const [], this.isOffline = false, this.lastSyncedAt, this.errorMessage}): _categories = categories,_regulars = regulars,_featuredItems = featuredItems,_brandPartners = brandPartners,_trendingThumbnails = trendingThumbnails;
+  const _BuyTabState({this.isLoading = false, this.isRefreshing = false, final  List<BuyCategory> categories = const [], final  List<VasCategory> vasCategories = const [], final  List<BuyRegular> regulars = const [], final  List<FeaturedItem> featuredItems = const [], final  List<BrandStorefront> brandPartners = const [], this.marketplaceListingCount = 0, this.marketplaceSellerCount = 0, final  List<String> trendingThumbnails = const [], this.isOffline = false, this.lastSyncedAt, this.errorMessage}): _categories = categories,_vasCategories = vasCategories,_regulars = regulars,_featuredItems = featuredItems,_brandPartners = brandPartners,_trendingThumbnails = trendingThumbnails;
   
 
 @override@JsonKey() final  bool isLoading;
@@ -603,6 +604,13 @@ class _BuyTabState implements BuyTabState {
   if (_categories is EqualUnmodifiableListView) return _categories;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_categories);
+}
+
+ final  List<VasCategory> _vasCategories;
+@override@JsonKey() List<VasCategory> get vasCategories {
+  if (_vasCategories is EqualUnmodifiableListView) return _vasCategories;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_vasCategories);
 }
 
  final  List<BuyRegular> _regulars;
@@ -649,16 +657,16 @@ _$BuyTabStateCopyWith<_BuyTabState> get copyWith => __$BuyTabStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyTabState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&const DeepCollectionEquality().equals(other._categories, _categories)&&const DeepCollectionEquality().equals(other._regulars, _regulars)&&const DeepCollectionEquality().equals(other._featuredItems, _featuredItems)&&const DeepCollectionEquality().equals(other._brandPartners, _brandPartners)&&(identical(other.marketplaceListingCount, marketplaceListingCount) || other.marketplaceListingCount == marketplaceListingCount)&&(identical(other.marketplaceSellerCount, marketplaceSellerCount) || other.marketplaceSellerCount == marketplaceSellerCount)&&const DeepCollectionEquality().equals(other._trendingThumbnails, _trendingThumbnails)&&(identical(other.isOffline, isOffline) || other.isOffline == isOffline)&&(identical(other.lastSyncedAt, lastSyncedAt) || other.lastSyncedAt == lastSyncedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BuyTabState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isRefreshing, isRefreshing) || other.isRefreshing == isRefreshing)&&const DeepCollectionEquality().equals(other._categories, _categories)&&const DeepCollectionEquality().equals(other._vasCategories, _vasCategories)&&const DeepCollectionEquality().equals(other._regulars, _regulars)&&const DeepCollectionEquality().equals(other._featuredItems, _featuredItems)&&const DeepCollectionEquality().equals(other._brandPartners, _brandPartners)&&(identical(other.marketplaceListingCount, marketplaceListingCount) || other.marketplaceListingCount == marketplaceListingCount)&&(identical(other.marketplaceSellerCount, marketplaceSellerCount) || other.marketplaceSellerCount == marketplaceSellerCount)&&const DeepCollectionEquality().equals(other._trendingThumbnails, _trendingThumbnails)&&(identical(other.isOffline, isOffline) || other.isOffline == isOffline)&&(identical(other.lastSyncedAt, lastSyncedAt) || other.lastSyncedAt == lastSyncedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isRefreshing,const DeepCollectionEquality().hash(_categories),const DeepCollectionEquality().hash(_regulars),const DeepCollectionEquality().hash(_featuredItems),const DeepCollectionEquality().hash(_brandPartners),marketplaceListingCount,marketplaceSellerCount,const DeepCollectionEquality().hash(_trendingThumbnails),isOffline,lastSyncedAt,errorMessage);
+int get hashCode => Object.hash(runtimeType,isLoading,isRefreshing,const DeepCollectionEquality().hash(_categories),const DeepCollectionEquality().hash(_vasCategories),const DeepCollectionEquality().hash(_regulars),const DeepCollectionEquality().hash(_featuredItems),const DeepCollectionEquality().hash(_brandPartners),marketplaceListingCount,marketplaceSellerCount,const DeepCollectionEquality().hash(_trendingThumbnails),isOffline,lastSyncedAt,errorMessage);
 
 @override
 String toString() {
-  return 'BuyTabState(isLoading: $isLoading, isRefreshing: $isRefreshing, categories: $categories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, marketplaceListingCount: $marketplaceListingCount, marketplaceSellerCount: $marketplaceSellerCount, trendingThumbnails: $trendingThumbnails, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
+  return 'BuyTabState(isLoading: $isLoading, isRefreshing: $isRefreshing, categories: $categories, vasCategories: $vasCategories, regulars: $regulars, featuredItems: $featuredItems, brandPartners: $brandPartners, marketplaceListingCount: $marketplaceListingCount, marketplaceSellerCount: $marketplaceSellerCount, trendingThumbnails: $trendingThumbnails, isOffline: $isOffline, lastSyncedAt: $lastSyncedAt, errorMessage: $errorMessage)';
 }
 
 
@@ -669,7 +677,7 @@ abstract mixin class _$BuyTabStateCopyWith<$Res> implements $BuyTabStateCopyWith
   factory _$BuyTabStateCopyWith(_BuyTabState value, $Res Function(_BuyTabState) _then) = __$BuyTabStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool isRefreshing, List<BuyCategory> categories, List<BuyRegular> regulars, List<FeaturedItem> featuredItems, List<BrandStorefront> brandPartners, int marketplaceListingCount, int marketplaceSellerCount, List<String> trendingThumbnails, bool isOffline, DateTime? lastSyncedAt, String? errorMessage
+ bool isLoading, bool isRefreshing, List<BuyCategory> categories, List<VasCategory> vasCategories, List<BuyRegular> regulars, List<FeaturedItem> featuredItems, List<BrandStorefront> brandPartners, int marketplaceListingCount, int marketplaceSellerCount, List<String> trendingThumbnails, bool isOffline, DateTime? lastSyncedAt, String? errorMessage
 });
 
 
@@ -686,12 +694,13 @@ class __$BuyTabStateCopyWithImpl<$Res>
 
 /// Create a copy of BuyTabState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isRefreshing = null,Object? categories = null,Object? regulars = null,Object? featuredItems = null,Object? brandPartners = null,Object? marketplaceListingCount = null,Object? marketplaceSellerCount = null,Object? trendingThumbnails = null,Object? isOffline = null,Object? lastSyncedAt = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isRefreshing = null,Object? categories = null,Object? vasCategories = null,Object? regulars = null,Object? featuredItems = null,Object? brandPartners = null,Object? marketplaceListingCount = null,Object? marketplaceSellerCount = null,Object? trendingThumbnails = null,Object? isOffline = null,Object? lastSyncedAt = freezed,Object? errorMessage = freezed,}) {
   return _then(_BuyTabState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isRefreshing: null == isRefreshing ? _self.isRefreshing : isRefreshing // ignore: cast_nullable_to_non_nullable
 as bool,categories: null == categories ? _self._categories : categories // ignore: cast_nullable_to_non_nullable
-as List<BuyCategory>,regulars: null == regulars ? _self._regulars : regulars // ignore: cast_nullable_to_non_nullable
+as List<BuyCategory>,vasCategories: null == vasCategories ? _self._vasCategories : vasCategories // ignore: cast_nullable_to_non_nullable
+as List<VasCategory>,regulars: null == regulars ? _self._regulars : regulars // ignore: cast_nullable_to_non_nullable
 as List<BuyRegular>,featuredItems: null == featuredItems ? _self._featuredItems : featuredItems // ignore: cast_nullable_to_non_nullable
 as List<FeaturedItem>,brandPartners: null == brandPartners ? _self._brandPartners : brandPartners // ignore: cast_nullable_to_non_nullable
 as List<BrandStorefront>,marketplaceListingCount: null == marketplaceListingCount ? _self.marketplaceListingCount : marketplaceListingCount // ignore: cast_nullable_to_non_nullable

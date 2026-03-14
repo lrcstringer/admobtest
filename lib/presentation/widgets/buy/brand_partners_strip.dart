@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/brand_storefront.dart';
 import '../../theme/app_colors.dart';
+import 'brand_storefront_hero.dart';
 import 'buy_section_header.dart';
 
 /// Horizontal scroll of brand partner mini storefront hero cards.
-/// Each card renders a miniature of the brand's storefront hero section,
-/// respecting the brand's own visual identity (color, logo, tagline).
+///
+/// Each card renders a pixel-accurate miniature of the brand's actual
+/// storefront hero section via [BrandStorefrontHero] scaled down with
+/// [FittedBox]. Falls back to a simplified card layout for brands that
+/// have no hero image and no brand colour configured.
 class BrandPartnersStrip extends StatelessWidget {
   final List<BrandStorefront> brands;
   final ValueChanged<BrandStorefront> onBrandTap;
@@ -17,6 +21,15 @@ class BrandPartnersStrip extends StatelessWidget {
     required this.brands,
     required this.onBrandTap,
   });
+
+  /// Whether a brand has enough visual data for the live hero preview
+  /// to render something meaningful.
+  static bool _hasHeroData(BrandStorefront brand) {
+    return brand.heroImageUrl != null ||
+        brand.coverImageUrl != null ||
+        brand.brandColor != null ||
+        brand.accentColor != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +46,12 @@ class BrandPartnersStrip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: brands.length,
             separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, index) =>
-                _BrandHeroCard(brand: brands[index], onTap: onBrandTap),
+            itemBuilder: (context, index) {
+              final brand = brands[index];
+              return _hasHeroData(brand)
+                  ? _BrandLiveHeroCard(brand: brand, onTap: onBrandTap)
+                  : _BrandFallbackCard(brand: brand, onTap: onBrandTap);
+            },
           ),
         ),
       ],
@@ -42,23 +59,132 @@ class BrandPartnersStrip extends StatelessWidget {
   }
 }
 
-class _BrandHeroCard extends StatelessWidget {
+// =============================================================================
+// Live Hero Card — scaled-down rendering of the actual storefront hero
+// =============================================================================
+
+class _BrandLiveHeroCard extends StatelessWidget {
   final BrandStorefront brand;
   final ValueChanged<BrandStorefront> onTap;
 
-  const _BrandHeroCard({required this.brand, required this.onTap});
+  const _BrandLiveHeroCard({required this.brand, required this.onTap});
+
+  // The hero is rendered at this "virtual" size then scaled to fit the card.
+  // Using the storefront's real proportions (full-width × 200px tall) ensures
+  // the miniature is visually accurate.
+  static const double _virtualWidth = 375;
+  static const double _virtualHeight = 200;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onTap(brand),
+      child: Container(
+        width: 140,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: brand.isPremium
+                ? AppColors.gold.withValues(alpha: 0.4)
+                : AppColors.buyCardBorder.withValues(alpha: 0.5),
+            width: brand.isPremium ? 1.5 : 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Scaled-down real hero section
+            FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _virtualWidth,
+                height: _virtualHeight,
+                child: BrandStorefrontHero(
+                  storefront: brand,
+                  height: _virtualHeight,
+                  maxImageCacheWidth: 280,
+                ),
+              ),
+            ),
+
+            // Subtle dark gradient at bottom for brand name readability
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 44,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Brand name overlay at bottom
+            Positioned(
+              left: 8,
+              right: 8,
+              bottom: 6,
+              child: Text(
+                brand.brandName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      color: Colors.black54,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Premium badge
+            if (brand.isPremium)
+              const Positioned(
+                top: 4,
+                right: 4,
+                child: Icon(
+                  Icons.star_rounded,
+                  size: 14,
+                  color: AppColors.gold,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Fallback Card — simplified layout for brands with minimal visual data
+// =============================================================================
+
+class _BrandFallbackCard extends StatelessWidget {
+  final BrandStorefront brand;
+  final ValueChanged<BrandStorefront> onTap;
+
+  const _BrandFallbackCard({required this.brand, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final brandColor = brand.brandColor != null
         ? AppColors.parseHex(brand.brandColor!)
         : AppColors.buyMarketplaceAccent;
-
-    // Determine hero style — use accentColor/heroStyle if available,
-    // otherwise fall back to brandColor gradient
-    final heroStyle = brand.heroStyle;
-    final hasHeroImage =
-        heroStyle == HeroStyle.fullBleedImage && brand.heroImageUrl != null;
 
     return GestureDetector(
       onTap: () => onTap(brand),
@@ -77,16 +203,19 @@ class _BrandHeroCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background: hero image or gradient
-            if (hasHeroImage)
-              CachedNetworkImage(
-                imageUrl: brand.heroImageUrl!,
-                fit: BoxFit.cover,
-                placeholder: (_, _) => _gradientBg(brandColor),
-                errorWidget: (_, _, _) => _gradientBg(brandColor),
-              )
-            else
-              _gradientBg(brandColor),
+            // Gradient background
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    brandColor,
+                    brandColor.withValues(alpha: 0.6),
+                  ],
+                ),
+              ),
+            ),
 
             // Dark overlay for text readability
             Container(
@@ -106,9 +235,10 @@ class _BrandHeroCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
-                crossAxisAlignment: brand.logoPlacement == LogoPlacement.centered
-                    ? CrossAxisAlignment.center
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    brand.logoPlacement == LogoPlacement.centered
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
                 children: [
                   _buildLogo(brandColor),
                   const Spacer(),
@@ -138,22 +268,6 @@ class _BrandHeroCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _gradientBg(Color brandColor) {
-    final secondColor = brand.secondaryColor != null
-        ? AppColors.parseHex(brand.secondaryColor!)
-        : brandColor.withValues(alpha: 0.6);
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [brandColor, secondColor],
         ),
       ),
     );

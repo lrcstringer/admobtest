@@ -7,8 +7,7 @@ import '../../theme/app_colors.dart';
 
 /// Admin screen for managing VAS products of a specific provider.
 ///
-/// Phase 6.2 — Route: `/buy-vas-products?providerId=xxx`
-/// Features: product table, CRUD, bulk price update, duplicate product.
+/// Route: `/buy-vas-products?providerId=xxx`
 class VasProductManagementScreen extends StatefulWidget {
   final String providerId;
 
@@ -25,7 +24,7 @@ class _VasProductManagementScreenState
   Map<String, dynamic>? _provider;
   List<Map<String, dynamic>> _products = [];
 
-  final _functions =
+  FirebaseFunctions get _functions =>
       FirebaseFunctions.instanceFor(region: 'africa-south1');
 
   @override
@@ -38,7 +37,6 @@ class _VasProductManagementScreenState
     if (widget.providerId.isEmpty) return;
     setState(() => _isLoading = true);
     try {
-      // Load provider details + products via listing providers
       final provResult =
           await _functions.httpsCallable('adminListVasProviders').call({
         'includeInactive': true,
@@ -60,7 +58,6 @@ class _VasProductManagementScreenState
         products = (prodResult.data['products'] as List<dynamic>)
             .cast<Map<String, dynamic>>();
       } catch (_) {
-        // Fallback: products may be embedded in provider doc
         if (provider['products'] is List) {
           products = (provider['products'] as List<dynamic>)
               .cast<Map<String, dynamic>>();
@@ -84,13 +81,13 @@ class _VasProductManagementScreenState
     }
   }
 
-  int get _activeCount =>
-      _products.where((p) => p['isActive'] == true).length;
-  int get _inactiveCount =>
-      _products.where((p) => p['isActive'] != true).length;
-
   @override
   Widget build(BuildContext context) {
+    final active = _products.where((p) => p['isActive'] == true).length;
+    final inactive = _products.length - active;
+    final providerName = _provider?['name'] as String? ?? 'Provider';
+    final category = _provider?['category'] as String? ?? '';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: _isLoading
@@ -100,285 +97,140 @@ class _VasProductManagementScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildStatsRow(),
-                  const SizedBox(height: 24),
-                  _buildTable(),
-                ],
-              ),
-            ),
-    );
-  }
-
-  // ─── Header ──────────────────────────────────────────
-
-  Widget _buildHeader() {
-    final providerName = _provider?['name'] as String? ?? 'Provider';
-    final category = _provider?['category'] as String? ?? '';
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$providerName — Products',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text('Category: ${_categoryLabel(category)}',
-                    style: const TextStyle(
-                        fontSize: 14, color: AppColors.textSecondary)),
-              ],
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            OutlinedButton.icon(
-              onPressed: _showBulkPriceDialog,
-              icon: const Icon(Icons.price_change, size: 18),
-              label: const Text('Bulk Price Update'),
-            ),
-            const SizedBox(width: 12),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _loadData,
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              onPressed: () => _showCreateEditDialog(null),
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Product'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                minimumSize: const Size(0, 40),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ─── Stats Row ──────────────────────────────────────
-
-  Widget _buildStatsRow() {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _StatCard(
-          title: 'Total Products',
-          value: '${_products.length}',
-          icon: Icons.inventory_2,
-          color: AppColors.secondary,
-        ),
-        _StatCard(
-          title: 'Active',
-          value: '$_activeCount',
-          icon: Icons.check_circle,
-          color: AppColors.success,
-        ),
-        _StatCard(
-          title: 'Inactive',
-          value: '$_inactiveCount',
-          icon: Icons.cancel,
-          color: AppColors.error,
-        ),
-      ],
-    );
-  }
-
-  // ─── Table ──────────────────────────────────────────
-
-  Widget _buildTable() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                _headerCell('Name', flex: 2),
-                _headerCell('Code', flex: 1),
-                _headerCell('Price (ZAR)', flex: 1),
-                _headerCell('Price (Tokens)', flex: 1),
-                _headerCell('Validity', flex: 1),
-                _headerCell('Sort', flex: 1),
-                _headerCell('Status', flex: 1),
-                _headerCell('Actions', flex: 2),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          if (_products.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(48),
-              child: Column(
-                children: [
-                  Icon(Icons.inventory_2_outlined,
-                      size: 48, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No products for this provider yet.\nClick "Add Product" to create one.',
-                    style: TextStyle(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('$providerName — Products',
+                                  style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text(
+                                  'Category: ${_categoryLabel(category)}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.textSecondary)),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _showBulkPriceDialog,
+                            icon:
+                                const Icon(Icons.price_change, size: 18),
+                            label: const Text('Bulk Price Update'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              minimumSize: const Size(0, 40),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: _loadData,
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: () => _showCreateEditDialog(null),
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Add Product'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              minimumSize: const Size(0, 40),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 24),
+
+                  // Stats
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      _StatCard(
+                          title: 'Total Products',
+                          value: '${_products.length}',
+                          icon: Icons.inventory_2,
+                          color: AppColors.secondary),
+                      _StatCard(
+                          title: 'Active',
+                          value: '$active',
+                          icon: Icons.check_circle,
+                          color: AppColors.success),
+                      _StatCard(
+                          title: 'Inactive',
+                          value: '$inactive',
+                          icon: Icons.cancel,
+                          color: AppColors.error),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Table
+                  _buildTableHeader(),
+                  ..._products.map(_buildProductRow),
+
+                  if (_products.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.inventory_2_outlined,
+                                size: 48,
+                                color: AppColors.textTertiary),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No products for this provider yet',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Click "Add Product" to create one',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textTertiary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            )
-          else
-            ..._products.map(_buildRow),
-        ],
-      ),
+            ),
     );
   }
 
-  Widget _buildRow(Map<String, dynamic> product) {
-    final isActive = product['isActive'] == true;
-    final priceZar = (product['priceZar'] as num?)?.toDouble() ?? 0;
-    final priceTokens = product['priceTokens'] as int? ?? 0;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.borderDark)),
-      ),
+  Widget _buildTableHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          // Name
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product['name'] as String? ?? '—',
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-                if (product['description'] != null)
-                  Text(
-                    product['description'] as String,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 11, color: AppColors.textTertiary),
-                  ),
-              ],
-            ),
-          ),
-          // Code
-          Expanded(
-            flex: 1,
-            child: Text(
-              product['code'] as String? ?? '—',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontFamily: 'monospace',
-                  color: AppColors.textSecondary),
-            ),
-          ),
-          // Price ZAR
-          Expanded(
-            flex: 1,
-            child: Text('R${priceZar.toStringAsFixed(2)}',
-                style: const TextStyle(fontSize: 13)),
-          ),
-          // Price Tokens
-          Expanded(
-            flex: 1,
-            child: Text('$priceTokens',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.tokenGold)),
-          ),
-          // Validity
-          Expanded(
-            flex: 1,
-            child: Text(product['validity'] as String? ?? '—',
-                style: const TextStyle(fontSize: 12)),
-          ),
-          // Sort order
-          Expanded(
-            flex: 1,
-            child: Text('${product['sortOrder'] ?? 0}',
-                style: const TextStyle(fontSize: 13)),
-          ),
-          // Status
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: (isActive ? AppColors.success : AppColors.error)
-                    .withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                isActive ? 'Active' : 'Inactive',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isActive ? AppColors.success : AppColors.error,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-          // Actions
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 18),
-                  color: AppColors.textSecondary,
-                  onPressed: () => _showCreateEditDialog(product),
-                  tooltip: 'Edit',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 18),
-                  color: AppColors.secondary,
-                  onPressed: () => _duplicateProduct(product),
-                  tooltip: 'Duplicate',
-                ),
-                IconButton(
-                  icon: Icon(
-                    isActive
-                        ? Icons.toggle_off_outlined
-                        : Icons.toggle_on_outlined,
-                    size: 20,
-                  ),
-                  color: isActive ? AppColors.warning : AppColors.success,
-                  onPressed: () => _toggleProduct(product),
-                  tooltip: isActive ? 'Deactivate' : 'Activate',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18),
-                  color: AppColors.error,
-                  onPressed: () => _deleteProduct(product),
-                  tooltip: 'Delete',
-                ),
-              ],
-            ),
-          ),
+          _headerCell('Name', flex: 2),
+          _headerCell('Code', flex: 1),
+          _headerCell('Price (ZAR)', flex: 1),
+          _headerCell('Tokens', flex: 1),
+          _headerCell('Validity', flex: 1),
+          _headerCell('Status', flex: 1),
+          _headerCell('Actions', flex: 1),
         ],
       ),
     );
@@ -395,22 +247,153 @@ class _VasProductManagementScreenState
     );
   }
 
+  Widget _buildProductRow(Map<String, dynamic> product) {
+    final isActive = product['isActive'] == true;
+    final priceZar = (product['priceZar'] as num?)?.toDouble() ?? 0;
+    final priceTokens = product['priceTokens'] as int? ?? 0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.borderDark)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(product['name'] as String? ?? '—',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500, fontSize: 14)),
+                if (product['description'] != null)
+                  Text(product['description'] as String,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 11, color: AppColors.textTertiary)),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(product['code'] as String? ?? '—',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontFamily: 'monospace',
+                    color: AppColors.textSecondary)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text('R${priceZar.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 14)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text('$priceTokens',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.tokenGold)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(product['validity'] as String? ?? '—',
+                style: const TextStyle(fontSize: 13)),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isActive
+                    ? AppColors.success.withValues(alpha: 0.15)
+                    : AppColors.error.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                isActive ? 'Active' : 'Inactive',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isActive ? AppColors.success : AppColors.error,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: AppColors.textSecondary),
+              onSelected: (value) {
+                switch (value) {
+                  case 'edit':
+                    _showCreateEditDialog(product);
+                  case 'duplicate':
+                    _duplicateProduct(product);
+                  case 'toggle':
+                    _toggleProduct(product);
+                  case 'delete':
+                    _deleteProduct(product);
+                }
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(children: [
+                    Icon(Icons.edit, size: 18),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ]),
+                ),
+                const PopupMenuItem(
+                  value: 'duplicate',
+                  child: Row(children: [
+                    Icon(Icons.copy, size: 18),
+                    SizedBox(width: 8),
+                    Text('Duplicate'),
+                  ]),
+                ),
+                PopupMenuItem(
+                  value: 'toggle',
+                  child: Row(children: [
+                    Icon(
+                        isActive
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        size: 18),
+                    const SizedBox(width: 8),
+                    Text(isActive ? 'Deactivate' : 'Activate'),
+                  ]),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(children: [
+                    Icon(Icons.delete_outline, size: 18),
+                    SizedBox(width: 8),
+                    Text('Delete'),
+                  ]),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ─── Actions ────────────────────────────────────────
 
   Future<void> _toggleProduct(Map<String, dynamic> product) async {
-    final id = product['id'] as String;
-    final isActive = product['isActive'] == true;
     try {
-      await _functions.httpsCallable('adminToggleVasProduct')
-          .call({'productId': id, 'providerId': widget.providerId});
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Product ${isActive ? 'deactivated' : 'activated'}')),
-        );
-        _loadData();
-      }
+      await _functions.httpsCallable('adminToggleVasProduct').call({
+        'productId': product['id'],
+        'providerId': widget.providerId,
+      });
+      _loadData();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -421,14 +404,13 @@ class _VasProductManagementScreenState
   }
 
   Future<void> _deleteProduct(Map<String, dynamic> product) async {
-    final id = product['id'] as String;
     final name = product['name'] as String? ?? 'this product';
-
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.cardDark,
-        title: const Text('Delete Product', style: TextStyle(fontSize: 16)),
+        title:
+            const Text('Delete Product', style: TextStyle(fontSize: 16)),
         content: Text('Are you sure you want to delete "$name"?',
             style: const TextStyle(fontSize: 13)),
         actions: [
@@ -447,8 +429,10 @@ class _VasProductManagementScreenState
     if (confirm != true) return;
 
     try {
-      await _functions.httpsCallable('adminDeleteVasProduct')
-          .call({'productId': id, 'providerId': widget.providerId});
+      await _functions.httpsCallable('adminDeleteVasProduct').call({
+        'productId': product['id'],
+        'providerId': widget.providerId,
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Product deleted')),
@@ -465,7 +449,6 @@ class _VasProductManagementScreenState
   }
 
   void _duplicateProduct(Map<String, dynamic> product) {
-    // Pre-fill the create dialog with existing product data, different name/code
     final duplicate = Map<String, dynamic>.from(product);
     duplicate['name'] = '${product['name']} (Copy)';
     duplicate['code'] = '${product['code']}-copy';
@@ -488,23 +471,23 @@ class _VasProductManagementScreenState
             : '');
     final validityCtrl =
         TextEditingController(text: existing?['validity'] as String? ?? '');
-    final sortCtrl = TextEditingController(
-        text: '${existing?['sortOrder'] ?? 0}');
+    final sortCtrl =
+        TextEditingController(text: '${existing?['sortOrder'] ?? 0}');
     final metadataCtrl = TextEditingController(
         text: existing?['metadata'] != null
             ? const JsonEncoder.withIndent('  ')
                 .convert(existing!['metadata'])
             : '');
-    final descCtrl =
-        TextEditingController(text: existing?['description'] as String? ?? '');
+    final descCtrl = TextEditingController(
+        text: existing?['description'] as String? ?? '');
     var isActive = existing?['isActive'] as bool? ?? true;
     final formKey = GlobalKey<FormState>();
+    var saving = false;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          // Auto-calculate tokens from ZAR
+        builder: (ctx, setInnerState) {
           final zarVal = double.tryParse(priceZarCtrl.text) ?? 0;
           final autoTokens = (zarVal * 100).round();
 
@@ -516,10 +499,9 @@ class _VasProductManagementScreenState
                   : isDuplicate
                       ? 'Duplicate Product'
                       : 'Add Product',
-              style: const TextStyle(fontSize: 16),
             ),
             content: SizedBox(
-              width: 500,
+              width: 400,
               child: Form(
                 key: formKey,
                 child: SingleChildScrollView(
@@ -529,17 +511,16 @@ class _VasProductManagementScreenState
                       TextFormField(
                         controller: nameCtrl,
                         decoration:
-                            const InputDecoration(labelText: 'Name *'),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Required'
-                            : null,
+                            const InputDecoration(labelText: 'Name'),
+                        validator: (v) =>
+                            v?.trim().isEmpty == true ? 'Required' : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: codeCtrl,
                         decoration: const InputDecoration(
-                          labelText: 'Code *',
-                          hintText: 'e.g., airtime-10',
+                          labelText: 'Code',
+                          hintText: 'e.g. airtime-10',
                         ),
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
@@ -555,12 +536,13 @@ class _VasProductManagementScreenState
                       TextFormField(
                         controller: priceZarCtrl,
                         decoration: InputDecoration(
-                          labelText: 'Price (ZAR) *',
+                          labelText: 'Price (ZAR)',
                           suffixText: '= $autoTokens tokens',
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
-                        onChanged: (_) => setDialogState(() {}),
+                        keyboardType:
+                            const TextInputType.numberWithOptions(
+                                decimal: true),
+                        onChanged: (_) => setInnerState(() {}),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Required';
                           final parsed = double.tryParse(v);
@@ -575,21 +557,21 @@ class _VasProductManagementScreenState
                         controller: validityCtrl,
                         decoration: const InputDecoration(
                           labelText: 'Validity',
-                          hintText: 'e.g., 30 days, 7 days',
+                          hintText: 'e.g. 30 days',
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: descCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Description'),
+                        decoration: const InputDecoration(
+                            labelText: 'Description'),
                         maxLines: 2,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: sortCtrl,
-                        decoration:
-                            const InputDecoration(labelText: 'Sort Order'),
+                        decoration: const InputDecoration(
+                            labelText: 'Sort Order'),
                         keyboardType: TextInputType.number,
                       ),
                       const SizedBox(height: 12),
@@ -616,8 +598,7 @@ class _VasProductManagementScreenState
                         title: const Text('Active'),
                         value: isActive,
                         onChanged: (v) =>
-                            setDialogState(() => isActive = v),
-                        contentPadding: EdgeInsets.zero,
+                            setInnerState(() => isActive = v),
                       ),
                     ],
                   ),
@@ -626,79 +607,60 @@ class _VasProductManagementScreenState
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  nameCtrl.dispose();
-                  codeCtrl.dispose();
-                  priceZarCtrl.dispose();
-                  validityCtrl.dispose();
-                  sortCtrl.dispose();
-                  metadataCtrl.dispose();
-                  descCtrl.dispose();
-                  Navigator.of(ctx).pop();
-                },
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  final priceZar =
-                      double.tryParse(priceZarCtrl.text) ?? 0;
-                  Map<String, dynamic>? metadata;
-                  if (metadataCtrl.text.trim().isNotEmpty) {
-                    metadata = json.decode(metadataCtrl.text)
-                        as Map<String, dynamic>;
-                  }
-
-                  final data = {
-                    'providerId': widget.providerId,
-                    'name': nameCtrl.text.trim(),
-                    'code': codeCtrl.text.trim(),
-                    'priceZar': priceZar,
-                    if (validityCtrl.text.trim().isNotEmpty)
-                      'validity': validityCtrl.text.trim(),
-                    'sortOrder': int.tryParse(sortCtrl.text) ?? 0,
-                    if (metadata != null) 'metadata': metadata,
-                  };
-
-                  try {
-                    if (isEdit) {
-                      data['productId'] = existing['id'] as String;
-                      await _functions
-                          .httpsCallable('adminUpdateVasProduct')
-                          .call(data);
-                    } else {
-                      await _functions
-                          .httpsCallable('adminCreateVasProduct')
-                          .call(data);
-                    }
-                    nameCtrl.dispose();
-                    codeCtrl.dispose();
-                    priceZarCtrl.dispose();
-                    validityCtrl.dispose();
-                    sortCtrl.dispose();
-                    metadataCtrl.dispose();
-                    descCtrl.dispose();
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(isEdit
-                                ? 'Product updated'
-                                : 'Product created')),
-                      );
-                      _loadData();
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary),
-                child: Text(isEdit ? 'Save' : 'Create'),
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setInnerState(() => saving = true);
+                        final priceZar =
+                            double.tryParse(priceZarCtrl.text) ?? 0;
+                        Map<String, dynamic>? metadata;
+                        if (metadataCtrl.text.trim().isNotEmpty) {
+                          metadata = json.decode(metadataCtrl.text)
+                              as Map<String, dynamic>;
+                        }
+                        try {
+                          final fn = isEdit
+                              ? 'adminUpdateVasProduct'
+                              : 'adminCreateVasProduct';
+                          final data = {
+                            'providerId': widget.providerId,
+                            if (isEdit)
+                              'productId': existing['id'] as String,
+                            'name': nameCtrl.text.trim(),
+                            'code': codeCtrl.text.trim(),
+                            'priceZar': priceZar,
+                            if (validityCtrl.text.trim().isNotEmpty)
+                              'validity': validityCtrl.text.trim(),
+                            'sortOrder':
+                                int.tryParse(sortCtrl.text.trim()) ?? 0,
+                            if (metadata != null) 'metadata': metadata,
+                            'isActive': isActive,
+                          };
+                          await _functions
+                              .httpsCallable(fn)
+                              .call(data);
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          _loadData();
+                        } catch (e) {
+                          setInnerState(() => saving = false);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(isEdit ? 'Save' : 'Create'),
               ),
             ],
           );
@@ -713,15 +675,15 @@ class _VasProductManagementScreenState
     var adjustmentType = 'percentage';
     final valueCtrl = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    var saving = false;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
+        builder: (ctx, setInnerState) {
           return AlertDialog(
             backgroundColor: AppColors.cardDark,
-            title: const Text('Bulk Price Update',
-                style: TextStyle(fontSize: 16)),
+            title: const Text('Bulk Price Update'),
             content: SizedBox(
               width: 400,
               child: Form(
@@ -731,7 +693,7 @@ class _VasProductManagementScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Adjust prices for all active products of this provider.',
+                      'Adjust prices for all active products.',
                       style: TextStyle(
                           fontSize: 13, color: AppColors.textSecondary),
                     ),
@@ -750,7 +712,7 @@ class _VasProductManagementScreenState
                       ],
                       onChanged: (v) {
                         if (v != null) {
-                          setDialogState(() => adjustmentType = v);
+                          setInnerState(() => adjustmentType = v);
                         }
                       },
                     ),
@@ -759,11 +721,12 @@ class _VasProductManagementScreenState
                       controller: valueCtrl,
                       decoration: InputDecoration(
                         labelText: adjustmentType == 'percentage'
-                            ? 'Percentage (e.g., 10 for +10%, -5 for -5%)'
-                            : 'Amount in ZAR (e.g., 5 for +R5, -2 for -R2)',
+                            ? 'Percentage (e.g. 10 for +10%)'
+                            : 'Amount in ZAR (e.g. 5 for +R5)',
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true, signed: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(
+                              decimal: true, signed: true),
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Required';
                         if (double.tryParse(v) == null) {
@@ -774,7 +737,7 @@ class _VasProductManagementScreenState
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Token prices will be auto-recalculated (ZAR × 100).',
+                      'Token prices auto-recalculated (ZAR × 100).',
                       style: TextStyle(
                           fontSize: 12, color: AppColors.textTertiary),
                     ),
@@ -784,47 +747,51 @@ class _VasProductManagementScreenState
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  valueCtrl.dispose();
-                  Navigator.of(ctx).pop();
-                },
+                onPressed: saving ? null : () => Navigator.of(ctx).pop(),
                 child: const Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () async {
-                  if (!formKey.currentState!.validate()) return;
-                  final adjustmentValue =
-                      double.tryParse(valueCtrl.text) ?? 0;
-                  try {
-                    final result = await _functions
-                        .httpsCallable('adminBulkUpdateVasProductPrices')
-                        .call({
-                      'providerId': widget.providerId,
-                      'adjustmentType': adjustmentType,
-                      'adjustmentValue': adjustmentValue,
-                    });
-                    final updated = result.data['updatedCount'] ?? 0;
-                    valueCtrl.dispose();
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text('Updated $updated product prices')),
-                      );
-                      _loadData();
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary),
-                child: const Text('Apply'),
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setInnerState(() => saving = true);
+                        try {
+                          final result = await _functions
+                              .httpsCallable(
+                                  'adminBulkUpdateVasProductPrices')
+                              .call({
+                            'providerId': widget.providerId,
+                            'adjustmentType': adjustmentType,
+                            'adjustmentValue':
+                                double.tryParse(valueCtrl.text) ?? 0,
+                          });
+                          final updated =
+                              result.data['updatedCount'] ?? 0;
+                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Updated $updated product prices')),
+                            );
+                            _loadData();
+                          }
+                        } catch (e) {
+                          setInnerState(() => saving = false);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Apply'),
               ),
             ],
           );
@@ -845,8 +812,6 @@ class _VasProductManagementScreenState
         return 'Electricity';
       case 'voucher':
         return 'Vouchers';
-      case 'marketplace':
-        return 'Marketplace';
       case 'school':
         return 'School';
       case 'municipal':
@@ -867,8 +832,6 @@ class _VasProductManagementScreenState
   }
 }
 
-// ─── Private Widgets ──────────────────────────────────
-
 class _StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -885,8 +848,8 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
-      padding: const EdgeInsets.all(16),
+      width: 180,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(12),
@@ -895,21 +858,21 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary)),
+                  fontSize: 13, color: AppColors.textSecondary)),
         ],
       ),
     );

@@ -13,6 +13,7 @@ import '../../blocs/brand_storefront/brand_storefront_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/buy/brand_storefront_hero.dart';
 import '../../widgets/common/brand_card.dart';
 
 class BrandStorefrontScreen extends StatelessWidget {
@@ -247,69 +248,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   // ─── Hero ──────────────────────────────────────────────────
 
   Widget _buildHero(BrandStorefront storefront) {
-    final heroImage = storefront.heroImageUrl ?? storefront.coverImageUrl;
-
-    if (storefront.heroStyle == HeroStyle.fullBleedImage &&
-        heroImage != null) {
-      return SizedBox(
-        height: 200,
-        width: double.infinity,
-        child: CachedNetworkImage(
-          imageUrl: heroImage,
-          fit: BoxFit.cover,
-          placeholder: (_, _) => Container(color: AppColors.buyCard),
-          errorWidget: (_, _, _) => _buildGradientHero(storefront),
-        ),
-      );
-    }
-
-    return _buildGradientHero(storefront);
-  }
-
-  Widget _buildGradientHero(BrandStorefront storefront) {
-    final primaryColor = AppColors.parseHex(
-      storefront.brandColor ?? storefront.accentColor,
-    );
-    final secondaryColor = storefront.secondaryColor != null
-        ? AppColors.parseHex(storefront.secondaryColor)
-        : primaryColor.withValues(alpha: 0.6);
-
-    return Container(
-      height: 160,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primaryColor, secondaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Center(
-        child: storefront.brandLogoUrl != null
-            ? CachedNetworkImage(
-                imageUrl: storefront.brandLogoUrl!,
-                width: 64,
-                height: 64,
-                fit: BoxFit.contain,
-                errorWidget: (_, _, _) => Text(
-                  storefront.brandName,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            : Text(
-                storefront.brandName,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-      ),
-    );
+    return BrandStorefrontHero(storefront: storefront);
   }
 
   // ─── Brand Header ────────────────────────────────────────

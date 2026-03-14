@@ -176,6 +176,10 @@ export type AdminPermission =
   | "buy:deleteVasProduct"
   | "buy:bulkUpdateVasProductPrices"
   | "buy:seedVasProviders"
+  | "buy:seedVasCategories"
+  | "buy:createVasCategory"
+  | "buy:updateVasCategory"
+  | "buy:toggleVasCategory"
   // Buy migration
   | "buy:migrateCategories"
   // Buy group buy requests & curated group buys
@@ -297,6 +301,10 @@ const platformAdminPerms: AdminPermission[] = [
   "buy:deleteVasProduct",
   "buy:bulkUpdateVasProductPrices",
   "buy:seedVasProviders",
+  "buy:seedVasCategories",
+  "buy:createVasCategory",
+  "buy:updateVasCategory",
+  "buy:toggleVasCategory",
   // Buy migration
   "buy:migrateCategories",
   // Buy group buy requests & curated group buys

@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/utils/image_resize_utils.dart';
 import '../../theme/app_colors.dart';
+import '../widgets/svg_aware_image.dart';
 
 /// Earn Management screen for admin portal
 /// Allows admins to manage earn threads, opportunities, and view analytics
@@ -2134,7 +2135,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -2157,32 +2158,16 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
 
   Future<String?> _uploadThreadImage(String threadId) async {
     if (_pickedImageBytes == null) return null;
-    final resized = resizeImageForUpload(
-      _pickedImageBytes!,
-      ImageResizeTarget.threadImage,
+    return uploadAdminImage(
+      bytes: _pickedImageBytes!,
+      fileName: _pickedImageName,
+      storagePath: 'thread_images',
+      fileId: threadId,
+      resizeTarget: ImageResizeTarget.threadImage,
+      onProgress: (p) {
+        if (mounted) setState(() => _uploadProgress = p);
+      },
     );
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('thread_images')
-        .child('$threadId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
-    );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   Future<void> _handleCreate({String? overrideSubAccountId}) async {
@@ -2431,8 +2416,9 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                           child: _pickedImageBytes != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(7),
-                                  child: Image.memory(
+                                  child: svgAwareMemoryImage(
                                     _pickedImageBytes!,
+                                    fileName: _pickedImageName,
                                     fit: BoxFit.cover,
                                   ),
                                 )
@@ -3017,7 +3003,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -3040,32 +3026,16 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
 
   Future<String?> _uploadThreadImage(String threadId) async {
     if (_pickedImageBytes == null) return null;
-    final resized = resizeImageForUpload(
-      _pickedImageBytes!,
-      ImageResizeTarget.threadImage,
+    return uploadAdminImage(
+      bytes: _pickedImageBytes!,
+      fileName: _pickedImageName,
+      storagePath: 'thread_images',
+      fileId: threadId,
+      resizeTarget: ImageResizeTarget.threadImage,
+      onProgress: (p) {
+        if (mounted) setState(() => _uploadProgress = p);
+      },
     );
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('thread_images')
-        .child('$threadId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
-    );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   Future<void> _handleSave({String? overrideSubAccountId}) async {
@@ -3255,8 +3225,9 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                             child: _pickedImageBytes != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(7),
-                                    child: Image.memory(
+                                    child: svgAwareMemoryImage(
                                       _pickedImageBytes!,
+                                      fileName: _pickedImageName,
                                       fit: BoxFit.cover,
                                     ),
                                   )
@@ -3264,14 +3235,9 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                                     ? ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(7),
-                                        child: Image.network(
+                                        child: svgAwareNetworkImage(
                                           _existingImageUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, _, _) => Icon(
-                                            Icons.broken_image,
-                                            color: AppColors.textSecondary,
-                                            size: 28,
-                                          ),
                                         ),
                                       )
                                     : Icon(
@@ -3866,7 +3832,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -3889,34 +3855,16 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
 
   Future<String?> _uploadOpportunityImage(String opportunityId) async {
     if (_pickedImageBytes == null) return null;
-    final resized = resizeImageForUpload(
-      _pickedImageBytes!,
-      ImageResizeTarget.opportunityImage,
+    return uploadAdminImage(
+      bytes: _pickedImageBytes!,
+      fileName: _pickedImageName,
+      storagePath: 'opportunity_images/${widget.threadId}',
+      fileId: opportunityId,
+      resizeTarget: ImageResizeTarget.opportunityImage,
+      onProgress: (p) {
+        if (mounted) setState(() => _imageUploadProgress = p);
+      },
     );
-    if (resized == null) throw Exception('Failed to process image');
-
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('opportunity_images')
-        .child(widget.threadId)
-        .child('$opportunityId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
-    );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _imageUploadProgress =
-              snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   /// Uploads the picked video to Firebase Storage and returns the download URL.
@@ -4310,8 +4258,9 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                             child: _pickedImageBytes != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(7),
-                                    child: Image.memory(
+                                    child: svgAwareMemoryImage(
                                       _pickedImageBytes!,
+                                      fileName: _pickedImageName,
                                       fit: BoxFit.cover,
                                     ),
                                   )
@@ -5527,7 +5476,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+        allowedExtensions: adminImageExtensions,
         withData: true,
       );
       if (result != null && result.files.single.bytes != null) {
@@ -5550,35 +5499,17 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
 
   Future<String?> _uploadOpportunityImage(String opportunityId) async {
     if (_pickedImageBytes == null) return null;
-    final resized = resizeImageForUpload(
-      _pickedImageBytes!,
-      ImageResizeTarget.opportunityImage,
-    );
-    if (resized == null) throw Exception('Failed to process image');
-
     final threadId = widget.opportunity['threadId'] as String;
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('opportunity_images')
-        .child(threadId)
-        .child('$opportunityId.${resized.extension}');
-
-    final uploadTask = ref.putData(
-      resized.bytes,
-      SettableMetadata(contentType: resized.contentType),
+    return uploadAdminImage(
+      bytes: _pickedImageBytes!,
+      fileName: _pickedImageName,
+      storagePath: 'opportunity_images/$threadId',
+      fileId: opportunityId,
+      resizeTarget: ImageResizeTarget.opportunityImage,
+      onProgress: (p) {
+        if (mounted) setState(() => _imageUploadProgress = p);
+      },
     );
-
-    uploadTask.snapshotEvents.listen((snapshot) {
-      if (mounted) {
-        setState(() {
-          _imageUploadProgress =
-              snapshot.bytesTransferred / snapshot.totalBytes;
-        });
-      }
-    });
-
-    await uploadTask;
-    return await ref.getDownloadURL();
   }
 
   Future<void> _handleSave() async {
@@ -5816,8 +5747,9 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                             child: _pickedImageBytes != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(7),
-                                    child: Image.memory(
+                                    child: svgAwareMemoryImage(
                                       _pickedImageBytes!,
+                                      fileName: _pickedImageName,
                                       fit: BoxFit.cover,
                                     ),
                                   )
@@ -5825,14 +5757,9 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                                     ? ClipRRect(
                                         borderRadius:
                                             BorderRadius.circular(7),
-                                        child: Image.network(
+                                        child: svgAwareNetworkImage(
                                           _existingImageUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (_, _, _) => Icon(
-                                            Icons.broken_image,
-                                            color: AppColors.textSecondary,
-                                            size: 28,
-                                          ),
                                         ),
                                       )
                                     : Icon(

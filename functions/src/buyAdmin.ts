@@ -4639,3 +4639,239 @@ export const adminDistributeGroupBuyVouchers = onCall(
     return { success: true, pendingActionId, requiresApproval: true };
   }
 );
+
+// ============================================================================
+// VAS CATEGORY SEEDING
+// ============================================================================
+
+/**
+ * Seed the 9 default VAS categories into the `vasCategories` collection.
+ * Uses deterministic IDs for idempotency. Only creates missing docs.
+ */
+export const adminSeedVasCategories = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminSeedVasCategories");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:seedVasCategories",
+      "adminSeedVasCategories"
+    );
+
+    const defaultVasCategories = [
+      { id: "airtime", name: "Airtime", iconName: "phone", sortOrder: 1, purchaseCategoryMapping: "airtime" },
+      { id: "data", name: "Data", iconName: "wifi", sortOrder: 2, purchaseCategoryMapping: "data" },
+      { id: "electricity", name: "Electricity", iconName: "lightning", sortOrder: 3, purchaseCategoryMapping: "electricity" },
+      { id: "voucher", name: "Vouchers", iconName: "ticket", sortOrder: 4, purchaseCategoryMapping: "voucher" },
+      { id: "school_fees", name: "School Fees", iconName: "cap", sortOrder: 5, purchaseCategoryMapping: "school" },
+      { id: "municipal_bill", name: "Municipal Bill", iconName: "bank", sortOrder: 6, purchaseCategoryMapping: "municipal" },
+      { id: "stokvel", name: "Stokvel Contribution", iconName: "users", sortOrder: 7, purchaseCategoryMapping: "stokvel" },
+      { id: "funeral", name: "Funeral", iconName: "funeral", sortOrder: 8, purchaseCategoryMapping: "funeral" },
+      { id: "gaming", name: "Gaming", iconName: "gaming", sortOrder: 9, purchaseCategoryMapping: "gaming" },
+    ];
+
+    const txResult = await db.runTransaction(async (tx) => {
+      // Phase 1: Read all docs first (Firestore requires reads before writes)
+      const refs = defaultVasCategories.map((cat) =>
+        db.collection("vasCategories").doc(cat.id)
+      );
+      const docs = await Promise.all(refs.map((ref) => tx.get(ref)));
+
+      // Phase 2: Write only missing docs
+      let txCreated = 0;
+      let txSkipped = 0;
+
+      for (let i = 0; i < defaultVasCategories.length; i++) {
+        if (docs[i].exists) {
+          txSkipped++;
+          continue;
+        }
+
+        const cat = defaultVasCategories[i];
+        tx.set(refs[i], {
+          name: cat.name,
+          iconName: cat.iconName,
+          sortOrder: cat.sortOrder,
+          isActive: true,
+          purchaseCategoryMapping: cat.purchaseCategoryMapping,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        txCreated++;
+      }
+
+      return { txCreated, txSkipped };
+    });
+
+    await logAdminAction(adminCtx.uid, "adminSeedVasCategories", "success", {
+      created: txResult.txCreated,
+      skipped: txResult.txSkipped,
+    });
+
+    logger.info(`VAS categories seeded by ${adminCtx.email}: ${txResult.txCreated} created, ${txResult.txSkipped} skipped`);
+    return { success: true, created: txResult.txCreated, skipped: txResult.txSkipped };
+  }
+);
+
+// ============================================================================
+// VAS CATEGORY CRUD
+// ============================================================================
+
+/**
+ * Create a new VAS category.
+ */
+export const adminCreateVasCategory = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminCreateVasCategory");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:createVasCategory",
+      "adminCreateVasCategory"
+    );
+
+    const { name, iconName, sortOrder, isActive, purchaseCategoryMapping } =
+      request.data as {
+        name: string;
+        iconName?: string;
+        sortOrder?: number;
+        isActive?: boolean;
+        purchaseCategoryMapping?: string;
+      };
+
+    if (!name || name.trim().length === 0) {
+      throw new HttpsError("invalid-argument", "name is required");
+    }
+
+    // Duplicate name check
+    const duplicateSnap = await db
+      .collection("vasCategories")
+      .where("name", "==", name.trim())
+      .limit(1)
+      .get();
+    if (!duplicateSnap.empty) {
+      throw new HttpsError("already-exists", `VAS category '${name.trim()}' already exists`);
+    }
+
+    // Deterministic ID
+    const nameHash = name.trim().toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 40);
+    const docId = `vas_${nameHash}`;
+
+    const data = {
+      name: name.trim(),
+      iconName: iconName || "",
+      sortOrder: sortOrder ?? 0,
+      isActive: isActive ?? true,
+      purchaseCategoryMapping: purchaseCategoryMapping || "",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await db.collection("vasCategories").doc(docId).set(data);
+
+    await logAdminAction(adminCtx.uid, "adminCreateVasCategory", "success", {
+      categoryId: docId,
+      name,
+    });
+
+    logger.info(`VAS category '${name}' created by ${adminCtx.email}`);
+    return { success: true, categoryId: docId };
+  }
+);
+
+/**
+ * Update an existing VAS category.
+ */
+export const adminUpdateVasCategory = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminUpdateVasCategory");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:updateVasCategory",
+      "adminUpdateVasCategory"
+    );
+
+    const { categoryId, ...fields } = request.data as {
+      categoryId: string;
+      name?: string;
+      iconName?: string;
+      sortOrder?: number;
+      isActive?: boolean;
+      purchaseCategoryMapping?: string;
+    };
+
+    if (!categoryId) {
+      throw new HttpsError("invalid-argument", "categoryId is required");
+    }
+
+    const ref = db.collection("vasCategories").doc(categoryId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", `VAS category '${categoryId}' not found`);
+    }
+
+    const updates: Record<string, unknown> = {
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined) updates[key] = value;
+    }
+
+    await ref.update(updates);
+
+    await logAdminAction(adminCtx.uid, "adminUpdateVasCategory", "success", {
+      categoryId,
+      updates: Object.keys(fields),
+    });
+
+    logger.info(`VAS category '${categoryId}' updated by ${adminCtx.email}`);
+    return { success: true, categoryId };
+  }
+);
+
+/**
+ * Toggle a VAS category's active status.
+ */
+export const adminToggleVasCategory = onCall(
+  { labels: { area: "admin" } },
+  async (request) => {
+    requireAppCheck(request, "adminToggleVasCategory");
+    const adminCtx = await requireAdminPermission(
+      request,
+      "buy:toggleVasCategory",
+      "adminToggleVasCategory"
+    );
+
+    const { categoryId, isActive } = request.data as {
+      categoryId: string;
+      isActive: boolean;
+    };
+
+    if (!categoryId) {
+      throw new HttpsError("invalid-argument", "categoryId is required");
+    }
+    if (typeof isActive !== "boolean") {
+      throw new HttpsError("invalid-argument", "isActive must be a boolean");
+    }
+
+    const ref = db.collection("vasCategories").doc(categoryId);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      throw new HttpsError("not-found", `VAS category '${categoryId}' not found`);
+    }
+
+    await ref.update({
+      isActive,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    await logAdminAction(adminCtx.uid, "adminToggleVasCategory", "success", {
+      categoryId,
+      isActive,
+    });
+
+    logger.info(`VAS category '${categoryId}' toggled to ${isActive} by ${adminCtx.email}`);
+    return { success: true, categoryId, isActive };
+  }
+);
