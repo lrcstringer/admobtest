@@ -304,7 +304,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                               vertical: 16,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(30),
                               border: Border.all(
                                 color: _phoneDigits.isNotEmpty
@@ -319,7 +319,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                 DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: _selectedCountryCode,
-                                    dropdownColor: AppColors.surface,
+                                    dropdownColor: Theme.of(context).colorScheme.surface,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyLarge

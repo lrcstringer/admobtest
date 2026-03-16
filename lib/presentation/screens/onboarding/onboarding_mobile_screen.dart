@@ -196,7 +196,7 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -207,7 +207,7 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedCountryCode,
-                            dropdownColor: AppColors.surface,
+                            dropdownColor: Theme.of(context).colorScheme.surface,
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 15,

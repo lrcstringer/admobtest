@@ -263,9 +263,9 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
@@ -307,7 +307,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 vertical: 16,
               ),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: AppSpacing.borderRadiusMd,
                 border: Border.all(
                   color: AppColors.primary.withValues(alpha: 0.3),
@@ -351,9 +351,9 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
@@ -373,7 +373,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: AppSpacing.borderRadiusMd,
                 border: Border.all(
                   color: AppColors.primary.withValues(alpha: 0.3),
@@ -423,7 +423,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
           if (accessCode != null && accessCode.isNotEmpty) ...[
             if (url.isNotEmpty) ...[
               AppSpacing.verticalMd,
-              Divider(color: AppColors.border),
+              Divider(color: Theme.of(context).colorScheme.outline),
               AppSpacing.verticalMd,
             ],
             Text(
@@ -440,7 +440,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 vertical: 16,
               ),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: AppSpacing.borderRadiusMd,
                 border: Border.all(
                   color: AppColors.primary.withValues(alpha: 0.3),

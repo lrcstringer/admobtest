@@ -153,7 +153,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                       Text(
                         thread.description!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textPrimary.withValues(alpha: 0.85),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                             ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -254,7 +254,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
         decoration: BoxDecoration(
           color: Color.alphaBlend(
             color.withValues(alpha: 0.15),
-            AppColors.surface,
+            Theme.of(context).colorScheme.surface,
           ),
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(color: color.withValues(alpha: 0.25)),
@@ -275,7 +275,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -304,7 +304,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
         borderRadius: AppSpacing.borderRadiusLg,
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             border: Border.all(
               color: accentColors[0].withValues(alpha: 0.2),
             ),
@@ -393,13 +393,13 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                               Icon(
                                 Icons.access_time,
                                 size: 14,
-                                color: AppColors.textHint,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 opportunity.formattedDuration,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                               ),
                               const SizedBox(width: 12),
@@ -409,14 +409,14 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: AppSpacing.borderRadiusSm,
-                                  border: Border.all(color: AppColors.border),
+                                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                                 ),
                                 child: Text(
                                   opportunity.earningTypeLabel,
                                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 ),
                               ),
@@ -427,7 +427,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
                             Text(
                               opportunity.description!,
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -519,9 +519,9 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       );
     }
 
-    return const Icon(
+    return Icon(
       Icons.chevron_right,
-      color: AppColors.textSecondary,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 
@@ -535,7 +535,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
             Icon(
               Icons.inbox_outlined,
               size: 80,
-              color: AppColors.textHint,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             AppSpacing.verticalLg,
             Text(
@@ -548,7 +548,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
             Text(
               'Check back later for new opportunities from this brand',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               textAlign: TextAlign.center,
             ),

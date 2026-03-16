@@ -129,9 +129,9 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                     width: double.infinity,
                     padding: AppSpacing.cardPadding,
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: AppSpacing.borderRadiusMd,
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: Theme.of(context).colorScheme.outline),
                     ),
                     child: Row(
                       children: [
@@ -196,14 +196,14 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                       hintText: '0',
                       hintStyle: TextStyle(color: AppColors.textHint),
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,
-                        borderSide: BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,
-                        borderSide: BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,
@@ -242,14 +242,14 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                       hintText: 'Add a message...',
                       hintStyle: TextStyle(color: AppColors.textHint),
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,
-                        borderSide: BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,
-                        borderSide: BorderSide(color: AppColors.border),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: AppSpacing.borderRadiusMd,

@@ -47,9 +47,9 @@ class _StarredMessagesScreenState extends State<StarredMessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text(
           'Starred Messages',
           style: TextStyle(color: AppColors.textPrimary),

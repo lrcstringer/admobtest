@@ -57,12 +57,12 @@ class WalletDetailScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline, size: 48,
-                      color: AppColors.textTertiary),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text(
                     'Could not load wallet',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   const SizedBox(height: 16),
@@ -238,7 +238,7 @@ class WalletDetailScreen extends StatelessWidget {
       icon = Icons.timer;
       text = 'Expires in $daysLeft day${daysLeft == 1 ? '' : 's'}';
     } else {
-      color = AppColors.textSecondary;
+      color = Theme.of(context).colorScheme.onSurfaceVariant;
       icon = Icons.schedule;
       text = 'Expires in $daysLeft days';
     }
@@ -393,9 +393,9 @@ class WalletDetailScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: AppSpacing.borderRadiusMd,
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Column(
           children: [
@@ -411,7 +411,7 @@ class WalletDetailScreen extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
           ],
@@ -500,9 +500,9 @@ class WalletDetailScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: AppSpacing.borderRadiusMd,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -530,7 +530,7 @@ class WalletDetailScreen extends StatelessWidget {
               const SizedBox(width: 4),
               Icon(
                 Icons.chevron_right,
-                color: AppColors.textTertiary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 18,
               ),
             ],
@@ -606,7 +606,7 @@ class WalletDetailScreen extends StatelessWidget {
         width: double.infinity,
         padding: AppSpacing.cardPaddingLarge,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: AppSpacing.borderRadiusMd,
         ),
         child: Column(
@@ -614,13 +614,13 @@ class WalletDetailScreen extends StatelessWidget {
             Icon(
               Icons.receipt_long_outlined,
               size: 48,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             AppSpacing.verticalMd,
             Text(
               'No transactions yet',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ],
@@ -653,7 +653,7 @@ class WalletDetailScreen extends StatelessWidget {
       padding: AppSpacing.cardPadding,
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusSm,
       ),
       child: Row(
@@ -686,7 +686,7 @@ class WalletDetailScreen extends StatelessWidget {
                 Text(
                   _formatDate(journal.postedAt ?? journal.createdAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ],

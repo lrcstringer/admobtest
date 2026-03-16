@@ -234,7 +234,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       color: Color.alphaBlend(
         AppColors.primaryGradient[0].withValues(alpha: 0.04),
-        AppColors.surface,
+        Theme.of(context).colorScheme.surface,
       ),
       child: InkWell(
         onTap: () => context.go('/groups/${group.id}'),

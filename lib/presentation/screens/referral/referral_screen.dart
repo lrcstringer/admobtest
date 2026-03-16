@@ -188,13 +188,13 @@ class _ReferralScreenState extends State<ReferralScreen> {
           colors: [
             Color.alphaBlend(
               iconColor.withValues(alpha: 0.08),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
-            AppColors.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
@@ -247,16 +247,16 @@ class _ReferralScreenState extends State<ReferralScreen> {
           colors: [
             Color.alphaBlend(
               AppColors.primaryGradient[0].withValues(alpha: 0.05),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
             Color.alphaBlend(
               AppColors.primaryGradient[1].withValues(alpha: 0.025),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
           ],
         ),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,9 +275,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: AppSpacing.borderRadiusMd,
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline),
                   ),
                   child: Text(
                     stats.referralCode,
@@ -346,7 +346,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
         ),
@@ -430,7 +430,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -487,10 +487,10 @@ class _ReferralScreenState extends State<ReferralScreen> {
         isJoined ? AppColors.success : AppColors.textSecondary;
     final avatarColor = isJoined
         ? AppColors.primary.withValues(alpha: 0.15)
-        : AppColors.background;
+        : Theme.of(context).colorScheme.surface;
     final avatarBorderColor = isJoined
         ? AppColors.primary.withValues(alpha: 0.2)
-        : AppColors.border;
+        : Theme.of(context).colorScheme.outline;
 
     return Container(
       padding: AppSpacing.cardPadding,
@@ -498,11 +498,11 @@ class _ReferralScreenState extends State<ReferralScreen> {
         color: isJoined
             ? Color.alphaBlend(
                 AppColors.success.withValues(alpha: 0.04),
-                AppColors.surface,
+                Theme.of(context).colorScheme.surface,
               )
-            : AppColors.surface,
+            : Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusMd,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -583,7 +583,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
             decoration: BoxDecoration(
               color: isJoined
                   ? AppColors.success.withValues(alpha: 0.1)
-                  : AppColors.background,
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -609,7 +609,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
       builder: (context) => Dialog(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -685,8 +685,8 @@ class _ReferralScreenState extends State<ReferralScreen> {
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: AppColors.surfaceElevated,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -729,9 +729,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
             16,
             16 + MediaQuery.of(context).viewInsets.bottom,
           ),
-          decoration: const BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -742,7 +742,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: Theme.of(context).colorScheme.outline,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -831,9 +831,9 @@ class _ReferralScreenState extends State<ReferralScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: AppSpacing.pagePadding,
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -843,7 +843,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: Theme.of(context).colorScheme.outline,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

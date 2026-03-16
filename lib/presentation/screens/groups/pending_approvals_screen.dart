@@ -99,7 +99,7 @@ class PendingApprovalsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       color: Color.alphaBlend(
         AppColors.tertiaryGradient[0].withValues(alpha: 0.04),
-        AppColors.surface,
+        Theme.of(context).colorScheme.surface,
       ),
       child: Padding(
         padding: AppSpacing.cardPadding,
@@ -153,7 +153,7 @@ class PendingApprovalsScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: AppSpacing.cardPadding,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: AppSpacing.borderRadiusSm,
                 ),
                 child: Text(
@@ -214,7 +214,7 @@ class PendingApprovalsScreen extends StatelessWidget {
     return Container(
       padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusSm,
       ),
       child: Column(
@@ -240,7 +240,7 @@ class PendingApprovalsScreen extends StatelessWidget {
           AppSpacing.verticalSm,
           LinearProgressIndicator(
             value: requiredCount > 0 ? approvedCount / requiredCount : 0,
-            backgroundColor: AppColors.border,
+            backgroundColor: Theme.of(context).colorScheme.outline,
             valueColor: AlwaysStoppedAnimation(
               approvedCount >= requiredCount ? AppColors.success : AppColors.primary,
             ),

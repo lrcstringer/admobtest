@@ -209,7 +209,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   const EdgeInsets.symmetric(horizontal: 40),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: TextField(
@@ -244,7 +244,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   const EdgeInsets.symmetric(horizontal: 40),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: TextField(
@@ -281,7 +281,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                 children: [
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: AppColors.surface,
+                                      color: Theme.of(context).colorScheme.surface,
                                       borderRadius:
                                           BorderRadius.circular(30),
                                     ),

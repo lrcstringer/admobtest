@@ -37,7 +37,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'You earn tokens by watching short ads and answering tiny surveys \u2013 then you can:',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalSm,
@@ -72,7 +72,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'Most of what you do in iMaliChat happens in the Earn area. There you\u2019ll see earn messages from different brands.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalMd,
@@ -111,7 +111,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'Each time you earn, two things happen:',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalSm,
@@ -146,14 +146,14 @@ class HowToEarnScreen extends StatelessWidget {
               child: RichText(
                 text: TextSpan(
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                   children: [
                     TextSpan(
                       text: 'Pro tip: ',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const TextSpan(
@@ -171,14 +171,14 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'On top of your normal tokens, iMaliChat has two extra bonus pots: a Daily Pot and a Weekly Pot.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalSm,
             Text(
               'A small slice of the value from each completed ad + survey goes into these pots. At the end of each period, the top users on the leaderboard share the pot.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalMd,
@@ -223,14 +223,14 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'All tokens you earn, win, or spend flow through your wallet. Inside the wallet you\u2019ll see your balance and a full transaction history.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalSm,
             Text(
               'If you ever wonder \u201cWhere did that come from?\u201d or \u201cWhere did it go?\u201d, the wallet history is your answer.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
 
@@ -241,7 +241,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'Money Chat lets you use your balance with people you trust. Send tokens to friends or request from them.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalMd,
@@ -278,7 +278,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'When you invite someone from inside iMaliChat, we link their phone number to your account (first-touch wins).',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalMd,
@@ -363,7 +363,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'The idea is to reward real, active referrals, not spammy invites.',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
             ),
@@ -375,7 +375,7 @@ class HowToEarnScreen extends StatelessWidget {
             Text(
               'As your tokens grow, you\u2019ll be able to use them inside the app \u2013 starting with airtime purchases. Over time, more ways to spend will be added.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             AppSpacing.verticalMd,

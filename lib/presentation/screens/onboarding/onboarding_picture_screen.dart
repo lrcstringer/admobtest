@@ -171,7 +171,7 @@ class _ActionButton extends StatelessWidget {
         width: 52,
         height: 52,
         decoration: BoxDecoration(
-          color: isHighlighted ? AppColors.primary : AppColors.surface,
+          color: isHighlighted ? AppColors.primary : Theme.of(context).colorScheme.surface,
           shape: BoxShape.circle,
           border: isHighlighted
               ? null

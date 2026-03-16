@@ -78,14 +78,14 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
                   prefixIcon:
                       Icon(Icons.search, color: AppColors.textSecondary),
                   filled: true,
-                  fillColor: AppColors.surface,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: AppSpacing.borderRadiusMd,
-                    borderSide: BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: AppSpacing.borderRadiusMd,
-                    borderSide: BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: AppSpacing.borderRadiusMd,

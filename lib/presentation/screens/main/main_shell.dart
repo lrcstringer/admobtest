@@ -43,15 +43,27 @@ class MainShell extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themed = AppColors.themed(context);
+    final isBuyTab = navigationShell.currentIndex == 3;
+    final isChatTab = navigationShell.currentIndex == 2;
+
+    // Buy tab always white, Chat tab always dark, others follow theme.
+    final Color navBarColor;
+    if (isBuyTab) {
+      navBarColor = const Color(0xFFFFFFFF);
+    } else if (isChatTab) {
+      navBarColor = const Color(0xFF2C325C);
+    } else {
+      navBarColor = themed.navBackground;
+    }
+    final navBarBrightness = (isBuyTab && !isDark) ? Brightness.dark : Brightness.light;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness:
             isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: themed.navBackground,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: navBarColor,
+        systemNavigationBarIconBrightness: navBarBrightness,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,

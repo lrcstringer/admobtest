@@ -274,10 +274,10 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
               bottom: MediaQuery.of(context).padding.bottom + AppSpacing.sm,
             ),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).colorScheme.surface,
               border: Border(
                 top: BorderSide(
-                  color: AppColors.border.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
                 ),
               ),
             ),

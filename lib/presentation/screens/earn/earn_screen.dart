@@ -227,12 +227,12 @@ class _EarnScreenState extends State<EarnScreen> {
           decoration: BoxDecoration(
             color: notif.isUnread
                 ? AppColors.primary.withValues(alpha: 0.08)
-                : AppColors.surface,
+                : Theme.of(context).colorScheme.surface,
             borderRadius: AppSpacing.borderRadiusSm,
             border: Border.all(
               color: notif.isUnread
                   ? AppColors.primary.withValues(alpha: 0.3)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outline,
             ),
           ),
           child: Row(
@@ -255,7 +255,7 @@ class _EarnScreenState extends State<EarnScreen> {
                     Text(
                       notif.body,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -267,7 +267,7 @@ class _EarnScreenState extends State<EarnScreen> {
               Text(
                 notif.timeAgo,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textHint,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
               if (notif.isUnread) ...[
@@ -314,7 +314,7 @@ class _EarnScreenState extends State<EarnScreen> {
       case 'expiry_warning':
         return AppColors.warning;
       default:
-        return AppColors.textSecondary;
+        return Theme.of(context).colorScheme.onSurfaceVariant;
     }
   }
 
@@ -337,7 +337,7 @@ class _EarnScreenState extends State<EarnScreen> {
   void _showNotificationsSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -385,7 +385,7 @@ class _EarnScreenState extends State<EarnScreen> {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           )
                         : ListView.builder(
@@ -441,7 +441,7 @@ class _EarnScreenState extends State<EarnScreen> {
                   'You have reached the 30 completions per day limit. '
                   'This will reset at midnight tonight.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ],
@@ -478,7 +478,7 @@ class _EarnScreenState extends State<EarnScreen> {
             Text(
               '${state.totalAvailableOpportunities} opportunities',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ],
@@ -505,14 +505,14 @@ class _EarnScreenState extends State<EarnScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: AppSpacing.borderRadiusMd,
         border: Border.all(
           color: client.isPinned
               ? AppColors.primary.withValues(alpha: 0.5)
               : client.isFeatured
                   ? AppColors.accent.withValues(alpha: 0.5)
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outline,
           width: client.isPinned || client.isFeatured ? 1.5 : 1,
         ),
       ),
@@ -571,7 +571,7 @@ class _EarnScreenState extends State<EarnScreen> {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                             if (client.totalTokens > 0) ...[
                               Text(
@@ -579,7 +579,7 @@ class _EarnScreenState extends State<EarnScreen> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: AppColors.textHint),
+                                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                               Icon(Icons.toll,
                                   size: 12, color: AppColors.gold),
@@ -603,9 +603,9 @@ class _EarnScreenState extends State<EarnScreen> {
                   AnimatedRotation(
                     turns: isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(
+                    child: Icon(
                       Icons.expand_more,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -681,7 +681,7 @@ class _EarnScreenState extends State<EarnScreen> {
         child: Text(
           'No current uncompleted earn opportunities',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textHint,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       );
@@ -751,7 +751,7 @@ class _EarnScreenState extends State<EarnScreen> {
                             : 'All offers are expiring soon!',
                         style:
                             Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textHint,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                       ),
                     ),
@@ -789,7 +789,7 @@ class _EarnScreenState extends State<EarnScreen> {
           border: Border.all(
             color: isSelected
                 ? activeColor.withValues(alpha: 0.6)
-                : AppColors.border.withValues(alpha: 0.5),
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
           ),
         ),
         child: Row(
@@ -802,7 +802,7 @@ class _EarnScreenState extends State<EarnScreen> {
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: isSelected ? activeColor : AppColors.textSecondary,
+                    color: isSelected ? activeColor : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight:
                         isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
@@ -815,7 +815,7 @@ class _EarnScreenState extends State<EarnScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? activeColor.withValues(alpha: 0.25)
-                      : AppColors.border.withValues(alpha: 0.3),
+                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -823,7 +823,7 @@ class _EarnScreenState extends State<EarnScreen> {
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: isSelected
                             ? activeColor
-                            : AppColors.textSecondary,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -879,17 +879,17 @@ class _EarnScreenState extends State<EarnScreen> {
                   Color.alphaBlend(
                     AppColors.tertiaryGradient[0]
                         .withValues(alpha: 0.05),
-                    AppColors.surface,
+                    Theme.of(context).colorScheme.surface,
                   ),
                   Color.alphaBlend(
                     AppColors.tertiaryGradient[1]
                         .withValues(alpha: 0.025),
-                    AppColors.surface,
+                    Theme.of(context).colorScheme.surface,
                   ),
                 ],
               ),
               borderRadius: AppSpacing.borderRadiusSm,
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
             child: Row(
               children: [
@@ -952,7 +952,7 @@ class _EarnScreenState extends State<EarnScreen> {
                           thread.description!,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -966,14 +966,14 @@ class _EarnScreenState extends State<EarnScreen> {
                           children: [
                             if (thread.formattedDuration.isNotEmpty) ...[
                               Icon(Icons.schedule,
-                                  size: 11, color: AppColors.textHint),
+                                  size: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 3),
                               Text(
                                 thread.formattedDuration,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall
-                                    ?.copyWith(color: AppColors.textSecondary),
+                                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ],
                             if (thread.availableOpportunities > 1) ...[
@@ -988,7 +988,7 @@ class _EarnScreenState extends State<EarnScreen> {
                                     ?.copyWith(
                                       color: thread.completedByUser > 0
                                           ? AppColors.success
-                                          : AppColors.textSecondary,
+                                          : Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                               ),
                             ],
@@ -1023,7 +1023,7 @@ class _EarnScreenState extends State<EarnScreen> {
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall
-                                    ?.copyWith(color: AppColors.textHint)),
+                                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             Icon(Icons.card_giftcard,
                                 size: 12, color: AppColors.secondary),
                             const SizedBox(width: 2),
@@ -1070,7 +1070,7 @@ class _EarnScreenState extends State<EarnScreen> {
                 Icon(
                   allDone ? Icons.check_circle : Icons.chevron_right,
                   size: 18,
-                  color: allDone ? AppColors.success : AppColors.textSecondary,
+                  color: allDone ? AppColors.success : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -1096,7 +1096,7 @@ class _EarnScreenState extends State<EarnScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: AppSpacing.borderRadiusSm,
           ),
           child: const Center(
@@ -1138,7 +1138,7 @@ class _EarnScreenState extends State<EarnScreen> {
             Icon(
               Icons.monetization_on_outlined,
               size: 80,
-              color: AppColors.textHint,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             AppSpacing.verticalLg,
             Text(
@@ -1151,7 +1151,7 @@ class _EarnScreenState extends State<EarnScreen> {
             Text(
               'Check back later for new earning opportunities',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               textAlign: TextAlign.center,
             ),

@@ -236,7 +236,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                       .textTheme
                                       .bodyLarge
                                       ?.copyWith(
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 ),
                                 SizedBox(height: AppSpacing.xl),
@@ -264,8 +264,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                       .textTheme
                                                       .bodyMedium
                                                       ?.copyWith(
-                                                        color: AppColors
-                                                            .textSecondary,
+                                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                       ),
                                                 ),
                                               ),
@@ -322,8 +321,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                     .textTheme
                                                     .titleSmall
                                                     ?.copyWith(
-                                                      color: AppColors
-                                                          .textSecondary,
+                                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                     ),
                                               ),
                                               const Spacer(),
@@ -436,7 +434,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                 // Opportunity info (hidden during submitting)
                                 if (opportunity != null && !isSubmitting)
                                   Card(
-                                    color: AppColors.surface,
+                                    color: Theme.of(context).colorScheme.surface,
                                     child: Padding(
                                       padding: EdgeInsets.all(AppSpacing.md),
                                       child: Row(
@@ -461,8 +459,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                       .textTheme
                                                       .bodySmall
                                                       ?.copyWith(
-                                                        color: AppColors
-                                                            .textSecondary,
+                                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                       ),
                                                   maxLines: 1,
                                                   overflow:
@@ -587,8 +584,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                           .textTheme
                                                           .bodySmall
                                                           ?.copyWith(
-                                                            color: AppColors
-                                                                .textSecondary,
+                                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                                           ),
                                                     ),
                                                   ],
@@ -791,7 +787,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         Text(
           percentage,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         SizedBox(width: AppSpacing.sm),

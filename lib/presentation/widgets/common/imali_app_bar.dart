@@ -41,7 +41,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     return AppBar(
-      backgroundColor: backgroundColor ?? Colors.transparent,
+      backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       leadingWidth: canPop ? 104 : 56,

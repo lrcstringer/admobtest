@@ -184,14 +184,14 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
                       ? AppColors.tertiaryGradient[0]
                       : AppColors.primaryGradient[0])
                   .withValues(alpha: 0.05),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
             Color.alphaBlend(
               (pot.type == PotType.daily
                       ? AppColors.tertiaryGradient[1]
                       : AppColors.primaryGradient[1])
                   .withValues(alpha: 0.025),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
           ],
         ),
@@ -201,7 +201,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
               ? AppColors.success
               : isClosingSoon
                   ? AppColors.warning
-                  : AppColors.border,
+                  : Theme.of(context).colorScheme.outline,
           width: hasJoined ? 2 : 1,
         ),
         boxShadow: [
@@ -264,7 +264,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
                     Text(
                       'Prize Pool',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     Text(
@@ -335,7 +335,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
                   Container(
                     height: 40,
                     width: 1,
-                    color: AppColors.border,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
                   _buildUserStat(
                     context,
@@ -347,7 +347,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
                     Container(
                       height: 40,
                       width: 1,
-                      color: AppColors.border,
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                     _buildRankChange(context, userScore.rankChange!),
                   ],
@@ -449,7 +449,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
@@ -482,7 +482,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
         Text(
           'Change',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
@@ -502,13 +502,13 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
           colors: [
             Color.alphaBlend(
               AppColors.tertiaryGradient[0].withValues(alpha: 0.04),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
-            AppColors.surface,
+            Theme.of(context).colorScheme.surface,
           ],
         ),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +525,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
               Text(
                 _formatDate(pot.periodEnd),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -545,7 +545,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
               Text(
                 '${pot.participantCount} players',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -605,7 +605,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
@@ -626,7 +626,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
             Icon(
               Icons.emoji_events_outlined,
               size: 80,
-              color: AppColors.textHint,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             AppSpacing.verticalLg,
             Text(
@@ -640,7 +640,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -717,9 +717,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
@@ -730,7 +730,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.border,
+                color: Theme.of(context).colorScheme.outline,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -812,7 +812,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
                         Icon(
                           Icons.leaderboard_outlined,
                           size: 64,
-                          color: AppColors.textHint,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         AppSpacing.verticalMd,
                         Text(
@@ -823,7 +823,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
                         Text(
                           'Start earning to appear on the leaderboard!',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                         ),
                       ],
@@ -854,9 +854,9 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
               return Container(
                 padding: AppSpacing.pagePadding,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   border: Border(
-                    top: BorderSide(color: AppColors.border),
+                    top: BorderSide(color: Theme.of(context).colorScheme.outline),
                   ),
                 ),
                 child: SafeArea(
@@ -887,17 +887,17 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.surface,
           borderRadius: AppSpacing.borderRadiusMd,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.outline,
           ),
         ),
         child: Center(
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: isSelected ? Colors.white : AppColors.textPrimary,
+                  color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
           ),
@@ -938,7 +938,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
                     '#$rank',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -978,7 +978,7 @@ class _LeaderboardSheetState extends State<_LeaderboardSheet> {
                   Text(
                     '@${score.username}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
               ],

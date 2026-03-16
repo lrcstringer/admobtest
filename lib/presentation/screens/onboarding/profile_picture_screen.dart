@@ -247,7 +247,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                         decoration: BoxDecoration(
                           color: _selectedImage != null
                               ? Colors.transparent
-                              : AppColors.surface,
+                              : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(24),
                           image: _selectedImage != null
                               ? DecorationImage(
@@ -370,7 +370,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
+          color: isSelected ? AppColors.primary : Theme.of(context).colorScheme.surface,
           shape: BoxShape.circle,
         ),
         child: Icon(

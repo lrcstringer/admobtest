@@ -266,7 +266,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
                       shape: BoxShape.circle,
                       color: index < _otpCode.length
                           ? AppColors.primary
-                          : AppColors.surface,
+                          : Theme.of(context).colorScheme.surface,
                       border: Border.all(
                         color: AppColors.primary,
                         width: 1.5,

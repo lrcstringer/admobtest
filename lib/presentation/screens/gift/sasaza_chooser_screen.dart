@@ -122,16 +122,16 @@ class _SasazaOptionCard extends StatelessWidget {
             colors: [
               Color.alphaBlend(
                 gradientColors[0].withValues(alpha: 0.08),
-                AppColors.surface,
+                Theme.of(context).colorScheme.surface,
               ),
               Color.alphaBlend(
                 gradientColors[1].withValues(alpha: 0.04),
-                AppColors.surface,
+                Theme.of(context).colorScheme.surface,
               ),
             ],
           ),
           borderRadius: AppSpacing.borderRadiusLg,
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Row(
           children: [

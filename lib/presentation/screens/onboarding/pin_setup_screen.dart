@@ -169,7 +169,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                       shape: BoxShape.circle,
                       color: index < currentPin.length
                           ? AppColors.primary
-                          : AppColors.surface,
+                          : Theme.of(context).colorScheme.surface,
                       border: Border.all(
                         color: AppColors.primary,
                         width: 1.5,

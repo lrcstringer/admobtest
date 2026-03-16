@@ -427,15 +427,15 @@ class _WalletScreenState extends State<WalletScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: AppSpacing.borderRadiusMd,
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.error_outline,
-                      color: AppColors.textTertiary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                     AppSpacing.horizontalMd,
@@ -444,7 +444,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         'Could not load rewards',
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                       ),
                     ),
@@ -541,15 +541,15 @@ class _WalletScreenState extends State<WalletScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: AppSpacing.borderRadiusMd,
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.card_giftcard_outlined,
-                      color: AppColors.textTertiary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                     AppSpacing.horizontalMd,
@@ -558,7 +558,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         'No active rewards',
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                       ),
                     ),
@@ -583,15 +583,15 @@ class _WalletScreenState extends State<WalletScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: AppSpacing.borderRadiusMd,
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.card_giftcard_outlined,
-                      color: AppColors.textTertiary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                     AppSpacing.horizontalMd,
@@ -600,7 +600,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         'Complete earn activities to unlock rewards',
                         style:
                             Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                       ),
                     ),
@@ -645,9 +645,9 @@ class _WalletScreenState extends State<WalletScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: AppSpacing.borderRadiusMd,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -678,7 +678,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         item.clientName!,
                         style:
                             Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -690,7 +690,7 @@ class _WalletScreenState extends State<WalletScreen> {
               const SizedBox(width: 4),
               Icon(
                 Icons.chevron_right,
-                color: AppColors.textTertiary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 18,
               ),
             ],
@@ -780,13 +780,13 @@ class _WalletScreenState extends State<WalletScreen> {
               colors: [
                 Color.alphaBlend(
                   accentColor.withValues(alpha: 0.03),
-                  AppColors.surface,
+                  Theme.of(context).colorScheme.surface,
                 ),
-                AppColors.surface,
+                Theme.of(context).colorScheme.surface,
               ],
             ),
             borderRadius: AppSpacing.borderRadiusMd,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -850,7 +850,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -871,14 +871,14 @@ class _WalletScreenState extends State<WalletScreen> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
-                                ?.copyWith(color: AppColors.textSecondary),
+                                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
                       AppSpacing.horizontalSm,
                       Icon(
                         Icons.chevron_right,
-                        color: AppColors.textTertiary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
                     ],
@@ -901,7 +901,7 @@ class _WalletScreenState extends State<WalletScreen> {
           child: Container(
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: AppSpacing.borderRadiusMd,
             ),
             child: const Center(

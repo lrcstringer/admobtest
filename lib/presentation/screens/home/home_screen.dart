@@ -722,7 +722,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Row(
                     children: [
                       Icon(Icons.timer_outlined,
-                          size: 14, color: AppColors.textSecondary),
+                          size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -750,7 +750,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                       ),
                       Icon(Icons.chevron_right,
-                          size: 18, color: AppColors.textSecondary),
+                          size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ],
                   ),
                       ],

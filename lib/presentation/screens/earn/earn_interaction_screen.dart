@@ -539,16 +539,16 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
                 onPressed: _showExitConfirmation,
               ),
               title: Text(
                 state.selectedOpportunity?.title ?? 'Earn',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               centerTitle: true,
@@ -658,7 +658,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -736,7 +736,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                             opportunity.rewardCampaignName ?? 'Special reward',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                           ),
                         ],
@@ -931,7 +931,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                               ? 'Preparing...'
                               : 'Getting ready...',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     // Show attempt counter while loading
@@ -940,7 +940,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                       Text(
                         'Attempt ${state.adLoadAttempt} of ${AdMobConstants.maxLoadRetries}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textHint,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -956,20 +956,20 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     Icon(
                       Icons.cloud_off_rounded,
                       size: 48,
-                      color: AppColors.textHint,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     SizedBox(height: AppSpacing.md),
                     Text(
                       'Ads aren\'t available right now',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     SizedBox(height: AppSpacing.xs),
                     Text(
                       'Please try again later',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textHint,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     SizedBox(height: AppSpacing.lg),
@@ -990,13 +990,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     Icon(
                       Icons.cloud_off_rounded,
                       size: 48,
-                      color: AppColors.textHint,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     SizedBox(height: AppSpacing.md),
                     Text(
                       'Ad failed to load',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     SizedBox(height: AppSpacing.md),
@@ -1029,7 +1029,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   Text(
                     'Playing ad...',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 ],
@@ -1086,7 +1086,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           Text(
             'Your ad is about to start',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
         ],
@@ -1151,7 +1151,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         // Progress section
         Container(
           padding: EdgeInsets.all(AppSpacing.md),
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
               // Progress bar
@@ -1190,14 +1190,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
                       'Watch the full video to unlock the survey',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ),
@@ -1246,14 +1246,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.broken_image_outlined,
-                                size: 64, color: AppColors.textSecondary),
+                                size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             SizedBox(height: AppSpacing.sm),
                             Text(
                               'Failed to load image',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         );
@@ -1264,14 +1264,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.image_not_supported_outlined,
-                          size: 64, color: AppColors.textSecondary),
+                          size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       SizedBox(height: AppSpacing.sm),
                       Text(
                         'No image available',
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(color: AppColors.textSecondary),
+                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -1281,7 +1281,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         // Progress section
         Container(
           padding: EdgeInsets.all(AppSpacing.md),
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
               // Progress bar
@@ -1320,14 +1320,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
                       'View the image carefully to unlock the survey',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ),
@@ -1383,7 +1383,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               Text(
                 '${_currentQuestionIndex + 1}/$totalQuestions',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -1453,7 +1453,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           Text(
             'Tap any answer to change it before submitting.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
           SizedBox(height: AppSpacing.lg),
@@ -1508,7 +1508,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                               ),
                               SizedBox(height: 4),
@@ -1527,7 +1527,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         Icon(
                           Icons.edit_outlined,
                           size: 18,
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -1623,7 +1623,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           child: Container(
             padding: EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.divider),
+              border: Border.all(color: Theme.of(context).dividerColor),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -1660,7 +1660,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         Text(
           'Select up to $maxSel',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         SizedBox(height: AppSpacing.sm),
@@ -1699,7 +1699,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                           : Icons.check_box_outline_blank,
                       color: selected
                           ? AppColors.primary
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 24,
                     ),
                     SizedBox(width: AppSpacing.sm),
@@ -1802,14 +1802,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             Flexible(
               child: Text(lowLabel,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
             ),
             Flexible(
               child: Text(highLabel,
                   textAlign: TextAlign.end,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
             ),
           ],
@@ -1842,7 +1842,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         '$val',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: selected ? Colors.white : AppColors.textSecondary,
+                          color: selected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -1893,7 +1893,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   starVal <= _starRating ? Icons.star : Icons.star_border,
                   color: starVal <= _starRating
                       ? Colors.amber
-                      : AppColors.textSecondary,
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 40,
                 ),
               ),
@@ -2273,7 +2273,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           Text(
             '$totalRespondents vote${totalRespondents == 1 ? '' : 's'}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
           SizedBox(height: AppSpacing.md),
@@ -2317,7 +2317,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                               fontWeight: FontWeight.bold,
                               color: isMyVote
                                   ? AppColors.primary
-                                  : AppColors.textSecondary,
+                                  : Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                       ),
                       SizedBox(width: AppSpacing.xs),
@@ -2326,7 +2326,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall
-                            ?.copyWith(color: AppColors.textSecondary),
+                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -2392,7 +2392,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           Text(
             'Please wait',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
         ],
@@ -2422,7 +2422,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               state.errorMessage ?? 'Please try again',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             SizedBox(height: AppSpacing.lg),
@@ -2470,7 +2470,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             _videoErrorMessage ?? 'Please check your connection',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
           SizedBox(height: AppSpacing.md),
@@ -2729,7 +2729,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               child: Text(
                 'Context',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ),
@@ -2738,7 +2738,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 aspectRatio: 16 / 9,
                 child: Center(
                   child: Icon(Icons.play_circle_outline,
-                      size: 48, color: AppColors.textSecondary),
+                      size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               )
             else
@@ -2752,7 +2752,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     height: 100,
                     child: Center(
                       child: Icon(Icons.broken_image_outlined,
-                          color: AppColors.textSecondary),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -2956,8 +2956,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     Color? accentColor,
   }) {
     final borderColor = accentColor?.withValues(alpha: 0.3) ??
-        AppColors.textHint.withValues(alpha: 0.4);
-    final iconColor = accentColor?.withValues(alpha: 0.6) ?? AppColors.textHint;
+        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
+    final iconColor = accentColor?.withValues(alpha: 0.6) ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     return GestureDetector(
       onTap: onTap,
@@ -2970,7 +2970,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           height: height,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevated,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: AppSpacing.borderRadiusMd,
           ),
           child: Column(
@@ -2981,7 +2981,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -3702,7 +3702,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 Text(
                   'Estimated upload size',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
                 Text(
@@ -3721,7 +3721,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   Text(
                     'Estimated data cost',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   Text(
@@ -3758,7 +3758,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               Text(
                 'This may take a moment',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ] else ...[
@@ -3780,7 +3780,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 '${UploadService.formatBytes(_uploadBytesTransferred)} / '
                 '${UploadService.formatBytes(_uploadTotalBytes)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
               if (_uploadProgress > 0) ...[
@@ -3810,7 +3810,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             ? Colors.white.withValues(alpha: 0.2)
             : required
                 ? AppColors.error.withValues(alpha: 0.1)
-                : AppColors.textHint.withValues(alpha: 0.1),
+                : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -3820,7 +3820,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   ? Colors.white
                   : required
                       ? AppColors.error
-                      : AppColors.textHint,
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
       ),
     );
@@ -3833,12 +3833,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         final size = snapshot.data ?? 0;
         return Row(
           children: [
-            Icon(Icons.storage_outlined, size: 14, color: AppColors.textHint),
+            Icon(Icons.storage_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
             SizedBox(width: AppSpacing.xs),
             Text(
               UploadService.formatBytes(size),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ],

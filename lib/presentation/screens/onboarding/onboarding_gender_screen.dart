@@ -127,7 +127,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(30),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -139,7 +139,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                               style: TextStyle(color: AppColors.textHint),
                             ),
                             isExpanded: true,
-                            dropdownColor: AppColors.surface,
+                            dropdownColor: Theme.of(context).colorScheme.surface,
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16,

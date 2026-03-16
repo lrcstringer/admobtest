@@ -42,14 +42,31 @@ class BottomNavBar extends StatelessWidget {
     ),
   ];
 
+  /// Buy tab always uses light chrome regardless of theme mode.
+  static const _buyTabIndex = 3;
+  /// Chat tab always uses dark chrome regardless of theme mode.
+  static const _chatTabIndex = 2;
+
   @override
   Widget build(BuildContext context) {
     final themed = AppColors.themed(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isBuyTab = currentIndex == _buyTabIndex;
+    final isChatTab = currentIndex == _chatTabIndex;
+
+    // Buy tab always white, Chat tab always dark, others follow theme.
+    final Color navBg;
+    if (isBuyTab) {
+      navBg = const Color(0xFFFFFFFF);
+    } else if (isChatTab) {
+      navBg = ThemedColors.dark.navBackground;
+    } else {
+      navBg = themed.navBackground;
+    }
 
     return Container(
       decoration: BoxDecoration(
-        color: themed.navBackground,
+        color: navBg,
         border: Border(
           top: BorderSide(
             color: Theme.of(context).dividerColor,
@@ -66,12 +83,14 @@ class BottomNavBar extends StatelessWidget {
             children: List.generate(_items.length, (index) {
               final item = _items[index];
               final isActive = index == currentIndex;
+              // Buy tab = always light icons, Chat tab = always dark icons
+              final effectiveDark = isChatTab || (isDark && !isBuyTab);
               return _buildNavItem(
                 context,
                 item,
                 isActive,
                 index,
-                isDark: isDark,
+                isDark: effectiveDark,
                 themed: themed,
               );
             }),
@@ -92,31 +111,19 @@ class BottomNavBar extends StatelessWidget {
     // Show badge for Chat tab (index 2) when there are unread messages
     final badgeCount = index == 2 ? chatUnreadCount : 0;
 
-    // PNG icons are gradient-colored for dark backgrounds.
-    // In light mode, tint them dark so they're visible on white.
+    // PNG icons are gradient-colored — use them as-is in all modes.
     Widget buildIcon() {
       if (item.assetPath != null) {
-        final image = Image.asset(
+        return Image.asset(
           item.assetPath!,
           width: 28,
           height: 28,
           fit: BoxFit.contain,
         );
-        if (!isDark) {
-          return ColorFiltered(
-            colorFilter: const ColorFilter.mode(
-              Color(0xFF1A1A2E),
-              BlendMode.srcIn,
-            ),
-            child: image,
-          );
-        }
-        return image;
       }
       return Icon(
         item.icon,
         size: 28,
-        color: isDark ? Colors.white : const Color(0xFF1A1A2E),
       );
     }
 
@@ -188,8 +195,8 @@ class BottomNavBar extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color: isActive
-                    ? Theme.of(context).colorScheme.onSurface
-                    : themed.navInactive,
+                    ? (isDark ? Theme.of(context).colorScheme.onSurface : const Color(0xFF1A1A2E))
+                    : (isDark ? themed.navInactive : const Color(0xFF94A3B8)),
               ),
             ),
           ],

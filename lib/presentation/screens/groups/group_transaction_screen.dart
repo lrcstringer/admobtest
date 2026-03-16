@@ -81,9 +81,9 @@ class _GroupTransactionScreenState extends State<GroupTransactionScreen> {
                       width: double.infinity,
                       padding: AppSpacing.cardPadding,
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: AppSpacing.borderRadiusMd,
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: Theme.of(context).colorScheme.outline),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +167,7 @@ class _GroupTransactionScreenState extends State<GroupTransactionScreen> {
                         color: isContribution ? AppColors.success : AppColors.primary,
                       ),
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     style: Theme.of(context).textTheme.headlineSmall,

@@ -307,7 +307,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                       width: 60,
                                       height: 60,
                                       decoration: BoxDecoration(
-                                        color: AppColors.surface,
+                                        color: Theme.of(context).colorScheme.surface,
                                         borderRadius:
                                             BorderRadius.circular(12),
                                         border: Border.all(

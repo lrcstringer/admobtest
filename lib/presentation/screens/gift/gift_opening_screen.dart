@@ -111,7 +111,7 @@ class _GiftOpeningScreenState extends State<GiftOpeningScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: SafeArea(
           child: Column(
             children: [

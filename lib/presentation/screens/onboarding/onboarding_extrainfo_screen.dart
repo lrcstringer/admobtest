@@ -137,7 +137,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -146,7 +146,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
           value: value,
           hint: Text(hint, style: const TextStyle(color: AppColors.textHint)),
           isExpanded: true,
-          dropdownColor: AppColors.surface,
+          dropdownColor: Theme.of(context).colorScheme.surface,
           style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
           icon: const Icon(Icons.arrow_drop_down,
               color: AppColors.textSecondary),
@@ -287,7 +287,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24, vertical: 14),
                                   decoration: BoxDecoration(
-                                    color: AppColors.surface,
+                                    color: Theme.of(context).colorScheme.surface,
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                   child: Row(
@@ -377,7 +377,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                               const SizedBox(height: 8),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.surface,
+                                  color: Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: TextField(

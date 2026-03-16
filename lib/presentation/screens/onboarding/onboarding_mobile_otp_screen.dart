@@ -212,7 +212,7 @@ class _OnboardingMobileOtpScreenState
                         decoration: InputDecoration(
                           counterText: '',
                           filled: true,
-                          fillColor: AppColors.surface,
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
