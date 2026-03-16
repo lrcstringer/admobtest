@@ -113,12 +113,12 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
 
             return SingleChildScrollView(
               child: TabBackground(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: AppColors.walletGradient,
+                  colors: AppColors.themed(context).tabGradient,
                 ),
-                overlayAsset: AppColors.waveOverlay,
+                overlayAsset: null,
                 child: Padding(
                   padding: AppSpacing.pagePadding,
                   child: Column(

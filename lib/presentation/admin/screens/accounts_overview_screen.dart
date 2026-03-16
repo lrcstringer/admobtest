@@ -347,7 +347,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -509,7 +509,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -558,7 +558,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -999,7 +999,7 @@ class _AccountsOverviewScreenState extends State<AccountsOverviewScreen> {
       margin: const EdgeInsets.only(left: 32, right: 16, bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.backgroundDark,
+        color: AppColors.adminBackground,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.borderDark),
       ),
@@ -1122,7 +1122,7 @@ class _StatCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

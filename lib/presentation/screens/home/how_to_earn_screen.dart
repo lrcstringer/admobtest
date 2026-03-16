@@ -15,12 +15,12 @@ class HowToEarnScreen extends StatelessWidget {
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: TabBackground(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: AppColors.homeGradient,
+            colors: AppColors.themed(context).tabGradient,
           ),
-          overlayAsset: AppColors.waveOverlay,
+          overlayAsset: null,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
             child: Column(

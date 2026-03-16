@@ -52,7 +52,7 @@ class _AccountsActionScreenState extends State<AccountsActionScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Initialize Trust Ledger',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -130,7 +130,7 @@ class _AccountsActionScreenState extends State<AccountsActionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -263,7 +263,7 @@ class _AccountsActionScreenState extends State<AccountsActionScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -441,7 +441,7 @@ class _FundClientDialogState extends State<_FundClientDialog> {
         : 0;
 
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Fund Client Account',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -666,7 +666,7 @@ class _FundSubAccountDialogState extends State<_FundSubAccountDialog> {
         subAcc != null ? ((subAcc['balance'] as num?)?.toInt() ?? 0) : 0;
 
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Fund Client Sub-Account',
         style: TextStyle(color: AppColors.textPrimaryDark),

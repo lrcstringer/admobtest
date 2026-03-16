@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import '../../../core/di/injection.dart';
 import '../../../core/services/notification_service.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../blocs/conversation/conversation_bloc.dart';
+import '../../theme/app_colors.dart';
 import '../../widgets/common/bottom_nav_bar.dart';
 import '../../widgets/messaging/active_call_overlay.dart';
 
@@ -39,25 +41,38 @@ class MainShell extends StatelessWidget {
     // Sync the launcher icon badge count (idempotent, cheap to call on rebuild)
     NotificationService.updateBadgeCount(totalUnread);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          const ActiveCallOverlay(),
-          Expanded(child: navigationShell),
-        ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themed = AppColors.themed(context);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: themed.navBackground,
+        systemNavigationBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
       ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: navigationShell.currentIndex,
-        chatUnreadCount: totalUnread,
-        onTap: (index) {
-          // Persist the selected tab so we can restore it after process death.
-          getIt<SharedPreferences>().setInt(lastTabKey, index);
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            const ActiveCallOverlay(),
+            Expanded(child: navigationShell),
+          ],
+        ),
+        bottomNavigationBar: BottomNavBar(
+          currentIndex: navigationShell.currentIndex,
+          chatUnreadCount: totalUnread,
+          onTap: (index) {
+            // Persist the selected tab so we can restore it after process death.
+            getIt<SharedPreferences>().setInt(lastTabKey, index);
+            navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            );
+          },
+        ),
       ),
     );
   }

@@ -12,12 +12,12 @@ class BonusNetworkScreen extends StatelessWidget {
     return Scaffold(
       appBar: IMaliAppBar(title: 'The Bonus Network'),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.homeGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: const Center(
           child: Text(
             'The Bonus Network\nComing Soon',

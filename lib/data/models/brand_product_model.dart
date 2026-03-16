@@ -26,6 +26,7 @@ abstract class BrandProductModel with _$BrandProductModel {
     String? voucherInstructions,
     String? collectionAddress,
     String? deliveryInfo,
+    String? externalUrl,
     required DateTime createdAt,
   }) = _BrandProductModel;
 
@@ -50,6 +51,7 @@ abstract class BrandProductModel with _$BrandProductModel {
       voucherInstructions: json['voucherInstructions'] as String?,
       collectionAddress: json['collectionAddress'] as String?,
       deliveryInfo: json['deliveryInfo'] as String?,
+      externalUrl: json['externalUrl'] as String?,
       createdAt: json['createdAt'] is Timestamp
           ? (json['createdAt'] as Timestamp).toDate()
           : DateTime.fromMillisecondsSinceEpoch(0),
@@ -75,6 +77,7 @@ abstract class BrandProductModel with _$BrandProductModel {
         'voucherInstructions': voucherInstructions,
       if (collectionAddress != null) 'collectionAddress': collectionAddress,
       if (deliveryInfo != null) 'deliveryInfo': deliveryInfo,
+      if (externalUrl != null) 'externalUrl': externalUrl,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }

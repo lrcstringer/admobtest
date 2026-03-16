@@ -126,7 +126,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -311,7 +311,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
       return Container(
         padding: const EdgeInsets.all(48),
         decoration: BoxDecoration(
-          color: AppColors.cardDark,
+          color: AppColors.adminCard,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -360,7 +360,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -441,7 +441,7 @@ class _RewardCampaignScreenState extends State<RewardCampaignScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.backgroundDark,
+                    color: AppColors.adminBackground,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.more_vert,
@@ -1664,7 +1664,7 @@ class _StatCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

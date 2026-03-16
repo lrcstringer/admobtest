@@ -38,7 +38,8 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Saved Items',
           style: TextStyle(

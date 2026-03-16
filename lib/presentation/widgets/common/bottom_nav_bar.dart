@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../theme/themed_colors.dart';
 
 /// Custom bottom navigation bar with brand gradient PNG icons.
 /// Styled to match the iMali brand (not flat Material 3).
@@ -43,12 +44,15 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themed = AppColors.themed(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: themed.navBackground,
         border: Border(
           top: BorderSide(
-            color: AppColors.divider,
+            color: Theme.of(context).dividerColor,
             width: 0.5,
           ),
         ),
@@ -62,7 +66,14 @@ class BottomNavBar extends StatelessWidget {
             children: List.generate(_items.length, (index) {
               final item = _items[index];
               final isActive = index == currentIndex;
-              return _buildNavItem(item, isActive, index);
+              return _buildNavItem(
+                context,
+                item,
+                isActive,
+                index,
+                isDark: isDark,
+                themed: themed,
+              );
             }),
           ),
         ),
@@ -70,9 +81,44 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(_NavItem item, bool isActive, int index) {
+  Widget _buildNavItem(
+    BuildContext context,
+    _NavItem item,
+    bool isActive,
+    int index, {
+    required bool isDark,
+    required ThemedColors themed,
+  }) {
     // Show badge for Chat tab (index 2) when there are unread messages
     final badgeCount = index == 2 ? chatUnreadCount : 0;
+
+    // PNG icons are gradient-colored for dark backgrounds.
+    // In light mode, tint them dark so they're visible on white.
+    Widget buildIcon() {
+      if (item.assetPath != null) {
+        final image = Image.asset(
+          item.assetPath!,
+          width: 28,
+          height: 28,
+          fit: BoxFit.contain,
+        );
+        if (!isDark) {
+          return ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Color(0xFF1A1A2E),
+              BlendMode.srcIn,
+            ),
+            child: image,
+          );
+        }
+        return image;
+      }
+      return Icon(
+        item.icon,
+        size: 28,
+        color: isDark ? Colors.white : const Color(0xFF1A1A2E),
+      );
+    }
 
     return GestureDetector(
       onTap: () => onTap(index),
@@ -105,18 +151,7 @@ class BottomNavBar extends StatelessWidget {
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
                     opacity: isActive ? 1.0 : 0.45,
-                    child: item.assetPath != null
-                        ? Image.asset(
-                            item.assetPath!,
-                            width: 28,
-                            height: 28,
-                            fit: BoxFit.contain,
-                          )
-                        : Icon(
-                            item.icon,
-                            size: 28,
-                            color: Colors.white,
-                          ),
+                    child: buildIcon(),
                   ),
                 ),
                 if (badgeCount > 0)
@@ -153,8 +188,8 @@ class BottomNavBar extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color: isActive
-                    ? AppColors.textPrimary
-                    : AppColors.navInactive,
+                    ? Theme.of(context).colorScheme.onSurface
+                    : themed.navInactive,
               ),
             ),
           ],

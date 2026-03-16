@@ -169,7 +169,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -224,7 +224,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text(
           'Sub-Accounts — $displayName',
           style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -249,7 +249,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.backgroundDark,
+                          color: AppColors.adminBackground,
                           borderRadius: BorderRadius.circular(8),
                           border: isDefault
                               ? Border.all(
@@ -392,7 +392,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'User Details',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -495,7 +495,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final filtered = _filteredUsers;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -587,7 +587,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -636,7 +636,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -937,7 +937,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

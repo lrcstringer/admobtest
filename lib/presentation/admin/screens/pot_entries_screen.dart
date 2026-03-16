@@ -85,10 +85,10 @@ class _PotEntriesScreenState extends State<PotEntriesScreen> {
     final typeLabel = _potType == 'weekly' ? 'Weekly' : 'Daily';
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       appBar: AppBar(
         title: Text('$typeLabel Pot Entries'),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
       ),
       body: _loading
           ? const Center(
@@ -209,7 +209,7 @@ class _PotEntriesScreenState extends State<PotEntriesScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.surfaceElevated),
       ),
@@ -331,7 +331,7 @@ class _PotEntriesScreenState extends State<PotEntriesScreen> {
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: AppColors.cardDark,
+              color: AppColors.adminCard,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.surfaceElevated),
             ),
@@ -410,7 +410,7 @@ class _PotEntriesScreenState extends State<PotEntriesScreen> {
       decoration: compact
           ? null
           : BoxDecoration(
-              color: AppColors.cardDark,
+              color: AppColors.adminCard,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: AppColors.surfaceElevated),
             ),

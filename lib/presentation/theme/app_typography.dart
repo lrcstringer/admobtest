@@ -21,7 +21,7 @@ class AppTypography {
           fontSize: 48,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.48, // -1%
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Display Medium: 45px
         displayMedium: TextStyle(
@@ -29,7 +29,7 @@ class AppTypography {
           fontSize: 45,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.45,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Display Small: 36px
         displaySmall: TextStyle(
@@ -37,7 +37,7 @@ class AppTypography {
           fontSize: 36,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.36,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // H1: 32px Bold -0.5% tracking
         headlineLarge: TextStyle(
@@ -45,28 +45,28 @@ class AppTypography {
           fontSize: 32,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.16, // -0.5%
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // H2: 24px SemiBold
         headlineMedium: TextStyle(
           fontFamily: _fontFamily,
           fontSize: 24,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // H3: 18px SemiBold
         headlineSmall: TextStyle(
           fontFamily: _fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Title Large: 22px SemiBold
         titleLarge: TextStyle(
           fontFamily: _fontFamily,
           fontSize: 22,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Title Medium: 16px Medium
         titleMedium: TextStyle(
@@ -74,7 +74,7 @@ class AppTypography {
           fontSize: 16,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.15,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Title Small: 14px Medium
         titleSmall: TextStyle(
@@ -82,7 +82,7 @@ class AppTypography {
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Body Large: 15px Regular, line-height 1.6
         bodyLarge: TextStyle(
@@ -90,7 +90,7 @@ class AppTypography {
           fontSize: 15,
           fontWeight: FontWeight.w400,
           height: 1.6,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Body Medium: 14px Regular
         bodyMedium: TextStyle(
@@ -98,7 +98,7 @@ class AppTypography {
           fontSize: 14,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.25,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Body Small: 12px Regular
         bodySmall: TextStyle(
@@ -106,7 +106,7 @@ class AppTypography {
           fontSize: 12,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.4,
-          color: AppColors.textSecondary,
+          color: AppColors.buyTextSecondary,
         ),
         // Label Large: 14px Medium
         labelLarge: TextStyle(
@@ -114,7 +114,7 @@ class AppTypography {
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.1,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Caption: 13px Medium, 0.5% tracking
         labelMedium: TextStyle(
@@ -122,7 +122,7 @@ class AppTypography {
           fontSize: 13,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.065, // 0.5%
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
         // Overline: 11px SemiBold, 5% tracking (UPPERCASE)
         labelSmall: TextStyle(
@@ -130,7 +130,7 @@ class AppTypography {
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.55, // 5%
-          color: AppColors.textSecondary,
+          color: AppColors.buyTextSecondary,
         ),
       );
 

@@ -327,7 +327,10 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
     return GestureDetector(
       onTap: widget.interactive
           ? () {
-              if (deepLink.startsWith('/')) {
+              if (deepLink.startsWith('http://') ||
+                  deepLink.startsWith('https://')) {
+                _launchUrl(deepLink);
+              } else if (deepLink.startsWith('/')) {
                 try {
                   context.push(deepLink);
                 } catch (e) {
@@ -595,7 +598,14 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: GestureDetector(
         onTap: widget.interactive && storefront.bannerDeepLink != null
-            ? () => context.push(storefront.bannerDeepLink!)
+            ? () {
+                final link = storefront.bannerDeepLink!;
+                if (link.startsWith('http://') || link.startsWith('https://')) {
+                  _launchUrl(link);
+                } else {
+                  context.push(link);
+                }
+              }
             : null,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -984,33 +994,47 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
     if (text == null || text.isEmpty) return const SizedBox.shrink();
     if (_announcementDismissed) return const SizedBox.shrink();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: AppColors.parseHex(storefront.accentColor),
-      child: Row(
-        children: [
-          const Icon(Icons.campaign, color: Colors.white, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+    final deepLink = storefront.announcementDeepLink;
+
+    return GestureDetector(
+      onTap: widget.interactive && deepLink != null && deepLink.isNotEmpty
+          ? () {
+              if (deepLink.startsWith('http://') ||
+                  deepLink.startsWith('https://')) {
+                _launchUrl(deepLink);
+              } else if (deepLink.startsWith('/')) {
+                context.push(deepLink);
+              }
+            }
+          : null,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        color: AppColors.parseHex(storefront.accentColor),
+        child: Row(
+          children: [
+            const Icon(Icons.campaign, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          if (storefront.announcementDismissible && widget.interactive)
-            GestureDetector(
-              onTap: () => setState(() => _announcementDismissed = true),
-              child:
-                  const Icon(Icons.close, color: Colors.white70, size: 16),
-            ),
-        ],
+            if (storefront.announcementDismissible && widget.interactive)
+              GestureDetector(
+                onTap: () => setState(() => _announcementDismissed = true),
+                child:
+                    const Icon(Icons.close, color: Colors.white70, size: 16),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -1476,7 +1500,15 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
                   return Expanded(
                     child: GestureDetector(
                       onTap: widget.interactive && a['deepLink'] != null
-                          ? () => context.push(a['deepLink'] as String)
+                          ? () {
+                              final link = a['deepLink'] as String;
+                              if (link.startsWith('http://') ||
+                                  link.startsWith('https://')) {
+                                _launchUrl(link);
+                              } else {
+                                context.push(link);
+                              }
+                            }
                           : null,
                       child: Column(
                         children: [
@@ -1624,7 +1656,14 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
                               ),
                               if (widget.interactive && deepLink != null)
                                 GestureDetector(
-                                  onTap: () => context.push(deepLink),
+                                  onTap: () {
+                                    if (deepLink.startsWith('http://') ||
+                                        deepLink.startsWith('https://')) {
+                                      _launchUrl(deepLink);
+                                    } else {
+                                      context.push(deepLink);
+                                    }
+                                  },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 4),

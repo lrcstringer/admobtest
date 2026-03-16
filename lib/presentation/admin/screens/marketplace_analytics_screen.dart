@@ -136,7 +136,7 @@ class _MarketplaceAnalyticsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -154,7 +154,8 @@ class _MarketplaceAnalyticsScreenState
                           Text('Marketplace Analytics',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Performance metrics and insights',
                               style: TextStyle(
@@ -223,7 +224,7 @@ class _MarketplaceAnalyticsScreenState
                               vertical: 10, horizontal: 16),
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            color: AppColors.cardDark,
+                            color: AppColors.adminCard,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -267,7 +268,7 @@ class _MarketplaceAnalyticsScreenState
                             vertical: 10, horizontal: 16),
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
-                          color: AppColors.cardDark,
+                          color: AppColors.adminCard,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -344,7 +345,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -361,7 +362,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(

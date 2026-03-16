@@ -165,7 +165,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
           builder: (ctx, setDialogState) {
             final hasChanged = !_setEquals(selectedRoles, currentRoles.toSet());
             return AlertDialog(
-              backgroundColor: AppColors.cardDark,
+              backgroundColor: AppColors.adminCard,
               title: const Text(
                 'Change Roles',
                 style: TextStyle(color: AppColors.textPrimaryDark),
@@ -267,7 +267,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Force Sign Out',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -324,7 +324,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Revoke Access',
           style: TextStyle(color: AppColors.error),
@@ -430,7 +430,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     final filtered = _filteredAdmins;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -515,7 +515,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -588,7 +588,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -864,7 +864,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1052,7 +1052,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text(
               'Password Reset Link',
               style: TextStyle(color: AppColors.textPrimaryDark),
@@ -1110,7 +1110,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Add Admin User',
         style: TextStyle(color: AppColors.textPrimaryDark),

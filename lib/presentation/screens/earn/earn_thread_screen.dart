@@ -39,12 +39,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
             title: thread?.title ?? 'Opportunities',
           ),
           body: TabBackground(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: AppColors.earnGradient,
+              colors: AppColors.themed(context).tabGradient,
             ),
-            overlayAsset: AppColors.waveOverlay,
+            overlayAsset: null,
             child: _buildBody(context, state),
           ),
         );

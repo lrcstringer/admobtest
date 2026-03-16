@@ -27,7 +27,8 @@ class BuySubcategoryListScreen extends StatelessWidget {
       backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: categoryName,
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: Container(
         decoration: BoxDecoration(

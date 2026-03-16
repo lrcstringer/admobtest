@@ -32,18 +32,38 @@ class BrandStorefrontHero extends StatelessWidget {
 
     if (storefront.heroStyle == HeroStyle.fullBleedImage &&
         heroImage != null) {
-      return SizedBox(
-        height: height ?? 200,
-        width: double.infinity,
-        child: CachedNetworkImage(
-          imageUrl: heroImage,
-          fit: BoxFit.cover,
-          memCacheWidth: maxImageCacheWidth,
-          placeholder: (_, _) => Container(color: AppColors.buyCard),
-          errorWidget: (_, _, _) => _GradientHero(
-            storefront: storefront,
-            height: height ?? 160,
+      // When a fixed height is provided (e.g. miniature card previews),
+      // use cover to fill the box. Otherwise let the image determine
+      // its own height so nothing gets cropped.
+      final fixedHeight = height;
+      if (fixedHeight != null) {
+        return SizedBox(
+          height: fixedHeight,
+          width: double.infinity,
+          child: CachedNetworkImage(
+            imageUrl: heroImage,
+            fit: BoxFit.cover,
+            memCacheWidth: maxImageCacheWidth,
+            placeholder: (_, _) => Container(color: AppColors.buyCard),
+            errorWidget: (_, _, _) => _GradientHero(
+              storefront: storefront,
+              height: fixedHeight,
+            ),
           ),
+        );
+      }
+      return CachedNetworkImage(
+        imageUrl: heroImage,
+        width: double.infinity,
+        fit: BoxFit.fitWidth,
+        memCacheWidth: maxImageCacheWidth,
+        placeholder: (_, _) => const SizedBox(
+          height: 200,
+          child: ColoredBox(color: AppColors.buyCard),
+        ),
+        errorWidget: (_, _, _) => _GradientHero(
+          storefront: storefront,
+          height: 160,
         ),
       );
     }

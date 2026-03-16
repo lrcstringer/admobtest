@@ -46,8 +46,8 @@ class _EarnScreenState extends State<EarnScreen> {
               return Stack(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.notifications_outlined,
-                        color: AppColors.textPrimary),
+                    icon: Icon(Icons.notifications_outlined,
+                        color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () => _showNotificationsSheet(context),
                   ),
                   if (state.unreadNotificationCount > 0)
@@ -80,7 +80,7 @@ class _EarnScreenState extends State<EarnScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.history, color: AppColors.textPrimary),
+            icon: Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () => EngagementHistorySheet.show(context),
           ),
         ],
@@ -122,12 +122,12 @@ class _EarnScreenState extends State<EarnScreen> {
             if (state.status == EarnInboxStatus.loading &&
                 state.clients.isEmpty) {
               return TabBackground(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: AppColors.earnGradient,
+                    colors: AppColors.themed(context).tabGradient,
                   ),
-                  overlayAsset: AppColors.waveOverlay,
+                  overlayAsset: AppColors.themed(context).waveOverlay,
                   child: const Center(child: CircularProgressIndicator()));
             }
 
@@ -140,12 +140,12 @@ class _EarnScreenState extends State<EarnScreen> {
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: TabBackground(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: AppColors.earnGradient,
+                    colors: AppColors.themed(context).tabGradient,
                   ),
-                  overlayAsset: AppColors.waveOverlay,
+                  overlayAsset: AppColors.themed(context).waveOverlay,
                   child: Padding(
                     padding: AppSpacing.pagePadding,
                     child: Column(

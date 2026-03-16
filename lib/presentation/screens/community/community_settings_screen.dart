@@ -132,7 +132,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
             child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(

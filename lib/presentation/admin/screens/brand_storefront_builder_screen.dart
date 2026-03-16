@@ -552,7 +552,7 @@ class _BrandStorefrontBuilderScreenState
     return Focus(
       onKeyEvent: _handleKeyEvent,
       child: Scaffold(
-        backgroundColor: AppColors.backgroundDark,
+        backgroundColor: AppColors.adminBackground,
         appBar: _buildAppBar(),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -577,7 +577,7 @@ class _BrandStorefrontBuilderScreenState
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.adminSurface,
       elevation: 2,
       shadowColor: Colors.black45,
       leading: IconButton(
@@ -588,7 +588,7 @@ class _BrandStorefrontBuilderScreenState
             showDialog<bool>(
               context: context,
               builder: (ctx) => AlertDialog(
-                backgroundColor: AppColors.cardDark,
+                backgroundColor: AppColors.adminCard,
                 title: const Text('Unsaved changes'),
                 content:
                     const Text('Save before leaving?'),
@@ -683,7 +683,7 @@ class _BrandStorefrontBuilderScreenState
       children: [
         // Tab bar
         Container(
-          color: AppColors.cardDark,
+          color: AppColors.adminCard,
           child: TabBar(
             controller: _tabController,
             isScrollable: true,
@@ -723,7 +723,7 @@ class _BrandStorefrontBuilderScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
+        color: AppColors.adminSurface,
         border: Border(
           top: BorderSide(color: AppColors.borderDark.withValues(alpha: 0.5)),
         ),
@@ -823,7 +823,7 @@ class _BrandStorefrontBuilderScreenState
             children: _templates.keys.map((name) {
               return ActionChip(
                 label: Text(name),
-                backgroundColor: AppColors.surfaceDark,
+                backgroundColor: AppColors.adminSurface,
                 labelStyle: const TextStyle(color: AppColors.textPrimary),
                 onPressed: () => _applyTemplate(name),
               );
@@ -924,7 +924,7 @@ class _BrandStorefrontBuilderScreenState
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: _heroStyle,
-          dropdownColor: AppColors.cardDark,
+          dropdownColor: AppColors.adminCard,
           style: const TextStyle(color: AppColors.textPrimary),
           decoration: _inputDecoration(''),
           items: const [
@@ -1032,7 +1032,7 @@ class _BrandStorefrontBuilderScreenState
                             _heroFocalPointY * 2 - 1,
                           ),
                           errorWidget: (_, _, _) => Container(
-                            color: AppColors.surfaceDark,
+                            color: AppColors.adminSurface,
                             child: const Center(
                                 child: Text('Image load error',
                                     style: TextStyle(
@@ -1102,7 +1102,7 @@ class _BrandStorefrontBuilderScreenState
                 icon: const Icon(Icons.add_circle_outline,
                     color: AppColors.primary),
                 tooltip: 'Add section',
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 onSelected: (type) {
                   _sectionOrder.add(type);
                   _markDirty();
@@ -1143,7 +1143,7 @@ class _BrandStorefrontBuilderScreenState
                     final editable = _isSectionEditable(type);
                     return ListTile(
                       key: ValueKey('$type-$index'),
-                      tileColor: AppColors.surfaceDark,
+                      tileColor: AppColors.adminSurface,
                       leading: Icon(_sectionIcon(type),
                           color: isVisible
                               ? AppColors.textSecondary
@@ -1297,7 +1297,7 @@ class _BrandStorefrontBuilderScreenState
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.surfaceDark,
+          backgroundColor: AppColors.adminSurface,
           title: Text(title,
               style: const TextStyle(color: AppColors.textPrimary)),
           content: SizedBox(
@@ -1328,7 +1328,7 @@ class _BrandStorefrontBuilderScreenState
           borderRadius: BorderRadius.circular(8),
         ),
         filled: true,
-        fillColor: AppColors.cardDark,
+        fillColor: AppColors.adminCard,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       );
@@ -1435,7 +1435,7 @@ class _BrandStorefrontBuilderScreenState
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: Text(editIndex != null ? 'Edit Action' : 'Add Action',
             style: const TextStyle(color: AppColors.textPrimary)),
         content: Column(
@@ -1625,7 +1625,7 @@ class _BrandStorefrontBuilderScreenState
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: Text(editIndex != null ? 'Edit Promotion' : 'Add Promotion',
             style: const TextStyle(color: AppColors.textPrimary)),
         content: Column(
@@ -1882,7 +1882,7 @@ class _BrandStorefrontBuilderScreenState
                   style: TextStyle(color: AppColors.textPrimary)),
               value: _data['announcementDismissible'] != false,
               activeThumbColor: AppColors.primary,
-              tileColor: AppColors.cardDark,
+              tileColor: AppColors.adminCard,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               onChanged: (v) {
@@ -1996,7 +1996,7 @@ class _BrandStorefrontBuilderScreenState
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.surfaceDark,
+          backgroundColor: AppColors.adminSurface,
           title: Text(editIndex != null ? 'Edit Video' : 'Add Video',
               style: const TextStyle(color: AppColors.textPrimary)),
           content: SingleChildScrollView(
@@ -2301,7 +2301,7 @@ class _BrandStorefrontBuilderScreenState
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.surfaceDark,
+          backgroundColor: AppColors.adminSurface,
           title: Text(editIndex != null ? 'Edit Coupon' : 'Add Coupon',
               style: const TextStyle(color: AppColors.textPrimary)),
           content: SingleChildScrollView(
@@ -2340,7 +2340,7 @@ class _BrandStorefrontBuilderScreenState
                       style: TextStyle(color: AppColors.textPrimary)),
                   value: isActive,
                   activeThumbColor: AppColors.primary,
-                  tileColor: AppColors.cardDark,
+                  tileColor: AppColors.adminCard,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                   onChanged: (v) =>
@@ -2488,7 +2488,7 @@ class _BrandStorefrontBuilderScreenState
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: Text(editIndex != null ? 'Edit FAQ' : 'Add FAQ',
             style: const TextStyle(color: AppColors.textPrimary)),
         content: Column(
@@ -2639,7 +2639,7 @@ class _BrandStorefrontBuilderScreenState
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: Text(
             editIndex != null ? 'Edit Location' : 'Add Location',
             style: const TextStyle(color: AppColors.textPrimary)),
@@ -2922,7 +2922,7 @@ class _BrandStorefrontBuilderScreenState
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isActive
@@ -2943,13 +2943,13 @@ class _BrandStorefrontBuilderScreenState
                     imageUrl: imageUrl,
                     fit: BoxFit.cover,
                     errorWidget: (_, _, _) => Container(
-                      color: AppColors.surfaceDark,
+                      color: AppColors.adminSurface,
                       child: const Icon(Icons.image_not_supported,
                           size: 20, color: AppColors.textTertiary),
                     ),
                   )
                 : Container(
-                    color: AppColors.surfaceDark,
+                    color: AppColors.adminSurface,
                     child: const Icon(Icons.inventory_2_outlined,
                         size: 20, color: AppColors.textTertiary),
                   ),
@@ -3066,7 +3066,7 @@ class _BrandStorefrontBuilderScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Delete Product',
             style: TextStyle(color: AppColors.textPrimary)),
         content: Text(
@@ -3132,6 +3132,8 @@ class _BrandStorefrontBuilderScreenState
         text: existing?['collectionAddress'] as String? ?? '');
     final deliveryCtrl = TextEditingController(
         text: existing?['deliveryInfo'] as String? ?? '');
+    final externalUrlCtrl = TextEditingController(
+        text: existing?['externalUrl'] as String? ?? '');
     final stockCtrl = TextEditingController(
         text: (existing?['stockCount'] as num?)?.toString() ?? '');
 
@@ -3153,7 +3155,7 @@ class _BrandStorefrontBuilderScreenState
               priceZar != null ? (priceZar * 100).round() : null;
 
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: Text(
               isEdit ? 'Edit Product' : 'Add Product',
               style: const TextStyle(color: AppColors.textPrimary),
@@ -3174,13 +3176,15 @@ class _BrandStorefrontBuilderScreenState
                     ),
                     const SizedBox(height: 12),
 
-                    // Description
+                    // Description (supports Markdown)
                     TextField(
                       controller: descCtrl,
-                      maxLines: 3,
+                      maxLines: 6,
+                      minLines: 3,
                       style:
                           const TextStyle(color: AppColors.textPrimary),
-                      decoration: _inputDecoration('Description'),
+                      decoration: _inputDecoration(
+                          'Description (supports Markdown: **bold**, *italic*, - bullets, [links](url))'),
                     ),
                     const SizedBox(height: 12),
 
@@ -3325,7 +3329,7 @@ class _BrandStorefrontBuilderScreenState
                     // Fulfilment type
                     DropdownButtonFormField<String>(
                       initialValue: fulfilmentType,
-                      dropdownColor: AppColors.cardDark,
+                      dropdownColor: AppColors.adminCard,
                       style:
                           const TextStyle(color: AppColors.textPrimary),
                       decoration:
@@ -3390,6 +3394,16 @@ class _BrandStorefrontBuilderScreenState
                       ),
                       const SizedBox(height: 12),
                     ],
+
+                    // External URL
+                    TextField(
+                      controller: externalUrlCtrl,
+                      style:
+                          const TextStyle(color: AppColors.textPrimary),
+                      decoration: _inputDecoration(
+                          'External URL (optional — overrides in-app detail)'),
+                    ),
+                    const SizedBox(height: 12),
 
                     // Stock
                     Row(
@@ -3521,6 +3535,10 @@ class _BrandStorefrontBuilderScreenState
                                 deliveryCtrl.text.trim().isEmpty
                                     ? null
                                     : deliveryCtrl.text.trim(),
+                            'externalUrl':
+                                externalUrlCtrl.text.trim().isEmpty
+                                    ? null
+                                    : externalUrlCtrl.text.trim(),
                           };
 
                           if (isEdit) {
@@ -3810,7 +3828,7 @@ class _BrandStorefrontBuilderScreenState
     _collectFormData();
 
     return Container(
-      color: AppColors.backgroundDark,
+      color: AppColors.adminBackground,
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -4321,7 +4339,7 @@ class _BrandStorefrontBuilderScreenState
                     fit: fit,
                     errorWidget: (_, _, _) => Container(
                       height: height,
-                      color: AppColors.surfaceDark,
+                      color: AppColors.adminSurface,
                       child: const Center(
                           child: Icon(Icons.broken_image,
                               color: AppColors.textTertiary)),
@@ -4359,7 +4377,7 @@ class _BrandStorefrontBuilderScreenState
             Container(
               height: height,
               decoration: BoxDecoration(
-                color: AppColors.surfaceDark,
+                color: AppColors.adminSurface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.borderDark),
               ),
@@ -4395,7 +4413,7 @@ class _BrandStorefrontBuilderScreenState
               child: Container(
                 height: height,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceDark,
+                  color: AppColors.adminSurface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: AppColors.borderDark,
@@ -4521,7 +4539,7 @@ class _BrandStorefrontBuilderScreenState
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: parsed ?? AppColors.surfaceDark,
+                color: parsed ?? AppColors.adminSurface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.borderDark),
               ),
@@ -4564,7 +4582,7 @@ class _BrandStorefrontBuilderScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text('Pick $label'),
         content: SingleChildScrollView(
           child: ColorPicker(
@@ -4608,7 +4626,7 @@ class _BrandStorefrontBuilderScreenState
       labelText: label,
       labelStyle: const TextStyle(color: AppColors.textSecondary),
       filled: true,
-      fillColor: AppColors.surfaceDark,
+      fillColor: AppColors.adminSurface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: AppColors.borderDark),

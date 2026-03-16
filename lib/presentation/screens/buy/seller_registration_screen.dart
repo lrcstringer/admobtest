@@ -66,7 +66,8 @@ These terms may be updated. Continued use of the marketplace means you accept an
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Become a Seller'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listenWhen: (prev, curr) =>

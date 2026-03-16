@@ -34,7 +34,7 @@ class SasazaChooserScreen extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(

@@ -264,7 +264,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Log Details',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -353,7 +353,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -436,7 +436,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.cardDark,
+                      color: AppColors.adminCard,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -502,7 +502,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.cardDark,
+                      color: AppColors.adminCard,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -781,7 +781,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

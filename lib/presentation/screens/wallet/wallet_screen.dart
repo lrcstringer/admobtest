@@ -155,12 +155,12 @@ class _WalletScreenState extends State<WalletScreen> {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: TabBackground(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: AppColors.walletGradient,
+                  colors: AppColors.themed(context).tabGradient,
                 ),
-                overlayAsset: AppColors.waveOverlay,
+                overlayAsset: AppColors.themed(context).waveOverlay,
                 child: Padding(
                   padding: AppSpacing.pagePadding,
                   child: Column(

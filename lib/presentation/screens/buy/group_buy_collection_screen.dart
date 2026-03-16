@@ -70,7 +70,8 @@ class _GroupBuyCollectionScreenState
       child: Scaffold(
         backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.buyCard,
+          foregroundColor: AppColors.buyTextPrimary,
           title: const Text(
             'Collect Your Item',
           ),

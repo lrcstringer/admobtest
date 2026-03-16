@@ -36,12 +36,12 @@ class QrDisplayScreen extends StatelessWidget {
         ],
       ),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),

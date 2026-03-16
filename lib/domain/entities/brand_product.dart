@@ -35,6 +35,10 @@ abstract class BrandProduct with _$BrandProduct {
     /// For physical items — delivery terms/timeframes
     String? deliveryInfo,
 
+    /// Optional external URL — if set, tapping the product opens this URL
+    /// instead of the in-app product detail screen.
+    String? externalUrl,
+
     required DateTime createdAt,
   }) = _BrandProduct;
 

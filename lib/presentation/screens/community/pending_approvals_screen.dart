@@ -50,7 +50,7 @@ class PendingApprovalsScreen extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
             child: approvals.isEmpty
               ? _buildEmptyState(context)
               : ListView.builder(

@@ -52,7 +52,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen>
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('My Orders'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.buyMarketplaceAccent,

@@ -269,12 +269,12 @@ class _HomeScreenState extends State<HomeScreen>
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: TabBackground(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: AppColors.homeGradient,
+                        colors: AppColors.themed(context).tabGradient,
                       ),
-                      overlayAsset: AppColors.waveOverlay,
+                      overlayAsset: AppColors.themed(context).waveOverlay,
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                         child: Column(
@@ -319,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen>
         Text(
           _getGreeting(),
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         const SizedBox(height: 4),
@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Text(
                 user?.displayName ?? 'User',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                 overflow: TextOverflow.ellipsis,
@@ -390,16 +390,16 @@ class _HomeScreenState extends State<HomeScreen>
           colors: [
             Color.alphaBlend(
               AppColors.logoGradient[0].withValues(alpha: 0.06),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
             Color.alphaBlend(
               AppColors.logoGradient[1].withValues(alpha: 0.03),
-              AppColors.surface,
+              Theme.of(context).colorScheme.surface,
             ),
           ],
         ),
         borderRadius: AppSpacing.borderRadiusLg,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.themed(context).cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen>
               Text(
                 'Tokens Balance:',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
               const SizedBox(width: 8),
@@ -427,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Text(
                   '$balance',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                       ),
                 ),
@@ -656,16 +656,16 @@ class _HomeScreenState extends State<HomeScreen>
               colors: [
                 Color.alphaBlend(
                   accentColors[0].withValues(alpha: 0.04),
-                  AppColors.surface,
+                  Theme.of(context).colorScheme.surface,
                 ),
                 Color.alphaBlend(
                   accentColors[1].withValues(alpha: 0.02),
-                  AppColors.surface,
+                  Theme.of(context).colorScheme.surface,
                 ),
               ],
             ),
             borderRadius: AppSpacing.borderRadiusLg,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppColors.themed(context).cardBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -704,7 +704,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Text(
                     title,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                   ),
@@ -713,7 +713,7 @@ class _HomeScreenState extends State<HomeScreen>
                   Text(
                     amount,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                   ),
@@ -729,7 +729,7 @@ class _HomeScreenState extends State<HomeScreen>
                           timeLeft,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -746,7 +746,7 @@ class _HomeScreenState extends State<HomeScreen>
                             : 'Your Rank: #\u2014',
                         style:
                             Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                       ),
                       Icon(Icons.chevron_right,

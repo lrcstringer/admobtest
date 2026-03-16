@@ -69,7 +69,7 @@ class _FeatureFlagManagementScreenState
     final disabledCount = _flags.length - enabledCount;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -86,7 +86,7 @@ class _FeatureFlagManagementScreenState
                         children: [
                           const Text('Feature Flags',
                               style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold)),
+                                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
                           const SizedBox(height: 4),
                           Text(
                             'Control feature rollout across communities',
@@ -323,7 +323,7 @@ class _FeatureFlagManagementScreenState
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: Text(
               'Edit: ${flag['featureKey'] ?? flag['id']}',
               style: const TextStyle(fontSize: 18),
@@ -440,7 +440,7 @@ class _FeatureFlagManagementScreenState
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text('Create Feature Flag'),
             content: SizedBox(
               width: 400,
@@ -519,7 +519,7 @@ class _FeatureFlagManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Seed Default Buy Data'),
         content: const Text(
           'This will create default feature flags and marketplace categories if they don\'t already exist.\n\n'
@@ -588,7 +588,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -605,7 +605,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(

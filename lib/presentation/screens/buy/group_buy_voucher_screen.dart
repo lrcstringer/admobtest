@@ -39,7 +39,8 @@ class _GroupBuyVoucherScreenState extends State<GroupBuyVoucherScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Your Voucher',
           style: TextStyle(

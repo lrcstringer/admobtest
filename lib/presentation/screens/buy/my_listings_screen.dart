@@ -36,7 +36,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'My Listings',
           style: TextStyle(

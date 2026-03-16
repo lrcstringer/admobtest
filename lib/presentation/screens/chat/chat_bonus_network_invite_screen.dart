@@ -17,7 +17,7 @@ class ChatBonusNetworkInviteScreen extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: AppColors.chatGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: const Center(
           child: Text(
             'Invite to Bonus Network\nComing Soon',

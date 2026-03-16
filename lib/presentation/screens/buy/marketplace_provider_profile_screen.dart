@@ -41,7 +41,8 @@ class _MarketplaceProviderProfileScreenState
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Provider'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.flag_outlined),

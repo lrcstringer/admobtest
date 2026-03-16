@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/referral/referral_bloc.dart';
+import '../../blocs/theme/theme_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -37,12 +38,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Scaffold(
           appBar: const IMaliAppBar(title: 'Profile'),
           body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: AppColors.themed(context).waveOverlay,
             child: ListView(
               children: [
                 // Profile Header
@@ -131,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     height: 30,
                                     width: 1,
-                                    color: AppColors.divider,
+                                    color: Theme.of(context).dividerColor,
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 24),
                                   ),
@@ -144,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     height: 30,
                                     width: 1,
-                                    color: AppColors.divider,
+                                    color: Theme.of(context).dividerColor,
                                     margin: const EdgeInsets.symmetric(
                                         horizontal: 24),
                                   ),
@@ -188,6 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Preferences section
                 _buildSectionHeader(context, 'Preferences'),
+                _buildThemeSelector(context),
                 _buildMenuItem(
                   context,
                   icon: Icons.notifications_outlined,
@@ -307,10 +309,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
+    );
+  }
+
+  Widget _buildThemeSelector(BuildContext context) {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return ListTile(
+          leading: const Icon(Icons.palette_outlined),
+          title: const Text('Appearance'),
+          subtitle: SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('System'),
+                icon: Icon(Icons.settings_suggest, size: 16),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('Light'),
+                icon: Icon(Icons.light_mode, size: 16),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('Dark'),
+                icon: Icon(Icons.dark_mode, size: 16),
+              ),
+            ],
+            selected: {state.themeMode},
+            onSelectionChanged: (modes) {
+              context
+                  .read<ThemeBloc>()
+                  .add(ThemeEvent.setThemeMode(modes.first));
+            },
+            showSelectedIcon: false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -320,7 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,
             ),
@@ -336,16 +379,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant = Theme.of(context).colorScheme.onSurfaceVariant;
+
     return ListTile(
       leading: Icon(
         icon,
-        color: isDestructive ? AppColors.error : AppColors.textPrimary,
+        color: isDestructive ? AppColors.error : onSurface,
       ),
       title: Text(
         title,
         style: TextStyle(
-          color:
-              isDestructive ? AppColors.error : AppColors.textPrimary,
+          color: isDestructive ? AppColors.error : onSurface,
         ),
       ),
       subtitle: subtitle != null
@@ -353,12 +398,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle,
               style:
                   Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: onSurfaceVariant,
                       ),
             )
           : null,
-      trailing: const Icon(Icons.chevron_right,
-          color: AppColors.textSecondary),
+      trailing: Icon(Icons.chevron_right, color: onSurfaceVariant),
       onTap: onTap,
     );
   }

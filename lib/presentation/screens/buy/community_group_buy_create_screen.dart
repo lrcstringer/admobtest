@@ -108,7 +108,8 @@ class _CommunityGroupBuyCreateScreenState
       child: Scaffold(
         backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.buyCard,
+          foregroundColor: AppColors.buyTextPrimary,
           title: Text(
             _stepTitle,
           ),

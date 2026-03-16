@@ -143,7 +143,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
                         child: TabBarView(
                           children: [
                             _ChatTab(

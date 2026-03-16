@@ -138,7 +138,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -282,7 +282,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderDark),
       ),
@@ -364,7 +364,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundDark,
+                  color: AppColors.adminBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -430,7 +430,7 @@ class _UploadReviewScreenState extends State<UploadReviewScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundDark,
+                  color: AppColors.adminBackground,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.borderDark),
                 ),

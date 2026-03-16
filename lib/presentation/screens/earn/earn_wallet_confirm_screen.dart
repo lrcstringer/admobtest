@@ -174,12 +174,12 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
           },
           child: Scaffold(
             body: TabBackground(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: AppColors.earnGradient,
+                colors: AppColors.themed(context).tabGradient,
               ),
-              overlayAsset: AppColors.waveOverlay,
+              overlayAsset: null,
               child: Stack(
                 children: [
                   // Main content

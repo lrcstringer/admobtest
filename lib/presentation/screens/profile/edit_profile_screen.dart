@@ -79,12 +79,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Edit Profile'),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: SingleChildScrollView(
         padding: AppSpacing.pagePadding,
         child: Form(

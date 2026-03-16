@@ -22,6 +22,7 @@ class BrandProductMapper {
       voucherInstructions: model.voucherInstructions,
       collectionAddress: model.collectionAddress,
       deliveryInfo: model.deliveryInfo,
+      externalUrl: model.externalUrl,
       createdAt: model.createdAt,
     );
   }
@@ -45,6 +46,7 @@ class BrandProductMapper {
       voucherInstructions: entity.voucherInstructions,
       collectionAddress: entity.collectionAddress,
       deliveryInfo: entity.deliveryInfo,
+      externalUrl: entity.externalUrl,
       createdAt: entity.createdAt,
     );
   }

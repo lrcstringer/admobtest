@@ -67,7 +67,7 @@ class CommunityMembersScreen extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
             // 8.2 Show empty state instead of infinite spinner when not loading
             child: members.isEmpty &&
                     state.operationStatus == CommunityOperationStatus.processing

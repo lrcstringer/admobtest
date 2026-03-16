@@ -210,7 +210,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: Text('Delete Client: $companyName?',
             style: const TextStyle(color: AppColors.textPrimaryDark)),
         content: Column(
@@ -304,7 +304,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -399,7 +399,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -455,7 +455,7 @@ class _ClientManagementScreenState extends State<ClientManagementScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: _isLoading
@@ -840,7 +840,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1126,7 +1126,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceDark,
+                  color: AppColors.adminSurface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.borderDark),
                 ),
@@ -1210,7 +1210,7 @@ class _CreateClientDialogState extends State<_CreateClientDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Onboard New Client',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -1705,7 +1705,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         'Edit: ${widget.client['companyName'] ?? 'Client'}',
         style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -1857,7 +1857,7 @@ class _EditClientDialogState extends State<_EditClientDialog> {
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceDark,
+                              color: AppColors.adminSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: AppColors.borderDark),
                             ),
@@ -2154,7 +2154,7 @@ class _ToggleStatusDialogState extends State<_ToggleStatusDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         _isActive ? 'Freeze Client' : 'Activate Client',
         style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -2269,7 +2269,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text('Create Sub-Account',
                 style: TextStyle(color: AppColors.textPrimaryDark)),
             content: SizedBox(
@@ -2375,7 +2375,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: Text('Fund: ${sa['name'] ?? 'Sub-Account'}',
                 style: const TextStyle(color: AppColors.textPrimaryDark)),
             content: SizedBox(
@@ -2473,7 +2473,7 @@ class _SubAccountsDialogState extends State<_SubAccountsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         'Sub-Accounts: ${widget.clientName}',
         style: const TextStyle(color: AppColors.textPrimaryDark),

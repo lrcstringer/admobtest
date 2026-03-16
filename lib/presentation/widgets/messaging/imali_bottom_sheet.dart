@@ -6,7 +6,8 @@ import '../../theme/app_colors.dart';
 ///
 /// Provides uniform drag handle, border radius, background color,
 /// and safe area padding across all modals in the Chat tab.
-class IMaliBottomSheet extends StatelessWidget {
+/// Shows a fade gradient at the bottom when content is scrollable.
+class IMaliBottomSheet extends StatefulWidget {
   final List<Widget> children;
 
   /// Optional title shown below the drag handle.
@@ -23,6 +24,48 @@ class IMaliBottomSheet extends StatelessWidget {
   });
 
   @override
+  State<IMaliBottomSheet> createState() => _IMaliBottomSheetState();
+}
+
+class _IMaliBottomSheetState extends State<IMaliBottomSheet> {
+  final _scrollController = ScrollController();
+  bool _showScrollIndicator = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkOverflow());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _checkOverflow() {
+    if (!_scrollController.hasClients) return;
+    final canScroll =
+        _scrollController.position.maxScrollExtent > 0;
+    if (canScroll != _showScrollIndicator) {
+      setState(() => _showScrollIndicator = canScroll);
+    }
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final atBottom = _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 8;
+    final shouldShow = !atBottom &&
+        _scrollController.position.maxScrollExtent > 0;
+    if (shouldShow != _showScrollIndicator) {
+      setState(() => _showScrollIndicator = shouldShow);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -31,7 +74,7 @@ class IMaliBottomSheet extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        bottom: useSafeArea,
+        bottom: widget.useSafeArea,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -45,17 +88,56 @@ class IMaliBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            if (title != null)
+            if (widget.title != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
-                  title!,
+                  widget.title!,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
               ),
-            ...children,
+            Flexible(
+              child: Stack(
+                children: [
+                  ListView(
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    children: widget.children,
+                  ),
+                  if (_showScrollIndicator)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: IgnorePointer(
+                        child: Container(
+                          height: 32,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                AppColors.surfaceElevated.withValues(alpha: 0),
+                                AppColors.surfaceElevated,
+                              ],
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: AppColors.textHint,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
             const SizedBox(height: 8),
           ],
         ),

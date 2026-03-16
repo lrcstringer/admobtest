@@ -115,7 +115,7 @@ class _AccountTypeManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Deactivate Account Type',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: Text(
@@ -199,7 +199,7 @@ class _AccountTypeManagementScreenState
     final filtered = _filteredAccountTypes;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -280,7 +280,7 @@ class _AccountTypeManagementScreenState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -300,7 +300,7 @@ class _AccountTypeManagementScreenState
                           borderRadius: BorderRadius.circular(8),
                         ),
                         filled: true,
-                        fillColor: AppColors.backgroundDark,
+                        fillColor: AppColors.adminBackground,
                       ),
                     ),
                   ),
@@ -345,7 +345,7 @@ class _AccountTypeManagementScreenState
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.cardDark,
+                color: AppColors.adminCard,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -845,7 +845,7 @@ class _AccountTypeFormDialogState extends State<_AccountTypeFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         _isEditing ? 'Edit Account Type' : 'Create Account Type',
         style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -870,7 +870,7 @@ class _AccountTypeFormDialogState extends State<_AccountTypeFormDialog> {
                     helperText: 'Lowercase letters, numbers, underscores',
                     filled: _isEditing,
                     fillColor:
-                        _isEditing ? AppColors.backgroundDark : null,
+                        _isEditing ? AppColors.adminBackground : null,
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Required';
@@ -911,7 +911,7 @@ class _AccountTypeFormDialogState extends State<_AccountTypeFormDialog> {
                 // Advertiser dropdown
                 DropdownButtonFormField<String?>(
                   initialValue: _selectedAdvertiserId,
-                  dropdownColor: AppColors.cardDark,
+                  dropdownColor: AppColors.adminCard,
                   style: const TextStyle(color: AppColors.textPrimaryDark),
                   decoration: InputDecoration(
                     labelText: 'Advertiser (Client)',
@@ -1107,7 +1107,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.dividerDark),
       ),

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/theme/theme_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -53,6 +54,7 @@ class SettingsScreen extends StatelessWidget {
 
           // Preferences section
           _buildSectionHeader(context, 'Preferences'),
+          _buildThemeSelector(context),
           _buildMenuItem(
             context,
             icon: Icons.notifications_outlined,
@@ -126,6 +128,47 @@ class SettingsScreen extends StatelessWidget {
           AppSpacing.verticalXl,
         ],
       ),
+    );
+  }
+
+  Widget _buildThemeSelector(BuildContext context) {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return ListTile(
+          leading: const Icon(Icons.palette_outlined),
+          title: const Text('Appearance'),
+          subtitle: SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('System'),
+                icon: Icon(Icons.settings_suggest, size: 16),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('Light'),
+                icon: Icon(Icons.light_mode, size: 16),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('Dark'),
+                icon: Icon(Icons.dark_mode, size: 16),
+              ),
+            ],
+            selected: {state.themeMode},
+            onSelectionChanged: (modes) {
+              context
+                  .read<ThemeBloc>()
+                  .add(ThemeEvent.setThemeMode(modes.first));
+            },
+            showSelectedIcon: false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        );
+      },
     );
   }
 

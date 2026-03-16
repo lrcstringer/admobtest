@@ -554,12 +554,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               centerTitle: true,
             ),
             body: TabBackground(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: AppColors.earnGradient,
+                colors: AppColors.themed(context).tabGradient,
               ),
-              overlayAsset: AppColors.waveOverlay,
+              overlayAsset: null,
               child: _buildContent(state),
             ),
           ),
@@ -3595,7 +3595,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF142978), Color(0xFF0C1124)],
+            colors: [Color(0xFF3451B8), Color(0xFF2C325C)],
           ),
           borderRadius: AppSpacing.borderRadiusLg,
         ),

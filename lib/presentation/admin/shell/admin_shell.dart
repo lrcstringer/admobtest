@@ -103,6 +103,7 @@ class AdminShell extends StatelessWidget {
       onPointerDown: (_) =>
           context.read<AdminAuthCubit>().resetInactivityTimer(),
       child: Scaffold(
+        backgroundColor: AppColors.adminBackground,
         body: Row(
           children: [
             _AdminSidebar(currentPath: currentPath),
@@ -128,7 +129,7 @@ class _AdminSidebar extends StatelessWidget {
 
         return Container(
           width: 260,
-          color: AppColors.cardDark,
+          color: AppColors.adminSidebar,
           child: Column(
             children: [
               // Logo/Header

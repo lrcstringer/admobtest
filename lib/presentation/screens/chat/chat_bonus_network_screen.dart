@@ -17,7 +17,7 @@ class ChatBonusNetworkScreen extends StatelessWidget {
           end: Alignment.bottomCenter,
           colors: AppColors.chatGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: const Center(
           child: Text(
             'Bonus Network\nComing Soon',

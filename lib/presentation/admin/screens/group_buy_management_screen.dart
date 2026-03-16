@@ -177,7 +177,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -194,7 +194,8 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                           Text('Group Buys (Hlangana)',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Manage group buying deals and escrow',
                               style: TextStyle(
@@ -1029,7 +1030,7 @@ class _GroupBuyManagementScreenState extends State<GroupBuyManagementScreen>
                         initialValue: type,
                         decoration:
                             const InputDecoration(labelText: 'Type'),
-                        dropdownColor: AppColors.cardDark,
+                        dropdownColor: AppColors.adminCard,
                         items: const [
                           DropdownMenuItem(
                               value: 'digital', child: Text('Digital')),

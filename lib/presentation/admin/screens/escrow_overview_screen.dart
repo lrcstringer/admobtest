@@ -121,7 +121,7 @@ class _EscrowOverviewScreenState extends State<EscrowOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -139,7 +139,8 @@ class _EscrowOverviewScreenState extends State<EscrowOverviewScreen> {
                           Text('Escrow Overview',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Consolidated view of all escrowed tokens',
                               style: TextStyle(

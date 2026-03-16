@@ -200,7 +200,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -275,7 +275,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -365,7 +365,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: !_allSetUp
             ? Border.all(color: AppColors.warning.withValues(alpha: 0.3))
@@ -405,7 +405,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.backgroundDark,
+              color: AppColors.adminBackground,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Column(
@@ -504,7 +504,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -646,7 +646,7 @@ class _PlatformManagementScreenState extends State<PlatformManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

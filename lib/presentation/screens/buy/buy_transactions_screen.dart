@@ -38,7 +38,8 @@ class _BuyTransactionsScreenState extends State<BuyTransactionsScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: const IMaliAppBar(
         title: 'Buy Transactions',
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocBuilder<PurchaseBloc, PurchaseState>(
           builder: (context, state) {

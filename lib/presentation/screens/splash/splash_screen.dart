@@ -70,11 +70,11 @@ class _SplashScreenState extends State<SplashScreen>
         body: Container(
           width: size.width,
           height: size.height,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: AppColors.backgroundGradient,
+              colors: AppColors.themed(context).tabGradient,
             ),
           ),
           child: Center(

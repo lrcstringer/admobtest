@@ -153,6 +153,7 @@ import '../../presentation/blocs/profile/profile_bloc.dart' as _i344;
 import '../../presentation/blocs/purchase/purchase_bloc.dart' as _i936;
 import '../../presentation/blocs/referral/referral_bloc.dart' as _i595;
 import '../../presentation/blocs/reward/reward_bloc.dart' as _i206;
+import '../../presentation/blocs/theme/theme_bloc.dart' as _i512;
 import '../../presentation/blocs/token_pool/token_pool_bloc.dart' as _i969;
 import '../../presentation/blocs/token_spray/token_spray_bloc.dart' as _i609;
 import '../../presentation/blocs/user_search/user_search_bloc.dart' as _i812;
@@ -329,6 +330,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
         gh<_i809.FirebaseFunctions>(),
       ),
+    );
+    gh.factory<_i512.ThemeBloc>(
+      () => _i512.ThemeBloc(gh<_i460.SharedPreferences>()),
     );
     gh.lazySingleton<_i654.MediaUploadDatasource>(
       () => _i654.MediaUploadDatasource(

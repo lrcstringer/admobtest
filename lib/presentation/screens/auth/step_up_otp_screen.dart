@@ -199,11 +199,11 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: AppColors.backgroundGradient,
+            colors: AppColors.themed(context).tabGradient,
           ),
         ),
         child: SafeArea(

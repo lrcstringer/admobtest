@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'themed_colors.dart';
+
 /// Application color palette - iMali Brand Design System
 class AppColors {
   AppColors._();
@@ -51,8 +53,8 @@ class AppColors {
 
   // ============ BACKGROUND COLORS ============
   // Deep dark - Main app background
-  static const Color background = Color(0xFF0C1124);
-  static const Color backgroundDark = Color(0xFF0C1124);
+  static const Color background = Color(0xFF2C325C);
+  static const Color backgroundDark = Color(0xFF2C325C);
   static const Color backgroundLight = Color(0xFFF5F7FA);
 
   // Surface colors for cards and elevated elements
@@ -65,6 +67,13 @@ class AppColors {
   static const Color card = Color(0xFF13161D);
   static const Color cardDark = Color(0xFF13161D);
   static const Color cardElevated = Color(0xFF1E2233);
+
+  // ============ ADMIN PORTAL COLORS ============
+  // Mid-dark theme for the web admin portal
+  static const Color adminBackground = Color(0xFF2E3140);
+  static const Color adminSidebar = Color(0xFF161A28);
+  static const Color adminCard = Color(0xFF111318);
+  static const Color adminSurface = Color(0xFF111318);
 
   // ============ TEXT COLORS ============
   static const Color textPrimary = Color(0xFFFFFFFF);
@@ -134,13 +143,13 @@ class AppColors {
   // ============ BOTTOM NAV COLORS ============
   static const Color navActive = Color(0xFFFF328C);
   static const Color navInactive = Color(0xFF8899A6);
-  static const Color navBackground = Color(0xFF0C1124);
+  static const Color navBackground = Color(0xFF2C325C);
 
   // ============ GRADIENTS ============
-  // Background gradient (180deg, #142978 → #0C1124)
+  // Background gradient (180deg, #3451B8 → #2C325C)
   static const List<Color> backgroundGradient = [
-    Color(0xFF142978),
-    Color(0xFF0C1124),
+    Color(0xFF3451B8),
+    Color(0xFF2C325C),
   ];
 
   // Logo gradient (90deg, #FF9900 → #FF328C)
@@ -173,8 +182,8 @@ class AppColors {
   ];
 
   static const List<Color> darkGradient = [
-    Color(0xFF142978),
-    Color(0xFF0C1124),
+    Color(0xFF3451B8),
+    Color(0xFF2C325C),
   ];
 
   static const List<Color> modalGradient = [
@@ -228,7 +237,7 @@ class AppColors {
   static const Color inputBackground = Color(0xFF13161D);
   static const Color inputBorder = Color(0xFF2A2E3D);
   static const Color inputBorderFocused = Color(0xFFFF328C);
-  static const Color inputFill = Color(0xFF0C1124);
+  static const Color inputFill = Color(0xFF2C325C);
 
   // ============ BUY TAB LIGHT THEME TOKENS ============
   // Backgrounds
@@ -264,6 +273,14 @@ class AppColors {
   // Shimmer
   static const Color buyShimmerBase = Color(0xFFE2E8F0);
   static const Color buyShimmerHigh = Color(0xFFF1F5F9);
+
+  /// Returns theme-aware custom tokens (gradients, overlays, nav colors, etc.)
+  /// based on the current brightness from [Theme.of(context)].
+  static ThemedColors themed(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? ThemedColors.dark
+        : ThemedColors.light;
+  }
 
   /// Safely parses a hex color string (e.g. '#FF328C') to a [Color].
   /// Returns [fallback] if the string is null or malformed.

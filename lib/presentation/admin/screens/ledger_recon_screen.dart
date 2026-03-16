@@ -142,7 +142,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary))
@@ -372,7 +372,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Wrap(
@@ -417,7 +417,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -484,7 +484,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: failed > 0
@@ -592,7 +592,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: unbalanced.isNotEmpty
@@ -671,7 +671,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -815,7 +815,7 @@ class _LedgerReconScreenState extends State<LedgerReconScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -1098,7 +1098,7 @@ class _BalanceCard extends StatelessWidget {
       width: 240,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),

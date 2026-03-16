@@ -84,7 +84,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
             child: SingleChildScrollView(
             padding: AppSpacing.pagePadding,
             child: Form(

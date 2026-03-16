@@ -24,7 +24,8 @@ class BuySuccessScreen extends StatelessWidget {
             backgroundColor: AppColors.buyBackground,
             appBar: IMaliAppBar(
               title: 'Purchase Successful',
-              backgroundColor: AppColors.background,
+              backgroundColor: AppColors.buyCard,
+              foregroundColor: AppColors.buyTextPrimary,
             ),
             body: Center(
                 child: Column(
@@ -59,7 +60,8 @@ class BuySuccessScreen extends StatelessWidget {
           backgroundColor: AppColors.buyBackground,
           appBar: IMaliAppBar(
             title: 'Purchase Successful',
-            backgroundColor: AppColors.background,
+            backgroundColor: AppColors.buyCard,
+            foregroundColor: AppColors.buyTextPrimary,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(24),

@@ -178,7 +178,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.cardDark,
+          backgroundColor: AppColors.adminCard,
           title: const Text(
             'Distribution Settings',
             style: TextStyle(color: AppColors.textPrimaryDark),
@@ -295,7 +295,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Distribute Daily Pot',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -328,7 +328,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -379,7 +379,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Distribute Weekly Pot',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -411,7 +411,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -463,7 +463,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -547,7 +547,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
@@ -633,7 +633,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.cardDark,
+                  color: AppColors.adminCard,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -690,7 +690,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
@@ -1036,7 +1036,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text(
           '${type == 'daily' ? 'Daily' : 'Weekly'} Pot Winners',
           style: const TextStyle(color: AppColors.textPrimaryDark),

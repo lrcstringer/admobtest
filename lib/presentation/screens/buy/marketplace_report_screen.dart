@@ -50,7 +50,8 @@ class _MarketplaceReportScreenState extends State<MarketplaceReportScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: Text('Report ${isListing ? 'Listing' : 'Seller'}'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
         listener: (context, state) {

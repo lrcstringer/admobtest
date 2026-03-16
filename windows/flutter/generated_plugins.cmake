@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  battery_plus
   cloud_firestore
   connectivity_plus
   emoji_picker_flutter

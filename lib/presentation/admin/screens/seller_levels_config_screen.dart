@@ -142,7 +142,7 @@ class _SellerLevelsConfigScreenState extends State<SellerLevelsConfigScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -160,7 +160,8 @@ class _SellerLevelsConfigScreenState extends State<SellerLevelsConfigScreen> {
                           Text('Seller Levels Config',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text(
                               'Configure thresholds for seller level progression',
@@ -262,7 +263,7 @@ class _LevelDistCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -305,7 +306,7 @@ class _LevelThresholdCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

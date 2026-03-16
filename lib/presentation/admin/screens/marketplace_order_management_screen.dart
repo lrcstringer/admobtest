@@ -128,7 +128,7 @@ class _MarketplaceOrderManagementScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -145,7 +145,8 @@ class _MarketplaceOrderManagementScreenState
                           Text('Orders & Disputes',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Manage marketplace orders and resolve disputes',
                               style: TextStyle(
@@ -433,7 +434,7 @@ class _MarketplaceOrderManagementScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text('Order: ${order['id'] ?? ''}',
             style: const TextStyle(fontSize: 16)),
         content: SizedBox(
@@ -484,7 +485,7 @@ class _MarketplaceOrderManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Force Cancel Order?',
             style: TextStyle(fontSize: 16)),
         content: const Text(
@@ -529,7 +530,7 @@ class _MarketplaceOrderManagementScreenState
     await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Resolve Dispute',
             style: TextStyle(fontSize: 16)),
         content: SizedBox(
@@ -629,7 +630,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -646,7 +647,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(

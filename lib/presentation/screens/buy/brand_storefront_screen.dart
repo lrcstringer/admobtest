@@ -92,7 +92,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         return Scaffold(
           appBar: AppBar(
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back, color: AppColors.buyTextPrimary),
               onPressed: () => context.pop(),
             ),
             title: Text(
@@ -100,9 +100,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
+                color: AppColors.buyTextPrimary,
               ),
             ),
-            backgroundColor: AppColors.background,
+            backgroundColor: AppColors.buyCard,
             actions: [
               if (storefront != null)
                 IconButton(
@@ -226,7 +227,12 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
         ),
 
         if (useSectionOrder)
-          ...storefront.sectionOrder.map(
+          ...storefront.sectionOrder
+              .where((type) {
+                final settings = storefront.sectionSettings[type.name];
+                return settings?.isVisible ?? true;
+              })
+              .map(
             (type) => SliverToBoxAdapter(
               child: _buildSectionByType(context, type, storefront, now),
             ),
@@ -482,7 +488,10 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
   }) {
     return GestureDetector(
       onTap: () {
-        if (deepLink.startsWith('/')) {
+        if (deepLink.startsWith('http://') ||
+            deepLink.startsWith('https://')) {
+          _launchUrl(deepLink);
+        } else if (deepLink.startsWith('/')) {
           try {
             context.push(deepLink);
           } catch (e) {
@@ -639,13 +648,22 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
 
   Widget _buildProductCard(BuildContext context, BrandProduct product,
       {double? width}) {
+    final extUrl = product.externalUrl;
+    final hasDetail = product.description != null &&
+        product.description!.isNotEmpty;
+
     return GestureDetector(
       onTap: () {
-        // Navigate to product detail using brand and product IDs
-        context.push(
-          '/buy/brand/${product.brandId}/product/${product.id}',
-          extra: product,
-        );
+        if (extUrl != null && extUrl.isNotEmpty) {
+          launchUrl(Uri.parse(extUrl),
+              mode: LaunchMode.externalApplication);
+        } else if (hasDetail) {
+          context.push(
+            '/buy/brand/${product.brandId}/product/${product.id}',
+            extra: product,
+          );
+        }
+        // No description + no external URL = tap does nothing
       },
       child: Container(
         width: width,
@@ -754,15 +772,21 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: GestureDetector(
         onTap: storefront.bannerDeepLink != null
-            ? () => context.push(storefront.bannerDeepLink!)
+            ? () {
+                final link = storefront.bannerDeepLink!;
+                if (link.startsWith('http://') || link.startsWith('https://')) {
+                  _launchUrl(link);
+                } else {
+                  context.push(link);
+                }
+              }
             : null,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: CachedNetworkImage(
             imageUrl: storefront.bannerImageUrl!,
             width: double.infinity,
-            height: 100,
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
             placeholder: (_, _) => Container(
               height: 100,
               color: AppColors.buyCard,
@@ -1086,32 +1110,47 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
     if (text == null || text.isEmpty) return const SizedBox.shrink();
     if (_announcementDismissed) return const SizedBox.shrink();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: AppColors.parseHex(storefront.accentColor),
-      child: Row(
-        children: [
-          const Icon(Icons.campaign, color: Colors.white, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+    final deepLink = storefront.announcementDeepLink;
+
+    return GestureDetector(
+      onTap: deepLink != null && deepLink.isNotEmpty
+          ? () {
+              if (deepLink.startsWith('http://') ||
+                  deepLink.startsWith('https://')) {
+                _launchUrl(deepLink);
+              } else if (deepLink.startsWith('/')) {
+                context.push(deepLink);
+              }
+            }
+          : null,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        color: AppColors.parseHex(storefront.accentColor),
+        child: Row(
+          children: [
+            const Icon(Icons.campaign, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          if (storefront.announcementDismissible)
-            GestureDetector(
-              onTap: () => setState(() => _announcementDismissed = true),
-              child: const Icon(Icons.close, color: Colors.white70, size: 16),
-            ),
-        ],
+            if (storefront.announcementDismissible)
+              GestureDetector(
+                onTap: () => setState(() => _announcementDismissed = true),
+                child:
+                    const Icon(Icons.close, color: Colors.white70, size: 16),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -1712,7 +1751,16 @@ class _StorefrontQuickActionsLegacy extends StatelessWidget {
                   return Expanded(
                     child: GestureDetector(
                       onTap: a['deepLink'] != null
-                          ? () => context.push(a['deepLink'] as String)
+                          ? () {
+                              final link = a['deepLink'] as String;
+                              if (link.startsWith('http://') ||
+                                  link.startsWith('https://')) {
+                                launchUrl(Uri.parse(link),
+                                    mode: LaunchMode.externalApplication);
+                              } else {
+                                context.push(link);
+                              }
+                            }
                           : null,
                       child: Column(
                         children: [
@@ -1864,7 +1912,15 @@ class _StorefrontProductGridLegacy extends StatelessWidget {
                               ),
                               if (deepLink != null)
                                 GestureDetector(
-                                  onTap: () => context.push(deepLink),
+                                  onTap: () {
+                                    if (deepLink.startsWith('http://') ||
+                                        deepLink.startsWith('https://')) {
+                                      launchUrl(Uri.parse(deepLink),
+                                          mode: LaunchMode.externalApplication);
+                                    } else {
+                                      context.push(deepLink);
+                                    }
+                                  },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 4),

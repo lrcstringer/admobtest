@@ -57,7 +57,7 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: BlocBuilder<GiftBloc, GiftState>(
           builder: (context, state) {
             if (state.isLoading) {

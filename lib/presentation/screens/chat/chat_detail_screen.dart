@@ -85,7 +85,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               end: Alignment.bottomCenter,
               colors: AppColors.chatGradient,
             ),
-            overlayAsset: AppColors.waveOverlay,
+            overlayAsset: null,
             child: Column(
               children: [
                 Expanded(

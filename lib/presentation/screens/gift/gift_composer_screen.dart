@@ -119,7 +119,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
           end: Alignment.bottomCenter,
           colors: AppColors.backgroundGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
           // Only pop for the current send — _sendInitiated prevents

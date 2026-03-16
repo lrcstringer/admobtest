@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../data/datasources/local/app_database.dart';
 import '../../../core/utils/chat_date_formatter.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/services/audio_playback_service.dart';
@@ -101,6 +102,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _loadChatTheme();
     _scrollController.addListener(_onScroll);
     context.read<ConversationBloc>().add(
       ConversationEvent.selectConversation(widget.conversationId),
@@ -1551,6 +1553,17 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     );
   }
 
+  Future<void> _loadChatTheme() async {
+    final name = await getIt<AppDatabase>().getChatTheme(widget.conversationId);
+    final style = ChatThemeStyle.values.firstWhere(
+      (s) => s.name == name,
+      orElse: () => ChatThemeStyle.defaultDoodle,
+    );
+    if (mounted && style != _chatTheme) {
+      setState(() => _chatTheme = style);
+    }
+  }
+
   void _showWallpaperPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -1558,6 +1571,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         current: _chatTheme,
         onSelected: (theme) {
           setState(() => _chatTheme = theme);
+          getIt<AppDatabase>().setChatTheme(widget.conversationId, theme.name);
         },
       ),
     );

@@ -92,7 +92,8 @@ class _MakeOfferScreenState extends State<MakeOfferScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Make an Offer'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),

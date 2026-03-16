@@ -16,32 +16,15 @@ class PrivacyPolicyScreen extends StatelessWidget {
       body: Container(
         width: size.width,
         height: size.height,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: AppColors.backgroundGradient,
+            colors: AppColors.themed(context).tabGradient,
           ),
         ),
         child: Stack(
           children: [
-            // Top feather wave background image
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: size.height * 0.25,
-                ),
-                child: Image.asset(
-                  'assets/images/wave_feather_fixed_r7.png',
-                  width: size.width,
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.topCenter,
-                ),
-              ),
-            ),
 
             // Main content
             Positioned.fill(

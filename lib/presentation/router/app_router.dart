@@ -18,6 +18,8 @@ import '../screens/auth/terms_of_service_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 
 // Buy screens
+import '../../domain/entities/brand_product.dart';
+import '../screens/buy/brand_product_detail_screen.dart';
 import '../screens/buy/brand_storefront_screen.dart';
 import '../screens/buy/buy_category_screen.dart';
 import '../screens/buy/buy_subcategory_list_screen.dart';
@@ -1183,6 +1185,26 @@ class AppRouter {
                         orderId: orderId,
                       );
                     },
+                    routes: [
+                      // 10.5.1) Brand Product Detail
+                      GoRoute(
+                        path: 'product/:productId',
+                        name: 'brandProductDetail',
+                        builder: (context, state) {
+                          final storefrontId =
+                              state.pathParameters['storefrontId']!;
+                          final productId =
+                              state.pathParameters['productId']!;
+                          final product =
+                              state.extra as BrandProduct?;
+                          return BrandProductDetailScreen(
+                            storefrontId: storefrontId,
+                            productId: productId,
+                            product: product,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   // 10.6) Marketplace hub
                   GoRoute(

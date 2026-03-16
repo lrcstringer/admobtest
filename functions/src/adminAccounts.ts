@@ -320,7 +320,6 @@ export const adminListClients = onCall({ labels: { area: "admin" } }, async (req
 
   // Get client profiles with pagination
   let query = db.collection("clients")
-    .where("isDeleted", "!=", true)
     .orderBy("createdAt", "desc")
     .limit(pageSize);
   if (startAfterId) {

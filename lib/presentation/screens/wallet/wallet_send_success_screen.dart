@@ -22,12 +22,12 @@ class WalletSendSuccessScreen extends StatelessWidget {
     return Scaffold(
       appBar: IMaliAppBar(title: 'Send Successful'),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.walletGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),

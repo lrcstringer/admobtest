@@ -51,12 +51,12 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
     return Scaffold(
       appBar: IMaliAppBar(title: 'Send To'),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.walletGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: Column(
           children: [
             // Search bar

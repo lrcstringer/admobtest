@@ -168,7 +168,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -269,7 +269,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
   Widget _buildTabSection() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -560,7 +560,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
                                                 border: Border.all(
                                                   color: isSelected
                                                       ? AppColors.primary.withValues(alpha: 0.15)
-                                                      : AppColors.surfaceDark,
+                                                      : AppColors.adminSurface,
                                                   width: 2,
                                                 ),
                                               ),
@@ -846,7 +846,7 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: const Text('Delete Campaign?',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: Text(
@@ -945,7 +945,7 @@ class _StatCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -991,7 +991,7 @@ class _CampaignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppColors.surfaceDark,
+      color: AppColors.adminSurface,
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1173,7 +1173,7 @@ class _CampaignCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: const Text('Delete Campaign?',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: Text(
@@ -1290,7 +1290,7 @@ class _OpportunityCard extends StatelessWidget {
     }
 
     return Card(
-      color: AppColors.surfaceDark,
+      color: AppColors.adminSurface,
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1348,7 +1348,7 @@ class _OpportunityCard extends StatelessWidget {
                             ? AppColors.success
                             : AppColors.textSecondary,
                         border: Border.all(
-                          color: AppColors.surfaceDark,
+                          color: AppColors.adminSurface,
                           width: 2,
                         ),
                       ),
@@ -1377,7 +1377,7 @@ class _OpportunityCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceDark,
+                          color: AppColors.adminSurface,
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: AppColors.borderDark),
                         ),
@@ -1599,7 +1599,7 @@ class _OpportunityCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: AppColors.adminSurface,
         title: const Text('Delete Opportunity?',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: const Text(
@@ -1777,7 +1777,7 @@ class _PollResultsDialogState extends State<_PollResultsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Poll Results',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -1915,7 +1915,7 @@ class _PollResultsDialogState extends State<_PollResultsDialog> {
                       value: pct / 100,
                       minHeight: 12,
                       backgroundColor:
-                          AppColors.surfaceDark,
+                          AppColors.adminSurface,
                       valueColor:
                           const AlwaysStoppedAnimation<Color>(
                               AppColors.secondary),
@@ -2259,7 +2259,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
         final reuse = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text(
               'Sub-Account Already Exists',
               style: TextStyle(color: AppColors.textPrimaryDark),
@@ -2330,7 +2330,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Create Campaign',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -2409,7 +2409,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceDark,
+                            color: AppColors.adminSurface,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: AppColors.borderDark),
                           ),
@@ -3087,7 +3087,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
         final reuse = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text(
               'Sub-Account Already Exists',
               style: TextStyle(color: AppColors.textPrimaryDark),
@@ -3143,7 +3143,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Edit Campaign',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -3218,7 +3218,7 @@ class _EditCampaignDialogState extends State<_EditCampaignDialog> {
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceDark,
+                              color: AppColors.adminSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: AppColors.borderDark),
                             ),
@@ -4195,7 +4195,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Create Opportunity',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -4251,7 +4251,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceDark,
+                              color: AppColors.adminSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: AppColors.borderDark),
                             ),
@@ -4575,7 +4575,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceDark,
+                      color: AppColors.adminSurface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.borderDark),
                     ),
@@ -5019,7 +5019,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                     final qType = q['questionType'] ?? 'single_select';
                     final options = (q['options'] as List?)?.cast<String>() ?? [];
                     return Card(
-                      color: AppColors.surfaceDark,
+                      color: AppColors.adminSurface,
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         dense: true,
@@ -5689,7 +5689,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Edit Opportunity',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -5740,7 +5740,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceDark,
+                              color: AppColors.adminSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: AppColors.borderDark),
                             ),
@@ -6001,7 +6001,7 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceDark,
+                      color: AppColors.adminSurface,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.borderDark),
                     ),
@@ -6570,7 +6570,7 @@ class _EditVideoDialogState extends State<_EditVideoDialog> {
   Widget build(BuildContext context) {
     final currentUrl = widget.opportunity['mediaUrl']?.toString();
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         'Edit Video: ${widget.opportunity['title'] ?? 'Opportunity'}',
         style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -6593,7 +6593,7 @@ class _EditVideoDialogState extends State<_EditVideoDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceDark,
+                  color: AppColors.adminSurface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.borderDark),
                 ),
@@ -7073,7 +7073,7 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text(
         widget.existing != null ? 'Edit Question' : 'Add Question',
         style: const TextStyle(color: AppColors.textPrimaryDark),
@@ -7610,7 +7610,7 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: const Text(
         'Edit Questions',
         style: TextStyle(color: AppColors.textPrimaryDark),
@@ -7657,7 +7657,7 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
                 final options =
                     (q['options'] as List?)?.cast<String>() ?? [];
                 return Card(
-                  color: AppColors.surfaceDark,
+                  color: AppColors.adminSurface,
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     dense: true,
@@ -8092,7 +8092,7 @@ class _TargetingCriteriaWidgetState extends State<_TargetingCriteriaWidget> {
               },
               selectedColor: AppColors.secondary.withValues(alpha: 0.3),
               checkmarkColor: AppColors.secondary,
-              backgroundColor: AppColors.surfaceDark,
+              backgroundColor: AppColors.adminSurface,
               side: BorderSide(
                 color: isSelected ? AppColors.secondary : AppColors.borderDark,
               ),

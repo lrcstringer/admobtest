@@ -7352,6 +7352,18 @@ class $LocalFullConversationsTable extends LocalFullConversations
         type: DriftSqlType.int,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _chatThemeMeta = const VerificationMeta(
+    'chatTheme',
+  );
+  @override
+  late final GeneratedColumn<String> chatTheme = GeneratedColumn<String>(
+    'chat_theme',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('defaultDoodle'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7393,6 +7405,7 @@ class $LocalFullConversationsTable extends LocalFullConversations
     chatClearedAtJson,
     acceptedJson,
     disappearingMessagesDurationMs,
+    chatTheme,
     createdAt,
     updatedAt,
   ];
@@ -7554,6 +7567,12 @@ class $LocalFullConversationsTable extends LocalFullConversations
         ),
       );
     }
+    if (data.containsKey('chat_theme')) {
+      context.handle(
+        _chatThemeMeta,
+        chatTheme.isAcceptableOrUnknown(data['chat_theme']!, _chatThemeMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -7645,6 +7664,10 @@ class $LocalFullConversationsTable extends LocalFullConversations
         DriftSqlType.int,
         data['${effectivePrefix}disappearing_messages_duration_ms'],
       ),
+      chatTheme: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chat_theme'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -7681,6 +7704,9 @@ class LocalFullConversation extends DataClass
   final String chatClearedAtJson;
   final String acceptedJson;
   final int? disappearingMessagesDurationMs;
+
+  /// Persisted chat wallpaper theme (ChatThemeStyle enum name).
+  final String chatTheme;
   final DateTime createdAt;
   final DateTime? updatedAt;
   const LocalFullConversation({
@@ -7701,6 +7727,7 @@ class LocalFullConversation extends DataClass
     required this.chatClearedAtJson,
     required this.acceptedJson,
     this.disappearingMessagesDurationMs,
+    required this.chatTheme,
     required this.createdAt,
     this.updatedAt,
   });
@@ -7740,6 +7767,7 @@ class LocalFullConversation extends DataClass
         disappearingMessagesDurationMs,
       );
     }
+    map['chat_theme'] = Variable<String>(chatTheme);
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -7781,6 +7809,7 @@ class LocalFullConversation extends DataClass
           disappearingMessagesDurationMs == null && nullToAbsent
           ? const Value.absent()
           : Value(disappearingMessagesDurationMs),
+      chatTheme: Value(chatTheme),
       createdAt: Value(createdAt),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
@@ -7819,6 +7848,7 @@ class LocalFullConversation extends DataClass
       disappearingMessagesDurationMs: serializer.fromJson<int?>(
         json['disappearingMessagesDurationMs'],
       ),
+      chatTheme: serializer.fromJson<String>(json['chatTheme']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
@@ -7848,6 +7878,7 @@ class LocalFullConversation extends DataClass
       'disappearingMessagesDurationMs': serializer.toJson<int?>(
         disappearingMessagesDurationMs,
       ),
+      'chatTheme': serializer.toJson<String>(chatTheme),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
@@ -7871,6 +7902,7 @@ class LocalFullConversation extends DataClass
     String? chatClearedAtJson,
     String? acceptedJson,
     Value<int?> disappearingMessagesDurationMs = const Value.absent(),
+    String? chatTheme,
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => LocalFullConversation(
@@ -7905,6 +7937,7 @@ class LocalFullConversation extends DataClass
     disappearingMessagesDurationMs: disappearingMessagesDurationMs.present
         ? disappearingMessagesDurationMs.value
         : this.disappearingMessagesDurationMs,
+    chatTheme: chatTheme ?? this.chatTheme,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
@@ -7958,6 +7991,7 @@ class LocalFullConversation extends DataClass
           data.disappearingMessagesDurationMs.present
           ? data.disappearingMessagesDurationMs.value
           : this.disappearingMessagesDurationMs,
+      chatTheme: data.chatTheme.present ? data.chatTheme.value : this.chatTheme,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -7985,6 +8019,7 @@ class LocalFullConversation extends DataClass
           ..write(
             'disappearingMessagesDurationMs: $disappearingMessagesDurationMs, ',
           )
+          ..write('chatTheme: $chatTheme, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -8010,6 +8045,7 @@ class LocalFullConversation extends DataClass
     chatClearedAtJson,
     acceptedJson,
     disappearingMessagesDurationMs,
+    chatTheme,
     createdAt,
     updatedAt,
   );
@@ -8035,6 +8071,7 @@ class LocalFullConversation extends DataClass
           other.acceptedJson == this.acceptedJson &&
           other.disappearingMessagesDurationMs ==
               this.disappearingMessagesDurationMs &&
+          other.chatTheme == this.chatTheme &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -8058,6 +8095,7 @@ class LocalFullConversationsCompanion
   final Value<String> chatClearedAtJson;
   final Value<String> acceptedJson;
   final Value<int?> disappearingMessagesDurationMs;
+  final Value<String> chatTheme;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> rowid;
@@ -8079,6 +8117,7 @@ class LocalFullConversationsCompanion
     this.chatClearedAtJson = const Value.absent(),
     this.acceptedJson = const Value.absent(),
     this.disappearingMessagesDurationMs = const Value.absent(),
+    this.chatTheme = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -8101,6 +8140,7 @@ class LocalFullConversationsCompanion
     this.chatClearedAtJson = const Value.absent(),
     this.acceptedJson = const Value.absent(),
     this.disappearingMessagesDurationMs = const Value.absent(),
+    this.chatTheme = const Value.absent(),
     required DateTime createdAt,
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -8127,6 +8167,7 @@ class LocalFullConversationsCompanion
     Expression<String>? chatClearedAtJson,
     Expression<String>? acceptedJson,
     Expression<int>? disappearingMessagesDurationMs,
+    Expression<String>? chatTheme,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -8153,6 +8194,7 @@ class LocalFullConversationsCompanion
       if (acceptedJson != null) 'accepted_json': acceptedJson,
       if (disappearingMessagesDurationMs != null)
         'disappearing_messages_duration_ms': disappearingMessagesDurationMs,
+      if (chatTheme != null) 'chat_theme': chatTheme,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -8177,6 +8219,7 @@ class LocalFullConversationsCompanion
     Value<String>? chatClearedAtJson,
     Value<String>? acceptedJson,
     Value<int?>? disappearingMessagesDurationMs,
+    Value<String>? chatTheme,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
     Value<int>? rowid,
@@ -8201,6 +8244,7 @@ class LocalFullConversationsCompanion
       acceptedJson: acceptedJson ?? this.acceptedJson,
       disappearingMessagesDurationMs:
           disappearingMessagesDurationMs ?? this.disappearingMessagesDurationMs,
+      chatTheme: chatTheme ?? this.chatTheme,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -8267,6 +8311,9 @@ class LocalFullConversationsCompanion
         disappearingMessagesDurationMs.value,
       );
     }
+    if (chatTheme.present) {
+      map['chat_theme'] = Variable<String>(chatTheme.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -8301,6 +8348,7 @@ class LocalFullConversationsCompanion
           ..write(
             'disappearingMessagesDurationMs: $disappearingMessagesDurationMs, ',
           )
+          ..write('chatTheme: $chatTheme, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -20833,6 +20881,7 @@ typedef $$LocalFullConversationsTableCreateCompanionBuilder =
       Value<String> chatClearedAtJson,
       Value<String> acceptedJson,
       Value<int?> disappearingMessagesDurationMs,
+      Value<String> chatTheme,
       required DateTime createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -20856,6 +20905,7 @@ typedef $$LocalFullConversationsTableUpdateCompanionBuilder =
       Value<String> chatClearedAtJson,
       Value<String> acceptedJson,
       Value<int?> disappearingMessagesDurationMs,
+      Value<String> chatTheme,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
@@ -20952,6 +21002,11 @@ class $$LocalFullConversationsTableFilterComposer
 
   ColumnFilters<int> get disappearingMessagesDurationMs => $composableBuilder(
     column: $table.disappearingMessagesDurationMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get chatTheme => $composableBuilder(
+    column: $table.chatTheme,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -21060,6 +21115,11 @@ class $$LocalFullConversationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get chatTheme => $composableBuilder(
+    column: $table.chatTheme,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -21159,6 +21219,9 @@ class $$LocalFullConversationsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get chatTheme =>
+      $composableBuilder(column: $table.chatTheme, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -21230,6 +21293,7 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> acceptedJson = const Value.absent(),
                 Value<int?> disappearingMessagesDurationMs =
                     const Value.absent(),
+                Value<String> chatTheme = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -21251,6 +21315,7 @@ class $$LocalFullConversationsTableTableManager
                 chatClearedAtJson: chatClearedAtJson,
                 acceptedJson: acceptedJson,
                 disappearingMessagesDurationMs: disappearingMessagesDurationMs,
+                chatTheme: chatTheme,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -21275,6 +21340,7 @@ class $$LocalFullConversationsTableTableManager
                 Value<String> acceptedJson = const Value.absent(),
                 Value<int?> disappearingMessagesDurationMs =
                     const Value.absent(),
+                Value<String> chatTheme = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -21296,6 +21362,7 @@ class $$LocalFullConversationsTableTableManager
                 chatClearedAtJson: chatClearedAtJson,
                 acceptedJson: acceptedJson,
                 disappearingMessagesDurationMs: disappearingMessagesDurationMs,
+                chatTheme: chatTheme,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

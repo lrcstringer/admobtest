@@ -84,7 +84,8 @@ class _MarketplaceListingDetailScreenState
         backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
           title: const Text('Listing'),
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.buyCard,
+          foregroundColor: AppColors.buyTextPrimary,
           actions: [
             IconButton(
               icon: const Icon(Icons.share_outlined),

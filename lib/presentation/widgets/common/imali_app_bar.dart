@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../theme/app_colors.dart';
-
 /// Shared AppBar for consistent branding across all screens.
 /// Layout: [Back (auto)] | Title | [extraActions] | Notifications | Profile
 class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -10,6 +8,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? extraActions;
   final PreferredSizeWidget? bottom;
   final Color? backgroundColor;
+  final Color? foregroundColor;
 
   const IMaliAppBar({
     super.key,
@@ -17,6 +16,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.extraActions,
     this.bottom,
     this.backgroundColor,
+    this.foregroundColor,
   });
 
   @override
@@ -27,6 +27,9 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
+    final onSurface = foregroundColor ?? Theme.of(context).colorScheme.onSurface;
+    final onSurfaceVariant =
+        foregroundColor?.withAlpha(179) ?? Theme.of(context).colorScheme.onSurfaceVariant;
 
     const mascot = Padding(
       padding: EdgeInsets.all(4),
@@ -47,8 +50,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back,
-                      color: AppColors.textPrimary),
+                  icon: Icon(Icons.arrow_back, color: onSurface),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 mascot,
@@ -57,28 +59,28 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
           : mascot,
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: onSurface,
         ),
       ),
       centerTitle: true,
       actions: [
         if (extraActions != null) ...extraActions!,
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.info_outline,
-            color: AppColors.textSecondary,
+            color: onSurfaceVariant,
           ),
           onPressed: () => context.push('/home/profile/settings/help'),
           tooltip: 'Help',
         ),
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.notifications_outlined,
-            color: AppColors.textSecondary,
+            color: onSurfaceVariant,
           ),
           onPressed: () {
             // Notifications screen not yet wired
@@ -86,9 +88,9 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
           tooltip: 'Notifications',
         ),
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.person_outline,
-            color: AppColors.textSecondary,
+            color: onSurfaceVariant,
           ),
           onPressed: () => context.push('/home/profile'),
           tooltip: 'Profile',

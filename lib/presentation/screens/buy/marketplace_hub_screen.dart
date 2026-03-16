@@ -66,7 +66,8 @@ class _MarketplaceHubScreenState extends State<MarketplaceHubScreen>
       backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: 'Intengiso',
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: Column(
         children: [

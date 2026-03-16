@@ -63,12 +63,12 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         ],
       ),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.walletGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, walletState) {
           return BlocBuilder<RewardBloc, RewardState>(

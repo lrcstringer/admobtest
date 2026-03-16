@@ -90,7 +90,7 @@ class _MarketplaceListingModerationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -107,7 +107,8 @@ class _MarketplaceListingModerationScreenState
                           Text('Listing Moderation',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Review flagged listings and moderate content',
                               style: TextStyle(
@@ -387,7 +388,7 @@ class _MarketplaceListingModerationScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text(listing['title'] ?? 'Listing',
             style: const TextStyle(fontSize: 16)),
         content: SizedBox(
@@ -528,7 +529,7 @@ class _MarketplaceListingModerationScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Remove Listing?',
             style: TextStyle(fontSize: 16)),
         content: const Text(
@@ -612,7 +613,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -629,7 +630,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(

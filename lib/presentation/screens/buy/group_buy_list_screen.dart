@@ -67,7 +67,8 @@ class _GroupBuyListScreenState extends State<GroupBuyListScreen>
       backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: 'Hlangana Deals',
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: Column(
         children: [

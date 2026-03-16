@@ -128,7 +128,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Confirm Approval',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -151,7 +151,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.backgroundDark,
+                  color: AppColors.adminBackground,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -245,7 +245,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Reject Action',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -348,7 +348,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text(
           'Action Details',
           style: TextStyle(color: AppColors.textPrimaryDark),
@@ -497,7 +497,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.backgroundDark,
+            color: AppColors.adminBackground,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -560,7 +560,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
     final filtered = _filteredActions;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -648,7 +648,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.cardDark,
+                    color: AppColors.adminCard,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -696,7 +696,7 @@ class _PendingActionsScreenState extends State<PendingActionsScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.cardDark,
+                    color: AppColors.adminCard,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -1028,7 +1028,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

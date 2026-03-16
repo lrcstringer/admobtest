@@ -114,7 +114,7 @@ class _FeaturedContentManagementScreenState
     final expired = _expiredItems(now);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -132,7 +132,7 @@ class _FeaturedContentManagementScreenState
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: AppColors.textPrimaryDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -338,7 +338,7 @@ class _FeaturedContentManagementScreenState
           // Actions
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
-            color: AppColors.cardDark,
+            color: AppColors.adminCard,
             onSelected: (action) => _onItemAction(action, item),
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('Edit')),
@@ -390,7 +390,7 @@ class _FeaturedContentManagementScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Delete Featured Item?'),
         content: Text('Delete "${item['title']}"? This cannot be undone.'),
         actions: [
@@ -599,7 +599,7 @@ class _FeaturedContentManagementScreenState
               imageUrlCtrl.text.trim().isNotEmpty;
 
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title:
                 Text(isEdit ? 'Edit Featured Item' : 'Create Featured Item'),
             content: SizedBox(
@@ -1485,7 +1485,7 @@ class _FeaturedContentManagementScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Pick a Color'),
         content: SingleChildScrollView(
           child: ColorPicker(
@@ -1905,7 +1905,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderDark),
       ),

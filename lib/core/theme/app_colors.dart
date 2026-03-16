@@ -116,6 +116,9 @@ abstract class AppColors {
   // Token Gold (used in price displays)
   static const Color tokenGold = Color(0xFFFFC107);
 
+  // ── Admin Portal Light Theme Tokens ──
+  static const Color adminTextSecondary = Color(0xFF64748B);
+
   // ── Buy Tab Light Theme Tokens (Spec §2) ──
 
   // Backgrounds

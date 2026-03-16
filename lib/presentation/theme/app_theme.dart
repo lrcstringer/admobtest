@@ -83,12 +83,13 @@ class AppTheme {
     tertiary: AppColors.tertiary,
     tertiaryContainer: AppColors.tertiaryLight,
     surface: AppColors.surfaceLight,
-    error: AppColors.error,
+    error: AppColors.buyError,
     onPrimary: AppColors.textOnPrimary,
     onSecondary: AppColors.textOnSecondary,
-    onSurface: AppColors.textPrimary,
+    onSurface: AppColors.buyTextPrimary,
+    onSurfaceVariant: AppColors.buyTextSecondary,
     onError: AppColors.textOnPrimary,
-    outline: AppColors.border,
+    outline: AppColors.buyCardBorder,
   );
 
   static const ColorScheme _darkColorScheme = ColorScheme.dark(
@@ -114,10 +115,10 @@ class AppTheme {
     scrolledUnderElevation: 0,
     centerTitle: true,
     backgroundColor: Colors.transparent,
-    foregroundColor: AppColors.textPrimary,
+    foregroundColor: AppColors.buyTextPrimary,
     surfaceTintColor: Colors.transparent,
     systemOverlayStyle: SystemUiOverlayStyle.dark,
-    iconTheme: IconThemeData(color: AppColors.textPrimary),
+    iconTheme: IconThemeData(color: AppColors.buyTextPrimary),
   );
 
   static const AppBarTheme _darkAppBarTheme = AppBarTheme(
@@ -239,15 +240,15 @@ class AppTheme {
   static InputDecorationTheme get _lightInputDecorationTheme =>
       InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surfaceLight,
+        fillColor: AppColors.buyCard,
         contentPadding: AppSpacing.inputPadding,
         border: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusLg,
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.buyCardBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusLg,
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: const BorderSide(color: AppColors.buyCardBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusLg,
@@ -255,25 +256,27 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusLg,
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(color: AppColors.buyError),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: AppSpacing.borderRadiusLg,
-          borderSide: const BorderSide(color: AppColors.error, width: 2),
+          borderSide: const BorderSide(color: AppColors.buyError, width: 2),
         ),
         hintStyle: const TextStyle(
           fontFamily: 'Plus Jakarta Sans',
-          color: AppColors.textHint,
+          color: AppColors.buyTextTertiary,
         ),
         labelStyle: const TextStyle(
           fontFamily: 'Plus Jakarta Sans',
-          color: AppColors.textSecondary,
+          color: AppColors.buyTextSecondary,
         ),
         errorStyle: const TextStyle(
           fontFamily: 'Plus Jakarta Sans',
-          color: AppColors.error,
+          color: AppColors.buyError,
           fontSize: 12,
         ),
+        prefixIconColor: AppColors.buyTextSecondary,
+        suffixIconColor: AppColors.buyTextSecondary,
       );
 
   static InputDecorationTheme get _darkInputDecorationTheme =>
@@ -323,9 +326,9 @@ class AppTheme {
   static const BottomNavigationBarThemeData _lightBottomNavTheme =
       BottomNavigationBarThemeData(
     elevation: 0,
-    backgroundColor: AppColors.surfaceLight,
+    backgroundColor: AppColors.buyCard,
     selectedItemColor: AppColors.primary,
-    unselectedItemColor: AppColors.textSecondary,
+    unselectedItemColor: AppColors.buyTextTertiary,
     type: BottomNavigationBarType.fixed,
     showUnselectedLabels: true,
     selectedLabelStyle: TextStyle(
@@ -364,8 +367,9 @@ class AppTheme {
   static NavigationBarThemeData get _lightNavigationBarTheme =>
       NavigationBarThemeData(
         elevation: 0,
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.buyCard,
         indicatorColor: AppColors.primary.withValues(alpha: 0.2),
+        surfaceTintColor: Colors.transparent,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
@@ -379,14 +383,14 @@ class AppTheme {
             fontFamily: 'Plus Jakarta Sans',
             fontSize: 12,
             fontWeight: FontWeight.w400,
-            color: AppColors.textSecondary,
+            color: AppColors.buyTextTertiary,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.primary, size: 24);
           }
-          return const IconThemeData(color: AppColors.textSecondary, size: 24);
+          return const IconThemeData(color: AppColors.buyTextTertiary, size: 24);
         }),
       );
 
@@ -435,7 +439,7 @@ class AppTheme {
   // ============ DIVIDER THEMES ============
 
   static const DividerThemeData _lightDividerTheme = DividerThemeData(
-    color: AppColors.divider,
+    color: AppColors.buyDivider,
     thickness: 1,
     space: 1,
   );
@@ -449,15 +453,15 @@ class AppTheme {
   // ============ CHIP THEMES ============
 
   static ChipThemeData get _lightChipTheme => ChipThemeData(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.buyChipBg,
         selectedColor: AppColors.primaryLight,
-        disabledColor: AppColors.surfaceLight,
+        disabledColor: AppColors.buyChipBg,
         labelStyle: const TextStyle(
           fontFamily: 'Plus Jakarta Sans',
           fontSize: 14,
-          color: AppColors.textPrimary,
+          color: AppColors.buyTextPrimary,
         ),
-        side: const BorderSide(color: AppColors.border),
+        side: const BorderSide(color: AppColors.buyChipBorder),
         shape: RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadiusRound,
         ),
@@ -498,11 +502,12 @@ class AppTheme {
   // ============ DIALOG THEMES ============
 
   static DialogThemeData get _lightDialogTheme => DialogThemeData(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.buyCard,
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadiusXl,
         ),
+        surfaceTintColor: Colors.transparent,
       );
 
   static DialogThemeData get _darkDialogTheme => DialogThemeData(
@@ -518,15 +523,16 @@ class AppTheme {
 
   static BottomSheetThemeData get _lightBottomSheetTheme =>
       BottomSheetThemeData(
-        backgroundColor: AppColors.surfaceLight,
-        modalBackgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.buyCard,
+        modalBackgroundColor: AppColors.buyCard,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(AppSpacing.radiusXl),
           ),
         ),
-        dragHandleColor: AppColors.textHint,
+        dragHandleColor: AppColors.buyTextTertiary,
         dragHandleSize: const Size(40, 4),
+        surfaceTintColor: Colors.transparent,
       );
 
   static BottomSheetThemeData get _darkBottomSheetTheme => BottomSheetThemeData(
@@ -551,8 +557,8 @@ class AppTheme {
     ),
     minLeadingWidth: AppSpacing.iconMd,
     horizontalTitleGap: AppSpacing.md,
-    iconColor: AppColors.textSecondary,
-    textColor: AppColors.textPrimary,
+    iconColor: AppColors.buyTextSecondary,
+    textColor: AppColors.buyTextPrimary,
   );
 
   static const ListTileThemeData _darkListTileTheme = ListTileThemeData(
@@ -570,7 +576,7 @@ class AppTheme {
 
   static TabBarThemeData get _lightTabBarTheme => TabBarThemeData(
         labelColor: AppColors.primary,
-        unselectedLabelColor: AppColors.textSecondary,
+        unselectedLabelColor: AppColors.buyTextSecondary,
         indicatorColor: AppColors.primary,
         indicatorSize: TabBarIndicatorSize.label,
         dividerColor: Colors.transparent,
@@ -666,7 +672,7 @@ class AppTheme {
   // ============ ICON THEMES ============
 
   static const IconThemeData _lightIconTheme = IconThemeData(
-    color: AppColors.textPrimary,
+    color: AppColors.buyTextPrimary,
     size: 24,
   );
 

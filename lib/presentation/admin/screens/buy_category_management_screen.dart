@@ -55,7 +55,7 @@ class _BuyCategoryManagementScreenState
     final inactive = _categories.length - active - comingSoon;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.adminBackground,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -73,7 +73,8 @@ class _BuyCategoryManagementScreenState
                           Text('Marketplace Categories',
                               style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold)),
+                                  fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimaryDark)),
                           SizedBox(height: 4),
                           Text('Manage marketplace service categories',
                               style: TextStyle(
@@ -343,7 +344,7 @@ class _BuyCategoryManagementScreenState
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: Text(isSubEdit ? 'Edit Subcategory' : 'Add Subcategory'),
         content: SizedBox(
           width: 350,
@@ -461,7 +462,7 @@ class _BuyCategoryManagementScreenState
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setInnerState) {
           return AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: Text(isEdit ? 'Edit Category' : 'Create Category'),
             content: SizedBox(
               width: 450,
@@ -711,7 +712,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -728,7 +729,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(value,
               style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold)),
+                  fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimaryDark)),
           const SizedBox(height: 4),
           Text(title,
               style: TextStyle(

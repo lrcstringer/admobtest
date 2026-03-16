@@ -104,12 +104,12 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
         title: title,
       ),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: Column(
         children: [
           Padding(

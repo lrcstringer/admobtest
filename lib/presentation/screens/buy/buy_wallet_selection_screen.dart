@@ -67,7 +67,8 @@ class _BuyWalletSelectionScreenState extends State<BuyWalletSelectionScreen> {
             backgroundColor: AppColors.buyBackground,
             appBar: IMaliAppBar(
               title: 'Confirm Purchase',
-              backgroundColor: AppColors.background,
+              backgroundColor: AppColors.buyCard,
+              foregroundColor: AppColors.buyTextPrimary,
             ),
             body: Column(
                 children: [

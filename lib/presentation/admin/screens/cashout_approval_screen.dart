@@ -132,7 +132,7 @@ class _CashoutApprovalScreenState extends State<CashoutApprovalScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Approve Cashout',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: const Text(
@@ -186,7 +186,7 @@ class _CashoutApprovalScreenState extends State<CashoutApprovalScreen> {
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.cardDark,
+        backgroundColor: AppColors.adminCard,
         title: const Text('Reject Cashout',
             style: TextStyle(color: AppColors.textPrimaryDark)),
         content: Column(
@@ -277,7 +277,7 @@ class _CashoutApprovalScreenState extends State<CashoutApprovalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
@@ -364,7 +364,7 @@ class _CashoutApprovalScreenState extends State<CashoutApprovalScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.cardDark,
+                  color: AppColors.adminCard,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -674,7 +674,7 @@ class _SummaryCard extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

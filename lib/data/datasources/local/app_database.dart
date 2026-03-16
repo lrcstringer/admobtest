@@ -304,6 +304,8 @@ class LocalFullConversations extends Table {
       text().withDefault(const Constant('{}'))();
   TextColumn get acceptedJson => text().withDefault(const Constant('{}'))();
   IntColumn get disappearingMessagesDurationMs => integer().nullable()();
+  /// Persisted chat wallpaper theme (ChatThemeStyle enum name).
+  TextColumn get chatTheme => text().withDefault(const Constant('defaultDoodle'))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
 
@@ -542,7 +544,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -658,6 +660,10 @@ class AppDatabase extends _$AppDatabase {
             'SELECT id, text_content FROM local_full_messages '
             'WHERE text_content IS NOT NULL AND text_content != \'\'',
           );
+        }
+        if (from < 17) {
+          await m.addColumn(
+              localFullConversations, localFullConversations.chatTheme);
         }
       },
     );
@@ -1068,6 +1074,28 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  /// Clear the permanent failure sentinel for undecrypted messages from
+  /// [senderId] in [conversationId], allowing them to be retried.
+  ///
+  /// Called when a valid E2EE session is established with the sender.
+  /// Changes `[Session expired — message cannot be recovered]` back to
+  /// `[Cannot decrypt]` so the next Firestore snapshot triggers a retry.
+  Future<int> clearPermanentSentinel(
+    String conversationId,
+    String senderId,
+  ) {
+    const sentinel = '[Session expired — message cannot be recovered]';
+    return (update(localFullMessages)
+          ..where((m) =>
+              m.conversationId.equals(conversationId) &
+              m.senderId.equals(senderId) &
+              m.isDecrypted.equals(false) &
+              m.textContent.equals(sentinel)))
+        .write(const LocalFullMessagesCompanion(
+      textContent: Value('[Cannot decrypt]'),
+    ));
+  }
+
   Future<void> updateLocalMessageStatus(String messageId, String status) {
     return (update(localFullMessages)..where((m) => m.id.equals(messageId)))
         .write(LocalFullMessagesCompanion(status: Value(status)));
@@ -1152,6 +1180,21 @@ class AppDatabase extends _$AppDatabase {
   Future<void> deleteLocalConversation(String id) {
     return (delete(localFullConversations)..where((c) => c.id.equals(id)))
         .go();
+  }
+
+  /// Get the persisted chat wallpaper theme for a conversation.
+  Future<String> getChatTheme(String conversationId) async {
+    final row = await (select(localFullConversations)
+          ..where((c) => c.id.equals(conversationId)))
+        .getSingleOrNull();
+    return row?.chatTheme ?? 'defaultDoodle';
+  }
+
+  /// Persist the user's wallpaper choice for a conversation.
+  Future<void> setChatTheme(String conversationId, String theme) {
+    return (update(localFullConversations)
+          ..where((c) => c.id.equals(conversationId)))
+        .write(LocalFullConversationsCompanion(chatTheme: Value(theme)));
   }
 
   /// Update only the last-message preview fields of a conversation.

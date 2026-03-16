@@ -37,9 +37,17 @@ class MessageDecryptionService {
   /// restart, giving one more chance if the user fixed their keys.
   /// Bounded to [_maxFailureEntries]; oldest entries evicted on overflow.
   final Map<String, int> decryptFailures = {};
-  static const maxDecryptAttempts = 3;
+  static const maxDecryptAttempts = 5;
   static const _maxCacheSize = 500;
   static const _maxFailureEntries = 1000;
+
+  /// Tracks the timestamp of the last recorded failure per message ID.
+  /// Used to time-gate failure counting: rapid Firestore snapshot events
+  /// can reprocess the same undecrypted message multiple times per second,
+  /// exhausting [maxDecryptAttempts] before the session has a chance to
+  /// establish. Only failures separated by [_failureGateInterval] count.
+  final Map<String, DateTime> _failureTimestamps = {};
+  static const _failureGateInterval = Duration(seconds: 30);
 
   /// Cache a sent message's plaintext, evicting the oldest entry if at capacity.
   void cacheSentPlaintext(String messageId, String plaintext) {
@@ -285,9 +293,20 @@ class MessageDecryptionService {
   }
 
   /// Record a decryption failure for a message.
+  ///
+  /// Time-gated: only increments the counter if at least [_failureGateInterval]
+  /// has passed since the last recorded failure for this message. This prevents
+  /// rapid Firestore snapshot events from exhausting [maxDecryptAttempts] in
+  /// seconds before the E2EE session has a chance to establish.
   void recordFailure(String messageId) {
+    final now = DateTime.now();
+    final lastFailure = _failureTimestamps[messageId];
+    if (lastFailure != null && now.difference(lastFailure) < _failureGateInterval) {
+      return; // Too soon — don't count this attempt
+    }
     _evictFailuresIfNeeded();
     decryptFailures[messageId] = (decryptFailures[messageId] ?? 0) + 1;
+    _failureTimestamps[messageId] = now;
   }
 
   /// Mark a message as permanently failed (max attempts reached).
@@ -322,6 +341,7 @@ class MessageDecryptionService {
   void resetFailures(List<String> messageIds) {
     for (final id in messageIds) {
       decryptFailures.remove(id);
+      _failureTimestamps.remove(id);
     }
   }
 
@@ -333,11 +353,14 @@ class MessageDecryptionService {
   Future<void> resetSessionForPeer(String peerId) async {
     await _signalProtocolService.resetSession(peerId);
     decryptFailures.clear();
+    _failureTimestamps.clear();
   }
 
   void _evictFailuresIfNeeded() {
     if (decryptFailures.length >= _maxFailureEntries) {
-      decryptFailures.remove(decryptFailures.keys.first);
+      final key = decryptFailures.keys.first;
+      decryptFailures.remove(key);
+      _failureTimestamps.remove(key);
     }
   }
 }

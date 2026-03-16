@@ -72,7 +72,7 @@ class _BrandStorefrontManagementScreenState
         _storefronts.where((s) => s['isPremium'] == true).length;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: AppColors.adminBackground,
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -90,7 +90,7 @@ class _BrandStorefrontManagementScreenState
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: AppColors.textPrimaryDark,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -298,7 +298,7 @@ class _BrandStorefrontManagementScreenState
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert,
                 color: AppColors.textSecondary),
-            color: AppColors.cardDark,
+            color: AppColors.adminCard,
             onSelected: (action) => _onAction(action, sf),
             itemBuilder: (_) => [
               const PopupMenuItem(
@@ -352,7 +352,7 @@ class _BrandStorefrontManagementScreenState
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppColors.cardDark,
+            backgroundColor: AppColors.adminCard,
             title: const Text('Delete Storefront?'),
             content: Text(
                 'Delete "${sf['brandName']}" storefront? This cannot be undone.'),
@@ -497,7 +497,7 @@ class _ReviewsDialogContentState extends State<_ReviewsDialogContent> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.cardDark,
+      backgroundColor: AppColors.adminCard,
       title: Text('Reviews: ${widget.brandName}'),
       content: SizedBox(
         width: 560,
@@ -678,7 +678,7 @@ class _StatCard extends StatelessWidget {
       width: 180,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: AppColors.adminCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.borderDark),
       ),

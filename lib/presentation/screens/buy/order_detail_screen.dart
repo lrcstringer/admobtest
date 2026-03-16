@@ -36,7 +36,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Order Details'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.buyCard,
+        foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {

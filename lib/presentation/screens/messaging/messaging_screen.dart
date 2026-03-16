@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../domain/entities/community.dart';
 import '../../../domain/entities/community_member.dart';
@@ -49,6 +50,10 @@ class _MessagingScreenState extends State<MessagingScreen>
   bool _pendingLocalCommunityOp = false;
   StreamSubscription<RemoteMessage>? _fcmSub;
 
+  /// Global chat tab wallpaper theme (persisted via SharedPreferences).
+  ChatThemeStyle _chatTabTheme = ChatThemeStyle.defaultDoodle;
+  static const _chatTabThemeKey = 'chat_tab_wallpaper';
+
   @override
   void dispose() {
     _fcmSub?.cancel();
@@ -60,6 +65,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   @override
   void initState() {
     super.initState();
+    _loadChatTabTheme();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
@@ -186,12 +192,17 @@ class _MessagingScreenState extends State<MessagingScreen>
       appBar: _isSearching
           ? _buildSearchAppBar()
           : _buildMainAppBar(),
-      body: TabBarView(
-        controller: _tabController,
+      body: Stack(
         children: [
-          _buildChatsTab(context, currentUserId),
-          _buildCollectionsTab(context, currentUserId),
-          _buildCommunitiesTab(context, currentUserId),
+          Positioned.fill(child: ChatBackground(theme: _chatTabTheme)),
+          TabBarView(
+            controller: _tabController,
+            children: [
+              _buildChatsTab(context, currentUserId),
+              _buildCollectionsTab(context, currentUserId),
+              _buildCommunitiesTab(context, currentUserId),
+            ],
+          ),
         ],
       ),
       floatingActionButton: _buildContextFAB(context),
@@ -254,6 +265,11 @@ class _MessagingScreenState extends State<MessagingScreen>
       title: 'Chat',
       backgroundColor: AppColors.chatAppBar,
       extraActions: [
+        IconButton(
+          icon: const Icon(Icons.wallpaper_outlined, color: AppColors.textPrimary),
+          tooltip: 'Chat Wallpaper',
+          onPressed: () => _showWallpaperPicker(context),
+        ),
         IconButton(
           icon: const Icon(Icons.search, color: AppColors.textPrimary),
           onPressed: () => setState(() => _isSearching = true),
@@ -370,10 +386,7 @@ class _MessagingScreenState extends State<MessagingScreen>
         }
       },
       builder: (context, convState) {
-        return Stack(
-          children: [
-            const Positioned.fill(child: ChatBackground()),
-            NotificationListener<UserScrollNotification>(
+        return NotificationListener<UserScrollNotification>(
               onNotification: (notification) {
                 if (notification.direction == ScrollDirection.reverse &&
                     _showActionStrip) {
@@ -406,9 +419,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                   ),
                 ],
               ),
-            ),
-          ],
-        );
+            );
       },
     );
   }
@@ -665,12 +676,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   Widget _buildCollectionsTab(BuildContext context, String currentUserId) {
     return BlocBuilder<TokenPoolBloc, TokenPoolState>(
       builder: (context, poolState) {
-        return Stack(
-          children: [
-            const Positioned.fill(child: ChatBackground()),
-            _buildCollectionsList(context, poolState, currentUserId),
-          ],
-        );
+        return _buildCollectionsList(context, poolState, currentUserId);
       },
     );
   }
@@ -814,12 +820,7 @@ class _MessagingScreenState extends State<MessagingScreen>
   Widget _buildCommunitiesTab(BuildContext context, String currentUserId) {
     return BlocBuilder<CommunityBloc, CommunityState>(
       builder: (context, commState) {
-        return Stack(
-          children: [
-            const Positioned.fill(child: ChatBackground()),
-            _buildCommunitiesList(context, commState, currentUserId),
-          ],
-        );
+        return _buildCommunitiesList(context, commState, currentUserId);
       },
     );
   }
@@ -1120,6 +1121,34 @@ class _MessagingScreenState extends State<MessagingScreen>
   // =========================================================================
   // FAB BOTTOM SHEETS
   // =========================================================================
+
+  Future<void> _loadChatTabTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_chatTabThemeKey);
+    if (name != null && mounted) {
+      final style = ChatThemeStyle.values.firstWhere(
+        (s) => s.name == name,
+        orElse: () => ChatThemeStyle.defaultDoodle,
+      );
+      if (style != _chatTabTheme) {
+        setState(() => _chatTabTheme = style);
+      }
+    }
+  }
+
+  void _showWallpaperPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => ChatThemePicker(
+        current: _chatTabTheme,
+        onSelected: (theme) async {
+          setState(() => _chatTabTheme = theme);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_chatTabThemeKey, theme.name);
+        },
+      ),
+    );
+  }
 
   void _showChatsSheet(BuildContext context) {
     final currentUser = context.read<AuthBloc>().state.user;

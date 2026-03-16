@@ -815,10 +815,25 @@ class MessageSyncService {
     // The next Firestore sync event will re-process undecrypted messages
     // from these senders (ciphertext is only available from Firestore, not
     // the local DB, so we rely on the stream to retry).
+    //
+    // Also clear the permanent sentinel from the DB so that previously
+    // permanently-failed messages get a fresh chance. Without this, the
+    // sentinel check at line ~563 would skip them forever even though
+    // the session is now valid.
     if (sendersWithGoodSession.isNotEmpty) {
       final undecryptedIds = <String>[];
       for (final senderId in sendersWithGoodSession) {
         try {
+          // Clear DB permanent sentinel → allows retry on next snapshot
+          final cleared = await _appDatabase.clearPermanentSentinel(
+            conversationId,
+            senderId,
+          );
+          if (cleared > 0) {
+            debugPrint('MessageSyncService: Cleared permanent sentinel for '
+                '$cleared messages from ${senderId.substring(0, 8)}… — '
+                'will retry on next sync event');
+          }
           final undecrypted = await _appDatabase.getUndecryptedMessages(
             conversationId,
             senderId,

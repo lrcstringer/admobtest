@@ -33,12 +33,12 @@ class _ReferralScreenState extends State<ReferralScreen> {
     return Scaffold(
       appBar: const IMaliAppBar(title: 'Invite & Earn'),
       body: TabBackground(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
+          colors: AppColors.themed(context).tabGradient,
         ),
-        overlayAsset: AppColors.waveOverlay,
+        overlayAsset: null,
         child: BlocConsumer<ReferralBloc, ReferralState>(
         listener: (context, state) {
           if (state.errorMessage != null) {

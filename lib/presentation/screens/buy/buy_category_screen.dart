@@ -172,7 +172,8 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             backgroundColor: AppColors.buyBackground,
             appBar: IMaliAppBar(
               title: _getTitle(state),
-              backgroundColor: AppColors.background,
+              backgroundColor: AppColors.buyCard,
+              foregroundColor: AppColors.buyTextPrimary,
             ),
             body: _buildBody(context, state),
             floatingActionButton: _buildFab(context, state),

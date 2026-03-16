@@ -37,6 +37,7 @@ import 'presentation/blocs/group_buy/group_buy_bloc.dart';
 import 'presentation/blocs/purchase/purchase_bloc.dart';
 import 'presentation/blocs/referral/referral_bloc.dart';
 import 'presentation/blocs/reward/reward_bloc.dart';
+import 'presentation/blocs/theme/theme_bloc.dart';
 import 'presentation/blocs/wallet/wallet_bloc.dart';
 import 'presentation/router/app_router.dart';
 import 'presentation/theme/app_theme.dart';
@@ -77,6 +78,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
   late final GooiListBloc _gooiListBloc;
   late final GooiDashboardBloc _gooiDashboardBloc;
   late final GooiFormationBloc _gooiFormationBloc;
+  late final ThemeBloc _themeBloc;
   late final AppRouter _appRouter;
   late final SessionLockService _sessionLockService;
   late final SimChangeDetector _simChangeDetector;
@@ -113,6 +115,8 @@ class _IMaliChatAppState extends State<IMaliChatApp>
     _gooiListBloc = getIt<GooiListBloc>();
     _gooiDashboardBloc = getIt<GooiDashboardBloc>();
     _gooiFormationBloc = getIt<GooiFormationBloc>();
+    _themeBloc = getIt<ThemeBloc>()
+      ..add(const ThemeEvent.loadSavedTheme());
     _sessionLockService = GetIt.instance<SessionLockService>();
     _simChangeDetector = GetIt.instance<SimChangeDetector>();
     _appRouter = AppRouter(authBloc: _authBloc);
@@ -282,6 +286,7 @@ class _IMaliChatAppState extends State<IMaliChatApp>
         BlocProvider<GooiListBloc>.value(value: _gooiListBloc),
         BlocProvider<GooiDashboardBloc>.value(value: _gooiDashboardBloc),
         BlocProvider<GooiFormationBloc>.value(value: _gooiFormationBloc),
+        BlocProvider<ThemeBloc>.value(value: _themeBloc),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listenWhen: (prev, curr) =>
@@ -302,13 +307,15 @@ class _IMaliChatAppState extends State<IMaliChatApp>
             );
           }
         },
-        child: MaterialApp.router(
-          title: 'iMali',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: ThemeMode.dark,
-          routerConfig: _appRouter.router,
+        child: BlocBuilder<ThemeBloc, ThemeState>(
+          builder: (context, themeState) => MaterialApp.router(
+            title: 'iMali',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: themeState.themeMode,
+            routerConfig: _appRouter.router,
+          ),
         ),
       ),
     );
