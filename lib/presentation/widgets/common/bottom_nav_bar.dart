@@ -157,7 +157,7 @@ class BottomNavBar extends StatelessWidget {
                       : null,
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: isActive ? 1.0 : 0.45,
+                    opacity: isActive ? 1.0 : (isDark ? 0.45 : 0.7),
                     child: buildIcon(),
                   ),
                 ),
