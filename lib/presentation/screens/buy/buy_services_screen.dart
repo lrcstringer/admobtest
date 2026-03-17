@@ -59,7 +59,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: IMaliAppBar(
         title: 'Buy',
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         extraActions: [
           IconButton(
@@ -93,7 +93,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
                   );
             },
             color: AppColors.buyMarketplaceAccent,
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             child: Stack(
               children: [
                 CustomScrollView(

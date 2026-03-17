@@ -172,7 +172,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
             backgroundColor: AppColors.buyBackground,
             appBar: IMaliAppBar(
               title: _getTitle(state),
-              backgroundColor: AppColors.buyCard,
+              backgroundColor: Colors.transparent,
               foregroundColor: AppColors.buyTextPrimary,
             ),
             body: _buildBody(context, state),
@@ -556,7 +556,7 @@ class _BuyCategoryScreenState extends State<BuyCategoryScreen> {
                       number,
                       style: const TextStyle(fontSize: 12),
                     ),
-                    backgroundColor: AppColors.buyCard,
+                    backgroundColor: Colors.transparent,
                     side: BorderSide(
                         color: AppColors.buyCardBorder.withValues(alpha: 0.5)),
                     onPressed: () {

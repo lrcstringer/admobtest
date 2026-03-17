@@ -84,7 +84,7 @@ class _MarketplaceListingDetailScreenState
         backgroundColor: AppColors.buyBackground,
         appBar: AppBar(
           title: const Text('Listing'),
-          backgroundColor: AppColors.buyCard,
+          backgroundColor: Colors.transparent,
           foregroundColor: AppColors.buyTextPrimary,
           actions: [
             IconButton(
@@ -493,7 +493,7 @@ class _MarketplaceListingDetailScreenState
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundColor: AppColors.buyCard,
+              backgroundColor: Colors.transparent,
               backgroundImage: listing.providerPhotoUrl != null
                   ? CachedNetworkImageProvider(listing.providerPhotoUrl!)
                   : null,
@@ -675,7 +675,7 @@ class _MarketplaceListingDetailScreenState
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         title: const Text(
           'Confirm Purchase',
           style: TextStyle(color: AppColors.buyTextPrimary),

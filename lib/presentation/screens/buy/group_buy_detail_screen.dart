@@ -91,7 +91,7 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
           backgroundColor: AppColors.buyBackground,
           appBar: AppBar(
             title: Text(groupBuy?.title ?? 'Group Buy'),
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             foregroundColor: AppColors.buyTextPrimary,
             actions: [
               IconButton(

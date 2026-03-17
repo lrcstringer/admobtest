@@ -48,7 +48,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Create Listing'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
@@ -208,7 +208,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                   setState(() => _selectedCategory = cat),
                               selectedColor:
                                   AppColors.buyMarketplaceAccent.withValues(alpha: 0.2),
-                              backgroundColor: AppColors.buyCard,
+                              backgroundColor: Colors.transparent,
                               labelStyle: TextStyle(
                                 color: isSelected
                                     ? AppColors.buyMarketplaceAccent

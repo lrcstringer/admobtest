@@ -38,7 +38,7 @@ class _SavedItemsScreenState extends State<SavedItemsScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Saved Items',
@@ -453,7 +453,7 @@ class _SavedItemCard extends StatelessWidget {
   void _showStaleSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.buyCard,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

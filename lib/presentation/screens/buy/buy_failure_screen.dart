@@ -21,7 +21,7 @@ class BuyFailureScreen extends StatelessWidget {
           backgroundColor: AppColors.buyBackground,
           appBar: IMaliAppBar(
             title: 'Purchase Failed',
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             foregroundColor: AppColors.buyTextPrimary,
           ),
           body: SingleChildScrollView(

@@ -103,7 +103,7 @@ class _BrandStorefrontBodyState extends State<_BrandStorefrontBody> {
                 color: AppColors.buyTextPrimary,
               ),
             ),
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             actions: [
               if (storefront != null)
                 IconButton(

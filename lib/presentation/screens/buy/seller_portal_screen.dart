@@ -33,7 +33,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Seller Portal',

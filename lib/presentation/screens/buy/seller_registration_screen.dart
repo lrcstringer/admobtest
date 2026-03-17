@@ -66,7 +66,7 @@ These terms may be updated. Continued use of the marketplace means you accept an
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Become a Seller'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(
@@ -108,7 +108,7 @@ These terms may be updated. Continued use of the marketplace means you accept an
                           children: [
                             CircleAvatar(
                               radius: 36,
-                              backgroundColor: AppColors.buyCard,
+                              backgroundColor: Colors.transparent,
                               backgroundImage: avatarUrl != null
                                   ? NetworkImage(avatarUrl)
                                   : null,

@@ -32,7 +32,7 @@ class _BuyPurchaseHistoryScreenState extends State<BuyPurchaseHistoryScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: const IMaliAppBar(
         title: 'Purchase History',
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocBuilder<PurchaseBloc, PurchaseState>(

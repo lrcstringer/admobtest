@@ -50,7 +50,7 @@ class BrandProductDetailScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 320,
             pinned: true,
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             leading: IconButton(
               icon: const CircleAvatar(
                 backgroundColor: Colors.black45,

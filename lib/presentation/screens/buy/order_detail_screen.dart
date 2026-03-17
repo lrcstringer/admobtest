@@ -36,7 +36,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Order Details'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<OrderBloc, OrderState>(
@@ -394,7 +394,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         title: const Text(
           'Confirm Receipt?',
           style: TextStyle(color: AppColors.buyTextPrimary),
@@ -431,7 +431,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         title: const Text(
           'Raise a Dispute',
           style: TextStyle(color: AppColors.buyTextPrimary),

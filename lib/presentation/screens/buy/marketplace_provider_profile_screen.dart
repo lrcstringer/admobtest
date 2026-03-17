@@ -41,7 +41,7 @@ class _MarketplaceProviderProfileScreenState
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Provider'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         actions: [
           IconButton(
@@ -80,7 +80,7 @@ class _MarketplaceProviderProfileScreenState
                     children: [
                       CircleAvatar(
                         radius: 32,
-                        backgroundColor: AppColors.buyCard,
+                        backgroundColor: Colors.transparent,
                         backgroundImage: provider.photoUrl != null
                             ? CachedNetworkImageProvider(provider.photoUrl!)
                             : null,

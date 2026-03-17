@@ -84,7 +84,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Edit Listing',

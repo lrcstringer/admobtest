@@ -114,7 +114,7 @@ class AppTheme {
     elevation: 0,
     scrolledUnderElevation: 0,
     centerTitle: true,
-    backgroundColor: AppColors.buyCard,
+    backgroundColor: Colors.transparent,
     foregroundColor: AppColors.buyTextPrimary,
     surfaceTintColor: Colors.transparent,
     systemOverlayStyle: SystemUiOverlayStyle.dark,

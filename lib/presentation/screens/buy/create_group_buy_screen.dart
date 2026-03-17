@@ -71,7 +71,7 @@ class _CreateGroupBuyScreenState extends State<CreateGroupBuyScreen> {
           backgroundColor: AppColors.buyBackground,
           appBar: AppBar(
             title: const Text('Suggest a Deal'),
-            backgroundColor: AppColors.buyCard,
+            backgroundColor: Colors.transparent,
             foregroundColor: AppColors.buyTextPrimary,
           ),
           body: SingleChildScrollView(

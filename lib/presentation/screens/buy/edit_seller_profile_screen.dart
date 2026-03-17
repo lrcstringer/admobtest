@@ -52,7 +52,7 @@ class _EditSellerProfileScreenState extends State<EditSellerProfileScreen> {
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
       ),
       body: BlocConsumer<MarketplaceBloc, MarketplaceState>(

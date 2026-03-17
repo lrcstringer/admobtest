@@ -31,7 +31,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
     return Scaffold(
       backgroundColor: AppColors.buyBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.buyCard,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
         title: const Text(
           'Seller Dashboard',
