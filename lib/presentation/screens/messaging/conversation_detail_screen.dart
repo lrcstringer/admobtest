@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/security/secure_clipboard.dart';
 import '../../../core/di/injection.dart';
@@ -248,9 +249,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           return Scaffold(
             appBar: _isMultiSelectMode
                 ? AppBar(
-                    backgroundColor: AppColors.chatAppBar,
+                    backgroundColor: AppColors.chatSurface,
                     surfaceTintColor: Colors.transparent,
                     elevation: 0,
+                    shape: const Border(bottom: BorderSide(color: Color(0xFF252840), width: 0.5)),
                     leading: IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => setState(() {
@@ -305,9 +307,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                     ],
                   )
                 : AppBar(
-                    backgroundColor: AppColors.chatAppBar,
+                    backgroundColor: AppColors.chatSurface,
                     surfaceTintColor: Colors.transparent,
                     elevation: 0,
+                    shape: const Border(bottom: BorderSide(color: Color(0xFF252840), width: 0.5)),
                     title: conv != null
                         ? Row(
                             children: [
@@ -1555,10 +1558,21 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     );
   }
 
+  /// Key used by the messaging tab to persist the global wallpaper.
+  static const _globalThemeKey = 'chat_tab_wallpaper';
+
   Future<void> _loadChatTheme() async {
+    // Per-conversation theme takes priority; fall back to the global tab wallpaper.
     final name = await getIt<AppDatabase>().getChatTheme(widget.conversationId);
+    final String effectiveName;
+    if (name != null) {
+      effectiveName = name;
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      effectiveName = prefs.getString(_globalThemeKey) ?? 'defaultDoodle';
+    }
     final style = ChatThemeStyle.values.firstWhere(
-      (s) => s.name == name,
+      (s) => s.name == effectiveName,
       orElse: () => ChatThemeStyle.defaultDoodle,
     );
     if (mounted && style != _chatTheme) {

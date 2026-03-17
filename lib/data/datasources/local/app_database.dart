@@ -1183,11 +1183,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Get the persisted chat wallpaper theme for a conversation.
-  Future<String> getChatTheme(String conversationId) async {
+  /// Returns `null` when no per-conversation theme has been set,
+  /// so the caller can fall back to the global tab wallpaper.
+  Future<String?> getChatTheme(String conversationId) async {
     final row = await (select(localFullConversations)
           ..where((c) => c.id.equals(conversationId)))
         .getSingleOrNull();
-    return row?.chatTheme ?? 'defaultDoodle';
+    return row?.chatTheme;
   }
 
   /// Persist the user's wallpaper choice for a conversation.

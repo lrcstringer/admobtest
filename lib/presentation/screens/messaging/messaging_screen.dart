@@ -222,8 +222,12 @@ class _MessagingScreenState extends State<MessagingScreen>
     };
 
     return AppBar(
-      backgroundColor: AppColors.chatAppBar,
+      backgroundColor: AppColors.chatSurface,
       surfaceTintColor: Colors.transparent,
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(0.5),
+        child: Container(height: 0.5, color: const Color(0xFF252840)),
+      ),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back),
         onPressed: () {
@@ -263,7 +267,8 @@ class _MessagingScreenState extends State<MessagingScreen>
   IMaliAppBar _buildMainAppBar() {
     return IMaliAppBar(
       title: 'Chat',
-      backgroundColor: AppColors.chatAppBar,
+      backgroundColor: AppColors.chatSurface,
+      bottomBorderColor: const Color(0xFF252840),
       extraActions: [
         IconButton(
           icon: const Icon(Icons.wallpaper_outlined, color: AppColors.textPrimary),

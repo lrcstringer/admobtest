@@ -17,7 +17,8 @@ class ContactRequestsScreen extends StatelessWidget {
       backgroundColor: AppColors.chatBackground,
       appBar: const IMaliAppBar(
         title: 'Contact Requests',
-        backgroundColor: AppColors.chatAppBar,
+        backgroundColor: AppColors.chatSurface,
+        bottomBorderColor: Color(0xFF252840),
       ),
       body: BlocBuilder<ContactBloc, ContactState>(
         builder: (context, state) {

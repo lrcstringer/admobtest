@@ -43,7 +43,8 @@ class _ImportContactsScreenState extends State<ImportContactsScreen> {
       backgroundColor: AppColors.chatBackground,
       appBar: const IMaliAppBar(
         title: 'Import Contacts',
-        backgroundColor: AppColors.chatAppBar,
+        backgroundColor: AppColors.chatSurface,
+        bottomBorderColor: Color(0xFF252840),
       ),
       body: BlocConsumer<ContactBloc, ContactState>(
         listener: (context, state) {

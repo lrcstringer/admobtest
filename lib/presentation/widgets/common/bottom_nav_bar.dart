@@ -59,7 +59,7 @@ class BottomNavBar extends StatelessWidget {
     if (isBuyTab) {
       navBg = const Color(0xFFFFFFFF);
     } else if (isChatTab) {
-      navBg = ThemedColors.dark.navBackground;
+      navBg = const Color(0xFF1A1D2E);
     } else {
       navBg = themed.navBackground;
     }

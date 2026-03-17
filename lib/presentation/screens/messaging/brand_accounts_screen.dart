@@ -29,7 +29,8 @@ class _BrandAccountsScreenState extends State<BrandAccountsScreen> {
       backgroundColor: AppColors.chatBackground,
       appBar: const IMaliAppBar(
         title: 'Brand Accounts',
-        backgroundColor: AppColors.chatAppBar,
+        backgroundColor: AppColors.chatSurface,
+        bottomBorderColor: Color(0xFF252840),
       ),
       body: BlocConsumer<ContactBloc, ContactState>(
         listener: (context, state) {

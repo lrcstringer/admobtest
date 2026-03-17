@@ -38,8 +38,10 @@ class MessageRequestsScreen extends StatelessWidget {
       },
       child: Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.chatAppBar,
+        backgroundColor: AppColors.chatSurface,
         surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: const Border(bottom: BorderSide(color: Color(0xFF252840), width: 0.5)),
         title: const Text('Message Requests'),
       ),
       body: Stack(

@@ -51,7 +51,7 @@ class MainShell extends StatelessWidget {
     if (isBuyTab) {
       navBarColor = const Color(0xFFFFFFFF);
     } else if (isChatTab) {
-      navBarColor = const Color(0xFF1E2245);
+      navBarColor = const Color(0xFF1A1D2E);
     } else {
       navBarColor = themed.navBackground;
     }

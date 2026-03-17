@@ -10,6 +10,9 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
 
+  /// Optional hairline border color drawn below the AppBar (including bottom widget).
+  final Color? bottomBorderColor;
+
   const IMaliAppBar({
     super.key,
     required this.title,
@@ -17,6 +20,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.bottom,
     this.backgroundColor,
     this.foregroundColor,
+    this.bottomBorderColor,
   });
 
   @override
@@ -44,6 +48,9 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      shape: bottomBorderColor != null
+          ? Border(bottom: BorderSide(color: bottomBorderColor!, width: 0.5))
+          : null,
       leadingWidth: canPop ? 104 : 56,
       leading: canPop
           ? Row(
