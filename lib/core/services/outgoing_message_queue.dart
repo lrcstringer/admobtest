@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 

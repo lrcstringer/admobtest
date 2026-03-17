@@ -12,17 +12,11 @@ part of 'call_bloc.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$CallEvent implements DiagnosticableTreeMixin {
+mixin _$CallEvent {
 
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -34,7 +28,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent()';
 }
 
@@ -282,7 +276,7 @@ return remoteVideoStateChanged(_that.enabled);case _:
 /// @nodoc
 
 
-class _InitiateCall with DiagnosticableTreeMixin implements CallEvent {
+class _InitiateCall implements CallEvent {
   const _InitiateCall({required this.conversationId, required this.recipientId, required this.recipientName, this.recipientAvatarUrl, this.callType = CallType.voice});
   
 
@@ -299,12 +293,6 @@ class _InitiateCall with DiagnosticableTreeMixin implements CallEvent {
 _$InitiateCallCopyWith<_InitiateCall> get copyWith => __$InitiateCallCopyWithImpl<_InitiateCall>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.initiateCall'))
-    ..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('recipientId', recipientId))..add(DiagnosticsProperty('recipientName', recipientName))..add(DiagnosticsProperty('recipientAvatarUrl', recipientAvatarUrl))..add(DiagnosticsProperty('callType', callType));
-}
 
 @override
 bool operator ==(Object other) {
@@ -316,7 +304,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,conversationId,recipientId,recipientName,recipientAvatarUrl,callType);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.initiateCall(conversationId: $conversationId, recipientId: $recipientId, recipientName: $recipientName, recipientAvatarUrl: $recipientAvatarUrl, callType: $callType)';
 }
 
@@ -362,7 +350,7 @@ as CallType,
 /// @nodoc
 
 
-class _IncomingCall with DiagnosticableTreeMixin implements CallEvent {
+class _IncomingCall implements CallEvent {
   const _IncomingCall({required this.callId, required this.callerName, this.callerAvatarUrl, required this.callType, required this.conversationId, required this.callerId});
   
 
@@ -380,12 +368,6 @@ class _IncomingCall with DiagnosticableTreeMixin implements CallEvent {
 _$IncomingCallCopyWith<_IncomingCall> get copyWith => __$IncomingCallCopyWithImpl<_IncomingCall>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.incomingCall'))
-    ..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('callerName', callerName))..add(DiagnosticsProperty('callerAvatarUrl', callerAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('callerId', callerId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -397,7 +379,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,callId,callerName,callerAvatarUrl,callType,conversationId,callerId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.incomingCall(callId: $callId, callerName: $callerName, callerAvatarUrl: $callerAvatarUrl, callType: $callType, conversationId: $conversationId, callerId: $callerId)';
 }
 
@@ -444,7 +426,7 @@ as String,
 /// @nodoc
 
 
-class _AcceptCall with DiagnosticableTreeMixin implements CallEvent {
+class _AcceptCall implements CallEvent {
   const _AcceptCall();
   
 
@@ -452,12 +434,6 @@ class _AcceptCall with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.acceptCall'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -469,7 +445,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.acceptCall()';
 }
 
@@ -482,7 +458,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _RejectCall with DiagnosticableTreeMixin implements CallEvent {
+class _RejectCall implements CallEvent {
   const _RejectCall();
   
 
@@ -490,12 +466,6 @@ class _RejectCall with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.rejectCall'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -507,7 +477,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.rejectCall()';
 }
 
@@ -520,7 +490,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _EndCall with DiagnosticableTreeMixin implements CallEvent {
+class _EndCall implements CallEvent {
   const _EndCall();
   
 
@@ -528,12 +498,6 @@ class _EndCall with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.endCall'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -545,7 +509,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.endCall()';
 }
 
@@ -558,7 +522,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _ToggleMute with DiagnosticableTreeMixin implements CallEvent {
+class _ToggleMute implements CallEvent {
   const _ToggleMute();
   
 
@@ -566,12 +530,6 @@ class _ToggleMute with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.toggleMute'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -583,7 +541,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.toggleMute()';
 }
 
@@ -596,7 +554,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _ToggleSpeaker with DiagnosticableTreeMixin implements CallEvent {
+class _ToggleSpeaker implements CallEvent {
   const _ToggleSpeaker();
   
 
@@ -604,12 +562,6 @@ class _ToggleSpeaker with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.toggleSpeaker'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -621,7 +573,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.toggleSpeaker()';
 }
 
@@ -634,7 +586,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _ToggleVideo with DiagnosticableTreeMixin implements CallEvent {
+class _ToggleVideo implements CallEvent {
   const _ToggleVideo();
   
 
@@ -642,12 +594,6 @@ class _ToggleVideo with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.toggleVideo'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -659,7 +605,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.toggleVideo()';
 }
 
@@ -672,7 +618,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _SwitchCamera with DiagnosticableTreeMixin implements CallEvent {
+class _SwitchCamera implements CallEvent {
   const _SwitchCamera();
   
 
@@ -680,12 +626,6 @@ class _SwitchCamera with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.switchCamera'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -697,7 +637,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.switchCamera()';
 }
 
@@ -710,7 +650,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _RequestVideoUpgrade with DiagnosticableTreeMixin implements CallEvent {
+class _RequestVideoUpgrade implements CallEvent {
   const _RequestVideoUpgrade();
   
 
@@ -718,12 +658,6 @@ class _RequestVideoUpgrade with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.requestVideoUpgrade'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -735,7 +669,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.requestVideoUpgrade()';
 }
 
@@ -748,7 +682,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _RespondVideoUpgrade with DiagnosticableTreeMixin implements CallEvent {
+class _RespondVideoUpgrade implements CallEvent {
   const _RespondVideoUpgrade({required this.accepted});
   
 
@@ -761,12 +695,6 @@ class _RespondVideoUpgrade with DiagnosticableTreeMixin implements CallEvent {
 _$RespondVideoUpgradeCopyWith<_RespondVideoUpgrade> get copyWith => __$RespondVideoUpgradeCopyWithImpl<_RespondVideoUpgrade>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.respondVideoUpgrade'))
-    ..add(DiagnosticsProperty('accepted', accepted));
-}
 
 @override
 bool operator ==(Object other) {
@@ -778,7 +706,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,accepted);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.respondVideoUpgrade(accepted: $accepted)';
 }
 
@@ -820,7 +748,7 @@ as bool,
 /// @nodoc
 
 
-class _CallDocUpdated with DiagnosticableTreeMixin implements CallEvent {
+class _CallDocUpdated implements CallEvent {
   const _CallDocUpdated(this.session);
   
 
@@ -833,12 +761,6 @@ class _CallDocUpdated with DiagnosticableTreeMixin implements CallEvent {
 _$CallDocUpdatedCopyWith<_CallDocUpdated> get copyWith => __$CallDocUpdatedCopyWithImpl<_CallDocUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.callDocUpdated'))
-    ..add(DiagnosticsProperty('session', session));
-}
 
 @override
 bool operator ==(Object other) {
@@ -850,7 +772,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,session);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.callDocUpdated(session: $session)';
 }
 
@@ -901,7 +823,7 @@ $CallSessionCopyWith<$Res> get session {
 /// @nodoc
 
 
-class _IceConnectionStateChanged with DiagnosticableTreeMixin implements CallEvent {
+class _IceConnectionStateChanged implements CallEvent {
   const _IceConnectionStateChanged(this.state);
   
 
@@ -914,12 +836,6 @@ class _IceConnectionStateChanged with DiagnosticableTreeMixin implements CallEve
 _$IceConnectionStateChangedCopyWith<_IceConnectionStateChanged> get copyWith => __$IceConnectionStateChangedCopyWithImpl<_IceConnectionStateChanged>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.iceConnectionStateChanged'))
-    ..add(DiagnosticsProperty('state', state));
-}
 
 @override
 bool operator ==(Object other) {
@@ -931,7 +847,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,state);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.iceConnectionStateChanged(state: $state)';
 }
 
@@ -973,7 +889,7 @@ as RTCIceConnectionState,
 /// @nodoc
 
 
-class _CallTimerTick with DiagnosticableTreeMixin implements CallEvent {
+class _CallTimerTick implements CallEvent {
   const _CallTimerTick();
   
 
@@ -981,12 +897,6 @@ class _CallTimerTick with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.callTimerTick'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -998,7 +908,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.callTimerTick()';
 }
 
@@ -1011,7 +921,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _QualityChanged with DiagnosticableTreeMixin implements CallEvent {
+class _QualityChanged implements CallEvent {
   const _QualityChanged(this.quality);
   
 
@@ -1024,12 +934,6 @@ class _QualityChanged with DiagnosticableTreeMixin implements CallEvent {
 _$QualityChangedCopyWith<_QualityChanged> get copyWith => __$QualityChangedCopyWithImpl<_QualityChanged>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.qualityChanged'))
-    ..add(DiagnosticsProperty('quality', quality));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1041,7 +945,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,quality);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.qualityChanged(quality: $quality)';
 }
 
@@ -1083,7 +987,7 @@ as ConnectionQuality,
 /// @nodoc
 
 
-class _PerformIceRestart with DiagnosticableTreeMixin implements CallEvent {
+class _PerformIceRestart implements CallEvent {
   const _PerformIceRestart();
   
 
@@ -1091,12 +995,6 @@ class _PerformIceRestart with DiagnosticableTreeMixin implements CallEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.performIceRestart'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -1108,7 +1006,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.performIceRestart()';
 }
 
@@ -1121,7 +1019,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _NetworkChanged with DiagnosticableTreeMixin implements CallEvent {
+class _NetworkChanged implements CallEvent {
   const _NetworkChanged({required this.isConnected});
   
 
@@ -1134,12 +1032,6 @@ class _NetworkChanged with DiagnosticableTreeMixin implements CallEvent {
 _$NetworkChangedCopyWith<_NetworkChanged> get copyWith => __$NetworkChangedCopyWithImpl<_NetworkChanged>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.networkChanged'))
-    ..add(DiagnosticsProperty('isConnected', isConnected));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1151,7 +1043,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,isConnected);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.networkChanged(isConnected: $isConnected)';
 }
 
@@ -1193,7 +1085,7 @@ as bool,
 /// @nodoc
 
 
-class _RemoteVideoStateChanged with DiagnosticableTreeMixin implements CallEvent {
+class _RemoteVideoStateChanged implements CallEvent {
   const _RemoteVideoStateChanged({required this.enabled});
   
 
@@ -1206,12 +1098,6 @@ class _RemoteVideoStateChanged with DiagnosticableTreeMixin implements CallEvent
 _$RemoteVideoStateChangedCopyWith<_RemoteVideoStateChanged> get copyWith => __$RemoteVideoStateChangedCopyWithImpl<_RemoteVideoStateChanged>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallEvent.remoteVideoStateChanged'))
-    ..add(DiagnosticsProperty('enabled', enabled));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1223,7 +1109,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,enabled);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallEvent.remoteVideoStateChanged(enabled: $enabled)';
 }
 
@@ -1263,7 +1149,7 @@ as bool,
 }
 
 /// @nodoc
-mixin _$CallState implements DiagnosticableTreeMixin {
+mixin _$CallState {
 
  CallStatus get status; String? get callId; String? get conversationId; String? get remoteUserId; String? get remoteUserName; String? get remoteUserAvatarUrl; CallType get callType; bool get isCaller; bool get isAudioEnabled; bool get isVideoEnabled; bool get isSpeakerOn; bool get isFrontCamera; bool get isRemoteVideoEnabled; Duration get callDuration; ConnectionQuality get connectionQuality;// Video upgrade
  bool get videoUpgradeRequested; String? get videoUpgradeRequesterId; String? get errorMessage;
@@ -1274,12 +1160,6 @@ mixin _$CallState implements DiagnosticableTreeMixin {
 $CallStateCopyWith<CallState> get copyWith => _$CallStateCopyWithImpl<CallState>(this as CallState, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('isRemoteVideoEnabled', isRemoteVideoEnabled))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1291,7 +1171,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,isRemoteVideoEnabled,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, isRemoteVideoEnabled: $isRemoteVideoEnabled, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
 }
 
@@ -1480,7 +1360,7 @@ return $default(_that.status,_that.callId,_that.conversationId,_that.remoteUserI
 /// @nodoc
 
 
-class _CallState with DiagnosticableTreeMixin implements CallState {
+class _CallState implements CallState {
   const _CallState({this.status = CallStatus.idle, this.callId, this.conversationId, this.remoteUserId, this.remoteUserName, this.remoteUserAvatarUrl, this.callType = CallType.voice, this.isCaller = true, this.isAudioEnabled = true, this.isVideoEnabled = false, this.isSpeakerOn = false, this.isFrontCamera = true, this.isRemoteVideoEnabled = false, this.callDuration = Duration.zero, this.connectionQuality = ConnectionQuality.excellent, this.videoUpgradeRequested = false, this.videoUpgradeRequesterId, this.errorMessage});
   
 
@@ -1511,12 +1391,6 @@ class _CallState with DiagnosticableTreeMixin implements CallState {
 _$CallStateCopyWith<_CallState> get copyWith => __$CallStateCopyWithImpl<_CallState>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CallState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('callId', callId))..add(DiagnosticsProperty('conversationId', conversationId))..add(DiagnosticsProperty('remoteUserId', remoteUserId))..add(DiagnosticsProperty('remoteUserName', remoteUserName))..add(DiagnosticsProperty('remoteUserAvatarUrl', remoteUserAvatarUrl))..add(DiagnosticsProperty('callType', callType))..add(DiagnosticsProperty('isCaller', isCaller))..add(DiagnosticsProperty('isAudioEnabled', isAudioEnabled))..add(DiagnosticsProperty('isVideoEnabled', isVideoEnabled))..add(DiagnosticsProperty('isSpeakerOn', isSpeakerOn))..add(DiagnosticsProperty('isFrontCamera', isFrontCamera))..add(DiagnosticsProperty('isRemoteVideoEnabled', isRemoteVideoEnabled))..add(DiagnosticsProperty('callDuration', callDuration))..add(DiagnosticsProperty('connectionQuality', connectionQuality))..add(DiagnosticsProperty('videoUpgradeRequested', videoUpgradeRequested))..add(DiagnosticsProperty('videoUpgradeRequesterId', videoUpgradeRequesterId))..add(DiagnosticsProperty('errorMessage', errorMessage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1528,7 +1402,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,status,callId,conversationId,remoteUserId,remoteUserName,remoteUserAvatarUrl,callType,isCaller,isAudioEnabled,isVideoEnabled,isSpeakerOn,isFrontCamera,isRemoteVideoEnabled,callDuration,connectionQuality,videoUpgradeRequested,videoUpgradeRequesterId,errorMessage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CallState(status: $status, callId: $callId, conversationId: $conversationId, remoteUserId: $remoteUserId, remoteUserName: $remoteUserName, remoteUserAvatarUrl: $remoteUserAvatarUrl, callType: $callType, isCaller: $isCaller, isAudioEnabled: $isAudioEnabled, isVideoEnabled: $isVideoEnabled, isSpeakerOn: $isSpeakerOn, isFrontCamera: $isFrontCamera, isRemoteVideoEnabled: $isRemoteVideoEnabled, callDuration: $callDuration, connectionQuality: $connectionQuality, videoUpgradeRequested: $videoUpgradeRequested, videoUpgradeRequesterId: $videoUpgradeRequesterId, errorMessage: $errorMessage)';
 }
 

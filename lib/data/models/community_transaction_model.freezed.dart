@@ -13,7 +13,7 @@ part of 'community_transaction_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CommunityTransactionModel implements DiagnosticableTreeMixin {
+mixin _$CommunityTransactionModel {
 
  String get id; String get communityId; String? get journalId; String get type; int get amount; String get memberId; String get memberName; String? get description; String get status; String? get approvedBy; String? get rejectedBy; String? get rejectionReason;@TimestampConverter() DateTime get createdAt;@NullableTimestampConverter() DateTime? get completedAt;
 /// Create a copy of CommunityTransactionModel
@@ -25,12 +25,6 @@ $CommunityTransactionModelCopyWith<CommunityTransactionModel> get copyWith => _$
   /// Serializes this CommunityTransactionModel to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityTransactionModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('journalId', journalId))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('memberId', memberId))..add(DiagnosticsProperty('memberName', memberName))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('approvedBy', approvedBy))..add(DiagnosticsProperty('rejectedBy', rejectedBy))..add(DiagnosticsProperty('rejectionReason', rejectionReason))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('completedAt', completedAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -42,7 +36,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,journalId,type,amount,memberId,memberName,description,status,approvedBy,rejectedBy,rejectionReason,createdAt,completedAt);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityTransactionModel(id: $id, communityId: $communityId, journalId: $journalId, type: $type, amount: $amount, memberId: $memberId, memberName: $memberName, description: $description, status: $status, approvedBy: $approvedBy, rejectedBy: $rejectedBy, rejectionReason: $rejectionReason, createdAt: $createdAt, completedAt: $completedAt)';
 }
 
@@ -227,7 +221,7 @@ return $default(_that.id,_that.communityId,_that.journalId,_that.type,_that.amou
 /// @nodoc
 @JsonSerializable()
 
-class _CommunityTransactionModel extends CommunityTransactionModel with DiagnosticableTreeMixin {
+class _CommunityTransactionModel extends CommunityTransactionModel {
   const _CommunityTransactionModel({required this.id, required this.communityId, this.journalId, required this.type, required this.amount, required this.memberId, required this.memberName, this.description, required this.status, this.approvedBy, this.rejectedBy, this.rejectionReason, @TimestampConverter() required this.createdAt, @NullableTimestampConverter() this.completedAt}): super._();
   factory _CommunityTransactionModel.fromJson(Map<String, dynamic> json) => _$CommunityTransactionModelFromJson(json);
 
@@ -256,12 +250,6 @@ _$CommunityTransactionModelCopyWith<_CommunityTransactionModel> get copyWith => 
 Map<String, dynamic> toJson() {
   return _$CommunityTransactionModelToJson(this, );
 }
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityTransactionModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('journalId', journalId))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('memberId', memberId))..add(DiagnosticsProperty('memberName', memberName))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('approvedBy', approvedBy))..add(DiagnosticsProperty('rejectedBy', rejectedBy))..add(DiagnosticsProperty('rejectionReason', rejectionReason))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('completedAt', completedAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -273,7 +261,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,journalId,type,amount,memberId,memberName,description,status,approvedBy,rejectedBy,rejectionReason,createdAt,completedAt);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityTransactionModel(id: $id, communityId: $communityId, journalId: $journalId, type: $type, amount: $amount, memberId: $memberId, memberName: $memberName, description: $description, status: $status, approvedBy: $approvedBy, rejectedBy: $rejectedBy, rejectionReason: $rejectionReason, createdAt: $createdAt, completedAt: $completedAt)';
 }
 
@@ -327,7 +315,7 @@ as DateTime?,
 
 
 /// @nodoc
-mixin _$CommunityApprovalModel implements DiagnosticableTreeMixin {
+mixin _$CommunityApprovalModel {
 
  String get id; String get communityId; String get transactionId; String get requestedBy; String get requestedByName; int get amount; String get type; String? get description; List<String> get approvers; int get requiredApprovals; String get status;@TimestampConverter() DateTime get createdAt;@TimestampConverter() DateTime get expiresAt;
 /// Create a copy of CommunityApprovalModel
@@ -339,12 +327,6 @@ $CommunityApprovalModelCopyWith<CommunityApprovalModel> get copyWith => _$Commun
   /// Serializes this CommunityApprovalModel to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityApprovalModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId))..add(DiagnosticsProperty('requestedBy', requestedBy))..add(DiagnosticsProperty('requestedByName', requestedByName))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('approvers', approvers))..add(DiagnosticsProperty('requiredApprovals', requiredApprovals))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('expiresAt', expiresAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -356,7 +338,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,transactionId,requestedBy,requestedByName,amount,type,description,const DeepCollectionEquality().hash(approvers),requiredApprovals,status,createdAt,expiresAt);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityApprovalModel(id: $id, communityId: $communityId, transactionId: $transactionId, requestedBy: $requestedBy, requestedByName: $requestedByName, amount: $amount, type: $type, description: $description, approvers: $approvers, requiredApprovals: $requiredApprovals, status: $status, createdAt: $createdAt, expiresAt: $expiresAt)';
 }
 
@@ -540,7 +522,7 @@ return $default(_that.id,_that.communityId,_that.transactionId,_that.requestedBy
 /// @nodoc
 @JsonSerializable()
 
-class _CommunityApprovalModel extends CommunityApprovalModel with DiagnosticableTreeMixin {
+class _CommunityApprovalModel extends CommunityApprovalModel {
   const _CommunityApprovalModel({required this.id, required this.communityId, required this.transactionId, required this.requestedBy, required this.requestedByName, required this.amount, required this.type, this.description, required final  List<String> approvers, required this.requiredApprovals, required this.status, @TimestampConverter() required this.createdAt, @TimestampConverter() required this.expiresAt}): _approvers = approvers,super._();
   factory _CommunityApprovalModel.fromJson(Map<String, dynamic> json) => _$CommunityApprovalModelFromJson(json);
 
@@ -574,12 +556,6 @@ _$CommunityApprovalModelCopyWith<_CommunityApprovalModel> get copyWith => __$Com
 Map<String, dynamic> toJson() {
   return _$CommunityApprovalModelToJson(this, );
 }
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityApprovalModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId))..add(DiagnosticsProperty('requestedBy', requestedBy))..add(DiagnosticsProperty('requestedByName', requestedByName))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('approvers', approvers))..add(DiagnosticsProperty('requiredApprovals', requiredApprovals))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('expiresAt', expiresAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -591,7 +567,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,transactionId,requestedBy,requestedByName,amount,type,description,const DeepCollectionEquality().hash(_approvers),requiredApprovals,status,createdAt,expiresAt);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityApprovalModel(id: $id, communityId: $communityId, transactionId: $transactionId, requestedBy: $requestedBy, requestedByName: $requestedByName, amount: $amount, type: $type, description: $description, approvers: $approvers, requiredApprovals: $requiredApprovals, status: $status, createdAt: $createdAt, expiresAt: $expiresAt)';
 }
 

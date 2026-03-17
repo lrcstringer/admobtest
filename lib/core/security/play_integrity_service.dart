@@ -122,9 +122,9 @@ class PlayIntegrityService {
         {'nonce': encodedNonce},
       );
       return token;
-    } on PlatformException catch (e) {
+    } on PlatformException catch (_) {
       return null;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }

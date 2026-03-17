@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../concurrency/keyed_mutex.dart';
@@ -242,7 +241,7 @@ class MessageSyncService {
           await _appDatabase.deleteLocalConversation(id);
         }
       }
-    } catch (e, st) {
+    } catch (_) {
     }
   }
 
@@ -635,7 +634,7 @@ class MessageSyncService {
             // Try vault recovery for received messages (may have been
             // decrypted in a previous install and stored in the vault).
             // Await initialize() in case it's still in-flight.
-            final vaultReady = await _mediaRecoveryService.initialize();
+            await _mediaRecoveryService.initialize();
             if (_mediaRecoveryService.isReady) {
               final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {

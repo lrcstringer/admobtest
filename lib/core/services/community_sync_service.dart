@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../concurrency/keyed_mutex.dart';
@@ -567,9 +566,6 @@ class CommunitySyncService {
       return;
     }
 
-    var storedCount = 0;
-    var skippedCount = 0;
-    var errorCount = 0;
     for (final model in messageModels) {
       try {
         final msg = model.toEntity() as Message;
@@ -605,7 +601,6 @@ class CommunitySyncService {
 
           // If already decrypted, skip decryption
           if (existing.isDecrypted) {
-            skippedCount++;
             continue;
           }
         }
@@ -685,7 +680,6 @@ class CommunitySyncService {
         }
 
         // Store in local DB with communityId set
-        storedCount++;
         await _appDatabase.upsertLocalMessage(
           LocalMessageMapper.toCompanion(
             decryptedMsg.copyWith(communityId: communityId),
@@ -708,8 +702,7 @@ class CommunitySyncService {
 
         // Update community preview
         await _updateCommunityPreview(communityId, decryptedMsg);
-      } catch (e) {
-        errorCount++;
+      } catch (_) {
         // H4: Include message ID for debuggability
       }
     }
@@ -792,7 +785,7 @@ class CommunitySyncService {
         encrypted,
       );
       return result;
-    } on StateError catch (e) {
+    } on StateError catch (_) {
       // DIAG-2: Log the specific StateError reason
       // C2: Wrap in try-catch so a network error during key fetch
       // doesn't kill the entire message batch
@@ -800,7 +793,7 @@ class CommunitySyncService {
       try {
         installed = await _processIncomingKeyDistributions(communityId);
         // DIAG-3: Log what distributions we got
-      } catch (e) {
+      } catch (_) {
         return null;
       }
 

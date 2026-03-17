@@ -12,17 +12,11 @@ part of 'community_bloc.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$CommunityEvent implements DiagnosticableTreeMixin {
+mixin _$CommunityEvent {
 
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -34,7 +28,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent()';
 }
 
@@ -348,7 +342,7 @@ return clearError();case _:
 /// @nodoc
 
 
-class _LoadUserCommunities with DiagnosticableTreeMixin implements CommunityEvent {
+class _LoadUserCommunities implements CommunityEvent {
   const _LoadUserCommunities();
   
 
@@ -356,12 +350,6 @@ class _LoadUserCommunities with DiagnosticableTreeMixin implements CommunityEven
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadUserCommunities'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -373,7 +361,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.loadUserCommunities()';
 }
 
@@ -386,7 +374,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _WatchUserCommunities with DiagnosticableTreeMixin implements CommunityEvent {
+class _WatchUserCommunities implements CommunityEvent {
   const _WatchUserCommunities();
   
 
@@ -394,12 +382,6 @@ class _WatchUserCommunities with DiagnosticableTreeMixin implements CommunityEve
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchUserCommunities'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -411,7 +393,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.watchUserCommunities()';
 }
 
@@ -424,7 +406,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _UserCommunitiesUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+class _UserCommunitiesUpdated implements CommunityEvent {
   const _UserCommunitiesUpdated(final  List<Community> communities): _communities = communities;
   
 
@@ -443,12 +425,6 @@ class _UserCommunitiesUpdated with DiagnosticableTreeMixin implements CommunityE
 _$UserCommunitiesUpdatedCopyWith<_UserCommunitiesUpdated> get copyWith => __$UserCommunitiesUpdatedCopyWithImpl<_UserCommunitiesUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.userCommunitiesUpdated'))
-    ..add(DiagnosticsProperty('communities', communities));
-}
 
 @override
 bool operator ==(Object other) {
@@ -460,7 +436,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_communities));
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.userCommunitiesUpdated(communities: $communities)';
 }
 
@@ -502,7 +478,7 @@ as List<Community>,
 /// @nodoc
 
 
-class _LoadCommunityDetails with DiagnosticableTreeMixin implements CommunityEvent {
+class _LoadCommunityDetails implements CommunityEvent {
   const _LoadCommunityDetails({required this.communityId});
   
 
@@ -515,12 +491,6 @@ class _LoadCommunityDetails with DiagnosticableTreeMixin implements CommunityEve
 _$LoadCommunityDetailsCopyWith<_LoadCommunityDetails> get copyWith => __$LoadCommunityDetailsCopyWithImpl<_LoadCommunityDetails>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadCommunityDetails'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -532,7 +502,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.loadCommunityDetails(communityId: $communityId)';
 }
 
@@ -574,7 +544,7 @@ as String,
 /// @nodoc
 
 
-class _WatchMembers with DiagnosticableTreeMixin implements CommunityEvent {
+class _WatchMembers implements CommunityEvent {
   const _WatchMembers({required this.communityId});
   
 
@@ -587,12 +557,6 @@ class _WatchMembers with DiagnosticableTreeMixin implements CommunityEvent {
 _$WatchMembersCopyWith<_WatchMembers> get copyWith => __$WatchMembersCopyWithImpl<_WatchMembers>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchMembers'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -604,7 +568,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.watchMembers(communityId: $communityId)';
 }
 
@@ -646,7 +610,7 @@ as String,
 /// @nodoc
 
 
-class _MembersUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+class _MembersUpdated implements CommunityEvent {
   const _MembersUpdated(final  List<CommunityMember> members): _members = members;
   
 
@@ -665,12 +629,6 @@ class _MembersUpdated with DiagnosticableTreeMixin implements CommunityEvent {
 _$MembersUpdatedCopyWith<_MembersUpdated> get copyWith => __$MembersUpdatedCopyWithImpl<_MembersUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.membersUpdated'))
-    ..add(DiagnosticsProperty('members', members));
-}
 
 @override
 bool operator ==(Object other) {
@@ -682,7 +640,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_members));
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.membersUpdated(members: $members)';
 }
 
@@ -724,7 +682,7 @@ as List<CommunityMember>,
 /// @nodoc
 
 
-class _WatchTransactions with DiagnosticableTreeMixin implements CommunityEvent {
+class _WatchTransactions implements CommunityEvent {
   const _WatchTransactions({required this.communityId, this.limit});
   
 
@@ -738,12 +696,6 @@ class _WatchTransactions with DiagnosticableTreeMixin implements CommunityEvent 
 _$WatchTransactionsCopyWith<_WatchTransactions> get copyWith => __$WatchTransactionsCopyWithImpl<_WatchTransactions>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchTransactions'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('limit', limit));
-}
 
 @override
 bool operator ==(Object other) {
@@ -755,7 +707,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,limit);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.watchTransactions(communityId: $communityId, limit: $limit)';
 }
 
@@ -798,7 +750,7 @@ as int?,
 /// @nodoc
 
 
-class _TransactionsUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+class _TransactionsUpdated implements CommunityEvent {
   const _TransactionsUpdated(final  List<CommunityTransaction> transactions): _transactions = transactions;
   
 
@@ -817,12 +769,6 @@ class _TransactionsUpdated with DiagnosticableTreeMixin implements CommunityEven
 _$TransactionsUpdatedCopyWith<_TransactionsUpdated> get copyWith => __$TransactionsUpdatedCopyWithImpl<_TransactionsUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.transactionsUpdated'))
-    ..add(DiagnosticsProperty('transactions', transactions));
-}
 
 @override
 bool operator ==(Object other) {
@@ -834,7 +780,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_transactions));
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.transactionsUpdated(transactions: $transactions)';
 }
 
@@ -876,7 +822,7 @@ as List<CommunityTransaction>,
 /// @nodoc
 
 
-class _WatchPendingApprovals with DiagnosticableTreeMixin implements CommunityEvent {
+class _WatchPendingApprovals implements CommunityEvent {
   const _WatchPendingApprovals({required this.communityId});
   
 
@@ -889,12 +835,6 @@ class _WatchPendingApprovals with DiagnosticableTreeMixin implements CommunityEv
 _$WatchPendingApprovalsCopyWith<_WatchPendingApprovals> get copyWith => __$WatchPendingApprovalsCopyWithImpl<_WatchPendingApprovals>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.watchPendingApprovals'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -906,7 +846,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.watchPendingApprovals(communityId: $communityId)';
 }
 
@@ -948,7 +888,7 @@ as String,
 /// @nodoc
 
 
-class _PendingApprovalsUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+class _PendingApprovalsUpdated implements CommunityEvent {
   const _PendingApprovalsUpdated(final  List<CommunityApproval> approvals): _approvals = approvals;
   
 
@@ -967,12 +907,6 @@ class _PendingApprovalsUpdated with DiagnosticableTreeMixin implements Community
 _$PendingApprovalsUpdatedCopyWith<_PendingApprovalsUpdated> get copyWith => __$PendingApprovalsUpdatedCopyWithImpl<_PendingApprovalsUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.pendingApprovalsUpdated'))
-    ..add(DiagnosticsProperty('approvals', approvals));
-}
 
 @override
 bool operator ==(Object other) {
@@ -984,7 +918,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_approvals));
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.pendingApprovalsUpdated(approvals: $approvals)';
 }
 
@@ -1026,7 +960,7 @@ as List<CommunityApproval>,
 /// @nodoc
 
 
-class _CreateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+class _CreateCommunity implements CommunityEvent {
   const _CreateCommunity({required this.params});
   
 
@@ -1039,12 +973,6 @@ class _CreateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
 _$CreateCommunityCopyWith<_CreateCommunity> get copyWith => __$CreateCommunityCopyWithImpl<_CreateCommunity>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.createCommunity'))
-    ..add(DiagnosticsProperty('params', params));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1056,7 +984,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,params);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.createCommunity(params: $params)';
 }
 
@@ -1098,7 +1026,7 @@ as CreateCommunityParams,
 /// @nodoc
 
 
-class _UpdateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+class _UpdateCommunity implements CommunityEvent {
   const _UpdateCommunity({required this.communityId, required this.params});
   
 
@@ -1112,12 +1040,6 @@ class _UpdateCommunity with DiagnosticableTreeMixin implements CommunityEvent {
 _$UpdateCommunityCopyWith<_UpdateCommunity> get copyWith => __$UpdateCommunityCopyWithImpl<_UpdateCommunity>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.updateCommunity'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('params', params));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1129,7 +1051,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,params);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.updateCommunity(communityId: $communityId, params: $params)';
 }
 
@@ -1172,7 +1094,7 @@ as UpdateCommunityParams,
 /// @nodoc
 
 
-class _DeleteCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+class _DeleteCommunity implements CommunityEvent {
   const _DeleteCommunity({required this.communityId});
   
 
@@ -1185,12 +1107,6 @@ class _DeleteCommunity with DiagnosticableTreeMixin implements CommunityEvent {
 _$DeleteCommunityCopyWith<_DeleteCommunity> get copyWith => __$DeleteCommunityCopyWithImpl<_DeleteCommunity>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.deleteCommunity'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1202,7 +1118,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.deleteCommunity(communityId: $communityId)';
 }
 
@@ -1244,7 +1160,7 @@ as String,
 /// @nodoc
 
 
-class _InviteMember with DiagnosticableTreeMixin implements CommunityEvent {
+class _InviteMember implements CommunityEvent {
   const _InviteMember({required this.communityId, required this.userId, required this.role});
   
 
@@ -1259,12 +1175,6 @@ class _InviteMember with DiagnosticableTreeMixin implements CommunityEvent {
 _$InviteMemberCopyWith<_InviteMember> get copyWith => __$InviteMemberCopyWithImpl<_InviteMember>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.inviteMember'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('userId', userId))..add(DiagnosticsProperty('role', role));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1276,7 +1186,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,userId,role);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.inviteMember(communityId: $communityId, userId: $userId, role: $role)';
 }
 
@@ -1320,7 +1230,7 @@ as MemberRole,
 /// @nodoc
 
 
-class _AcceptInvitation with DiagnosticableTreeMixin implements CommunityEvent {
+class _AcceptInvitation implements CommunityEvent {
   const _AcceptInvitation({required this.communityId});
   
 
@@ -1333,12 +1243,6 @@ class _AcceptInvitation with DiagnosticableTreeMixin implements CommunityEvent {
 _$AcceptInvitationCopyWith<_AcceptInvitation> get copyWith => __$AcceptInvitationCopyWithImpl<_AcceptInvitation>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.acceptInvitation'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1350,7 +1254,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.acceptInvitation(communityId: $communityId)';
 }
 
@@ -1392,7 +1296,7 @@ as String,
 /// @nodoc
 
 
-class _DeclineInvitation with DiagnosticableTreeMixin implements CommunityEvent {
+class _DeclineInvitation implements CommunityEvent {
   const _DeclineInvitation({required this.communityId});
   
 
@@ -1405,12 +1309,6 @@ class _DeclineInvitation with DiagnosticableTreeMixin implements CommunityEvent 
 _$DeclineInvitationCopyWith<_DeclineInvitation> get copyWith => __$DeclineInvitationCopyWithImpl<_DeclineInvitation>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.declineInvitation'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1422,7 +1320,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.declineInvitation(communityId: $communityId)';
 }
 
@@ -1464,7 +1362,7 @@ as String,
 /// @nodoc
 
 
-class _RemoveMember with DiagnosticableTreeMixin implements CommunityEvent {
+class _RemoveMember implements CommunityEvent {
   const _RemoveMember({required this.communityId, required this.memberId});
   
 
@@ -1478,12 +1376,6 @@ class _RemoveMember with DiagnosticableTreeMixin implements CommunityEvent {
 _$RemoveMemberCopyWith<_RemoveMember> get copyWith => __$RemoveMemberCopyWithImpl<_RemoveMember>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.removeMember'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('memberId', memberId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1495,7 +1387,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,memberId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.removeMember(communityId: $communityId, memberId: $memberId)';
 }
 
@@ -1538,7 +1430,7 @@ as String,
 /// @nodoc
 
 
-class _UpdateMemberRole with DiagnosticableTreeMixin implements CommunityEvent {
+class _UpdateMemberRole implements CommunityEvent {
   const _UpdateMemberRole({required this.communityId, required this.memberId, required this.role});
   
 
@@ -1553,12 +1445,6 @@ class _UpdateMemberRole with DiagnosticableTreeMixin implements CommunityEvent {
 _$UpdateMemberRoleCopyWith<_UpdateMemberRole> get copyWith => __$UpdateMemberRoleCopyWithImpl<_UpdateMemberRole>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.updateMemberRole'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('memberId', memberId))..add(DiagnosticsProperty('role', role));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1570,7 +1456,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,memberId,role);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.updateMemberRole(communityId: $communityId, memberId: $memberId, role: $role)';
 }
 
@@ -1614,7 +1500,7 @@ as MemberRole,
 /// @nodoc
 
 
-class _LeaveCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+class _LeaveCommunity implements CommunityEvent {
   const _LeaveCommunity({required this.communityId});
   
 
@@ -1627,12 +1513,6 @@ class _LeaveCommunity with DiagnosticableTreeMixin implements CommunityEvent {
 _$LeaveCommunityCopyWith<_LeaveCommunity> get copyWith => __$LeaveCommunityCopyWithImpl<_LeaveCommunity>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.leaveCommunity'))
-    ..add(DiagnosticsProperty('communityId', communityId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1644,7 +1524,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.leaveCommunity(communityId: $communityId)';
 }
 
@@ -1686,7 +1566,7 @@ as String,
 /// @nodoc
 
 
-class _LoadPendingInvitations with DiagnosticableTreeMixin implements CommunityEvent {
+class _LoadPendingInvitations implements CommunityEvent {
   const _LoadPendingInvitations();
   
 
@@ -1694,12 +1574,6 @@ class _LoadPendingInvitations with DiagnosticableTreeMixin implements CommunityE
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadPendingInvitations'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -1711,7 +1585,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.loadPendingInvitations()';
 }
 
@@ -1724,7 +1598,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _Contribute with DiagnosticableTreeMixin implements CommunityEvent {
+class _Contribute implements CommunityEvent {
   const _Contribute({required this.communityId, required this.amount, this.description});
   
 
@@ -1739,12 +1613,6 @@ class _Contribute with DiagnosticableTreeMixin implements CommunityEvent {
 _$ContributeCopyWith<_Contribute> get copyWith => __$ContributeCopyWithImpl<_Contribute>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.contribute'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('description', description));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1756,7 +1624,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,amount,description);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.contribute(communityId: $communityId, amount: $amount, description: $description)';
 }
 
@@ -1800,7 +1668,7 @@ as String?,
 /// @nodoc
 
 
-class _Withdraw with DiagnosticableTreeMixin implements CommunityEvent {
+class _Withdraw implements CommunityEvent {
   const _Withdraw({required this.communityId, required this.amount, this.description});
   
 
@@ -1815,12 +1683,6 @@ class _Withdraw with DiagnosticableTreeMixin implements CommunityEvent {
 _$WithdrawCopyWith<_Withdraw> get copyWith => __$WithdrawCopyWithImpl<_Withdraw>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.withdraw'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('description', description));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1832,7 +1694,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,amount,description);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.withdraw(communityId: $communityId, amount: $amount, description: $description)';
 }
 
@@ -1876,7 +1738,7 @@ as String?,
 /// @nodoc
 
 
-class _ApproveTransaction with DiagnosticableTreeMixin implements CommunityEvent {
+class _ApproveTransaction implements CommunityEvent {
   const _ApproveTransaction({required this.communityId, required this.transactionId});
   
 
@@ -1890,12 +1752,6 @@ class _ApproveTransaction with DiagnosticableTreeMixin implements CommunityEvent
 _$ApproveTransactionCopyWith<_ApproveTransaction> get copyWith => __$ApproveTransactionCopyWithImpl<_ApproveTransaction>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.approveTransaction'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1907,7 +1763,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,transactionId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.approveTransaction(communityId: $communityId, transactionId: $transactionId)';
 }
 
@@ -1950,7 +1806,7 @@ as String,
 /// @nodoc
 
 
-class _RejectTransaction with DiagnosticableTreeMixin implements CommunityEvent {
+class _RejectTransaction implements CommunityEvent {
   const _RejectTransaction({required this.communityId, required this.transactionId, this.reason});
   
 
@@ -1965,12 +1821,6 @@ class _RejectTransaction with DiagnosticableTreeMixin implements CommunityEvent 
 _$RejectTransactionCopyWith<_RejectTransaction> get copyWith => __$RejectTransactionCopyWithImpl<_RejectTransaction>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.rejectTransaction'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('transactionId', transactionId))..add(DiagnosticsProperty('reason', reason));
-}
 
 @override
 bool operator ==(Object other) {
@@ -1982,7 +1832,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,transactionId,reason);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.rejectTransaction(communityId: $communityId, transactionId: $transactionId, reason: $reason)';
 }
 
@@ -2026,7 +1876,7 @@ as String?,
 /// @nodoc
 
 
-class _TriggerPayout with DiagnosticableTreeMixin implements CommunityEvent {
+class _TriggerPayout implements CommunityEvent {
   const _TriggerPayout({required this.communityId, this.recipientId});
   
 
@@ -2040,12 +1890,6 @@ class _TriggerPayout with DiagnosticableTreeMixin implements CommunityEvent {
 _$TriggerPayoutCopyWith<_TriggerPayout> get copyWith => __$TriggerPayoutCopyWithImpl<_TriggerPayout>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.triggerPayout'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('recipientId', recipientId));
-}
 
 @override
 bool operator ==(Object other) {
@@ -2057,7 +1901,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,recipientId);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.triggerPayout(communityId: $communityId, recipientId: $recipientId)';
 }
 
@@ -2100,7 +1944,7 @@ as String?,
 /// @nodoc
 
 
-class _LoadAnalytics with DiagnosticableTreeMixin implements CommunityEvent {
+class _LoadAnalytics implements CommunityEvent {
   const _LoadAnalytics({required this.communityId, this.months});
   
 
@@ -2114,12 +1958,6 @@ class _LoadAnalytics with DiagnosticableTreeMixin implements CommunityEvent {
 _$LoadAnalyticsCopyWith<_LoadAnalytics> get copyWith => __$LoadAnalyticsCopyWithImpl<_LoadAnalytics>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.loadAnalytics'))
-    ..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('months', months));
-}
 
 @override
 bool operator ==(Object other) {
@@ -2131,7 +1969,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,communityId,months);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.loadAnalytics(communityId: $communityId, months: $months)';
 }
 
@@ -2174,7 +2012,7 @@ as int?,
 /// @nodoc
 
 
-class _UnreadCountUpdated with DiagnosticableTreeMixin implements CommunityEvent {
+class _UnreadCountUpdated implements CommunityEvent {
   const _UnreadCountUpdated(this.count);
   
 
@@ -2187,12 +2025,6 @@ class _UnreadCountUpdated with DiagnosticableTreeMixin implements CommunityEvent
 _$UnreadCountUpdatedCopyWith<_UnreadCountUpdated> get copyWith => __$UnreadCountUpdatedCopyWithImpl<_UnreadCountUpdated>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.unreadCountUpdated'))
-    ..add(DiagnosticsProperty('count', count));
-}
 
 @override
 bool operator ==(Object other) {
@@ -2204,7 +2036,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,count);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.unreadCountUpdated(count: $count)';
 }
 
@@ -2246,7 +2078,7 @@ as int,
 /// @nodoc
 
 
-class _ClearSelectedCommunity with DiagnosticableTreeMixin implements CommunityEvent {
+class _ClearSelectedCommunity implements CommunityEvent {
   const _ClearSelectedCommunity();
   
 
@@ -2254,12 +2086,6 @@ class _ClearSelectedCommunity with DiagnosticableTreeMixin implements CommunityE
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.clearSelectedCommunity'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -2271,7 +2097,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.clearSelectedCommunity()';
 }
 
@@ -2284,7 +2110,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 
 
-class _ClearError with DiagnosticableTreeMixin implements CommunityEvent {
+class _ClearError implements CommunityEvent {
   const _ClearError();
   
 
@@ -2292,12 +2118,6 @@ class _ClearError with DiagnosticableTreeMixin implements CommunityEvent {
 
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityEvent.clearError'))
-    ;
-}
 
 @override
 bool operator ==(Object other) {
@@ -2309,7 +2129,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityEvent.clearError()';
 }
 
@@ -2320,7 +2140,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 
 
 /// @nodoc
-mixin _$CommunityState implements DiagnosticableTreeMixin {
+mixin _$CommunityState {
 
 // Status
  CommunityLoadingStatus get status; CommunityOperationStatus get operationStatus;// Communities list
@@ -2337,12 +2157,6 @@ mixin _$CommunityState implements DiagnosticableTreeMixin {
 $CommunityStateCopyWith<CommunityState> get copyWith => _$CommunityStateCopyWithImpl<CommunityState>(this as CommunityState, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('operationStatus', operationStatus))..add(DiagnosticsProperty('communities', communities))..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))..add(DiagnosticsProperty('selectedCommunityMembers', selectedCommunityMembers))..add(DiagnosticsProperty('selectedCommunityTransactions', selectedCommunityTransactions))..add(DiagnosticsProperty('selectedCommunityApprovals', selectedCommunityApprovals))..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('successMessage', successMessage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -2354,7 +2168,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,status,operationStatus,const DeepCollectionEquality().hash(communities),const DeepCollectionEquality().hash(pendingInvitations),selectedCommunity,const DeepCollectionEquality().hash(selectedCommunityMembers),const DeepCollectionEquality().hash(selectedCommunityTransactions),const DeepCollectionEquality().hash(selectedCommunityApprovals),isLoadingMore,hasMoreTransactions,stokvelAnalytics,isLoadingAnalytics,totalUnreadCount,errorMessage,successMessage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
@@ -2552,7 +2366,7 @@ return $default(_that.status,_that.operationStatus,_that.communities,_that.pendi
 /// @nodoc
 
 
-class _CommunityState extends CommunityState with DiagnosticableTreeMixin {
+class _CommunityState extends CommunityState {
   const _CommunityState({this.status = CommunityLoadingStatus.initial, this.operationStatus = CommunityOperationStatus.idle, final  List<Community> communities = const [], final  List<CommunityMember> pendingInvitations = const [], this.selectedCommunity, final  List<CommunityMember> selectedCommunityMembers = const [], final  List<CommunityTransaction> selectedCommunityTransactions = const [], final  List<CommunityApproval> selectedCommunityApprovals = const [], this.isLoadingMore = false, this.hasMoreTransactions = false, this.stokvelAnalytics, this.isLoadingAnalytics = false, this.totalUnreadCount = 0, this.errorMessage, this.successMessage}): _communities = communities,_pendingInvitations = pendingInvitations,_selectedCommunityMembers = selectedCommunityMembers,_selectedCommunityTransactions = selectedCommunityTransactions,_selectedCommunityApprovals = selectedCommunityApprovals,super._();
   
 
@@ -2617,12 +2431,6 @@ class _CommunityState extends CommunityState with DiagnosticableTreeMixin {
 _$CommunityStateCopyWith<_CommunityState> get copyWith => __$CommunityStateCopyWithImpl<_CommunityState>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityState'))
-    ..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('operationStatus', operationStatus))..add(DiagnosticsProperty('communities', communities))..add(DiagnosticsProperty('pendingInvitations', pendingInvitations))..add(DiagnosticsProperty('selectedCommunity', selectedCommunity))..add(DiagnosticsProperty('selectedCommunityMembers', selectedCommunityMembers))..add(DiagnosticsProperty('selectedCommunityTransactions', selectedCommunityTransactions))..add(DiagnosticsProperty('selectedCommunityApprovals', selectedCommunityApprovals))..add(DiagnosticsProperty('isLoadingMore', isLoadingMore))..add(DiagnosticsProperty('hasMoreTransactions', hasMoreTransactions))..add(DiagnosticsProperty('stokvelAnalytics', stokvelAnalytics))..add(DiagnosticsProperty('isLoadingAnalytics', isLoadingAnalytics))..add(DiagnosticsProperty('totalUnreadCount', totalUnreadCount))..add(DiagnosticsProperty('errorMessage', errorMessage))..add(DiagnosticsProperty('successMessage', successMessage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -2634,7 +2442,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,status,operationStatus,const DeepCollectionEquality().hash(_communities),const DeepCollectionEquality().hash(_pendingInvitations),selectedCommunity,const DeepCollectionEquality().hash(_selectedCommunityMembers),const DeepCollectionEquality().hash(_selectedCommunityTransactions),const DeepCollectionEquality().hash(_selectedCommunityApprovals),isLoadingMore,hasMoreTransactions,stokvelAnalytics,isLoadingAnalytics,totalUnreadCount,errorMessage,successMessage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityState(status: $status, operationStatus: $operationStatus, communities: $communities, pendingInvitations: $pendingInvitations, selectedCommunity: $selectedCommunity, selectedCommunityMembers: $selectedCommunityMembers, selectedCommunityTransactions: $selectedCommunityTransactions, selectedCommunityApprovals: $selectedCommunityApprovals, isLoadingMore: $isLoadingMore, hasMoreTransactions: $hasMoreTransactions, stokvelAnalytics: $stokvelAnalytics, isLoadingAnalytics: $isLoadingAnalytics, totalUnreadCount: $totalUnreadCount, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 

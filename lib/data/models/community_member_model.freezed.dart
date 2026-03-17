@@ -13,7 +13,7 @@ part of 'community_member_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CommunityMemberModel implements DiagnosticableTreeMixin {
+mixin _$CommunityMemberModel {
 
  String get id; String get communityId; String get userId; String get displayName; String? get avatarUrl; String get role; String get status; int get contributionBalance;@NullableTimestampConverter() DateTime? get joinedAt; String get invitedBy;@TimestampConverter() DateTime get invitedAt;@NullableTimestampConverter() DateTime? get lastReadAt; String? get communityName;
 /// Create a copy of CommunityMemberModel
@@ -25,12 +25,6 @@ $CommunityMemberModelCopyWith<CommunityMemberModel> get copyWith => _$CommunityM
   /// Serializes this CommunityMemberModel to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityMemberModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('userId', userId))..add(DiagnosticsProperty('displayName', displayName))..add(DiagnosticsProperty('avatarUrl', avatarUrl))..add(DiagnosticsProperty('role', role))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('contributionBalance', contributionBalance))..add(DiagnosticsProperty('joinedAt', joinedAt))..add(DiagnosticsProperty('invitedBy', invitedBy))..add(DiagnosticsProperty('invitedAt', invitedAt))..add(DiagnosticsProperty('lastReadAt', lastReadAt))..add(DiagnosticsProperty('communityName', communityName));
-}
 
 @override
 bool operator ==(Object other) {
@@ -42,7 +36,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,userId,displayName,avatarUrl,role,status,contributionBalance,joinedAt,invitedBy,invitedAt,lastReadAt,communityName);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityMemberModel(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt, communityName: $communityName)';
 }
 
@@ -226,7 +220,7 @@ return $default(_that.id,_that.communityId,_that.userId,_that.displayName,_that.
 /// @nodoc
 @JsonSerializable()
 
-class _CommunityMemberModel extends CommunityMemberModel with DiagnosticableTreeMixin {
+class _CommunityMemberModel extends CommunityMemberModel {
   const _CommunityMemberModel({required this.id, required this.communityId, required this.userId, required this.displayName, this.avatarUrl, required this.role, required this.status, this.contributionBalance = 0, @NullableTimestampConverter() this.joinedAt, required this.invitedBy, @TimestampConverter() required this.invitedAt, @NullableTimestampConverter() this.lastReadAt, this.communityName}): super._();
   factory _CommunityMemberModel.fromJson(Map<String, dynamic> json) => _$CommunityMemberModelFromJson(json);
 
@@ -254,12 +248,6 @@ _$CommunityMemberModelCopyWith<_CommunityMemberModel> get copyWith => __$Communi
 Map<String, dynamic> toJson() {
   return _$CommunityMemberModelToJson(this, );
 }
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityMemberModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('userId', userId))..add(DiagnosticsProperty('displayName', displayName))..add(DiagnosticsProperty('avatarUrl', avatarUrl))..add(DiagnosticsProperty('role', role))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('contributionBalance', contributionBalance))..add(DiagnosticsProperty('joinedAt', joinedAt))..add(DiagnosticsProperty('invitedBy', invitedBy))..add(DiagnosticsProperty('invitedAt', invitedAt))..add(DiagnosticsProperty('lastReadAt', lastReadAt))..add(DiagnosticsProperty('communityName', communityName));
-}
 
 @override
 bool operator ==(Object other) {
@@ -271,7 +259,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,id,communityId,userId,displayName,avatarUrl,role,status,contributionBalance,joinedAt,invitedBy,invitedAt,lastReadAt,communityName);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityMemberModel(id: $id, communityId: $communityId, userId: $userId, displayName: $displayName, avatarUrl: $avatarUrl, role: $role, status: $status, contributionBalance: $contributionBalance, joinedAt: $joinedAt, invitedBy: $invitedBy, invitedAt: $invitedAt, lastReadAt: $lastReadAt, communityName: $communityName)';
 }
 

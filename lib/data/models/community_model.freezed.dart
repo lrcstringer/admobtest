@@ -13,7 +13,7 @@ part of 'community_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CommunitySettingsModel implements DiagnosticableTreeMixin {
+mixin _$CommunitySettingsModel {
 
  int get maxMembers; bool get allowMemberInvites; bool get onlyAdminsPost; bool get membersCanShareMedia; bool get enableFinancials; int get requireApprovalAbove; bool get allowMemberWithdrawals; String get contributionCycle; int get contributionAmount; int get penaltyPercentage;
 /// Create a copy of CommunitySettingsModel
@@ -25,12 +25,6 @@ $CommunitySettingsModelCopyWith<CommunitySettingsModel> get copyWith => _$Commun
   /// Serializes this CommunitySettingsModel to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunitySettingsModel'))
-    ..add(DiagnosticsProperty('maxMembers', maxMembers))..add(DiagnosticsProperty('allowMemberInvites', allowMemberInvites))..add(DiagnosticsProperty('onlyAdminsPost', onlyAdminsPost))..add(DiagnosticsProperty('membersCanShareMedia', membersCanShareMedia))..add(DiagnosticsProperty('enableFinancials', enableFinancials))..add(DiagnosticsProperty('requireApprovalAbove', requireApprovalAbove))..add(DiagnosticsProperty('allowMemberWithdrawals', allowMemberWithdrawals))..add(DiagnosticsProperty('contributionCycle', contributionCycle))..add(DiagnosticsProperty('contributionAmount', contributionAmount))..add(DiagnosticsProperty('penaltyPercentage', penaltyPercentage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -42,7 +36,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,maxMembers,allowMemberInvites,onlyAdminsPost,membersCanShareMedia,enableFinancials,requireApprovalAbove,allowMemberWithdrawals,contributionCycle,contributionAmount,penaltyPercentage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunitySettingsModel(maxMembers: $maxMembers, allowMemberInvites: $allowMemberInvites, onlyAdminsPost: $onlyAdminsPost, membersCanShareMedia: $membersCanShareMedia, enableFinancials: $enableFinancials, requireApprovalAbove: $requireApprovalAbove, allowMemberWithdrawals: $allowMemberWithdrawals, contributionCycle: $contributionCycle, contributionAmount: $contributionAmount, penaltyPercentage: $penaltyPercentage)';
 }
 
@@ -223,7 +217,7 @@ return $default(_that.maxMembers,_that.allowMemberInvites,_that.onlyAdminsPost,_
 /// @nodoc
 @JsonSerializable()
 
-class _CommunitySettingsModel extends CommunitySettingsModel with DiagnosticableTreeMixin {
+class _CommunitySettingsModel extends CommunitySettingsModel {
   const _CommunitySettingsModel({this.maxMembers = 100, this.allowMemberInvites = true, this.onlyAdminsPost = false, this.membersCanShareMedia = true, this.enableFinancials = false, this.requireApprovalAbove = 5000, this.allowMemberWithdrawals = false, this.contributionCycle = 'none', this.contributionAmount = 0, this.penaltyPercentage = 0}): super._();
   factory _CommunitySettingsModel.fromJson(Map<String, dynamic> json) => _$CommunitySettingsModelFromJson(json);
 
@@ -248,12 +242,6 @@ _$CommunitySettingsModelCopyWith<_CommunitySettingsModel> get copyWith => __$Com
 Map<String, dynamic> toJson() {
   return _$CommunitySettingsModelToJson(this, );
 }
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunitySettingsModel'))
-    ..add(DiagnosticsProperty('maxMembers', maxMembers))..add(DiagnosticsProperty('allowMemberInvites', allowMemberInvites))..add(DiagnosticsProperty('onlyAdminsPost', onlyAdminsPost))..add(DiagnosticsProperty('membersCanShareMedia', membersCanShareMedia))..add(DiagnosticsProperty('enableFinancials', enableFinancials))..add(DiagnosticsProperty('requireApprovalAbove', requireApprovalAbove))..add(DiagnosticsProperty('allowMemberWithdrawals', allowMemberWithdrawals))..add(DiagnosticsProperty('contributionCycle', contributionCycle))..add(DiagnosticsProperty('contributionAmount', contributionAmount))..add(DiagnosticsProperty('penaltyPercentage', penaltyPercentage));
-}
 
 @override
 bool operator ==(Object other) {
@@ -265,7 +253,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,maxMembers,allowMemberInvites,onlyAdminsPost,membersCanShareMedia,enableFinancials,requireApprovalAbove,allowMemberWithdrawals,contributionCycle,contributionAmount,penaltyPercentage);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunitySettingsModel(maxMembers: $maxMembers, allowMemberInvites: $allowMemberInvites, onlyAdminsPost: $onlyAdminsPost, membersCanShareMedia: $membersCanShareMedia, enableFinancials: $enableFinancials, requireApprovalAbove: $requireApprovalAbove, allowMemberWithdrawals: $allowMemberWithdrawals, contributionCycle: $contributionCycle, contributionAmount: $contributionAmount, penaltyPercentage: $penaltyPercentage)';
 }
 
@@ -315,7 +303,7 @@ as int,
 
 
 /// @nodoc
-mixin _$CommunityModel implements DiagnosticableTreeMixin {
+mixin _$CommunityModel {
 
  String get id; String get type; String get name; String? get description; String? get avatarUrl; String get ownerId; List<String> get memberIds; List<String> get adminIds; int get memberCount; int get totalBalance; String get status; CommunitySettingsModel get settings; StokvelSettingsModel? get stokvelSettings;// Last message preview (flat fields — mapped from nested Firestore lastMessage)
  String? get lastMessageText; String? get lastMessageSenderId; String? get lastMessageSenderName; String? get lastMessageType;@NullableTimestampConverter() DateTime? get lastMessageAt;// Per-user state
@@ -331,12 +319,6 @@ $CommunityModelCopyWith<CommunityModel> get copyWith => _$CommunityModelCopyWith
   /// Serializes this CommunityModel to a JSON map.
   Map<String, dynamic> toJson();
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('avatarUrl', avatarUrl))..add(DiagnosticsProperty('ownerId', ownerId))..add(DiagnosticsProperty('memberIds', memberIds))..add(DiagnosticsProperty('adminIds', adminIds))..add(DiagnosticsProperty('memberCount', memberCount))..add(DiagnosticsProperty('totalBalance', totalBalance))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('settings', settings))..add(DiagnosticsProperty('stokvelSettings', stokvelSettings))..add(DiagnosticsProperty('lastMessageText', lastMessageText))..add(DiagnosticsProperty('lastMessageSenderId', lastMessageSenderId))..add(DiagnosticsProperty('lastMessageSenderName', lastMessageSenderName))..add(DiagnosticsProperty('lastMessageType', lastMessageType))..add(DiagnosticsProperty('lastMessageAt', lastMessageAt))..add(DiagnosticsProperty('unreadCounts', unreadCounts))..add(DiagnosticsProperty('muted', muted))..add(DiagnosticsProperty('lastMessageEncryptedPreviews', lastMessageEncryptedPreviews))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('updatedAt', updatedAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -348,7 +330,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hashAll([runtimeType,id,type,name,description,avatarUrl,ownerId,const DeepCollectionEquality().hash(memberIds),const DeepCollectionEquality().hash(adminIds),memberCount,totalBalance,status,settings,stokvelSettings,lastMessageText,lastMessageSenderId,lastMessageSenderName,lastMessageType,lastMessageAt,const DeepCollectionEquality().hash(unreadCounts),const DeepCollectionEquality().hash(muted),const DeepCollectionEquality().hash(lastMessageEncryptedPreviews),createdAt,updatedAt]);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityModel(id: $id, type: $type, name: $name, description: $description, avatarUrl: $avatarUrl, ownerId: $ownerId, memberIds: $memberIds, adminIds: $adminIds, memberCount: $memberCount, totalBalance: $totalBalance, status: $status, settings: $settings, stokvelSettings: $stokvelSettings, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
@@ -563,7 +545,7 @@ return $default(_that.id,_that.type,_that.name,_that.description,_that.avatarUrl
 /// @nodoc
 @JsonSerializable()
 
-class _CommunityModel extends CommunityModel with DiagnosticableTreeMixin {
+class _CommunityModel extends CommunityModel {
   const _CommunityModel({required this.id, required this.type, required this.name, this.description, this.avatarUrl, required this.ownerId, required final  List<String> memberIds, required final  List<String> adminIds, required this.memberCount, this.totalBalance = 0, required this.status, required this.settings, this.stokvelSettings, this.lastMessageText, this.lastMessageSenderId, this.lastMessageSenderName, this.lastMessageType, @NullableTimestampConverter() this.lastMessageAt, final  Map<String, int> unreadCounts = const {}, final  Map<String, bool> muted = const {}, final  Map<String, String> lastMessageEncryptedPreviews = const {}, @TimestampConverter() required this.createdAt, @NullableTimestampConverter() this.updatedAt}): _memberIds = memberIds,_adminIds = adminIds,_unreadCounts = unreadCounts,_muted = muted,_lastMessageEncryptedPreviews = lastMessageEncryptedPreviews,super._();
   factory _CommunityModel.fromJson(Map<String, dynamic> json) => _$CommunityModelFromJson(json);
 
@@ -637,12 +619,6 @@ _$CommunityModelCopyWith<_CommunityModel> get copyWith => __$CommunityModelCopyW
 Map<String, dynamic> toJson() {
   return _$CommunityModelToJson(this, );
 }
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'CommunityModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('description', description))..add(DiagnosticsProperty('avatarUrl', avatarUrl))..add(DiagnosticsProperty('ownerId', ownerId))..add(DiagnosticsProperty('memberIds', memberIds))..add(DiagnosticsProperty('adminIds', adminIds))..add(DiagnosticsProperty('memberCount', memberCount))..add(DiagnosticsProperty('totalBalance', totalBalance))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('settings', settings))..add(DiagnosticsProperty('stokvelSettings', stokvelSettings))..add(DiagnosticsProperty('lastMessageText', lastMessageText))..add(DiagnosticsProperty('lastMessageSenderId', lastMessageSenderId))..add(DiagnosticsProperty('lastMessageSenderName', lastMessageSenderName))..add(DiagnosticsProperty('lastMessageType', lastMessageType))..add(DiagnosticsProperty('lastMessageAt', lastMessageAt))..add(DiagnosticsProperty('unreadCounts', unreadCounts))..add(DiagnosticsProperty('muted', muted))..add(DiagnosticsProperty('lastMessageEncryptedPreviews', lastMessageEncryptedPreviews))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('updatedAt', updatedAt));
-}
 
 @override
 bool operator ==(Object other) {
@@ -654,7 +630,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hashAll([runtimeType,id,type,name,description,avatarUrl,ownerId,const DeepCollectionEquality().hash(_memberIds),const DeepCollectionEquality().hash(_adminIds),memberCount,totalBalance,status,settings,stokvelSettings,lastMessageText,lastMessageSenderId,lastMessageSenderName,lastMessageType,lastMessageAt,const DeepCollectionEquality().hash(_unreadCounts),const DeepCollectionEquality().hash(_muted),const DeepCollectionEquality().hash(_lastMessageEncryptedPreviews),createdAt,updatedAt]);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'CommunityModel(id: $id, type: $type, name: $name, description: $description, avatarUrl: $avatarUrl, ownerId: $ownerId, memberIds: $memberIds, adminIds: $adminIds, memberCount: $memberCount, totalBalance: $totalBalance, status: $status, settings: $settings, stokvelSettings: $stokvelSettings, lastMessageText: $lastMessageText, lastMessageSenderId: $lastMessageSenderId, lastMessageSenderName: $lastMessageSenderName, lastMessageType: $lastMessageType, lastMessageAt: $lastMessageAt, unreadCounts: $unreadCounts, muted: $muted, lastMessageEncryptedPreviews: $lastMessageEncryptedPreviews, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 

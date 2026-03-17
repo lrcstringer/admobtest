@@ -12,7 +12,7 @@ part of 'message_model.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$MessageModel implements DiagnosticableTreeMixin {
+mixin _$MessageModel {
 
  String get id;// Sender
  String get senderId; String get senderName; String? get senderAvatarUrl;// Content
@@ -33,12 +33,6 @@ mixin _$MessageModel implements DiagnosticableTreeMixin {
 $MessageModelCopyWith<MessageModel> get copyWith => _$MessageModelCopyWithImpl<MessageModel>(this as MessageModel, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'MessageModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('senderId', senderId))..add(DiagnosticsProperty('senderName', senderName))..add(DiagnosticsProperty('senderAvatarUrl', senderAvatarUrl))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('textContent', textContent))..add(DiagnosticsProperty('tokenAmount', tokenAmount))..add(DiagnosticsProperty('recipientId', recipientId))..add(DiagnosticsProperty('ledgerJournalId', ledgerJournalId))..add(DiagnosticsProperty('media', media))..add(DiagnosticsProperty('reactions', reactions))..add(DiagnosticsProperty('replyTo', replyTo))..add(DiagnosticsProperty('readBy', readBy))..add(DiagnosticsProperty('forwardedFrom', forwardedFrom))..add(DiagnosticsProperty('gift', gift))..add(DiagnosticsProperty('tokenSpray', tokenSpray))..add(DiagnosticsProperty('groupGift', groupGift))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('systemEventType', systemEventType))..add(DiagnosticsProperty('systemEventData', systemEventData))..add(DiagnosticsProperty('ciphertext', ciphertext))..add(DiagnosticsProperty('e2ee', e2ee))..add(DiagnosticsProperty('x3dhHeader', x3dhHeader))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('expiresAt', expiresAt))..add(DiagnosticsProperty('actionedAt', actionedAt))..add(DiagnosticsProperty('deletedAt', deletedAt))..add(DiagnosticsProperty('deletedFor', deletedFor))..add(DiagnosticsProperty('deletedForEveryone', deletedForEveryone));
-}
 
 @override
 bool operator ==(Object other) {
@@ -50,7 +44,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hashAll([runtimeType,id,senderId,senderName,senderAvatarUrl,type,status,textContent,tokenAmount,recipientId,ledgerJournalId,const DeepCollectionEquality().hash(media),const DeepCollectionEquality().hash(reactions),const DeepCollectionEquality().hash(replyTo),const DeepCollectionEquality().hash(readBy),const DeepCollectionEquality().hash(forwardedFrom),const DeepCollectionEquality().hash(gift),const DeepCollectionEquality().hash(tokenSpray),const DeepCollectionEquality().hash(groupGift),communityId,systemEventType,const DeepCollectionEquality().hash(systemEventData),ciphertext,const DeepCollectionEquality().hash(e2ee),const DeepCollectionEquality().hash(x3dhHeader),createdAt,expiresAt,actionedAt,deletedAt,const DeepCollectionEquality().hash(deletedFor),deletedForEveryone]);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'MessageModel(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, groupGift: $groupGift, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
 }
 
@@ -251,7 +245,7 @@ return $default(_that.id,_that.senderId,_that.senderName,_that.senderAvatarUrl,_
 /// @nodoc
 
 
-class _MessageModel extends MessageModel with DiagnosticableTreeMixin {
+class _MessageModel extends MessageModel {
   const _MessageModel({required this.id, required this.senderId, required this.senderName, this.senderAvatarUrl, required this.type, required this.status, this.textContent, this.tokenAmount, this.recipientId, this.ledgerJournalId, final  Map<String, dynamic>? media, final  Map<String, List<String>> reactions = const {}, final  Map<String, dynamic>? replyTo, final  Map<String, DateTime> readBy = const {}, final  Map<String, dynamic>? forwardedFrom, final  Map<String, dynamic>? gift, final  Map<String, dynamic>? tokenSpray, final  Map<String, dynamic>? groupGift, this.communityId, this.systemEventType, final  Map<String, dynamic>? systemEventData, this.ciphertext, final  Map<String, dynamic>? e2ee, final  Map<String, dynamic>? x3dhHeader, required this.createdAt, this.expiresAt, this.actionedAt, this.deletedAt, final  List<String> deletedFor = const [], this.deletedForEveryone = false}): _media = media,_reactions = reactions,_replyTo = replyTo,_readBy = readBy,_forwardedFrom = forwardedFrom,_gift = gift,_tokenSpray = tokenSpray,_groupGift = groupGift,_systemEventData = systemEventData,_e2ee = e2ee,_x3dhHeader = x3dhHeader,_deletedFor = deletedFor,super._();
   
 
@@ -399,12 +393,6 @@ class _MessageModel extends MessageModel with DiagnosticableTreeMixin {
 _$MessageModelCopyWith<_MessageModel> get copyWith => __$MessageModelCopyWithImpl<_MessageModel>(this, _$identity);
 
 
-@override
-void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-  properties
-    ..add(DiagnosticsProperty('type', 'MessageModel'))
-    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('senderId', senderId))..add(DiagnosticsProperty('senderName', senderName))..add(DiagnosticsProperty('senderAvatarUrl', senderAvatarUrl))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('textContent', textContent))..add(DiagnosticsProperty('tokenAmount', tokenAmount))..add(DiagnosticsProperty('recipientId', recipientId))..add(DiagnosticsProperty('ledgerJournalId', ledgerJournalId))..add(DiagnosticsProperty('media', media))..add(DiagnosticsProperty('reactions', reactions))..add(DiagnosticsProperty('replyTo', replyTo))..add(DiagnosticsProperty('readBy', readBy))..add(DiagnosticsProperty('forwardedFrom', forwardedFrom))..add(DiagnosticsProperty('gift', gift))..add(DiagnosticsProperty('tokenSpray', tokenSpray))..add(DiagnosticsProperty('groupGift', groupGift))..add(DiagnosticsProperty('communityId', communityId))..add(DiagnosticsProperty('systemEventType', systemEventType))..add(DiagnosticsProperty('systemEventData', systemEventData))..add(DiagnosticsProperty('ciphertext', ciphertext))..add(DiagnosticsProperty('e2ee', e2ee))..add(DiagnosticsProperty('x3dhHeader', x3dhHeader))..add(DiagnosticsProperty('createdAt', createdAt))..add(DiagnosticsProperty('expiresAt', expiresAt))..add(DiagnosticsProperty('actionedAt', actionedAt))..add(DiagnosticsProperty('deletedAt', deletedAt))..add(DiagnosticsProperty('deletedFor', deletedFor))..add(DiagnosticsProperty('deletedForEveryone', deletedForEveryone));
-}
 
 @override
 bool operator ==(Object other) {
@@ -416,7 +404,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hashAll([runtimeType,id,senderId,senderName,senderAvatarUrl,type,status,textContent,tokenAmount,recipientId,ledgerJournalId,const DeepCollectionEquality().hash(_media),const DeepCollectionEquality().hash(_reactions),const DeepCollectionEquality().hash(_replyTo),const DeepCollectionEquality().hash(_readBy),const DeepCollectionEquality().hash(_forwardedFrom),const DeepCollectionEquality().hash(_gift),const DeepCollectionEquality().hash(_tokenSpray),const DeepCollectionEquality().hash(_groupGift),communityId,systemEventType,const DeepCollectionEquality().hash(_systemEventData),ciphertext,const DeepCollectionEquality().hash(_e2ee),const DeepCollectionEquality().hash(_x3dhHeader),createdAt,expiresAt,actionedAt,deletedAt,const DeepCollectionEquality().hash(_deletedFor),deletedForEveryone]);
 
 @override
-String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+String toString() {
   return 'MessageModel(id: $id, senderId: $senderId, senderName: $senderName, senderAvatarUrl: $senderAvatarUrl, type: $type, status: $status, textContent: $textContent, tokenAmount: $tokenAmount, recipientId: $recipientId, ledgerJournalId: $ledgerJournalId, media: $media, reactions: $reactions, replyTo: $replyTo, readBy: $readBy, forwardedFrom: $forwardedFrom, gift: $gift, tokenSpray: $tokenSpray, groupGift: $groupGift, communityId: $communityId, systemEventType: $systemEventType, systemEventData: $systemEventData, ciphertext: $ciphertext, e2ee: $e2ee, x3dhHeader: $x3dhHeader, createdAt: $createdAt, expiresAt: $expiresAt, actionedAt: $actionedAt, deletedAt: $deletedAt, deletedFor: $deletedFor, deletedForEveryone: $deletedForEveryone)';
 }
 
