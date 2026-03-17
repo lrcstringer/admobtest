@@ -233,6 +233,10 @@ class AppColors {
   static const Color chatInputField = Color(0xFF0E1018); // Dark field inside lighter bar
   static const Color chatTimestamp = Color(0xFF6B7899); // Brand-tinted timestamp
 
+  // Chat sub-screen colors — for screens/sheets originating from the Chat tab
+  static const Color chatSheetBackground = surfaceElevated; // Bottom sheet bg (#1A1E2A)
+  static const Color chatFormField = Color(0xFF252840); // Form field fills on chatBackground
+
   // ============ INPUT COLORS ============
   static const Color inputBackground = Color(0xFF13161D);
   static const Color inputBorder = Color(0xFF2A2E3D);

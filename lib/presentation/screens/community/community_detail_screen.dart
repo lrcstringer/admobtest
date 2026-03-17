@@ -17,7 +17,6 @@ import '../../blocs/community/community_bloc.dart';
 import '../../blocs/community_messaging/community_messaging_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/tab_background.dart';
 import '../../widgets/messaging/date_separator.dart';
 import '../../widgets/messaging/message_bubble.dart';
 import '../../widgets/messaging/media_compose_screen.dart';
@@ -117,9 +116,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         DefaultTabController.of(context).index;
 
                     return Scaffold(
-                      extendBodyBehindAppBar: true,
+                      backgroundColor: AppColors.chatBackground,
                       appBar: AppBar(
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: AppColors.chatBackground,
                         surfaceTintColor: Colors.transparent,
                         elevation: 0,
                         title: Text(community?.name ?? 'Community'),
@@ -138,40 +137,29 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                           ],
                         ),
                       ),
-                      body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight + kTextTabBarHeight),
-                          child: TabBarView(
-                          children: [
-                            _ChatTab(
+                      body: TabBarView(
+                        children: [
+                          _ChatTab(
+                            communityId: widget.communityId,
+                            messageController: _messageController,
+                            currentUserId: currentUserId,
+                          ),
+                          _MembersTab(
+                            members: commState.selectedCommunityMembers,
+                            isLoading: commState.operationStatus ==
+                                CommunityOperationStatus.processing,
+                            communityId: widget.communityId,
+                            isAdmin: isAdmin,
+                          ),
+                          if (showFinances)
+                            _FinancesTab(
+                              community: community,
+                              transactions:
+                                  commState.selectedCommunityTransactions,
                               communityId: widget.communityId,
-                              messageController: _messageController,
                               currentUserId: currentUserId,
                             ),
-                            _MembersTab(
-                              members: commState.selectedCommunityMembers,
-                              isLoading: commState.operationStatus ==
-                                  CommunityOperationStatus.processing,
-                              communityId: widget.communityId,
-                              isAdmin: isAdmin,
-                            ),
-                            if (showFinances)
-                              _FinancesTab(
-                                community: community,
-                                transactions:
-                                    commState.selectedCommunityTransactions,
-                                communityId: widget.communityId,
-                                currentUserId: currentUserId,
-                              ),
-                          ],
-                        ),
-                        ),
+                        ],
                       ),
                       floatingActionButton: currentTab == 1 && isAdmin
                           ? FloatingActionButton.extended(

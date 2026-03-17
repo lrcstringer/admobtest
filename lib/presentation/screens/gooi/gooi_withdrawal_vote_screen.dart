@@ -23,7 +23,11 @@ class GooiWithdrawalVoteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Withdrawal Vote')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Withdrawal Vote'),
+      ),
       body: BlocConsumer<GooiDashboardBloc, GooiDashboardState>(
         listener: (context, state) {
           if (state.actionSuccess != null) {

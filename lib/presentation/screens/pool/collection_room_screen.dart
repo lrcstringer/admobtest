@@ -71,6 +71,10 @@ class _CollectionRoomScreenState extends State<CollectionRoomScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (ctx) => PoolDistributeSheet(
         pool: pool,
         onDistribute: (payouts, keepOpen) {
@@ -186,7 +190,9 @@ class _CollectionRoomScreenState extends State<CollectionRoomScreen> {
         final pool = poolState.activePool;
 
         return Scaffold(
+          backgroundColor: AppColors.chatBackground,
           appBar: AppBar(
+            backgroundColor: AppColors.chatBackground,
             title: Text(pool?.title ?? 'Collection Room'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),

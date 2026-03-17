@@ -25,7 +25,9 @@ class _GooiListScreenState extends State<GooiListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.chatBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
         title: const Text('Gooi-Gooi'),
         actions: [
           PopupMenuButton<GooiGroupStatus?>(

@@ -28,7 +28,11 @@ class _GooiDelegateScreenState extends State<GooiDelegateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Delegate Trigger')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Delegate Trigger'),
+      ),
       body: BlocConsumer<GooiDashboardBloc, GooiDashboardState>(
         listener: (context, state) {
           if (state.actionSuccess != null) {

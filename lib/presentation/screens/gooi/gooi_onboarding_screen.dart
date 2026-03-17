@@ -54,6 +54,7 @@ class _GooiOnboardingScreenState extends State<GooiOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.chatBackground,
       body: SafeArea(
         child: Column(
           children: [

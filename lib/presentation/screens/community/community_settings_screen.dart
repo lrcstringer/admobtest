@@ -8,7 +8,6 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Settings screen for an existing community.
 ///
@@ -89,8 +88,9 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
         final community = state.selectedCommunity;
         if (community == null) {
           return Scaffold(
+            backgroundColor: AppColors.chatBackground,
             appBar: AppBar(
-              backgroundColor: Colors.transparent,
+              backgroundColor: AppColors.chatBackground,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               title: const Text('Settings'),
@@ -107,9 +107,9 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
+          backgroundColor: AppColors.chatBackground,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.chatBackground,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             title: const Text('Community Settings'),
@@ -127,20 +127,8 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                 ),
             ],
           ),
-          body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-            child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Form(
               key: _formKey,
               child: Column(
@@ -247,7 +235,6 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
                 ],
               ),
             ),
-          ),
           ),
         );
       },

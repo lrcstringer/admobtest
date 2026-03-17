@@ -59,7 +59,11 @@ class _GooiCreateScreenState extends State<GooiCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Gooi-Gooi')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Create Gooi-Gooi'),
+      ),
       body: BlocConsumer<GooiFormationBloc, GooiFormationState>(
         listener: (context, state) {
           if (state.createdGroupId != null) {

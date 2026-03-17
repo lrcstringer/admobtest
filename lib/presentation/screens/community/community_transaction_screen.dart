@@ -6,7 +6,6 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Reusable screen for community contribute / withdraw operations.
 ///
@@ -77,22 +76,13 @@ class _CommunityTransactionScreenState
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: IMaliAppBar(title: isContribution ? 'Contribute' : 'Withdraw'),
-          body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-            child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
+          backgroundColor: AppColors.chatBackground,
+          appBar: IMaliAppBar(
+            title: isContribution ? 'Contribute' : 'Withdraw',
+            backgroundColor: AppColors.chatBackground,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Form(
               key: _formKey,
               child: Column(
@@ -192,7 +182,6 @@ class _CommunityTransactionScreenState
                 ],
               ),
             ),
-          ),
           ),
         );
       },

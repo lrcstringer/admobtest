@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Chooser screen that lets the user pick between One-to-One Sasaza
 /// (personal gift) and Group Together to Sasaza (group pool).
@@ -27,17 +26,13 @@ class SasazaChooserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: const IMaliAppBar(title: 'Sasaza'),
-      body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 24 + MediaQuery.of(context).padding.top + kToolbarHeight, 20, 24),
+      backgroundColor: AppColors.chatBackground,
+      appBar: const IMaliAppBar(
+        title: 'Sasaza',
+        backgroundColor: AppColors.chatBackground,
+      ),
+      body: Padding(
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               _SasazaOptionCard(
@@ -89,7 +84,6 @@ class SasazaChooserScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

@@ -27,7 +27,11 @@ class _GooiRosterScreenState extends State<GooiRosterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Roster Order')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Roster Order'),
+      ),
       body: BlocConsumer<GooiFormationBloc, GooiFormationState>(
         listener: (context, state) {
           if (state.members.isNotEmpty && _orderedMembers.isEmpty) {

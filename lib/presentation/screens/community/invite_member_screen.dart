@@ -7,7 +7,6 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Screen to invite a user to a community by searching for them.
 class InviteMemberScreen extends StatefulWidget {
@@ -55,22 +54,13 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: const IMaliAppBar(title: 'Invite Member'),
-          body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
+          backgroundColor: AppColors.chatBackground,
+          appBar: const IMaliAppBar(
+            title: 'Invite Member',
+            backgroundColor: AppColors.chatBackground,
+          ),
+          body: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.md),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -213,7 +203,6 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                 ),
               ),
             ),
-          ),
         );
       },
     );

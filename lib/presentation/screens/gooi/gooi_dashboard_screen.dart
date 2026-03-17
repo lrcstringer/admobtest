@@ -48,7 +48,9 @@ class _GooiDashboardScreenState extends State<GooiDashboardScreen> {
         final isInitiator = state.group?.initiatorUserId == state.currentUserId;
 
         return Scaffold(
+          backgroundColor: AppColors.chatBackground,
           appBar: AppBar(
+            backgroundColor: AppColors.chatBackground,
             title: Text(state.group?.name ?? 'Gooi-Gooi'),
             actions: [
               if (state.group != null)

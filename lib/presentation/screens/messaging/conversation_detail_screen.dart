@@ -1386,6 +1386,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) => TokenActionsSheet(
         conversationId: widget.conversationId,
         recipientId: recipientId,
@@ -1573,6 +1574,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   void _showWallpaperPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => ChatThemePicker(
         current: _chatTheme,
         onSelected: (theme) {
@@ -1912,6 +1917,10 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => ReportSheet(
         targetName: displayName,
         onSubmit: (reason, additionalInfo) async {

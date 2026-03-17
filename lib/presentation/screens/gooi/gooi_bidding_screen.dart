@@ -33,7 +33,11 @@ class _GooiBiddingScreenState extends State<GooiBiddingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Place Bid')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Place Bid'),
+      ),
       body: BlocConsumer<GooiFormationBloc, GooiFormationState>(
         listener: (context, state) {
           if (state.actionSuccess != null) {

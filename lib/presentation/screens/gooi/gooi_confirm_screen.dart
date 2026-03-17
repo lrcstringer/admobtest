@@ -26,7 +26,11 @@ class _GooiConfirmScreenState extends State<GooiConfirmScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Confirm Activation')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Confirm Activation'),
+      ),
       body: BlocConsumer<GooiFormationBloc, GooiFormationState>(
         listener: (context, state) {
           if (state.actionSuccess != null) {

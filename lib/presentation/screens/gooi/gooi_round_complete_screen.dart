@@ -15,7 +15,11 @@ class GooiRoundCompleteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Round Summary')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Round Summary'),
+      ),
       body: BlocBuilder<GooiDashboardBloc, GooiDashboardState>(
         builder: (context, state) {
           if (state.isLoading) {

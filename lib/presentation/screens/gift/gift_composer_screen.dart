@@ -10,7 +10,6 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/gift/gift_style_picker.dart';
 import '../../widgets/common/imali_app_bar.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Screen for composing and sending a gift.
 /// Reached via /chat/conversation/:id/send-gift or /chat/send-gift.
@@ -108,20 +107,14 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.chatBackground,
       appBar: IMaliAppBar(
         title: _recipientId != null
             ? 'Sasaza ${_recipientController.text}'
             : 'One-to-One Sasaza',
+        backgroundColor: AppColors.chatBackground,
       ),
-      body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-        child: BlocConsumer<GiftBloc, GiftState>(
+      body: BlocConsumer<GiftBloc, GiftState>(
         listener: (context, state) {
           // Only pop for the current send — _sendInitiated prevents
           // stale activeGift from a previous session triggering a premature pop.
@@ -143,12 +136,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
           return Form(
             key: _formKey,
             child: ListView(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
+              padding: const EdgeInsets.all(AppSpacing.md),
               children: [
                 // Recipient picker (shown when no recipient pre-filled)
                 if (widget.recipientId == null ||
@@ -261,7 +249,6 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
             ),
           );
         },
-      ),
       ),
     );
   }

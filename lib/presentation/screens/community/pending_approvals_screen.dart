@@ -6,7 +6,6 @@ import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Screen showing pending transaction approvals for a community.
 ///
@@ -43,31 +42,21 @@ class PendingApprovalsScreen extends StatelessWidget {
         final approvals = state.selectedCommunityApprovals;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: IMaliAppBar(title: 'Approvals (${approvals.length})'),
-          body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-            child: approvals.isEmpty
+          backgroundColor: AppColors.chatBackground,
+          appBar: IMaliAppBar(
+            title: 'Approvals (${approvals.length})',
+            backgroundColor: AppColors.chatBackground,
+          ),
+          body: approvals.isEmpty
               ? _buildEmptyState(context)
               : ListView.builder(
-                  padding: EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
-                    AppSpacing.md,
-                    AppSpacing.md,
-                  ),
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   itemCount: approvals.length,
                   itemBuilder: (context, index) => _ApprovalCard(
                     approval: approvals[index],
                     communityId: communityId,
                   ),
                 ),
-          ),
         );
       },
     );

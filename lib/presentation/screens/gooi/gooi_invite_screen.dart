@@ -39,7 +39,11 @@ class _GooiInviteScreenState extends State<GooiInviteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Invite Members')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('Invite Members'),
+      ),
       body: BlocConsumer<GooiFormationBloc, GooiFormationState>(
         listener: (context, state) {
           if (state.actionSuccess != null) {

@@ -340,6 +340,7 @@ class _WalletScreenState extends State<WalletScreen> {
             onTap: () => showModalBottomSheet(
               context: context,
               isScrollControlled: true,
+              backgroundColor: Colors.transparent,
               builder: (_) => const TokenActionsSheet(),
             ),
             child: Container(

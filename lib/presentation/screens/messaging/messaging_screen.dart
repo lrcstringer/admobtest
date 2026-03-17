@@ -413,6 +413,7 @@ class _MessagingScreenState extends State<MessagingScreen>
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
                         builder: (_) => const TokenActionsSheet(),
                       );
                     },

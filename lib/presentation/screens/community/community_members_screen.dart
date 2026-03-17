@@ -8,7 +8,6 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/community/community_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Full members list with admin actions (role change, remove).
 class CommunityMembersScreen extends StatelessWidget {
@@ -47,9 +46,9 @@ class CommunityMembersScreen extends StatelessWidget {
         final isAdmin = community?.isAdmin(currentUserId) ?? false;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
+          backgroundColor: AppColors.chatBackground,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.chatBackground,
             surfaceTintColor: Colors.transparent,
             elevation: 0,
             title: Text('Members (${members.length})'),
@@ -62,17 +61,8 @@ class CommunityMembersScreen extends StatelessWidget {
                 ),
             ],
           ),
-          body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-            child: Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
-              // 8.2 Show empty state instead of infinite spinner when not loading
-              child: members.isEmpty &&
+          // 8.2 Show empty state instead of infinite spinner when not loading
+          body: members.isEmpty &&
                     state.operationStatus == CommunityOperationStatus.processing
                 ? const Center(child: CircularProgressIndicator())
                 : members.isEmpty
@@ -104,8 +94,6 @@ class CommunityMembersScreen extends StatelessWidget {
                     );
                   },
                 ),
-          ),
-          ),
         );
       },
     );

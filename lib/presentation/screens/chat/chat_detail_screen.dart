@@ -557,6 +557,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (context) => TokenActionsSheet(
         threadId: state.selectedThread!.id,
         recipientId: recipientId ?? '',
@@ -569,10 +570,11 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceElevated,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: SafeArea(
           child: Column(
@@ -692,9 +694,9 @@ class _TokenActionsSheetState extends State<TokenActionsSheet> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

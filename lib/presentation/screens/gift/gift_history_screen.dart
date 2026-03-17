@@ -6,7 +6,6 @@ import '../../../domain/enums/gift_status.dart';
 import '../../blocs/gift/gift_bloc.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/common/tab_background.dart';
 
 /// Screen showing gift history — sent and received tabs.
 /// Reached via /profile/gift-history
@@ -38,9 +37,9 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.chatBackground,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.chatBackground,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: const Text('Gift History'),
@@ -52,31 +51,20 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
           ],
         ),
       ),
-      body: TabBackground(
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.backgroundGradient,
-        ),
-        overlayAsset: null,
-        child: Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight + kTextTabBarHeight),
-          child: BlocBuilder<GiftBloc, GiftState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      body: BlocBuilder<GiftBloc, GiftState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return TabBarView(
-              controller: _tabController,
-              children: [
-                _GiftList(gifts: state.sentGifts, isSent: true),
-                _GiftList(gifts: state.receivedGifts, isSent: false),
-              ],
-            );
-          },
-        ),
-        ),
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _GiftList(gifts: state.sentGifts, isSent: true),
+              _GiftList(gifts: state.receivedGifts, isSent: false),
+            ],
+          );
+        },
       ),
     );
   }

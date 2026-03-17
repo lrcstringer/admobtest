@@ -14,7 +14,11 @@ class GooiHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      backgroundColor: AppColors.chatBackground,
+      appBar: AppBar(
+        backgroundColor: AppColors.chatBackground,
+        title: const Text('History'),
+      ),
       body: BlocBuilder<GooiDashboardBloc, GooiDashboardState>(
         builder: (context, state) {
           if (state.isLoading) {

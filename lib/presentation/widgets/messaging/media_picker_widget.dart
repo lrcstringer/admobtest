@@ -202,6 +202,10 @@ void showMediaPicker(
 }) {
   showModalBottomSheet(
     context: context,
+    backgroundColor: AppColors.surfaceElevated,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
     builder: (ctx) => MediaPickerWidget(
       onMediaSelected: onMediaSelected,
     ),
@@ -383,6 +387,10 @@ void showActionPicker(
 }) {
   showModalBottomSheet(
     context: context,
+    backgroundColor: AppColors.surfaceElevated,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
     builder: (ctx) => ActionPickerWidget(
       onCameraRequested: onCameraRequested,
       onGalleryRequested: onGalleryRequested,

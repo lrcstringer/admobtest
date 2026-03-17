@@ -301,6 +301,7 @@ class WalletDetailScreen extends StatelessWidget {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
                         builder: (_) => TokenActionsSheet(
                           preSelectedSubAccountId: subAccount.id,
                         ),
@@ -329,6 +330,7 @@ class WalletDetailScreen extends StatelessWidget {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
                       builder: (_) => TokenActionsSheet(
                         preSelectedSubAccountId: subAccount.id,
                         initialSendMode: false,

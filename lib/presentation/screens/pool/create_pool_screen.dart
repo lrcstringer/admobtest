@@ -116,7 +116,9 @@ class _CreatePoolScreenState extends State<CreatePoolScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.chatBackground,
         appBar: AppBar(
+          backgroundColor: AppColors.chatBackground,
           title: Text(
             _mode == PoolMode.sasaza ? 'Create Group Sasaza' : 'Group Save',
           ),
