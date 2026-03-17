@@ -13,11 +13,11 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val isDebug = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (!isDebug) {
-            // Prevent screenshots and screen recording
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
+        // TODO: Re-enable FLAG_SECURE before production release
+        // val isDebug = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        // if (!isDebug) {
+        //     window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // }
         // Prevent tapjacking — reject touches when another app overlays this window
         findViewById<android.view.View>(android.R.id.content)?.filterTouchesWhenObscured = true
     }

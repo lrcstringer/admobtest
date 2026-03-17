@@ -17,7 +17,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app.dart';
 import 'core/di/injection.dart';
 import 'core/security/rasp_service.dart';
-import 'core/security/screenshot_prevention_service.dart';
+// TODO: Re-enable import when screenshot prevention is re-enabled
+// import 'core/security/screenshot_prevention_service.dart';
 import 'core/security/version_enforcement_service.dart';
 import 'data/datasources/local/app_database.dart';
 import 'firebase_options.dart';
@@ -160,10 +161,10 @@ Future<void> main() async {
     GetIt.instance<RaspService>().initialize();
   }
 
-  // Enable screenshot prevention in release builds
-  if (!kDebugMode) {
-    GetIt.instance<ScreenshotPreventionService>().enable();
-  }
+  // TODO: Re-enable screenshot prevention before production release
+  // if (!kDebugMode) {
+  //   GetIt.instance<ScreenshotPreventionService>().enable();
+  // }
 
   // Check minimum app version (non-blocking on failure)
   if (!kDebugMode) {

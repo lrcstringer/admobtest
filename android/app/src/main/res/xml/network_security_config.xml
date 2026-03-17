@@ -1,40 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Default: block cleartext, trust system CAs only -->
+    <!-- Block cleartext (HTTP) traffic, trust system CAs only -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-
-    <!--
-        Certificate pinning for Google/Firebase domains.
-        Pins are SHA-256 hashes of Google Trust Services (GTS) root CA
-        public keys. These root CAs are long-lived (valid through 2036+).
-        Expiry set to 2027-01-01 as a safety valve — if pins expire the
-        app falls back to normal system CA validation (does NOT break).
-    -->
-    <domain-config>
-        <domain includeSubdomains="true">googleapis.com</domain>
-        <domain includeSubdomains="true">firebaseio.com</domain>
-        <domain includeSubdomains="true">firebaseapp.com</domain>
-        <domain includeSubdomains="true">firebase.google.com</domain>
-        <domain includeSubdomains="true">cloudfunctions.net</domain>
-        <domain includeSubdomains="true">imalichat.app</domain>
-        <pin-set expiration="2027-01-01">
-            <!-- GTS Root R1 (ECDSA P-384) — primary Google root -->
-            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TPoNPy0BFRG4=</pin>
-            <!-- GTS Root R2 (ECDSA P-384) — secondary Google root -->
-            <pin digest="SHA-256">MJimnV/PCxLJhJEP08BQ3b2MWjQxpCHvRJaOZoFdpVA=</pin>
-            <!-- GTS Root R3 (RSA 2048) — fallback Google root -->
-            <pin digest="SHA-256">LclHkiGbqMOB5dYulGFhLDToPBH1EeJgTEfIM2r3Zig=</pin>
-            <!-- GTS Root R4 (RSA 4096) — fallback Google root -->
-            <pin digest="SHA-256">toANSF2PEKdZuGJdQZq5+hccGCqsjMeo1DesqR/EMhY=</pin>
-            <!-- GlobalSign Root R2 — used by some Google services -->
-            <pin digest="SHA-256">iie1VXtL7HzAMF+/PVPR9xzT80kQxdZeJ+zduCB3BD0=</pin>
-        </pin-set>
-        <trust-anchors>
-            <certificates src="system" />
-        </trust-anchors>
-    </domain-config>
 </network-security-config>
