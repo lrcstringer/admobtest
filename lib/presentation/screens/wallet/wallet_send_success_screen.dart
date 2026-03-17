@@ -20,6 +20,7 @@ class WalletSendSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(title: 'Send Successful'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -28,16 +29,18 @@ class WalletSendSuccessScreen extends StatelessWidget {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -81,6 +84,7 @@ class WalletSendSuccessScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
       ),
     );

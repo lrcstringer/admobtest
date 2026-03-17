@@ -109,6 +109,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Wallet'),
       body: _buildBody(context),
     );
@@ -162,7 +163,12 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 overlayAsset: AppColors.themed(context).waveOverlay,
                 child: Padding(
-                  padding: AppSpacing.pagePadding,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -77,6 +77,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: const IMaliAppBar(title: 'Create Community'),
           body: TabBackground(
         gradient: const LinearGradient(
@@ -86,7 +87,12 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         ),
         overlayAsset: null,
             child: SingleChildScrollView(
-            padding: AppSpacing.pagePadding,
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
             child: Form(
               key: _formKey,
               child: Column(

@@ -77,6 +77,7 @@ class _CommunityTransactionScreenState
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: IMaliAppBar(title: isContribution ? 'Contribute' : 'Withdraw'),
           body: TabBackground(
         gradient: const LinearGradient(
@@ -86,7 +87,12 @@ class _CommunityTransactionScreenState
         ),
         overlayAsset: null,
             child: SingleChildScrollView(
-            padding: AppSpacing.pagePadding,
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
             child: Form(
               key: _formKey,
               child: Column(

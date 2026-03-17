@@ -108,6 +108,7 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: _recipientId != null
             ? 'Sasaza ${_recipientController.text}'
@@ -142,7 +143,12 @@ class _GiftComposerScreenState extends State<GiftComposerScreen> {
           return Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               children: [
                 // Recipient picker (shown when no recipient pre-filled)
                 if (widget.recipientId == null ||

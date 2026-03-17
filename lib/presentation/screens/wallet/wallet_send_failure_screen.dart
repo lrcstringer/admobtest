@@ -15,6 +15,7 @@ class WalletSendFailureScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(title: 'Send Failed'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -23,9 +24,11 @@ class WalletSendFailureScreen extends StatelessWidget {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -70,6 +73,7 @@ class WalletSendFailureScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
       ),
     );

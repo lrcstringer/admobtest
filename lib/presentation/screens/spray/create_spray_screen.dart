@@ -71,6 +71,7 @@ class _CreateSprayScreenState extends State<CreateSprayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Start Token Spray'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -98,7 +99,12 @@ class _CreateSprayScreenState extends State<CreateSprayScreen> {
           return Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               children: [
                 // Recipient selector
                 Text(

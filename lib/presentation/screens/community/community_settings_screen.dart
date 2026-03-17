@@ -107,6 +107,7 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
@@ -134,7 +135,12 @@ class _CommunitySettingsScreenState extends State<CommunitySettingsScreen> {
         ),
         overlayAsset: null,
             child: SingleChildScrollView(
-            padding: AppSpacing.pagePadding,
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
             child: Form(
               key: _formKey,
               child: Column(

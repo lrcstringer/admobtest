@@ -117,6 +117,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         DefaultTabController.of(context).index;
 
                     return Scaffold(
+                      extendBodyBehindAppBar: true,
                       appBar: AppBar(
                         backgroundColor: Colors.transparent,
                         surfaceTintColor: Colors.transparent,
@@ -144,7 +145,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
           colors: AppColors.backgroundGradient,
         ),
         overlayAsset: null,
-                        child: TabBarView(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight + kTextTabBarHeight),
+                          child: TabBarView(
                           children: [
                             _ChatTab(
                               communityId: widget.communityId,
@@ -167,6 +170,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                                 currentUserId: currentUserId,
                               ),
                           ],
+                        ),
                         ),
                       ),
                       floatingActionButton: currentTab == 1 && isAdmin

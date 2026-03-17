@@ -49,6 +49,7 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(title: 'Send To'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -57,7 +58,9 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: Column(
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: Column(
           children: [
             // Search bar
             Padding(
@@ -117,6 +120,7 @@ class _WalletSendScreenState extends State<WalletSendScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -238,6 +238,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Home'),
       body: _buildHomeTab(),
     );
@@ -276,7 +277,12 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       overlayAsset: AppColors.themed(context).waveOverlay,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          MediaQuery.of(context).padding.top + kToolbarHeight + 8,
+                          20,
+                          24,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

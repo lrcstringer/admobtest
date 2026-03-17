@@ -27,7 +27,7 @@ class ThemedColors {
   static const ThemedColors dark = ThemedColors._(
     tabGradient: [Color(0xFF3451B8), Color(0xFF2C325C)],
     waveOverlay: null,
-    navBackground: Color(0xFF2C325C),
+    navBackground: Color(0xFF1E2245),
     navInactive: Color(0xFF8899A6),
     cardBorder: Color(0xFF2A2E3D),
     cardShadow: null,

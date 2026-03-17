@@ -35,6 +35,7 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: 'Earn',
         extraActions: [
@@ -128,7 +129,10 @@ class _EarnScreenState extends State<EarnScreen> {
                     colors: AppColors.themed(context).tabGradient,
                   ),
                   overlayAsset: AppColors.themed(context).waveOverlay,
-                  child: const Center(child: CircularProgressIndicator()));
+                  child: Padding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ));
             }
 
             return RefreshIndicator(
@@ -147,7 +151,12 @@ class _EarnScreenState extends State<EarnScreen> {
                   ),
                   overlayAsset: AppColors.themed(context).waveOverlay,
                   child: Padding(
-                    padding: AppSpacing.pagePadding,
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

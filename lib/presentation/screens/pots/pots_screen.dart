@@ -44,6 +44,7 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: 'Pots',
         extraActions: [
@@ -70,12 +71,15 @@ class _PotsScreenState extends State<PotsScreen> with SingleTickerProviderStateM
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildActivePotsTab(context),
-            _buildHistoryTab(context),
-          ],
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight + kTextTabBarHeight),
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildActivePotsTab(context),
+              _buildHistoryTab(context),
+            ],
+          ),
         ),
       ),
     );

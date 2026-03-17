@@ -36,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final user = authState.user;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: const IMaliAppBar(title: 'Profile'),
           body: TabBackground(
         gradient: LinearGradient(
@@ -45,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         overlayAsset: AppColors.themed(context).waveOverlay,
             child: ListView(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
               children: [
                 // Profile Header
                 Padding(

@@ -86,6 +86,7 @@ class WalletDetailScreen extends StatelessWidget {
                 : AppColors.walletSecondary;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: IMaliAppBar(title: subAccount.name),
           body: RefreshIndicator(
             onRefresh: () async {
@@ -103,7 +104,12 @@ class WalletDetailScreen extends StatelessWidget {
                 ),
                 overlayAsset: null,
                 child: Padding(
-                  padding: AppSpacing.pagePadding,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

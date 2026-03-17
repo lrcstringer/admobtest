@@ -69,7 +69,7 @@ class BottomNavBar extends StatelessWidget {
         color: navBg,
         border: Border(
           top: BorderSide(
-            color: Theme.of(context).dividerColor,
+            color: isDark ? Theme.of(context).dividerColor : const Color(0xFFE8ECF1),
             width: 0.5,
           ),
         ),

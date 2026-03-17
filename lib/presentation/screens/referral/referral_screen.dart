@@ -31,6 +31,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Invite & Earn'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -78,7 +79,12 @@ class _ReferralScreenState extends State<ReferralScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: AppSpacing.pagePadding,
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -27,6 +27,7 @@ class SasazaChooserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Sasaza'),
       body: TabBackground(
         gradient: const LinearGradient(
@@ -36,7 +37,7 @@ class SasazaChooserScreen extends StatelessWidget {
         ),
         overlayAsset: null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: EdgeInsets.fromLTRB(20, 24 + MediaQuery.of(context).padding.top + kToolbarHeight, 20, 24),
           child: Column(
             children: [
               _SasazaOptionCard(

@@ -143,7 +143,7 @@ class AppColors {
   // ============ BOTTOM NAV COLORS ============
   static const Color navActive = Color(0xFFFF328C);
   static const Color navInactive = Color(0xFF8899A6);
-  static const Color navBackground = Color(0xFF2C325C);
+  static const Color navBackground = Color(0xFF1E2245);
 
   // ============ GRADIENTS ============
   // Background gradient (180deg, #3451B8 → #2C325C)

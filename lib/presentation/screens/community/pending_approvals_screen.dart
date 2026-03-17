@@ -43,6 +43,7 @@ class PendingApprovalsScreen extends StatelessWidget {
         final approvals = state.selectedCommunityApprovals;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: IMaliAppBar(title: 'Approvals (${approvals.length})'),
           body: TabBackground(
         gradient: const LinearGradient(
@@ -54,7 +55,12 @@ class PendingApprovalsScreen extends StatelessWidget {
             child: approvals.isEmpty
               ? _buildEmptyState(context)
               : ListView.builder(
-                  padding: AppSpacing.pagePadding,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
                   itemCount: approvals.length,
                   itemBuilder: (context, index) => _ApprovalCard(
                     approval: approvals[index],

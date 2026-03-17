@@ -77,6 +77,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Edit Profile'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -86,7 +87,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         overlayAsset: null,
         child: SingleChildScrollView(
-        padding: AppSpacing.pagePadding,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
         child: Form(
           key: _formKey,
           child: Column(

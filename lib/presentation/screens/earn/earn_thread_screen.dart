@@ -35,6 +35,7 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
         final thread = state.selectedThread;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: IMaliAppBar(
             title: thread?.title ?? 'Opportunities',
           ),
@@ -54,35 +55,41 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
 
   Widget _buildBody(BuildContext context, EarnState state) {
     if (state.opportunitiesStatus == EarnStatus.loading) {
-      return const Center(child: CircularProgressIndicator());
+      return Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+        child: const Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (state.opportunitiesStatus == EarnStatus.error) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
-            AppSpacing.verticalMd,
-            Text(
-              'Failed to load opportunities',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            AppSpacing.verticalSm,
-            AppButton(
-              text: 'Retry',
-              onPressed: () {
-                context
-                    .read<EarnBloc>()
-                    .add(EarnEvent.loadOpportunities(threadId: widget.threadId));
-              },
-              isFullWidth: false,
-            ),
-          ],
+      return Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.error,
+              ),
+              AppSpacing.verticalMd,
+              Text(
+                'Failed to load opportunities',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              AppSpacing.verticalSm,
+              AppButton(
+                text: 'Retry',
+                onPressed: () {
+                  context
+                      .read<EarnBloc>()
+                      .add(EarnEvent.loadOpportunities(threadId: widget.threadId));
+                },
+                isFullWidth: false,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -113,7 +120,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
             .add(EarnEvent.loadOpportunities(threadId: widget.threadId));
       },
       child: ListView.builder(
-        padding: AppSpacing.pagePadding,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
         itemCount: sorted.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {

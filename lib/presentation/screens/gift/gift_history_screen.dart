@@ -38,6 +38,7 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -58,7 +59,9 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
           colors: AppColors.backgroundGradient,
         ),
         overlayAsset: null,
-        child: BlocBuilder<GiftBloc, GiftState>(
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight + kTextTabBarHeight),
+          child: BlocBuilder<GiftBloc, GiftState>(
           builder: (context, state) {
             if (state.isLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -72,6 +75,7 @@ class _GiftHistoryScreenState extends State<GiftHistoryScreen>
               ],
             );
           },
+        ),
         ),
       ),
     );

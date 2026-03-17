@@ -10,6 +10,7 @@ class UpgradeStatusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(title: 'Upgrade Status'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -18,13 +19,16 @@ class UpgradeStatusScreen extends StatelessWidget {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: const Center(
-          child: Text(
-            'Upgrade Status\nComing Soon',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 16,
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: const Center(
+            child: Text(
+              'Upgrade Status\nComing Soon',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+              ),
             ),
           ),
         ),

@@ -25,6 +25,7 @@ class QrDisplayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: 'QR Code',
         extraActions: [
@@ -42,9 +43,11 @@ class QrDisplayScreen extends StatelessWidget {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -100,6 +103,7 @@ class QrDisplayScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
       ),
     );

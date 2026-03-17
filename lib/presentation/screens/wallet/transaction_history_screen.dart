@@ -49,6 +49,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: 'Activity History',
         extraActions: [
@@ -69,16 +70,18 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: BlocBuilder<WalletBloc, WalletState>(
-        builder: (context, walletState) {
-          return BlocBuilder<RewardBloc, RewardState>(
-            builder: (context, rewardState) {
-              return Column(
-                children: [
-                  // View toggle
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: BlocBuilder<WalletBloc, WalletState>(
+          builder: (context, walletState) {
+            return BlocBuilder<RewardBloc, RewardState>(
+              builder: (context, rewardState) {
+                return Column(
+                  children: [
+                    // View toggle
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                     child: SegmentedButton<_HistoryView>(
                       segments: const [
                         ButtonSegment(
@@ -119,6 +122,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             },
           );
         },
+      ),
       ),
       ),
     );

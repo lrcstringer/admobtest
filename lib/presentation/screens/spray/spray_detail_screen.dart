@@ -165,6 +165,7 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'Token Spray'),
       body: TabBackground(
         gradient: LinearGradient(
@@ -191,7 +192,12 @@ class _SprayDetailScreenState extends State<SprayDetailScreen> {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
             children: [
               // Header card
               _SprayHeaderCard(spray: spray),

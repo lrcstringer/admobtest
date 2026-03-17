@@ -100,6 +100,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             : 'New Chat';
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: IMaliAppBar(
         title: title,
       ),
@@ -110,13 +111,15 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
           colors: AppColors.themed(context).tabGradient,
         ),
         overlayAsset: null,
-        child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              autofocus: true,
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+          child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search by name',
@@ -266,6 +269,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             ),
           ),
         ],
+      ),
       ),
       ),
     );

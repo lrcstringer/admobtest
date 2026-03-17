@@ -62,6 +62,7 @@ class _CashoutScreenState extends State<CashoutScreen> {
         }
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: IMaliAppBar(
           title: 'Cash Out',
           extraActions: [
@@ -86,7 +87,12 @@ class _CashoutScreenState extends State<CashoutScreen> {
                 ),
                 overlayAsset: null,
                 child: Padding(
-                  padding: AppSpacing.pagePadding,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(

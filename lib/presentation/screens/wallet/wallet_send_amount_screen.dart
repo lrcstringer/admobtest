@@ -99,6 +99,7 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
         }
       },
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: IMaliAppBar(title: 'Send Amount'),
         body: BlocBuilder<WalletBloc, WalletState>(
           builder: (context, state) {
@@ -120,7 +121,12 @@ class _WalletSendAmountScreenState extends State<WalletSendAmountScreen> {
                 ),
                 overlayAsset: null,
                 child: Padding(
-                  padding: AppSpacing.pagePadding,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                  ),
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

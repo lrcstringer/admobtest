@@ -11,6 +11,7 @@ class HowToEarnScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: const IMaliAppBar(title: 'How it works'),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -22,7 +23,7 @@ class HowToEarnScreen extends StatelessWidget {
           ),
           overlayAsset: null,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
+            padding: EdgeInsets.fromLTRB(24, 24 + MediaQuery.of(context).padding.top + kToolbarHeight, 24, 96),
             child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

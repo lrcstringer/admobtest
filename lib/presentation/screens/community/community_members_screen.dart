@@ -47,6 +47,7 @@ class CommunityMembersScreen extends StatelessWidget {
         final isAdmin = community?.isAdmin(currentUserId) ?? false;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
@@ -68,8 +69,10 @@ class CommunityMembersScreen extends StatelessWidget {
           colors: AppColors.backgroundGradient,
         ),
         overlayAsset: null,
-            // 8.2 Show empty state instead of infinite spinner when not loading
-            child: members.isEmpty &&
+            child: Padding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+              // 8.2 Show empty state instead of infinite spinner when not loading
+              child: members.isEmpty &&
                     state.operationStatus == CommunityOperationStatus.processing
                 ? const Center(child: CircularProgressIndicator())
                 : members.isEmpty
@@ -101,6 +104,7 @@ class CommunityMembersScreen extends StatelessWidget {
                     );
                   },
                 ),
+          ),
           ),
         );
       },

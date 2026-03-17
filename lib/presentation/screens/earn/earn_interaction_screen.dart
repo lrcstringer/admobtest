@@ -534,6 +534,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             }
           },
           child: Scaffold(
+            extendBodyBehindAppBar: true,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               surfaceTintColor: Colors.transparent,
@@ -560,7 +561,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 colors: AppColors.themed(context).tabGradient,
               ),
               overlayAsset: null,
-              child: _buildContent(state),
+              child: Padding(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
+                child: _buildContent(state),
+              ),
             ),
           ),
         );

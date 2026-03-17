@@ -55,6 +55,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
             state.operationStatus == CommunityOperationStatus.processing;
 
         return Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: const IMaliAppBar(title: 'Invite Member'),
           body: TabBackground(
         gradient: const LinearGradient(
@@ -64,7 +65,12 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
         ),
         overlayAsset: null,
             child: SingleChildScrollView(
-              padding: AppSpacing.pagePadding,
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md + MediaQuery.of(context).padding.top + kToolbarHeight,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
