@@ -157,7 +157,7 @@ class BottomNavBar extends StatelessWidget {
                       : null,
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 200),
-                    opacity: isActive ? 1.0 : (isDark ? 0.45 : 0.7),
+                    opacity: isActive ? 1.0 : (isDark ? 0.45 : 0.9),
                     child: buildIcon(),
                   ),
                 ),
@@ -196,7 +196,7 @@ class BottomNavBar extends StatelessWidget {
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color: isActive
                     ? (isDark ? Theme.of(context).colorScheme.onSurface : const Color(0xFF1A1A2E))
-                    : (isDark ? themed.navInactive : const Color(0xFF94A3B8)),
+                    : (isDark ? themed.navInactive : const Color(0xFF64748B)),
               ),
             ),
           ],
