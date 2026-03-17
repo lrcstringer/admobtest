@@ -71,7 +71,7 @@ class AdMobService {
 
   /// Creates AdMobService. Uses test ads in debug mode by default.
   @factoryMethod
-  AdMobService(this._sessionLockService) : _useTestAds = kDebugMode;
+  AdMobService(this._sessionLockService) : _useTestAds = false;
 
   /// Constructor for testing - allows overriding test ads setting
   @visibleForTesting
@@ -85,12 +85,10 @@ class AdMobService {
   /// Load a rewarded ad
   Future<bool> loadAd() async {
     if (_isLoading) {
-      debugPrint('AdMobService: Already loading an ad');
       return false;
     }
 
     if (_rewardedAd != null) {
-      debugPrint('AdMobService: Ad already loaded');
       isAdReady.value = true; // Ensure state is consistent
       return true;
     }
@@ -110,11 +108,9 @@ class AdMobService {
           onAdLoaded: (ad) {
             if (gen != _loadGeneration) {
               // Stale callback from a previous timed-out load — dispose and ignore
-              debugPrint('AdMobService: Discarding stale ad load (gen $gen != $_loadGeneration)');
               ad.dispose();
               return;
             }
-            debugPrint('AdMobService: Ad loaded successfully');
             _rewardedAd = ad;
             _isLoading = false;
             _loadRetryCount = 0;
@@ -127,11 +123,8 @@ class AdMobService {
           onAdFailedToLoad: (error) {
             if (gen != _loadGeneration) {
               // Stale callback — ignore (don't reset isAdReady)
-              debugPrint('AdMobService: Discarding stale ad failure (gen $gen != $_loadGeneration)');
               return;
             }
-            debugPrint(
-                'AdMobService: Ad failed to load: ${error.code} - ${error.message}');
             _isLoading = false;
             isLoading.value = false;
             // Only reset isAdReady if no ad is actually loaded
@@ -149,15 +142,13 @@ class AdMobService {
       return await completer.future.timeout(
         AdMobConstants.adLoadTimeout,
         onTimeout: () {
-          debugPrint('AdMobService: Ad load timed out');
           _isLoading = false;
           isLoading.value = false;
           // Don't reset isAdReady — the callback may still fire and succeed
           return false;
         },
       );
-    } catch (e) {
-      debugPrint('AdMobService: Error loading ad: $e');
+    } catch (_) {
       _isLoading = false;
       isLoading.value = false;
       return false;
@@ -176,7 +167,6 @@ class AdMobService {
       }
       // If a previous load succeeded while we were retrying, honour it
       if (_rewardedAd != null) {
-        debugPrint('AdMobService: Ad became ready during retry cycle');
         currentAttempt.value = 0;
         isAdReady.value = true;
         return true;
@@ -185,14 +175,11 @@ class AdMobService {
       if (_loadRetryCount < AdMobConstants.maxLoadRetries) {
         // Exponential backoff: 2s, 4s, 8s, 16s
         final delay = AdMobConstants.initialRetryDelay * (1 << (_loadRetryCount - 1));
-        debugPrint(
-            'AdMobService: Retrying ad load ($_loadRetryCount/${AdMobConstants.maxLoadRetries}) after ${delay.inSeconds}s');
         // Keep isLoading true during the delay so the UI shows spinner
         isLoading.value = true;
         await Future.delayed(delay);
       }
     }
-    debugPrint('AdMobService: All ${AdMobConstants.maxLoadRetries} retry attempts failed');
     currentAttempt.value = 0;
     _loadRetryCount = 0;
     return false;
@@ -216,29 +203,21 @@ class AdMobService {
     _rewardedAd!.setServerSideOptions(
       ServerSideVerificationOptions(customData: customData),
     );
-    debugPrint('AdMobService: SSV custom data set: $customData');
 
     // Capture response ID before showing (available after load)
     final responseId = _rewardedAd!.responseInfo?.responseId;
-    debugPrint('AdMobService: Ad response ID: $responseId');
 
     final completer = Completer<AdRewardResult>();
     String? transactionId;
     bool adCompleted = false;
-    bool timedOut = false;
 
     // Suppress session lock while the ad overlay is visible
     _sessionLockService.suppressLock();
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        debugPrint('AdMobService: Ad showed full screen content');
-      },
-      onAdImpression: (ad) {
-        debugPrint('AdMobService: Ad impression recorded');
-      },
+      onAdShowedFullScreenContent: (_) {},
+      onAdImpression: (_) {},
       onAdDismissedFullScreenContent: (ad) {
-        debugPrint('AdMobService: Ad dismissed (timedOut=$timedOut, adCompleted=$adCompleted)');
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
@@ -261,8 +240,6 @@ class AdMobService {
         loadAdWithRetry();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
-        debugPrint(
-            'AdMobService: Ad failed to show: ${error.code} - ${error.message}');
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
@@ -281,17 +258,13 @@ class AdMobService {
     try {
       await _rewardedAd!.show(
         onUserEarnedReward: (ad, reward) {
-          debugPrint(
-              'AdMobService: User earned reward: ${reward.amount} ${reward.type}');
           adCompleted = true;
           // Generate a transaction ID matching SSV custom_data format
           transactionId =
               '${userId}_${DateTime.now().millisecondsSinceEpoch}';
-          debugPrint('AdMobService: Transaction ID: $transactionId');
         },
       );
     } catch (e) {
-      debugPrint('AdMobService: Error showing ad: $e');
       if (!completer.isCompleted) {
         completer.complete(AdRewardResult.failure('Error showing ad: $e'));
       }
@@ -307,8 +280,6 @@ class AdMobService {
     return completer.future.timeout(
       AdMobConstants.adShowTimeout,
       onTimeout: () {
-        debugPrint('AdMobService: Ad show timeout reached — waiting for user dismiss');
-        timedOut = true;
         // Don't return failure here. Instead, let the dismiss callback
         // handle it. The ad overlay is still on screen and the user
         // will eventually tap the close/back button which triggers

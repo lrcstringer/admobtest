@@ -2781,9 +2781,7 @@ class _BrandStorefrontBuilderScreenState
 
   Future<void> _loadProducts() async {
     final storefrontId = _data['id'] as String?;
-    debugPrint('[Products] _loadProducts called, storefrontId=$storefrontId');
     if (storefrontId == null || storefrontId.isEmpty) {
-      debugPrint('[Products] No storefrontId — skipping load');
       return;
     }
     setState(() => _isLoadingProducts = true);
@@ -2793,7 +2791,6 @@ class _BrandStorefrontBuilderScreenState
           .call<dynamic>({'storefrontId': storefrontId});
       final list =
           ((result.data as Map<String, dynamic>)['products'] as List?) ?? [];
-      debugPrint('[Products] Loaded ${list.length} products');
       if (mounted) {
         setState(() {
           _products = list
@@ -2803,7 +2800,6 @@ class _BrandStorefrontBuilderScreenState
         });
       }
     } catch (e) {
-      debugPrint('[Products] Error loading: $e');
       if (mounted) {
         setState(() => _isLoadingProducts = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3269,8 +3265,6 @@ class _BrandStorefrontBuilderScreenState
                               imageProgress = null;
                             });
                           } catch (e) {
-                            debugPrint(
-                                '[Products] Image upload error: $e');
                             setDialogState(
                                 () => imageProgress = null);
                             if (ctx.mounted) {
@@ -3756,9 +3750,6 @@ class _BrandStorefrontBuilderScreenState
         headingOverride: s['headingOverride'] as String?,
       );
     }
-    debugPrint('[AppPreview] sectionSettings keys=${sectionSettingsMap.keys.toList()} '
-        'visibility=${sectionSettingsMap.map((k, v) => MapEntry(k, v.isVisible))}');
-
     return BrandStorefront(
       id: (_data['id'] as String?) ?? '',
       brandId: _brandIdController.text,
@@ -4044,13 +4035,7 @@ class _BrandStorefrontBuilderScreenState
         .map((p) => BrandProductModel.fromJson(p).toEntity())
         .toList();
 
-    debugPrint('[AppPreview] rebuild key=$_previewRefreshKey '
-        'sections=${storefront.sectionOrder.map((s) => s.name).toList()} '
-        'qa=${storefront.quickActions.length} '
-        'faq=${storefront.faqItems.length} '
-        'gallery=${storefront.galleryImageUrls.length} '
-        'banner=${storefront.bannerImageUrl != null} '
-        'announcement=${storefront.announcementText != null}');
+
 
     return LayoutBuilder(
       builder: (context, constraints) {

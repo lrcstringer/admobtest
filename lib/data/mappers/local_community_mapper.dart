@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/community.dart';
 import '../../domain/entities/group.dart'; // StokvelSettings
@@ -78,28 +77,21 @@ class LocalCommunityMapper {
   static CommunityType _parseCommunityType(String value) {
     return CommunityType.values.firstWhere(
       (e) => e.name == value,
-      orElse: () {
-        debugPrint('WARNING: Unknown community type "$value", defaulting to regular');
-        return CommunityType.regular;
-      },
+      orElse: () => CommunityType.regular,
     );
   }
 
   static CommunityStatus _parseCommunityStatus(String value) {
     return CommunityStatus.values.firstWhere(
       (e) => e.name == value,
-      orElse: () {
-        debugPrint('WARNING: Unknown community status "$value", defaulting to active');
-        return CommunityStatus.active;
-      },
+      orElse: () => CommunityStatus.active,
     );
   }
 
   static List<String> _parseStringList(String json) {
     try {
       return List<String>.from(jsonDecode(json) as List);
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse string list JSON: $e');
+    } catch (_) {
       return [];
     }
   }
@@ -109,8 +101,7 @@ class LocalCommunityMapper {
       return CommunitySettings.fromJson(
         jsonDecode(json) as Map<String, dynamic>,
       );
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse community settings JSON: $e');
+    } catch (_) {
       return const CommunitySettings();
     }
   }
@@ -121,8 +112,7 @@ class LocalCommunityMapper {
       return StokvelSettings.fromJson(
         jsonDecode(json) as Map<String, dynamic>,
       );
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse stokvel settings JSON: $e');
+    } catch (_) {
       return null;
     }
   }
@@ -131,8 +121,7 @@ class LocalCommunityMapper {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
       return decoded.map((k, v) => MapEntry(k, (v as num?)?.toInt() ?? 0));
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse int map JSON: $e');
+    } catch (_) {
       return {};
     }
   }
@@ -141,8 +130,7 @@ class LocalCommunityMapper {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
       return decoded.map((k, v) => MapEntry(k, (v is bool) ? v : false));
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse bool map JSON: $e');
+    } catch (_) {
       return {};
     }
   }
@@ -151,8 +139,7 @@ class LocalCommunityMapper {
     try {
       final decoded = jsonDecode(json) as Map<String, dynamic>;
       return decoded.map((k, v) => MapEntry(k, v as String));
-    } catch (e) {
-      debugPrint('WARNING: Failed to parse string map JSON: $e');
+    } catch (_) {
       return {};
     }
   }

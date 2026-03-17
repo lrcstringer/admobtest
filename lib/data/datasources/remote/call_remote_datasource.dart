@@ -1,5 +1,4 @@
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 /// Remote datasource for call-related Cloud Function calls.
@@ -51,7 +50,6 @@ class CallRemoteDatasource {
         _turnCredentialsCachedAt != null &&
         DateTime.now().difference(_turnCredentialsCachedAt!) <
             _turnCacheDuration) {
-      debugPrint('CallDatasource: returning cached TURN credentials');
       return _cachedTurnCredentials!;
     }
 

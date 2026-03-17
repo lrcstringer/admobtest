@@ -34,9 +34,7 @@ class CryptoService {
   }
 
   /// Debug-only print for E2EE diagnostics (L1). No-op in release builds.
-  static void e2eeLog(String message) {
-    if (kDebugMode) debugPrint(message);
-  }
+  static void e2eeLog(String message) {}
 
   /// Encrypt plaintext with AES-256-GCM.
   ///

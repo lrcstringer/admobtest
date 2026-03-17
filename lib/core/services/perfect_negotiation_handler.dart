@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import 'webrtc_service.dart';
@@ -53,7 +52,6 @@ class PerfectNegotiationHandler {
         await sendDescription(localDesc);
       }
     } catch (e) {
-      debugPrint('PerfectNegotiation: onNegotiationNeeded error: $e');
     } finally {
       _makingOffer = false;
     }
@@ -73,7 +71,6 @@ class PerfectNegotiationHandler {
 
       _ignoreOffer = !polite && offerCollision;
       if (_ignoreOffer) {
-        debugPrint('PerfectNegotiation: ignoring colliding offer (impolite)');
         return;
       }
 
@@ -95,7 +92,6 @@ class PerfectNegotiationHandler {
         }
       }
     } catch (e) {
-      debugPrint('PerfectNegotiation: handleDescription error: $e');
     }
   }
 
@@ -107,7 +103,6 @@ class PerfectNegotiationHandler {
       }
     } catch (e) {
       // Non-fatal: a single dropped candidate is recoverable via ICE restart
-      debugPrint('PerfectNegotiation: addCandidate error: $e');
     }
   }
 

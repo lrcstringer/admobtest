@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -148,8 +147,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       (result) {
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityBloc: community stream error: ${failure.displayMessage}'),
+            (_) {},
             (communities) =>
                 add(CommunityEvent.userCommunitiesUpdated(communities)),
           );
@@ -164,8 +162,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       (result) {
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityBloc: unread count stream error: ${failure.displayMessage}'),
+            (_) {},
             (count) => add(CommunityEvent.unreadCountUpdated(count)),
           );
         }
@@ -234,8 +231,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       (result) {
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityBloc: members stream error: ${failure.displayMessage}'),
+            (_) {},
             (members) => add(CommunityEvent.membersUpdated(members)),
           );
         }
@@ -263,8 +259,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       (result) {
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityBloc: transactions stream error: ${failure.displayMessage}'),
+            (_) {},
             (transactions) =>
                 add(CommunityEvent.transactionsUpdated(transactions)),
           );
@@ -291,8 +286,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       (result) {
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityBloc: approvals stream error: ${failure.displayMessage}'),
+            (_) {},
             (approvals) =>
                 add(CommunityEvent.pendingApprovalsUpdated(approvals)),
           );

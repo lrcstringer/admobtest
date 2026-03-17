@@ -214,7 +214,6 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
 
   @override
   Future<List<BrandProductModel>> getBrandProducts(String storefrontId) async {
-    print('[getBrandProducts] querying storefrontId=$storefrontId');
     final snapshot = await _firestore
         .collection('brandProducts')
         .where('storefrontId', isEqualTo: storefrontId)
@@ -223,13 +222,10 @@ class BuyRemoteDataSourceImpl implements BuyRemoteDataSource {
         .orderBy('sortOrder')
         .get();
 
-    print('[getBrandProducts] Found ${snapshot.docs.length} products');
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
-      final model = BrandProductModel.fromJson(data);
-      print('[getBrandProducts]   - ${model.name}, isFeatured=${model.isFeatured}');
-      return model;
+      return BrandProductModel.fromJson(data);
     }).toList();
   }
 

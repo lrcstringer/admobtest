@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../../domain/enums/connection_quality.dart';
@@ -118,7 +117,6 @@ class CallQualityMonitor {
         }
       }
     } catch (e) {
-      debugPrint('CallQualityMonitor: getStats error: $e');
     }
   }
 
@@ -215,7 +213,6 @@ class CallQualityMonitor {
         }
       }
     } catch (e) {
-      debugPrint('CallQualityMonitor: adjustBitrate error: $e');
     }
   }
 

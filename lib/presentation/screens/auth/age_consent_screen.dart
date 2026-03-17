@@ -140,7 +140,7 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                             activeThumbColor: Colors.white,
                             activeTrackColor: AppColors.switchActive,
                             inactiveThumbColor: Colors.white,
-                            inactiveTrackColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                            inactiveTrackColor: Colors.white24,
                           ),
                         ],
                       ),

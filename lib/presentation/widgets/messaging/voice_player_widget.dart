@@ -113,9 +113,7 @@ class _VoicePlayerWidgetState extends State<VoicePlayerWidget> {
         url: media.url,
         mediaKeyBase64: media.mediaKey,
       );
-    } catch (e) {
-      // Fix #14: Log voice playback errors
-      debugPrint('VoicePlayerWidget: playback failed: $e');
+    } catch (_) {
       if (mounted) setState(() => _hasError = true);
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -108,8 +107,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           }
         }
       },
-      onError: (error) {
-        debugPrint('Auth state stream error: $error');
+      onError: (_) {
         // On stream error, mark as unauthenticated so the app doesn't hang
         // ignore: invalid_use_of_visible_for_testing_member
         emit(state.copyWith(
@@ -141,8 +139,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (alreadyAuthenticated) {
           // A transient failure refreshing user data must NOT kick out an
           // already-authenticated user. Keep the current auth state.
-          debugPrint('checkAuthStatus: getCurrentUser failed while already '
-              'authenticated, keeping current state: ${failure.displayMessage}');
           return;
         }
         emit(state.copyWith(
@@ -154,8 +150,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (user == null) {
           if (alreadyAuthenticated) {
             // Same guard: null user during a refresh should not sign out.
-            debugPrint('checkAuthStatus: getCurrentUser returned null while '
-                'already authenticated, keeping current state');
             return;
           }
           emit(state.copyWith(
@@ -320,17 +314,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) {
-        // Device binding failure is non-blocking — log and continue
-        debugPrint('========================================');
-        debugPrint('DEVICE BINDING FAILED: ${failure.displayMessage}');
-        debugPrint('Failure type: ${failure.runtimeType}');
-        debugPrint('========================================');
+        // Device binding failure is non-blocking — continue
         emit(state.copyWith(isDeviceBound: false));
       },
       (device) {
-        debugPrint('========================================');
-        debugPrint('DEVICE BINDING SUCCESS: ${device.deviceId}');
-        debugPrint('========================================');
         emit(state.copyWith(
           isDeviceBound: true,
           deviceId: device.deviceId,
@@ -495,9 +482,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (userId != null) {
         await _deviceBindingService.deleteKeypair(userId);
       }
-    } catch (e) {
-      debugPrint('Post-deletion cleanup error (non-fatal): $e');
-    }
+    } catch (_) {}
 
     emit(const AuthState(status: AuthStatus.unauthenticated));
   }
@@ -605,18 +590,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final existing = await _keyManagementService.loadPrivateKeys();
       if (existing != null) {
-        debugPrint('E2EE INIT: Loaded existing keys — '
-            '${existing.oneTimePreKeys.length} local OTKs, '
-            'identity=${existing.identityKeyPair.split("|")[1].substring(0, 8)}…');
-
         // Local keys are ready — start message sync IMMEDIATELY.
         // Decryption uses local keys; server verification only affects
         // future senders and can run in parallel.
-        debugPrint('E2EE INIT: Local keys loaded — starting message sync now');
         await _startMessageAndQueueServices();
         // Initialize vault early so payloads are stored from the first message
-        getIt<MediaRecoveryService>().initialize().catchError((e) {
-          debugPrint('Media recovery init failed (early): $e');
+        getIt<MediaRecoveryService>().initialize().catchError((_) {
           return false;
         });
 
@@ -635,11 +614,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _keyManagementService.rotateSignedPreKeyIfNeeded();
       } else {
         // No local keys — try automatic restore from server backup first
-        debugPrint('E2EE INIT: No local keys — attempting auto-restore from backup');
         final backupService = getIt<KeyBackupService>();
         final restored = await backupService.autoRestore();
         if (restored) {
-          debugPrint('E2EE INIT: Auto-restore SUCCESS — keys recovered from backup');
           final restoredBundle = await _keyManagementService.loadPrivateKeys();
           if (restoredBundle != null) {
             // Verify the Firestore bundle matches restored keys. autoRestore's
@@ -664,8 +641,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           // would send messages without a valid x3dhHeader, causing permanent
           // decryption failure for the peer.
           final restoreWasAttempted = !restored;
-          debugPrint('E2EE INIT: ${restoreWasAttempted ? "Restore FAILED" : "No backup found"}'
-              ' — clearing stale sessions and generating fresh bundle');
           await _signalProtocolService.clearAllSessions();
           final bundle = await _keyManagementService.generateKeyBundle();
           await _keyManagementService.storePrivateKeys(bundle);
@@ -677,29 +652,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           if (restoreWasAttempted) {
             _keyRestoreFailed = true;
           }
-          debugPrint('E2EE INIT: Fresh bundle uploaded — '
-              '${bundle.oneTimePreKeys.length} OTKs, '
-              'identity=${bundle.identityKeyPair.split("|")[1].substring(0, 8)}…');
         }
       }
-    } catch (e) {
-      debugPrint('E2EE key init error: $e');
+    } catch (_) {
+      // E2EE key init error — silently handled
     } finally {
       _e2eeInitInProgress = false;
     }
 
     if (uploadConfirmed) {
-      debugPrint('E2EE INIT: Bundle upload confirmed — ensuring services started');
       // Idempotent — safe even if already started above for existing keys
       await _startMessageAndQueueServices();
       // Auto-backup keys to server (don't block startup)
-      getIt<KeyBackupService>().autoBackup().catchError((e) {
-        debugPrint('E2EE auto-backup failed: $e');
+      getIt<KeyBackupService>().autoBackup().catchError((_) {
         return; // Swallow error — backup is best-effort
       });
       // Initialize payload recovery for E2EE message vault
-      getIt<MediaRecoveryService>().initialize().catchError((e) {
-        debugPrint('Media recovery init failed: $e');
+      getIt<MediaRecoveryService>().initialize().catchError((_) {
         return false;
       });
       // Surface key restore failure to the UI (one-time snackbar)
@@ -708,21 +677,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state.copyWith(keyRestoreFailed: true));
         _keyRestoreFailed = false;
       }
-    } else {
-      debugPrint('E2EE INIT: Bundle upload NOT confirmed — '
-          'message sync will NOT start until keys are on the server');
     }
   }
 
   /// Initialize FCM notifications (token save + foreground listener) and
   /// VoIP token for incoming calls. Fire-and-forget — failures logged only.
   void _initializeNotifications() {
-    getIt<NotificationService>().initialize().catchError((e) {
-      debugPrint('NotificationService init failed: $e');
-    });
-    getIt<CallNotificationService>().saveVoipToken().catchError((e) {
-      debugPrint('VoIP token save failed: $e');
-    });
+    getIt<NotificationService>().initialize().catchError((_) {});
+    getIt<CallNotificationService>().saveVoipToken().catchError((_) {});
   }
 
   /// Start all message/queue services. Idempotent — safe to call multiple times.
@@ -733,13 +695,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// never get retried with the restored keys.
   Future<void> _startMessageAndQueueServices() async {
     try {
-      final count = await getIt<AppDatabase>().purgeUndecryptableMessages();
-      if (count > 0) {
-        debugPrint('E2EE INIT: Purged $count undecryptable messages — '
-            'will retry from Firestore');
-      }
-    } catch (e) {
-      debugPrint('E2EE INIT: Purge failed: $e');
+      await getIt<AppDatabase>().purgeUndecryptableMessages();
+    } catch (_) {
+      // Purge failed — continue with sync startup
     }
     _messageSyncService.startSync();
     _communitySyncService.startSync();
@@ -755,39 +713,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _uploadUntilConfirmed(Future<void> Function() upload) async {
     const maxBackoff = Duration(seconds: 30);
     var backoff = const Duration(seconds: 1);
-    var attempt = 0;
 
     while (!_disposed) {
-      attempt++;
       try {
         await upload();
-        if (attempt > 1) {
-          debugPrint('E2EE INIT: Upload succeeded on attempt $attempt');
-        }
         return; // confirmed
-      } on FirebaseFunctionsException catch (e) {
-        final isRetryable = e.code == 'unavailable' ||
-            e.code == 'deadline-exceeded' ||
-            e.code == 'unauthenticated';
-        debugPrint('E2EE INIT: Upload attempt $attempt failed '
-            '[CF code=${e.code}, retryable=$isRetryable] '
-            '— retrying in ${backoff.inSeconds}s');
-        if (!isRetryable) {
-          // permission-denied (IAM) or internal (Firestore crash) won't
-          // resolve by waiting — still retry but log prominently so the
-          // developer knows to check server config.
-          debugPrint('E2EE INIT: ⚠ NON-TRANSIENT error "${e.code}" — '
-              'check Cloud Function IAM, App Check, and Firestore health');
-        }
+      } on FirebaseFunctionsException {
         await Future<void>.delayed(backoff);
         backoff = Duration(
           milliseconds: (backoff.inMilliseconds * 2)
               .clamp(0, maxBackoff.inMilliseconds),
         );
-      } catch (e) {
-        debugPrint('E2EE INIT: Upload attempt $attempt failed '
-            '[non-CF: ${e.runtimeType}] $e '
-            '— retrying in ${backoff.inSeconds}s');
+      } catch (_) {
         await Future<void>.delayed(backoff);
         backoff = Duration(
           milliseconds: (backoff.inMilliseconds * 2)

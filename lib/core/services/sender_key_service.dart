@@ -132,8 +132,6 @@ class SenderKeyService {
       try {
         await distributeSenderKey(communityId, memberId);
       } catch (e) {
-        debugPrint('SenderKeyService: Failed to distribute key to '
-            '$memberId in $communityId: $e');
         failures.add(memberId);
       }
     }
@@ -387,8 +385,6 @@ class SenderKeyService {
         break;
       } catch (e) {
         if (attempt == 2) {
-          debugPrint('SenderKeyService: CRITICAL — failed to persist chain '
-              'state for $senderUserId in $communityId after 3 attempts: $e');
           rethrow;
         }
         await Future.delayed(Duration(milliseconds: 100 * (attempt + 1)));

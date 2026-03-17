@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/error/exceptions.dart';
@@ -156,8 +155,6 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
   /// Map Cloud Function errors to typed exceptions so the repository layer
   /// can return the correct [Failure] variant.
   Exception _mapFunctionsError(FirebaseFunctionsException e) {
-    debugPrint('CommunityRemoteDS: FirebaseFunctionsException: '
-        '${e.code} - ${e.message}');
     switch (e.code) {
       case 'unauthenticated':
         return AuthException(
@@ -265,9 +262,8 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       for (final doc in snapshot.docs) {
         try {
           communities.add(CommunityModel.fromFirestore(doc));
-        } catch (e) {
-          debugPrint(
-              'CommunityRemoteDS: Skipping malformed community ${doc.id}: $e');
+        } catch (_) {
+          // Skip malformed community document
         }
       }
       return communities;
@@ -426,9 +422,8 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
       for (final doc in snapshot.docs) {
         try {
           members.add(CommunityMemberModel.fromFirestore(doc));
-        } catch (e) {
-          debugPrint(
-              'CommunityRemoteDS: Skipping malformed member ${doc.id}: $e');
+        } catch (_) {
+          // Skip malformed member document
         }
       }
       return members;
@@ -471,8 +466,8 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         for (final doc in docs) {
           communityNames[doc.id] = doc.data()?['name'] as String?;
         }
-      } catch (e) {
-        debugPrint('WARNING: Failed to batch-fetch community names: $e');
+      } catch (_) {
+        // Best-effort enrichment; continue without community names
       }
     }
 
@@ -544,11 +539,8 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
         try {
           final data = sanitizeFirestoreData(doc.data());
           messages.add(MessageModel.fromJson({...data, 'id': doc.id}));
-        } catch (e) {
-          // Skip individual malformed messages instead of failing the
-          // entire batch — matches the P2P watchMessages pattern.
-          debugPrint(
-              'CommunityRemoteDS: Skipping malformed message ${doc.id}: $e');
+        } catch (_) {
+          // Skip malformed message document
         }
       }
       return messages;

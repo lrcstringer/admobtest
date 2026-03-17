@@ -94,7 +94,6 @@ class MediaRecoveryService {
       _initCompleter = null;
       return result;
     } catch (e) {
-      debugPrint('MediaRecoveryService: Initialization failed: $e');
       _initCompleter!.complete(false);
       _initCompleter = null;
       return false;
@@ -109,19 +108,15 @@ class MediaRecoveryService {
     // Step 1: Ensure TEE wrapping key exists
     final hasKey = await _keystoreService.hasWrappingKey(wrappingAlias);
     final keyExists = hasKey.fold((err) {
-      debugPrint('MediaRecoveryService: hasWrappingKey failed: $err');
       return false;
     }, (v) => v);
     if (!keyExists) {
       final genResult =
           await _keystoreService.generateWrappingKey(wrappingAlias);
       final genOk = genResult.fold((err) {
-        debugPrint(
-            'MediaRecoveryService: generateWrappingKey failed: $err');
         return false;
       }, (v) => v);
       if (!genOk) {
-        debugPrint('MediaRecoveryService: Failed to create TEE wrapping key');
         return false;
       }
     }
@@ -133,21 +128,14 @@ class MediaRecoveryService {
         _cachedRecoveryKey = cached;
         _blobStoredOnFirestore = true; // was stored in a previous init
         _initialized = true;
-        debugPrint(
-            'MediaRecoveryService: Recovery key loaded from local cache');
         _flushPendingPayloads();
         return true;
       }
     } catch (e) {
-      debugPrint(
-          'MediaRecoveryService: SecureStorage read failed: $e');
     }
 
     // Step 3: Try fetching wrapped blob from Firestore (reinstall path)
     final deviceId = await _getDeviceId(uid);
-    debugPrint(
-        'MediaRecoveryService: deviceId=${deviceId ?? "null"} — '
-        '${deviceId != null ? "fetching blob" : "no device found"}');
     if (deviceId != null) {
       final deviceDoc =
           await _firestore.collection('devices').doc(deviceId).get();
@@ -164,8 +152,6 @@ class MediaRecoveryService {
             iv,
           );
           final recoveryKey = unwrapResult.fold((err) {
-            debugPrint(
-                'MediaRecoveryService: TEE unwrap failed: $err');
             return null;
           }, (v) => v);
           if (recoveryKey != null) {
@@ -174,24 +160,17 @@ class MediaRecoveryService {
             await _secureStorage.write(
                 key: _recoveryKeyCache, value: recoveryKey);
             _initialized = true;
-            debugPrint(
-                'MediaRecoveryService: Recovery key unwrapped from Firestore blob');
             // Backfill recoveryKeyDirect if missing (pre-existing install)
             if (data['recoveryKeyDirect'] == null) {
               _firestore.collection('devices').doc(deviceId).update({
                 'recoveryKeyDirect': recoveryKey,
               }).catchError((e) {
-                debugPrint(
-                    'MediaRecoveryService: backfill recoveryKeyDirect failed: $e');
               });
             }
             _flushPendingPayloads();
             return true;
           }
         } else {
-          debugPrint(
-              'MediaRecoveryService: Device doc missing blob/iv — '
-              'blob=${blob != null}, iv=${iv != null}');
         }
 
         // Step 3b: TEE unwrap failed or blob missing — try direct key
@@ -203,14 +182,10 @@ class MediaRecoveryService {
           await _secureStorage.write(
               key: _recoveryKeyCache, value: directKey);
           _initialized = true;
-          debugPrint(
-              'MediaRecoveryService: Recovery key loaded from Firestore (direct)');
           _flushPendingPayloads();
           return true;
         }
       } else {
-        debugPrint(
-            'MediaRecoveryService: Device doc $deviceId does not exist');
       }
     }
 
@@ -222,13 +197,10 @@ class MediaRecoveryService {
     final wrapResult =
         await _keystoreService.wrapData(wrappingAlias, recoveryKeyB64);
     final wrappedData = wrapResult.fold((err) {
-      debugPrint('MediaRecoveryService: TEE wrap failed: $err');
       return null;
     }, (v) => v);
     if (wrappedData == null) {
       CryptoService.zeroize(rawKey);
-      debugPrint('MediaRecoveryService: Failed to wrap recovery key — '
-          'vault will NOT work this session');
       return false;
     }
 
@@ -242,10 +214,6 @@ class MediaRecoveryService {
       _blobStoredOnFirestore = true;
     } else {
       _blobStoredOnFirestore = false;
-      debugPrint(
-          'MediaRecoveryService: WARNING — no deviceId, wrapped blob '
-          'NOT stored on Firestore (won\'t survive reinstall). '
-          'Call ensureBlobStored(deviceId) after device registration.');
     }
 
     // Cache locally
@@ -255,8 +223,6 @@ class MediaRecoveryService {
     _initialized = true;
 
     CryptoService.zeroize(rawKey);
-    debugPrint(
-        'MediaRecoveryService: New recovery key generated and stored');
     _flushPendingPayloads();
     return true;
   }
@@ -291,8 +257,6 @@ class MediaRecoveryService {
 
         if (hasBlob && hasDirect) {
           _blobStoredOnFirestore = true;
-          debugPrint(
-              'MediaRecoveryService: ensureBlobStored — blob already exists');
           return;
         }
 
@@ -302,9 +266,6 @@ class MediaRecoveryService {
             'recoveryKeyDirect': _cachedRecoveryKey!,
           });
           _blobStoredOnFirestore = true;
-          debugPrint(
-              'MediaRecoveryService: ensureBlobStored — backfilled '
-              'recoveryKeyDirect on device $deviceId');
           return;
         }
       }
@@ -314,8 +275,6 @@ class MediaRecoveryService {
       final wrapResult =
           await _keystoreService.wrapData(wrappingAlias, _cachedRecoveryKey!);
       final wrappedData = wrapResult.fold((err) {
-        debugPrint(
-            'MediaRecoveryService: ensureBlobStored TEE wrap failed: $err');
         return null;
       }, (v) => v);
       if (wrappedData == null) {
@@ -324,9 +283,6 @@ class MediaRecoveryService {
           'recoveryKeyDirect': _cachedRecoveryKey!,
         });
         _blobStoredOnFirestore = true;
-        debugPrint(
-            'MediaRecoveryService: ensureBlobStored — TEE wrap failed, '
-            'stored recoveryKeyDirect only on device $deviceId');
         return;
       }
 
@@ -336,12 +292,7 @@ class MediaRecoveryService {
         'recoveryKeyDirect': _cachedRecoveryKey!,
       });
       _blobStoredOnFirestore = true;
-      debugPrint(
-          'MediaRecoveryService: ensureBlobStored — blob stored on device '
-          '$deviceId (deferred from init)');
     } catch (e) {
-      debugPrint(
-          'MediaRecoveryService: ensureBlobStored failed for $deviceId: $e');
     }
   }
 
@@ -381,8 +332,6 @@ class MediaRecoveryService {
         'ts': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      debugPrint(
-          'MediaRecoveryService: Failed to store payload for $messageId: $e');
     }
   }
 
@@ -391,10 +340,7 @@ class MediaRecoveryService {
     if (_pendingPayloads.isEmpty) return;
     final queued = Map<String, String>.from(_pendingPayloads);
     _pendingPayloads.clear();
-    debugPrint(
-        'MediaRecoveryService: Flushing ${queued.length} pending payloads');
     storePayloadsBatch(queued).catchError((e) {
-      debugPrint('MediaRecoveryService: Pending payload flush failed: $e');
     });
   }
 
@@ -429,7 +375,6 @@ class MediaRecoveryService {
         await batch.commit();
       }
     } catch (e) {
-      debugPrint('MediaRecoveryService: Batch store failed: $e');
     }
   }
 
@@ -472,13 +417,10 @@ class MediaRecoveryService {
                 await _cryptoService.decrypt(ctWithMac, key, nonce: nonce);
             result[doc.id] = utf8.decode(plaintext);
           } catch (e) {
-            debugPrint(
-                'MediaRecoveryService: Failed to decrypt payload ${doc.id}: $e');
           }
         }
       }
     } catch (e) {
-      debugPrint('MediaRecoveryService: Batch recovery failed: $e');
     }
 
     return result;
@@ -521,7 +463,6 @@ class MediaRecoveryService {
         return snapshot.docs.first.id;
       }
     } catch (e) {
-      debugPrint('MediaRecoveryService: Failed to query device ID: $e');
     }
 
     return null;

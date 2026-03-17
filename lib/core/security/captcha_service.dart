@@ -70,7 +70,6 @@ class CaptchaService {
         errorCodes: List<String>.from(data['error-codes'] ?? []),
       );
     } catch (e) {
-      debugPrint('CAPTCHA verification failed: $e');
       return CaptchaResult(
         success: false,
         score: 0.0,

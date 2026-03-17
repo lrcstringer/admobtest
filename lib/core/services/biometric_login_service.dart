@@ -66,13 +66,11 @@ class BiometricLoginService {
       final userId = await _deviceBindingService.getStoredUserId();
 
       if (deviceId == null || userId == null) {
-        debugPrint('BiometricLogin: No local binding found.');
         return false;
       }
 
       // Check inactivity threshold
       if (await _isInactivityThresholdExceeded()) {
-        debugPrint('BiometricLogin: Inactivity threshold exceeded, requiring OTP.');
         return false;
       }
 
@@ -80,10 +78,8 @@ class BiometricLoginService {
       final supported = tier == AuthCapabilityTier.biometric ||
           tier == AuthCapabilityTier.deviceCredential;
 
-      debugPrint('BiometricLogin: canUse=$supported (tier=$tier)');
       return supported;
     } catch (e) {
-      debugPrint('BiometricLogin: canUseBiometricLogin error: $e');
       return false;
     }
   }
@@ -93,7 +89,6 @@ class BiometricLoginService {
     try {
       return await _secureStorage.read(key: _displayNameKey);
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to read display name: $e');
       return null;
     }
   }
@@ -103,7 +98,6 @@ class BiometricLoginService {
     try {
       await _secureStorage.write(key: _displayNameKey, value: displayName);
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to cache display name: $e');
     }
   }
 
@@ -112,7 +106,6 @@ class BiometricLoginService {
     try {
       await _secureStorage.delete(key: _displayNameKey);
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to clear display name: $e');
     }
   }
 
@@ -121,7 +114,6 @@ class BiometricLoginService {
     try {
       await _secureStorage.delete(key: _lastAuthTimeKey);
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to clear last auth time: $e');
     }
   }
 
@@ -133,7 +125,6 @@ class BiometricLoginService {
       final now = DateTime.now().toIso8601String();
       await _secureStorage.write(key: _lastAuthTimeKey, value: now);
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to record auth time: $e');
     }
   }
 
@@ -154,7 +145,6 @@ class BiometricLoginService {
       if (lastAuth == null) return true;
       return DateTime.now().difference(lastAuth) > inactivityThreshold;
     } catch (e) {
-      debugPrint('BiometricLogin: Failed to read auth time: $e');
       return true; // Fail safe: require OTP
     }
   }
@@ -185,11 +175,9 @@ class BiometricLoginService {
       );
 
       if (!authenticated) {
-        debugPrint('BiometricLogin: User cancelled biometric prompt.');
         return const Left(Failure.auth(message: 'Authentication cancelled'));
       }
     } catch (e) {
-      debugPrint('BiometricLogin: Biometric prompt error: $e');
       return Left(Failure.auth(message: 'Biometric authentication failed: $e'));
     }
 
@@ -205,13 +193,11 @@ class BiometricLoginService {
       challengeId = result.data['challengeId'] as String;
       nonce = result.data['nonce'] as String;
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('BiometricLogin: Challenge request failed: ${e.code} ${e.message}');
       return Left(Failure.serverError(
         code: e.code,
         message: e.message ?? 'Failed to request challenge',
       ));
     } catch (e) {
-      debugPrint('BiometricLogin: Challenge request error: $e');
       return Left(Failure.unknown(message: 'Challenge request failed: $e'));
     }
 
@@ -222,7 +208,6 @@ class BiometricLoginService {
     String? signature;
     signResult.fold(
       (failure) {
-        debugPrint('BiometricLogin: Nonce signing failed: ${failure.displayMessage}');
       },
       (sig) {
         signature = sig;
@@ -250,16 +235,13 @@ class BiometricLoginService {
         return const Left(Failure.auth(message: 'No token returned'));
       }
 
-      debugPrint('BiometricLogin: Success — custom token received.');
       return Right(customToken);
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('BiometricLogin: Verification failed: ${e.code} ${e.message}');
       return Left(Failure.serverError(
         code: e.code,
         message: e.message ?? 'Verification failed',
       ));
     } catch (e) {
-      debugPrint('BiometricLogin: Verification error: $e');
       return Left(Failure.unknown(message: 'Verification failed: $e'));
     }
   }

@@ -93,8 +93,6 @@ class ConversationExportService {
         mediaFiles[msg.id] = bytes;
         mediaFileNames[msg.id] = fileName;
       } catch (e) {
-        debugPrint('ConversationExportService: Failed to download '
-            'media for ${msg.id}: $e');
         // Mark as unavailable — formatter will show [Media unavailable]
       }
       mediaIndex++;

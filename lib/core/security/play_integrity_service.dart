@@ -123,10 +123,8 @@ class PlayIntegrityService {
       );
       return token;
     } on PlatformException catch (e) {
-      debugPrint('Play Integrity token request failed: ${e.code} - ${e.message}');
       return null;
     } catch (e) {
-      debugPrint('Play Integrity error: $e');
       return null;
     }
   }
@@ -166,7 +164,6 @@ class PlayIntegrityService {
         nonce: requestNonce,
       );
     } catch (e) {
-      debugPrint('Play Integrity verification failed: $e');
       return IntegrityResult(
         isValid: false,
         verdict: IntegrityVerdict.error,
@@ -199,7 +196,6 @@ class PlayIntegrityService {
         appLicensing: AppLicensing.fromString(data['appLicensing']),
       );
     } catch (e) {
-      debugPrint('Backend verification failed: $e');
       return IntegrityResult(
         isValid: false,
         verdict: IntegrityVerdict.error,

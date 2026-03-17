@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -6,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../core/config/auth_test_config.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/services/biometric_login_service.dart';
 import '../../blocs/auth/auth_bloc.dart';
@@ -100,22 +98,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   Future<void> _checkReturningUser() async {
-    // Respect dev test mode
-    if (kDebugMode) {
-      if (AuthTestConfig.mode == AuthTestMode.forceWelcome ||
-          AuthTestConfig.mode == AuthTestMode.forceOtp ||
-          AuthTestConfig.mode == AuthTestMode.forcePushLogin) {
-        return; // Show standard welcome
-      }
-      if (AuthTestConfig.mode == AuthTestMode.forceBiometric) {
-        setState(() {
-          _isReturningUser = true;
-          _displayName = 'Test User';
-        });
-        return;
-      }
-    }
-
     final canUse = await _biometricService.canUseBiometricLogin();
     if (!canUse || !mounted) return;
 
@@ -155,42 +137,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               AuthEvent.authenticateWithPushToken(customToken: customToken),
             );
       },
-    );
-  }
-
-  /// Debug-only dialog: paste a custom auth token to sign in as any user.
-  void _showDebugTokenDialog() {
-    final tokenController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Debug Token Sign-In'),
-        content: TextField(
-          controller: tokenController,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: 'Paste custom auth token here',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final token = tokenController.text.trim();
-              if (token.isEmpty) return;
-              Navigator.of(ctx).pop();
-              context.read<AuthBloc>().add(
-                    AuthEvent.authenticateWithPushToken(customToken: token),
-                  );
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -252,50 +198,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
               ),
 
-              // Debug mode badge (tap = cycle auth mode, long-press = token sign-in)
-              if (kDebugMode)
-                Positioned(
-                  top: 50,
-                  right: 16,
-                  child: GestureDetector(
-                    onTap: () {
-                      final newMode = AuthTestConfig.cycleMode();
-                      // Re-check returning user state
-                      setState(() {
-                        _isReturningUser = false;
-                        _displayName = null;
-                        _biometricError = null;
-                      });
-                      _checkReturningUser();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Auth mode: ${newMode.name}'),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    onLongPress: _showDebugTokenDialog,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        AuthTestConfig.mode.badge,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
@@ -75,9 +74,7 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
       } else {
         if (mounted) setState(() => _isLoadingThumb = false);
       }
-    } catch (e) {
-      // Fix #14: Log thumbnail download errors
-      debugPrint('VideoMessagePlayer: thumbnail load failed: $e');
+    } catch (_) {
       if (mounted) setState(() => _isLoadingThumb = false);
     }
   }
@@ -88,7 +85,6 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
     final media = widget.message.media;
     // Fix #2: Null-safe check instead of force-unwrap
     if (media == null || media.mediaKey == null || media.mediaKey!.isEmpty) {
-      debugPrint('VideoMessagePlayer: missing media or mediaKey');
       if (mounted) setState(() => _hasError = true);
       return;
     }
@@ -135,9 +131,7 @@ class _VideoMessagePlayerState extends State<VideoMessagePlayer> {
           _isLoadingVideo = false;
         });
       }
-    } catch (e) {
-      // Fix #14: Log video playback errors
-      debugPrint('VideoMessagePlayer: playVideo failed: $e');
+    } catch (_) {
       if (mounted) {
         setState(() {
           _isLoadingVideo = false;

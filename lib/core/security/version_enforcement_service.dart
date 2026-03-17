@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -35,7 +34,6 @@ class VersionEnforcementService {
 
       return VersionCheckResult.ok;
     } catch (e) {
-      debugPrint('[VersionCheck] Failed: $e — allowing app to continue');
       return VersionCheckResult.ok;
     }
   }

@@ -84,18 +84,14 @@ class MessageSyncService {
     if (_conversationListSyncing) return;
     _conversationListSyncing = true;
 
-    debugPrint('MessageSyncService: Starting conversation list sync');
-
     _conversationListSub = _remoteDataSource.watchConversations().listen(
       (conversationModels) {
         _convListLock.protect('_', () async {
           await _syncConversationSnapshot(conversationModels);
         }).catchError((Object e) {
-          debugPrint('MessageSyncService: Conversation list error: $e');
         });
       },
       onError: (e) {
-        debugPrint('MessageSyncService: Conversation list error: $e');
       },
     );
   }
@@ -158,7 +154,6 @@ class MessageSyncService {
 
       await _appDatabase.upsertLocalConversationsBatch(companions);
     } catch (e) {
-      debugPrint('MessageSyncService: Failed to batch store conversations: $e');
     }
 
     // Check for E2EE session reset signals addressed to us.
@@ -243,16 +238,11 @@ class MessageSyncService {
       final localIds = localRows.map((r) => r.id).toSet();
       final staleIds = localIds.difference(authoritativeIds);
       if (staleIds.isNotEmpty) {
-        debugPrint(
-            'MessageSyncService: Pruning ${staleIds.length} stale '
-            'conversations: $staleIds');
         for (final id in staleIds) {
           await _appDatabase.deleteLocalConversation(id);
         }
       }
     } catch (e, st) {
-      debugPrint(
-          'MessageSyncService: Failed to prune stale conversations: $e\n$st');
     }
   }
 
@@ -265,17 +255,13 @@ class MessageSyncService {
     if (_isSyncing) return;
     _isSyncing = true;
 
-    debugPrint('MessageSyncService: Starting full message sync');
-
     // Purge expired (disappearing) messages every minute
     _cleanupTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
       try {
         final deleted = await _appDatabase.deleteExpiredMessages();
         if (deleted > 0) {
-          debugPrint('MessageSyncService: Deleted $deleted expired messages');
         }
       } catch (e) {
-        debugPrint('MessageSyncService: Error cleaning expired messages: $e');
       }
     });
 
@@ -300,8 +286,6 @@ class MessageSyncService {
     if (!_isSyncing && !_conversationListSyncing) return;
     _isSyncing = false;
     _conversationListSyncing = false;
-
-    debugPrint('MessageSyncService: Stopping sync');
 
     _cleanupTimer?.cancel();
     _cleanupTimer = null;
@@ -344,8 +328,6 @@ class MessageSyncService {
       try {
         await _backfillHistoricalMessages(conversationId);
       } catch (e) {
-        debugPrint('MessageSyncService: Backfill failed for '
-            '$conversationId: $e — continuing with live sync');
       }
       _backfilledConversationIds.add(conversationId);
     }
@@ -370,12 +352,9 @@ class MessageSyncService {
           conversationId,
           () => _processIncomingMessages(conversationId, messageModels),
         ).catchError((Object e) {
-          debugPrint(
-              'MessageSyncService: processing error for $conversationId: $e');
         });
       },
       onError: (e) {
-        debugPrint('MessageSyncService: Message sync error for $conversationId: $e');
       },
     );
   }
@@ -393,13 +372,8 @@ class MessageSyncService {
     // Check if local DB already has messages — skip backfill if so
     final existingCount = await _appDatabase.getMessageCount(conversationId);
     if (existingCount > 0) {
-      debugPrint('MessageSyncService: Backfill skip for $conversationId — '
-          '$existingCount messages already in local DB');
       return;
     }
-
-    debugPrint('MessageSyncService: Starting historical backfill for '
-        '$conversationId (max $_maxBackfillMessages messages)');
 
     const pageSize = 50;
     var totalFetched = 0;
@@ -437,9 +411,6 @@ class MessageSyncService {
     }
 
     if (totalFetched > 0) {
-      debugPrint('MessageSyncService: Backfill complete for '
-          '$conversationId — fetched $totalFetched messages'
-          '${totalFetched >= _maxBackfillMessages ? ' (cap reached)' : ''}');
     }
   }
 
@@ -602,7 +573,6 @@ class MessageSyncService {
             sendersWithGoodSession.add(msg.senderId);
             // Store in vault for recovery after reinstall
             _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
-              debugPrint('MessageSync: vault store failed for ${msg.id}: $e');
             });
           } else {
             // Defensive re-read: if any parallel path (e.g. a lock bypass or
@@ -610,8 +580,6 @@ class MessageSyncService {
             // message, do NOT overwrite it with a failure row.
             final recheck = await _appDatabase.getLocalMessageById(msg.id);
             if (recheck != null && recheck.isDecrypted) {
-              debugPrint('MessageSyncService: Skipping failure write for '
-                  '${msg.id} — already stored as decrypted');
               continue;
             }
 
@@ -631,8 +599,6 @@ class MessageSyncService {
               if (_mediaRecoveryService.isReady) {
                 final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
                 if (recovered != null) {
-                  debugPrint('MessageSyncService: Vault recovery SUCCESS for '
-                      '${msg.id}');
                   decryptedMsg = _decryptionService.applyDecryptedPayload(
                       msg, recovered);
                   await _appDatabase.upsertLocalMessage(
@@ -651,8 +617,6 @@ class MessageSyncService {
                   continue;
                 }
               }
-              debugPrint('MessageSyncService: Sender own-message cache miss '
-                  '${msg.id} — storing fallback');
               decryptedMsg = msg.copyWith(
                 textContent: '[Sent by you]',
               );
@@ -672,14 +636,9 @@ class MessageSyncService {
             // decrypted in a previous install and stored in the vault).
             // Await initialize() in case it's still in-flight.
             final vaultReady = await _mediaRecoveryService.initialize();
-            debugPrint('MessageSyncService: Vault recovery attempt for '
-                '${msg.id} — vaultReady=$vaultReady, '
-                'isReady=${_mediaRecoveryService.isReady}');
             if (_mediaRecoveryService.isReady) {
               final recovered = await _mediaRecoveryService.recoverPayload(msg.id);
               if (recovered != null) {
-                debugPrint('MessageSyncService: Vault recovery SUCCESS for '
-                    'received msg ${msg.id}');
                 decryptedMsg = _decryptionService.applyDecryptedPayload(
                     msg, recovered);
                 await _appDatabase.upsertLocalMessage(
@@ -697,8 +656,6 @@ class MessageSyncService {
                 _decryptionService.decryptFailures.remove(msg.id);
                 continue;
               } else {
-                debugPrint('MessageSyncService: Vault recovery MISS for '
-                    '${msg.id} — payload not in vault');
               }
             }
 
@@ -718,8 +675,6 @@ class MessageSyncService {
             if (!isPermanent) {
               _decryptionService.recordFailure(msg.id);
               if (_decryptionService.isPermanentlyFailed(msg.id)) {
-                debugPrint('MessageSyncService: Permanently failed to decrypt '
-                    '${msg.id} — will not retry until app restart');
               }
             }
           }
@@ -754,7 +709,6 @@ class MessageSyncService {
         // Update conversation preview with latest message
         await _updateConversationPreview(conversationId, decryptedMsg);
       } catch (e) {
-        debugPrint('MessageSyncService: Failed to process msg ${model.id}: $e');
       }
     }
 
@@ -762,8 +716,6 @@ class MessageSyncService {
     // hadn't been established yet. A newer message with x3dhHeader may have
     // since established the session via receiver X3DH.
     if (failedInThisPass.isNotEmpty && sendersWithGoodSession.isNotEmpty) {
-      debugPrint('MessageSyncService: Retrying ${failedInThisPass.length} '
-          'messages after session established in this batch');
       for (final model in failedInThisPass) {
         try {
           final msg = model.toEntity();
@@ -782,7 +734,6 @@ class MessageSyncService {
             _decryptionService.decryptFailures.remove(msg.id);
             // Store in vault for recovery after reinstall
             _mediaRecoveryService.storePayload(msg.id, plaintext).catchError((e) {
-              debugPrint('MessageSync: vault store failed for ${msg.id}: $e');
             });
             await _appDatabase.upsertLocalMessage(
               LocalMessageMapper.toCompanion(
@@ -803,10 +754,8 @@ class MessageSyncService {
               } catch (_) {}
             }
             await _updateConversationPreview(conversationId, decryptedMsg);
-            debugPrint('MessageSyncService: Retry SUCCESS for ${msg.id}');
           }
         } catch (e) {
-          debugPrint('MessageSyncService: Retry failed for ${model.id}: $e');
         }
       }
     }
@@ -830,9 +779,6 @@ class MessageSyncService {
             senderId,
           );
           if (cleared > 0) {
-            debugPrint('MessageSyncService: Cleared permanent sentinel for '
-                '$cleared messages from ${senderId.substring(0, 8)}… — '
-                'will retry on next sync event');
           }
           final undecrypted = await _appDatabase.getUndecryptedMessages(
             conversationId,
@@ -843,9 +789,6 @@ class MessageSyncService {
       }
       if (undecryptedIds.isNotEmpty) {
         _decryptionService.resetFailures(undecryptedIds);
-        debugPrint('MessageSyncService: Reset failure counters for '
-            '${undecryptedIds.length} undecrypted messages — '
-            'will retry on next sync event');
       }
     }
 
@@ -921,8 +864,6 @@ class MessageSyncService {
           ),
         );
       } catch (e) {
-        debugPrint(
-            'MessageSyncService: Failed to update preview for $conversationId: $e');
       }
     });
   }

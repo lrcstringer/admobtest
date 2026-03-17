@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
@@ -78,8 +77,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         binding.lifecycleState == null) {
       return;
     }
-    debugPrint('CallBloc: app is ${binding.lifecycleState} — '
-        'waiting for foreground before getUserMedia');
     final completer = Completer<void>();
     late final AppLifecycleListener listener;
     listener = AppLifecycleListener(
@@ -89,9 +86,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     );
     await completer.future.timeout(
       const Duration(seconds: 10),
-      onTimeout: () {
-        debugPrint('CallBloc: foreground wait timed out — proceeding anyway');
-      },
+      onTimeout: () {},
     );
     listener.dispose();
   }
@@ -129,11 +124,9 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       final creds = await _callRepository.getTurnCredentials();
       if (creds['hasTurn'] == true) return creds;
       // STUN-only — retry once in case of transient failure
-      debugPrint('CallBloc: TURN not available, retrying...');
       await Future.delayed(const Duration(milliseconds: 500));
       return await _callRepository.getTurnCredentials();
-    } catch (e) {
-      debugPrint('CallBloc: TURN fetch failed, retrying: $e');
+    } catch (_) {
       await Future.delayed(const Duration(milliseconds: 500));
       return await _callRepository.getTurnCredentials();
     }
@@ -148,8 +141,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     // Guard: don't initiate if already in an active/ringing/connecting call
     if (state.status != CallStatus.idle &&
         state.status != CallStatus.failed) {
-      debugPrint('CallBloc: ignoring initiateCall — '
-          'already in call (status=${state.status})');
       return;
     }
 
@@ -190,8 +181,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       emit(state.copyWith(callId: callId));
 
       final iceConfig = await turnFuture;
-      debugPrint('CallBloc: TURN available: ${iceConfig['hasTurn']}, '
-          'servers: ${(iceConfig['iceServers'] as List?)?.length ?? 0}');
 
       _analyticsService.logCallStarted(
         callId: callId,
@@ -254,14 +243,13 @@ class CallBloc extends Bloc<CallEvent, CallState> {
             _negotiationHandler?.handleDescription(desc);
           }
         },
-        onError: (e) =>
-            debugPrint('CallBloc: watchRemoteDescription error: $e'),
+        onError: (_) {},
       );
 
       // Listen for call document changes (status changes, video upgrade)
       _callDocSub = _signalingService.watchCall(callId).listen(
         (session) => add(CallEvent.callDocUpdated(session)),
-        onError: (e) => debugPrint('CallBloc: watchCall error: $e'),
+        onError: (_) {},
       );
 
       // Listen for remote ICE candidates
@@ -271,15 +259,13 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         (candidate) {
           _negotiationHandler?.handleCandidate(candidate);
         },
-        onError: (e) =>
-            debugPrint('CallBloc: watchRemoteIceCandidates error: $e'),
+        onError: (_) {},
       );
 
       // Listen for ICE connection state
       _iceStateSub = _webRtcService!.onIceConnectionState.listen(
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
-        onError: (e) =>
-            debugPrint('CallBloc: onIceConnectionState error: $e'),
+        onError: (_) {},
       );
 
       // Listen for remote video track mute/unmute
@@ -293,10 +279,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           add(const CallEvent.endCall());
         }
       });
-    } catch (e, stack) {
-      debugPrint('CallBloc: [initiate] FAILED: $e');
-      debugPrint('CallBloc: [initiate] stack: $stack');
-
+    } catch (e) {
       // Capture callId before cleanup resets internal state
       final failedCallId = state.callId;
 
@@ -339,20 +322,14 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
     // Reject second incoming call if one is already active/ringing
     if (state.status != CallStatus.idle) {
-      debugPrint('CallBloc: ignoring incoming call — already in call '
-          '(status=${state.status})');
       // Dismiss the CallKit UI that the FCM handler already showed
       try {
         await FlutterCallkitIncoming.endCall(event.callId);
-      } catch (e) {
-        debugPrint('CallBloc: endCallKit (busy) error: $e');
-      }
+      } catch (_) {}
       // Notify server so caller sees "busy" instead of waiting for timeout
       try {
         await _callRepository.endCall(event.callId, reason: 'busy');
-      } catch (e) {
-        debugPrint('CallBloc: endCall (busy) error: $e');
-      }
+      } catch (_) {}
       return;
     }
 
@@ -371,15 +348,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     // Listen for call document changes
     _callDocSub = _signalingService.watchCall(event.callId).listen(
       (session) => add(CallEvent.callDocUpdated(session)),
-      onError: (e) => debugPrint('CallBloc: watchCall error: $e'),
+      onError: (_) {},
     );
 
     // Pre-fetch TURN credentials so accept is faster (fire-and-forget)
-    _callRepository.getTurnCredentials().then((_) {
-      debugPrint('CallBloc: pre-fetched TURN credentials for incoming call');
-    }).catchError((Object e) {
-      debugPrint('CallBloc: pre-fetch TURN failed (non-fatal): $e');
-    });
+    _callRepository.getTurnCredentials().ignore();
   }
 
   // ── Accept Incoming Call ──
@@ -396,16 +369,12 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       emit(state.copyWith(status: CallStatus.connecting));
 
       // Phase 1: start all independent operations concurrently
-      debugPrint('CallBloc: [accept] phase 1 — parallel: '
-          'answerCall + getTurnCredentials + waitForForeground');
       final answerFuture = _callRepository.answerCall(callId);
       final turnFuture = _fetchTurnWithRetry();
       final foregroundFuture = _waitForForeground();
 
       // Need TURN config + foreground before WebRTC init
       final iceConfig = await turnFuture;
-      debugPrint('CallBloc: TURN available: ${iceConfig['hasTurn']}, '
-          'servers: ${(iceConfig['iceServers'] as List?)?.length ?? 0}');
       await foregroundFuture;
 
       _analyticsService.logCallStarted(
@@ -416,8 +385,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       );
 
       // Phase 2: WebRTC init and offer fetch in parallel (RTDB — fast)
-      debugPrint('CallBloc: [accept] phase 2 — parallel: '
-          'WebRTC initialize + fetch offer (RTDB)');
       _webRtcService = _webRtcServiceFactory.create();
       final initFuture = _webRtcService!.initialize(
         isVideo: state.callType == CallType.video,
@@ -442,15 +409,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       // Ensure answerCall completed (surfaces server errors)
       await answerFuture;
 
-      debugPrint('CallBloc: [accept] offer present: ${offer != null}');
-
       // If offer not yet available via one-shot, wait up to 10s for it via
       // the RTDB watch stream. Without this, a slow caller would leave the
       // callee stuck in 'connecting' until the ring timer fires.
       RTCSessionDescription? resolvedOffer = offer;
       if (resolvedOffer == null) {
-        debugPrint('CallBloc: [accept] no offer yet — '
-            'waiting up to 10s via RTDB watch');
         try {
           resolvedOffer = await _signalingService
               .watchRemoteDescription(callId, isCaller: false)
@@ -461,21 +424,17 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         }
       }
 
-      debugPrint('CallBloc: [accept] step 5 — setRemoteDescription');
       final pc = _webRtcService!.peerConnection!;
       await pc.setRemoteDescription(resolvedOffer);
-      debugPrint('CallBloc: [accept] step 6 — createAnswer');
       final answer = await pc.createAnswer();
       final optimizedAnswer = WebRtcService.optimizeSdp(answer);
       await pc.setLocalDescription(optimizedAnswer);
       final localDesc = await pc.getLocalDescription();
       if (localDesc != null) {
-        debugPrint('CallBloc: [accept] step 7 — sendAnswer');
         await _signalingService.sendDescription(callId, localDesc,
             isCaller: false);
       }
       _lastProcessedRemoteSdp = resolvedOffer.sdp;
-      debugPrint('CallBloc: [accept] SDP exchange complete');
 
       // Set up Perfect Negotiation for future renegotiation (video upgrade,
       // ICE restart). If the offer wasn't available yet, the watch stream
@@ -506,8 +465,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
             _negotiationHandler?.handleDescription(desc);
           }
         },
-        onError: (e) =>
-            debugPrint('CallBloc: watchRemoteDescription error: $e'),
+        onError: (_) {},
       );
 
       // Listen for remote ICE candidates
@@ -517,15 +475,13 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         (candidate) {
           _negotiationHandler?.handleCandidate(candidate);
         },
-        onError: (e) =>
-            debugPrint('CallBloc: watchRemoteIceCandidates error: $e'),
+        onError: (_) {},
       );
 
       // Listen for ICE connection state
       _iceStateSub = _webRtcService!.onIceConnectionState.listen(
         (iceState) => add(CallEvent.iceConnectionStateChanged(iceState)),
-        onError: (e) =>
-            debugPrint('CallBloc: onIceConnectionState error: $e'),
+        onError: (_) {},
       );
 
       // Listen for remote video track mute/unmute
@@ -533,11 +489,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         (enabled) => add(CallEvent.remoteVideoStateChanged(enabled: enabled)),
       );
 
-      debugPrint('CallBloc: [accept] setup complete — waiting for ICE');
-    } catch (e, stack) {
-      debugPrint('CallBloc: [accept] FAILED: $e');
-      debugPrint('CallBloc: [accept] stack: $stack');
-
+    } catch (e) {
       _analyticsService.logCallFailed(
         callId: callId,
         error: e.toString(),
@@ -573,9 +525,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       await _callRepository
           .endCall(state.callId!, reason: 'declined')
           .timeout(const Duration(seconds: 5));
-    } catch (e) {
-      debugPrint('CallBloc: rejectCall error: $e');
-    }
+    } catch (_) {}
     await _cleanup();
     emit(const CallState());
   }
@@ -610,9 +560,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       await _callRepository
           .endCall(state.callId!, reason: reason)
           .timeout(const Duration(seconds: 5));
-    } catch (e) {
-      debugPrint('CallBloc: endCall error: $e');
-    }
+    } catch (_) {}
     await _cleanup();
     emit(const CallState());
   }
@@ -673,8 +621,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         isVideoEnabled: true,
         isSpeakerOn: true,
       ));
-    } catch (e) {
-      debugPrint('CallBloc: requestVideoUpgrade — upgradeToVideo failed: $e');
+    } catch (_) {
       emit(state.copyWith(
         errorMessage: 'Camera unavailable. Check permissions.',
       ));
@@ -706,8 +653,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
         ));
-      } catch (e) {
-        debugPrint('CallBloc: upgradeToVideo error: $e');
+      } catch (_) {
         emit(state.copyWith(
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
@@ -742,9 +688,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           state.callId != null) {
         try {
           await FlutterCallkitIncoming.endCall(state.callId!);
-        } catch (e) {
-          debugPrint('CallBloc: endCallKit error: $e');
-        }
+        } catch (_) {}
       }
       await _cleanup();
       emit(const CallState());
@@ -785,8 +729,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
         ));
-      } catch (e) {
-        debugPrint('CallBloc: upgrade accepted but camera failed: $e');
+      } catch (_) {
         emit(state.copyWith(
           videoUpgradeRequested: false,
           videoUpgradeRequesterId: null,
@@ -883,8 +826,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
               ? Duration.zero
               : Duration(
                   milliseconds: 500 * (1 << (_iceRestartAttempts - 2)));
-          debugPrint('CallBloc: ICE restart #$_iceRestartAttempts '
-              'after ${delay.inMilliseconds}ms');
           _analyticsService.logIceRestart(
             callId: state.callId ?? 'unknown',
             attempt: _iceRestartAttempts,
@@ -902,9 +843,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           try {
             await _callRepository.endCall(
                 state.callId!, reason: 'reconnection_failed');
-          } catch (e) {
-            debugPrint('CallBloc: endCall on ICE failure error: $e');
-          }
+          } catch (_) {}
         }
         await _cleanup();
         emit(state.copyWith(
@@ -987,8 +926,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         _webRtcService?.peerConnection != null) {
       // Network came back — proactively restart ICE instead of waiting for
       // the 15-30s WebRTC timeout to detect the dead path.
-      debugPrint('CallBloc: network changed while active — '
-          'proactive ICE restart');
       _webRtcService!.peerConnection!.restartIce();
     }
 

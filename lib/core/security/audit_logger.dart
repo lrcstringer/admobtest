@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 /// Comprehensive audit logging for security-sensitive operations
@@ -45,7 +44,6 @@ class AuditLogger {
         'clientTimestamp': DateTime.now().toIso8601String(),
       });
     } catch (e) {
-      debugPrint('Failed to log security event: $e');
       // Don't throw - logging should not break the app
     }
   }
@@ -252,7 +250,6 @@ class AuditLogger {
         _cachedDeviceInfo = {'platform': 'unknown'};
       }
     } catch (e) {
-      debugPrint('Failed to get device info: $e');
       _cachedDeviceInfo = {'platform': 'error', 'error': e.toString()};
     }
 

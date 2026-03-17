@@ -1661,8 +1661,7 @@ class _EncryptedImageThumbnailState extends State<_EncryptedImageThumbnail> {
       // Write to disk cache (fire-and-forget)
       _writeDiskCache(widget.url, bytes);
       if (mounted) setState(() { _bytes = bytes; _isLoading = false; });
-    } catch (e) {
-      debugPrint('EncryptedImageThumbnail: load failed: $e');
+    } catch (_) {
       if (mounted) setState(() { _hasError = true; _isLoading = false; });
     }
   }
@@ -1883,8 +1882,7 @@ class _DocumentBubbleState extends State<_DocumentBubble> {
           }
         }
       }
-    } catch (e) {
-      debugPrint('DocumentBubble: _openDocument failed: $e');
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to download document')),

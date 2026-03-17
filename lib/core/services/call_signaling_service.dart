@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -48,12 +47,10 @@ class CallSignalingService {
     try {
       await _signalingRef(callId).child(node).set(data);
     } catch (e) {
-      debugPrint('CallSignaling: sendDescription ($node) failed, retrying: $e');
       try {
         await Future.delayed(const Duration(milliseconds: 200));
         await _signalingRef(callId).child(node).set(data);
       } catch (e2) {
-        debugPrint('CallSignaling: sendDescription retry failed: $e2');
         rethrow;
       }
     }
@@ -114,9 +111,7 @@ class CallSignalingService {
       'sdpMLineIndex': candidate.sdpMLineIndex,
     };
     _signalingRef(callId).child(subcol).push().set(data).catchError((Object e) {
-      debugPrint('CallSignaling: sendIceCandidate failed, retrying: $e');
       _signalingRef(callId).child(subcol).push().set(data).catchError((Object e2) {
-        debugPrint('CallSignaling: sendIceCandidate retry failed: $e2');
       });
     });
   }
@@ -177,7 +172,6 @@ class CallSignalingService {
     try {
       await _callDoc(callId).update({field: FieldValue.serverTimestamp()});
     } catch (e) {
-      debugPrint('CallSignaling: heartbeat failed: $e');
     }
   }
 
@@ -187,7 +181,6 @@ class CallSignalingService {
     try {
       await _callDoc(callId).update({'iceRestartCount': count});
     } catch (e) {
-      debugPrint('CallSignaling: updateIceRestartCount failed: $e');
     }
   }
 
@@ -212,9 +205,7 @@ class CallSignalingService {
   Future<void> cleanupSignaling(String callId) async {
     try {
       await _signalingRef(callId).remove();
-      debugPrint('CallSignaling: RTDB cleanup for $callId');
     } catch (e) {
-      debugPrint('CallSignaling: RTDB cleanup failed: $e');
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -169,7 +168,6 @@ class StepUpAuthService {
       _logStepUp(AuthAction.stepUpCompleted, success: false);
       return StepUpResult.cancelled;
     } catch (e) {
-      debugPrint('Step-up biometric failed: $e');
       _logStepUp(AuthAction.stepUpCompleted,
           success: false, error: e.toString());
       return StepUpResult.failed;

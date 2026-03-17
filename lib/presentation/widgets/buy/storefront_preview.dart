@@ -72,10 +72,7 @@ class _StorefrontPreviewState extends State<StorefrontPreview> {
           ...storefront.sectionOrder
               .where((type) {
                 final settings = storefront.sectionSettings[type.name];
-                final visible = settings?.isVisible ?? true;
-                debugPrint('[Preview] section=${type.name} '
-                    'hasSettings=${settings != null} visible=$visible');
-                return visible;
+                return settings?.isVisible ?? true;
               })
               .map(
                 (type) => SliverToBoxAdapter(

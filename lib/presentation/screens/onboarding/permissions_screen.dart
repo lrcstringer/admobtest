@@ -42,8 +42,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           sound: true,
         );
       }
-    } catch (e) {
-      debugPrint('Permission request failed (non-blocking): $e');
+    } catch (_) {
     }
 
     if (!mounted) return;

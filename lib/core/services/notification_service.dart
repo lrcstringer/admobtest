@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
@@ -181,7 +180,6 @@ class NotificationService {
     try {
       await _badgePlugin.cancelAll();
     } catch (e) {
-      debugPrint('NotificationService: clearNotifications failed: $e');
     }
   }
 
@@ -218,7 +216,6 @@ class NotificationService {
         await _badgePlugin.cancel(id: _badgeNotificationId);
       }
     } catch (e) {
-      debugPrint('NotificationService: Badge update failed: $e');
     }
   }
 

@@ -77,8 +77,7 @@ Future<String> uploadAdminImage({
     ResizedImage? resized;
     try {
       resized = resizeImageForUpload(bytes, resizeTarget);
-    } catch (e) {
-      debugPrint('[uploadAdminImage] Resize threw: $e');
+    } catch (_) {
     }
 
     if (resized != null) {
@@ -88,7 +87,6 @@ Future<String> uploadAdminImage({
     } else if (kIsWeb) {
       // Web fallback: the `image` package can struggle on web.
       // Upload the original bytes with a best-guess content type.
-      debugPrint('[uploadAdminImage] Resize failed on web — uploading raw');
       uploadBytes = bytes;
       final lower = (fileName ?? '').toLowerCase();
       if (lower.endsWith('.png')) {

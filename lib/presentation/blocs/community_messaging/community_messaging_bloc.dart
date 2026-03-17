@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -78,8 +77,7 @@ class CommunityMessagingBloc
         // 5.2 Stream error logging + isClosed guard
         if (!isClosed) {
           result.fold(
-            (failure) => debugPrint(
-                'CommunityMessagingBloc: stream error: ${failure.displayMessage}'),
+            (_) {},
             (messages) =>
                 add(CommunityMessagingEvent.messagesUpdated(messages)),
           );
@@ -288,8 +286,7 @@ class CommunityMessagingBloc
     final result =
         await _communityRepository.markAsRead(communityId: state.communityId);
     result.fold(
-      (failure) => debugPrint(
-          'CommunityMessagingBloc: markAsRead failed: ${failure.displayMessage}'),
+      (_) {},
       (_) {},
     );
   }

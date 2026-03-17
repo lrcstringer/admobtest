@@ -43,7 +43,6 @@ class DeviceCapabilityService {
     if (_cachedTier != null) return _cachedTier!;
 
     _cachedTier = await _detectTier();
-    debugPrint('Device capability tier: $_cachedTier');
     return _cachedTier!;
   }
 
@@ -69,7 +68,6 @@ class DeviceCapabilityService {
         }
       }
     } catch (e) {
-      debugPrint('Biometric check failed: $e');
     }
 
     // Check if device has screen lock configured (Tier 2 check)
@@ -79,7 +77,6 @@ class DeviceCapabilityService {
         return AuthCapabilityTier.deviceCredential;
       }
     } catch (e) {
-      debugPrint('Device credential check failed: $e');
     }
 
     // No biometrics, no screen lock → Tier 3 (in-app PIN)
@@ -96,7 +93,6 @@ class DeviceCapabilityService {
       await _secureStorage.delete(key: testKey);
       return readBack == testValue;
     } catch (e) {
-      debugPrint('Secure storage test failed: $e');
       return false;
     }
   }

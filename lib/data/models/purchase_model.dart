@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -174,10 +172,6 @@ abstract class PurchaseModel with _$PurchaseModel {
       case 'refunded':
         return PurchaseStatus.refunded;
       default:
-        developer.log(
-          'Unknown PurchaseStatus "$status", defaulting to pending',
-          name: 'PurchaseModel',
-        );
         return PurchaseStatus.pending;
     }
   }

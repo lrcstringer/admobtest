@@ -10,7 +10,6 @@ import 'package:flutter_callkit_incoming/entities/entities.dart'
     as callkit;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -92,11 +91,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Suppress all debugPrint output in release builds to prevent
-  // leaking security-sensitive info (keys, tokens, crypto state) via logcat.
-  if (!kDebugMode) {
-    debugPrint = (String? message, {int? wrapWidth}) {};
-  }
+  // Suppress all debugPrint output to prevent leaking
+  // security-sensitive info (keys, tokens, crypto state) via logcat.
+  debugPrint = (String? message, {int? wrapWidth}) {};
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -176,44 +173,7 @@ Future<void> main() async {
     }
   }
 
-  // Set up Bloc observer for debugging (only in debug mode)
-  if (kDebugMode) {
-    Bloc.observer = AppBlocObserver();
-  }
-
   runApp(const IMaliChatApp());
-}
-
-/// Bloc observer for debugging and logging
-/// Only active in debug mode to avoid performance overhead in production.
-class AppBlocObserver extends BlocObserver {
-  @override
-  void onCreate(BlocBase bloc) {
-    super.onCreate(bloc);
-    if (kDebugMode) debugPrint('onCreate -- ${bloc.runtimeType}');
-  }
-
-  @override
-  void onChange(BlocBase bloc, Change change) {
-    super.onChange(bloc, change);
-    if (kDebugMode) debugPrint('onChange -- ${bloc.runtimeType}, $change');
-  }
-
-  @override
-  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
-    // Always log errors, but use different strategies for debug vs release
-    if (kDebugMode) {
-      debugPrint('onError -- ${bloc.runtimeType}, $error');
-    }
-    // In production, errors are captured by the ErrorHandler/crash reporting
-    super.onError(bloc, error, stackTrace);
-  }
-
-  @override
-  void onClose(BlocBase bloc) {
-    super.onClose(bloc);
-    if (kDebugMode) debugPrint('onClose -- ${bloc.runtimeType}');
-  }
 }
 
 /// Minimal app shown when the installed version is below the server minimum.

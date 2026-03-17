@@ -86,7 +86,6 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
       });
 
       final data = result.data;
-      debugPrint('StepUpOtp: sendOtp response: $data');
 
       if (data['success'] != true) {
         if (!mounted) return;
@@ -104,8 +103,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
         _otpSent = true;
       });
       _startResendCountdown();
-    } catch (e) {
-      debugPrint('StepUpOtp: sendOtp error: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -145,8 +143,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
       // Just pop with true to indicate step-up succeeded.
       if (!mounted) return;
       context.pop(true);
-    } catch (e) {
-      debugPrint('StepUpOtp: verifyOtp error: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;

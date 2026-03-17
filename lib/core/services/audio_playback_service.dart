@@ -88,7 +88,6 @@ class AudioPlaybackService {
       _isLoading = false;
       _player.play();
     } catch (e) {
-      debugPrint('AudioPlaybackService: playVoice error: $e');
       _isLoading = false;
       _currentMessageId = null;
       rethrow;

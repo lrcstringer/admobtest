@@ -35,38 +35,28 @@ class RaspService {
 
     final callback = ThreatCallback(
       onAppIntegrity: () {
-        debugPrint('[RASP] App integrity violation detected');
         _handleCriticalThreat('app_integrity');
       },
       onObfuscationIssues: () {
-        debugPrint('[RASP] Obfuscation issues detected');
       },
       onDebug: () {
-        debugPrint('[RASP] Debugger attached');
         _handleCriticalThreat('debugger');
       },
       onDeviceBinding: () {
-        debugPrint('[RASP] Device binding violation');
       },
       onHooks: () {
-        debugPrint('[RASP] Hooking framework detected (Frida/Xposed)');
         _handleCriticalThreat('hooks');
       },
       onPasscode: () {
-        debugPrint('[RASP] Device has no passcode set');
       },
       onPrivilegedAccess: () {
-        debugPrint('[RASP] Rooted/jailbroken device detected');
         _handleCriticalThreat('root');
       },
       onSecureHardwareNotAvailable: () {
-        debugPrint('[RASP] Secure hardware not available');
       },
       onSimulator: () {
-        debugPrint('[RASP] Running on emulator/simulator');
       },
       onUnofficialStore: () {
-        debugPrint('[RASP] App installed from unofficial store');
       },
     );
 
@@ -75,18 +65,14 @@ class RaspService {
       await Talsec.instance.start(config).timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          debugPrint('[RASP] Initialization timed out — continuing without RASP');
         },
       );
       _initialized = true;
-      debugPrint('[RASP] Initialized successfully');
     } catch (e) {
-      debugPrint('[RASP] Initialization failed: $e — continuing without RASP');
     }
   }
 
   void _handleCriticalThreat(String threatType) {
-    debugPrint('[RASP] CRITICAL THREAT: $threatType — forcing re-auth');
     _authBloc.add(const AuthEvent.forceReauth());
   }
 }

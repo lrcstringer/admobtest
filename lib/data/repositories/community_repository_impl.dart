@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
@@ -75,8 +74,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
         await _appDatabase.upsertLocalCommunity(
           LocalCommunityMapper.toCompanion(entity),
         );
-      } catch (e) {
-        debugPrint('WARNING: Failed to seed local cache after create: $e');
+      } catch (_) {
+        // Best-effort local cache seeding
       }
       return Right(entity);
     } on AuthException {
@@ -167,8 +166,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
             LocalCommunityMapper.toCompanion(updated.toEntity()),
           );
         }
-      } catch (e) {
-        debugPrint('WARNING: Failed to seed local cache after update: $e');
+      } catch (_) {
+        // Best-effort local cache seeding
       }
       return const Right(null);
     } on AuthException {
@@ -196,8 +195,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
           message: e is ServerException ? e.message : e.toString(),
         ));
       }
-      debugPrint('deleteCommunity: Firestore doc already gone, '
-          'cleaning up orphaned local data for $communityId');
+      // Firestore doc already gone — clean up orphaned local data
     }
 
     // Stop sync subscriptions FIRST — prevents stream errors from
@@ -212,8 +210,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
     // Clean up E2EE sender keys for this community
     try {
       await _senderKeyService.resetAllKeysForCommunity(communityId);
-    } catch (e) {
-      debugPrint('deleteCommunity: Failed to clean sender keys: $e');
+    } catch (_) {
+      // Best-effort sender key cleanup
     }
 
     return const Right(null);
@@ -263,9 +261,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
             LocalCommunityMapper.toCompanion(communityModel.toEntity()),
           );
         }
-      } catch (e) {
-        debugPrint(
-            'WARNING: Failed to seed community after accept: $e');
+      } catch (_) {
+        // Best-effort local cache seeding
       }
 
       // Update local member status to active
@@ -284,8 +281,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
               LocalCommunityMemberMapper.toCompanion(updated),
             );
           }
-        } catch (e) {
-          debugPrint('WARNING: Failed to update local member after accept: $e');
+        } catch (_) {
+          // Best-effort local member update
         }
       }
       return const Right(null);
@@ -311,8 +308,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
       if (userId != null) {
         try {
           await _appDatabase.deleteLocalCommunityMember('${communityId}_$userId');
-        } catch (e) {
-          debugPrint('WARNING: Failed to remove local member after decline: $e');
+        } catch (_) {
+          // Best-effort local member cleanup
         }
       }
       return const Right(null);
@@ -380,14 +377,14 @@ class CommunityRepositoryImpl implements CommunityRepository {
       try {
         await _appDatabase.deleteLocalCommunity(communityId);
         await _appDatabase.deleteLocalCommunityMembersForCommunity(communityId);
-      } catch (e) {
-        debugPrint('WARNING: Failed to clean local DB after leave: $e');
+      } catch (_) {
+        // Best-effort local DB cleanup
       }
       // Clean up E2EE sender keys for this community
       try {
         await _senderKeyService.resetAllKeysForCommunity(communityId);
-      } catch (e) {
-        debugPrint('leaveCommunity: Failed to clean sender keys: $e');
+      } catch (_) {
+        // Best-effort sender key cleanup
       }
       return const Right(null);
     } on AuthException {
@@ -963,8 +960,8 @@ class CommunityRepositoryImpl implements CommunityRepository {
               final unread =
                   jsonDecode(row.unreadCountsJson) as Map<String, dynamic>;
               total += (unread[userId] as num?)?.toInt() ?? 0;
-            } catch (e) {
-              debugPrint('WARNING: Corrupt unreadCounts JSON for ${row.id}: $e');
+            } catch (_) {
+              // Skip corrupt unreadCounts JSON
             }
           }
         }

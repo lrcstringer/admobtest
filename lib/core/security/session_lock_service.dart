@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -81,7 +80,6 @@ class SessionLockService {
   /// Call [unsuppressLock] when the overlay is dismissed.
   void suppressLock() {
     _suppressLock = true;
-    debugPrint('Session: lock suppressed');
   }
 
   /// Re-enable session locking and clear any background timestamp
@@ -89,17 +87,14 @@ class SessionLockService {
   void unsuppressLock() {
     _suppressLock = false;
     _backgroundTimestamp = null;
-    debugPrint('Session: lock unsuppressed');
   }
 
   /// Call when app goes to background.
   void onAppPaused() {
     if (_suppressLock) {
-      debugPrint('Session: app paused (lock suppressed — ignoring)');
       return;
     }
     _backgroundTimestamp = DateTime.now();
-    debugPrint('Session: app paused at $_backgroundTimestamp');
   }
 
   /// Call when app returns to foreground.
@@ -115,18 +110,15 @@ class SessionLockService {
 
     if (elapsed >= _fullReauthDuration) {
       _isLocked = true;
-      debugPrint('Session: full re-auth required (${elapsed.inSeconds}s)');
       return SessionLockResult.fullReauthRequired;
     }
 
     if (elapsed >= _sessionLockDuration) {
       _isLocked = true;
-      debugPrint('Session: lock required (${elapsed.inSeconds}s)');
       _logUnlockEvent(AuthAction.sessionLock, success: true);
       return SessionLockResult.sessionLockRequired;
     }
 
-    debugPrint('Session: no lock needed (${elapsed.inSeconds}s)');
     return SessionLockResult.noLockNeeded;
   }
 
@@ -191,7 +183,6 @@ class SessionLockService {
       // Biometric failed — fall back to device credential
       return _attemptDeviceCredentialUnlock();
     } catch (e) {
-      debugPrint('Biometric unlock failed: $e');
       // Fall back to device credential
       return _attemptDeviceCredentialUnlock();
     }
@@ -215,7 +206,6 @@ class SessionLockService {
       _logUnlockEvent(AuthAction.sessionUnlockFailed, success: false);
       return UnlockResult.cancelled;
     } catch (e) {
-      debugPrint('Device credential unlock failed: $e');
       _logUnlockEvent(AuthAction.sessionUnlockFailed,
           success: false, error: e.toString());
       return UnlockResult.failed;

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -24,8 +23,6 @@ class DeepLinkService {
   bool handleDeepLink(String link) {
     final uri = Uri.tryParse(link);
     if (uri == null) return false;
-
-    debugPrint('[DeepLinkService] Handling: $link');
 
     // Custom scheme: imali://
     if (uri.scheme == 'imali') {
@@ -96,7 +93,6 @@ class DeepLinkService {
 
   void _navigateToConversation(String participantId) {
     if (_router == null) {
-      debugPrint('[DeepLinkService] Router not set, cannot navigate');
       return;
     }
     // Navigate to the conversation detail screen.
@@ -106,7 +102,6 @@ class DeepLinkService {
 
   void _navigateToCommunity(String communityId) {
     if (_router == null) {
-      debugPrint('[DeepLinkService] Router not set, cannot navigate');
       return;
     }
     _router!.go('/chat/community/$communityId');
@@ -117,7 +112,6 @@ class DeepLinkService {
 
   void _storeReferralCode(String code) {
     _pendingReferralCode = code;
-    debugPrint('[DeepLinkService] Stored referral code: $code');
   }
 
   /// Retrieve and clear the pending referral code (used by sign-up flow).

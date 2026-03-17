@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart'
     as callkit;
@@ -47,8 +46,6 @@ class CallNotificationService {
 
     // Replay queued events from cold-start
     if (_pendingEvents.isNotEmpty) {
-      debugPrint('CallNotification: replaying ${_pendingEvents.length} '
-          'queued CallKit event(s)');
       for (final event in _pendingEvents) {
         _handleCallKitEvent(event);
       }
@@ -127,11 +124,9 @@ class CallNotificationService {
     _callKitSub?.cancel();
     _callKitSub = FlutterCallkitIncoming.onEvent.listen((event) {
       if (event == null) return;
-      debugPrint('CallNotification: CallKit event: ${event.event}');
 
       // If not yet configured (cold-start), queue for replay
       if (_callBloc == null) {
-        debugPrint('CallNotification: bloc not ready — queuing event');
         _pendingEvents.add(event);
         return;
       }
@@ -185,7 +180,6 @@ class CallNotificationService {
 
       case callkit.Event.actionCallTimeout:
         // Ring timeout — notify BLoC to end the call as missed
-        debugPrint('CallNotification: call timed out: $callId');
         _callBloc?.add(const CallEvent.endCall());
 
       case callkit.Event.actionCallEnded:
@@ -210,9 +204,7 @@ class CallNotificationService {
         'voipToken': token,
         'voipTokenUpdatedAt': FieldValue.serverTimestamp(),
       });
-      debugPrint('CallNotification: VoIP token saved');
     } catch (e) {
-      debugPrint('CallNotification: saveVoipToken error: $e');
     }
   }
 

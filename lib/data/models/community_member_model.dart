@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community_member.dart';
 import '../../domain/enums/member_role.dart';
@@ -58,17 +57,11 @@ abstract class CommunityMemberModel with _$CommunityMemberModel {
         avatarUrl: avatarUrl,
         role: MemberRole.values.firstWhere(
           (e) => e.name == role,
-          orElse: () {
-            debugPrint('WARNING: Unknown member role "$role", defaulting to member');
-            return MemberRole.member;
-          },
+          orElse: () => MemberRole.member,
         ),
         status: MemberStatus.values.firstWhere(
           (e) => e.name == status,
-          orElse: () {
-            debugPrint('WARNING: Unknown member status "$status", defaulting to invited');
-            return MemberStatus.invited;
-          },
+          orElse: () => MemberStatus.invited,
         ),
         contributionBalance: contributionBalance,
         joinedAt: joinedAt,

@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -382,11 +380,8 @@ abstract class BrandStorefrontModel with _$BrandStorefrontModel {
       if (item is Map<String, dynamic>) {
         try {
           result.add(parser(item));
-        } catch (e) {
-          developer.log(
-            'Failed to parse item at index $i: $e',
-            name: 'BrandStorefrontModel._safeParseList',
-          );
+        } catch (_) {
+          // Skip malformed entries
         }
       }
     }

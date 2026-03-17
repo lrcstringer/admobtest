@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/message.dart';
@@ -465,8 +464,6 @@ abstract class MessageModel with _$MessageModel {
     if (raw is Timestamp) return raw.toDate();
     if (raw is String) return DateTime.parse(raw);
     if (raw is DateTime) return raw;
-    debugPrint('WARNING: _parseDateTimeRequired received null/unknown type '
-        '(${raw.runtimeType}), defaulting to DateTime.now()');
     return DateTime.now();
   }
 

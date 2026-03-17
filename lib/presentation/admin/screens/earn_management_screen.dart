@@ -2223,12 +2223,9 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
             overrideSubAccountId ?? _selectedSubAccountId;
         callData['tokenDestAccountTypeId'] = _selectedAccountTypeId;
       }
-      debugPrint('=== CALLING createEarnThread ===');
-      debugPrint('Data: $callData');
       final result = await FirebaseFunctions.instanceFor(region: 'africa-south1')
           .httpsCallable('createEarnThread')
           .call(callData);
-      debugPrint('=== createEarnThread SUCCEEDED ===');
 
       final data = Map<String, dynamic>.from(result.data as Map);
       final createdThreadId = data['threadId'] as String?;
@@ -2300,17 +2297,7 @@ class _CreateThreadDialogState extends State<_CreateThreadDialog> {
           ),
         );
       }
-    } catch (e, stackTrace) {
-      debugPrint('=== CREATE CAMPAIGN ERROR ===');
-      debugPrint('Error type: ${e.runtimeType}');
-      debugPrint('Error: $e');
-      if (e is FirebaseFunctionsException) {
-        debugPrint('Code: ${e.code}');
-        debugPrint('Message: ${e.message}');
-        debugPrint('Details: ${e.details}');
-      }
-      debugPrint('Stack: $stackTrace');
-      debugPrint('=== END ERROR ===');
+    } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
         final msg = e is FirebaseFunctionsException

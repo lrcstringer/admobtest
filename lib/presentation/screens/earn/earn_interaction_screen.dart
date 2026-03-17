@@ -3391,7 +3391,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       if (mounted) {
         setState(() => _isCompressing = false);
         // Compression failed — use original file
-        debugPrint('UploadScreen: Compression failed, using original: $e');
       }
     }
   }

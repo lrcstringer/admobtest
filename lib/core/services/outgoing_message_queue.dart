@@ -547,9 +547,6 @@ class OutgoingMessageQueue {
       final pending = await _appDatabase.getPendingMessages();
       if (pending.isEmpty) return;
 
-      debugPrint(
-          'OutgoingMessageQueue: Processing ${pending.length} pending messages');
-
       DateTime? earliestRetry;
       for (final msg in pending) {
         // 9.8 Skip messages that have exceeded max retries or max age
@@ -575,9 +572,6 @@ class OutgoingMessageQueue {
         try {
           await _processMessage(msg);
         } catch (e) {
-          debugPrint(
-              'OutgoingMessageQueue: Failed to process ${msg.type} '
-              '${msg.id}: $e');
         }
       }
 
@@ -627,7 +621,6 @@ class OutgoingMessageQueue {
         await _processForwardMessage(msg);
         break;
       default:
-        debugPrint('OutgoingMessageQueue: Unknown type: ${msg.type}');
     }
   }
 
@@ -1272,9 +1265,6 @@ class OutgoingMessageQueue {
     // Try matching by enum name
     final match = MessageType.values.where((t) => t.name == mediaTypeStr);
     if (match.isNotEmpty) return match.first;
-    debugPrint(
-        'OutgoingMessageQueue: Unknown media type "$mediaTypeStr", '
-        'defaulting to file/document');
     return MessageType.document;
   }
 
@@ -1314,7 +1304,6 @@ class OutgoingMessageQueue {
 
     // M3: Store payload in vault fire-and-forget to avoid blocking queue.
     _mediaRecoveryService.storePayload(realMessageId, plaintext).catchError((e) {
-      debugPrint('OutgoingMessageQueue: vault store failed: $e');
     });
 
     // Parse structured payload to extract text and media separately.
@@ -1338,7 +1327,6 @@ class OutgoingMessageQueue {
     // H2: Guard against null currentUserId
     final currentUserId = _conversationRemoteDS.currentUserId;
     if (currentUserId == null) {
-      debugPrint('OutgoingMessageQueue: currentUserId is null in _finalizeSent');
       await _markFailed(pendingId, 'Not authenticated');
       return;
     }
@@ -1372,7 +1360,6 @@ class OutgoingMessageQueue {
   /// Mark a pending message as failed and update the optimistic UI.
   /// M2: Does NOT increment retry count — that's only for transient failures.
   Future<void> _markFailed(String pendingId, String error) async {
-    debugPrint('OutgoingMessageQueue: Message $pendingId failed: $error');
     await _appDatabase.updatePendingMessageStatus(
       pendingId,
       'failed',
@@ -1435,13 +1422,10 @@ class OutgoingMessageQueue {
           preEncryptPeerKey,
         );
         if (isStale) {
-          debugPrint('E2EE: Peer $recipientId identity key changed — '
-              'resetting stale session for re-establishment');
           await _signalProtocolService.resetSession(recipientId);
         }
       }
     } catch (e) {
-      debugPrint('E2EE: Pre-encrypt freshness check failed: $e');
     }
 
     // ── Encrypt ──
@@ -1462,8 +1446,6 @@ class OutgoingMessageQueue {
         if (postEncryptPeerKey != null &&
             preEncryptPeerKey != null &&
             postEncryptPeerKey != preEncryptPeerKey) {
-          debugPrint('E2EE: Recipient $recipientId key changed during encrypt '
-              '— re-encrypting with fresh bundle');
           await _signalProtocolService.resetSession(recipientId);
           encrypted = await _signalProtocolService.encryptP2P(
             recipientId,
@@ -1471,7 +1453,6 @@ class OutgoingMessageQueue {
           );
         }
       } catch (e) {
-        debugPrint('E2EE: Post-encrypt freshness check failed: $e');
       }
     }
 
@@ -1521,9 +1502,6 @@ class OutgoingMessageQueue {
         // HIGH-2: Don't mark as distributed if some members failed —
         // next message send will retry distribution for all members.
         if (failures.isNotEmpty) {
-          debugPrint('OutgoingMessageQueue: Key distribution failed for '
-              '${failures.length}/${otherMemberIds.length} member(s) in '
-              '$communityId: $failures — will retry next send');
           return; // Don't mark distributed — will retry
         }
       }
@@ -1553,7 +1531,6 @@ class OutgoingMessageQueue {
         );
       }
     } catch (e) {
-      debugPrint('OutgoingMessageQueue: Failed to update preview: $e');
     }
   }
 
@@ -1574,7 +1551,6 @@ class OutgoingMessageQueue {
         lastMessageAt: now,
       );
     } catch (e) {
-      debugPrint('OutgoingMessageQueue: Failed to update community preview: $e');
     }
   }
 }

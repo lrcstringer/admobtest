@@ -240,8 +240,6 @@ class _VideoMessageRecorderState extends State<VideoMessageRecorder>
       final session = await FFmpegKit.execute(compressCmd);
       final returnCode = await session.getReturnCode();
       if (!ReturnCode.isSuccess(returnCode)) {
-        final logs = await session.getAllLogsAsString();
-        debugPrint('VideoRecorder: FFmpeg compression failed: $logs');
         throw Exception('Compression failed');
       }
 

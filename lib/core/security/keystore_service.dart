@@ -65,10 +65,8 @@ class KeystoreService {
         strongBox: result['strongBox'] as bool,
       ));
     } on PlatformException catch (e) {
-      debugPrint('Keystore generateKeyPair error: ${e.message}');
       return Left(Failure.unknown(message: 'Keystore error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore generateKeyPair unexpected error: $e');
       return Left(Failure.unknown(message: 'Unexpected keystore error: $e'));
     }
   }
@@ -90,10 +88,8 @@ class KeystoreService {
 
       return Right(result);
     } on PlatformException catch (e) {
-      debugPrint('Keystore sign error: ${e.message}');
       return Left(Failure.unknown(message: 'Sign error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore sign unexpected error: $e');
       return Left(Failure.unknown(message: 'Unexpected sign error: $e'));
     }
   }
@@ -106,10 +102,8 @@ class KeystoreService {
       });
       return Right(result ?? true);
     } on PlatformException catch (e) {
-      debugPrint('Keystore deleteKey error: ${e.message}');
       return Left(Failure.unknown(message: 'Delete error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore deleteKey unexpected error: $e');
       return Left(Failure.unknown(message: 'Unexpected delete error: $e'));
     }
   }
@@ -122,10 +116,8 @@ class KeystoreService {
       });
       return Right(result ?? false);
     } on PlatformException catch (e) {
-      debugPrint('Keystore hasKey error: ${e.message}');
       return Left(Failure.unknown(message: 'HasKey error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore hasKey unexpected error: $e');
       return Left(Failure.unknown(message: 'Unexpected hasKey error: $e'));
     }
   }
@@ -144,11 +136,9 @@ class KeystoreService {
 
       return Right(result);
     } on PlatformException catch (e) {
-      debugPrint('Keystore getPublicKey error: ${e.message}');
       return Left(
           Failure.unknown(message: 'GetPublicKey error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore getPublicKey unexpected error: $e');
       return Left(
           Failure.unknown(message: 'Unexpected getPublicKey error: $e'));
     }
@@ -173,11 +163,9 @@ class KeystoreService {
         networkCountryIso: result['networkCountryIso'] as String,
       ));
     } on PlatformException catch (e) {
-      debugPrint('Keystore getSimInfo error: ${e.message}');
       return Left(
           Failure.unknown(message: 'SIM info error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore getSimInfo unexpected error: $e');
       return Left(
           Failure.unknown(message: 'Unexpected SIM info error: $e'));
     }
@@ -211,11 +199,9 @@ class KeystoreService {
         // Key already exists — this is expected, not an error
         return const Right(true);
       }
-      debugPrint('Keystore generateWrappingKey error: ${e.message}');
       return Left(
           Failure.unknown(message: 'Wrapping key error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore generateWrappingKey unexpected error: $e');
       return Left(
           Failure.unknown(message: 'Unexpected wrapping key error: $e'));
     }
@@ -229,11 +215,9 @@ class KeystoreService {
       });
       return Right(result ?? false);
     } on PlatformException catch (e) {
-      debugPrint('Keystore hasWrappingKey error: ${e.message}');
       return Left(
           Failure.unknown(message: 'HasWrappingKey error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore hasWrappingKey unexpected error: $e');
       return Left(Failure.unknown(message: 'Unexpected error: $e'));
     }
   }
@@ -258,10 +242,8 @@ class KeystoreService {
         'iv': result['iv'] as String,
       });
     } on PlatformException catch (e) {
-      debugPrint('Keystore wrapData error: ${e.message}');
       return Left(Failure.unknown(message: 'Wrap error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore wrapData unexpected error: $e');
       return Left(
           Failure.unknown(message: 'Unexpected wrap error: $e'));
     }
@@ -283,10 +265,8 @@ class KeystoreService {
       }
       return Right(result);
     } on PlatformException catch (e) {
-      debugPrint('Keystore unwrapData error: ${e.message}');
       return Left(Failure.unknown(message: 'Unwrap error: ${e.message}'));
     } catch (e) {
-      debugPrint('Keystore unwrapData unexpected error: $e');
       return Left(
           Failure.unknown(message: 'Unexpected unwrap error: $e'));
     }

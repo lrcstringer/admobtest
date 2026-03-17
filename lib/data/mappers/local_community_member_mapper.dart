@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/community_member.dart';
 import '../../domain/enums/member_role.dart';
@@ -50,20 +49,14 @@ class LocalCommunityMemberMapper {
   static MemberRole _parseMemberRole(String value) {
     return MemberRole.values.firstWhere(
       (e) => e.name == value,
-      orElse: () {
-        debugPrint('WARNING: Unknown member role "$value", defaulting to member');
-        return MemberRole.member;
-      },
+      orElse: () => MemberRole.member,
     );
   }
 
   static MemberStatus _parseMemberStatus(String value) {
     return MemberStatus.values.firstWhere(
       (e) => e.name == value,
-      orElse: () {
-        debugPrint('WARNING: Unknown member status "$value", defaulting to invited');
-        return MemberStatus.invited;
-      },
+      orElse: () => MemberStatus.invited,
     );
   }
 }

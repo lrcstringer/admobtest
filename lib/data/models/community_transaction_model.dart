@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community_transaction.dart';
 import '../../core/utils/firestore_helpers.dart';
@@ -102,7 +101,6 @@ CommunityTransactionType _parseTransactionType(String value) {
     case 'payout':
       return CommunityTransactionType.payout;
     default:
-      debugPrint('WARNING: Unknown transaction type "$value", defaulting to contribution');
       return CommunityTransactionType.contribution;
   }
 }
@@ -110,20 +108,14 @@ CommunityTransactionType _parseTransactionType(String value) {
 CommunityTransactionStatus _parseTransactionStatus(String value) {
   return CommunityTransactionStatus.values.firstWhere(
     (e) => e.name == value,
-    orElse: () {
-      debugPrint('WARNING: Unknown transaction status "$value", defaulting to pending');
-      return CommunityTransactionStatus.pending;
-    },
+    orElse: () => CommunityTransactionStatus.pending,
   );
 }
 
 ApprovalStatus _parseApprovalStatus(String value) {
   return ApprovalStatus.values.firstWhere(
     (e) => e.name == value,
-    orElse: () {
-      debugPrint('WARNING: Unknown approval status "$value", defaulting to pending');
-      return ApprovalStatus.pending;
-    },
+    orElse: () => ApprovalStatus.pending,
   );
 }
 

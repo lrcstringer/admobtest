@@ -128,16 +128,6 @@ class ErrorHandler {
   }
 
   void _logError(AppError error) {
-    if (kDebugMode) {
-      debugPrint('=== APP ERROR ===');
-      debugPrint('Message: ${error.message}');
-      debugPrint('Code: ${error.code}');
-      debugPrint('Recoverable: ${error.isRecoverable}');
-      if (error.stackTrace != null) {
-        debugPrint('Stack trace:\n${error.stackTrace}');
-      }
-      debugPrint('================');
-    }
   }
 
   void _sendToCrashReporting(AppError error) {

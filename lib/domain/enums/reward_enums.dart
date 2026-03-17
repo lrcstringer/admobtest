@@ -42,11 +42,6 @@ extension RewardTypeX on RewardType {
       case 'digitalContent':
         return RewardType.digitalContent;
       default:
-        assert(() {
-          // ignore: avoid_print
-          print('[RewardType] Unrecognized value "$value", defaulting to voucherCode');
-          return true;
-        }());
         return RewardType.voucherCode;
     }
   }
@@ -164,11 +159,6 @@ extension RewardItemStatusX on RewardItemStatus {
       case 'revoked':
         return RewardItemStatus.revoked;
       default:
-        assert(() {
-          // ignore: avoid_print
-          print('[RewardItemStatus] Unrecognized value "$value", defaulting to available');
-          return true;
-        }());
         return RewardItemStatus.available;
     }
   }

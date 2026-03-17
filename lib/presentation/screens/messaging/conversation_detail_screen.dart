@@ -1408,11 +1408,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       final router = GoRouter.of(context);
       final conversationId = widget.conversationId;
 
-      debugPrint(
-        '_initiateCall: recipientId=$recipientId, '
-        'callType=$callType, conversationId=$conversationId',
-      );
-
       // Listen once for the callId to be set on state, then navigate with it
       late final StreamSubscription<CallState> sub;
       sub = callBloc.stream.listen((state) {
@@ -1426,10 +1421,6 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           }
         } else if (state.status == CallStatus.failed) {
           sub.cancel();
-          debugPrint(
-            '_initiateCall: FAILED — '
-            '${state.errorMessage ?? 'unknown error'}',
-          );
         } else if (state.status == CallStatus.idle) {
           sub.cancel();
         }
@@ -1445,8 +1436,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           callType: callType,
         ),
       );
-    } catch (e) {
-      debugPrint('_initiateCall: ERROR: $e');
+    } catch (_) {
     }
   }
 

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
@@ -1648,7 +1647,6 @@ LazyDatabase _openConnection() {
       // Key was regenerated (FlutterSecureStorage lost it) — old DB can't
       // be decrypted. Delete it; data re-syncs from Firestore.
       if (await file.exists()) {
-        debugPrint('AppDatabase: Encryption key regenerated — deleting stale DB');
         await file.delete();
       }
     }

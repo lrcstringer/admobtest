@@ -1,6 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../core/error/failures.dart';
@@ -49,10 +48,8 @@ class DeviceRepositoryImpl implements DeviceRepository {
       );
       return Right(model.toEntity());
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('Device registration failed: ${e.code} - ${e.message}');
       return Left(_mapFunctionsError(e));
     } catch (e) {
-      debugPrint('Device registration unexpected error: $e');
       return Left(Failure.unknown(message: e.toString()));
     }
   }
@@ -67,7 +64,6 @@ class DeviceRepositoryImpl implements DeviceRepository {
       final isTrusted = await _remoteDataSource.isDeviceTrusted(deviceId);
       return Right(isTrusted);
     } catch (e) {
-      debugPrint('Device trust check failed: $e');
       return Left(Failure.unknown(message: e.toString()));
     }
   }
@@ -82,7 +78,6 @@ class DeviceRepositoryImpl implements DeviceRepository {
       final models = await _remoteDataSource.getUserDevices();
       return Right(models.map((m) => m.toEntity()).toList());
     } catch (e) {
-      debugPrint('Get user devices failed: $e');
       return Left(Failure.unknown(message: e.toString()));
     }
   }
@@ -99,7 +94,6 @@ class DeviceRepositoryImpl implements DeviceRepository {
     } on FirebaseFunctionsException catch (e) {
       return Left(_mapFunctionsError(e));
     } catch (e) {
-      debugPrint('Device revocation failed: $e');
       return Left(Failure.unknown(message: e.toString()));
     }
   }
@@ -122,7 +116,6 @@ class DeviceRepositoryImpl implements DeviceRepository {
     } on FirebaseFunctionsException catch (e) {
       return Left(_mapFunctionsError(e));
     } catch (e) {
-      debugPrint('FCM token update failed: $e');
       return Left(Failure.unknown(message: e.toString()));
     }
   }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/enums/community_status.dart';
@@ -167,10 +166,7 @@ abstract class CommunityModel with _$CommunityModel {
         id: id,
         type: CommunityType.values.firstWhere(
           (e) => e.name == type,
-          orElse: () {
-            debugPrint('WARNING: Unknown community type "$type", defaulting to regular');
-            return CommunityType.regular;
-          },
+          orElse: () => CommunityType.regular,
         ),
         name: name,
         description: description,
@@ -182,10 +178,7 @@ abstract class CommunityModel with _$CommunityModel {
         totalBalance: totalBalance,
         status: CommunityStatus.values.firstWhere(
           (e) => e.name == status,
-          orElse: () {
-            debugPrint('WARNING: Unknown community status "$status", defaulting to active');
-            return CommunityStatus.active;
-          },
+          orElse: () => CommunityStatus.active,
         ),
         settings: settings.toEntity(),
         stokvelSettings: stokvelSettings?.toEntity(),

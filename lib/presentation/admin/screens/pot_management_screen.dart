@@ -96,8 +96,7 @@ class _PotManagementScreenState extends State<PotManagementScreen> {
             ? {...weeklyQuery.docs.first.data(), '__docId__': weeklyQuery.docs.first.id}
             : null;
       });
-    } catch (e) {
-      debugPrint('PotManagement: Failed to load active pots: $e');
+    } catch (_) {
     }
   }
 

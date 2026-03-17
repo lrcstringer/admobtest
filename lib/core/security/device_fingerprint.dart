@@ -10,7 +10,6 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 
 class DeviceFingerprint {
   // Core identifiers
@@ -79,7 +78,6 @@ class DeviceFingerprint {
         isEmulator = !info.isPhysicalDevice;
       }
     } catch (e) {
-      debugPrint('Failed to get device info: $e');
     }
 
     // Screen signals (no extra package needed)
@@ -94,7 +92,6 @@ class DeviceFingerprint {
         screenDensity = display.devicePixelRatio;
       }
     } catch (e) {
-      debugPrint('Failed to get screen info: $e');
     }
 
     // Timezone signals
@@ -111,7 +108,6 @@ class DeviceFingerprint {
           .map((r) => r.name)
           .join(',');
     } catch (e) {
-      debugPrint('Failed to get connectivity: $e');
     }
 
     // Battery signals
@@ -123,7 +119,6 @@ class DeviceFingerprint {
       final state = await battery.batteryState;
       batteryState = state.name;
     } catch (e) {
-      debugPrint('Failed to get battery info: $e');
     }
 
     return DeviceFingerprint(

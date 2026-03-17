@@ -61,7 +61,6 @@ class DeviceBindingService {
 
       return keyResult.fold(
         (failure) {
-          debugPrint('Device binding: keypair generation failed: $failure');
           return Left(failure);
         },
         (keyGenResult) async {
@@ -70,7 +69,6 @@ class DeviceBindingService {
           final fcmToken = await _getFcmToken();
 
           if (fcmToken == null) {
-            debugPrint('Device binding: FCM token unavailable');
             return const Left(
                 Failure.unknown(message: 'FCM token unavailable'));
           }
@@ -90,15 +88,11 @@ class DeviceBindingService {
 
           return result.fold(
             (failure) {
-              debugPrint(
-                  'Device binding: server registration failed: $failure');
               return Left(failure);
             },
             (device) async {
               // Step 4: Cache locally
               await _cacheDeviceBinding(device.deviceId, userId);
-              debugPrint(
-                  'Device binding: success, deviceId=${device.deviceId}');
               _auditLogger.logAuthEvent(
                 userId: userId,
                 action: AuthAction.deviceBound,
@@ -112,7 +106,6 @@ class DeviceBindingService {
                 return _mediaRecoveryService
                     .ensureBlobStored(device.deviceId);
               }).catchError((e) {
-                debugPrint('Media recovery init/blob store failed: $e');
               });
               return Right(device);
             },
@@ -120,7 +113,6 @@ class DeviceBindingService {
         },
       );
     } catch (e) {
-      debugPrint('Device binding: unexpected error: $e');
       _auditLogger.logAuthEvent(
         userId: userId,
         action: AuthAction.deviceBindingFailed,
@@ -140,7 +132,6 @@ class DeviceBindingService {
         return true;
       }
     } catch (e) {
-      debugPrint('Device trust local check failed: $e');
     }
 
     // Slow path: check server
@@ -164,7 +155,6 @@ class DeviceBindingService {
     try {
       return await _secureStorage.read(key: _deviceIdKey);
     } catch (e) {
-      debugPrint('Failed to read cached device ID: $e');
       return null;
     }
   }
@@ -177,7 +167,6 @@ class DeviceBindingService {
     try {
       return await _secureStorage.read(key: _userIdKey);
     } catch (e) {
-      debugPrint('Failed to read cached user ID: $e');
       return null;
     }
   }
@@ -197,7 +186,6 @@ class DeviceBindingService {
       await _secureStorage.delete(key: _deviceTrustedKey);
       await _secureStorage.delete(key: _userIdKey);
     } catch (e) {
-      debugPrint('Failed to clear device binding: $e');
     }
   }
 
@@ -208,7 +196,6 @@ class DeviceBindingService {
       final alias = KeystoreService.keyAlias(userId);
       await _keystoreService.deleteKey(alias);
     } catch (e) {
-      debugPrint('Failed to delete keypair for $userId: $e');
     }
   }
 
@@ -218,7 +205,6 @@ class DeviceBindingService {
       await _secureStorage.write(key: _deviceTrustedKey, value: 'true');
       await _secureStorage.write(key: _userIdKey, value: userId);
     } catch (e) {
-      debugPrint('Failed to cache device binding: $e');
     }
   }
 
@@ -226,7 +212,6 @@ class DeviceBindingService {
     try {
       return await _firebaseMessaging.getToken();
     } catch (e) {
-      debugPrint('Failed to get FCM token: $e');
       return null;
     }
   }
@@ -251,7 +236,6 @@ class DeviceBindingService {
         };
       }
     } catch (e) {
-      debugPrint('Failed to collect device metadata: $e');
     }
 
     return {

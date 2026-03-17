@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/datasources/local/app_database.dart';
@@ -65,7 +64,6 @@ class OfflineActionQueue {
         await _executeAction(table, recordId, changeType, data);
         return;
       } catch (e) {
-        debugPrint('OfflineActionQueue: Immediate execution failed, queuing: $e');
       }
     }
 
@@ -87,8 +85,6 @@ class OfflineActionQueue {
       final pending = await _appDatabase.getPendingChanges();
       if (pending.isEmpty) return;
 
-      debugPrint('OfflineActionQueue: Processing ${pending.length} pending actions');
-
       for (final change in pending) {
         try {
           final data = jsonDecode(change.changeData) as Map<String, dynamic>;
@@ -100,8 +96,6 @@ class OfflineActionQueue {
           );
           await _appDatabase.markChangeAsSynced(change.id);
         } catch (e) {
-          debugPrint('OfflineActionQueue: Failed to process action '
-              '${change.changeType} for ${change.recordId}: $e');
           // Leave unsynced for next retry
         }
       }
@@ -218,7 +212,6 @@ class OfflineActionQueue {
         break;
 
       default:
-        debugPrint('OfflineActionQueue: Unknown action type: $changeType');
     }
   }
 }

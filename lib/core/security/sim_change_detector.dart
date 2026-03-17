@@ -63,7 +63,6 @@ class SimChangeDetector {
 
       return simInfoResult.fold(
         (failure) {
-          debugPrint('SIM check: failed to read SIM info: $failure');
           return SimCheckResult.unavailable;
         },
         (simInfo) async {
@@ -90,7 +89,6 @@ class SimChangeDetector {
           if (currentHash != storedHash) {
             // SIM changed — update stored hash
             await _storeHash(currentHash);
-            debugPrint('SIM change detected: operator info changed');
             _onSimChanged();
             return SimCheckResult.changed;
           }
@@ -99,7 +97,6 @@ class SimChangeDetector {
         },
       );
     } catch (e) {
-      debugPrint('SIM check error: $e');
       return SimCheckResult.unavailable;
     }
   }
@@ -109,7 +106,6 @@ class SimChangeDetector {
     try {
       await _secureStorage.delete(key: _simHashKey);
     } catch (e) {
-      debugPrint('Failed to clear SIM hash: $e');
     }
   }
 
@@ -122,7 +118,6 @@ class SimChangeDetector {
     try {
       return await _secureStorage.read(key: _simHashKey);
     } catch (e) {
-      debugPrint('Failed to read stored SIM hash: $e');
       return null;
     }
   }
@@ -131,7 +126,6 @@ class SimChangeDetector {
     try {
       await _secureStorage.write(key: _simHashKey, value: hash);
     } catch (e) {
-      debugPrint('Failed to store SIM hash: $e');
     }
   }
 
@@ -160,7 +154,6 @@ class SimChangeDetector {
         'details': 'SIM card change detected on device',
       });
     } catch (e) {
-      debugPrint('Failed to create SIM change risk event: $e');
     }
   }
 }

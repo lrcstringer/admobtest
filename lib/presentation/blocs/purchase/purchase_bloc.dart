@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -378,12 +376,7 @@ class PurchaseBloc extends Bloc<PurchaseEvent, PurchaseState> {
     );
 
     result.fold(
-      (failure) {
-        developer.log(
-          'Failed to load recent recipients: ${failure.displayMessage}',
-          name: 'PurchaseBloc',
-        );
-      },
+      (_) {},
       (recipients) => emit(state.copyWith(recentRecipients: recipients)),
     );
   }

@@ -96,7 +96,6 @@ class WebRtcService {
       }
     } catch (e) {
       // Audio config failure is non-fatal — call proceeds with default routing
-      debugPrint('WebRtcService: audio config timeout/error (non-fatal): $e');
     }
 
     // Create peer connection with ICE candidate pooling for faster setup.
@@ -157,7 +156,6 @@ class WebRtcService {
 
     // Acquire local media
     try {
-      debugPrint('WebRtcService: getUserMedia isVideo=$isVideo');
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': {
           'echoCancellation': true,
@@ -173,10 +171,7 @@ class WebRtcService {
               }
             : false,
       });
-      debugPrint('WebRtcService: getUserMedia success — '
-          'tracks: ${_localStream!.getTracks().length}');
     } catch (e) {
-      debugPrint('WebRtcService: getUserMedia FAILED: $e');
       await dispose();
       rethrow; // Permission denied or hardware failure
     }
@@ -306,7 +301,6 @@ class WebRtcService {
         _isVideoEnabled = true;
         _localStreamController.add(_localStream);
       } catch (e) {
-        debugPrint('WebRtcService: toggleVideo re-acquire failed: $e');
         // Camera permission denied or hardware error — stay off
       }
     }

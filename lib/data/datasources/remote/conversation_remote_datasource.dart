@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -327,29 +325,17 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
               })
           .toList();
 
-      final result = await _functions
+      await _functions
           .httpsCallable('healConversationAvatars')
           .call({'patches': patches});
-
-      final healed = result.data['healed'] as int? ?? 0;
 
       // Mark all as healed so we don't retry this session
       for (final stale in staleEntries) {
         _healedConversationIds.add(stale.key);
       }
 
-      if (healed > 0) {
-        developer.log(
-          'Healed $healed conversation avatar(s) via Cloud Function',
-          name: 'ConversationDS',
-        );
-      }
-    } catch (e) {
-      // Self-healing is best-effort; log but don't crash
-      developer.log(
-        'Avatar self-healing failed: $e',
-        name: 'ConversationDS',
-      );
+    } catch (_) {
+      // Self-healing is best-effort; don't crash
     }
   }
 
@@ -446,11 +432,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       for (final doc in snapshot.docs) {
         try {
           messages.add(MessageModel.fromFirestore(doc));
-        } catch (e) {
-          developer.log(
-            'Skipping malformed message ${doc.id}: $e',
-            name: 'ConversationDS',
-          );
+        } catch (_) {
+          // Skip malformed messages
         }
       }
       return messages;
@@ -479,12 +462,8 @@ class ConversationRemoteDataSourceImpl implements ConversationRemoteDataSource {
       for (final doc in snapshot.docs) {
         try {
           messages.add(MessageModel.fromFirestore(doc));
-        } catch (e) {
+        } catch (_) {
           // Skip individual malformed messages instead of failing the batch
-          developer.log(
-            'Skipping malformed message ${doc.id}: $e',
-            name: 'ConversationDS',
-          );
         }
       }
       return messages;

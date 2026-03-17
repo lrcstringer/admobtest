@@ -4,7 +4,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 
@@ -36,27 +35,14 @@ class UploadService {
         '-c:a aac -b:a 128k -movflags +faststart '
         '-y "$outputPath"';
 
-    debugPrint('UploadService: Compressing video → $outputPath');
-
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
 
     if (!ReturnCode.isSuccess(returnCode)) {
-      final logs = await session.getAllLogsAsString();
-      debugPrint('UploadService: Compression failed: $logs');
       throw Exception('Video compression failed (code: $returnCode)');
     }
 
-    final compressed = File(outputPath);
-    final originalSize = await input.length();
-    final compressedSize = await compressed.length();
-    debugPrint(
-      'UploadService: Compressed ${formatBytes(originalSize)} → '
-      '${formatBytes(compressedSize)} '
-      '(${(100 - compressedSize * 100 / originalSize).toStringAsFixed(0)}% reduction)',
-    );
-
-    return compressed;
+    return File(outputPath);
   }
 
   // ── Firebase Storage Upload ──
@@ -136,8 +122,8 @@ class UploadService {
     if (file != null && await file.exists()) {
       try {
         await file.delete();
-      } catch (e) {
-        debugPrint('UploadService: Failed to delete temp file: $e');
+      } catch (_) {
+        // Best-effort cleanup
       }
     }
   }

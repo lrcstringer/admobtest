@@ -88,7 +88,6 @@ class PinManager {
       final hash = await _secureStorage.read(key: _pinHashKey);
       return hash != null && hash.isNotEmpty;
     } catch (e) {
-      debugPrint('Failed to check PIN status: $e');
       return false;
     }
   }
@@ -117,7 +116,6 @@ class PinManager {
       await _secureStorage.delete(key: _pinSaltKey);
       await _resetFailedAttempts();
     } catch (e) {
-      debugPrint('Failed to clear PIN: $e');
     }
   }
 
