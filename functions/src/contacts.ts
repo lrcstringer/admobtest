@@ -138,7 +138,7 @@ export const sendContactRequest = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "sendContactRequest");
+    await requireAppCheck(request, "sendContactRequest");
 
     const { contactUserId, source } = request.data;
     const isPhoneImport = source === "phone_import";
@@ -352,7 +352,7 @@ export const acceptContactRequest = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "acceptContactRequest");
+    await requireAppCheck(request, "acceptContactRequest");
 
     const { contactId } = request.data;
 
@@ -426,7 +426,7 @@ export const declineContactRequest = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "declineContactRequest");
+    await requireAppCheck(request, "declineContactRequest");
 
     const { contactId } = request.data;
 
@@ -482,7 +482,7 @@ export const removeContact = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "removeContact");
+    await requireAppCheck(request, "removeContact");
 
     const { contactId } = request.data;
 
@@ -521,7 +521,7 @@ export const matchPhoneContacts = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "matchPhoneContacts");
+    await requireAppCheck(request, "matchPhoneContacts");
 
     const { phoneNumbers } = request.data;
 
@@ -620,7 +620,7 @@ export const getPeopleYouMayKnow = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "getPeopleYouMayKnow");
+    await requireAppCheck(request, "getPeopleYouMayKnow");
 
     const userDoc = await db.collection("users").doc(userId).get();
     const userData = userDoc.data()!;
@@ -793,7 +793,7 @@ export const recordPendingInvite = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "recordPendingInvite");
+    await requireAppCheck(request, "recordPendingInvite");
 
     const { phoneNumber, referralCode } = request.data;
 

@@ -172,7 +172,7 @@ export const createTokenPool = onCall(
   { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "createTokenPool");
+    await requireAppCheck(request, "createTokenPool");
 
     const { mode, title, purpose, message, style, recipientId, inviteeIds, communityId } = request.data;
 
@@ -446,7 +446,7 @@ export const contributeToPool = onCall(
   { labels: { area: "pools" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "contributeToPool");
+    await requireAppCheck(request, "contributeToPool");
     requirePlayIntegrity(request.data, request, "contributeToPool", "HIGHEST")
       .catch((e) => logger.warn("[contributeToPool] Play integrity check error:", e));
 
@@ -609,7 +609,7 @@ export const sendGroupGift = onCall(
   { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "sendGroupGift");
+    await requireAppCheck(request, "sendGroupGift");
     requirePlayIntegrity(request.data, request, "sendGroupGift", "HIGHEST")
       .catch((e) => logger.warn("[sendGroupGift] Play integrity check error:", e));
 
@@ -899,7 +899,7 @@ export const openGroupGift = onCall(
   { labels: { area: "pools" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "openGroupGift");
+    await requireAppCheck(request, "openGroupGift");
 
     const { poolId } = request.data;
 
@@ -955,7 +955,7 @@ export const claimGroupGift = onCall(
   { labels: { area: "pools" }, minInstances: 0 },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "claimGroupGift");
+    await requireAppCheck(request, "claimGroupGift");
     requirePlayIntegrity(request.data, request, "claimGroupGift", "HIGHEST")
       .catch((e) => logger.warn("[claimGroupGift] Play integrity check error:", e));
 
@@ -1079,7 +1079,7 @@ export const distributePool = onCall(
   { labels: { area: "pools" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "distributePool");
+    await requireAppCheck(request, "distributePool");
     requirePlayIntegrity(request.data, request, "distributePool", "HIGHEST")
       .catch((e) => logger.warn("[distributePool] Play integrity check error:", e));
 
@@ -1300,7 +1300,7 @@ export const requestPoolWithdrawal = onCall(
   { labels: { area: "pools" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "requestPoolWithdrawal");
+    await requireAppCheck(request, "requestPoolWithdrawal");
     requirePlayIntegrity(request.data, request, "requestPoolWithdrawal", "HIGHEST")
       .catch((e) => logger.warn("[requestPoolWithdrawal] Play integrity check error:", e));
 
@@ -1474,7 +1474,7 @@ export const cancelPool = onCall(
   { labels: { area: "pools" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "cancelPool");
+    await requireAppCheck(request, "cancelPool");
     requirePlayIntegrity(request.data, request, "cancelPool", "HIGHEST")
       .catch((e) => logger.warn("[cancelPool] Play integrity check error:", e));
 

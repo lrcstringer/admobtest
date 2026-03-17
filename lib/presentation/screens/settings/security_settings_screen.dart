@@ -232,6 +232,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'Enter PIN',
@@ -245,6 +247,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'Confirm PIN',
@@ -326,6 +330,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'Current PIN',
@@ -339,6 +345,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'New PIN',
@@ -352,6 +360,8 @@ class _SecuritySettingsScreenState extends State<SecuritySettingsScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: const InputDecoration(
                   labelText: 'Confirm New PIN',

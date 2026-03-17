@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMaliChat — Dark vs Light Theme Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ---- Controls ---- */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #111;
+    border-bottom: 1px solid #333;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .seg-btn {
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #333;
+  }
+  .seg-btn button {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .seg-btn button.active {
+    background: linear-gradient(135deg, #FF328C, #A011FF);
+    color: #fff;
+  }
+  .seg-btn button:not(:last-child) { border-right: 1px solid #333; }
+
+  /* ---- Phone frames ---- */
+  .phones {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 32px 24px 48px;
+    flex-wrap: wrap;
+  }
+  .phone-col { text-align: center; }
+  .phone-label {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .phone-label.dark-label { color: #8899A6; }
+  .phone-label.light-label { color: #64748B; }
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    border-radius: 40px;
+    overflow: hidden;
+    border: 3px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-screen::-webkit-scrollbar { width: 0; }
+
+  /* ---- Common ---- */
+  .app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 48px 16px 8px;
+    flex-shrink: 0;
+  }
+  .app-bar-left { display: flex; align-items: center; gap: 4px; }
+  .mascot { width: 36px; height: 36px; border-radius: 50%; }
+  .app-bar-title { font-size: 18px; font-weight: 600; }
+  .app-bar-actions { display: flex; align-items: center; gap: 4px; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 20px;
+  }
+  .screen-body { flex: 1; overflow-y: auto; position: relative; }
+  .screen-body::-webkit-scrollbar { width: 0; }
+  .pad { padding: 0 20px; }
+
+  /* streak */
+  .streak-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 20px;
+    background: linear-gradient(135deg, #FFB82C, #FF6429);
+    color: #0C1124; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.8px; white-space: nowrap;
+  }
+  /* gradient btn */
+  .gradient-btn {
+    width: 100%; padding: 11px; border-radius: 8px;
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff; font-weight: 700; font-size: 13px;
+    text-align: center; border: none; cursor: pointer;
+  }
+  /* progress card */
+  .progress-card {
+    padding: 11px 14px; border-radius: 12px;
+    background: linear-gradient(135deg, #FFB82C, #FF6429);
+  }
+  .progress-header {
+    display: flex; justify-content: space-between;
+    color: #0C1124; font-weight: 700; font-size: 13px; margin-bottom: 6px;
+  }
+  .progress-track {
+    height: 4px; border-radius: 2px;
+    background: rgba(12,17,36,0.3); margin-bottom: 5px;
+  }
+  .progress-fill { height: 100%; width: 30%; border-radius: 2px; background: #0C1124; }
+  .progress-label { font-size: 10px; color: rgba(12,17,36,0.8); }
+  /* pot cards */
+  .pots-row { display: flex; gap: 10px; }
+  .pot-card { flex: 1; border-radius: 14px; overflow: hidden; }
+  .pot-bar { height: 4px; }
+  .pot-bar.gold { background: linear-gradient(90deg, #FFB82C, #FF6429); }
+  .pot-bar.pink { background: linear-gradient(90deg, #FF328C, #A011FF); }
+  .pot-body { padding: 10px; }
+  .pot-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .pot-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+  .pot-title { font-size: 10px; font-weight: 500; margin-bottom: 3px; }
+  .pot-amount { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .pot-timer { display: flex; align-items: center; gap: 3px; font-size: 11px; margin-bottom: 6px; }
+  .pot-rank { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+  /* invite */
+  .invite-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px 16px; border-radius: 12px;
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff; font-weight: 700; font-size: 13px;
+    border: none; cursor: pointer;
+  }
+  .how-link { text-align: center; font-size: 13px; font-weight: 600; color: #FF328C; }
+  /* bottom nav */
+  .bottom-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 6px 0 24px; flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px; font-size: 10px; font-weight: 500;
+  }
+  .nav-item .material-icons { font-size: 20px; }
+  .nav-item.active-nav { color: #FF328C; }
+  /* wave overlay */
+  .wave-overlay {
+    position: absolute; top: 0; left: 0; right: 0; height: 280px;
+    background:
+      radial-gradient(ellipse 100% 60% at 30% 5%, rgba(20,41,120,0.7) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 75% 15%, rgba(9,116,255,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 90% 40% at 50% 35%, rgba(20,41,120,0.25) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .screen-content { position: relative; z-index: 2; }
+
+  /* ---- DARK THEME ---- */
+  .dark-phone .phone-screen { background: linear-gradient(180deg, #142978, #0C1124); }
+  .dark-phone .app-bar-title { color: #fff; }
+  .dark-phone .icon-btn { color: #8899A6; }
+  .dark-phone .greeting { color: #8899A6; font-size: 15px; margin-bottom: 3px; }
+  .dark-phone .user-name { color: #fff; font-size: 22px; font-weight: 700; }
+  .dark-phone .balance-card {
+    padding: 12px 18px; border-radius: 14px; margin-top: 10px;
+    background: linear-gradient(135deg, rgba(255,153,0,0.06), rgba(255,50,140,0.03));
+    background-color: #13161D;
+    border: 1px solid #2A2E3D;
+  }
+  .dark-phone .balance-label { color: #8899A6; font-size: 13px; }
+  .dark-phone .balance-value { color: #fff; font-size: 18px; font-weight: 700; }
+  .dark-phone .pot-card { background: #13161D; border: 1px solid #2A2E3D; }
+  .dark-phone .pot-title { color: #8899A6; }
+  .dark-phone .pot-amount { color: #fff; }
+  .dark-phone .pot-timer { color: #8899A6; }
+  .dark-phone .pot-rank { color: #8899A6; }
+  .dark-phone .section-title { color: #fff; font-size: 16px; font-weight: 700; }
+  .dark-phone .bottom-nav {
+    background: #0C1124; border-top: 1px solid #1E2233; color: #8899A6;
+  }
+  .dark-phone .client-card {
+    background: #13161D; border: 1px solid #2A2E3D; border-radius: 14px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .dark-phone .client-name { color: #fff; font-size: 14px; font-weight: 600; }
+  .dark-phone .client-sub { color: #8899A6; font-size: 12px; }
+  .dark-phone .opp-chip {
+    background: rgba(255,50,140,0.08); border: 1px solid rgba(255,50,140,0.3);
+    border-radius: 8px; padding: 8px 10px; margin-top: 8px;
+  }
+  .dark-phone .opp-title { color: #fff; font-size: 12px; font-weight: 500; }
+  .dark-phone .opp-sub { color: #8899A6; font-size: 11px; }
+  .dark-phone .wallet-card {
+    background: #13161D; border: 1px solid #2A2E3D; border-radius: 14px;
+    padding: 14px; margin-bottom: 10px;
+  }
+  .dark-phone .wallet-name { color: #fff; font-size: 14px; font-weight: 600; }
+  .dark-phone .wallet-balance { color: #fff; font-size: 20px; font-weight: 700; }
+  .dark-phone .wallet-sub { color: #8899A6; font-size: 12px; }
+  .dark-phone .portfolio-card {
+    padding: 14px 18px; border-radius: 14px;
+    background: linear-gradient(135deg, #FF9900, #FF328C);
+  }
+  .dark-phone .action-row { display: flex; gap: 10px; }
+  .dark-phone .action-btn {
+    flex: 1; padding: 10px; border-radius: 10px; text-align: center;
+    background: linear-gradient(135deg, #FF9900, #FF328C);
+    color: #fff; font-weight: 600; font-size: 13px;
+  }
+
+  /* ---- LIGHT THEME ---- */
+  .light-phone .phone-screen { background: #F5F7FA; }
+  .light-phone .app-bar { background: #fff; border-bottom: 1px solid #EAECF0; }
+  .light-phone .app-bar-title { color: #1A1A2E; }
+  .light-phone .icon-btn { color: #64748B; }
+  .light-phone .greeting { color: #64748B; font-size: 15px; margin-bottom: 3px; }
+  .light-phone .user-name { color: #1A1A2E; font-size: 22px; font-weight: 700; }
+  .light-phone .balance-card {
+    padding: 12px 18px; border-radius: 14px; margin-top: 10px;
+    background: #fff; border: 1px solid #E8ECF1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .light-phone .balance-label { color: #64748B; font-size: 13px; }
+  .light-phone .balance-value { color: #1A1A2E; font-size: 18px; font-weight: 700; }
+  .light-phone .pot-card {
+    background: #fff; border: 1px solid #E8ECF1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .light-phone .pot-title { color: #64748B; }
+  .light-phone .pot-amount { color: #1A1A2E; }
+  .light-phone .pot-timer { color: #64748B; }
+  .light-phone .pot-rank { color: #64748B; }
+  .light-phone .section-title { color: #1A1A2E; font-size: 16px; font-weight: 700; }
+  .light-phone .invite-btn { box-shadow: 0 4px 12px rgba(255,50,140,0.25); }
+  .light-phone .progress-card { box-shadow: 0 3px 8px rgba(255,184,44,0.25); }
+  .light-phone .gradient-btn { box-shadow: 0 3px 8px rgba(255,50,140,0.2); }
+  .light-phone .bottom-nav {
+    background: #fff; border-top: 1px solid #EAECF0; color: #94A3B8;
+  }
+  .light-phone .client-card {
+    background: #fff; border: 1px solid #E8ECF1; border-radius: 14px;
+    padding: 12px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .light-phone .client-name { color: #1A1A2E; font-size: 14px; font-weight: 600; }
+  .light-phone .client-sub { color: #64748B; font-size: 12px; }
+  .light-phone .opp-chip {
+    background: rgba(255,50,140,0.05); border: 1px solid rgba(255,50,140,0.15);
+    border-radius: 8px; padding: 8px 10px; margin-top: 8px;
+  }
+  .light-phone .opp-title { color: #1A1A2E; font-size: 12px; font-weight: 500; }
+  .light-phone .opp-sub { color: #64748B; font-size: 11px; }
+  .light-phone .wallet-card {
+    background: #fff; border: 1px solid #E8ECF1; border-radius: 14px;
+    padding: 14px; margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .light-phone .wallet-name { color: #1A1A2E; font-size: 14px; font-weight: 600; }
+  .light-phone .wallet-balance { color: #1A1A2E; font-size: 20px; font-weight: 700; }
+  .light-phone .wallet-sub { color: #64748B; font-size: 12px; }
+  .light-phone .portfolio-card {
+    padding: 14px 18px; border-radius: 14px;
+    background: linear-gradient(135deg, #FF9900, #FF328C);
+    box-shadow: 0 4px 12px rgba(255,153,0,0.25);
+  }
+  .light-phone .action-row { display: flex; gap: 10px; }
+  .light-phone .action-btn {
+    flex: 1; padding: 10px; border-radius: 10px; text-align: center;
+    background: linear-gradient(135deg, #FF9900, #FF328C);
+    color: #fff; font-weight: 600; font-size: 13px;
+    box-shadow: 0 3px 8px rgba(255,153,0,0.2);
+  }
+
+  /* ---- Tab screens ---- */
+  .tab-screen { display: none; }
+  .tab-screen.active { display: flex; flex-direction: column; height: 100%; }
+
+  .sp8 { height: 8px; }
+  .sp10 { height: 10px; }
+  .sp12 { height: 12px; }
+  .sp16 { height: 16px; }
+  .sp20 { height: 20px; }
+  .sp24 { height: 24px; }
+
+  .row { display: flex; align-items: center; }
+  .row-between { display: flex; align-items: center; justify-content: space-between; }
+  .flex-1 { flex: 1; }
+  .gap-6 { gap: 6px; }
+  .gap-8 { gap: 8px; }
+  .mb-24 { margin-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="control-group">
+    <span class="control-label">Tab</span>
+    <div class="seg-btn" id="tab-switcher">
+      <button class="active" onclick="switchTab('home')">Home</button>
+      <button onclick="switchTab('earn')">Earn</button>
+      <button onclick="switchTab('wallet')">Wallet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Side by side phones -->
+<div class="phones">
+
+  <!-- ======== DARK PHONE ======== -->
+  <div class="phone-col">
+    <div class="phone-label dark-label">Dark Mode</div>
+    <div class="phone-frame dark-phone">
+      <div class="phone-screen">
+
+        <!-- HOME TAB (DARK) -->
+        <div class="tab-screen active" data-tab="home">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Home</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">info_outline</span></button>
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="wave-overlay"></div>
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <div class="greeting">Good Morning,</div>
+              <div class="row-between">
+                <div class="user-name">Thabo</div>
+                <div class="streak-badge">
+                  <span class="material-icons" style="font-size:16px">local_fire_department</span>
+                  STREAK: 5 DAYS
+                </div>
+              </div>
+              <div class="balance-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">account_balance_wallet</span>
+                  <span class="balance-label">Tokens Balance:</span>
+                  <span class="balance-value">1,250</span>
+                </div>
+                <button class="gradient-btn">Earn Now</button>
+              </div>
+              <div class="sp12"></div>
+              <div class="progress-card">
+                <div class="progress-header"><span>Today's Progress</span><span>3 / 10</span></div>
+                <div class="progress-track"><div class="progress-fill"></div></div>
+                <div class="progress-label">30% of daily earn limit</div>
+              </div>
+              <div class="sp20"></div>
+              <div class="pots-row">
+                <div class="pot-card">
+                  <div class="pot-bar gold"></div>
+                  <div class="pot-body">
+                    <div class="pot-label-row">
+                      <span class="pot-label" style="color:#FFB82C">DAILY</span>
+                      <span class="material-icons" style="color:#FFB82C;font-size:16px">emoji_events</span>
+                    </div>
+                    <div class="pot-title">TODAY'S POT</div>
+                    <div class="pot-amount">R 45.20</div>
+                    <div class="pot-timer"><span class="material-icons" style="font-size:13px">timer</span>about 6 hours</div>
+                    <div class="pot-rank"><span>Your Rank: #12</span><span class="material-icons" style="font-size:16px">chevron_right</span></div>
+                  </div>
+                </div>
+                <div class="pot-card">
+                  <div class="pot-bar pink"></div>
+                  <div class="pot-body">
+                    <div class="pot-label-row">
+                      <span class="pot-label" style="color:#FF328C">WEEKLY</span>
+                      <span class="material-icons" style="color:#FF328C;font-size:16px">emoji_events</span>
+                    </div>
+                    <div class="pot-title">THIS WEEK'S POT</div>
+                    <div class="pot-amount">R 312.50</div>
+                    <div class="pot-timer"><span class="material-icons" style="font-size:13px">timer</span>3 days</div>
+                    <div class="pot-rank"><span>Your Rank: #8</span><span class="material-icons" style="font-size:16px">chevron_right</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <button class="invite-btn">
+                <span class="material-icons" style="font-size:18px">person_add</span>
+                Invite Friends & Earn
+              </button>
+              <div class="sp12"></div>
+              <div class="how-link">How iMaliChat works</div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active-nav"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+        <!-- EARN TAB (DARK) -->
+        <div class="tab-screen" data-tab="earn">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Earn</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">history</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="wave-overlay"></div>
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <!-- Client 1 -->
+              <div class="client-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#FF328C;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#fff;font-weight:700;font-size:14px">V</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">Vodacom</div>
+                    <div class="client-sub">3 opportunities available</div>
+                  </div>
+                  <span class="material-icons" style="color:#8899A6;font-size:18px">chevron_right</span>
+                </div>
+                <div class="opp-chip">
+                  <div class="row-between">
+                    <div>
+                      <div class="opp-title">Watch a quick video ad</div>
+                      <div class="opp-sub">+15 tokens · Expires in 2h</div>
+                    </div>
+                    <span class="material-icons" style="color:#FF328C;font-size:16px">play_circle</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Client 2 -->
+              <div class="client-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#08C2F4;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#fff;font-weight:700;font-size:14px">S</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">Shoprite</div>
+                    <div class="client-sub">2 opportunities available</div>
+                  </div>
+                  <span class="material-icons" style="color:#8899A6;font-size:18px">chevron_right</span>
+                </div>
+                <div class="opp-chip">
+                  <div class="row-between">
+                    <div>
+                      <div class="opp-title">Complete a short survey</div>
+                      <div class="opp-sub">+25 tokens · Expires in 1d</div>
+                    </div>
+                    <span class="material-icons" style="color:#0974FF;font-size:16px">assignment</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Client 3 -->
+              <div class="client-card">
+                <div class="row gap-8">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#FFB82C;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#0C1124;font-weight:700;font-size:14px">M</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">MTN</div>
+                    <div class="client-sub">1 opportunity available</div>
+                  </div>
+                  <span class="material-icons" style="color:#8899A6;font-size:18px">chevron_right</span>
+                </div>
+              </div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item active-nav"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+        <!-- WALLET TAB (DARK) -->
+        <div class="tab-screen" data-tab="wallet">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Wallet</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">info_outline</span></button>
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="wave-overlay"></div>
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <!-- Portfolio card -->
+              <div class="portfolio-card">
+                <div class="row-between">
+                  <div>
+                    <div style="color:#fff;font-size:14px;font-weight:600">Portfolio Balance</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:3px">2 wallets · 1 reward</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#fff;font-size:22px;font-weight:800">1,250</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:11px">≈ R 12.50</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp12"></div>
+              <!-- Action + streak row -->
+              <div class="action-row">
+                <div class="action-btn">
+                  <span class="material-icons" style="font-size:16px;vertical-align:middle">send</span>
+                  Send
+                </div>
+                <div class="action-btn">
+                  <span class="material-icons" style="font-size:16px;vertical-align:middle">call_received</span>
+                  Request
+                </div>
+                <div class="streak-badge" style="flex:1;justify-content:center;padding:10px">
+                  <span class="material-icons" style="font-size:16px">local_fire_department</span>
+                  5 DAYS
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <div class="row-between" style="margin-bottom:10px">
+                <div class="section-title">My Wallets</div>
+                <span class="material-icons" style="color:#8899A6;font-size:22px">add_circle_outline</span>
+              </div>
+              <!-- Main wallet -->
+              <div class="wallet-card">
+                <div class="row-between">
+                  <div>
+                    <div class="wallet-name">Main Wallet</div>
+                    <div class="wallet-sub">Default · Active</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="wallet-balance">1,100</div>
+                    <div class="wallet-sub">≈ R 11.00</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Savings wallet -->
+              <div class="wallet-card">
+                <div class="row-between">
+                  <div>
+                    <div class="wallet-name">Savings</div>
+                    <div class="wallet-sub">Active</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="wallet-balance">150</div>
+                    <div class="wallet-sub">≈ R 1.50</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <div class="section-title" style="margin-bottom:10px">My Rewards</div>
+              <div class="wallet-card">
+                <div class="row gap-8">
+                  <span class="material-icons" style="color:#FFB82C;font-size:20px">card_giftcard</span>
+                  <div class="flex-1">
+                    <div class="wallet-name">Shoprite Voucher</div>
+                    <div class="wallet-sub">R 25.00 · Expires 30 Mar</div>
+                  </div>
+                  <span class="material-icons" style="color:#8899A6;font-size:18px">chevron_right</span>
+                </div>
+              </div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item active-nav"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== LIGHT PHONE ======== -->
+  <div class="phone-col">
+    <div class="phone-label light-label">Light Mode</div>
+    <div class="phone-frame light-phone">
+      <div class="phone-screen">
+
+        <!-- HOME TAB (LIGHT) -->
+        <div class="tab-screen active" data-tab="home">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Home</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">info_outline</span></button>
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <div class="greeting">Good Morning,</div>
+              <div class="row-between">
+                <div class="user-name">Thabo</div>
+                <div class="streak-badge">
+                  <span class="material-icons" style="font-size:16px">local_fire_department</span>
+                  STREAK: 5 DAYS
+                </div>
+              </div>
+              <div class="balance-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">account_balance_wallet</span>
+                  <span class="balance-label">Tokens Balance:</span>
+                  <span class="balance-value">1,250</span>
+                </div>
+                <button class="gradient-btn">Earn Now</button>
+              </div>
+              <div class="sp12"></div>
+              <div class="progress-card">
+                <div class="progress-header"><span>Today's Progress</span><span>3 / 10</span></div>
+                <div class="progress-track"><div class="progress-fill"></div></div>
+                <div class="progress-label">30% of daily earn limit</div>
+              </div>
+              <div class="sp20"></div>
+              <div class="pots-row">
+                <div class="pot-card">
+                  <div class="pot-bar gold"></div>
+                  <div class="pot-body">
+                    <div class="pot-label-row">
+                      <span class="pot-label" style="color:#FFB82C">DAILY</span>
+                      <span class="material-icons" style="color:#FFB82C;font-size:16px">emoji_events</span>
+                    </div>
+                    <div class="pot-title">TODAY'S POT</div>
+                    <div class="pot-amount">R 45.20</div>
+                    <div class="pot-timer"><span class="material-icons" style="font-size:13px">timer</span>about 6 hours</div>
+                    <div class="pot-rank"><span>Your Rank: #12</span><span class="material-icons" style="font-size:16px">chevron_right</span></div>
+                  </div>
+                </div>
+                <div class="pot-card">
+                  <div class="pot-bar pink"></div>
+                  <div class="pot-body">
+                    <div class="pot-label-row">
+                      <span class="pot-label" style="color:#FF328C">WEEKLY</span>
+                      <span class="material-icons" style="color:#FF328C;font-size:16px">emoji_events</span>
+                    </div>
+                    <div class="pot-title">THIS WEEK'S POT</div>
+                    <div class="pot-amount">R 312.50</div>
+                    <div class="pot-timer"><span class="material-icons" style="font-size:13px">timer</span>3 days</div>
+                    <div class="pot-rank"><span>Your Rank: #8</span><span class="material-icons" style="font-size:16px">chevron_right</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <button class="invite-btn">
+                <span class="material-icons" style="font-size:18px">person_add</span>
+                Invite Friends & Earn
+              </button>
+              <div class="sp12"></div>
+              <div class="how-link">How iMaliChat works</div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active-nav"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+        <!-- EARN TAB (LIGHT) -->
+        <div class="tab-screen" data-tab="earn">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Earn</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">history</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <div class="client-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#FF328C;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#fff;font-weight:700;font-size:14px">V</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">Vodacom</div>
+                    <div class="client-sub">3 opportunities available</div>
+                  </div>
+                  <span class="material-icons" style="color:#94A3B8;font-size:18px">chevron_right</span>
+                </div>
+                <div class="opp-chip">
+                  <div class="row-between">
+                    <div>
+                      <div class="opp-title">Watch a quick video ad</div>
+                      <div class="opp-sub">+15 tokens · Expires in 2h</div>
+                    </div>
+                    <span class="material-icons" style="color:#FF328C;font-size:16px">play_circle</span>
+                  </div>
+                </div>
+              </div>
+              <div class="client-card">
+                <div class="row gap-8" style="margin-bottom:8px">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#08C2F4;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#fff;font-weight:700;font-size:14px">S</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">Shoprite</div>
+                    <div class="client-sub">2 opportunities available</div>
+                  </div>
+                  <span class="material-icons" style="color:#94A3B8;font-size:18px">chevron_right</span>
+                </div>
+                <div class="opp-chip">
+                  <div class="row-between">
+                    <div>
+                      <div class="opp-title">Complete a short survey</div>
+                      <div class="opp-sub">+25 tokens · Expires in 1d</div>
+                    </div>
+                    <span class="material-icons" style="color:#0974FF;font-size:16px">assignment</span>
+                  </div>
+                </div>
+              </div>
+              <div class="client-card">
+                <div class="row gap-8">
+                  <div style="width:36px;height:36px;border-radius:50%;background:#FFB82C;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#0C1124;font-weight:700;font-size:14px">M</span>
+                  </div>
+                  <div class="flex-1">
+                    <div class="client-name">MTN</div>
+                    <div class="client-sub">1 opportunity available</div>
+                  </div>
+                  <span class="material-icons" style="color:#94A3B8;font-size:18px">chevron_right</span>
+                </div>
+              </div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item active-nav"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+        <!-- WALLET TAB (LIGHT) -->
+        <div class="tab-screen" data-tab="wallet">
+          <div class="app-bar">
+            <div class="app-bar-left">
+              <div class="mascot" style="background:linear-gradient(135deg,#FF9900,#FF328C);display:flex;align-items:center;justify-content:center;">
+                <span class="material-icons" style="color:#fff;font-size:20px;">diamond</span>
+              </div>
+            </div>
+            <div class="app-bar-title">Wallet</div>
+            <div class="app-bar-actions">
+              <button class="icon-btn"><span class="material-icons">info_outline</span></button>
+              <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+              <button class="icon-btn"><span class="material-icons">person_outline</span></button>
+            </div>
+          </div>
+          <div class="screen-body">
+            <div class="screen-content pad">
+              <div class="sp12"></div>
+              <div class="portfolio-card">
+                <div class="row-between">
+                  <div>
+                    <div style="color:#fff;font-size:14px;font-weight:600">Portfolio Balance</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:11px;margin-top:3px">2 wallets · 1 reward</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="color:#fff;font-size:22px;font-weight:800">1,250</div>
+                    <div style="color:rgba(255,255,255,0.7);font-size:11px">≈ R 12.50</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp12"></div>
+              <div class="action-row">
+                <div class="action-btn">
+                  <span class="material-icons" style="font-size:16px;vertical-align:middle">send</span>
+                  Send
+                </div>
+                <div class="action-btn">
+                  <span class="material-icons" style="font-size:16px;vertical-align:middle">call_received</span>
+                  Request
+                </div>
+                <div class="streak-badge" style="flex:1;justify-content:center;padding:10px">
+                  <span class="material-icons" style="font-size:16px">local_fire_department</span>
+                  5 DAYS
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <div class="row-between" style="margin-bottom:10px">
+                <div class="section-title">My Wallets</div>
+                <span class="material-icons" style="color:#94A3B8;font-size:22px">add_circle_outline</span>
+              </div>
+              <div class="wallet-card">
+                <div class="row-between">
+                  <div>
+                    <div class="wallet-name">Main Wallet</div>
+                    <div class="wallet-sub">Default · Active</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="wallet-balance">1,100</div>
+                    <div class="wallet-sub">≈ R 11.00</div>
+                  </div>
+                </div>
+              </div>
+              <div class="wallet-card">
+                <div class="row-between">
+                  <div>
+                    <div class="wallet-name">Savings</div>
+                    <div class="wallet-sub">Active</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div class="wallet-balance">150</div>
+                    <div class="wallet-sub">≈ R 1.50</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sp20"></div>
+              <div class="section-title" style="margin-bottom:10px">My Rewards</div>
+              <div class="wallet-card">
+                <div class="row gap-8">
+                  <span class="material-icons" style="color:#FFB82C;font-size:20px">card_giftcard</span>
+                  <div class="flex-1">
+                    <div class="wallet-name">Shoprite Voucher</div>
+                    <div class="wallet-sub">R 25.00 · Expires 30 Mar</div>
+                  </div>
+                  <span class="material-icons" style="color:#94A3B8;font-size:18px">chevron_right</span>
+                </div>
+              </div>
+              <div class="sp24"></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><span class="material-icons">home</span>Home</div>
+            <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+            <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+            <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+            <div class="nav-item active-nav"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  // Update button states
+  document.querySelectorAll('#tab-switcher button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  // Show/hide tab screens in BOTH phones
+  document.querySelectorAll('.tab-screen').forEach(s => {
+    s.classList.toggle('active', s.dataset.tab === tab);
+  });
+}
+</script>
+</body>
+</html>

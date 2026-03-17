@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/reward_item.dart';
 import '../../../domain/enums/reward_enums.dart';
 import '../../blocs/reward/reward_bloc.dart';
@@ -325,7 +325,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
             AppSpacing.verticalMd,
             TextButton.icon(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: item.codeValue!));
+                SecureClipboard.copy(item.codeValue!);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Code copied to clipboard'),
@@ -404,7 +404,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: url));
+                    SecureClipboard.copy(url);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('URL copied to clipboard'),
@@ -458,7 +458,7 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
             AppSpacing.verticalMd,
             TextButton.icon(
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: accessCode));
+                SecureClipboard.copy(accessCode);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Access code copied to clipboard'),

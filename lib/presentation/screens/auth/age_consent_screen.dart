@@ -79,7 +79,7 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -108,7 +108,7 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                       'Are you 18 or over?',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -127,7 +127,7 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                                   .textTheme
                                   .bodyLarge
                                   ?.copyWith(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                             ),
                           ),
@@ -139,8 +139,8 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                             },
                             activeThumbColor: Colors.white,
                             activeTrackColor: AppColors.switchActive,
-                            inactiveThumbColor: AppColors.switchInactive,
-                            inactiveTrackColor: AppColors.switchTrackInactive,
+                            inactiveThumbColor: Colors.white,
+                            inactiveTrackColor: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ],
                       ),
@@ -158,7 +158,7 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 height: 1.5,
                               ),
                           children: [
@@ -167,11 +167,11 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                             ),
                             TextSpan(
                               text: 'Terms of Service',
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.w600,
                                 decoration: TextDecoration.underline,
-                                decorationColor: AppColors.textPrimary,
+                                decorationColor: Theme.of(context).colorScheme.onSurface,
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
@@ -181,11 +181,11 @@ class _AgeConsentScreenState extends State<AgeConsentScreen> {
                             const TextSpan(text: ' and '),
                             TextSpan(
                               text: 'Privacy Policy',
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.w600,
                                 decoration: TextDecoration.underline,
-                                decorationColor: AppColors.textPrimary,
+                                decorationColor: Theme.of(context).colorScheme.onSurface,
                               ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {

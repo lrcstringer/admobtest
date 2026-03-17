@@ -28,7 +28,7 @@ export const requestBiometricChallenge = onCall(
   { labels: { area: "auth" } },
   async (request) => {
     const data = request.data;
-    requireAppCheck(request, "requestBiometricChallenge");
+    await requireAppCheck(request, "requestBiometricChallenge");
 
     const { deviceId } = data;
 
@@ -116,7 +116,7 @@ export const verifyBiometricChallenge = onCall(
   { labels: { area: "auth" } },
   async (request) => {
     const data = request.data;
-    requireAppCheck(request, "verifyBiometricChallenge");
+    await requireAppCheck(request, "verifyBiometricChallenge");
 
     const { challengeId, signedNonce, deviceId } = data;
 

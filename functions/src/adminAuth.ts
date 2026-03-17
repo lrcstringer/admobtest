@@ -595,7 +595,7 @@ export async function requireAdminPermission(
 
 /** List all admin users from the adminUsers collection. */
 export const adminListAdmins = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListAdmins");
+  await requireAppCheck(request, "adminListAdmins");
   await requireAdminPermission(request, "admin:listAdmins", "adminListAdmins");
 
   const { pageSize = 100, startAfterId } = request.data || {};
@@ -628,7 +628,7 @@ export const adminListAdmins = onCall({ labels: { area: "admin" } }, async (requ
 
 /** Set or change an admin user's roles. SuperAdmin only. */
 export const adminSetRole = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminSetRole");
+  await requireAppCheck(request, "adminSetRole");
   const adminCtx = await requireAdminPermission(
     request,
     "admin:updateRole",
@@ -732,7 +732,7 @@ export const adminSetRole = onCall({ labels: { area: "admin" } }, async (request
 
 /** Create a new admin user by email. Creates Firebase Auth user if needed. */
 export const adminCreateAdmin = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminCreateAdmin");
+  await requireAppCheck(request, "adminCreateAdmin");
   const adminCtx = await requireAdminPermission(
     request,
     "admin:createAdmin",
@@ -854,7 +854,7 @@ export const adminCreateAdmin = onCall({ labels: { area: "admin" } }, async (req
 
 /** Remove admin access from a user entirely. */
 export const adminRevokeRole = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminRevokeRole");
+  await requireAppCheck(request, "adminRevokeRole");
   const adminCtx = await requireAdminPermission(
     request,
     "admin:updateRole",
@@ -900,7 +900,7 @@ export const adminRevokeRole = onCall({ labels: { area: "admin" } }, async (requ
 
 /** Force sign out a specific admin by revoking their refresh tokens. */
 export const adminForceSignOut = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminForceSignOut");
+  await requireAppCheck(request, "adminForceSignOut");
   const adminCtx = await requireAdminPermission(
     request,
     "admin:revokeSession",
@@ -930,7 +930,7 @@ export const adminForceSignOut = onCall({ labels: { area: "admin" } }, async (re
 
 /** Query the admin audit log with pagination and filters. */
 export const adminGetAuditLogs = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminGetAuditLogs");
+  await requireAppCheck(request, "adminGetAuditLogs");
   await requireAdminPermission(
     request,
     "audit:viewLogs",
@@ -983,7 +983,7 @@ export const adminGetAuditLogs = onCall({ labels: { area: "admin" } }, async (re
 
 /** List pending actions awaiting approval. */
 export const adminListPendingActions = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListPendingActions");
+  await requireAppCheck(request, "adminListPendingActions");
   await requireAdminPermission(
     request,
     "pending:list",
@@ -1024,7 +1024,7 @@ export const adminListPendingActions = onCall({ labels: { area: "admin" } }, asy
 
 /** Approve a pending action. Checker must be different from maker. */
 export const adminApproveAction = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminApproveAction");
+  await requireAppCheck(request, "adminApproveAction");
   const adminCtx = await requireAdminPermission(
     request,
     "pending:approve",
@@ -1117,7 +1117,7 @@ export const adminApproveAction = onCall({ labels: { area: "admin" } }, async (r
 
 /** Reject a pending action with a reason. */
 export const adminRejectAction = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminRejectAction");
+  await requireAppCheck(request, "adminRejectAction");
   const adminCtx = await requireAdminPermission(
     request,
     "pending:reject",
@@ -1175,7 +1175,7 @@ export const adminRejectAction = onCall({ labels: { area: "admin" } }, async (re
 
 /** One-time migration: backfill adminRole claims and create adminUsers docs. */
 export const adminMigrateExistingClaims = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminMigrateExistingClaims");
+  await requireAppCheck(request, "adminMigrateExistingClaims");
   const adminCtx = await requireAdminPermission(
     request,
     "admin:updateRole",

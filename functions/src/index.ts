@@ -91,7 +91,7 @@ import { initializeLedger, reconcileAllAccounts, verifySystemBalance } from "./l
  * (cbook:bus, cbook:trust, pot:daily, pot:weekly, system:cashout_pending, client:imalichat).
  */
 export const initializeTrustLedger = onCall({ concurrency: 1, labels: { area: "ledger" } }, async (request) => {
-  requireAppCheck(request, "initializeTrustLedger");
+  await requireAppCheck(request, "initializeTrustLedger");
   await requireAdminPermission(request, "accounts:initializeLedger", "initializeTrustLedger");
 
   await initializeLedger();

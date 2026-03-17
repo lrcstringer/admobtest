@@ -44,7 +44,7 @@ export const registerMarketplaceProvider = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "registerMarketplaceProvider");
+    await requireAppCheck(request, "registerMarketplaceProvider");
 
     const userId = request.auth.uid;
     const { displayName, photoUrl, contactPreferences } = request.data;
@@ -136,7 +136,7 @@ export const createMarketplaceListing = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "createMarketplaceListing");
+    await requireAppCheck(request, "createMarketplaceListing");
 
     const userId = request.auth.uid;
     const { title, description, category, subCategory, priceTokens, imageUrls, location,
@@ -279,7 +279,7 @@ export const buyMarketplaceItem = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "buyMarketplaceItem");
+    await requireAppCheck(request, "buyMarketplaceItem");
 
     const userId = request.auth.uid;
     const { listingId, walletId } = request.data;
@@ -461,7 +461,7 @@ export const confirmMarketplaceFulfilment = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "confirmMarketplaceFulfilment");
+    await requireAppCheck(request, "confirmMarketplaceFulfilment");
 
     const userId = request.auth.uid;
     const { orderId } = request.data;
@@ -508,7 +508,7 @@ export const confirmMarketplaceReceipt = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "confirmMarketplaceReceipt");
+    await requireAppCheck(request, "confirmMarketplaceReceipt");
 
     const userId = request.auth.uid;
     const { orderId } = request.data;
@@ -596,7 +596,7 @@ export const cancelMarketplaceOrder = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "cancelMarketplaceOrder");
+    await requireAppCheck(request, "cancelMarketplaceOrder");
 
     const userId = request.auth.uid;
     const { orderId } = request.data;
@@ -681,7 +681,7 @@ export const disputeMarketplaceOrder = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "disputeMarketplaceOrder");
+    await requireAppCheck(request, "disputeMarketplaceOrder");
 
     const userId = request.auth.uid;
     const { orderId, reason } = request.data;
@@ -736,7 +736,7 @@ export const vouchForProvider = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "vouchForProvider");
+    await requireAppCheck(request, "vouchForProvider");
 
     const userId = request.auth.uid;
     const { providerId, orderId, rating, comment } = request.data;
@@ -851,7 +851,7 @@ export const reportMarketplaceItem = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "reportMarketplaceItem");
+    await requireAppCheck(request, "reportMarketplaceItem");
 
     const userId = request.auth.uid;
     const { targetId, targetType, reason, description } = request.data;
@@ -991,7 +991,7 @@ export const updateMarketplaceListing = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "updateMarketplaceListing");
+    await requireAppCheck(request, "updateMarketplaceListing");
 
     const userId = request.auth.uid;
     const { listingId, title, description, category, subCategory, priceTokens, imageUrls, location,
@@ -1093,7 +1093,7 @@ export const toggleMarketplaceListingStatus = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "toggleMarketplaceListingStatus");
+    await requireAppCheck(request, "toggleMarketplaceListingStatus");
 
     const userId = request.auth.uid;
     const { listingId, action } = request.data;
@@ -1182,7 +1182,7 @@ export const renewMarketplaceListing = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "renewMarketplaceListing");
+    await requireAppCheck(request, "renewMarketplaceListing");
 
     const userId = request.auth.uid;
     const { listingId } = request.data;
@@ -1247,7 +1247,7 @@ export const getSellerDashboard = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "getSellerDashboard");
+    await requireAppCheck(request, "getSellerDashboard");
 
     const userId = request.auth.uid;
 
@@ -1332,7 +1332,7 @@ export const makeOffer = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "makeOffer");
+    await requireAppCheck(request, "makeOffer");
 
     const userId = request.auth.uid;
     const { listingId, offerAmount, message } = request.data;
@@ -1431,7 +1431,7 @@ export const respondToOffer = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "respondToOffer");
+    await requireAppCheck(request, "respondToOffer");
 
     const userId = request.auth.uid;
     const { offerId, action, counterAmount } = request.data;
@@ -1606,7 +1606,7 @@ export const sellerInitiatedRefund = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "sellerInitiatedRefund");
+    await requireAppCheck(request, "sellerInitiatedRefund");
 
     const userId = request.auth.uid;
     const { orderId, reason } = request.data;
@@ -1693,7 +1693,7 @@ export const suspendProviderCascade = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "suspendProviderCascade");
+    await requireAppCheck(request, "suspendProviderCascade");
 
     // Admin-only operation — prevents any authenticated user from suspending providers
     await requireAdminPermission(
@@ -2150,7 +2150,7 @@ export const respondToDispute = onCall(
   { labels: { area: "marketplace" } },
   async (request) => {
     requireAuth(request);
-    requireAppCheck(request, "respondToDispute");
+    await requireAppCheck(request, "respondToDispute");
     const userId = request.auth!.uid;
     const { orderId, response, photoUrls, proposedResolution, proposedResolutionAmount } = request.data;
 
@@ -2194,7 +2194,7 @@ export const addDisputeEvidence = onCall(
   { labels: { area: "marketplace" } },
   async (request) => {
     requireAuth(request);
-    requireAppCheck(request, "addDisputeEvidence");
+    await requireAppCheck(request, "addDisputeEvidence");
     const userId = request.auth!.uid;
     const { orderId, photoUrls, additionalDetails } = request.data;
 
@@ -2238,7 +2238,7 @@ export const proposeResolution = onCall(
   { labels: { area: "marketplace" } },
   async (request) => {
     requireAuth(request);
-    requireAppCheck(request, "proposeResolution");
+    await requireAppCheck(request, "proposeResolution");
     const userId = request.auth!.uid;
     const { orderId, resolutionType, refundAmount } = request.data;
 
@@ -2290,7 +2290,7 @@ export const deregisterProvider = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "deregisterProvider");
+    await requireAppCheck(request, "deregisterProvider");
 
     const userId = request.auth.uid;
     const providerRef = db.collection("providers").doc(userId);
@@ -2376,7 +2376,7 @@ export const cancelDeregistration = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "cancelDeregistration");
+    await requireAppCheck(request, "cancelDeregistration");
 
     const userId = request.auth.uid;
     const providerRef = db.collection("providers").doc(userId);
@@ -2432,7 +2432,7 @@ export const updateSellerProfile = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "updateSellerProfile");
+    await requireAppCheck(request, "updateSellerProfile");
 
     const userId = request.auth.uid;
     const { bio, photoUrl, contactPreferences } = request.data;

@@ -26,7 +26,7 @@ export const submitPollVote = onCall(
   { labels: { area: "polls" } },
   async (request) => {
     const data = request.data;
-    requireAppCheck(request, "submitPollVote");
+    await requireAppCheck(request, "submitPollVote");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -170,7 +170,7 @@ export const changePollVote = onCall(
   { labels: { area: "polls" } },
   async (request) => {
     const data = request.data;
-    requireAppCheck(request, "changePollVote");
+    await requireAppCheck(request, "changePollVote");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -272,7 +272,7 @@ export const getPollResults = onCall(
   { labels: { area: "polls" } },
   async (request) => {
     const data = request.data;
-    requireAppCheck(request, "getPollResults");
+    await requireAppCheck(request, "getPollResults");
 
     if (!request.auth) {
       throw new HttpsError(

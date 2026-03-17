@@ -18,7 +18,7 @@ const db = admin.firestore();
 export const getSponsorCampaignReport = onCall(
   { labels: { area: "rewards" } },
   async (request) => {
-    requireAppCheck(request, "getSponsorCampaignReport");
+    await requireAppCheck(request, "getSponsorCampaignReport");
 
     if (!request.auth) {
       throw new HttpsError(

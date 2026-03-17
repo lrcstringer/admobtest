@@ -963,7 +963,7 @@ function slimThread(id: string, t: admin.firestore.DocumentData) {
 export const getEligibleThreads = onCall(
   { labels: { area: "earn" } },
   async (request) => {
-    requireAppCheck(request, "getEligibleThreads");
+    await requireAppCheck(request, "getEligibleThreads");
 
     const userCtx = await buildUserTargetingContext(request);
     const { profile: userProfile } = userCtx;
@@ -1050,7 +1050,7 @@ export const getEligibleOpportunities = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "getEligibleOpportunities");
+    await requireAppCheck(request, "getEligibleOpportunities");
 
     const userId = request.auth.uid;
     const { threadId } = request.data;
@@ -1832,7 +1832,7 @@ export const getEarnStatistics = onCall(
         "Must be authenticated"
       );
     }
-    requireAppCheck(request, "getEarnStatistics");
+    await requireAppCheck(request, "getEarnStatistics");
 
     // Get total threads
     const threadsCount = await db
@@ -1894,7 +1894,7 @@ export const getEarnStatistics = onCall(
 export const adminSoftDeleteOpportunity = onCall(
   { labels: { area: "earn" } },
   async (request) => {
-    requireAppCheck(request, "adminSoftDeleteOpportunity");
+    await requireAppCheck(request, "adminSoftDeleteOpportunity");
     const adminCtx = await requireAdminPermission(request, "earn:deleteOpportunity", "adminSoftDeleteOpportunity");
 
     const { opportunityId } = request.data as { opportunityId: string };
@@ -1946,7 +1946,7 @@ export const adminSoftDeleteOpportunity = onCall(
 export const adminSoftDeleteThread = onCall(
   { labels: { area: "earn" } },
   async (request) => {
-    requireAppCheck(request, "adminSoftDeleteThread");
+    await requireAppCheck(request, "adminSoftDeleteThread");
     const adminCtx = await requireAdminPermission(request, "earn:deleteThread", "adminSoftDeleteThread");
 
     const { threadId } = request.data as { threadId: string };
@@ -2027,7 +2027,7 @@ export const adminSoftDeleteThread = onCall(
 export const adminCleanupOrphanedThreads = onCall(
   { labels: { area: "earn" } },
   async (request) => {
-    requireAppCheck(request, "adminCleanupOrphanedThreads");
+    await requireAppCheck(request, "adminCleanupOrphanedThreads");
     const adminCtx = await requireAdminPermission(request, "earn:cleanupOrphaned", "adminCleanupOrphanedThreads");
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -2126,7 +2126,7 @@ export const adminCleanupOrphanedThreads = onCall(
 export const getEligibleInbox = onCall(
   { labels: { area: "earn" } },
   async (request) => {
-    requireAppCheck(request, "getEligibleInbox");
+    await requireAppCheck(request, "getEligibleInbox");
 
     const userCtx = await buildUserTargetingContext(request);
     const { profile: userProfile } = userCtx;

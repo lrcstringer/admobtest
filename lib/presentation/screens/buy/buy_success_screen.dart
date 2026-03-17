@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/purchase.dart';
 import '../../blocs/purchase/purchase_bloc.dart';
 import '../../blocs/wallet/wallet_bloc.dart';
@@ -300,7 +300,7 @@ class BuySuccessScreen extends StatelessWidget {
                   final textToCopy = purchase.voucherPin != null
                       ? '${purchase.voucherCode}\nPIN: ${purchase.voucherPin}'
                       : purchase.voucherCode!;
-                  Clipboard.setData(ClipboardData(text: textToCopy));
+                  SecureClipboard.copy(textToCopy);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Copied to clipboard'),

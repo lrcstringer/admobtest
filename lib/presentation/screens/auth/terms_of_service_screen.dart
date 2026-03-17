@@ -71,7 +71,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -100,7 +100,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                       'Terms of Service',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -144,7 +144,7 @@ class TermsOfServiceScreen extends StatelessWidget {
                           'of any changes.\n\n'
                           'Last updated: January 2026',
                           style: TextStyle(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 14,
                             height: 1.6,
                           ),

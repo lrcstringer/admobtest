@@ -42,7 +42,7 @@ export const blockUser = onCall(
   async (request) => {
     const data = request.data as { targetUserId: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "blockUser");
+    await requireAppCheck(request, "blockUser");
 
     const { targetUserId } = data;
     if (!targetUserId || typeof targetUserId !== "string") {
@@ -75,7 +75,7 @@ export const unblockUser = onCall(
   async (request) => {
     const data = request.data as { targetUserId: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "unblockUser");
+    await requireAppCheck(request, "unblockUser");
 
     const { targetUserId } = data;
     if (!targetUserId || typeof targetUserId !== "string") {
@@ -98,7 +98,7 @@ export const unblockUser = onCall(
  */
 export const getBlockedUsers = onCall({ labels: { area: "moderation" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getBlockedUsers");
+  await requireAppCheck(request, "getBlockedUsers");
 
   const userDoc = await db.collection("users").doc(userId).get();
   const userData = userDoc.data();
@@ -125,7 +125,7 @@ export const submitReport = onCall(
       additionalInfo?: string;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "submitReport");
+    await requireAppCheck(request, "submitReport");
 
     const { type, targetId, reason, additionalInfo } = data;
 
@@ -192,7 +192,7 @@ export const deleteMessageForMe = onCall(
       messageId: string;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "deleteMessageForMe");
+    await requireAppCheck(request, "deleteMessageForMe");
 
     const { parentCollection, parentId, messageId } = data;
 
@@ -235,7 +235,7 @@ export const deleteMessageForEveryone = onCall(
       messageId: string;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "deleteMessageForEveryone");
+    await requireAppCheck(request, "deleteMessageForEveryone");
 
     const { parentCollection, parentId, messageId } = data;
 

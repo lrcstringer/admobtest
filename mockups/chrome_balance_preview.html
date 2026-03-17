@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMaliChat — Chrome Balance Options (AppBar + Bottom Nav)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #111;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ---- Top Controls ---- */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #111;
+    border-bottom: 1px solid #333;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .controls h2 { font-size: 14px; color: #aaa; }
+
+  /* ---- Layout ---- */
+  .comparison {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 32px 24px 48px;
+    flex-wrap: wrap;
+  }
+  .phone-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .phone-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+    text-align: center;
+  }
+  .phone-sublabel {
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    max-width: 300px;
+    margin-bottom: 4px;
+  }
+
+  /* ---- Phone Frame ---- */
+  .phone {
+    width: 320px;
+    height: 692px;
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid #333;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- Status Bar (simulated) ---- */
+  .status-bar {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  /* ---- App Bar ---- */
+  .app-bar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .app-bar .mascot {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #FFB82C, #FF6429);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-right: 8px;
+  }
+  .app-bar .title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .app-bar .action {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    opacity: 0.6;
+  }
+
+  /* ---- Body Content ---- */
+  .body-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    position: relative;
+  }
+
+  /* ---- Bottom Nav ---- */
+  .bottom-nav {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-shrink: 0;
+    z-index: 10;
+    padding-bottom: 4px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .nav-icon {
+    font-size: 22px;
+    opacity: 0.4;
+  }
+  .nav-icon.active {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(255, 50, 140, 0.4));
+  }
+  .nav-label {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: 0.5;
+  }
+  .nav-label.active {
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  /* ---- Content Cards ---- */
+  .greeting { font-size: 13px; color: #8899A6; }
+  .name { font-size: 20px; font-weight: 700; color: #fff; margin: 2px 0 8px; }
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(90deg, #FFB82C, #FF6429);
+    color: #0C1124;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 5px 12px;
+    border-radius: 14px;
+  }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .token-card {
+    background: #13161D;
+    border: 1px solid #2A2E3D;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  .token-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .token-icon { color: #FF328C; font-size: 16px; }
+  .token-label { color: #8899A6; font-size: 12px; }
+  .token-amount { color: #fff; font-size: 17px; font-weight: 700; }
+  .earn-btn {
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .progress-card {
+    background: linear-gradient(90deg, #FFB82C, #FF6429);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    color: #0C1124;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .progress-bar-bg {
+    height: 4px;
+    background: rgba(12, 17, 36, 0.3);
+    border-radius: 2px;
+    margin-bottom: 4px;
+  }
+  .progress-sub { font-size: 9px; color: rgba(12, 17, 36, 0.8); }
+
+  .pot-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .pot-card {
+    flex: 1;
+    background: #13161D;
+    border: 1px solid #2A2E3D;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pot-accent {
+    height: 3px;
+  }
+  .pot-accent.gold { background: linear-gradient(90deg, #FFB82C, #FF6429); }
+  .pot-accent.pink { background: linear-gradient(90deg, #FF328C, #A011FF); }
+  .pot-inner { padding: 8px 10px; }
+  .pot-label { font-size: 9px; font-weight: 700; letter-spacing: 0.8px; }
+  .pot-label.gold { color: #FFB82C; }
+  .pot-label.pink { color: #FF328C; }
+  .pot-title { font-size: 9px; color: #8899A6; margin-top: 4px; }
+  .pot-amount { font-size: 16px; font-weight: 700; color: #fff; margin: 2px 0 4px; }
+  .pot-meta { font-size: 9px; color: #8899A6; }
+
+  .invite-btn {
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .how-link {
+    text-align: center;
+    color: #FF328C;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ---- Annotations ---- */
+  .annotation {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    color: #00E676;
+    background: rgba(0, 230, 118, 0.1);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* ---- Verdict Box ---- */
+  .verdict {
+    max-width: 960px;
+    margin: 0 auto 48px;
+    padding: 20px 24px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+  }
+  .verdict h3 { font-size: 14px; color: #FFB82C; margin-bottom: 8px; }
+  .verdict p { font-size: 12px; color: #aaa; line-height: 1.6; }
+  .verdict table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .verdict th { text-align: left; font-size: 10px; color: #888; padding: 6px 8px; border-bottom: 1px solid #333; }
+  .verdict td { font-size: 11px; color: #ccc; padding: 6px 8px; border-bottom: 1px solid #222; }
+  .verdict .rec { color: #00E676; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h2>iMaliChat Chrome Balance — Current vs Option A vs Option B</h2>
+</div>
+
+<div class="comparison">
+
+  <!-- ==================== CURRENT ==================== -->
+  <div class="phone-col">
+    <div class="phone-label">Current</div>
+    <div class="phone-sublabel">Dark sandwich: dark top, bright body, dark bottom</div>
+    <div class="phone" style="position: relative;">
+      <!-- Status bar: very dark (device) -->
+      <div class="status-bar" style="background: #1a1d30; color: #fff;">
+        <span>15:31</span>
+        <span>85%</span>
+      </div>
+      <!-- AppBar: transparent over gradient top, but status bar area is dark -->
+      <div class="app-bar" style="background: linear-gradient(180deg, #2a3a80, #3451B8);">
+        <div class="mascot">&#x1F451;</div>
+        <div class="title">Home</div>
+        <div class="action">&#x2139;</div>
+        <div class="action">&#x1F514;</div>
+        <div class="action">&#x1F464;</div>
+      </div>
+      <!-- Body: blue gradient -->
+      <div class="body-content" style="background: linear-gradient(180deg, #3451B8, #2C325C);">
+        <div class="header-row">
+          <div>
+            <div class="greeting">Good Afternoon,</div>
+            <div class="name">Lance</div>
+          </div>
+          <div class="streak-badge">&#x1F525; STREAK: 1 DAYS</div>
+        </div>
+        <div class="token-card">
+          <div class="token-row">
+            <span class="token-icon">&#x1F4B3;</span>
+            <span class="token-label">Tokens Balance:</span>
+            <span class="token-amount">66</span>
+          </div>
+          <button class="earn-btn">Earn Now</button>
+        </div>
+        <div class="progress-card">
+          <div class="progress-header">
+            <span>Today's Progress</span><span>0 / 30</span>
+          </div>
+          <div class="progress-bar-bg"></div>
+          <div class="progress-sub">0% of daily earn limit</div>
+        </div>
+        <div class="pot-row">
+          <div class="pot-card">
+            <div class="pot-accent gold"></div>
+            <div class="pot-inner">
+              <div class="pot-label gold">DAILY</div>
+              <div class="pot-title">TODAY'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+          <div class="pot-card">
+            <div class="pot-accent pink"></div>
+            <div class="pot-inner">
+              <div class="pot-label pink">WEEKLY</div>
+              <div class="pot-title">THIS WEEK'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+        </div>
+        <button class="invite-btn">Invite Friends & Earn</button>
+        <div class="how-link">How iMaliChat works</div>
+      </div>
+      <!-- Bottom nav: dark solid -->
+      <div class="bottom-nav" style="background: #2C325C; border-top: 1px solid #1E2233;">
+        <div class="nav-item"><span class="nav-icon active">&#x1F3E0;</span><span class="nav-label active">Home</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F3C6;</span><span class="nav-label">Earn</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span><span class="nav-label">Chat</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F6D2;</span><span class="nav-label">Buy</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span><span class="nav-label">Wallet</span></div>
+      </div>
+      <!-- Annotations -->
+      <div class="annotation" style="top: 6px; right: -4px; color: #FF5252; background: rgba(255,82,82,0.1); border-color: rgba(255,82,82,0.3);">
+        &#x26A0; Dark band
+      </div>
+      <div class="annotation" style="bottom: 72px; right: -4px; color: #FF5252; background: rgba(255,82,82,0.1); border-color: rgba(255,82,82,0.3);">
+        &#x26A0; Dark band
+      </div>
+      <div class="annotation" style="top: 50%; right: -4px; transform: translateY(-50%);">
+        Brighter body
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== OPTION A: SEAMLESS ==================== -->
+  <div class="phone-col">
+    <div class="phone-label" style="color: #00E676;">Option A: Seamless Gradient</div>
+    <div class="phone-sublabel">Chrome dissolves into the gradient &mdash; one continuous surface</div>
+    <div class="phone" style="position: relative;">
+      <!-- Status bar: tinted to match gradient top -->
+      <div class="status-bar" style="background: #3451B8; color: #fff;">
+        <span>15:31</span>
+        <span>85%</span>
+      </div>
+      <!-- AppBar: transparent, gradient shows through seamlessly -->
+      <div class="app-bar" style="background: transparent; position: relative; z-index: 2;">
+        <div class="mascot">&#x1F451;</div>
+        <div class="title">Home</div>
+        <div class="action">&#x2139;</div>
+        <div class="action">&#x1F514;</div>
+        <div class="action">&#x1F464;</div>
+      </div>
+      <!-- Full gradient behind status bar + appbar + body -->
+      <div class="body-content" style="background: linear-gradient(180deg, #3451B8 0%, #2C325C 100%); margin-top: -84px; padding-top: 100px;">
+        <div class="header-row">
+          <div>
+            <div class="greeting">Good Afternoon,</div>
+            <div class="name">Lance</div>
+          </div>
+          <div class="streak-badge">&#x1F525; STREAK: 1 DAYS</div>
+        </div>
+        <div class="token-card">
+          <div class="token-row">
+            <span class="token-icon">&#x1F4B3;</span>
+            <span class="token-label">Tokens Balance:</span>
+            <span class="token-amount">66</span>
+          </div>
+          <button class="earn-btn">Earn Now</button>
+        </div>
+        <div class="progress-card">
+          <div class="progress-header">
+            <span>Today's Progress</span><span>0 / 30</span>
+          </div>
+          <div class="progress-bar-bg"></div>
+          <div class="progress-sub">0% of daily earn limit</div>
+        </div>
+        <div class="pot-row">
+          <div class="pot-card">
+            <div class="pot-accent gold"></div>
+            <div class="pot-inner">
+              <div class="pot-label gold">DAILY</div>
+              <div class="pot-title">TODAY'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+          <div class="pot-card">
+            <div class="pot-accent pink"></div>
+            <div class="pot-inner">
+              <div class="pot-label pink">WEEKLY</div>
+              <div class="pot-title">THIS WEEK'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+        </div>
+        <button class="invite-btn">Invite Friends & Earn</button>
+        <div class="how-link">How iMaliChat works</div>
+      </div>
+      <!-- Bottom nav: gradient continuation with 4% white glass -->
+      <div class="bottom-nav" style="background: linear-gradient(180deg, #2C325C, #282E55); border-top: 1px solid rgba(255,255,255,0.06); position: relative;">
+        <!-- Glass overlay -->
+        <div style="position: absolute; inset: 0; background: rgba(255,255,255,0.04); pointer-events: none;"></div>
+        <div class="nav-item"><span class="nav-icon active">&#x1F3E0;</span><span class="nav-label active">Home</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F3C6;</span><span class="nav-label">Earn</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span><span class="nav-label">Chat</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F6D2;</span><span class="nav-label">Buy</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span><span class="nav-label">Wallet</span></div>
+      </div>
+      <!-- Annotations -->
+      <div class="annotation" style="top: 6px; right: -4px;">
+        Gradient flows up
+      </div>
+      <div class="annotation" style="bottom: 72px; right: -4px;">
+        Subtle glass lift
+      </div>
+      <div class="annotation" style="top: 50%; right: -4px; transform: translateY(-50%);">
+        Same gradient
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== OPTION B: ELEVATED GLASS ==================== -->
+  <div class="phone-col">
+    <div class="phone-label" style="color: #08C2F4;">Option B: Elevated Glass</div>
+    <div class="phone-sublabel">Frosted glass chrome, lighter than body &mdash; inverts the weight</div>
+    <div class="phone" style="position: relative;">
+      <!-- Status bar: frosted glass -->
+      <div class="status-bar" style="background: rgba(58, 66, 114, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff;">
+        <span>15:31</span>
+        <span>85%</span>
+      </div>
+      <!-- AppBar: frosted glass — LIGHTER than body -->
+      <div class="app-bar" style="background: rgba(58, 66, 114, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="mascot">&#x1F451;</div>
+        <div class="title">Home</div>
+        <div class="action">&#x2139;</div>
+        <div class="action">&#x1F514;</div>
+        <div class="action">&#x1F464;</div>
+      </div>
+      <!-- Body: same blue gradient -->
+      <div class="body-content" style="background: linear-gradient(180deg, #3451B8, #2C325C);">
+        <div class="header-row">
+          <div>
+            <div class="greeting">Good Afternoon,</div>
+            <div class="name">Lance</div>
+          </div>
+          <div class="streak-badge">&#x1F525; STREAK: 1 DAYS</div>
+        </div>
+        <div class="token-card">
+          <div class="token-row">
+            <span class="token-icon">&#x1F4B3;</span>
+            <span class="token-label">Tokens Balance:</span>
+            <span class="token-amount">66</span>
+          </div>
+          <button class="earn-btn">Earn Now</button>
+        </div>
+        <div class="progress-card">
+          <div class="progress-header">
+            <span>Today's Progress</span><span>0 / 30</span>
+          </div>
+          <div class="progress-bar-bg"></div>
+          <div class="progress-sub">0% of daily earn limit</div>
+        </div>
+        <div class="pot-row">
+          <div class="pot-card">
+            <div class="pot-accent gold"></div>
+            <div class="pot-inner">
+              <div class="pot-label gold">DAILY</div>
+              <div class="pot-title">TODAY'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+          <div class="pot-card">
+            <div class="pot-accent pink"></div>
+            <div class="pot-inner">
+              <div class="pot-label pink">WEEKLY</div>
+              <div class="pot-title">THIS WEEK'S POT</div>
+              <div class="pot-amount">R 0.00</div>
+              <div class="pot-meta">Your Rank: #0</div>
+            </div>
+          </div>
+        </div>
+        <button class="invite-btn">Invite Friends & Earn</button>
+        <div class="how-link">How iMaliChat works</div>
+      </div>
+      <!-- Bottom nav: frosted glass — LIGHTER than body -->
+      <div class="bottom-nav" style="background: rgba(58, 66, 114, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="nav-item"><span class="nav-icon active">&#x1F3E0;</span><span class="nav-label active">Home</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F3C6;</span><span class="nav-label">Earn</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4AC;</span><span class="nav-label">Chat</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F6D2;</span><span class="nav-label">Buy</span></div>
+        <div class="nav-item"><span class="nav-icon">&#x1F4B0;</span><span class="nav-label">Wallet</span></div>
+      </div>
+      <!-- Annotations -->
+      <div class="annotation" style="top: 6px; right: -4px; color: #08C2F4; background: rgba(8,194,244,0.1); border-color: rgba(8,194,244,0.3);">
+        Glass: lighter
+      </div>
+      <div class="annotation" style="bottom: 72px; right: -4px; color: #08C2F4; background: rgba(8,194,244,0.1); border-color: rgba(8,194,244,0.3);">
+        Glass: lighter
+      </div>
+      <div class="annotation" style="top: 50%; right: -4px; transform: translateY(-50%); color: #08C2F4; background: rgba(8,194,244,0.1); border-color: rgba(8,194,244,0.3);">
+        Body is darkest
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ---- Verdict ---- -->
+<div class="verdict">
+  <h3>Comparison Summary</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th>Current</th>
+        <th>A: Seamless</th>
+        <th>B: Glass</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AppBar bg</td>
+        <td>Transparent (dark gap at status bar)</td>
+        <td class="rec">Transparent (gradient fills behind)</td>
+        <td>rgba(#3A4272, 60%) + blur</td>
+      </tr>
+      <tr>
+        <td>Bottom nav bg</td>
+        <td>#2C325C solid</td>
+        <td class="rec">#2C325C + 4% white overlay</td>
+        <td>rgba(#3A4272, 85%) + blur</td>
+      </tr>
+      <tr>
+        <td>Border</td>
+        <td>Theme divider</td>
+        <td>White 6% (barely there)</td>
+        <td>White 10% (frost edge)</td>
+      </tr>
+      <tr>
+        <td>Visual weight</td>
+        <td style="color: #FF5252;">Dark sandwich (top + bottom heavy)</td>
+        <td class="rec">Even (one surface)</td>
+        <td>Balanced (chrome lighter than body)</td>
+      </tr>
+      <tr>
+        <td>Code change</td>
+        <td>--</td>
+        <td class="rec">Minimal (nav color + extendBody)</td>
+        <td>Medium (BackdropFilter + custom AppBar)</td>
+      </tr>
+      <tr>
+        <td>Perf impact</td>
+        <td>--</td>
+        <td class="rec">None</td>
+        <td>Small (backdrop blur on low-end devices)</td>
+      </tr>
+      <tr>
+        <td>Reference apps</td>
+        <td>--</td>
+        <td>Cash App, Monzo dark</td>
+        <td>iOS tab bar, Telegram, Discord mobile</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

@@ -329,7 +329,7 @@ export const getEarnNotifications = onCall({ labels: { area: "earn" } }, async (
       "Must be authenticated"
     );
   }
-  requireAppCheck(request as any, "getEarnNotifications");
+  await requireAppCheck(request as any, "getEarnNotifications");
 
   const userId = request.auth.uid;
   const now = admin.firestore.Timestamp.now();
@@ -383,7 +383,7 @@ export const markEarnNotificationRead = onCall({ labels: { area: "earn" } }, asy
       "Must be authenticated"
     );
   }
-  requireAppCheck(request as any, "markEarnNotificationRead");
+  await requireAppCheck(request as any, "markEarnNotificationRead");
 
   const userId = request.auth.uid;
   const data = request.data as { notificationId?: string; markAllRead?: boolean };

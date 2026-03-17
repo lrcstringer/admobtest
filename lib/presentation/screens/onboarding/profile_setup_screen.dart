@@ -273,7 +273,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 Text(
                   'Your username will be visible to other users and used for sending/receiving tokens.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
                 const Spacer(),

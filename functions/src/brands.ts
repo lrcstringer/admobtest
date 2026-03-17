@@ -40,7 +40,7 @@ export const claimStorefrontCoupon = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "claimStorefrontCoupon");
+    await requireAppCheck(request, "claimStorefrontCoupon");
 
     const { storefrontId, couponId, couponCode } = request.data;
     if (!storefrontId || !couponId) {
@@ -138,7 +138,7 @@ export const redeemStorefrontCoupon = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "redeemStorefrontCoupon");
+    await requireAppCheck(request, "redeemStorefrontCoupon");
 
     const { storefrontId, couponId } = request.data;
     if (!storefrontId || !couponId) {
@@ -179,7 +179,7 @@ export const getClaimedCoupons = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "getClaimedCoupons");
+    await requireAppCheck(request, "getClaimedCoupons");
 
     const { storefrontId } = request.data;
     if (!storefrontId || typeof storefrontId !== "string") {
@@ -210,7 +210,7 @@ export const recordStorefrontView = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "recordStorefrontView");
+    await requireAppCheck(request, "recordStorefrontView");
 
     const { storefrontId } = request.data;
     if (!storefrontId || typeof storefrontId !== "string") {
@@ -275,7 +275,7 @@ export const recordStorefrontView = onCall(
 export const getBrandAnalytics = onCall(
   { labels: { area: "social" } },
   async (request) => {
-    requireAppCheck(request, "getBrandAnalytics");
+    await requireAppCheck(request, "getBrandAnalytics");
     await requireAdminPermission(request, "buy:getBrandAnalytics", "getBrandAnalytics");
 
     const { brandId, startDate, endDate } = request.data;
@@ -340,7 +340,7 @@ export const toggleBrandFollow = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "toggleBrandFollow");
+    await requireAppCheck(request, "toggleBrandFollow");
 
     const { brandId } = request.data;
     if (!brandId || typeof brandId !== "string") {
@@ -410,7 +410,7 @@ export const getActiveBrandStorefronts = onCall(
   { labels: { area: "social" } },
   async (request) => {
     requireAuth(request);
-    requireAppCheck(request, "getActiveBrandStorefronts");
+    await requireAppCheck(request, "getActiveBrandStorefronts");
 
     const snapshot = await db
       .collection("brandStorefronts")
@@ -449,7 +449,7 @@ export const getFollowedBrands = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "getFollowedBrands");
+    await requireAppCheck(request, "getFollowedBrands");
 
     const userId = request.auth.uid;
     const userDoc = await db.collection("users").doc(userId).get();
@@ -498,7 +498,7 @@ export const getAvailableBrands = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "getAvailableBrands");
+    await requireAppCheck(request, "getAvailableBrands");
 
     const snapshot = await db
       .collection("brandStorefronts")
@@ -535,7 +535,7 @@ export const submitBrandReview = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "submitBrandReview");
+    await requireAppCheck(request, "submitBrandReview");
 
     const userId = request.auth.uid;
     const {
@@ -639,7 +639,7 @@ export const editBrandReview = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "editBrandReview");
+    await requireAppCheck(request, "editBrandReview");
 
     const userId = request.auth.uid;
     const {

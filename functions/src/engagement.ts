@@ -79,7 +79,7 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "startEngagement");
+  await requireAppCheck(request, "startEngagement");
 
   const userId = request.auth.uid;
 
@@ -440,7 +440,7 @@ export const processEngagement = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "processEngagement");
+    await requireAppCheck(request, "processEngagement");
     await requirePlayIntegrity(request.data, request, "processEngagement", "HIGHEST");
 
     const userId = request.auth.uid;
@@ -1103,7 +1103,7 @@ export const updateEngagementProgress = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "updateEngagementProgress");
+    await requireAppCheck(request, "updateEngagementProgress");
 
     const userId = request.auth.uid;
     const { engagementId, progress, stepData, watchDurationSeconds, status } =
@@ -1180,7 +1180,7 @@ export const abandonEngagement = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "abandonEngagement");
+    await requireAppCheck(request, "abandonEngagement");
 
     const userId = request.auth.uid;
     const { engagementId } = request.data;

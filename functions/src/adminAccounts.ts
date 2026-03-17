@@ -51,7 +51,7 @@ const db = admin.firestore();
  * Create a new supplier account
  */
 export const adminCreateSupplier = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminCreateSupplier");
+  await requireAppCheck(request, "adminCreateSupplier");
   const adminCtx = await requireAdminPermission(request, "accounts:createSupplier", "adminCreateSupplier");
 
   const { providerId, providerName, category, contactEmail, contactName } = request.data as {
@@ -105,7 +105,7 @@ export const adminCreateSupplier = onCall({ labels: { area: "admin" } }, async (
  * List all supplier accounts
  */
 export const adminListSuppliers = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListSuppliers");
+  await requireAppCheck(request, "adminListSuppliers");
   await requireAdminPermission(request, "accounts:listSuppliers", "adminListSuppliers");
 
   // Get ledger accounts
@@ -143,7 +143,7 @@ export const adminListSuppliers = onCall({ labels: { area: "admin" } }, async (r
  * Update supplier status (freeze/unfreeze)
  */
 export const adminUpdateSupplierStatus = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminUpdateSupplierStatus");
+  await requireAppCheck(request, "adminUpdateSupplierStatus");
   const adminCtx = await requireAdminPermission(request, "accounts:updateSupplierStatus", "adminUpdateSupplierStatus");
 
   const { providerId, action, reason } = request.data as {
@@ -181,7 +181,7 @@ export const adminUpdateSupplierStatus = onCall({ labels: { area: "admin" } }, a
  * Create a new client (brand partner) account
  */
 export const adminCreateClient = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminCreateClient");
+  await requireAppCheck(request, "adminCreateClient");
   const adminCtx = await requireAdminPermission(request, "accounts:createClient", "adminCreateClient");
 
   const {
@@ -310,7 +310,7 @@ export const adminCreateClient = onCall({ labels: { area: "admin" } }, async (re
  * List all client (brand partner) accounts
  */
 export const adminListClients = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListClients");
+  await requireAppCheck(request, "adminListClients");
   await requireAdminPermission(request, "accounts:listClients", "adminListClients");
 
   const { pageSize = 100, startAfterId } = request.data || {};
@@ -377,7 +377,7 @@ export const adminListClients = onCall({ labels: { area: "admin" } }, async (req
  * Get client details
  */
 export const adminGetClient = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminGetClient");
+  await requireAppCheck(request, "adminGetClient");
   await requireAdminPermission(request, "accounts:getClient", "adminGetClient");
 
   const { clientId } = request.data as { clientId: string };
@@ -407,7 +407,7 @@ export const adminGetClient = onCall({ labels: { area: "admin" } }, async (reque
  * Update client status (freeze/unfreeze)
  */
 export const adminUpdateClientStatus = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminUpdateClientStatus");
+  await requireAppCheck(request, "adminUpdateClientStatus");
   const adminCtx = await requireAdminPermission(request, "accounts:updateClientStatus", "adminUpdateClientStatus");
 
   const { clientId, action, reason } = request.data as {
@@ -441,7 +441,7 @@ export const adminUpdateClientStatus = onCall({ labels: { area: "admin" } }, asy
  * Update client profile
  */
 export const adminUpdateClient = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminUpdateClient");
+  await requireAppCheck(request, "adminUpdateClient");
   const adminCtx = await requireAdminPermission(request, "accounts:updateClient", "adminUpdateClient");
 
   const { clientId, updates } = request.data as {
@@ -587,7 +587,7 @@ export const adminUpdateClient = onCall({ labels: { area: "admin" } }, async (re
  * Uses cbook:bus for iMaliChat's own account, cbook:trust for external clients.
  */
 export const adminFundClientAccount = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminFundClientAccount");
+  await requireAppCheck(request, "adminFundClientAccount");
   const adminCtx = await requireAdminPermission(request, "accounts:fundClient", "adminFundClientAccount");
 
   const { clientId, amount, reference, paymentMethod } = request.data as {
@@ -632,7 +632,7 @@ export const adminFundClientAccount = onCall({ labels: { area: "admin" } }, asyn
  * Inverse of funding. Validates client has sufficient balance.
  */
 export const adminRefundClient = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminRefundClient");
+  await requireAppCheck(request, "adminRefundClient");
   const adminCtx = await requireAdminPermission(request, "accounts:refundClient", "adminRefundClient");
 
   const { clientId, amount, reason } = request.data as {
@@ -675,7 +675,7 @@ export const adminRefundClient = onCall({ labels: { area: "admin" } }, async (re
  * via adminFundClientSubAccount.
  */
 export const adminCreateClientSubAccount = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminCreateClientSubAccount");
+  await requireAppCheck(request, "adminCreateClientSubAccount");
   const adminCtx = await requireAdminPermission(request, "accounts:createSubAccount", "adminCreateClientSubAccount");
 
   const { clientId, name } = request.data as {
@@ -752,7 +752,7 @@ export const adminCreateClientSubAccount = onCall({ labels: { area: "admin" } },
  * Validates client master account has sufficient ledger balance.
  */
 export const adminFundClientSubAccount = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminFundClientSubAccount");
+  await requireAppCheck(request, "adminFundClientSubAccount");
   const adminCtx = await requireAdminPermission(request, "accounts:fundSubAccount", "adminFundClientSubAccount");
 
   const { clientId, subAccountId, amount, reference } = request.data as {
@@ -855,7 +855,7 @@ export const adminFundClientSubAccount = onCall({ labels: { area: "admin" } }, a
  * Balance is read from the ledger account (authoritative), not the Firestore metadata doc.
  */
 export const adminListClientSubAccounts = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListClientSubAccounts");
+  await requireAppCheck(request, "adminListClientSubAccounts");
   await requireAdminPermission(request, "accounts:listSubAccounts", "adminListClientSubAccounts");
 
   const { clientId } = request.data as { clientId: string };
@@ -910,7 +910,7 @@ export const adminListClientSubAccounts = onCall({ labels: { area: "admin" } }, 
  * Get current system account balances (CBooks, pots, cashout pending)
  */
 export const adminGetSystemAccountStatus = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminGetSystemAccountStatus");
+  await requireAppCheck(request, "adminGetSystemAccountStatus");
   await requireAdminPermission(request, "accounts:getSystemStatus", "adminGetSystemAccountStatus");
 
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -1013,7 +1013,7 @@ export const adminGetSystemAccountStatus = onCall({ labels: { area: "admin" } },
 export const adminRunLedgerRecon = onCall(
   { timeoutSeconds: 120, memory: "256MiB", labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRunLedgerRecon");
+    await requireAppCheck(request, "adminRunLedgerRecon");
     await requireAdminPermission(request, "accounts:runRecon", "adminRunLedgerRecon");
 
     // Always fetch overview data in parallel
@@ -1114,7 +1114,7 @@ export const adminRunLedgerRecon = onCall(
  * even those who haven't triggered ledger account creation yet.
  */
 export const adminListUsers = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListUsers");
+  await requireAppCheck(request, "adminListUsers");
   await requireAdminPermission(request, "accounts:listUsers", "adminListUsers");
 
   const { pageSize = 50, startAfterId } = request.data || {};
@@ -1174,7 +1174,7 @@ export const adminListUsers = onCall({ labels: { area: "admin" } }, async (reque
  * Reads from ledgerAccounts/{userId}/subAccounts/ (bypasses security rules).
  */
 export const adminListUserSubAccounts = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminListUserSubAccounts");
+  await requireAppCheck(request, "adminListUserSubAccounts");
   await requireAdminPermission(request, "accounts:listUserSubAccounts", "adminListUserSubAccounts");
 
   const { userId } = request.data as { userId: string };
@@ -1213,7 +1213,7 @@ export const adminListUserSubAccounts = onCall({ labels: { area: "admin" } }, as
 export const adminListAccountTypes = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListAccountTypes");
+    await requireAppCheck(request, "adminListAccountTypes");
     await requireAdminPermission(
       request,
       "accounts:listAccountTypes",
@@ -1274,7 +1274,7 @@ export const adminListAccountTypes = onCall(
 export const adminGetAccountType = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminGetAccountType");
+    await requireAppCheck(request, "adminGetAccountType");
     await requireAdminPermission(
       request,
       "accounts:getAccountType",
@@ -1319,7 +1319,7 @@ export const adminGetAccountType = onCall(
 export const adminCreateAccountType = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateAccountType");
+    await requireAppCheck(request, "adminCreateAccountType");
     const adminCtx = await requireAdminPermission(
       request,
       "accounts:createAccountType",
@@ -1406,7 +1406,7 @@ export const adminCreateAccountType = onCall(
 export const adminUpdateAccountType = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateAccountType");
+    await requireAppCheck(request, "adminUpdateAccountType");
     const adminCtx = await requireAdminPermission(
       request,
       "accounts:updateAccountType",
@@ -1462,7 +1462,7 @@ export const adminUpdateAccountType = onCall(
 export const adminDeactivateAccountType = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeactivateAccountType");
+    await requireAppCheck(request, "adminDeactivateAccountType");
     const adminCtx = await requireAdminPermission(
       request,
       "accounts:updateAccountType",
@@ -1504,7 +1504,7 @@ export const adminDeactivateAccountType = onCall(
  * Close ledger accounts, cascade soft-delete to threads, opportunities, and sub-accounts.
  */
 export const adminSoftDeleteClient = onCall({ labels: { area: "admin" } }, async (request) => {
-  requireAppCheck(request, "adminSoftDeleteClient");
+  await requireAppCheck(request, "adminSoftDeleteClient");
   const adminCtx = await requireAdminPermission(request, "accounts:softDeleteClient", "adminSoftDeleteClient");
 
   const { clientId, reason } = request.data as {

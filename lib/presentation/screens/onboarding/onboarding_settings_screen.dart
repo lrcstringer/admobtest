@@ -107,10 +107,10 @@ class _OnboardingSettingsScreenState extends State<OnboardingSettingsScreen> {
                     'assets/images/Gear Settings.png',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Center(
+                      return Center(
                         child: Icon(
                           Icons.person,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           size: 40,
                         ),
                       );
@@ -126,7 +126,7 @@ class _OnboardingSettingsScreenState extends State<OnboardingSettingsScreen> {
                 'Settings',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -216,7 +216,7 @@ class _SettingsTile extends StatelessWidget {
               child: Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -227,7 +227,7 @@ class _SettingsTile extends StatelessWidget {
               activeThumbColor: Colors.white,
               activeTrackColor: AppColors.primary,
               inactiveThumbColor: Colors.white,
-              inactiveTrackColor: AppColors.textSecondary,
+              inactiveTrackColor: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),
@@ -235,7 +235,7 @@ class _SettingsTile extends StatelessWidget {
         Text(
           description,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],

@@ -17,8 +17,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'app.dart';
 import 'core/di/injection.dart';
 import 'core/security/rasp_service.dart';
+import 'core/security/screenshot_prevention_service.dart';
+import 'core/security/version_enforcement_service.dart';
 import 'data/datasources/local/app_database.dart';
-//import 'core/security/screenshot_prevention_service.dart';
 import 'firebase_options.dart';
 
 /// Top-level background message handler for FCM.
@@ -90,6 +91,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Suppress all debugPrint output in release builds to prevent
+  // leaking security-sensitive info (keys, tokens, crypto state) via logcat.
+  if (!kDebugMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -153,12 +160,20 @@ Future<void> main() async {
     GetIt.instance<RaspService>().initialize();
   }
 
-  // Screenshot prevention disabled during development — re-enable before production release
-  // Enable screenshot prevention (skip in debug for testing)
-  // if (!kDebugMode) {
-  //   final screenshotService = GetIt.instance<ScreenshotPreventionService>();
-  //   await screenshotService.enable();
-  // }
+  // Enable screenshot prevention in release builds
+  if (!kDebugMode) {
+    GetIt.instance<ScreenshotPreventionService>().enable();
+  }
+
+  // Check minimum app version (non-blocking on failure)
+  if (!kDebugMode) {
+    final versionResult =
+        await GetIt.instance<VersionEnforcementService>().check();
+    if (versionResult == VersionCheckResult.updateRequired) {
+      runApp(const _ForceUpdateApp());
+      return;
+    }
+  }
 
   // Set up Bloc observer for debugging (only in debug mode)
   if (kDebugMode) {
@@ -197,5 +212,60 @@ class AppBlocObserver extends BlocObserver {
   void onClose(BlocBase bloc) {
     super.onClose(bloc);
     if (kDebugMode) debugPrint('onClose -- ${bloc.runtimeType}');
+  }
+}
+
+/// Minimal app shown when the installed version is below the server minimum.
+/// Blocks all functionality and directs the user to update.
+class _ForceUpdateApp extends StatelessWidget {
+  const _ForceUpdateApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: const Color(0xFF1A1F3C),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.system_update, size: 64, color: Colors.white),
+                const SizedBox(height: 24),
+                const Text(
+                  'Update Required',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'A newer version of iMaliChat is available. '
+                  'Please update the app to continue.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    // Opens the Play Store / App Store listing
+                    // TODO: Replace with actual store URL once published
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0955FA),
+                    minimumSize: const Size(200, 48),
+                  ),
+                  child: const Text('Update Now'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

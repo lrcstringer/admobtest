@@ -28,7 +28,7 @@ export const applyReferralCode = onCall({ labels: { area: "lifecycle" } }, async
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "applyReferralCode");
+  await requireAppCheck(request, "applyReferralCode");
   await requirePlayIntegrity(request.data, request, "applyReferralCode", "HIGH");
 
   const refereeUserId = request.auth.uid;

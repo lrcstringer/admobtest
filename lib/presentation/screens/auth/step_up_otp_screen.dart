@@ -223,7 +223,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
               Text(
                 'Verify Your Identity',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -236,7 +236,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
                   widget.reason,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),
@@ -247,7 +247,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
                 Text(
                   'Code sent to ${_maskPhoneNumber(widget.phoneNumber)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
 
@@ -308,7 +308,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
                         : 'Resend Code',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: _resendCountdown > 0
-                              ? AppColors.textSecondary
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
                               : AppColors.primary,
                         ),
                   ),
@@ -332,7 +332,7 @@ class _StepUpOtpScreenState extends State<StepUpOtpScreen>
                 child: Text(
                   'Cancel',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),

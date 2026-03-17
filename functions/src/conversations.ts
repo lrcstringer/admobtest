@@ -51,7 +51,7 @@ function truncate(text: string, maxLen: number): string {
  */
 export const getOrCreateConversation = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getOrCreateConversation");
+  await requireAppCheck(request, "getOrCreateConversation");
 
   const { participantId } = request.data;
 
@@ -147,7 +147,7 @@ export const getOrCreateConversation = onCall({ labels: { area: "social" } }, as
  */
 export const sendConversationMessage = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "sendConversationMessage");
+  await requireAppCheck(request, "sendConversationMessage");
 
   const { conversationId, text, mediaUrl, mediaType, messageType: messageTypeParam, replyToMessageId, ciphertext, e2ee, x3dhHeader, encryptedPreviews } = request.data;
 
@@ -404,7 +404,7 @@ export const sendConversationMessage = onCall({ labels: { area: "social" }, minI
  */
 export const markConversationRead = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "markConversationRead");
+  await requireAppCheck(request, "markConversationRead");
 
   const { conversationId } = request.data;
 
@@ -464,7 +464,7 @@ export const markConversationRead = onCall({ labels: { area: "social" }, minInst
  */
 export const toggleConversationPin = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "toggleConversationPin");
+  await requireAppCheck(request, "toggleConversationPin");
 
   const { conversationId, pinned } = request.data;
 
@@ -485,7 +485,7 @@ export const toggleConversationPin = onCall({ labels: { area: "social" } }, asyn
  */
 export const toggleConversationMute = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "toggleConversationMute");
+  await requireAppCheck(request, "toggleConversationMute");
 
   const { conversationId, muted } = request.data;
 
@@ -506,7 +506,7 @@ export const toggleConversationMute = onCall({ labels: { area: "social" } }, asy
  */
 export const archiveConversation = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "archiveConversation");
+  await requireAppCheck(request, "archiveConversation");
 
   const { conversationId } = request.data;
 
@@ -536,7 +536,7 @@ export const archiveConversation = onCall({ labels: { area: "social" } }, async 
  */
 export const requestSessionReset = onCall({ labels: { area: "e2ee" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "requestSessionReset");
+  await requireAppCheck(request, "requestSessionReset");
 
   const { conversationId, targetUserId } = request.data;
 
@@ -566,7 +566,7 @@ export const requestSessionReset = onCall({ labels: { area: "e2ee" } }, async (r
  */
 export const clearSessionReset = onCall({ labels: { area: "e2ee" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "clearSessionReset");
+  await requireAppCheck(request, "clearSessionReset");
 
   const { conversationId } = request.data;
 
@@ -595,7 +595,7 @@ export const clearSessionReset = onCall({ labels: { area: "e2ee" } }, async (req
  */
 export const setDisappearingMessages = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "setDisappearingMessages");
+  await requireAppCheck(request, "setDisappearingMessages");
 
   const { conversationId, durationMs } = request.data;
 
@@ -706,7 +706,7 @@ export const acceptConversationRequest = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "acceptConversationRequest");
+    await requireAppCheck(request, "acceptConversationRequest");
 
     const { conversationId } = request.data;
 
@@ -744,7 +744,7 @@ export const acceptConversationRequest = onCall(
  */
 export const toggleMessageReaction = onCall({ labels: { area: "social" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "toggleMessageReaction");
+  await requireAppCheck(request, "toggleMessageReaction");
 
   const { conversationId, messageId, emoji } = request.data;
 
@@ -845,7 +845,7 @@ export const deleteConversationMessage = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "deleteConversationMessage");
+    await requireAppCheck(request, "deleteConversationMessage");
 
     const { conversationId, messageId } = request.data;
 
@@ -934,7 +934,7 @@ export const clearConversationChat = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "clearConversationChat");
+    await requireAppCheck(request, "clearConversationChat");
 
     const { conversationId } = request.data;
 
@@ -1022,7 +1022,7 @@ export const clearConversationChat = onCall(
  */
 export const forwardConversationMessage = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "forwardConversationMessage");
+  await requireAppCheck(request, "forwardConversationMessage");
 
   const {
     sourceConversationId,
@@ -1330,7 +1330,7 @@ export const updatePrivacySettings = onCall(
   { labels: { area: "social" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "updatePrivacySettings");
+    await requireAppCheck(request, "updatePrivacySettings");
 
     const { settings } = request.data;
     if (!settings || typeof settings !== "object") {

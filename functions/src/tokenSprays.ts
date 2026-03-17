@@ -82,7 +82,7 @@ function getOccasionDisplayText(occasion: string): string {
  */
 export const createTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "createTokenSpray");
+  await requireAppCheck(request, "createTokenSpray");
 
   const { communityId, recipientId, occasion, message, targetAmount } = request.data;
 
@@ -240,7 +240,7 @@ export const createTokenSpray = onCall({ labels: { area: "gifts" } }, async (req
  */
 export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "contributeToSpray");
+  await requireAppCheck(request, "contributeToSpray");
   await requirePlayIntegrity(request.data, request, "contributeToSpray", "HIGHEST");
 
   const { sprayId, amount, message } = request.data;
@@ -370,7 +370,7 @@ export const contributeToSpray = onCall({ labels: { area: "gifts" } }, async (re
  */
 export const closeTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "closeTokenSpray");
+  await requireAppCheck(request, "closeTokenSpray");
 
   const { sprayId } = request.data;
   if (!sprayId || typeof sprayId !== "string") {
@@ -447,7 +447,7 @@ export const closeTokenSpray = onCall({ labels: { area: "gifts" } }, async (requ
  */
 export const claimTokenSpray = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "claimTokenSpray");
+  await requireAppCheck(request, "claimTokenSpray");
 
   const { sprayId } = request.data;
   if (!sprayId || typeof sprayId !== "string") {

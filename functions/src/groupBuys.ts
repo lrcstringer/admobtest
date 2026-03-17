@@ -39,7 +39,7 @@ export const createGroupBuy = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "createGroupBuy");
+    await requireAppCheck(request, "createGroupBuy");
 
     const userId = request.auth.uid;
     const {
@@ -164,7 +164,7 @@ export const joinGroupBuy = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "joinGroupBuy");
+    await requireAppCheck(request, "joinGroupBuy");
 
     const userId = request.auth.uid;
     const { groupBuyId, amount, walletId, deliveryAddress } = request.data;
@@ -367,7 +367,7 @@ export const completeGroupBuy = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "completeGroupBuy");
+    await requireAppCheck(request, "completeGroupBuy");
 
     const userId = request.auth.uid;
     const { groupBuyId } = request.data;
@@ -487,7 +487,7 @@ export const leaveGroupBuy = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "leaveGroupBuy");
+    await requireAppCheck(request, "leaveGroupBuy");
 
     const userId = request.auth.uid;
     const { groupBuyId } = request.data;
@@ -652,7 +652,7 @@ export const suggestGroupBuyDeal = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "suggestGroupBuyDeal");
+    await requireAppCheck(request, "suggestGroupBuyDeal");
 
     const userId = request.auth.uid;
     const {
@@ -989,7 +989,7 @@ export const confirmGroupBuyCollection = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "confirmGroupBuyCollection");
+    await requireAppCheck(request, "confirmGroupBuyCollection");
 
     const userId = request.auth.uid;
     const { groupBuyId, contributionId } = request.data;
@@ -1063,7 +1063,7 @@ export const cancelCommunityGroupBuy = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "cancelCommunityGroupBuy");
+    await requireAppCheck(request, "cancelCommunityGroupBuy");
 
     const userId = request.auth.uid;
     const { groupBuyId, reason } = request.data;
@@ -1181,7 +1181,7 @@ export const updateGroupBuyDeliveryStatus = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "updateGroupBuyDeliveryStatus");
+    await requireAppCheck(request, "updateGroupBuyDeliveryStatus");
 
     const userId = request.auth.uid;
     const { groupBuyId, deliveryStatus, trackingInfo } = request.data;
@@ -1256,7 +1256,7 @@ export const extendGroupBuyDeadline = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "User must be authenticated");
     }
-    requireAppCheck(request, "extendGroupBuyDeadline");
+    await requireAppCheck(request, "extendGroupBuyDeadline");
 
     const userId = request.auth.uid;
     const { groupBuyId, newDeadline } = request.data;

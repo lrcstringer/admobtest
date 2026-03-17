@@ -202,7 +202,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -231,7 +231,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                       'Your profile picture',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -259,16 +259,16 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                         child: _selectedImage == null
                             ? CustomPaint(
                                 painter: DashedBorderPainter(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   strokeWidth: 2,
                                   gap: 8,
                                   borderRadius: 24,
                                 ),
-                                child: const Center(
+                                child: Center(
                                   child: Icon(
                                     Icons.add,
                                     size: 48,
-                                    color: AppColors.textSecondary,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               )
@@ -313,7 +313,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                         'Use your camera or select a photo from your phone to use as your profile picture.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -328,7 +328,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
                       child: Text(
                         'You can skip this step!',
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -375,7 +375,7 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
         ),
         child: Icon(
           icon,
-          color: isSelected ? Colors.white : AppColors.textSecondary,
+          color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
           size: 24,
         ),
       ),

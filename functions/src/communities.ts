@@ -100,7 +100,7 @@ function validateCommunitySettings(settings: Record<string, unknown>): void {
  */
 export const createCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "createCommunity");
+  await requireAppCheck(request, "createCommunity");
   await requirePlayIntegrity(request.data, request, "createCommunity", "HIGH");
 
   const { name, description, avatarUrl, type, settings, stokvelSettings } = request.data;
@@ -214,7 +214,7 @@ export const createCommunity = onCall({ labels: { area: "social" } }, async (req
  */
 export const updateCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "updateCommunity");
+  await requireAppCheck(request, "updateCommunity");
 
   const { communityId, name, description, avatarUrl, settings, stokvelSettings } = request.data;
 
@@ -271,7 +271,7 @@ export const updateCommunity = onCall({ labels: { area: "social" } }, async (req
  */
 export const deleteCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "deleteCommunity");
+  await requireAppCheck(request, "deleteCommunity");
   await requirePlayIntegrity(request.data, request, "deleteCommunity", "HIGH");
 
   const { communityId } = request.data;
@@ -368,7 +368,7 @@ export const deleteCommunity = onCall({ labels: { area: "social" } }, async (req
  */
 export const inviteCommunityMember = onCall({ labels: { area: "social" } }, async (request) => {
   const inviterId = requireAuth(request);
-  requireAppCheck(request, "inviteCommunityMember");
+  await requireAppCheck(request, "inviteCommunityMember");
 
   const { communityId, userId, role } = request.data;
 
@@ -503,7 +503,7 @@ export const inviteCommunityMember = onCall({ labels: { area: "social" } }, asyn
  */
 export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "acceptCommunityInvitation");
+  await requireAppCheck(request, "acceptCommunityInvitation");
 
   const { communityId } = request.data;
 
@@ -628,7 +628,7 @@ export const acceptCommunityInvitation = onCall({ labels: { area: "social" } }, 
  */
 export const removeCommunityMember = onCall({ labels: { area: "social" } }, async (request) => {
   const actorId = requireAuth(request);
-  requireAppCheck(request, "removeCommunityMember");
+  await requireAppCheck(request, "removeCommunityMember");
 
   const { communityId, memberId } = request.data;
 
@@ -713,7 +713,7 @@ export const removeCommunityMember = onCall({ labels: { area: "social" } }, asyn
  */
 export const updateCommunityMemberRole = onCall({ labels: { area: "social" } }, async (request) => {
   const actorId = requireAuth(request);
-  requireAppCheck(request, "updateCommunityMemberRole");
+  await requireAppCheck(request, "updateCommunityMemberRole");
 
   const { communityId, memberId, role } = request.data;
 
@@ -784,7 +784,7 @@ export const updateCommunityMemberRole = onCall({ labels: { area: "social" } }, 
  */
 export const leaveCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "leaveCommunity");
+  await requireAppCheck(request, "leaveCommunity");
 
   const { communityId } = request.data;
 
@@ -880,7 +880,7 @@ async function postSystemMessage(
  */
 export const sendCommunityMessage = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "sendCommunityMessage");
+  await requireAppCheck(request, "sendCommunityMessage");
 
   const { communityId, text, mediaUrl, mediaType, replyToMessageId, ciphertext, e2ee, encryptedPreviews, idempotencyKey } = request.data;
 
@@ -1024,7 +1024,7 @@ export const sendCommunityMessage = onCall({ labels: { area: "social" } }, async
  */
 export const markCommunityRead = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "markCommunityRead");
+  await requireAppCheck(request, "markCommunityRead");
 
   const { communityId } = request.data;
 
@@ -1063,7 +1063,7 @@ export const markCommunityRead = onCall({ labels: { area: "social" } }, async (r
  */
 export const toggleCommunityMessageReaction = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "toggleCommunityMessageReaction");
+  await requireAppCheck(request, "toggleCommunityMessageReaction");
 
   const { communityId, messageId, emoji } = request.data;
 
@@ -1114,7 +1114,7 @@ export const toggleCommunityMessageReaction = onCall({ labels: { area: "social" 
  */
 export const toggleCommunityMute = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "toggleCommunityMute");
+  await requireAppCheck(request, "toggleCommunityMute");
 
   const { communityId, muted } = request.data;
 
@@ -1144,7 +1144,7 @@ export const toggleCommunityMute = onCall({ labels: { area: "social" } }, async 
  */
 export const contributeToCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "contributeToCommunity");
+  await requireAppCheck(request, "contributeToCommunity");
   await requirePlayIntegrity(request.data, request, "contributeToCommunity", "HIGH");
 
   const { communityId, amount, description, idempotencyKey } = request.data;
@@ -1282,7 +1282,7 @@ export const contributeToCommunity = onCall({ labels: { area: "social" } }, asyn
  */
 export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "withdrawFromCommunity");
+  await requireAppCheck(request, "withdrawFromCommunity");
   await requirePlayIntegrity(request.data, request, "withdrawFromCommunity", "HIGH");
 
   const { communityId, amount, description, idempotencyKey } = request.data;
@@ -1474,7 +1474,7 @@ export const withdrawFromCommunity = onCall({ labels: { area: "social" } }, asyn
  */
 export const approveCommunityTransaction = onCall({ labels: { area: "social" } }, async (request) => {
   const approverId = requireAuth(request);
-  requireAppCheck(request, "approveCommunityTransaction");
+  await requireAppCheck(request, "approveCommunityTransaction");
 
   const { communityId, transactionId } = request.data;
 
@@ -1625,7 +1625,7 @@ export const approveCommunityTransaction = onCall({ labels: { area: "social" } }
  */
 export const rejectCommunityTransaction = onCall({ labels: { area: "social" } }, async (request) => {
   const rejecterId = requireAuth(request);
-  requireAppCheck(request, "rejectCommunityTransaction");
+  await requireAppCheck(request, "rejectCommunityTransaction");
 
   const { communityId, transactionId, reason } = request.data;
 
@@ -1705,7 +1705,7 @@ export const rejectCommunityTransaction = onCall({ labels: { area: "social" } },
  */
 export const getUserCommunities = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getUserCommunities");
+  await requireAppCheck(request, "getUserCommunities");
 
   const communitiesSnap = await db
     .collection(CommunityConfig.COLLECTION)
@@ -1726,7 +1726,7 @@ export const getUserCommunities = onCall({ labels: { area: "social" } }, async (
  */
 export const getCommunityDetails = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getCommunityDetails");
+  await requireAppCheck(request, "getCommunityDetails");
 
   const { communityId } = request.data;
 
@@ -1763,7 +1763,7 @@ export const getCommunityDetails = onCall({ labels: { area: "social" } }, async 
  */
 export const getCommunityTransactions = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getCommunityTransactions");
+  await requireAppCheck(request, "getCommunityTransactions");
 
   const { communityId, limit = 50 } = request.data;
 
@@ -1793,7 +1793,7 @@ export const getCommunityTransactions = onCall({ labels: { area: "social" } }, a
  */
 export const getCommunityPendingApprovals = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getCommunityPendingApprovals");
+  await requireAppCheck(request, "getCommunityPendingApprovals");
 
   const { communityId } = request.data;
 
@@ -2371,7 +2371,7 @@ export const processCommunityPayouts = onSchedule(
  */
 export const triggerCommunityPayout = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "triggerCommunityPayout");
+  await requireAppCheck(request, "triggerCommunityPayout");
   await requirePlayIntegrity(request.data, request, "triggerCommunityPayout", "HIGH");
 
   const { communityId, recipientId } = request.data;
@@ -2525,7 +2525,7 @@ export const triggerCommunityPayout = onCall({ labels: { area: "social" } }, asy
  */
 export const getCommunityAnalytics = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "getCommunityAnalytics");
+  await requireAppCheck(request, "getCommunityAnalytics");
 
   const { communityId, months = 6 } = request.data;
 

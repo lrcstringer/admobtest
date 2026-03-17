@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/group_buy.dart';
 import '../../../domain/entities/group_buy_contribution.dart';
 import '../../../domain/enums/group_buy_status.dart';
@@ -1450,11 +1450,8 @@ class _GroupBuyDetailScreenState extends State<GroupBuyDetailScreen> {
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
-                Clipboard.setData(
-                  ClipboardData(
-                    text:
-                        '${AppConstants.deepLinkDomain}/buy/group-buys/${groupBuy.id}',
-                  ),
+                SecureClipboard.copy(
+                  '${AppConstants.deepLinkDomain}/buy/group-buys/${groupBuy.id}',
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

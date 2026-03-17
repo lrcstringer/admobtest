@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/referral.dart';
 import '../../blocs/referral/referral_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -298,7 +298,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
               AppSpacing.horizontalMd,
               IconButton(
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: stats.referralCode));
+                  SecureClipboard.copy(stats.referralCode);
                   context
                       .read<ReferralBloc>()
                       .add(const ReferralEvent.copyCode());
@@ -317,8 +317,7 @@ class _ReferralScreenState extends State<ReferralScreen> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Clipboard.setData(
-                        ClipboardData(text: stats.referralLink));
+                    SecureClipboard.copy(stats.referralLink);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Link copied!')),
                     );

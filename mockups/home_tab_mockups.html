@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMaliChat Home Tab — Color Palette Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ---- Top Nav ---- */
+  .top-nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #1a1a2e;
+    border-bottom: 1px solid #2a2e3d;
+  }
+  .top-nav button {
+    padding: 10px 28px;
+    border-radius: 24px;
+    border: 2px solid #2a2e3d;
+    background: transparent;
+    color: #8899a6;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .top-nav button.active {
+    background: linear-gradient(135deg, #FF328C, #A011FF);
+    border-color: transparent;
+    color: #fff;
+  }
+  .top-nav button:hover:not(.active) {
+    border-color: #FF328C;
+    color: #FF328C;
+  }
+
+  .label-row {
+    text-align: center;
+    padding: 8px 16px 20px;
+    color: #8899a6;
+    font-size: 13px;
+  }
+  .label-row strong { color: #FF328C; }
+
+  /* ---- Phone frame ---- */
+  .phone-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 0 16px 40px;
+  }
+  .phone-frame {
+    width: 390px;
+    height: 844px;
+    border-radius: 44px;
+    overflow: hidden;
+    border: 3px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+  }
+  .phone-screen::-webkit-scrollbar { width: 0; }
+
+  /* ---- Shared card styles ---- */
+  .app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 52px 20px 12px;
+  }
+  .app-bar-title { font-size: 20px; font-weight: 700; }
+  .app-bar-actions { display: flex; align-items: center; gap: 8px; }
+  .app-bar-actions .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .greeting { font-size: 16px; margin-bottom: 4px; }
+  .user-row { display: flex; align-items: center; justify-content: space-between; }
+  .user-name { font-size: 24px; font-weight: 700; }
+
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #FFB82C, #FF6429);
+    color: #0C1124;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .balance-card {
+    padding: 14px 20px;
+    border-radius: 16px;
+    margin-top: 12px;
+  }
+  .balance-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .balance-label { font-size: 14px; }
+  .balance-value { font-size: 20px; font-weight: 700; }
+
+  .earn-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+  }
+
+  .progress-card {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FFB82C, #FF6429);
+    margin-top: 16px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    color: #0C1124;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .progress-bar-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(12,17,36,0.3);
+    margin-bottom: 6px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 30%;
+    border-radius: 2px;
+    background: #0C1124;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: rgba(12,17,36,0.8);
+  }
+
+  .pots-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .pot-card {
+    flex: 1;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .pot-accent-bar { height: 4px; }
+  .pot-accent-bar.gold { background: linear-gradient(90deg, #FFB82C, #FF6429); }
+  .pot-accent-bar.pink { background: linear-gradient(90deg, #FF328C, #A011FF); }
+  .pot-body { padding: 12px; }
+  .pot-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .pot-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .pot-title {
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .pot-amount {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .pot-timer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .pot-rank-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .invite-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #FF328C, #A011FF);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 24px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .how-link {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #FF328C;
+    margin-bottom: 32px;
+  }
+
+  .content-pad { padding: 0 20px; }
+
+  /* Hide inactive mockups */
+  .mockup { display: none; }
+  .mockup.active { display: block; }
+
+  /* ---- OPTION A specific ---- */
+  /* Neutral charcoal (no saturated navy), brighter cards, better text */
+  .opt-a .phone-screen {
+    background: linear-gradient(180deg, #111830, #0A0C14);
+  }
+  .opt-a .wave-overlay {
+    /* Much subtler — no heavy blue radials, just a faint tint */
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(17,24,48,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(9,116,255,0.06) 0%, transparent 50%);
+  }
+  .opt-a .app-bar-title { color: #fff; }
+  .opt-a .app-bar-actions .icon-btn { color: #fff; }
+  .opt-a .avatar { background: #2E3347; color: #fff; }
+  .opt-a .greeting { color: #A0AEC0; }
+  .opt-a .user-name { color: #fff; }
+  .opt-a .balance-card {
+    background: #1A1E2E;
+    border: 1px solid #2E3347;
+  }
+  .opt-a .balance-label { color: #A0AEC0; }
+  .opt-a .balance-value { color: #fff; }
+  .opt-a .pot-card {
+    background: #1A1E2E;
+    border: 1px solid #2E3347;
+  }
+  .opt-a .pot-label.gold-text { color: #FFB82C; }
+  .opt-a .pot-label.pink-text { color: #FF328C; }
+  .opt-a .pot-title { color: #A0AEC0; }
+  .opt-a .pot-amount { color: #fff; }
+  .opt-a .pot-timer { color: #A0AEC0; }
+  .opt-a .pot-rank-row { color: #A0AEC0; }
+
+  /* ---- OPTION B specific ---- */
+  .opt-b .phone-screen {
+    background: #F5F7FA;
+  }
+  .opt-b .hero-zone {
+    background: linear-gradient(180deg, #142978, #0C1124);
+    padding-bottom: 0;
+    position: relative;
+  }
+  .opt-b .hero-zone .app-bar-title { color: #fff; }
+  .opt-b .hero-zone .app-bar-actions .icon-btn { color: #fff; }
+  .opt-b .hero-zone .avatar { background: #2A2E3D; color: #fff; }
+  .opt-b .hero-zone .greeting { color: #A0AEC0; }
+  .opt-b .hero-zone .user-name { color: #fff; }
+  .opt-b .hero-zone .balance-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+  }
+  .opt-b .hero-zone .balance-label { color: #A0AEC0; }
+  .opt-b .hero-zone .balance-value { color: #fff; }
+  .opt-b .content-zone {
+    background: #F5F7FA;
+    border-radius: 24px 24px 0 0;
+    margin-top: -12px;
+    position: relative;
+    z-index: 2;
+    padding: 20px 20px 0;
+  }
+  .opt-b .pot-card {
+    background: #fff;
+    border: 1px solid #E8ECF1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .opt-b .pot-label.gold-text { color: #FFB82C; }
+  .opt-b .pot-label.pink-text { color: #FF328C; }
+  .opt-b .pot-title { color: #64748B; }
+  .opt-b .pot-amount { color: #1A1A2E; }
+  .opt-b .pot-timer { color: #64748B; }
+  .opt-b .pot-rank-row { color: #64748B; }
+  .opt-b .invite-btn {
+    box-shadow: 0 4px 12px rgba(255,50,140,0.25);
+  }
+  .opt-b .how-link { color: #FF328C; }
+
+  /* ---- OPTION C specific ---- */
+  .opt-c .phone-screen {
+    background: #F5F7FA;
+  }
+  .opt-c .app-bar {
+    background: #fff;
+    border-bottom: 1px solid #EAECF0;
+  }
+  .opt-c .app-bar-title { color: #1A1A2E; }
+  .opt-c .app-bar-actions .icon-btn { color: #64748B; }
+  .opt-c .avatar { background: #E8ECF1; color: #64748B; }
+  .opt-c .greeting { color: #64748B; }
+  .opt-c .user-name { color: #1A1A2E; }
+  .opt-c .balance-card {
+    background: #fff;
+    border: 1px solid #E8ECF1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .opt-c .balance-label { color: #64748B; }
+  .opt-c .balance-value { color: #1A1A2E; }
+  .opt-c .earn-btn {
+    box-shadow: 0 3px 8px rgba(255,50,140,0.2);
+  }
+  .opt-c .progress-card {
+    box-shadow: 0 3px 8px rgba(255,184,44,0.25);
+  }
+  .opt-c .pot-card {
+    background: #fff;
+    border: 1px solid #E8ECF1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .opt-c .pot-label.gold-text { color: #FFB82C; }
+  .opt-c .pot-label.pink-text { color: #FF328C; }
+  .opt-c .pot-title { color: #64748B; }
+  .opt-c .pot-amount { color: #1A1A2E; }
+  .opt-c .pot-timer { color: #64748B; }
+  .opt-c .pot-rank-row { color: #64748B; }
+  .opt-c .invite-btn {
+    box-shadow: 0 4px 12px rgba(255,50,140,0.25);
+  }
+  .opt-c .how-link { color: #FF328C; }
+
+  /* ---- Current (reference) ---- */
+  /* Heavy saturated navy gradient — this is the actual app today */
+  .opt-current .phone-screen {
+    background: linear-gradient(180deg, #142978, #0C1124);
+  }
+  .opt-current .wave-overlay {
+    /* Strong blue/navy wave simulation — matches the heavy feel of the real app */
+    background:
+      radial-gradient(ellipse 100% 60% at 30% 5%, rgba(20,41,120,0.7) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 75% 15%, rgba(9,116,255,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 90% 40% at 50% 35%, rgba(20,41,120,0.25) 0%, transparent 60%);
+  }
+  .opt-current .app-bar-title { color: #fff; }
+  .opt-current .app-bar-actions .icon-btn { color: #fff; }
+  .opt-current .avatar { background: #2A2E3D; color: #fff; }
+  .opt-current .greeting { color: #8899A6; }
+  .opt-current .user-name { color: #fff; }
+  .opt-current .balance-card {
+    background: #13161D;
+    border: 1px solid #2A2E3D;
+  }
+  .opt-current .balance-label { color: #8899A6; }
+  .opt-current .balance-value { color: #fff; }
+  .opt-current .pot-card {
+    background: #13161D;
+    border: 1px solid #2A2E3D;
+  }
+  .opt-current .pot-label.gold-text { color: #FFB82C; }
+  .opt-current .pot-label.pink-text { color: #FF328C; }
+  .opt-current .pot-title { color: #8899A6; }
+  .opt-current .pot-amount { color: #fff; }
+  .opt-current .pot-timer { color: #8899A6; }
+  .opt-current .pot-rank-row { color: #8899A6; }
+
+  /* wave overlay simulation */
+  .wave-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 300px;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(20,41,120,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(9,116,255,0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .wave-overlay-hero {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(20,41,120,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(9,116,255,0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .hero-content, .opt-a .content-pad, .opt-current .content-pad {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0 28px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+  .bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .bottom-nav .nav-item.active-tab { color: #FF328C; }
+  .bottom-nav .nav-item .material-icons { font-size: 22px; }
+
+  /* Dark bottom nav */
+  .nav-dark {
+    background: #0C1124;
+    border-top: 1px solid #1E2233;
+    color: #8899A6;
+  }
+  /* Light bottom nav */
+  .nav-light {
+    background: #fff;
+    border-top: 1px solid #EAECF0;
+    color: #94A3B8;
+  }
+</style>
+</head>
+<body>
+
+<!-- ---- Tab Selector ---- -->
+<div class="top-nav">
+  <button class="active" onclick="showMockup('current')">Current</button>
+  <button onclick="showMockup('a')">A: Lighten Dark</button>
+  <button onclick="showMockup('b')">B: Hybrid</button>
+  <button onclick="showMockup('c')">C: Full Light</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- CURRENT (reference)                                          -->
+<!-- ============================================================ -->
+<div id="mock-current" class="mockup active">
+  <div class="label-row"><strong>Current Design</strong> — Saturated navy gradient #142978 → #0C1124, dark cards #13161D, secondary text #8899A6</div>
+  <div class="phone-wrapper">
+    <div class="phone-frame opt-current">
+      <div class="phone-screen">
+        <div class="wave-overlay"></div>
+        <!-- AppBar -->
+        <div class="app-bar">
+          <div class="app-bar-title">Home</div>
+          <div class="app-bar-actions">
+            <button class="icon-btn"><span class="material-icons">help_outline</span></button>
+            <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+            <div class="avatar"><span class="material-icons" style="font-size:18px">person</span></div>
+          </div>
+        </div>
+        <div class="content-pad">
+          <!-- Header -->
+          <div class="greeting">Good Morning,</div>
+          <div class="user-row">
+            <div class="user-name">Thabo</div>
+            <div class="streak-badge">
+              <span class="material-icons" style="font-size:18px">local_fire_department</span>
+              STREAK: 5 DAYS
+            </div>
+          </div>
+          <!-- Balance Card -->
+          <div class="balance-card">
+            <div class="balance-row">
+              <span class="material-icons" style="color:#FF328C;font-size:20px">account_balance_wallet</span>
+              <span class="balance-label">Tokens Balance:</span>
+              <span class="balance-value">1,250</span>
+            </div>
+            <button class="earn-btn">Earn Now</button>
+          </div>
+          <!-- Progress -->
+          <div class="progress-card">
+            <div class="progress-header">
+              <span>Today's Progress</span><span>3 / 10</span>
+            </div>
+            <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+            <div class="progress-label">30% of daily earn limit</div>
+          </div>
+          <!-- Pots -->
+          <div class="pots-row">
+            <div class="pot-card">
+              <div class="pot-accent-bar gold"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label gold-text">DAILY</span>
+                  <span class="material-icons" style="color:#FFB82C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">TODAY'S POT</div>
+                <div class="pot-amount">R 45.20</div>
+                <div class="pot-timer">
+                  <span class="material-icons" style="font-size:14px">timer</span> about 6 hours
+                </div>
+                <div class="pot-rank-row">
+                  <span>Your Rank: #12</span>
+                  <span class="material-icons" style="font-size:18px">chevron_right</span>
+                </div>
+              </div>
+            </div>
+            <div class="pot-card">
+              <div class="pot-accent-bar pink"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label pink-text">WEEKLY</span>
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">THIS WEEK'S POT</div>
+                <div class="pot-amount">R 312.50</div>
+                <div class="pot-timer">
+                  <span class="material-icons" style="font-size:14px">timer</span> 3 days
+                </div>
+                <div class="pot-rank-row">
+                  <span>Your Rank: #8</span>
+                  <span class="material-icons" style="font-size:18px">chevron_right</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Invite -->
+          <button class="invite-btn">
+            <span class="material-icons" style="font-size:20px">person_add</span>
+            Invite Friends & Earn
+          </button>
+          <div class="how-link">How iMaliChat works</div>
+        </div>
+        <!-- Bottom Nav -->
+        <div class="bottom-nav nav-dark">
+          <div class="nav-item active-tab"><span class="material-icons">home</span>Home</div>
+          <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+          <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+          <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+          <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPTION A: Lighten the Dark                                   -->
+<!-- ============================================================ -->
+<div id="mock-a" class="mockup">
+  <div class="label-row"><strong>Option A: Lighten the Dark</strong> — Neutral charcoal #111830 → #0A0C14, brighter cards #1A1E2E, better text #A0AEC0, subtle blue tint</div>
+  <div class="phone-wrapper">
+    <div class="phone-frame opt-a">
+      <div class="phone-screen">
+        <div class="wave-overlay"></div>
+        <div class="app-bar">
+          <div class="app-bar-title">Home</div>
+          <div class="app-bar-actions">
+            <button class="icon-btn"><span class="material-icons">help_outline</span></button>
+            <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+            <div class="avatar"><span class="material-icons" style="font-size:18px">person</span></div>
+          </div>
+        </div>
+        <div class="content-pad">
+          <div class="greeting">Good Morning,</div>
+          <div class="user-row">
+            <div class="user-name">Thabo</div>
+            <div class="streak-badge">
+              <span class="material-icons" style="font-size:18px">local_fire_department</span>
+              STREAK: 5 DAYS
+            </div>
+          </div>
+          <div class="balance-card">
+            <div class="balance-row">
+              <span class="material-icons" style="color:#FF328C;font-size:20px">account_balance_wallet</span>
+              <span class="balance-label">Tokens Balance:</span>
+              <span class="balance-value">1,250</span>
+            </div>
+            <button class="earn-btn">Earn Now</button>
+          </div>
+          <div class="progress-card">
+            <div class="progress-header">
+              <span>Today's Progress</span><span>3 / 10</span>
+            </div>
+            <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+            <div class="progress-label">30% of daily earn limit</div>
+          </div>
+          <div class="pots-row">
+            <div class="pot-card">
+              <div class="pot-accent-bar gold"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label gold-text">DAILY</span>
+                  <span class="material-icons" style="color:#FFB82C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">TODAY'S POT</div>
+                <div class="pot-amount">R 45.20</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> about 6 hours</div>
+                <div class="pot-rank-row"><span>Your Rank: #12</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="pot-card">
+              <div class="pot-accent-bar pink"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label pink-text">WEEKLY</span>
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">THIS WEEK'S POT</div>
+                <div class="pot-amount">R 312.50</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> 3 days</div>
+                <div class="pot-rank-row"><span>Your Rank: #8</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+          </div>
+          <button class="invite-btn">
+            <span class="material-icons" style="font-size:20px">person_add</span>
+            Invite Friends & Earn
+          </button>
+          <div class="how-link">How iMaliChat works</div>
+        </div>
+        <div class="bottom-nav nav-dark" style="background:#0A0C14; border-color:#1E2233;">
+          <div class="nav-item active-tab"><span class="material-icons">home</span>Home</div>
+          <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+          <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+          <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+          <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPTION B: Hybrid (dark hero + light content)                 -->
+<!-- ============================================================ -->
+<div id="mock-b" class="mockup">
+  <div class="label-row"><strong>Option B: Light Default, Dark Header</strong> — Dark gradient hero zone, light #F5F7FA content with white cards, rounded transition</div>
+  <div class="phone-wrapper">
+    <div class="phone-frame opt-b">
+      <div class="phone-screen">
+        <!-- HERO ZONE -->
+        <div class="hero-zone">
+          <div class="wave-overlay-hero"></div>
+          <div class="hero-content">
+            <div class="app-bar">
+              <div class="app-bar-title">Home</div>
+              <div class="app-bar-actions">
+                <button class="icon-btn"><span class="material-icons">help_outline</span></button>
+                <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+                <div class="avatar"><span class="material-icons" style="font-size:18px">person</span></div>
+              </div>
+            </div>
+            <div style="padding: 0 20px 24px;">
+              <div class="greeting">Good Morning,</div>
+              <div class="user-row">
+                <div class="user-name">Thabo</div>
+                <div class="streak-badge">
+                  <span class="material-icons" style="font-size:18px">local_fire_department</span>
+                  STREAK: 5 DAYS
+                </div>
+              </div>
+              <div class="balance-card">
+                <div class="balance-row">
+                  <span class="material-icons" style="color:#FF328C;font-size:20px">account_balance_wallet</span>
+                  <span class="balance-label">Tokens Balance:</span>
+                  <span class="balance-value">1,250</span>
+                </div>
+                <button class="earn-btn">Earn Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- CONTENT ZONE -->
+        <div class="content-zone">
+          <div class="progress-card" style="margin-top:0;">
+            <div class="progress-header">
+              <span>Today's Progress</span><span>3 / 10</span>
+            </div>
+            <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+            <div class="progress-label">30% of daily earn limit</div>
+          </div>
+          <div class="pots-row" style="margin-top:20px;">
+            <div class="pot-card">
+              <div class="pot-accent-bar gold"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label gold-text">DAILY</span>
+                  <span class="material-icons" style="color:#FFB82C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">TODAY'S POT</div>
+                <div class="pot-amount">R 45.20</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> about 6 hours</div>
+                <div class="pot-rank-row"><span>Your Rank: #12</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="pot-card">
+              <div class="pot-accent-bar pink"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label pink-text">WEEKLY</span>
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">THIS WEEK'S POT</div>
+                <div class="pot-amount">R 312.50</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> 3 days</div>
+                <div class="pot-rank-row"><span>Your Rank: #8</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+          </div>
+          <button class="invite-btn">
+            <span class="material-icons" style="font-size:20px">person_add</span>
+            Invite Friends & Earn
+          </button>
+          <div class="how-link">How iMaliChat works</div>
+        </div>
+        <!-- Bottom Nav -->
+        <div class="bottom-nav nav-light">
+          <div class="nav-item active-tab"><span class="material-icons">home</span>Home</div>
+          <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+          <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+          <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+          <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPTION C: Full Light                                         -->
+<!-- ============================================================ -->
+<div id="mock-c" class="mockup">
+  <div class="label-row"><strong>Option C: Full Light</strong> — Light #F5F7FA scaffold, white #FFFFFF cards, dark text #1A1A2E/#64748B, accent colors on CTAs only</div>
+  <div class="phone-wrapper">
+    <div class="phone-frame opt-c">
+      <div class="phone-screen">
+        <div class="app-bar">
+          <div class="app-bar-title">Home</div>
+          <div class="app-bar-actions">
+            <button class="icon-btn"><span class="material-icons">help_outline</span></button>
+            <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+            <div class="avatar"><span class="material-icons" style="font-size:18px">person</span></div>
+          </div>
+        </div>
+        <div class="content-pad">
+          <div class="greeting">Good Morning,</div>
+          <div class="user-row">
+            <div class="user-name">Thabo</div>
+            <div class="streak-badge">
+              <span class="material-icons" style="font-size:18px">local_fire_department</span>
+              STREAK: 5 DAYS
+            </div>
+          </div>
+          <div class="balance-card">
+            <div class="balance-row">
+              <span class="material-icons" style="color:#FF328C;font-size:20px">account_balance_wallet</span>
+              <span class="balance-label">Tokens Balance:</span>
+              <span class="balance-value">1,250</span>
+            </div>
+            <button class="earn-btn">Earn Now</button>
+          </div>
+          <div class="progress-card">
+            <div class="progress-header">
+              <span>Today's Progress</span><span>3 / 10</span>
+            </div>
+            <div class="progress-bar-track"><div class="progress-bar-fill"></div></div>
+            <div class="progress-label">30% of daily earn limit</div>
+          </div>
+          <div class="pots-row">
+            <div class="pot-card">
+              <div class="pot-accent-bar gold"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label gold-text">DAILY</span>
+                  <span class="material-icons" style="color:#FFB82C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">TODAY'S POT</div>
+                <div class="pot-amount">R 45.20</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> about 6 hours</div>
+                <div class="pot-rank-row"><span>Your Rank: #12</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+            <div class="pot-card">
+              <div class="pot-accent-bar pink"></div>
+              <div class="pot-body">
+                <div class="pot-label-row">
+                  <span class="pot-label pink-text">WEEKLY</span>
+                  <span class="material-icons" style="color:#FF328C;font-size:18px">emoji_events</span>
+                </div>
+                <div class="pot-title">THIS WEEK'S POT</div>
+                <div class="pot-amount">R 312.50</div>
+                <div class="pot-timer"><span class="material-icons" style="font-size:14px">timer</span> 3 days</div>
+                <div class="pot-rank-row"><span>Your Rank: #8</span><span class="material-icons" style="font-size:18px">chevron_right</span></div>
+              </div>
+            </div>
+          </div>
+          <button class="invite-btn">
+            <span class="material-icons" style="font-size:20px">person_add</span>
+            Invite Friends & Earn
+          </button>
+          <div class="how-link">How iMaliChat works</div>
+        </div>
+        <div class="bottom-nav nav-light">
+          <div class="nav-item active-tab"><span class="material-icons">home</span>Home</div>
+          <div class="nav-item"><span class="material-icons">emoji_events</span>Earn</div>
+          <div class="nav-item"><span class="material-icons">chat_bubble_outline</span>Chat</div>
+          <div class="nav-item"><span class="material-icons">shopping_bag</span>Buy</div>
+          <div class="nav-item"><span class="material-icons">account_balance_wallet</span>Wallet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showMockup(id) {
+  document.querySelectorAll('.mockup').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.top-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('mock-' + id).classList.add('active');
+  // Activate the clicked button
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -10,6 +10,41 @@ import { decodeIntegrityToken, evaluateVerdict, IntegrityTier } from "./integrit
 
 const db = admin.firestore();
 
+// ── Enforcement config cache ────────────────────────────────────────
+// Reads from Firestore `config/security` doc so enforcement can be
+// toggled without redeploying Cloud Functions.
+// Fields: { appCheckEnforce: boolean, playIntegrityEnforce: boolean }
+let _enforcementCache: { appCheck: boolean; playIntegrity: boolean } | null = null;
+let _enforcementCacheExpiry = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function getEnforcementConfig(): Promise<{ appCheck: boolean; playIntegrity: boolean }> {
+  const now = Date.now();
+  if (_enforcementCache && now < _enforcementCacheExpiry) {
+    return _enforcementCache;
+  }
+
+  try {
+    const doc = await db.collection("config").doc("security").get();
+    if (doc.exists) {
+      const data = doc.data()!;
+      _enforcementCache = {
+        appCheck: data.appCheckEnforce === true,
+        playIntegrity: data.playIntegrityEnforce === true,
+      };
+    } else {
+      // Default: advisory mode until config doc is created
+      _enforcementCache = { appCheck: false, playIntegrity: false };
+    }
+  } catch (err) {
+    logger.warn("[Security] Failed to read enforcement config, using defaults", err);
+    _enforcementCache = { appCheck: false, playIntegrity: false };
+  }
+
+  _enforcementCacheExpiry = now + CACHE_TTL_MS;
+  return _enforcementCache;
+}
+
 /**
  * Structural interface compatible with both Gen1 CallableContext and
  * Gen2 CallableRequest, so helpers work during the migration period.
@@ -24,12 +59,12 @@ interface CallableContextCompat {
  * In monitoring mode (enforce=false), logs a warning but does not reject.
  * In enforcement mode (enforce=true), throws unauthenticated.
  */
-export function requireAppCheck(
+export async function requireAppCheck(
   context: CallableContextCompat,
   functionName: string,
-  // TODO: Set to true once app is published to Google Play with Play Integrity
-  enforce: boolean = false
-): void {
+  enforceOverride?: boolean
+): Promise<void> {
+  const enforce = enforceOverride ?? (await getEnforcementConfig()).appCheck;
   if (!context.app) {
     logger.warn(
       `[AppCheck] Missing app token on ${functionName} ` +
@@ -65,9 +100,9 @@ export async function requirePlayIntegrity(
   context: CallableContextCompat,
   functionName: string,
   tier: IntegrityTier,
-  // TODO: Set to true once app is published to Google Play with Play Integrity
-  enforce: boolean = false
+  enforceOverride?: boolean
 ): Promise<void> {
+  const enforce = enforceOverride ?? (await getEnforcementConfig()).playIntegrity;
   const integrityToken = data.integrityToken as string | undefined;
   const integrityNonce = data.integrityNonce as string | undefined;
   const userId = context.auth?.uid || "unauthenticated";

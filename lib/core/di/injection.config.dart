@@ -171,6 +171,7 @@ import '../security/security_service.dart' as _i383;
 import '../security/session_lock_service.dart' as _i942;
 import '../security/sim_change_detector.dart' as _i925;
 import '../security/step_up_auth_service.dart' as _i720;
+import '../security/version_enforcement_service.dart' as _i464;
 import '../services/audio_playback_service.dart' as _i38;
 import '../services/biometric_login_service.dart' as _i290;
 import '../services/buy_analytics_service.dart' as _i941;
@@ -405,6 +406,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i988.AuditLogger>(
       () => _i988.AuditLogger(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i464.VersionEnforcementService>(
+      () => _i464.VersionEnforcementService(gh<_i974.FirebaseFirestore>()),
     );
     gh.lazySingleton<_i474.ShareService>(
       () => _i474.ShareService(gh<_i59.FirebaseAuth>()),

@@ -23,7 +23,7 @@ export const verifyPlayIntegrity = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "verifyPlayIntegrity");
+    await requireAppCheck(request, "verifyPlayIntegrity");
 
     const {token, nonce} = request.data;
 
@@ -74,7 +74,7 @@ export const verifyPlayIntegrity = onCall(
  * Verify reCAPTCHA token
  */
 export const verifyCaptcha = onCall({ labels: { area: "auth" } }, async (request) => {
-  requireAppCheck(request, "verifyCaptcha");
+  await requireAppCheck(request, "verifyCaptcha");
 
   const {token, action, userId} = request.data;
 
@@ -122,7 +122,7 @@ export const checkFraudRisk = onCall({ labels: { area: "auth" } }, async (reques
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "checkFraudRisk");
+  await requireAppCheck(request, "checkFraudRisk");
 
   const userId = request.auth.uid;
   const {action, amount} = request.data;
@@ -196,7 +196,7 @@ export const flagUserForFraud = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "flagUserForFraud");
+    await requireAppCheck(request, "flagUserForFraud");
 
     // In production, check for admin role
     // const isAdmin = context.auth.token.admin === true;
@@ -248,7 +248,7 @@ export const removeFraudFlag = onCall({ labels: { area: "auth" } }, async (reque
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "removeFraudFlag");
+  await requireAppCheck(request, "removeFraudFlag");
 
   const {flagId, reason} = request.data;
 
@@ -299,7 +299,7 @@ export const logSecurityEvent = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "logSecurityEvent");
+    await requireAppCheck(request, "logSecurityEvent");
 
     const {eventType, action, metadata, riskLevel} = request.data;
 

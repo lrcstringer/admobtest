@@ -118,7 +118,6 @@ class AppTheme {
     foregroundColor: AppColors.buyTextPrimary,
     surfaceTintColor: Colors.transparent,
     systemOverlayStyle: SystemUiOverlayStyle.dark,
-    iconTheme: IconThemeData(color: AppColors.buyTextPrimary),
   );
 
   static const AppBarTheme _darkAppBarTheme = AppBarTheme(
@@ -129,7 +128,6 @@ class AppTheme {
     foregroundColor: AppColors.textPrimaryDark,
     surfaceTintColor: Colors.transparent,
     systemOverlayStyle: SystemUiOverlayStyle.light,
-    iconTheme: IconThemeData(color: AppColors.textPrimaryDark),
   );
 
   // ============ CARD THEMES ============

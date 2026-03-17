@@ -52,7 +52,7 @@ async function getUserProfile(userId: string) {
  */
 export const sendConversationTokens = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "sendConversationTokens");
+  await requireAppCheck(request, "sendConversationTokens");
   await requirePlayIntegrity(request.data, request, "sendConversationTokens", "HIGHEST");
 
   const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh, senderSubAccountId } = request.data;
@@ -185,7 +185,7 @@ export const sendConversationTokens = onCall({ labels: { area: "social" } }, asy
  */
 export const requestConversationTokens = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "requestConversationTokens");
+  await requireAppCheck(request, "requestConversationTokens");
 
   const { conversationId, recipientId, amount, encryptedMessage, messageE2ee, messageX3dh, senderSubAccountId } = request.data;
 
@@ -280,7 +280,7 @@ export const requestConversationTokens = onCall({ labels: { area: "social" } }, 
  */
 export const acceptConversationTokenRequest = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "acceptConversationTokenRequest");
+  await requireAppCheck(request, "acceptConversationTokenRequest");
   await requirePlayIntegrity(request.data, request, "acceptConversationTokenRequest", "HIGHEST");
 
   const { conversationId, messageId } = request.data;
@@ -406,7 +406,7 @@ export const acceptConversationTokenRequest = onCall({ labels: { area: "social" 
  */
 export const declineConversationTokenRequest = onCall({ labels: { area: "social" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "declineConversationTokenRequest");
+  await requireAppCheck(request, "declineConversationTokenRequest");
 
   const { conversationId, messageId } = request.data;
 

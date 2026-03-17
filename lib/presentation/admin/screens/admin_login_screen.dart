@@ -171,6 +171,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
+                        autocorrect: false,
+                        enableSuggestions: false,
                         enabled: !isLoading,
                         style: const TextStyle(color: AppColors.textPrimaryDark),
                         decoration: InputDecoration(

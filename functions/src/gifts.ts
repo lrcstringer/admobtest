@@ -66,7 +66,7 @@ const GIFT_EXPIRY_DAYS = 7;
  */
 export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "sendGift");
+  await requireAppCheck(request, "sendGift");
   // Advisory mode (enforce=false): fire-and-forget — don't block the request
   // with the 1-3s Google Play Integrity API decode + Firestore audit log.
   requirePlayIntegrity(request.data, request, "sendGift", "HIGHEST")
@@ -359,7 +359,7 @@ export const sendGift = onCall({ labels: { area: "gifts" } }, async (request) =>
  */
 export const openGift = onCall({ labels: { area: "gifts" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "openGift");
+  await requireAppCheck(request, "openGift");
 
   const { giftId } = request.data;
   if (!giftId || typeof giftId !== "string") {
@@ -440,7 +440,7 @@ export const openGift = onCall({ labels: { area: "gifts" }, minInstances: 0 }, a
  */
 export const claimGift = onCall({ labels: { area: "gifts" }, minInstances: 0 }, async (request) => {
   const userId = requireAuth(request);
-  requireAppCheck(request, "claimGift");
+  await requireAppCheck(request, "claimGift");
   // Advisory mode (enforce=false): fire-and-forget — don't block the request.
   requirePlayIntegrity(request.data, request, "claimGift", "HIGHEST")
     .catch((e) => logger.warn("[claimGift] Play integrity check error:", e));

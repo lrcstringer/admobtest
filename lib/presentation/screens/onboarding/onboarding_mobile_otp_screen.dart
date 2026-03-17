@@ -111,7 +111,7 @@ class _OnboardingMobileOtpScreenState
                           .textTheme
                           .headlineMedium
                           ?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
@@ -142,7 +142,7 @@ class _OnboardingMobileOtpScreenState
                 'Verify your number',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -154,7 +154,7 @@ class _OnboardingMobileOtpScreenState
                 'We sent a code to your number',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
 
@@ -167,7 +167,7 @@ class _OnboardingMobileOtpScreenState
                   Text(
                     phoneNumber,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   const SizedBox(width: 8),
@@ -204,8 +204,8 @@ class _OnboardingMobileOtpScreenState
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -241,7 +241,7 @@ class _OnboardingMobileOtpScreenState
                   Text(
                     "Didn't receive your OTP code?",
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                   const SizedBox(width: 4),

@@ -156,7 +156,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                         .textTheme
                                         .headlineMedium
                                         ?.copyWith(
-                                          color: AppColors.textPrimary,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                           fontWeight: FontWeight.bold,
                                         ),
                                   ),
@@ -196,7 +196,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   .textTheme
                                   .titleLarge
                                   ?.copyWith(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -217,13 +217,13 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   keyboardType: TextInputType.name,
                                   textCapitalization:
                                       TextCapitalization.words,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     hintText: 'First name(s)',
                                     hintStyle: TextStyle(
-                                      color: AppColors.textHint,
+                                      color: Theme.of(context).hintColor,
                                     ),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
@@ -252,13 +252,13 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   keyboardType: TextInputType.name,
                                   textCapitalization:
                                       TextCapitalization.words,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     hintText: 'Surname',
                                     hintStyle: TextStyle(
-                                      color: AppColors.textHint,
+                                      color: Theme.of(context).hintColor,
                                     ),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(
@@ -290,13 +290,13 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                       keyboardType: TextInputType.name,
                                       textCapitalization:
                                           TextCapitalization.words,
-                                      style: const TextStyle(
-                                        color: AppColors.textPrimary,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                         hintText: 'Display name',
                                         hintStyle: TextStyle(
-                                          color: AppColors.textHint,
+                                          color: Theme.of(context).hintColor,
                                         ),
                                         border: InputBorder.none,
                                         contentPadding:
@@ -312,7 +312,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                                   Text(
                                     'This is how other iMaliChat users will know you',
                                     style: TextStyle(
-                                      color: AppColors.textHint,
+                                      color: Theme.of(context).hintColor,
                                       fontSize: 12,
                                     ),
                                   ),

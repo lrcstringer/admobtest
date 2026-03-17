@@ -162,7 +162,7 @@ export const createGroup = onCall({ labels: { area: "social" } }, async (request
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "createGroup");
+  await requireAppCheck(request, "createGroup");
   await requirePlayIntegrity(request.data, request, "createGroup", "HIGH");
 
   const userId = request.auth.uid;
@@ -271,7 +271,7 @@ export const updateGroup = onCall({ labels: { area: "social" } }, async (request
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "updateGroup");
+  await requireAppCheck(request, "updateGroup");
 
   const userId = request.auth.uid;
   const { groupId, ...updates }: { groupId: string } & UpdateGroupInput = request.data;
@@ -327,7 +327,7 @@ export const deleteGroup = onCall({ labels: { area: "social" } }, async (request
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "deleteGroup");
+  await requireAppCheck(request, "deleteGroup");
   await requirePlayIntegrity(request.data, request, "deleteGroup", "HIGH");
 
   const userId = request.auth.uid;
@@ -372,7 +372,7 @@ export const inviteMember = onCall({ labels: { area: "social" } }, async (reques
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "inviteMember");
+  await requireAppCheck(request, "inviteMember");
 
   const inviterId = request.auth.uid;
   const input: InviteMemberInput = request.data;
@@ -452,7 +452,7 @@ export const acceptInvitation = onCall({ labels: { area: "social" } }, async (re
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "acceptInvitation");
+  await requireAppCheck(request, "acceptInvitation");
 
   const userId = request.auth.uid;
   const { groupId } = request.data;
@@ -511,7 +511,7 @@ export const removeMember = onCall({ labels: { area: "social" } }, async (reques
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "removeMember");
+  await requireAppCheck(request, "removeMember");
 
   const actorId = request.auth.uid;
   const { groupId, memberId } = request.data;
@@ -575,7 +575,7 @@ export const updateMemberRole = onCall({ labels: { area: "social" } }, async (re
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "updateMemberRole");
+  await requireAppCheck(request, "updateMemberRole");
 
   const actorId = request.auth.uid;
   const { groupId, memberId, role } = request.data;
@@ -634,7 +634,7 @@ export const leaveGroup = onCall({ labels: { area: "social" } }, async (request)
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "leaveGroup");
+  await requireAppCheck(request, "leaveGroup");
 
   const userId = request.auth.uid;
   const { groupId } = request.data;
@@ -668,7 +668,7 @@ export const contributeToGroup = onCall({ labels: { area: "social" } }, async (r
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "contributeToGroup");
+  await requireAppCheck(request, "contributeToGroup");
   await requirePlayIntegrity(request.data, request, "contributeToGroup", "HIGH");
 
   const userId = request.auth.uid;
@@ -776,7 +776,7 @@ export const withdrawFromGroup = onCall({ labels: { area: "social" } }, async (r
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "withdrawFromGroup");
+  await requireAppCheck(request, "withdrawFromGroup");
   await requirePlayIntegrity(request.data, request, "withdrawFromGroup", "HIGH");
 
   const userId = request.auth.uid;
@@ -934,7 +934,7 @@ export const approveTransaction = onCall({ labels: { area: "social" } }, async (
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "approveTransaction");
+  await requireAppCheck(request, "approveTransaction");
 
   const approverId = request.auth.uid;
   const { groupId, transactionId } = request.data;
@@ -1064,7 +1064,7 @@ export const rejectTransaction = onCall({ labels: { area: "social" } }, async (r
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "rejectTransaction");
+  await requireAppCheck(request, "rejectTransaction");
 
   const rejecterId = request.auth.uid;
   const { groupId, transactionId, reason } = request.data;
@@ -1136,7 +1136,7 @@ export const getUserGroups = onCall({ labels: { area: "social" } }, async (reque
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getUserGroups");
+  await requireAppCheck(request, "getUserGroups");
 
   const userId = request.auth.uid;
 
@@ -1161,7 +1161,7 @@ export const getGroupDetails = onCall({ labels: { area: "social" } }, async (req
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getGroupDetails");
+  await requireAppCheck(request, "getGroupDetails");
 
   const userId = request.auth.uid;
   const { groupId } = request.data;
@@ -1201,7 +1201,7 @@ export const getGroupTransactions = onCall({ labels: { area: "social" } }, async
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getGroupTransactions");
+  await requireAppCheck(request, "getGroupTransactions");
 
   const userId = request.auth.uid;
   const { groupId, limit = 50 } = request.data;
@@ -1234,7 +1234,7 @@ export const getPendingApprovals = onCall({ labels: { area: "social" } }, async 
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getPendingApprovals");
+  await requireAppCheck(request, "getPendingApprovals");
 
   const userId = request.auth.uid;
   const { groupId } = request.data;
@@ -1766,7 +1766,7 @@ export const triggerStokvelPayout = onCall({ labels: { area: "social" } }, async
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "triggerStokvelPayout");
+  await requireAppCheck(request, "triggerStokvelPayout");
   await requirePlayIntegrity(request.data, request, "triggerStokvelPayout", "HIGH");
 
   const userId = request.auth.uid;
@@ -1915,7 +1915,7 @@ export const getStokvelAnalytics = onCall({ labels: { area: "social" } }, async 
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getStokvelAnalytics");
+  await requireAppCheck(request, "getStokvelAnalytics");
 
   const userId = request.auth.uid;
   const { groupId, months = 6 } = request.data;

@@ -29,7 +29,7 @@ export const sendTokens = onCall({ labels: { area: "social" } }, async (request)
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "sendTokens");
+  await requireAppCheck(request, "sendTokens");
   await requirePlayIntegrity(request.data, request, "sendTokens", "HIGHEST");
 
   const senderId = request.auth.uid;
@@ -141,7 +141,7 @@ export const requestTokens = onCall({ labels: { area: "social" } }, async (reque
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "requestTokens");
+  await requireAppCheck(request, "requestTokens");
 
   const requesterId = request.auth.uid;
   const { recipientId, amount, message, threadId } = request.data;
@@ -221,7 +221,7 @@ export const acceptChatTokenRequest = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "acceptChatTokenRequest");
+    await requireAppCheck(request, "acceptChatTokenRequest");
     await requirePlayIntegrity(request.data, request, "acceptChatTokenRequest", "HIGHEST");
 
     const payerId = request.auth.uid;
@@ -359,7 +359,7 @@ export const declineChatTokenRequest = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "declineChatTokenRequest");
+    await requireAppCheck(request, "declineChatTokenRequest");
 
     const userId = request.auth.uid;
     const { messageId, reason } = request.data;
@@ -439,7 +439,7 @@ export const createPaymentRequest = onCall(
         "User must be authenticated"
       );
     }
-    requireAppCheck(request, "createPaymentRequest");
+    await requireAppCheck(request, "createPaymentRequest");
 
     const requesterId = request.auth.uid;
     const { recipientId, amount, message, threadId } = request.data;
@@ -523,7 +523,7 @@ export const payRequest = onCall({ labels: { area: "social" } }, async (request)
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "payRequest");
+  await requireAppCheck(request, "payRequest");
 
   const payerId = request.auth.uid;
   const { requestId } = request.data;
@@ -652,7 +652,7 @@ export const declineRequest = onCall({ labels: { area: "social" } }, async (requ
       "User must be authenticated"
     );
   }
-  requireAppCheck(request, "declineRequest");
+  await requireAppCheck(request, "declineRequest");
 
   const userId = request.auth.uid;
   const { requestId, reason } = request.data;

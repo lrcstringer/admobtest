@@ -84,11 +84,11 @@ class OnboardingSuccessScreen extends StatelessWidget {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(17),
-                          child: const Center(
+                          child: Center(
                             // Fallback icon — replace with user's uploaded photo when available
                             child: Icon(
                               Icons.person,
-                              color: AppColors.textPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                               size: 48,
                             ),
                           ),
@@ -123,7 +123,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                   'Your Name',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -160,7 +160,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                   "You're user number",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                 ),
 
@@ -185,7 +185,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                     'iMaliChat has early earning access for 100 000 people and you made the cut!',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 ),
@@ -199,7 +199,7 @@ class OnboardingSuccessScreen extends StatelessWidget {
                     'Please upgrade your account to SILVER status to start earning today!',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
                 ),

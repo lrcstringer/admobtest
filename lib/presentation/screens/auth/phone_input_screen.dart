@@ -256,7 +256,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                       .textTheme
                                       .headlineMedium
                                       ?.copyWith(
-                                        color: AppColors.textPrimary,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
@@ -290,7 +290,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                 .textTheme
                                 .titleLarge
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
@@ -309,7 +309,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                               border: Border.all(
                                 color: _phoneDigits.isNotEmpty
                                     ? AppColors.inputBorderFocused
-                                    : AppColors.inputBorder,
+                                    : Theme.of(context).colorScheme.outline,
                                 width: _phoneDigits.isNotEmpty ? 2 : 1,
                               ),
                             ),
@@ -324,12 +324,12 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                         .textTheme
                                         .bodyLarge
                                         ?.copyWith(
-                                          color: AppColors.textPrimary,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                           fontWeight: FontWeight.w500,
                                         ),
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.arrow_drop_down,
-                                      color: AppColors.textSecondary,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       size: 20,
                                     ),
                                     items: _countryCodes.map((country) {
@@ -355,7 +355,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                 Container(
                                   width: 1,
                                   height: 24,
-                                  color: AppColors.textHint,
+                                  color: Theme.of(context).hintColor,
                                 ),
                                 const SizedBox(width: 12),
                                 // Phone number display
@@ -369,8 +369,8 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                                         .bodyLarge
                                         ?.copyWith(
                                           color: _phoneDigits.isEmpty
-                                              ? AppColors.textHint
-                                              : AppColors.textPrimary,
+                                              ? Theme.of(context).hintColor
+                                              : Theme.of(context).colorScheme.onSurface,
                                         ),
                                   ),
                                 ),

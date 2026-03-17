@@ -57,7 +57,7 @@ export const createGooiGroup = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "createGooiGroup");
+    await requireAppCheck(request, "createGooiGroup");
 
     const userId = request.auth.uid;
     const {
@@ -175,7 +175,7 @@ export const inviteGooiMember = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "inviteGooiMember");
+    await requireAppCheck(request, "inviteGooiMember");
 
     const userId = request.auth.uid;
     const { groupId, inviteeUserId } = request.data;
@@ -262,7 +262,7 @@ export const respondGooiInvitation = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "respondGooiInvitation");
+    await requireAppCheck(request, "respondGooiInvitation");
 
     const userId = request.auth.uid;
     const { groupId, accept } = request.data;
@@ -319,7 +319,7 @@ export const lockGooiRoster = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "lockGooiRoster");
+    await requireAppCheck(request, "lockGooiRoster");
 
     const userId = request.auth.uid;
     const { groupId, proposedOrder } = request.data;
@@ -405,7 +405,7 @@ export const submitGooiBid = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "submitGooiBid");
+    await requireAppCheck(request, "submitGooiBid");
 
     const userId = request.auth.uid;
     const { groupId, targetPosition, bidPercent } = request.data;
@@ -466,7 +466,7 @@ export const finalizeBidding = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "finalizeBidding");
+    await requireAppCheck(request, "finalizeBidding");
 
     const userId = request.auth.uid;
     const { groupId } = request.data;
@@ -576,7 +576,7 @@ export const confirmGooiActivation = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "confirmGooiActivation");
+    await requireAppCheck(request, "confirmGooiActivation");
 
     const userId = request.auth.uid;
     const { groupId } = request.data;
@@ -715,7 +715,7 @@ export const contributeGooiCycle = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "contributeGooiCycle");
+    await requireAppCheck(request, "contributeGooiCycle");
 
     const userId = request.auth.uid;
     const { groupId, cycleId, subAccountId: _subAccountId } = request.data;
@@ -822,7 +822,7 @@ export const toggleAutoContribute = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "toggleAutoContribute");
+    await requireAppCheck(request, "toggleAutoContribute");
 
     const userId = request.auth.uid;
     const { groupId, enabled, walletSubAccountId } = request.data;
@@ -860,7 +860,7 @@ export const triggerGooiPayout = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "triggerGooiPayout");
+    await requireAppCheck(request, "triggerGooiPayout");
 
     const userId = request.auth.uid;
     const { groupId, cycleId } = request.data;
@@ -1043,7 +1043,7 @@ export const delegateGooiTrigger = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "delegateGooiTrigger");
+    await requireAppCheck(request, "delegateGooiTrigger");
 
     const userId = request.auth.uid;
     const { groupId, delegateUserId, durationDays } = request.data;
@@ -1087,7 +1087,7 @@ export const revokeGooiDelegation = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "revokeGooiDelegation");
+    await requireAppCheck(request, "revokeGooiDelegation");
 
     const userId = request.auth.uid;
     const { groupId } = request.data;
@@ -1128,7 +1128,7 @@ export const extendGooiGracePeriod = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "extendGooiGracePeriod");
+    await requireAppCheck(request, "extendGooiGracePeriod");
 
     const userId = request.auth.uid;
     const { groupId, cycleId, extensionHours } = request.data;
@@ -1214,7 +1214,7 @@ export const voteGooiGraceExtension = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "voteGooiGraceExtension");
+    await requireAppCheck(request, "voteGooiGraceExtension");
 
     const userId = request.auth.uid;
     const { groupId, cycleId, voteId, approve } = request.data;
@@ -1316,7 +1316,7 @@ export const applyGooiLateFee = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "applyGooiLateFee");
+    await requireAppCheck(request, "applyGooiLateFee");
 
     const userId = request.auth.uid;
     const { groupId, contributionId } = request.data;
@@ -1360,7 +1360,7 @@ export const waiveGooiLateFee = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "waiveGooiLateFee");
+    await requireAppCheck(request, "waiveGooiLateFee");
 
     const userId = request.auth.uid;
     const { groupId, contributionId } = request.data;
@@ -1394,7 +1394,7 @@ export const requestGooiWithdrawal = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "requestGooiWithdrawal");
+    await requireAppCheck(request, "requestGooiWithdrawal");
 
     const userId = request.auth.uid;
     const { groupId, reason } = request.data;
@@ -1439,7 +1439,7 @@ export const voteGooiWithdrawal = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "voteGooiWithdrawal");
+    await requireAppCheck(request, "voteGooiWithdrawal");
 
     const userId = request.auth.uid;
     const { groupId, withdrawalId, approve } = request.data;
@@ -1510,7 +1510,7 @@ export const dissolveGooiGroup = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "dissolveGooiGroup");
+    await requireAppCheck(request, "dissolveGooiGroup");
 
     const userId = request.auth.uid;
     const { groupId } = request.data;
@@ -1558,7 +1558,7 @@ export const getMyGooiGroups = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "getMyGooiGroups");
+    await requireAppCheck(request, "getMyGooiGroups");
 
     const userId = request.auth.uid;
 
@@ -1624,7 +1624,7 @@ export const writeOffGooiBadDebt = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "writeOffGooiBadDebt");
+    await requireAppCheck(request, "writeOffGooiBadDebt");
 
     const userId = request.auth.uid;
     const { groupId } = request.data;
@@ -1671,7 +1671,7 @@ export const applyGooiPenalty = onCall(
   { labels: GOOI_LABELS },
   async (request) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Must be authenticated");
-    requireAppCheck(request, "applyGooiPenalty");
+    await requireAppCheck(request, "applyGooiPenalty");
 
     const userId = request.auth.uid;
     const { groupId, targetUserId, action } = request.data;

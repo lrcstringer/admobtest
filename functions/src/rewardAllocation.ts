@@ -510,7 +510,7 @@ export const processRewardAllocation = onCall(
       campaignId: string;
       engagementId: string;
     };
-    requireAppCheck(request, "processRewardAllocation");
+    await requireAppCheck(request, "processRewardAllocation");
     await requireAdminPermission(
       request,
       "rewards:processAllocation",

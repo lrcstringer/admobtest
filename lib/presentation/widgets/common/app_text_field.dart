@@ -68,6 +68,8 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           focusNode: focusNode,
           obscureText: obscureText,
+          autocorrect: !obscureText,
+          enableSuggestions: !obscureText,
           readOnly: readOnly,
           autofocus: autofocus,
           keyboardType: keyboardType,

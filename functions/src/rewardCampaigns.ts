@@ -44,7 +44,7 @@ export const createRewardCampaign = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "createRewardCampaign");
+    await requireAppCheck(request, "createRewardCampaign");
     const adminCtx = await requireAdminPermission(request, "rewards:createCampaign", "createRewardCampaign");
 
     const {
@@ -214,7 +214,7 @@ export const updateRewardCampaign = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "updateRewardCampaign");
+    await requireAppCheck(request, "updateRewardCampaign");
     const adminCtx = await requireAdminPermission(request, "rewards:updateCampaign", "updateRewardCampaign");
 
     const { campaignId, updates } = request.data;
@@ -489,7 +489,7 @@ export const getAdminRewardCampaigns = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "getAdminRewardCampaigns");
+    await requireAppCheck(request, "getAdminRewardCampaigns");
     await requireAdminPermission(request, "rewards:getCampaigns", "getAdminRewardCampaigns");
 
     const data = request.data;
@@ -531,7 +531,7 @@ export const getAdminRewardCampaigns = onCall(
 export const getActiveRewardCampaigns = onCall(
   { labels: { area: "rewards" } },
   async (request) => {
-    requireAppCheck(request, "getActiveRewardCampaigns");
+    await requireAppCheck(request, "getActiveRewardCampaigns");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -616,7 +616,7 @@ export const getActiveRewardCampaigns = onCall(
 export const deleteRewardCampaign = onCall(
   { labels: { area: "rewards" } },
   async (request) => {
-    requireAppCheck(request, "deleteRewardCampaign");
+    await requireAppCheck(request, "deleteRewardCampaign");
     const adminCtx = await requireAdminPermission(request, "rewards:deleteCampaign", "deleteRewardCampaign");
 
     const { campaignId, reason } = request.data;
@@ -666,7 +666,7 @@ export const deleteRewardCampaign = onCall(
 export const getRewardCampaignAbResults = onCall(
   { labels: { area: "rewards" } },
   async (request) => {
-    requireAppCheck(request, "getRewardCampaignAbResults");
+    await requireAppCheck(request, "getRewardCampaignAbResults");
     await requireAdminPermission(request, "rewards:getAbResults", "getRewardCampaignAbResults");
 
     const { campaignId } = request.data;

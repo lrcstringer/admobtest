@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
@@ -89,7 +89,7 @@ class ShareListingSheet extends StatelessWidget {
                 color: AppColors.buyTextSecondary,
                 onTap: () {
                   final url = deepLinkUrl ?? 'https://imali.app/listing/${listing.id}';
-                  Clipboard.setData(ClipboardData(text: url));
+                  SecureClipboard.copy(url);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../domain/entities/marketplace_listing.dart';
 import '../../../domain/enums/delivery_method.dart';
 import '../../../domain/enums/marketplace_category.dart';
@@ -632,11 +632,8 @@ class _MarketplaceListingDetailScreenState
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
-                Clipboard.setData(
-                  ClipboardData(
-                    text:
-                        'https://imalichat.app/buy/marketplace/${listing.id}',
-                  ),
+                SecureClipboard.copy(
+                  'https://imalichat.app/buy/marketplace/${listing.id}',
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -675,10 +672,19 @@ class _MarketplaceListingDetailScreenState
     showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.buyCard,
+        surfaceTintColor: Colors.transparent,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: const Text(
           'Confirm Purchase',
-          style: TextStyle(color: AppColors.buyTextPrimary),
+          style: TextStyle(
+            color: AppColors.buyTextPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         content: Text(
           'Buy "${listing.title}" for R$priceZar (${listing.priceTokens} tokens)?',
@@ -689,7 +695,7 @@ class _MarketplaceListingDetailScreenState
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: AppColors.buyMarketplaceAccent),
+              style: TextStyle(color: AppColors.buyTextSecondary),
             ),
           ),
           TextButton(

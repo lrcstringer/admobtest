@@ -49,7 +49,7 @@ export const uploadKeyBundle = onCall(
       previousSignedPreKeySignature?: string;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "uploadKeyBundle");
+    await requireAppCheck(request, "uploadKeyBundle");
 
     const {
       identityKey, signedPreKey, signedPreKeySignature,
@@ -126,7 +126,7 @@ export const fetchKeyBundle = onCall(
   async (request) => {
     const data = request.data as { targetUserId: string };
     requireAuth(request);
-    requireAppCheck(request, "fetchKeyBundle");
+    await requireAppCheck(request, "fetchKeyBundle");
 
     const { targetUserId } = data;
     if (!targetUserId) {
@@ -205,7 +205,7 @@ export const replenishOneTimePreKeys = onCall(
       newPreKeys: Array<{ id: number; key: string }>;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "replenishOneTimePreKeys");
+    await requireAppCheck(request, "replenishOneTimePreKeys");
 
     const { newPreKeys } = data;
     if (!newPreKeys || !Array.isArray(newPreKeys) || newPreKeys.length === 0) {
@@ -246,7 +246,7 @@ export const rotateSignedPreKey = onCall(
       previousSignedPreKeySignature?: string;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "rotateSignedPreKey");
+    await requireAppCheck(request, "rotateSignedPreKey");
 
     const {
       newSignedPreKey, newSignedPreKeySignature, newEd25519Signature,
@@ -309,7 +309,7 @@ export const saveKeyBackup = onCall(
   async (request) => {
     const data = request.data as { backupVersion: number; encryptedBlob: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "saveKeyBackup");
+    await requireAppCheck(request, "saveKeyBackup");
 
     const { backupVersion, encryptedBlob } = data;
 
@@ -341,7 +341,7 @@ export const getKeyBackup = onCall(
   { labels: { area: "auth" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "getKeyBackup");
+    await requireAppCheck(request, "getKeyBackup");
 
     const doc = await db.collection("users").doc(userId).collection("keys").doc("backup").get();
     if (!doc.exists || !doc.data()?.encryptedBlob) {
@@ -369,7 +369,7 @@ export const saveBackupSecret = onCall(
   async (request) => {
     const data = request.data as { secret: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "saveBackupSecret");
+    await requireAppCheck(request, "saveBackupSecret");
 
     const { secret } = data;
 
@@ -406,7 +406,7 @@ export const getBackupSecret = onCall(
   { labels: { area: "auth" } },
   async (request) => {
     const userId = requireAuth(request);
-    requireAppCheck(request, "getBackupSecret");
+    await requireAppCheck(request, "getBackupSecret");
 
     const doc = await db.collection("users").doc(userId)
       .collection("keys").doc("backupSecret").get();
@@ -433,7 +433,7 @@ export const distributeSenderKey = onCall(
       x3dhHeader?: Record<string, unknown>;
     };
     const userId = requireAuth(request);
-    requireAppCheck(request, "distributeSenderKey");
+    await requireAppCheck(request, "distributeSenderKey");
 
     const { communityId, recipientUserId, encryptedKeyData, e2ee, x3dhHeader } = data;
     if (!communityId || !recipientUserId || !encryptedKeyData) {
@@ -477,7 +477,7 @@ export const markKeyDistributionConsumed = onCall(
   async (request) => {
     const data = request.data as { communityId: string; distributionId: string };
     const userId = requireAuth(request);
-    requireAppCheck(request, "markKeyDistributionConsumed");
+    await requireAppCheck(request, "markKeyDistributionConsumed");
 
     const { communityId, distributionId } = data;
     if (!communityId || !distributionId) {

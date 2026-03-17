@@ -30,7 +30,7 @@ export const importRewardItems = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "importRewardItems");
+    await requireAppCheck(request, "importRewardItems");
     const adminCtx = await requireAdminPermission(request, "rewards:importItems", "importRewardItems");
 
     const { campaignId, codes } = request.data;
@@ -194,7 +194,7 @@ export const importRewardItems = onCall(
 export const getUserRewardItems = onCall(
   { labels: { area: "rewards" } },
   async (request) => {
-    requireAppCheck(request, "getUserRewardItems");
+    await requireAppCheck(request, "getUserRewardItems");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -297,7 +297,7 @@ export const getUserRewardItems = onCall(
 export const getRewardItemDetail = onCall(
   { labels: { area: "rewards" }, secrets: [REWARD_CODE_ENCRYPTION_KEY] },
   async (request) => {
-    requireAppCheck(request, "getRewardItemDetail");
+    await requireAppCheck(request, "getRewardItemDetail");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -422,7 +422,7 @@ export const redeemRewardItem = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "redeemRewardItem");
+    await requireAppCheck(request, "redeemRewardItem");
 
     if (!request.auth) {
       throw new HttpsError(
@@ -546,7 +546,7 @@ export const revokeRewardItem = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "revokeRewardItem");
+    await requireAppCheck(request, "revokeRewardItem");
     const adminCtx = await requireAdminPermission(request, "rewards:revokeItem", "revokeRewardItem");
 
     const { itemId, reason } = request.data;
@@ -624,7 +624,7 @@ export const getAdminRewardItems = onCall(
   async (
     request
   ) => {
-    requireAppCheck(request, "getAdminRewardItems");
+    await requireAppCheck(request, "getAdminRewardItems");
     await requireAdminPermission(request, "rewards:getItems", "getAdminRewardItems");
 
     const { campaignId, status, limit: queryLimit } = request.data;

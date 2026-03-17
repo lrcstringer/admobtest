@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iMali — Dark &amp; Light Mode Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; background: #0e0e12; color: #fff; }
+
+  .controls { text-align: center; padding: 24px 16px 8px; }
+  .controls h1 { font-size: 22px; margin-bottom: 12px; background: linear-gradient(90deg, #FF9900, #FF328C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .tab-btns { display: inline-flex; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+  .tab-btns button { padding: 10px 28px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; background: #1a1a24; color: #8899A6; transition: .2s; }
+  .tab-btns button.active { background: #FF328C; color: #fff; }
+
+  .frames { display: flex; justify-content: center; gap: 40px; padding: 24px 16px 40px; flex-wrap: wrap; }
+  .phone-wrapper { text-align: center; }
+  .phone-wrapper h2 { font-size: 15px; color: #8899A6; margin-bottom: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+  .phone {
+    width: 375px; height: 780px; border-radius: 40px; overflow: hidden; position: relative;
+    box-shadow: 0 0 0 3px #333, 0 20px 60px rgba(0,0,0,.5);
+  }
+
+  /* ========== SHARED ========== */
+  .screen { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
+  .tab-content { display: none; width: 100%; height: 100%; }
+  .tab-content.active { display: flex; flex-direction: column; }
+
+  .app-bar { padding: 52px 20px 14px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2; }
+  .app-bar .logo { font-size: 20px; font-weight: 700; }
+  .app-bar .icons { display: flex; gap: 14px; font-size: 18px; opacity: .7; }
+
+  .body { flex: 1; overflow-y: auto; padding: 0 16px 16px; position: relative; z-index: 2; }
+  .body::-webkit-scrollbar { display: none; }
+
+  .card { border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 10px; }
+  .card-value { font-size: 28px; font-weight: 700; }
+  .card-sub { font-size: 12px; margin-top: 4px; }
+
+  .section-title { font-size: 13px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; margin: 18px 0 10px; }
+
+  .quick-actions { display: flex; gap: 10px; margin-bottom: 14px; }
+  .quick-action { flex: 1; border-radius: 14px; padding: 14px 8px; text-align: center; font-size: 11px; font-weight: 600; }
+  .quick-action .icon { font-size: 22px; margin-bottom: 6px; }
+
+  .list-item { display: flex; align-items: center; padding: 14px 16px; border-radius: 14px; margin-bottom: 8px; gap: 12px; }
+  .list-item .li-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .list-item .li-text { flex: 1; }
+  .list-item .li-title { font-size: 14px; font-weight: 600; }
+  .list-item .li-sub { font-size: 12px; margin-top: 2px; }
+  .list-item .li-right { text-align: right; }
+  .list-item .li-amount { font-size: 14px; font-weight: 700; }
+  .list-item .li-time { font-size: 11px; }
+
+  .streak-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 14px; }
+
+  .bottom-nav { display: flex; padding: 10px 0 28px; position: relative; z-index: 2; }
+  .bottom-nav .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 500; padding-top: 4px; }
+  .bottom-nav .nav-item .nav-icon { font-size: 20px; margin-bottom: 2px; }
+  .bottom-nav .nav-item.active { font-weight: 700; }
+
+  /* Wallet cards */
+  .wallet-card { border-radius: 18px; padding: 20px; margin-bottom: 12px; color: #fff; position: relative; overflow: hidden; }
+  .wallet-card::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,.08); }
+  .wallet-card .wc-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; opacity: .8; }
+  .wallet-card .wc-amount { font-size: 26px; font-weight: 700; margin: 6px 0; }
+  .wallet-card .wc-sub { font-size: 12px; opacity: .7; }
+
+  /* Wave overlay for dark */
+  .wave-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; pointer-events: none; opacity: .12;
+    background:
+      radial-gradient(ellipse 120% 40% at 20% 80%, rgba(255,50,140,.5) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 50% at 80% 20%, rgba(8,194,244,.4) 0%, transparent 50%),
+      radial-gradient(ellipse 140% 30% at 50% 60%, rgba(160,17,255,.3) 0%, transparent 50%);
+  }
+
+  /* ========== DARK MODE ========== */
+  .dark .screen { background: linear-gradient(180deg, #223890, #1A2240); }
+  .dark .app-bar .logo { color: #fff; }
+  .dark .app-bar .icons { color: #8899A6; }
+  .dark .card { background: #20253A; border: 1px solid #343952; }
+  .dark .card-title { color: #8899A6; }
+  .dark .card-value { color: #fff; }
+  .dark .card-sub { color: #8899A6; }
+  .dark .section-title { color: #8899A6; }
+  .dark .quick-action { background: #20253A; border: 1px solid #343952; color: #fff; }
+  .dark .list-item { background: #20253A; border: 1px solid #343952; }
+  .dark .list-item .li-title { color: #fff; }
+  .dark .list-item .li-sub { color: #8899A6; }
+  .dark .list-item .li-amount { color: #fff; }
+  .dark .list-item .li-time { color: #8899A6; }
+  .dark .streak-badge { background: linear-gradient(90deg, rgba(255,184,44,.15), rgba(255,100,41,.15)); color: #FFB82C; border: 1px solid rgba(255,184,44,.3); }
+  .dark .bottom-nav { background: #1A2240; border-top: 1px solid #343952; }
+  .dark .bottom-nav .nav-item { color: #8899A6; }
+  .dark .bottom-nav .nav-item.active { color: #FF328C; }
+
+  /* ========== LIGHT MODE ========== */
+  .light .screen { background: #F5F7FA; }
+  .light .wave-overlay { display: none; }
+  .light .app-bar .logo { color: #1A1A2E; }
+  .light .app-bar .icons { color: #94A3B8; }
+  .light .card { background: #FFFFFF; border: 1px solid #E8ECF1; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  .light .card-title { color: #64748B; }
+  .light .card-value { color: #1A1A2E; }
+  .light .card-sub { color: #64748B; }
+  .light .section-title { color: #64748B; }
+  .light .quick-action { background: #FFFFFF; border: 1px solid #E8ECF1; color: #1A1A2E; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .light .list-item { background: #FFFFFF; border: 1px solid #E8ECF1; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .light .list-item .li-title { color: #1A1A2E; }
+  .light .list-item .li-sub { color: #64748B; }
+  .light .list-item .li-amount { color: #1A1A2E; }
+  .light .list-item .li-time { color: #94A3B8; }
+  .light .streak-badge { background: linear-gradient(90deg, rgba(255,184,44,.1), rgba(255,100,41,.1)); color: #CC7A00; border: 1px solid rgba(255,184,44,.3); }
+  .light .bottom-nav { background: #FFFFFF; border-top: 1px solid #E8ECF1; }
+  .light .bottom-nav .nav-item { color: #94A3B8; }
+  .light .bottom-nav .nav-item.active { color: #FF328C; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h1>iMali — Dark &amp; Light Mode Preview</h1>
+  <div class="tab-btns">
+    <button class="active" onclick="switchTab('home')">Home</button>
+    <button onclick="switchTab('earn')">Earn</button>
+    <button onclick="switchTab('wallet')">Wallet</button>
+  </div>
+</div>
+
+<div class="frames">
+
+  <!-- ==================== DARK MODE ==================== -->
+  <div class="phone-wrapper">
+    <h2>Dark Mode</h2>
+    <div class="phone dark">
+
+      <!-- HOME TAB -->
+      <div class="tab-content active" data-tab="home">
+        <div class="screen">
+          <div class="wave-overlay"></div>
+          <div class="app-bar">
+            <div class="logo">iMali</div>
+            <div class="icons">🔔 ⚙️</div>
+          </div>
+          <div class="body">
+            <div class="streak-badge">🔥 3-day streak — keep it going!</div>
+
+            <div class="card" style="background: linear-gradient(135deg, rgba(255,153,0,.12), rgba(255,50,140,.12)); border-color: rgba(255,153,0,.25);">
+              <div class="card-title" style="color:#FFB82C;">Token Balance</div>
+              <div class="card-value" style="background:linear-gradient(90deg,#FF9900,#FF328C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">1,250</div>
+              <div class="card-sub">≈ R12.50 ZAR</div>
+            </div>
+
+            <div class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action"><div class="icon">💰</div>Earn</div>
+              <div class="quick-action"><div class="icon">🛍️</div>Shop</div>
+              <div class="quick-action"><div class="icon">📤</div>Send</div>
+              <div class="quick-action"><div class="icon">👥</div>Invite</div>
+            </div>
+
+            <div class="section-title">Recent Activity</div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(0,230,118,.12);color:#00E676;">✓</div>
+              <div class="li-text"><div class="li-title">Survey Completed</div><div class="li-sub">Brand Campaign</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+25</div><div class="li-time">2h ago</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(255,50,140,.12);color:#FF328C;">↗</div>
+              <div class="li-text"><div class="li-title">Sent to Thabo</div><div class="li-sub">Token transfer</div></div>
+              <div class="li-right"><div class="li-amount">−50</div><div class="li-time">5h ago</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(8,194,244,.12);color:#08C2F4;">🎯</div>
+              <div class="li-text"><div class="li-title">Daily Pot Entry</div><div class="li-sub">Auto-deducted</div></div>
+              <div class="li-right"><div class="li-amount">−5</div><div class="li-time">Today</div></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EARN TAB -->
+      <div class="tab-content" data-tab="earn">
+        <div class="screen">
+          <div class="wave-overlay"></div>
+          <div class="app-bar">
+            <div class="logo">Earn</div>
+            <div class="icons">🔍 🔔</div>
+          </div>
+          <div class="body">
+            <div class="card" style="background:linear-gradient(135deg, rgba(255,50,140,.12), rgba(160,17,255,.12)); border-color:rgba(255,50,140,.2);">
+              <div class="card-title" style="color:#FF5CA3;">Earnings This Week</div>
+              <div class="card-value" style="color:#FF328C;">185 <span style="font-size:14px;color:#8899A6;">tokens</span></div>
+              <div class="card-sub">↑ 23% vs last week</div>
+            </div>
+
+            <div class="section-title">Active Campaigns</div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#FF328C,#A011FF);color:#fff;font-size:14px;font-weight:700;">V</div>
+              <div class="li-text"><div class="li-title">Vodacom Survey</div><div class="li-sub">Quick survey • 15 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+15</div><div class="li-time">5 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#08C2F4,#0974FF);color:#fff;font-size:14px;font-weight:700;">S</div>
+              <div class="li-text"><div class="li-title">Shoprite Rewards</div><div class="li-sub">Watch & earn • 10 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+10</div><div class="li-time">3 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#FFB82C,#FF6429);color:#fff;font-size:14px;font-weight:700;">M</div>
+              <div class="li-text"><div class="li-title">MTN Data Deal</div><div class="li-sub">Engage & share • 25 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+25</div><div class="li-time">10 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#00BFA5,#069BC3);color:#fff;font-size:14px;font-weight:700;">T</div>
+              <div class="li-text"><div class="li-title">TymeBank Signup</div><div class="li-sub">Referral • 50 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+50</div><div class="li-time">15 min</div></div>
+            </div>
+
+            <div class="section-title">Completed Today</div>
+            <div class="list-item" style="opacity:.6;">
+              <div class="li-icon" style="background:rgba(0,230,118,.12);color:#00E676;">✓</div>
+              <div class="li-text"><div class="li-title">Daily Check-in</div><div class="li-sub">Completed</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#00E676;">+5</div><div class="li-time">Done</div></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item active"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET TAB -->
+      <div class="tab-content" data-tab="wallet">
+        <div class="screen">
+          <div class="wave-overlay"></div>
+          <div class="app-bar">
+            <div class="logo">Wallet</div>
+            <div class="icons">📊 ⚙️</div>
+          </div>
+          <div class="body">
+            <div class="card" style="background:linear-gradient(135deg, rgba(255,153,0,.1), rgba(255,50,140,.1)); border-color:rgba(255,153,0,.2);">
+              <div class="card-title" style="color:#FFB82C;">Total Portfolio</div>
+              <div class="card-value" style="background:linear-gradient(90deg,#FF9900,#FF328C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2,450</div>
+              <div class="card-sub">≈ R24.50 ZAR</div>
+            </div>
+
+            <div class="quick-actions">
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.15),rgba(255,50,140,.15));border-color:rgba(255,153,0,.25);"><div class="icon">📤</div>Send</div>
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.15),rgba(255,50,140,.15));border-color:rgba(255,153,0,.25);"><div class="icon">📥</div>Receive</div>
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.15),rgba(255,50,140,.15));border-color:rgba(255,153,0,.25);"><div class="icon">💸</div>Cash Out</div>
+            </div>
+
+            <div class="section-title">My Wallets</div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#FF328C,#A011FF);">
+              <div class="wc-label">Main Wallet</div>
+              <div class="wc-amount">1,250</div>
+              <div class="wc-sub">Available to spend or send</div>
+            </div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#FF9900,#FF6429);">
+              <div class="wc-label">Zawadi (Brand Rewards)</div>
+              <div class="wc-amount">850</div>
+              <div class="wc-sub">Restricted — use at partner stores</div>
+            </div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#08C2F4,#0974FF);">
+              <div class="wc-label">Savings Pot</div>
+              <div class="wc-amount">350</div>
+              <div class="wc-sub">Locked until 30 Apr</div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item active"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== LIGHT MODE ==================== -->
+  <div class="phone-wrapper">
+    <h2>Light Mode</h2>
+    <div class="phone light">
+
+      <!-- HOME TAB -->
+      <div class="tab-content active" data-tab="home">
+        <div class="screen">
+          <div class="app-bar">
+            <div class="logo">iMali</div>
+            <div class="icons">🔔 ⚙️</div>
+          </div>
+          <div class="body">
+            <div class="streak-badge">🔥 3-day streak — keep it going!</div>
+
+            <div class="card" style="background: linear-gradient(135deg, rgba(255,153,0,.08), rgba(255,50,140,.08)); border-color: rgba(255,153,0,.2);">
+              <div class="card-title" style="color:#CC7A00;">Token Balance</div>
+              <div class="card-value" style="background:linear-gradient(90deg,#FF9900,#FF328C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">1,250</div>
+              <div class="card-sub">≈ R12.50 ZAR</div>
+            </div>
+
+            <div class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action"><div class="icon">💰</div>Earn</div>
+              <div class="quick-action"><div class="icon">🛍️</div>Shop</div>
+              <div class="quick-action"><div class="icon">📤</div>Send</div>
+              <div class="quick-action"><div class="icon">👥</div>Invite</div>
+            </div>
+
+            <div class="section-title">Recent Activity</div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(5,150,105,.1);color:#059669;">✓</div>
+              <div class="li-text"><div class="li-title">Survey Completed</div><div class="li-sub">Brand Campaign</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+25</div><div class="li-time">2h ago</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(255,50,140,.08);color:#FF328C;">↗</div>
+              <div class="li-text"><div class="li-title">Sent to Thabo</div><div class="li-sub">Token transfer</div></div>
+              <div class="li-right"><div class="li-amount">−50</div><div class="li-time">5h ago</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:rgba(8,194,244,.1);color:#069BC3;">🎯</div>
+              <div class="li-text"><div class="li-title">Daily Pot Entry</div><div class="li-sub">Auto-deducted</div></div>
+              <div class="li-right"><div class="li-amount">−5</div><div class="li-time">Today</div></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EARN TAB -->
+      <div class="tab-content" data-tab="earn">
+        <div class="screen">
+          <div class="app-bar">
+            <div class="logo">Earn</div>
+            <div class="icons">🔍 🔔</div>
+          </div>
+          <div class="body">
+            <div class="card" style="background:linear-gradient(135deg, rgba(255,50,140,.06), rgba(160,17,255,.06)); border-color:rgba(255,50,140,.15);">
+              <div class="card-title" style="color:#CC2870;">Earnings This Week</div>
+              <div class="card-value" style="color:#FF328C;">185 <span style="font-size:14px;color:#64748B;">tokens</span></div>
+              <div class="card-sub">↑ 23% vs last week</div>
+            </div>
+
+            <div class="section-title">Active Campaigns</div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#FF328C,#A011FF);color:#fff;font-size:14px;font-weight:700;">V</div>
+              <div class="li-text"><div class="li-title">Vodacom Survey</div><div class="li-sub">Quick survey • 15 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+15</div><div class="li-time">5 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#08C2F4,#0974FF);color:#fff;font-size:14px;font-weight:700;">S</div>
+              <div class="li-text"><div class="li-title">Shoprite Rewards</div><div class="li-sub">Watch & earn • 10 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+10</div><div class="li-time">3 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#FFB82C,#FF6429);color:#fff;font-size:14px;font-weight:700;">M</div>
+              <div class="li-text"><div class="li-title">MTN Data Deal</div><div class="li-sub">Engage & share • 25 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+25</div><div class="li-time">10 min</div></div>
+            </div>
+            <div class="list-item">
+              <div class="li-icon" style="background:linear-gradient(135deg,#00BFA5,#069BC3);color:#fff;font-size:14px;font-weight:700;">T</div>
+              <div class="li-text"><div class="li-title">TymeBank Signup</div><div class="li-sub">Referral • 50 tokens</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+50</div><div class="li-time">15 min</div></div>
+            </div>
+
+            <div class="section-title">Completed Today</div>
+            <div class="list-item" style="opacity:.5;">
+              <div class="li-icon" style="background:rgba(5,150,105,.1);color:#059669;">✓</div>
+              <div class="li-text"><div class="li-title">Daily Check-in</div><div class="li-sub">Completed</div></div>
+              <div class="li-right"><div class="li-amount" style="color:#059669;">+5</div><div class="li-time">Done</div></div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item active"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET TAB -->
+      <div class="tab-content" data-tab="wallet">
+        <div class="screen">
+          <div class="app-bar">
+            <div class="logo">Wallet</div>
+            <div class="icons">📊 ⚙️</div>
+          </div>
+          <div class="body">
+            <div class="card" style="background:linear-gradient(135deg, rgba(255,153,0,.07), rgba(255,50,140,.07)); border-color:rgba(255,153,0,.15);">
+              <div class="card-title" style="color:#CC7A00;">Total Portfolio</div>
+              <div class="card-value" style="background:linear-gradient(90deg,#FF9900,#FF328C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">2,450</div>
+              <div class="card-sub">≈ R24.50 ZAR</div>
+            </div>
+
+            <div class="quick-actions">
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.08),rgba(255,50,140,.08));border-color:rgba(255,153,0,.15);"><div class="icon">📤</div>Send</div>
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.08),rgba(255,50,140,.08));border-color:rgba(255,153,0,.15);"><div class="icon">📥</div>Receive</div>
+              <div class="quick-action" style="background:linear-gradient(135deg,rgba(255,153,0,.08),rgba(255,50,140,.08));border-color:rgba(255,153,0,.15);"><div class="icon">💸</div>Cash Out</div>
+            </div>
+
+            <div class="section-title">My Wallets</div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#FF328C,#A011FF);">
+              <div class="wc-label">Main Wallet</div>
+              <div class="wc-amount">1,250</div>
+              <div class="wc-sub">Available to spend or send</div>
+            </div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#FF9900,#FF6429);">
+              <div class="wc-label">Zawadi (Brand Rewards)</div>
+              <div class="wc-amount">850</div>
+              <div class="wc-sub">Restricted — use at partner stores</div>
+            </div>
+            <div class="wallet-card" style="background:linear-gradient(135deg,#08C2F4,#0974FF);">
+              <div class="wc-label">Savings Pot</div>
+              <div class="wc-amount">350</div>
+              <div class="wc-sub">Locked until 30 Apr</div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+            <div class="nav-item"><div class="nav-icon">💎</div>Earn</div>
+            <div class="nav-item"><div class="nav-icon">💬</div>Chat</div>
+            <div class="nav-item"><div class="nav-icon">🛒</div>Buy</div>
+            <div class="nav-item active"><div class="nav-icon">👛</div>Wallet</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btns button').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.tab-btns button[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.querySelectorAll(`.tab-content[data-tab="${tab}"]`).forEach(tc => tc.classList.add('active'));
+}
+</script>
+</body>
+</html>

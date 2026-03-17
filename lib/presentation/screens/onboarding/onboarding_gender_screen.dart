@@ -86,7 +86,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -115,7 +115,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                       'Please select your gender',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -134,19 +134,19 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _selectedGender,
-                            hint: const Text(
+                            hint: Text(
                               'Select gender',
-                              style: TextStyle(color: AppColors.textHint),
+                              style: TextStyle(color: Theme.of(context).hintColor),
                             ),
                             isExpanded: true,
                             dropdownColor: Theme.of(context).colorScheme.surface,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 16,
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_drop_down,
-                              color: AppColors.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             items: _genderOptions.map((gender) {
                               return DropdownMenuItem<String>(
@@ -172,7 +172,7 @@ class _OnboardingGenderScreenState extends State<OnboardingGenderScreen> {
                         'We request that you, optionally, share your gender to help us personalize earning opportunities and content for you.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                           height: 1.4,
                         ),

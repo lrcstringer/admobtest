@@ -28,7 +28,7 @@ export const processPurchase = onCall({ labels: { area: "wallet" } }, async (req
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "processPurchase");
+  await requireAppCheck(request, "processPurchase");
   await requirePlayIntegrity(request.data, request, "processPurchase", "HIGH");
 
   const userId = request.auth.uid;

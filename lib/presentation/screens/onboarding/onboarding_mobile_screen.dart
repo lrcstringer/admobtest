@@ -150,7 +150,7 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                           .textTheme
                           .headlineMedium
                           ?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
@@ -183,7 +183,7 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                   'Please enter your mobile number.\nThis will be your logon.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -208,13 +208,13 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                           child: DropdownButton<String>(
                             value: _selectedCountryCode,
                             dropdownColor: Theme.of(context).colorScheme.surface,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 15,
                             ),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_drop_down,
-                              color: AppColors.textSecondary,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             items: _countryCodes.map((country) {
                               return DropdownMenuItem<String>(
@@ -238,20 +238,20 @@ class _OnboardingMobileScreenState extends State<OnboardingMobileScreen> {
                       Container(
                         width: 1,
                         height: 24,
-                        color: AppColors.textHint,
+                        color: Theme.of(context).hintColor,
                       ),
                       // Phone number input
                       Expanded(
                         child: TextField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Phone number',
                             hintStyle: TextStyle(
-                              color: AppColors.textHint,
+                              color: Theme.of(context).hintColor,
                             ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(

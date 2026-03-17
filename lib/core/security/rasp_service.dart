@@ -26,6 +26,8 @@ class RaspService {
       ),
       iosConfig: IOSConfig(
         bundleIds: ['com.imalichat.app'],
+        // TODO: Replace with your real Apple Developer Team ID from
+        // https://developer.apple.com → Membership → Team ID
         teamId: 'PLACEHOLDER_TEAM_ID',
       ),
       watcherMail: 'security@imalichat.com',

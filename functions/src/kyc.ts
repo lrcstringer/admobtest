@@ -32,7 +32,7 @@ export const initiateKyc = onCall(
         "User must be authenticated to initiate KYC."
       );
     }
-    requireAppCheck(request, "initiateKyc");
+    await requireAppCheck(request, "initiateKyc");
 
     const userId = request.auth.uid;
 
@@ -151,7 +151,7 @@ export const getKycStatus = onCall(
         "User must be authenticated."
       );
     }
-    requireAppCheck(request, "getKycStatus");
+    await requireAppCheck(request, "getKycStatus");
 
     const userId = request.auth.uid;
     const userDoc = await db.collection("users").doc(userId).get();

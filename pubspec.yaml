@@ -136,6 +136,9 @@ dependencies:
   # Phone number parsing & E.164 normalization
   phone_numbers_parser: ^9.0.20
 
+  # App version info (for minimum version enforcement)
+  package_info_plus: ^9.0.0
+
   # Runtime Application Self-Protection
   freerasp: ^7.5.0
 

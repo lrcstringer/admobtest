@@ -36,7 +36,7 @@ export const deleteUserAccount = onCall(
         "User must be authenticated to delete their account."
       );
     }
-    requireAppCheck(request, "deleteUserAccount");
+    await requireAppCheck(request, "deleteUserAccount");
 
     const userId = request.auth.uid;
 

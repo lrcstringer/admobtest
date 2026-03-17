@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
                         .textTheme
                         .displaySmall
                         ?.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                   ),

@@ -24,7 +24,7 @@ const db = admin.firestore();
 export const adminListFeatureFlags = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListFeatureFlags");
+    await requireAppCheck(request, "adminListFeatureFlags");
     await requireAdminPermission(
       request,
       "buy:listFeatureFlags",
@@ -49,7 +49,7 @@ export const adminListFeatureFlags = onCall(
 export const adminCreateFeatureFlag = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateFeatureFlag");
+    await requireAppCheck(request, "adminCreateFeatureFlag");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createFeatureFlag",
@@ -100,7 +100,7 @@ export const adminCreateFeatureFlag = onCall(
 export const adminUpdateFeatureFlag = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateFeatureFlag");
+    await requireAppCheck(request, "adminUpdateFeatureFlag");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateFeatureFlag",
@@ -155,7 +155,7 @@ export const adminUpdateFeatureFlag = onCall(
 export const adminCreateBuyCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateBuyCategory");
+    await requireAppCheck(request, "adminCreateBuyCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createCategory",
@@ -237,7 +237,7 @@ export const adminCreateBuyCategory = onCall(
 export const adminUpdateBuyCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateBuyCategory");
+    await requireAppCheck(request, "adminUpdateBuyCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateCategory",
@@ -293,7 +293,7 @@ export const adminUpdateBuyCategory = onCall(
 export const adminToggleBuyCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminToggleBuyCategory");
+    await requireAppCheck(request, "adminToggleBuyCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:toggleCategory",
@@ -350,7 +350,7 @@ export const adminToggleBuyCategory = onCall(
 export const adminListFeaturedItems = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListFeaturedItems");
+    await requireAppCheck(request, "adminListFeaturedItems");
     await requireAdminPermission(
       request,
       "buy:listFeaturedItems",
@@ -377,7 +377,7 @@ export const adminListFeaturedItems = onCall(
 export const adminCreateFeaturedItem = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateFeaturedItem");
+    await requireAppCheck(request, "adminCreateFeaturedItem");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createFeaturedItem",
@@ -558,7 +558,7 @@ export const adminCreateFeaturedItem = onCall(
 export const adminUpdateFeaturedItem = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateFeaturedItem");
+    await requireAppCheck(request, "adminUpdateFeaturedItem");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateFeaturedItem",
@@ -714,7 +714,7 @@ export const adminUpdateFeaturedItem = onCall(
 export const adminDeleteFeaturedItem = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeleteFeaturedItem");
+    await requireAppCheck(request, "adminDeleteFeaturedItem");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:deleteFeaturedItem",
@@ -760,7 +760,7 @@ export const adminDeleteFeaturedItem = onCall(
 export const adminListBrandStorefronts = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListBrandStorefronts");
+    await requireAppCheck(request, "adminListBrandStorefronts");
     await requireAdminPermission(
       request,
       "buy:listBrandStorefronts",
@@ -783,7 +783,7 @@ export const adminListBrandStorefronts = onCall(
 export const adminCreateBrandStorefront = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateBrandStorefront");
+    await requireAppCheck(request, "adminCreateBrandStorefront");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createBrandStorefront",
@@ -896,7 +896,7 @@ export const adminCreateBrandStorefront = onCall(
 export const adminUpdateBrandStorefront = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateBrandStorefront");
+    await requireAppCheck(request, "adminUpdateBrandStorefront");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateBrandStorefront",
@@ -984,7 +984,7 @@ export const adminUpdateBrandStorefront = onCall(
 export const adminDeleteBrandStorefront = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeleteBrandStorefront");
+    await requireAppCheck(request, "adminDeleteBrandStorefront");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:deleteBrandStorefront",
@@ -1071,7 +1071,7 @@ export const adminDeleteBrandStorefront = onCall(
 export const adminApproveProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminApproveProvider");
+    await requireAppCheck(request, "adminApproveProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:approveProvider",
@@ -1113,7 +1113,7 @@ export const adminApproveProvider = onCall(
 export const adminRejectProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRejectProvider");
+    await requireAppCheck(request, "adminRejectProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:rejectProvider",
@@ -1161,7 +1161,7 @@ export const adminRejectProvider = onCall(
 export const adminSuspendProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminSuspendProvider");
+    await requireAppCheck(request, "adminSuspendProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:suspendProvider",
@@ -1311,7 +1311,7 @@ export const adminSuspendProvider = onCall(
 export const adminUnsuspendProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUnsuspendProvider");
+    await requireAppCheck(request, "adminUnsuspendProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:unsuspendProvider",
@@ -1378,7 +1378,7 @@ export const adminUnsuspendProvider = onCall(
 export const adminDismissListingFlags = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDismissListingFlags");
+    await requireAppCheck(request, "adminDismissListingFlags");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:approveListing",
@@ -1421,7 +1421,7 @@ export const adminDismissListingFlags = onCall(
 export const adminFlagListing = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminFlagListing");
+    await requireAppCheck(request, "adminFlagListing");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:flagListing",
@@ -1463,7 +1463,7 @@ export const adminFlagListing = onCall(
 export const adminRemoveListing = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRemoveListing");
+    await requireAppCheck(request, "adminRemoveListing");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:removeListing",
@@ -1504,7 +1504,7 @@ export const adminRemoveListing = onCall(
 export const adminReinstateListing = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminReinstateListing");
+    await requireAppCheck(request, "adminReinstateListing");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:reinstateListing",
@@ -1555,7 +1555,7 @@ export const adminReinstateListing = onCall(
 export const adminForceCancelOrder = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminForceCancelOrder");
+    await requireAppCheck(request, "adminForceCancelOrder");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:forceCancelOrder",
@@ -1615,7 +1615,7 @@ export const adminForceCancelOrder = onCall(
 export const adminForceCompleteOrder = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminForceCompleteOrder");
+    await requireAppCheck(request, "adminForceCompleteOrder");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:forceCompleteOrder",
@@ -1675,7 +1675,7 @@ export const adminForceCompleteOrder = onCall(
 export const adminResolveDispute = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminResolveDispute");
+    await requireAppCheck(request, "adminResolveDispute");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:resolveDispute",
@@ -1759,7 +1759,7 @@ export const adminResolveDispute = onCall(
 export const adminGetMarketplaceAnalytics = onCall(
   { labels: { area: "admin" }, timeoutSeconds: 60 },
   async (request) => {
-    requireAppCheck(request, "adminGetMarketplaceAnalytics");
+    await requireAppCheck(request, "adminGetMarketplaceAnalytics");
     await requireAdminPermission(
       request,
       "buy:getMarketplaceAnalytics",
@@ -1845,7 +1845,7 @@ export const adminGetMarketplaceAnalytics = onCall(
 export const adminGetBuyPurchaseStats = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminGetBuyPurchaseStats");
+    await requireAppCheck(request, "adminGetBuyPurchaseStats");
     await requireAdminPermission(
       request,
       "buy:getPurchaseStats",
@@ -1905,7 +1905,7 @@ export const adminGetBuyPurchaseStats = onCall(
 export const adminListGroupBuys = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListGroupBuys");
+    await requireAppCheck(request, "adminListGroupBuys");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:listGroupBuys",
@@ -1947,7 +1947,7 @@ export const adminListGroupBuys = onCall(
 export const adminGetGroupBuyDetails = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminGetGroupBuyDetails");
+    await requireAppCheck(request, "adminGetGroupBuyDetails");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:getGroupBuyDetails",
@@ -1993,7 +1993,7 @@ export const adminGetGroupBuyDetails = onCall(
 export const adminExtendGroupBuyDeadline = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminExtendGroupBuyDeadline");
+    await requireAppCheck(request, "adminExtendGroupBuyDeadline");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:extendGroupBuyDeadline",
@@ -2062,7 +2062,7 @@ export const adminExtendGroupBuyDeadline = onCall(
 export const adminForceCompleteGroupBuy = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminForceCompleteGroupBuy");
+    await requireAppCheck(request, "adminForceCompleteGroupBuy");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:forceCompleteGroupBuy",
@@ -2119,7 +2119,7 @@ export const adminForceCompleteGroupBuy = onCall(
 export const adminForceCancelGroupBuy = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminForceCancelGroupBuy");
+    await requireAppCheck(request, "adminForceCancelGroupBuy");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:forceCancelGroupBuy",
@@ -2160,7 +2160,7 @@ export const adminForceCancelGroupBuy = onCall(
 export const adminRetryGroupBuyRefunds = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRetryGroupBuyRefunds");
+    await requireAppCheck(request, "adminRetryGroupBuyRefunds");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:retryGroupBuyRefunds",
@@ -2235,7 +2235,7 @@ export const adminRetryGroupBuyRefunds = onCall(
 export const adminCreateBrandGroupBuy = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateBrandGroupBuy");
+    await requireAppCheck(request, "adminCreateBrandGroupBuy");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createBrandGroupBuy",
@@ -2363,7 +2363,7 @@ export const adminCreateBrandGroupBuy = onCall(
 export const adminGetEscrowOverview = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminGetEscrowOverview");
+    await requireAppCheck(request, "adminGetEscrowOverview");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:getEscrowOverview",
@@ -2477,7 +2477,7 @@ export const adminGetEscrowOverview = onCall(
 export const adminFlagBrandReview = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminFlagBrandReview");
+    await requireAppCheck(request, "adminFlagBrandReview");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:flagBrandReview",
@@ -2573,7 +2573,7 @@ export const adminFlagBrandReview = onCall(
 export const adminSeedBuyInitialData = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminSeedBuyInitialData");
+    await requireAppCheck(request, "adminSeedBuyInitialData");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:seedBuyData",
@@ -2857,7 +2857,7 @@ export const adminSeedBuyInitialData = onCall(
 export const adminBanProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminBanProvider");
+    await requireAppCheck(request, "adminBanProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:banProvider",
@@ -3000,7 +3000,7 @@ export const adminBanProvider = onCall(
 export const adminReinstateProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminReinstateProvider");
+    await requireAppCheck(request, "adminReinstateProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:reinstateProvider",
@@ -3066,7 +3066,7 @@ export const adminReinstateProvider = onCall(
 export const adminPartialRefund = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminPartialRefund");
+    await requireAppCheck(request, "adminPartialRefund");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:partialRefund",
@@ -3148,7 +3148,7 @@ export const adminPartialRefund = onCall(
 export const adminRequireReturn = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRequireReturn");
+    await requireAppCheck(request, "adminRequireReturn");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:requireReturn",
@@ -3194,7 +3194,7 @@ export const adminRequireReturn = onCall(
 export const adminEscalateToSms = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminEscalateToSms");
+    await requireAppCheck(request, "adminEscalateToSms");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:escalateToSms",
@@ -3252,7 +3252,7 @@ export const adminEscalateToSms = onCall(
 export const adminUpdateSellerLevelConfig = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateSellerLevelConfig");
+    await requireAppCheck(request, "adminUpdateSellerLevelConfig");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateSellerLevelConfig",
@@ -3298,7 +3298,7 @@ export const adminUpdateSellerLevelConfig = onCall(
 export const adminUpdateBannedWords = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateBannedWords");
+    await requireAppCheck(request, "adminUpdateBannedWords");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateBannedWords",
@@ -3344,7 +3344,7 @@ export const adminUpdateBannedWords = onCall(
 export const adminListBrandProducts = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListBrandProducts");
+    await requireAppCheck(request, "adminListBrandProducts");
     await requireAdminPermission(
       request,
       "buy:listBrandProducts",
@@ -3390,7 +3390,7 @@ export const adminListBrandProducts = onCall(
 export const adminCreateBrandProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateBrandProduct");
+    await requireAppCheck(request, "adminCreateBrandProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createBrandProduct",
@@ -3461,7 +3461,7 @@ export const adminCreateBrandProduct = onCall(
 export const adminUpdateBrandProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateBrandProduct");
+    await requireAppCheck(request, "adminUpdateBrandProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateBrandProduct",
@@ -3516,7 +3516,7 @@ export const adminUpdateBrandProduct = onCall(
 export const adminDeleteBrandProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeleteBrandProduct");
+    await requireAppCheck(request, "adminDeleteBrandProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:deleteBrandProduct",
@@ -3560,7 +3560,7 @@ export const adminDeleteBrandProduct = onCall(
 export const adminListVasProviders = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListVasProviders");
+    await requireAppCheck(request, "adminListVasProviders");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:listVasProviders",
@@ -3616,7 +3616,7 @@ export const adminListVasProviders = onCall(
 export const adminCreateVasProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateVasProvider");
+    await requireAppCheck(request, "adminCreateVasProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createVasProvider",
@@ -3690,7 +3690,7 @@ export const adminCreateVasProvider = onCall(
 export const adminUpdateVasProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateVasProvider");
+    await requireAppCheck(request, "adminUpdateVasProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateVasProvider",
@@ -3735,7 +3735,7 @@ export const adminUpdateVasProvider = onCall(
 export const adminToggleVasProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminToggleVasProvider");
+    await requireAppCheck(request, "adminToggleVasProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:toggleVasProvider",
@@ -3775,7 +3775,7 @@ export const adminToggleVasProvider = onCall(
 export const adminDeleteVasProvider = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeleteVasProvider");
+    await requireAppCheck(request, "adminDeleteVasProvider");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:deleteVasProvider",
@@ -3835,7 +3835,7 @@ export const adminDeleteVasProvider = onCall(
 export const adminListVasProducts = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminListVasProducts");
+    await requireAppCheck(request, "adminListVasProducts");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:listVasProducts",
@@ -3893,7 +3893,7 @@ export const adminListVasProducts = onCall(
 export const adminCreateVasProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateVasProduct");
+    await requireAppCheck(request, "adminCreateVasProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createVasProduct",
@@ -3970,7 +3970,7 @@ export const adminCreateVasProduct = onCall(
 export const adminUpdateVasProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateVasProduct");
+    await requireAppCheck(request, "adminUpdateVasProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateVasProduct",
@@ -4018,7 +4018,7 @@ export const adminUpdateVasProduct = onCall(
 export const adminToggleVasProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminToggleVasProduct");
+    await requireAppCheck(request, "adminToggleVasProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:toggleVasProduct",
@@ -4057,7 +4057,7 @@ export const adminToggleVasProduct = onCall(
 export const adminDeleteVasProduct = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDeleteVasProduct");
+    await requireAppCheck(request, "adminDeleteVasProduct");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:deleteVasProduct",
@@ -4106,7 +4106,7 @@ export const adminDeleteVasProduct = onCall(
 export const adminBulkUpdateVasProductPrices = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminBulkUpdateVasProductPrices");
+    await requireAppCheck(request, "adminBulkUpdateVasProductPrices");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:bulkUpdateVasProductPrices",
@@ -4186,7 +4186,7 @@ export const adminBulkUpdateVasProductPrices = onCall(
 export const adminSeedVasProviders = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminSeedVasProviders");
+    await requireAppCheck(request, "adminSeedVasProviders");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:seedVasProviders",
@@ -4279,7 +4279,7 @@ export const adminSeedVasProviders = onCall(
 export const migrateListingCategories = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "migrateListingCategories");
+    await requireAppCheck(request, "migrateListingCategories");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:migrateCategories",
@@ -4369,7 +4369,7 @@ export const migrateListingCategories = onCall(
 export const adminApproveGroupBuyRequest = onCall(
   { labels: { area: "buy_admin" } },
   async (request) => {
-    requireAppCheck(request, "adminApproveGroupBuyRequest");
+    await requireAppCheck(request, "adminApproveGroupBuyRequest");
     const adminCtx = await requireAdminPermission(request, "buy:approveGroupBuyRequest", "adminApproveGroupBuyRequest");
     const { requestId, groupBuyTitle, targetAmount, deadline, description, type, fulfilmentType, clusters, imageUrl } = request.data;
 
@@ -4423,7 +4423,7 @@ export const adminApproveGroupBuyRequest = onCall(
 export const adminRejectGroupBuyRequest = onCall(
   { labels: { area: "buy_admin" } },
   async (request) => {
-    requireAppCheck(request, "adminRejectGroupBuyRequest");
+    await requireAppCheck(request, "adminRejectGroupBuyRequest");
     const adminCtx = await requireAdminPermission(request, "buy:rejectGroupBuyRequest", "adminRejectGroupBuyRequest");
     const { requestId, rejectionReason } = request.data;
 
@@ -4486,7 +4486,7 @@ export const adminRejectGroupBuyRequest = onCall(
 export const adminCreateCuratedGroupBuy = onCall(
   { labels: { area: "buy_admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateCuratedGroupBuy");
+    await requireAppCheck(request, "adminCreateCuratedGroupBuy");
     const adminCtx = await requireAdminPermission(request, "buy:createCuratedGroupBuy", "adminCreateCuratedGroupBuy");
     const { title, description, targetAmount, deadline, type, fulfilmentType, clusters, addresses, imageUrl, originalPrice, category, deliveryFee, collectionDeadline, fulfilmentInstructions, termsAndConditions } = request.data;
 
@@ -4572,7 +4572,7 @@ export const adminCreateCuratedGroupBuy = onCall(
 export const adminUploadGroupBuyVouchers = onCall(
   { labels: { area: "buy_admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUploadGroupBuyVouchers");
+    await requireAppCheck(request, "adminUploadGroupBuyVouchers");
     const adminCtx = await requireAdminPermission(request, "buy:uploadGroupBuyVouchers", "adminUploadGroupBuyVouchers");
     const { groupBuyId, voucherCodes } = request.data;
 
@@ -4620,7 +4620,7 @@ export const adminUploadGroupBuyVouchers = onCall(
 export const adminDistributeGroupBuyVouchers = onCall(
   { labels: { area: "buy_admin" } },
   async (request) => {
-    requireAppCheck(request, "adminDistributeGroupBuyVouchers");
+    await requireAppCheck(request, "adminDistributeGroupBuyVouchers");
     const adminCtx = await requireAdminPermission(request, "buy:distributeGroupBuyVouchers", "adminDistributeGroupBuyVouchers");
     const { groupBuyId } = request.data;
 
@@ -4689,7 +4689,7 @@ export const adminDistributeGroupBuyVouchers = onCall(
 export const adminSeedVasCategories = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminSeedVasCategories");
+    await requireAppCheck(request, "adminSeedVasCategories");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:seedVasCategories",
@@ -4761,7 +4761,7 @@ export const adminSeedVasCategories = onCall(
 export const adminCreateVasCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminCreateVasCategory");
+    await requireAppCheck(request, "adminCreateVasCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:createVasCategory",
@@ -4823,7 +4823,7 @@ export const adminCreateVasCategory = onCall(
 export const adminUpdateVasCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminUpdateVasCategory");
+    await requireAppCheck(request, "adminUpdateVasCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:updateVasCategory",
@@ -4874,7 +4874,7 @@ export const adminUpdateVasCategory = onCall(
 export const adminToggleVasCategory = onCall(
   { labels: { area: "admin" } },
   async (request) => {
-    requireAppCheck(request, "adminToggleVasCategory");
+    await requireAppCheck(request, "adminToggleVasCategory");
     const adminCtx = await requireAdminPermission(
       request,
       "buy:toggleVasCategory",

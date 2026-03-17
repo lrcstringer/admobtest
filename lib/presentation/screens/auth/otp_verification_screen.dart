@@ -207,7 +207,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                             .textTheme
                                             .headlineMedium
                                             ?.copyWith(
-                                              color: AppColors.textPrimary,
+                                              color: Theme.of(context).colorScheme.onSurface,
                                               fontWeight: FontWeight.bold,
                                             ),
                                       ),
@@ -242,7 +242,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                       .headlineMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                 ),
                                 const SizedBox(height: 12),
@@ -255,7 +255,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                       .textTheme
                                       .bodyMedium
                                       ?.copyWith(
-                                        color: AppColors.textSecondary,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
@@ -270,7 +270,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                           .textTheme
                                           .bodyMedium
                                           ?.copyWith(
-                                            color: AppColors.textPrimary,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                             fontWeight: FontWeight.w500,
                                           ),
                                     ),
@@ -313,7 +313,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                         border: Border.all(
                                           color: isCurrent
                                               ? AppColors.inputBorderFocused
-                                              : AppColors.inputBorder,
+                                              : Theme.of(context).colorScheme.outline,
                                           width: isCurrent ? 2 : 1,
                                         ),
                                       ),
@@ -325,8 +325,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                                     .textTheme
                                                     .headlineMedium
                                                     ?.copyWith(
-                                                      color: AppColors
-                                                          .textPrimary,
+                                                      color: Theme.of(context).colorScheme.onSurface,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
@@ -368,7 +367,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                             .textTheme
                                             .bodyMedium
                                             ?.copyWith(
-                                              color: AppColors.textSecondary,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                       )
                                     : Row(
@@ -382,7 +381,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
                                                 .bodyMedium
                                                 ?.copyWith(
                                                   color:
-                                                      AppColors.textSecondary,
+                                                      Theme.of(context).colorScheme.onSurfaceVariant,
                                                 ),
                                           ),
                                           GestureDetector(

@@ -21,7 +21,7 @@ export const exportUserData = onCall(
         "User must be authenticated to export data."
       );
     }
-    requireAppCheck(request, "exportUserData");
+    await requireAppCheck(request, "exportUserData");
 
     const userId = request.auth.uid;
 

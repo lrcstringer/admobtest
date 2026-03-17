@@ -122,7 +122,7 @@ async function sendSmsViaMyMobileApi(
  * @returns { success: boolean, message: string }
  */
 export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_CLIENT_ID, MYMOBILEAPI_API_KEY, MYMOBILEAPI_SENDER_ID, SMS_APP_HASH, SMS_APP_HASH_PLAY] }, async (request) => {
-  requireAppCheck(request, "sendOtp");
+  await requireAppCheck(request, "sendOtp");
 
   const { phoneNumber } = request.data;
 
@@ -227,7 +227,7 @@ export const sendOtp = onCall({ labels: { area: "auth" }, secrets: [MYMOBILEAPI_
  * @returns { success: boolean, customToken: string, userId: string, isNewUser: boolean }
  */
 export const verifyOtp = onCall({ labels: { area: "auth" } }, async (request) => {
-  requireAppCheck(request, "verifyOtp");
+  await requireAppCheck(request, "verifyOtp");
 
   const { phoneNumber, code } = request.data;
 
@@ -432,7 +432,7 @@ export const registerDevice = onCall({ labels: { area: "auth" } }, async (reques
       "User must be authenticated to register a device."
     );
   }
-  requireAppCheck(request, "registerDevice");
+  await requireAppCheck(request, "registerDevice");
 
   const userId = request.auth.uid;
   const {
@@ -587,7 +587,7 @@ export const revokeDevice = onCall({ labels: { area: "auth" } }, async (request)
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "revokeDevice");
+  await requireAppCheck(request, "revokeDevice");
 
   const { deviceId } = request.data;
   if (!deviceId) {
@@ -634,7 +634,7 @@ export const updateDeviceFcmToken = onCall({ labels: { area: "auth" } }, async (
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "updateDeviceFcmToken");
+  await requireAppCheck(request, "updateDeviceFcmToken");
 
   const { deviceId, fcmToken } = request.data;
   if (!deviceId || !fcmToken) {
@@ -679,7 +679,7 @@ export const updateDeviceFcmToken = onCall({ labels: { area: "auth" } }, async (
  * @returns { challengeId, hasTrustedDevice }
  */
 export const loginRequest = onCall({ labels: { area: "auth" } }, async (request) => {
-  requireAppCheck(request, "loginRequest");
+  await requireAppCheck(request, "loginRequest");
 
   const { phoneNumber } = request.data;
 
@@ -888,7 +888,7 @@ export const loginRequest = onCall({ labels: { area: "auth" } }, async (request)
  * @returns { customToken, userId }
  */
 export const approveLogin = onCall({ labels: { area: "auth" } }, async (request) => {
-  requireAppCheck(request, "approveLogin");
+  await requireAppCheck(request, "approveLogin");
 
   const { challengeId, signedNonce, deviceId } = request.data;
 
@@ -1035,7 +1035,7 @@ export const denyLogin = onCall({ labels: { area: "auth" } }, async (request) =>
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "denyLogin");
+  await requireAppCheck(request, "denyLogin");
 
   const { challengeId } = request.data;
   if (!challengeId) {
@@ -1088,7 +1088,7 @@ export const denyLogin = onCall({ labels: { area: "auth" } }, async (request) =>
  * @returns { status, customToken? }
  */
 export const checkChallengeStatus = onCall({ labels: { area: "auth" } }, async (request) => {
-  requireAppCheck(request, "checkChallengeStatus");
+  await requireAppCheck(request, "checkChallengeStatus");
 
   const { challengeId } = request.data;
 
@@ -1157,7 +1157,7 @@ export const createRiskEvent = onCall({ labels: { area: "auth" } }, async (reque
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "createRiskEvent");
+  await requireAppCheck(request, "createRiskEvent");
 
   const userId = request.auth.uid;
   const { type, severity, details, deviceId } = request.data;
@@ -1259,7 +1259,7 @@ export const resolveRiskEvent = onCall({ labels: { area: "auth" } }, async (requ
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "resolveRiskEvent");
+  await requireAppCheck(request, "resolveRiskEvent");
 
   const { eventId } = request.data;
   if (!eventId) {
@@ -1318,7 +1318,7 @@ export const notifyNewDeviceLogin = onCall({ labels: { area: "auth" } }, async (
       "User must be authenticated."
     );
   }
-  requireAppCheck(request, "notifyNewDeviceLogin");
+  await requireAppCheck(request, "notifyNewDeviceLogin");
 
   const userId = request.auth.uid;
   const { newDeviceModel, newDevicePlatform, excludeDeviceId } = request.data;

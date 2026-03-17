@@ -371,7 +371,7 @@ async function executeDailyPotDraw(potId?: string): Promise<{ winnersCount: numb
 export const adminDistributeDailyPot = onCall(
   { labels: { area: "pots" } },
   async (request) => {
-    requireAppCheck(request, "adminDistributeDailyPot");
+    await requireAppCheck(request, "adminDistributeDailyPot");
     await requireAdminPermission(request, "pots:distribute", "adminDistributeDailyPot");
 
     const { potId } = (request.data || {}) as { potId?: string };
@@ -629,7 +629,7 @@ async function executeWeeklyPotDraw(potId?: string): Promise<{ winnersCount: num
 export const adminDistributeWeeklyPot = onCall(
   { labels: { area: "pots" } },
   async (request) => {
-    requireAppCheck(request, "adminDistributeWeeklyPot");
+    await requireAppCheck(request, "adminDistributeWeeklyPot");
     await requireAdminPermission(request, "pots:distribute", "adminDistributeWeeklyPot");
 
     const { potId } = (request.data || {}) as { potId?: string };
@@ -659,7 +659,7 @@ export const adminDistributeWeeklyPot = onCall(
 export const adminInitializePots = onCall(
   { labels: { area: "pots" } },
   async (request) => {
-    requireAppCheck(request, "adminInitializePots");
+    await requireAppCheck(request, "adminInitializePots");
     await requireAdminPermission(request, "pots:distribute", "adminInitializePots");
 
     const dailyResult = await executeInitializeDailyPot();
@@ -857,7 +857,7 @@ async function aggregateWeeklyScoresFromDailyScores(
 export const adminGetPotEntries = onCall(
   { labels: { area: "pots" } },
   async (request) => {
-    requireAppCheck(request, "adminGetPotEntries");
+    await requireAppCheck(request, "adminGetPotEntries");
     await requireAdminPermission(
       request,
       "pots:viewEntries",

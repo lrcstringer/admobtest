@@ -39,10 +39,10 @@ class OnboardingPictureScreen extends StatelessWidget {
                     width: 3,
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.add,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: 48,
                   ),
                 ),
@@ -56,7 +56,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                 'Your Name',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
               ),
@@ -101,7 +101,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                 'Your profile picture',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -115,7 +115,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                   'Use your camera or select a photo from your phone to use as your profile picture.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),
@@ -127,7 +127,7 @@ class OnboardingPictureScreen extends StatelessWidget {
                 'You can skip this step!',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontStyle: FontStyle.italic,
                     ),
               ),
@@ -176,12 +176,12 @@ class _ActionButton extends StatelessWidget {
           border: isHighlighted
               ? null
               : Border.all(
-                  color: AppColors.textSecondary.withValues(alpha: 0.3),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 ),
         ),
         child: Icon(
           icon,
-          color: isHighlighted ? Colors.white : AppColors.textSecondary,
+          color: isHighlighted ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
           size: 24,
         ),
       ),

@@ -340,7 +340,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               TextSpan(
                 text: 'Welcome to ',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -354,7 +354,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               TextSpan(
                 text: 'Chat!',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -379,7 +379,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           'izandla ziyagezana',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontStyle: FontStyle.italic,
                 letterSpacing: 0.5,
               ),
@@ -505,10 +505,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               child: Text.rich(
                 TextSpan(
                   text: 'Have an account? ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   children: const [
                     TextSpan(
@@ -568,7 +568,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           greeting,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
         ),
@@ -647,9 +647,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               'Not ${_displayName ?? 'you'}? Sign in with a different account',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     decoration: TextDecoration.underline,
-                    decorationColor: AppColors.textSecondary,
+                    decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
           ),
@@ -681,7 +681,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textPrimary.withValues(alpha: 0.9),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
                   height: 1.3,
                 ),
           ),

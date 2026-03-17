@@ -39,7 +39,7 @@ export const processCashout = onCall({ minInstances: 0, concurrency: 10, labels:
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "processCashout");
+  await requireAppCheck(request, "processCashout");
   await requirePlayIntegrity(request.data, request, "processCashout", "HIGHEST");
 
   const userId = request.auth.uid;
@@ -161,7 +161,7 @@ export const processCashout = onCall({ minInstances: 0, concurrency: 10, labels:
  * Maker-checker: creates a pending action that must be approved by a second admin.
  */
 export const completeCashoutRequest = onCall({ labels: { area: "wallet" } }, async (request) => {
-  requireAppCheck(request, "completeCashoutRequest");
+  await requireAppCheck(request, "completeCashoutRequest");
   const adminCtx = await requireAdminPermission(request, "cashout:complete", "completeCashoutRequest");
 
   const { cashoutId, adminNotes } = request.data;
@@ -211,7 +211,7 @@ export const completeCashoutRequest = onCall({ labels: { area: "wallet" } }, asy
  * Fail/refund a cashout (if bank transfer fails)
  */
 export const failCashoutRequest = onCall({ labels: { area: "wallet" } }, async (request) => {
-  requireAppCheck(request, "failCashoutRequest");
+  await requireAppCheck(request, "failCashoutRequest");
   const adminCtx = await requireAdminPermission(request, "cashout:fail", "failCashoutRequest");
 
   const { cashoutId, reason } = request.data;
@@ -281,7 +281,7 @@ export const getSubAccounts = onCall({ labels: { area: "wallet" } }, async (requ
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "getSubAccounts");
+  await requireAppCheck(request, "getSubAccounts");
 
   const userId = request.auth.uid;
 
@@ -317,7 +317,7 @@ export const transferBetweenWallets = onCall({ labels: { area: "wallet" } }, asy
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "transferBetweenWallets");
+  await requireAppCheck(request, "transferBetweenWallets");
 
   const userId = request.auth.uid;
   const { fromSubAccountId, toSubAccountId, amount } = request.data;
@@ -422,7 +422,7 @@ export const sendP2PTransfer = onCall({ labels: { area: "wallet" } }, async (req
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "sendP2PTransfer");
+  await requireAppCheck(request, "sendP2PTransfer");
 
   const userId = request.auth.uid;
   const { recipientUserId, amount, subAccountId: requestedSubAccountId, note } = request.data;
@@ -591,7 +591,7 @@ export const cancelCashout = onCall({ labels: { area: "wallet" } }, async (reque
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "User must be authenticated");
   }
-  requireAppCheck(request, "cancelCashout");
+  await requireAppCheck(request, "cancelCashout");
 
   const userId = request.auth.uid;
   const { cashoutId } = request.data;

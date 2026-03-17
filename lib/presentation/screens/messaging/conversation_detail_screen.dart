@@ -6,11 +6,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../../core/di/injection.dart';
 import '../../../data/datasources/local/app_database.dart';
 import '../../../core/utils/chat_date_formatter.dart';
@@ -289,7 +291,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                                         m.textContent != null)
                                     .map((m) => m.textContent!)
                                     .join('\n');
-                                Clipboard.setData(ClipboardData(text: texts));
+                                SecureClipboard.copy(texts);
                                 setState(() {
                                   _isMultiSelectMode = false;
                                   _selectedMessageIds.clear();
@@ -1293,7 +1295,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       onReply: (msg) => _startReply(msg),
       onCopy: (msg) {
         if (msg.textContent != null) {
-          Clipboard.setData(ClipboardData(text: msg.textContent!));
+          SecureClipboard.copy(msg.textContent!);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Copied to clipboard')),
           );

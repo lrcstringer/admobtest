@@ -66,7 +66,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
               primary: AppColors.primary,
               onPrimary: Colors.white,
               surface: AppColors.surface,
-              onSurface: AppColors.textPrimary,
+              onSurface: Colors.white,
             ),
             dialogTheme: const DialogThemeData(
               backgroundColor: AppColors.backgroundDark,
@@ -144,12 +144,12 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
-          hint: Text(hint, style: const TextStyle(color: AppColors.textHint)),
+          hint: Text(hint, style: TextStyle(color: Theme.of(context).hintColor)),
           isExpanded: true,
           dropdownColor: Theme.of(context).colorScheme.surface,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
-          icon: const Icon(Icons.arrow_drop_down,
-              color: AppColors.textSecondary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15),
+          icon: Icon(Icons.arrow_drop_down,
+              color: Theme.of(context).colorScheme.onSurfaceVariant),
           items: items.map((item) {
             return DropdownMenuItem<String>(value: item, child: Text(item));
           }).toList(),
@@ -224,7 +224,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                   .textTheme
                                   .headlineMedium
                                   ?.copyWith(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
@@ -259,7 +259,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                 'To better enable us to personalize earning opportunities and content for you, please consider providing the following optional information.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontSize: 13,
                                   height: 1.4,
                                 ),
@@ -273,7 +273,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                 child: Text(
                                   'When is your birthday?',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -300,14 +300,14 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                               : 'Select date',
                                           style: TextStyle(
                                             color: _selectedDate != null
-                                                ? AppColors.textPrimary
-                                                : AppColors.textHint,
+                                                ? Theme.of(context).colorScheme.onSurface
+                                                : Theme.of(context).hintColor,
                                             fontSize: 15,
                                           ),
                                         ),
                                       ),
-                                      const Icon(Icons.calendar_today,
-                                          color: AppColors.textSecondary,
+                                      Icon(Icons.calendar_today,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           size: 20),
                                     ],
                                   ),
@@ -322,7 +322,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                 child: Text(
                                   'What is your gender?',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -345,7 +345,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                 child: Text(
                                   'What province do you live in?',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -368,7 +368,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                 child: Text(
                                   'What town/city do you live in?',
                                   style: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -385,14 +385,14 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
                                   keyboardType: TextInputType.text,
                                   textCapitalization:
                                       TextCapitalization.words,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontSize: 15,
                                   ),
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     hintText: 'Enter town or city',
                                     hintStyle: TextStyle(
-                                      color: AppColors.textHint,
+                                      color: Theme.of(context).hintColor,
                                     ),
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(

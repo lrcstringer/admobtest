@@ -157,7 +157,7 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -186,7 +186,7 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                       'Cool! When is your birthday?',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -206,11 +206,11 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                                 decoration: BoxDecoration(
                                   border: Border(
                                     top: BorderSide(
-                                      color: AppColors.textSecondary
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant
                                           .withValues(alpha: 0.3),
                                     ),
                                     bottom: BorderSide(
-                                      color: AppColors.textSecondary
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant
                                           .withValues(alpha: 0.3),
                                     ),
                                   ),
@@ -244,8 +244,8 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                                             '$day',
                                             style: TextStyle(
                                               color: isSelected
-                                                  ? AppColors.textPrimary
-                                                  : AppColors.textSecondary,
+                                                  ? Theme.of(context).colorScheme.onSurface
+                                                  : Theme.of(context).colorScheme.onSurfaceVariant,
                                               fontSize:
                                                   isSelected ? 20 : 16,
                                               fontWeight: isSelected
@@ -294,8 +294,8 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                                                 .padLeft(2, '0'),
                                             style: TextStyle(
                                               color: isSelected
-                                                  ? AppColors.textPrimary
-                                                  : AppColors.textSecondary,
+                                                  ? Theme.of(context).colorScheme.onSurface
+                                                  : Theme.of(context).colorScheme.onSurfaceVariant,
                                               fontSize:
                                                   isSelected ? 20 : 16,
                                               fontWeight: isSelected
@@ -345,8 +345,8 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                                             '$year',
                                             style: TextStyle(
                                               color: isSelected
-                                                  ? AppColors.textPrimary
-                                                  : AppColors.textSecondary,
+                                                  ? Theme.of(context).colorScheme.onSurface
+                                                  : Theme.of(context).colorScheme.onSurfaceVariant,
                                               fontSize:
                                                   isSelected ? 20 : 16,
                                               fontWeight: isSelected
@@ -372,7 +372,7 @@ class _OnboardingBirthdayScreenState extends State<OnboardingBirthdayScreen> {
                         'We require your date of birth to verify you meet the minimum age requirement and to personalize content.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 12,
                           height: 1.4,
                         ),

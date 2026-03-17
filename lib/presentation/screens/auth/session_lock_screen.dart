@@ -177,7 +177,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
               Text(
                 'Session Locked',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -208,7 +208,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
                 child: Text(
                   'Sign Out',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),
@@ -247,7 +247,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
         Text(
           'Tap to unlock with biometrics',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         const SizedBox(height: 32),
@@ -272,7 +272,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
         Text(
           'Enter your PIN to unlock',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
         const SizedBox(height: 24),
@@ -290,7 +290,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
                 shape: BoxShape.circle,
                 color: index < _pinEntry.length
                     ? AppColors.primary
-                    : Theme.of(context).colorScheme.surface,
+                    : Theme.of(context).colorScheme.surfaceContainerHighest,
                 border: Border.all(
                   color: AppColors.primary,
                   width: 1.5,
@@ -324,7 +324,7 @@ class _SessionLockScreenState extends State<SessionLockScreen> {
             'Your session has expired. Please verify your identity.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
         ),

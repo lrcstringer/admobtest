@@ -123,7 +123,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                                 .textTheme
                                 .headlineMedium
                                 ?.copyWith(
-                                  color: AppColors.textPrimary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -152,7 +152,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
                       'Settings',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
@@ -235,7 +235,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
               ),
@@ -243,7 +243,7 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               Text(
                 description,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
               ),
@@ -256,8 +256,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
           onChanged: onChanged,
           activeThumbColor: Colors.white,
           activeTrackColor: AppColors.switchActive,
-          inactiveThumbColor: AppColors.switchInactive,
-          inactiveTrackColor: AppColors.switchTrackInactive,
+          inactiveThumbColor: Colors.white,
+          inactiveTrackColor: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ],
     );

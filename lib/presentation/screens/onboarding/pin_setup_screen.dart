@@ -134,7 +134,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
               Text(
                 _isConfirming ? 'Confirm Your PIN' : 'Create a PIN',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -149,7 +149,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                       : 'Create a 4-6 digit PIN to secure your account.\nThis will be used to unlock the app.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
               ),
@@ -169,7 +169,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                       shape: BoxShape.circle,
                       color: index < currentPin.length
                           ? AppColors.primary
-                          : Theme.of(context).colorScheme.surface,
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                       border: Border.all(
                         color: AppColors.primary,
                         width: 1.5,

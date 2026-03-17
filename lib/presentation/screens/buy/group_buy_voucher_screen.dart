@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/security/secure_clipboard.dart';
 import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/group_buy/group_buy_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -126,8 +127,7 @@ class _GroupBuyVoucherScreenState extends State<GroupBuyVoucherScreen> {
                       // Copy button
                       OutlinedButton.icon(
                         onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: voucherCode));
+                          SecureClipboard.copy(voucherCode);
                           HapticFeedback.lightImpact();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
