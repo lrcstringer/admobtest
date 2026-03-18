@@ -16,7 +16,11 @@ import '../../widgets/common/imali_app_bar.dart';
 import '../../widgets/common/tab_background.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  /// Identifies the tab that launched this screen so colours match.
+  /// Pass `'chat'` or `'buy'`; leave null for the default dark gradient.
+  final String? sourceTab;
+
+  const ProfileScreen({super.key, this.sourceTab});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -31,22 +35,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
+    // Resolve colours based on the source tab.
+    final Color appBarColor;
+    final Color? appBarForeground;
+    final LinearGradient bodyGradient;
+    final String? overlayAsset;
+
+    switch (widget.sourceTab) {
+      case 'chat':
+        appBarColor = AppColors.chatSurface;
+        appBarForeground = null; // default light-on-dark from theme
+        bodyGradient = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.chatSurface, AppColors.chatBackground],
+        );
+        overlayAsset = null;
+      case 'buy':
+        appBarColor = AppColors.buyBackground;
+        appBarForeground = AppColors.buyTextPrimary;
+        bodyGradient = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.buyBackground, AppColors.buyBackground],
+        );
+        overlayAsset = null;
+      default:
+        appBarColor = AppColors.themed(context).tabGradient.first;
+        appBarForeground = null;
+        bodyGradient = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: AppColors.themed(context).tabGradient,
+        );
+        overlayAsset = AppColors.themed(context).waveOverlay;
+    }
+
+    // For the Buy tab we need a light colour scheme so that ListTile text,
+    // icons, and dividers render correctly on the light background.
+    final bool isBuy = widget.sourceTab == 'buy';
+    final ThemeData effectiveTheme = isBuy
+        ? Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  onSurface: AppColors.buyTextPrimary,
+                  onSurfaceVariant: AppColors.buyTextSecondary,
+                ),
+            dividerColor: AppColors.buyDivider,
+          )
+        : Theme.of(context);
+
+    return Theme(
+      data: effectiveTheme,
+      child: BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         final user = authState.user;
 
         return Scaffold(
+          backgroundColor: isBuy ? AppColors.buyBackground : null,
           appBar: IMaliAppBar(
             title: 'Profile',
-            backgroundColor: AppColors.themed(context).tabGradient.first,
+            backgroundColor: appBarColor,
+            foregroundColor: appBarForeground,
           ),
           body: TabBackground(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.themed(context).tabGradient,
-        ),
-        overlayAsset: AppColors.themed(context).waveOverlay,
+        gradient: bodyGradient,
+        overlayAsset: overlayAsset,
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -283,6 +336,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    ),
     );
   }
 

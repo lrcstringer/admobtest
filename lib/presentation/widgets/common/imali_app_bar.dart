@@ -13,6 +13,11 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Optional hairline border color drawn below the AppBar (including bottom widget).
   final Color? bottomBorderColor;
 
+  /// Identifies the source tab so child screens (e.g. Profile) can inherit the
+  /// correct colour scheme. Pass `'chat'` or `'buy'` from those tabs; leave
+  /// null for the default dark-gradient appearance.
+  final String? sourceTab;
+
   const IMaliAppBar({
     super.key,
     required this.title,
@@ -21,6 +26,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.bottomBorderColor,
+    this.sourceTab,
   });
 
   @override
@@ -99,7 +105,7 @@ class IMaliAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icons.person_outline,
             color: onSurfaceVariant,
           ),
-          onPressed: () => context.push('/home/profile'),
+          onPressed: () => context.push('/home/profile', extra: sourceTab),
           tooltip: 'Profile',
         ),
       ],

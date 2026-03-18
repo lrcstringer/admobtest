@@ -480,7 +480,9 @@ class AppRouter {
                   GoRoute(
                     path: 'profile',
                     name: 'profile',
-                    builder: (context, state) => const ProfileScreen(),
+                    builder: (context, state) => ProfileScreen(
+                      sourceTab: state.extra as String?,
+                    ),
                     routes: [
                       GoRoute(
                         path: 'referrals',

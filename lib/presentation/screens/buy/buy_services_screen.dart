@@ -61,6 +61,7 @@ class _BuyServicesScreenState extends State<BuyServicesScreen> {
         title: 'Buy',
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.buyTextPrimary,
+        sourceTab: 'buy',
         extraActions: [
           IconButton(
             icon: const Icon(Icons.history, color: AppColors.textPrimary),

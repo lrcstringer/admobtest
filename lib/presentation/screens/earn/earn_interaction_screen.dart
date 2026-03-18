@@ -843,9 +843,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       ));
       _questionStartTime = DateTime.now();
     } else {
-      bloc.add(EarnEvent.adVideoFailed(
-        reason: result.errorMessage ?? 'Ad playback failed',
-      ));
+      // Ad either wasn't completed (user closed early) or all internal
+      // retries in AdMobService were exhausted. Either way, reload the ad
+      // silently — this increments adRetryRound which, after enough rounds,
+      // shows the friendly inline "Ads aren't available right now" message.
+      // We NEVER dispatch adVideoFailed here so the user never sees the
+      // full-screen "Something went wrong" error state for ad issues.
+      bloc.add(const EarnEvent.loadAdVideo());
     }
   }
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:injectable/injectable.dart';
 
@@ -185,10 +185,53 @@ class AdMobService {
     return false;
   }
 
-  /// Show the loaded rewarded ad
-  /// Returns AdRewardResult with transaction ID if successful
-  /// [engagementId] is included in SSV custom_data for server-side verification
+  /// Maximum silent retries when `show()` fails due to foreground issues.
+  static const int _maxShowRetries = 3;
+  static const Duration _showRetryDelay = Duration(milliseconds: 500);
+
+  /// Show the loaded rewarded ad.
+  ///
+  /// Internally retries up to [_maxShowRetries] times when AdMob rejects the
+  /// show call (e.g. "app is not in foreground"). Between retries the ad is
+  /// reloaded and the foreground check re-run. The caller never sees transient
+  /// show errors — only a definitive success or "no ads available" failure.
   Future<AdRewardResult> showAd({
+    required String userId,
+    String? engagementId,
+  }) async {
+    for (int attempt = 0; attempt <= _maxShowRetries; attempt++) {
+      // Ensure we have an ad loaded (first attempt should already have one;
+      // subsequent attempts reload after a failed show disposed the ad).
+      if (_rewardedAd == null) {
+        final loaded = await loadAdWithRetry();
+        if (!loaded) {
+          return AdRewardResult.failure('No ads available right now');
+        }
+      }
+
+      final result = await _showAdOnce(
+        userId: userId,
+        engagementId: engagementId,
+      );
+
+      if (result.success) return result;
+
+      // If the ad was dismissed without earning the reward (user closed early)
+      // that is a user-initiated action, not a transient error — don't retry.
+      if (result.errorMessage == 'Ad was not completed') return result;
+
+      // Transient show failure (foreground, network, etc.) — retry silently.
+      if (attempt < _maxShowRetries) {
+        await Future.delayed(_showRetryDelay);
+      }
+    }
+
+    return AdRewardResult.failure('No ads available right now');
+  }
+
+  /// Single attempt to show a rewarded ad. Handles foreground wait, SSV
+  /// configuration, callbacks, and the show timeout.
+  Future<AdRewardResult> _showAdOnce({
     required String userId,
     String? engagementId,
   }) async {
@@ -250,12 +293,17 @@ class AdMobService {
               AdRewardResult.failure('Ad failed to show: ${error.message}'));
         }
 
-        // Try to load next ad
+        // Try to load next ad (will be used by retry loop or future calls)
         loadAdWithRetry();
       },
     );
 
     try {
+      // AdMob requires the app to be in the foreground. Wait briefly if needed
+      // (e.g. user backgrounded during countdown or a screen transition is
+      // still settling).
+      await _waitForForeground();
+
       await _rewardedAd!.show(
         onUserEarnedReward: (ad, reward) {
           adCompleted = true;
@@ -265,28 +313,16 @@ class AdMobService {
         },
       );
     } catch (e) {
+      _sessionLockService.unsuppressLock();
       if (!completer.isCompleted) {
         completer.complete(AdRewardResult.failure('Error showing ad: $e'));
       }
     }
 
     // Wait for dismiss callback, but don't let it hang forever.
-    // The completer is resolved by onAdDismissedFullScreenContent or
-    // onAdFailedToShowFullScreenContent. The timeout only fires if the
-    // ad overlay stays visible for too long (e.g. interactive/playable
-    // ads). When timeout fires, we do NOT return failure immediately —
-    // we wait for the user to actually dismiss the ad so the overlay
-    // is properly cleaned up. We just mark that a timeout occurred.
     return completer.future.timeout(
       AdMobConstants.adShowTimeout,
       onTimeout: () {
-        // Don't return failure here. Instead, let the dismiss callback
-        // handle it. The ad overlay is still on screen and the user
-        // will eventually tap the close/back button which triggers
-        // onAdDismissedFullScreenContent → completer.complete().
-        //
-        // If ad was already completed (reward earned) but user is just
-        // slow to close, we should still treat it as success.
         if (adCompleted && transactionId != null) {
           return AdRewardResult.success(
             transactionId: transactionId!,
@@ -296,7 +332,6 @@ class AdMobService {
           );
         }
         // Reward not yet earned after timeout — fail gracefully.
-        // Clean up the ad so the user isn't stuck.
         _sessionLockService.unsuppressLock();
         _rewardedAd?.dispose();
         _rewardedAd = null;
@@ -305,6 +340,20 @@ class AdMobService {
         return AdRewardResult.failure('Ad show timed out');
       },
     );
+  }
+
+  /// Waits until the app is in the [AppLifecycleState.resumed] state.
+  /// AdMob refuses to show an ad when the app is backgrounded or paused.
+  /// Polls briefly (up to ~2 s) before giving up so the caller can fail
+  /// gracefully instead of hanging.
+  Future<void> _waitForForeground() async {
+    const maxAttempts = 10;
+    const pollInterval = Duration(milliseconds: 200);
+    for (var i = 0; i < maxAttempts; i++) {
+      final state = WidgetsBinding.instance.lifecycleState;
+      if (state == null || state == AppLifecycleState.resumed) return;
+      await Future.delayed(pollInterval);
+    }
   }
 
   /// Check if an ad is ready to show

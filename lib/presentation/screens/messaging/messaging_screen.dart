@@ -268,6 +268,7 @@ class _MessagingScreenState extends State<MessagingScreen>
     return IMaliAppBar(
       title: 'Chat',
       backgroundColor: AppColors.chatSurface,
+      sourceTab: 'chat',
       bottomBorderColor: const Color(0xFF252840),
       extraActions: [
         IconButton(
