@@ -147,11 +147,30 @@ class _EarnManagementScreenState extends State<EarnManagementScreen>
           .orderBy('createdAt', descending: true)
           .get();
 
+      final loadedOpps = opportunitiesSnapshot.docs
+          .map((doc) => {'id': doc.id, ...doc.data()})
+          .where((o) => o['isDeleted'] != true)
+          .toList();
+
+      // Self-heal: fix the availableOpportunities counter if it drifted
+      final activeCount = loadedOpps.where((o) => o['isActive'] == true).length;
+      final threadIdx = _threads.indexWhere((t) => t['id'] == threadId);
+      if (threadIdx >= 0) {
+        final storedCount =
+            (_threads[threadIdx]['availableOpportunities'] as num?)?.toInt() ?? 0;
+        if (storedCount != activeCount) {
+          // Fix Firestore counter silently
+          FirebaseFirestore.instance
+              .collection('earnThreads')
+              .doc(threadId)
+              .update({'availableOpportunities': activeCount})
+              .catchError((_) {});
+          _threads[threadIdx]['availableOpportunities'] = activeCount;
+        }
+      }
+
       setState(() {
-        _opportunities = opportunitiesSnapshot.docs
-            .map((doc) => {'id': doc.id, ...doc.data()})
-            .where((o) => o['isDeleted'] != true)
-            .toList();
+        _opportunities = loadedOpps;
       });
     } catch (e) {
       if (mounted) {
@@ -1478,6 +1497,8 @@ class _OpportunityCard extends StatelessWidget {
                             _showEditQuestionsDialog(context);
                           case 'open_poll':
                             _handlePollAction(context, 'openPoll', 'Poll opened');
+                          case 'reopen_poll':
+                            _handlePollAction(context, 'reopenPoll', 'Poll reopened');
                           case 'close_poll':
                             _handlePollAction(context, 'closePoll', 'Poll closed');
                           case 'poll_results':
@@ -1521,7 +1542,7 @@ class _OpportunityCard extends StatelessWidget {
                           ),
                         if (earningType == 'poll') ...[
                           if (!(opportunity['isActive'] == true))
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'open_poll',
                               child: Row(
                                 children: [
@@ -1529,6 +1550,18 @@ class _OpportunityCard extends StatelessWidget {
                                       color: AppColors.success),
                                   SizedBox(width: 8),
                                   Text('Open Poll'),
+                                ],
+                              ),
+                            ),
+                          if (!(opportunity['isActive'] == true))
+                            PopupMenuItem(
+                              value: 'reopen_poll',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.refresh, size: 18,
+                                      color: AppColors.secondary),
+                                  SizedBox(width: 8),
+                                  Text('Reopen Poll'),
                                 ],
                               ),
                             ),
@@ -1667,6 +1700,13 @@ class _OpportunityCard extends StatelessWidget {
         [];
     final oppId = opportunity['id'] as String?;
     if (oppId == null) return;
+
+    // TODO: Remove debug print after verifying Edit Questions data flow
+    for (var i = 0; i < questions.length; i++) {
+      final q = questions[i];
+      debugPrint('[EditQuestions.open] q[$i] keys=${q.keys.toList()} '
+          'correctResponseMediaUrl=${q['correctResponseMediaUrl']}');
+    }
 
     showDialog(
       context: context,
@@ -3591,9 +3631,16 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     TextEditingController(),
     TextEditingController(),
   ];
+  // Media for each poll option: index → {bytes, type ('image'/'video'), name}
+  final Map<int, Map<String, dynamic>> _pollOptionMedia = {};
   bool _pollIsAnonymous = false;
-  bool _pollShowResults = true;
   bool _pollAllowChange = true;
+  bool _pollAllowMultiSelect = false;
+  final _pollMaxSelectionsController = TextEditingController();
+  DateTime? _pollClosesAt;
+  final _pollMinResponsesController = TextEditingController();
+  String _pollResultVisibility = 'immediate'; // 'immediate', 'afterClose', 'afterThreshold'
+  bool _pollAllowOtherOption = false;
 
   // Reward campaign linkage
   String? _rewardCampaignId;
@@ -3840,6 +3887,72 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     }
   }
 
+  /// Pick an image or video for a poll option
+  Future<void> _pickPollOptionMedia(int optionIndex) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: [...adminImageExtensions, 'mp4', 'mov', 'webm'],
+        withData: true,
+      );
+      if (result == null || result.files.single.bytes == null) return;
+      final file = result.files.single;
+      final ext = file.extension?.toLowerCase() ?? '';
+      final isVideo = ['mp4', 'mov', 'webm'].contains(ext);
+
+      // Enforce 50 MB limit for video
+      if (isVideo && file.size > 50 * 1024 * 1024) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Video must be under 50 MB'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
+      }
+
+      setState(() {
+        _pollOptionMedia[optionIndex] = {
+          'bytes': file.bytes,
+          'name': file.name,
+          'type': isVideo ? 'video' : 'image',
+          'ext': ext,
+        };
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Upload poll option media to Firebase Storage and return download URL
+  Future<String?> _uploadPollOptionMedia({
+    required String pollId,
+    required String optionId,
+    required Uint8List bytes,
+    required String ext,
+    required String mediaType,
+  }) async {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('poll_media')
+        .child(pollId)
+        .child('$optionId.$ext');
+
+    final contentType = mediaType == 'video' ? 'video/$ext' : 'image/$ext';
+    final uploadTask = ref.putData(bytes, SettableMetadata(contentType: contentType));
+    final snapshot = await uploadTask;
+    return snapshot.ref.getDownloadURL();
+  }
+
   Future<String?> _uploadOpportunityImage(String opportunityId) async {
     if (_pickedImageBytes == null) return null;
     return uploadAdminImage(
@@ -3963,25 +4076,62 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
       return;
     }
 
+    // Validate afterThreshold requires minResponses
+    if (_pollResultVisibility == 'afterThreshold') {
+      final minResp = int.tryParse(_pollMinResponsesController.text.trim());
+      if (minResp == null || minResp < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Minimum responses is required for "after threshold" visibility'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
+    }
+
     // Upload opportunity image if picked
     String? opportunityImageUrl;
     if (_pickedImageBytes != null) {
       setState(() => _isImageUploading = true);
-      // Use a temp ID for image upload path
       final tempId = DateTime.now().millisecondsSinceEpoch.toString();
       opportunityImageUrl = await _uploadOpportunityImage(tempId);
       if (mounted) setState(() => _isImageUploading = false);
     }
 
-    // Call createPoll Cloud Function (creates both poll + opportunity atomically)
+    // Build options list with text (media URLs added after poll creation)
+    final optionsList = <Map<String, dynamic>>[];
+    for (int i = 0; i < _pollOptionControllers.length; i++) {
+      final text = _pollOptionControllers[i].text.trim();
+      if (text.isEmpty) continue;
+      optionsList.add({'text': text});
+    }
+
+    // Convert closesAt from SAST (local) to UTC ISO string
+    String? closesAtUtc;
+    if (_pollClosesAt != null) {
+      // _pollClosesAt is in SAST (UTC+2), convert to UTC
+      final utc = _pollClosesAt!.subtract(const Duration(hours: 2));
+      closesAtUtc = utc.toUtc().toIso8601String();
+    }
+
+    // Call createPoll Cloud Function
     final callable = FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('createPoll');
-    await callable.call(<String, dynamic>{
+    final result = await callable.call(<String, dynamic>{
       'threadId': widget.threadId,
       'question': _titleController.text.trim(),
-      'options': pollOptions.map((text) => {'text': text}).toList(),
+      'options': optionsList,
       'isAnonymous': _pollIsAnonymous,
-      'showResultsAfterVote': _pollShowResults,
       'allowChangeVote': _pollAllowChange,
+      'allowMultipleSelections': _pollAllowMultiSelect,
+      if (_pollAllowMultiSelect && _pollMaxSelectionsController.text.trim().isNotEmpty)
+        'maxSelections': int.tryParse(_pollMaxSelectionsController.text.trim()),
+      if (closesAtUtc != null) 'closesAt': closesAtUtc,
+      if (_pollResultVisibility == 'afterThreshold')
+        'minResponsesForResults': int.tryParse(_pollMinResponsesController.text.trim()),
+      'resultVisibility': _pollResultVisibility,
+      'allowOtherOption': _pollAllowOtherOption,
       'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
       'durationSeconds': int.tryParse(_durationController.text) ?? 15,
       if (_targeting != null) 'targeting': _targeting,
@@ -3991,6 +4141,53 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
         'dailyLimitPerUser': int.tryParse(_dailyLimitController.text.trim()),
       if (opportunityImageUrl != null) 'opportunityImage': opportunityImageUrl,
     });
+
+    // Upload poll option media (if any) now that we have the pollId
+    final pollId = result.data['pollId'] as String?;
+    if (pollId != null && _pollOptionMedia.isNotEmpty) {
+      for (final entry in _pollOptionMedia.entries) {
+        final idx = entry.key;
+        final media = entry.value;
+        // Only upload if the option index is within the valid options
+        if (idx >= optionsList.length) continue;
+        final optionId = 'opt_$idx';
+        try {
+          final url = await _uploadPollOptionMedia(
+            pollId: pollId,
+            optionId: optionId,
+            bytes: media['bytes'] as Uint8List,
+            ext: media['ext'] as String,
+            mediaType: media['type'] as String,
+          );
+          if (url != null) {
+            // Update the poll option with the media URL
+            final pollRef = FirebaseFirestore.instance.collection('polls').doc(pollId);
+            final pollDoc = await pollRef.get();
+            if (pollDoc.exists) {
+              final options = List<Map<String, dynamic>>.from(
+                (pollDoc.data()!['options'] as List).map((e) => Map<String, dynamic>.from(e as Map)),
+              );
+              final optIdx = options.indexWhere((o) => o['id'] == optionId);
+              if (optIdx >= 0) {
+                options[optIdx]['mediaUrl'] = url;
+                options[optIdx]['mediaType'] = media['type'];
+                await pollRef.update({'options': options});
+              }
+            }
+          }
+        } catch (e) {
+          // Non-fatal — poll is created, media just failed
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Warning: Failed to upload media for option ${idx + 1}'),
+                backgroundColor: AppColors.warning,
+              ),
+            );
+          }
+        }
+      }
+    }
 
     if (mounted) {
       Navigator.of(context).pop();
@@ -4197,12 +4394,14 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
               children: [
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    hintText: 'e.g., Watch our new ad',
+                  decoration: InputDecoration(
+                    labelText: _earningType == 'poll' ? 'Poll Question' : 'Title',
+                    hintText: _earningType == 'poll'
+                        ? 'e.g., Which feature do you want next?'
+                        : 'e.g., Watch our new ad',
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Title is required'
+                      ? (_earningType == 'poll' ? 'Poll question is required' : 'Title is required')
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -4903,34 +5102,91 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'The Title field above is the poll question. Add 2-6 answer options below.',
+                    'Add 2-6 answer options for the poll question above.',
                     style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   ...List.generate(_pollOptionControllers.length, (i) {
+                    final hasMedia = _pollOptionMedia.containsKey(i);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _pollOptionControllers[i],
-                              decoration: InputDecoration(
-                                labelText: 'Option ${i + 1}',
-                                isDense: true,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _pollOptionControllers[i],
+                                  decoration: InputDecoration(
+                                    labelText: 'Option ${i + 1}',
+                                    isDense: true,
+                                  ),
+                                ),
                               ),
-                            ),
+                              // Media picker button
+                              IconButton(
+                                icon: Icon(
+                                  hasMedia ? Icons.image : Icons.add_photo_alternate_outlined,
+                                  size: 18,
+                                  color: hasMedia ? AppColors.primary : AppColors.textSecondary,
+                                ),
+                                tooltip: hasMedia ? 'Change media' : 'Add image/video',
+                                onPressed: () => _pickPollOptionMedia(i),
+                              ),
+                              if (_pollOptionControllers.length > 2)
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 16),
+                                  color: AppColors.error,
+                                  onPressed: () {
+                                    if (_pollOptionControllers.length <= 2) return;
+                                    setState(() {
+                                      _pollOptionControllers.removeAt(i).dispose();
+                                      // Shift media indices
+                                      final newMedia = <int, Map<String, dynamic>>{};
+                                      for (final entry in _pollOptionMedia.entries) {
+                                        if (entry.key < i) {
+                                          newMedia[entry.key] = entry.value;
+                                        } else if (entry.key > i) {
+                                          newMedia[entry.key - 1] = entry.value;
+                                        }
+                                      }
+                                      _pollOptionMedia
+                                        ..clear()
+                                        ..addAll(newMedia);
+                                    });
+                                  },
+                                ),
+                            ],
                           ),
-                          if (_pollOptionControllers.length > 2)
-                            IconButton(
-                              icon: const Icon(Icons.close, size: 16),
-                              color: AppColors.error,
-                              onPressed: () {
-                                if (_pollOptionControllers.length <= 2) return;
-                                setState(() {
-                                  _pollOptionControllers.removeAt(i).dispose();
-                                });
-                              },
+                          if (hasMedia)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8, top: 4),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    _pollOptionMedia[i]!['type'] == 'video'
+                                        ? Icons.videocam
+                                        : Icons.image,
+                                    size: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      _pollOptionMedia[i]!['name'] as String? ?? 'Media attached',
+                                      style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.clear, size: 14),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () => setState(() => _pollOptionMedia.remove(i)),
+                                  ),
+                                ],
+                              ),
                             ),
                         ],
                       ),
@@ -4944,18 +5200,21 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                           _pollOptionControllers.add(TextEditingController())),
                     ),
                   const SizedBox(height: 12),
+                  const SizedBox(height: 8),
+                  // Poll configuration section
+                  const Text(
+                    'Poll Configuration',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   SwitchListTile(
                     value: _pollIsAnonymous,
                     onChanged: (v) => setState(() => _pollIsAnonymous = v),
                     title: const Text('Anonymous voting',
-                        style: TextStyle(fontSize: 13)),
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                  ),
-                  SwitchListTile(
-                    value: _pollShowResults,
-                    onChanged: (v) => setState(() => _pollShowResults = v),
-                    title: const Text('Show results after vote',
                         style: TextStyle(fontSize: 13)),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
@@ -4967,6 +5226,128 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                         style: TextStyle(fontSize: 13)),
                     contentPadding: EdgeInsets.zero,
                     dense: true,
+                  ),
+                  SwitchListTile(
+                    value: _pollAllowMultiSelect,
+                    onChanged: (v) => setState(() => _pollAllowMultiSelect = v),
+                    title: const Text('Allow multiple selections',
+                        style: TextStyle(fontSize: 13)),
+                    subtitle: const Text('Users can pick more than one option',
+                        style: TextStyle(fontSize: 11)),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  if (_pollAllowMultiSelect)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, bottom: 8),
+                      child: TextField(
+                        controller: _pollMaxSelectionsController,
+                        decoration: const InputDecoration(
+                          labelText: 'Max selections (optional)',
+                          hintText: 'Leave empty for unlimited',
+                          isDense: true,
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  SwitchListTile(
+                    value: _pollAllowOtherOption,
+                    onChanged: (v) => setState(() => _pollAllowOtherOption = v),
+                    title: const Text('Allow "Other" free-text option',
+                        style: TextStyle(fontSize: 13)),
+                    subtitle: const Text('Adds an "Other" option with a 200-char text field',
+                        style: TextStyle(fontSize: 11)),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                  const SizedBox(height: 12),
+                  // Result visibility dropdown
+                  DropdownButtonFormField<String>(
+                    value: _pollResultVisibility,
+                    decoration: const InputDecoration(
+                      labelText: 'Result visibility',
+                      isDense: true,
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'immediate',
+                        child: Text('Immediately after voting', style: TextStyle(fontSize: 13)),
+                      ),
+                      DropdownMenuItem(
+                        value: 'afterClose',
+                        child: Text('Only after poll closes', style: TextStyle(fontSize: 13)),
+                      ),
+                      DropdownMenuItem(
+                        value: 'afterThreshold',
+                        child: Text('After minimum responses met', style: TextStyle(fontSize: 13)),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => _pollResultVisibility = v ?? 'immediate'),
+                  ),
+                  if (_pollResultVisibility == 'afterThreshold')
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: TextField(
+                        controller: _pollMinResponsesController,
+                        decoration: const InputDecoration(
+                          labelText: 'Minimum responses required',
+                          hintText: 'e.g., 50',
+                          isDense: true,
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  // Poll deadline / closesAt
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    title: const Text('Auto-close deadline (optional)',
+                        style: TextStyle(fontSize: 13)),
+                    subtitle: Text(
+                      _pollClosesAt != null
+                          ? '${_pollClosesAt!.day}/${_pollClosesAt!.month}/${_pollClosesAt!.year} '
+                            '${_pollClosesAt!.hour.toString().padLeft(2, '0')}:'
+                            '${_pollClosesAt!.minute.toString().padLeft(2, '0')} SAST'
+                          : 'No deadline set',
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.calendar_today, size: 18),
+                          onPressed: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: _pollClosesAt ?? DateTime.now().add(const Duration(days: 1)),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(const Duration(days: 365)),
+                            );
+                            if (date == null || !mounted) return;
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(
+                                _pollClosesAt ?? DateTime.now().add(const Duration(hours: 1)),
+                              ),
+                            );
+                            if (time == null || !mounted) return;
+                            setState(() {
+                              // Store as SAST (UTC+2) — will convert to UTC when sending
+                              _pollClosesAt = DateTime(
+                                date.year, date.month, date.day,
+                                time.hour, time.minute,
+                              );
+                            });
+                          },
+                        ),
+                        if (_pollClosesAt != null)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () => setState(() => _pollClosesAt = null),
+                          ),
+                      ],
+                    ),
                   ),
                 ] else ...[
                   // Survey questions section
@@ -5000,51 +5381,75 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                         ),
                       ),
                     ),
-                  ..._questions.asMap().entries.map((entry) {
-                    final idx = entry.key;
-                    final q = entry.value;
-                    final qType = q['questionType'] ?? 'single_select';
-                    final options = (q['options'] as List?)?.cast<String>() ?? [];
-                    return Card(
-                      color: AppColors.adminSurface,
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        dense: true,
-                        title: Text(
-                          q['text'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textPrimaryDark,
-                          ),
-                        ),
-                        subtitle: Text(
-                          _questionSubtitle(qType, options, q),
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, size: 18),
-                              color: AppColors.textSecondary,
-                              onPressed: () =>
-                                  _showQuestionEditor(index: idx, existing: q),
+                  if (_questions.isNotEmpty)
+                    ReorderableListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      buildDefaultDragHandles: false,
+                      itemCount: _questions.length,
+                      onReorder: (oldIndex, newIndex) {
+                        setState(() {
+                          if (newIndex > oldIndex) newIndex--;
+                          final item = _questions.removeAt(oldIndex);
+                          _questions.insert(newIndex, item);
+                          for (var i = 0; i < _questions.length; i++) {
+                            _questions[i]['orderIndex'] = i;
+                          }
+                        });
+                      },
+                      itemBuilder: (context, idx) {
+                        final q = _questions[idx];
+                        final qType = q['questionType'] ?? 'single_select';
+                        final options =
+                            (q['options'] as List?)?.cast<String>() ?? [];
+                        return Card(
+                          key: ValueKey(q['id'] ?? idx),
+                          color: AppColors.adminSurface,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            dense: true,
+                            leading: ReorderableDragStartListener(
+                              index: idx,
+                              child: const Icon(Icons.drag_handle,
+                                  size: 20, color: AppColors.textSecondary),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, size: 18),
-                              color: AppColors.error,
-                              onPressed: () {
-                                setState(() => _questions.removeAt(idx));
-                              },
+                            title: Text(
+                              q['text'] ?? '',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textPrimaryDark,
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
+                            subtitle: Text(
+                              _questionSubtitle(qType, options, q),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, size: 18),
+                                  color: AppColors.textSecondary,
+                                  onPressed: () => _showQuestionEditor(
+                                      index: idx, existing: q),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, size: 18),
+                                  color: AppColors.error,
+                                  onPressed: () {
+                                    setState(
+                                        () => _questions.removeAt(idx));
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                 ],
                 const SizedBox(height: 8),
                 SwitchListTile(
@@ -5217,6 +5622,20 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
   // Reward quantity (Q2)
   late final TextEditingController _rewardQuantityController;
 
+  // Poll-specific state (loaded from polls collection when earningType == 'poll')
+  bool _loadingPoll = false;
+  Map<String, dynamic>? _pollData;
+  List<TextEditingController> _pollOptionControllers = [];
+  bool _pollIsAnonymous = false;
+  bool _pollAllowChange = true;
+  bool _pollAllowMultiSelect = false;
+  final _pollMaxSelectionsController = TextEditingController();
+  String _pollResultVisibility = 'immediate';
+  final _pollMinResponsesController = TextEditingController();
+  bool _pollAllowOtherOption = false;
+  DateTime? _pollClosesAt;
+  String? _pollStatus;
+
   // Upload-specific fields (used when earningType == 'upload')
   late final TextEditingController _uploadPromptController;
   bool _uploadVideoEnabled = false;
@@ -5321,6 +5740,54 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
         text: (o['uploadTextMaxChars'] ?? 1500).toString());
     _requiresAdminReview = o['requiresAdminReview'] == true;
     _checkTokenSourceBalance();
+    if (_earningType == 'poll') _loadPollData();
+  }
+
+  Future<void> _loadPollData() async {
+    final pollId = widget.opportunity['pollId'] as String?;
+    if (pollId == null) return;
+    setState(() => _loadingPoll = true);
+    try {
+      final pollDoc = await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollId)
+          .get();
+      if (!pollDoc.exists || !mounted) return;
+      final data = pollDoc.data()!;
+      _pollData = data;
+      _pollStatus = data['status'] as String? ?? 'draft';
+
+      // Populate option controllers
+      final options = (data['options'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          [];
+      _pollOptionControllers = options
+          .map((o) => TextEditingController(text: o['text']?.toString() ?? ''))
+          .toList();
+
+      // Populate config
+      _pollIsAnonymous = data['isAnonymous'] == true;
+      _pollAllowChange = data['allowChangeVote'] != false;
+      _pollAllowMultiSelect = data['allowMultipleSelections'] == true;
+      _pollMaxSelectionsController.text =
+          data['maxSelections'] != null ? data['maxSelections'].toString() : '';
+      _pollResultVisibility =
+          data['resultVisibility']?.toString() ?? 'immediate';
+      _pollMinResponsesController.text = data['minResponsesForResults'] != null
+          ? data['minResponsesForResults'].toString()
+          : '';
+      _pollAllowOtherOption = data['allowOtherOption'] == true;
+
+      // Parse closesAt
+      final closesAtRaw = data['closesAt'];
+      if (closesAtRaw is Timestamp) {
+        _pollClosesAt = closesAtRaw.toDate();
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingPoll = false);
+    }
   }
 
   Future<void> _checkTokenSourceBalance() async {
@@ -5397,6 +5864,11 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
     _uploadPromptController.dispose();
     _uploadTextMinCharsController.dispose();
     _uploadTextMaxCharsController.dispose();
+    for (final c in _pollOptionControllers) {
+      c.dispose();
+    }
+    _pollMaxSelectionsController.dispose();
+    _pollMinResponsesController.dispose();
     super.dispose();
   }
 
@@ -5637,9 +6109,106 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
+      // Update poll data if this is a poll opportunity
+      final pollId = widget.opportunity['pollId'] as String?;
+      if (_earningType == 'poll' && pollId != null && _pollData != null) {
+        final functions = FirebaseFunctions.instanceFor(region: 'africa-south1');
+
+        // Handle poll open/close via dedicated CFs when active status changes
+        if (wasActive != nowActive) {
+          try {
+            if (nowActive && _pollStatus == 'draft') {
+              // Open the poll (draft → open) — this also sets isActive on the opportunity
+              await functions.httpsCallable('openPoll').call({'pollId': pollId});
+            } else if (nowActive && _pollStatus == 'closed') {
+              // Reopen a closed poll (closed → open)
+              await functions.httpsCallable('reopenPoll').call({'pollId': pollId});
+            } else if (!nowActive && _pollStatus == 'open') {
+              // Close the poll (open → closed) — this also sets isActive=false
+              await functions.httpsCallable('closePoll').call({'pollId': pollId});
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Poll status change failed: $e'),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          }
+        }
+
+        // Update poll config (only if poll is in draft or open status)
+        if (_pollStatus == 'draft' || _pollStatus == 'open') {
+          final pollUpdates = <String, dynamic>{
+            'pollId': pollId,
+            'isAnonymous': _pollIsAnonymous,
+            'allowChangeVote': _pollAllowChange,
+            'allowMultipleSelections': _pollAllowMultiSelect,
+            'maxSelections': _pollAllowMultiSelect &&
+                    _pollMaxSelectionsController.text.trim().isNotEmpty
+                ? int.tryParse(_pollMaxSelectionsController.text.trim())
+                : null,
+            'resultVisibility': _pollResultVisibility,
+            'allowOtherOption': _pollAllowOtherOption,
+          };
+          if (_pollResultVisibility == 'afterThreshold') {
+            pollUpdates['minResponsesForResults'] =
+                int.tryParse(_pollMinResponsesController.text.trim());
+          }
+          // closesAt: convert SAST to UTC ISO string
+          if (_pollClosesAt != null) {
+            final utc = _pollClosesAt!.subtract(const Duration(hours: 2));
+            pollUpdates['closesAt'] = utc.toUtc().toIso8601String();
+          } else {
+            pollUpdates['closesAt'] = null;
+          }
+          // Question & options only in draft
+          if (_pollStatus == 'draft') {
+            pollUpdates['question'] = _titleController.text.trim();
+            final opts = _pollOptionControllers
+                .map((c) => c.text.trim())
+                .where((t) => t.isNotEmpty)
+                .toList();
+            if (opts.length >= 2) {
+              // Preserve existing media URLs
+              final existingOptions = (_pollData!['options'] as List?)
+                      ?.map((e) => Map<String, dynamic>.from(e as Map))
+                      .toList() ??
+                  [];
+              pollUpdates['options'] = opts.asMap().entries.map((e) {
+                final m = <String, dynamic>{'text': e.value};
+                if (e.key < existingOptions.length) {
+                  final existing = existingOptions[e.key];
+                  if (existing['mediaUrl'] != null) {
+                    m['mediaUrl'] = existing['mediaUrl'];
+                    m['mediaType'] = existing['mediaType'] ?? 'image';
+                  }
+                }
+                return m;
+              }).toList();
+            }
+          }
+          try {
+            await functions.httpsCallable('updatePoll').call(pollUpdates);
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Warning: Poll config update failed: $e'),
+                  backgroundColor: AppColors.warning,
+                ),
+              );
+            }
+          }
+        }
+      }
+
       // Update thread opportunity count if active status changed
+      // (skip for polls — openPoll/closePoll CFs already handle this)
       final threadId = widget.opportunity['threadId'] as String?;
-      if (threadId != null && wasActive != nowActive) {
+      if (threadId != null && wasActive != nowActive && _earningType != 'poll') {
         await FirebaseFirestore.instance
             .collection('earnThreads')
             .doc(threadId)
@@ -6049,6 +6618,372 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                             (v == null || v.trim().isEmpty)
                         ? 'Required for Ad Video type'
                         : null,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // Poll configuration (shown for poll type)
+                if (_earningType == 'poll') ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.borderDark),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _loadingPoll
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : _pollData == null
+                            ? const Text(
+                                'Poll data not found',
+                                style: TextStyle(color: AppColors.error),
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Poll Configuration',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.textPrimaryDark,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: _pollStatus == 'open'
+                                              ? AppColors.success
+                                                  .withValues(alpha: 0.15)
+                                              : _pollStatus == 'closed'
+                                                  ? AppColors.error
+                                                      .withValues(alpha: 0.15)
+                                                  : AppColors.warning
+                                                      .withValues(alpha: 0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          (_pollStatus ?? 'draft')
+                                              .toUpperCase(),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: _pollStatus == 'open'
+                                                ? AppColors.success
+                                                : _pollStatus == 'closed'
+                                                    ? AppColors.error
+                                                    : AppColors.warning,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'Response Options',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ..._pollOptionControllers
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    final idx = entry.key;
+                                    final ctrl = entry.value;
+                                    final isDraft = _pollStatus == 'draft';
+                                    final options =
+                                        (_pollData!['options'] as List?)
+                                                ?.map((e) =>
+                                                    Map<String, dynamic>.from(
+                                                        e as Map))
+                                                .toList() ??
+                                            [];
+                                    final hasMedia = idx < options.length &&
+                                        options[idx]['mediaUrl'] != null;
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 24,
+                                            height: 24,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondary
+                                                  .withValues(alpha: 0.15),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              '${idx + 1}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.secondary,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: ctrl,
+                                              enabled: isDraft,
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    'Option ${idx + 1}',
+                                                isDense: true,
+                                                suffixIcon: hasMedia
+                                                    ? const Icon(
+                                                        Icons.image,
+                                                        size: 16,
+                                                        color: AppColors
+                                                            .secondary,
+                                                      )
+                                                    : null,
+                                              ),
+                                              style: const TextStyle(
+                                                  fontSize: 13),
+                                            ),
+                                          ),
+                                          if (isDraft &&
+                                              _pollOptionControllers.length >
+                                                  2)
+                                            IconButton(
+                                              icon: const Icon(Icons.close,
+                                                  size: 16),
+                                              color: AppColors.error,
+                                              onPressed: () {
+                                                setState(() {
+                                                  _pollOptionControllers
+                                                      .removeAt(idx);
+                                                });
+                                              },
+                                              tooltip: 'Remove option',
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                            ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                  if (_pollStatus == 'draft' &&
+                                      _pollOptionControllers.length < 6)
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _pollOptionControllers
+                                              .add(TextEditingController());
+                                        });
+                                      },
+                                      icon: const Icon(Icons.add, size: 16),
+                                      label: const Text('Add Option'),
+                                      style: TextButton.styleFrom(
+                                        minimumSize: const Size(0, 32),
+                                      ),
+                                    ),
+                                  if (_pollStatus != 'draft')
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        'Options can only be edited in draft status',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.textSecondary,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ),
+                                  const Divider(height: 24),
+                                  SwitchListTile(
+                                    value: _pollIsAnonymous,
+                                    onChanged: (v) => setState(
+                                        () => _pollIsAnonymous = v),
+                                    title: const Text('Anonymous Voting'),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  SwitchListTile(
+                                    value: _pollAllowChange,
+                                    onChanged: (v) => setState(
+                                        () => _pollAllowChange = v),
+                                    title: const Text('Allow Vote Change'),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  SwitchListTile(
+                                    value: _pollAllowMultiSelect,
+                                    onChanged: (v) => setState(
+                                        () => _pollAllowMultiSelect = v),
+                                    title:
+                                        const Text('Allow Multiple Selections'),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  if (_pollAllowMultiSelect)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 16),
+                                      child: TextFormField(
+                                        controller:
+                                            _pollMaxSelectionsController,
+                                        decoration: const InputDecoration(
+                                          labelText:
+                                              'Max Selections (optional)',
+                                          isDense: true,
+                                        ),
+                                        keyboardType:
+                                            TextInputType.number,
+                                      ),
+                                    ),
+                                  SwitchListTile(
+                                    value: _pollAllowOtherOption,
+                                    onChanged: (v) => setState(
+                                        () => _pollAllowOtherOption = v),
+                                    title:
+                                        const Text('Allow "Other" Free-text'),
+                                    subtitle: const Text('Max 200 chars',
+                                        style: TextStyle(fontSize: 11)),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  DropdownButtonFormField<String>(
+                                    initialValue: _pollResultVisibility,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Result Visibility',
+                                      isDense: true,
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'immediate',
+                                        child: Text('Immediately after voting'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'afterClose',
+                                        child:
+                                            Text('Only after poll closes'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'afterThreshold',
+                                        child: Text(
+                                            'After minimum responses met'),
+                                      ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setState(() =>
+                                            _pollResultVisibility = v);
+                                      }
+                                    },
+                                  ),
+                                  if (_pollResultVisibility ==
+                                      'afterThreshold') ...[
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller:
+                                          _pollMinResponsesController,
+                                      decoration: const InputDecoration(
+                                        labelText:
+                                            'Minimum Responses Required',
+                                        isDense: true,
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ],
+                                  const SizedBox(height: 8),
+                                  InkWell(
+                                    onTap: () async {
+                                      final now = DateTime.now();
+                                      final picked = await showDatePicker(
+                                        context: context,
+                                        initialDate: _pollClosesAt ??
+                                            now.add(
+                                                const Duration(days: 7)),
+                                        firstDate: now,
+                                        lastDate: now.add(
+                                            const Duration(days: 365)),
+                                      );
+                                      if (picked != null && mounted) {
+                                        final time =
+                                            await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              TimeOfDay.fromDateTime(
+                                                  _pollClosesAt ?? now),
+                                        );
+                                        if (time != null && mounted) {
+                                          setState(() {
+                                            _pollClosesAt = DateTime(
+                                              picked.year,
+                                              picked.month,
+                                              picked.day,
+                                              time.hour,
+                                              time.minute,
+                                            );
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        labelText:
+                                            'Auto-close Deadline (optional)',
+                                        isDense: true,
+                                        suffixIcon: _pollClosesAt != null
+                                            ? IconButton(
+                                                icon: const Icon(
+                                                    Icons.close,
+                                                    size: 16),
+                                                onPressed: () => setState(
+                                                    () => _pollClosesAt =
+                                                        null),
+                                                tooltip: 'Clear',
+                                              )
+                                            : const Icon(
+                                                Icons.calendar_today,
+                                                size: 16),
+                                      ),
+                                      child: Text(
+                                        _pollClosesAt != null
+                                            ? DateFormat('dd MMM yyyy HH:mm')
+                                                .format(_pollClosesAt!)
+                                            : 'No auto-close',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: _pollClosesAt != null
+                                              ? AppColors.textPrimaryDark
+                                              : AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if ((_pollData!['totalRespondents']
+                                              as num? ??
+                                          0) >
+                                      0) ...[
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Total Respondents: ${_pollData!['totalRespondents']}',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -6757,6 +7692,9 @@ String _questionSubtitle(
   final parts = <String>[label];
   if (options.isNotEmpty) parts.add('${options.length} options');
   if (q['isAttentionCheck'] == true) parts.add('attention check');
+  final hasCorrectnessBranch = q['correctGoToQuestionId'] != null ||
+      q['incorrectGoToQuestionId'] != null;
+  if (hasCorrectnessBranch) parts.add('correct/incorrect branching');
   final rules = (q['branchRules'] as List?) ?? [];
   if (rules.isNotEmpty) parts.add('branching');
   return parts.join(' · ');
@@ -6782,6 +7720,20 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
   final List<TextEditingController> _optionControllers = [];
   bool _isAttentionCheck = false;
   String? _correctAnswer;
+  String? _correctGoToQuestionId;
+  String? _incorrectGoToQuestionId;
+
+  // Response Box state
+  final _correctResponseTextController = TextEditingController();
+  String? _correctResponseMediaUrl; // existing URL (from Firestore)
+  String? _correctResponseMediaType;
+  Uint8List? _correctResponseMediaBytes; // newly picked (not yet uploaded)
+  String? _correctResponseMediaFileName;
+  final _incorrectResponseTextController = TextEditingController();
+  String? _incorrectResponseMediaUrl; // existing URL (from Firestore)
+  String? _incorrectResponseMediaType;
+  Uint8List? _incorrectResponseMediaBytes; // newly picked (not yet uploaded)
+  String? _incorrectResponseMediaFileName;
 
   // Question type
   String _questionType = 'single_select';
@@ -6826,11 +7778,27 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
     super.initState();
     if (widget.existing != null) {
       final e = widget.existing!;
+      // TODO: Remove debug print after verifying Edit Question loads existing media
+      debugPrint('[QuestionEditor.initState] existing keys=${e.keys.toList()} '
+          'correctResponseMediaUrl=${e['correctResponseMediaUrl']} '
+          'incorrectResponseMediaUrl=${e['incorrectResponseMediaUrl']} '
+          'isAttentionCheck=${e['isAttentionCheck']} '
+          'correctAnswer=${e['correctAnswer']}');
       _textController.text = e['text'] ?? '';
       _questionType = e['questionType'] ?? 'single_select';
       _isRequired = e['isRequired'] ?? e['required'] ?? true;
       _isAttentionCheck = e['isAttentionCheck'] == true;
       _correctAnswer = e['correctAnswer'] as String?;
+      _correctGoToQuestionId = e['correctGoToQuestionId'] as String?;
+      _incorrectGoToQuestionId = e['incorrectGoToQuestionId'] as String?;
+      _correctResponseTextController.text =
+          e['correctResponseText'] as String? ?? '';
+      _correctResponseMediaUrl = e['correctResponseMediaUrl'] as String?;
+      _correctResponseMediaType = e['correctResponseMediaType'] as String?;
+      _incorrectResponseTextController.text =
+          e['incorrectResponseText'] as String? ?? '';
+      _incorrectResponseMediaUrl = e['incorrectResponseMediaUrl'] as String?;
+      _incorrectResponseMediaType = e['incorrectResponseMediaType'] as String?;
 
       final options = (e['options'] as List?)?.cast<String>() ?? [];
       for (final opt in options) {
@@ -6908,6 +7876,8 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
     _sliderStepController.dispose();
     _sliderMinLabelController.dispose();
     _sliderMaxLabelController.dispose();
+    _correctResponseTextController.dispose();
+    _incorrectResponseTextController.dispose();
     super.dispose();
   }
 
@@ -6954,7 +7924,9 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
   bool get _needsOptions =>
       _questionType == 'single_select' || _questionType == 'multi_select';
 
-  void _handleSave() {
+  bool _isSavingQuestion = false;
+
+  Future<void> _handleSave() async {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
@@ -6967,6 +7939,45 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
 
     final id = widget.existing?['id'] ??
         'q_${DateTime.now().millisecondsSinceEpoch}';
+
+    // Upload any picked response media before saving
+    setState(() => _isSavingQuestion = true);
+    try {
+      if (_correctResponseMediaBytes != null) {
+        final url = await uploadAdminImage(
+          bytes: _correctResponseMediaBytes!,
+          fileName: _correctResponseMediaFileName,
+          storagePath: 'survey_assets/response_media',
+          fileId: '${id}_correct_${DateTime.now().millisecondsSinceEpoch}',
+          resizeTarget: ImageResizeTarget.responseBoxImage,
+        );
+        _correctResponseMediaUrl = url;
+        _correctResponseMediaType = 'image';
+      }
+      if (_incorrectResponseMediaBytes != null) {
+        final url = await uploadAdminImage(
+          bytes: _incorrectResponseMediaBytes!,
+          fileName: _incorrectResponseMediaFileName,
+          storagePath: 'survey_assets/response_media',
+          fileId: '${id}_incorrect_${DateTime.now().millisecondsSinceEpoch}',
+          resizeTarget: ImageResizeTarget.responseBoxImage,
+        );
+        _incorrectResponseMediaUrl = url;
+        _incorrectResponseMediaType = 'image';
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSavingQuestion = false);
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text('Image upload failed: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+    if (mounted) setState(() => _isSavingQuestion = false);
 
     final options = _optionControllers
         .map((c) => c.text.trim())
@@ -6988,6 +7999,33 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
         result['isAttentionCheck'] = _isAttentionCheck;
         result['correctAnswer'] =
             _isAttentionCheck ? _correctAnswer : null;
+        if (_isAttentionCheck && _correctGoToQuestionId != null) {
+          result['correctGoToQuestionId'] = _correctGoToQuestionId;
+        }
+        if (_isAttentionCheck && _incorrectGoToQuestionId != null) {
+          result['incorrectGoToQuestionId'] = _incorrectGoToQuestionId;
+        }
+        // Response Box fields — always write all 6 keys so removed values
+        // are explicitly nulled out in Firestore (not silently kept).
+        if (_isAttentionCheck) {
+          final correctText = _correctResponseTextController.text.trim();
+          result['correctResponseText'] = correctText.isNotEmpty ? correctText : null;
+          result['correctResponseMediaUrl'] = _correctResponseMediaUrl;
+          result['correctResponseMediaType'] = _correctResponseMediaType;
+          final incorrectText =
+              _incorrectResponseTextController.text.trim();
+          result['incorrectResponseText'] = incorrectText.isNotEmpty ? incorrectText : null;
+          result['incorrectResponseMediaUrl'] = _incorrectResponseMediaUrl;
+          result['incorrectResponseMediaType'] = _incorrectResponseMediaType;
+        }
+        // TODO: Remove debug print after verifying Response Box saves
+        debugPrint('[QuestionSave] isAttentionCheck=$_isAttentionCheck '
+            'correctAnswer=$_correctAnswer '
+            'correctResponseText=${_correctResponseTextController.text} '
+            'correctResponseMediaUrl=$_correctResponseMediaUrl '
+            'incorrectResponseText=${_incorrectResponseTextController.text} '
+            'incorrectResponseMediaUrl=$_incorrectResponseMediaUrl '
+            'result keys=${result.keys.toList()}');
         // Branch rules
         final rules = <Map<String, dynamic>>[];
         for (final entry in _branchRules.entries) {
@@ -7099,6 +8137,18 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
                     if (v != 'single_select') {
                       _isAttentionCheck = false;
                       _correctAnswer = null;
+                      _correctGoToQuestionId = null;
+                      _incorrectGoToQuestionId = null;
+                      _correctResponseTextController.clear();
+                      _correctResponseMediaUrl = null;
+                      _correctResponseMediaType = null;
+                      _correctResponseMediaBytes = null;
+                      _correctResponseMediaFileName = null;
+                      _incorrectResponseTextController.clear();
+                      _incorrectResponseMediaUrl = null;
+                      _incorrectResponseMediaType = null;
+                      _incorrectResponseMediaBytes = null;
+                      _incorrectResponseMediaFileName = null;
                       _branchRules.clear();
                     }
                   });
@@ -7148,11 +8198,18 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: _handleSave,
+          onPressed: _isSavingQuestion ? null : _handleSave,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
           ),
-          child: const Text('Save'),
+          child: _isSavingQuestion
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
+                )
+              : const Text('Save'),
         ),
       ],
     );
@@ -7216,7 +8273,21 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
         value: _isAttentionCheck,
         onChanged: (v) => setState(() {
           _isAttentionCheck = v;
-          if (!v) _correctAnswer = null;
+          if (!v) {
+            _correctAnswer = null;
+            _correctGoToQuestionId = null;
+            _incorrectGoToQuestionId = null;
+            _correctResponseTextController.clear();
+            _correctResponseMediaUrl = null;
+            _correctResponseMediaType = null;
+            _correctResponseMediaBytes = null;
+            _correctResponseMediaFileName = null;
+            _incorrectResponseTextController.clear();
+            _incorrectResponseMediaUrl = null;
+            _incorrectResponseMediaType = null;
+            _incorrectResponseMediaBytes = null;
+            _incorrectResponseMediaFileName = null;
+          }
         }),
         title: const Text('Attention check',
             style: TextStyle(fontSize: 13)),
@@ -7239,6 +8310,165 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
                   ))
               .toList(),
           onChanged: (v) => setState(() => _correctAnswer = v),
+        ),
+        if (_correctAnswer != null && _branchTargets.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'Correctness Branching',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimaryDark,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Jump to a specific question based on whether the answer is correct or incorrect',
+            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            initialValue: _correctGoToQuestionId,
+            decoration: const InputDecoration(
+              labelText: 'If correct → go to',
+              hintText: 'Next (default)',
+              isDense: true,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            ),
+            isExpanded: true,
+            items: [
+              const DropdownMenuItem<String>(
+                value: null,
+                child: Text('Next (default)',
+                    style: TextStyle(fontSize: 12)),
+              ),
+              ..._branchTargets.map((q) => DropdownMenuItem(
+                    value: q['id'] as String,
+                    child: Text(
+                      q['text'] as String? ?? q['id'] as String,
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )),
+            ],
+            onChanged: (v) =>
+                setState(() => _correctGoToQuestionId = v),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            initialValue: _incorrectGoToQuestionId,
+            decoration: const InputDecoration(
+              labelText: 'If incorrect → go to',
+              hintText: 'Next (default)',
+              isDense: true,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            ),
+            isExpanded: true,
+            items: [
+              const DropdownMenuItem<String>(
+                value: null,
+                child: Text('Next (default)',
+                    style: TextStyle(fontSize: 12)),
+              ),
+              ..._branchTargets.map((q) => DropdownMenuItem(
+                    value: q['id'] as String,
+                    child: Text(
+                      q['text'] as String? ?? q['id'] as String,
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )),
+            ],
+            onChanged: (v) =>
+                setState(() => _incorrectGoToQuestionId = v),
+          ),
+        ],
+      ],
+      // --- Response Box (visible whenever correct answer is set) ---
+      if (_correctAnswer != null) ...[
+        const SizedBox(height: 16),
+        const Text(
+          'Response Box (optional)',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Show feedback text/media before branching to the next question',
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _correctResponseTextController,
+          decoration: const InputDecoration(
+            labelText: 'Correct answer feedback',
+            hintText: 'e.g., Well done! That\'s right.',
+            isDense: true,
+          ),
+          maxLines: 3,
+        ),
+        const SizedBox(height: 8),
+        _buildResponseMediaPicker(
+          label: 'Correct answer media',
+          currentUrl: _correctResponseMediaUrl,
+          pickedBytes: _correctResponseMediaBytes,
+          onPick: () => _pickResponseMedia(
+            onPicked: (bytes, name) => setState(() {
+              _correctResponseMediaBytes = bytes;
+              _correctResponseMediaFileName = name;
+            }),
+          ),
+          onRemoved: () {
+            final urlToDelete = _correctResponseMediaUrl;
+            setState(() {
+              _correctResponseMediaUrl = null;
+              _correctResponseMediaType = null;
+              _correctResponseMediaBytes = null;
+              _correctResponseMediaFileName = null;
+            });
+            if (urlToDelete != null) {
+              FirebaseStorage.instance.refFromURL(urlToDelete).delete().catchError((_) {});
+            }
+          },
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _incorrectResponseTextController,
+          decoration: const InputDecoration(
+            labelText: 'Incorrect answer feedback',
+            hintText: 'e.g., Not quite. The correct answer is...',
+            isDense: true,
+          ),
+          maxLines: 3,
+        ),
+        const SizedBox(height: 8),
+        _buildResponseMediaPicker(
+          label: 'Incorrect answer media',
+          currentUrl: _incorrectResponseMediaUrl,
+          pickedBytes: _incorrectResponseMediaBytes,
+          onPick: () => _pickResponseMedia(
+            onPicked: (bytes, name) => setState(() {
+              _incorrectResponseMediaBytes = bytes;
+              _incorrectResponseMediaFileName = name;
+            }),
+          ),
+          onRemoved: () {
+            final urlToDelete = _incorrectResponseMediaUrl;
+            setState(() {
+              _incorrectResponseMediaUrl = null;
+              _incorrectResponseMediaType = null;
+              _incorrectResponseMediaBytes = null;
+              _incorrectResponseMediaFileName = null;
+            });
+            if (urlToDelete != null) {
+              FirebaseStorage.instance.refFromURL(urlToDelete).delete().catchError((_) {});
+            }
+          },
         ),
       ],
       // Branch rules
@@ -7507,6 +8737,118 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
       const SizedBox(height: 8),
     ];
   }
+
+  /// Reusable media picker row for Response Box.
+  /// Shows: existing URL preview, or newly picked bytes preview, or pick button.
+  Widget _buildResponseMediaPicker({
+    required String label,
+    required String? currentUrl,
+    required Uint8List? pickedBytes,
+    required VoidCallback onPick,
+    required VoidCallback onRemoved,
+  }) {
+    // TODO: Remove debug print after verifying media picker shows existing
+    debugPrint('[MediaPicker] label=$label currentUrl=${currentUrl != null ? "SET(${currentUrl.length} chars)" : "null"} pickedBytes=${pickedBytes != null ? "SET(${pickedBytes.length} bytes)" : "null"}');
+    // Show preview of newly picked image (from memory)
+    if (pickedBytes != null) {
+      return Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.memory(
+              pickedBytes,
+              width: 60,
+              height: 40,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: AppColors.error,
+            tooltip: 'Remove',
+            onPressed: onRemoved,
+          ),
+        ],
+      );
+    }
+
+    // Show preview of existing uploaded URL
+    if (currentUrl != null) {
+      return Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.network(
+              currentUrl,
+              width: 60,
+              height: 40,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const Icon(
+                  Icons.broken_image,
+                  size: 40,
+                  color: AppColors.textSecondary),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 16),
+            color: AppColors.error,
+            tooltip: 'Remove',
+            onPressed: onRemoved,
+          ),
+        ],
+      );
+    }
+
+    // No media yet — show pick button
+    return OutlinedButton.icon(
+      icon: const Icon(Icons.upload, size: 16),
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(0, 36),
+      ),
+      onPressed: onPick,
+    );
+  }
+
+  Future<void> _pickResponseMedia({
+    required void Function(Uint8List bytes, String fileName) onPicked,
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: adminImageExtensions,
+        withData: true,
+      );
+      if (result != null && result.files.single.bytes != null) {
+        onPicked(result.files.single.bytes!, result.files.single.name);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text('Error picking file: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -7637,52 +8979,74 @@ class _EditQuestionsDialogState extends State<_EditQuestionsDialog> {
                     ),
                   ),
                 ),
-              ..._questions.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final q = entry.value;
-                final qType = q['questionType'] ?? 'single_select';
-                final options =
-                    (q['options'] as List?)?.cast<String>() ?? [];
-                return Card(
-                  color: AppColors.adminSurface,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    dense: true,
-                    title: Text(
-                      q['text'] ?? '',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textPrimaryDark,
-                      ),
-                    ),
-                    subtitle: Text(
-                      _questionSubtitle(qType, options, q),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 18),
-                          color: AppColors.textSecondary,
-                          onPressed: () => _showQuestionEditor(
-                              index: idx, existing: q),
+              if (_questions.isNotEmpty)
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
+                  itemCount: _questions.length,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = _questions.removeAt(oldIndex);
+                      _questions.insert(newIndex, item);
+                      for (var i = 0; i < _questions.length; i++) {
+                        _questions[i]['orderIndex'] = i;
+                      }
+                    });
+                  },
+                  itemBuilder: (context, idx) {
+                    final q = _questions[idx];
+                    final qType = q['questionType'] ?? 'single_select';
+                    final options =
+                        (q['options'] as List?)?.cast<String>() ?? [];
+                    return Card(
+                      key: ValueKey(q['id'] ?? idx),
+                      color: AppColors.adminSurface,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        dense: true,
+                        leading: ReorderableDragStartListener(
+                          index: idx,
+                          child: const Icon(Icons.drag_handle,
+                              size: 20, color: AppColors.textSecondary),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, size: 18),
-                          color: AppColors.error,
-                          onPressed: () {
-                            setState(() => _questions.removeAt(idx));
-                          },
+                        title: Text(
+                          q['text'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textPrimaryDark,
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+                        subtitle: Text(
+                          _questionSubtitle(qType, options, q),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 18),
+                              color: AppColors.textSecondary,
+                              onPressed: () => _showQuestionEditor(
+                                  index: idx, existing: q),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, size: 18),
+                              color: AppColors.error,
+                              onPressed: () {
+                                setState(() => _questions.removeAt(idx));
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
         ),

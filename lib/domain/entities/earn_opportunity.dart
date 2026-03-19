@@ -84,6 +84,20 @@ abstract class SurveyQuestion with _$SurveyQuestion {
     @Default(false) bool isAttentionCheck,
     String? correctAnswer,
 
+    // --- Correctness-based branching (single_select + attention check) ---
+    /// Jump here when the user answers correctly (takes priority over branchRules)
+    String? correctGoToQuestionId,
+    /// Jump here when the user answers incorrectly (takes priority over branchRules)
+    String? incorrectGoToQuestionId,
+
+    // --- Response Box (optional interstitial before branching) ---
+    String? correctResponseText,
+    String? correctResponseMediaUrl,
+    String? correctResponseMediaType, // "image" or "video"
+    String? incorrectResponseText,
+    String? incorrectResponseMediaUrl,
+    String? incorrectResponseMediaType, // "image" or "video"
+
     // --- Branching (single_select only) ---
     @Default([]) List<BranchRule> branchRules,
   }) = _SurveyQuestion;

@@ -41,6 +41,7 @@ export * from "./kyc";
 export * from "./earnAdmin";
 export * from "./poll";
 export * from "./pollAdmin";
+export * from "./pollScheduled";
 export * from "./uploadReview";
 export * from "./adminAccounts";
 export * from "./rewardCampaigns";

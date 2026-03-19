@@ -82,6 +82,18 @@ abstract class SurveyQuestionModel with _$SurveyQuestionModel {
     @Default(false) bool isAttentionCheck,
     String? correctAnswer,
 
+    // correctness-based branching
+    String? correctGoToQuestionId,
+    String? incorrectGoToQuestionId,
+
+    // response box (optional interstitial before branching)
+    String? correctResponseText,
+    String? correctResponseMediaUrl,
+    String? correctResponseMediaType,
+    String? incorrectResponseText,
+    String? incorrectResponseMediaUrl,
+    String? incorrectResponseMediaType,
+
     // branching
     @Default([]) List<BranchRuleModel> branchRules,
   }) = _SurveyQuestionModel;
@@ -112,6 +124,14 @@ abstract class SurveyQuestionModel with _$SurveyQuestionModel {
       sliderMaxLabel: json['sliderMaxLabel'] as String?,
       isAttentionCheck: json['isAttentionCheck'] as bool? ?? false,
       correctAnswer: json['correctAnswer'] as String?,
+      correctGoToQuestionId: json['correctGoToQuestionId'] as String?,
+      incorrectGoToQuestionId: json['incorrectGoToQuestionId'] as String?,
+      correctResponseText: json['correctResponseText'] as String?,
+      correctResponseMediaUrl: json['correctResponseMediaUrl'] as String?,
+      correctResponseMediaType: json['correctResponseMediaType'] as String?,
+      incorrectResponseText: json['incorrectResponseText'] as String?,
+      incorrectResponseMediaUrl: json['incorrectResponseMediaUrl'] as String?,
+      incorrectResponseMediaType: json['incorrectResponseMediaType'] as String?,
       branchRules: (json['branchRules'] as List?)
               ?.map((e) => BranchRuleModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -143,6 +163,14 @@ abstract class SurveyQuestionModel with _$SurveyQuestionModel {
       sliderMaxLabel: sliderMaxLabel,
       isAttentionCheck: isAttentionCheck,
       correctAnswer: correctAnswer,
+      correctGoToQuestionId: correctGoToQuestionId,
+      incorrectGoToQuestionId: incorrectGoToQuestionId,
+      correctResponseText: correctResponseText,
+      correctResponseMediaUrl: correctResponseMediaUrl,
+      correctResponseMediaType: correctResponseMediaType,
+      incorrectResponseText: incorrectResponseText,
+      incorrectResponseMediaUrl: incorrectResponseMediaUrl,
+      incorrectResponseMediaType: incorrectResponseMediaType,
       branchRules: branchRules.map((r) => r.toEntity()).toList(),
     );
   }
@@ -171,6 +199,14 @@ abstract class SurveyQuestionModel with _$SurveyQuestionModel {
       sliderMaxLabel: entity.sliderMaxLabel,
       isAttentionCheck: entity.isAttentionCheck,
       correctAnswer: entity.correctAnswer,
+      correctGoToQuestionId: entity.correctGoToQuestionId,
+      incorrectGoToQuestionId: entity.incorrectGoToQuestionId,
+      correctResponseText: entity.correctResponseText,
+      correctResponseMediaUrl: entity.correctResponseMediaUrl,
+      correctResponseMediaType: entity.correctResponseMediaType,
+      incorrectResponseText: entity.incorrectResponseText,
+      incorrectResponseMediaUrl: entity.incorrectResponseMediaUrl,
+      incorrectResponseMediaType: entity.incorrectResponseMediaType,
       branchRules: entity.branchRules
           .map((r) => BranchRuleModel.fromEntity(r))
           .toList(),
@@ -201,6 +237,22 @@ abstract class SurveyQuestionModel with _$SurveyQuestionModel {
       if (sliderMaxLabel != null) 'sliderMaxLabel': sliderMaxLabel,
       if (isAttentionCheck) 'isAttentionCheck': isAttentionCheck,
       if (correctAnswer != null) 'correctAnswer': correctAnswer,
+      if (correctGoToQuestionId != null)
+        'correctGoToQuestionId': correctGoToQuestionId,
+      if (incorrectGoToQuestionId != null)
+        'incorrectGoToQuestionId': incorrectGoToQuestionId,
+      if (correctResponseText != null)
+        'correctResponseText': correctResponseText,
+      if (correctResponseMediaUrl != null)
+        'correctResponseMediaUrl': correctResponseMediaUrl,
+      if (correctResponseMediaType != null)
+        'correctResponseMediaType': correctResponseMediaType,
+      if (incorrectResponseText != null)
+        'incorrectResponseText': incorrectResponseText,
+      if (incorrectResponseMediaUrl != null)
+        'incorrectResponseMediaUrl': incorrectResponseMediaUrl,
+      if (incorrectResponseMediaType != null)
+        'incorrectResponseMediaType': incorrectResponseMediaType,
       if (branchRules.isNotEmpty)
         'branchRules': branchRules.map((r) => r.toFirestoreJson()).toList(),
     };

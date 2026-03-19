@@ -47,6 +47,14 @@ _SurveyQuestion _$SurveyQuestionFromJson(Map<String, dynamic> json) =>
       sliderMaxLabel: json['sliderMaxLabel'] as String?,
       isAttentionCheck: json['isAttentionCheck'] as bool? ?? false,
       correctAnswer: json['correctAnswer'] as String?,
+      correctGoToQuestionId: json['correctGoToQuestionId'] as String?,
+      incorrectGoToQuestionId: json['incorrectGoToQuestionId'] as String?,
+      correctResponseText: json['correctResponseText'] as String?,
+      correctResponseMediaUrl: json['correctResponseMediaUrl'] as String?,
+      correctResponseMediaType: json['correctResponseMediaType'] as String?,
+      incorrectResponseText: json['incorrectResponseText'] as String?,
+      incorrectResponseMediaUrl: json['incorrectResponseMediaUrl'] as String?,
+      incorrectResponseMediaType: json['incorrectResponseMediaType'] as String?,
       branchRules:
           (json['branchRules'] as List<dynamic>?)
               ?.map((e) => BranchRule.fromJson(e as Map<String, dynamic>))
@@ -78,6 +86,14 @@ Map<String, dynamic> _$SurveyQuestionToJson(_SurveyQuestion instance) =>
       'sliderMaxLabel': instance.sliderMaxLabel,
       'isAttentionCheck': instance.isAttentionCheck,
       'correctAnswer': instance.correctAnswer,
+      'correctGoToQuestionId': instance.correctGoToQuestionId,
+      'incorrectGoToQuestionId': instance.incorrectGoToQuestionId,
+      'correctResponseText': instance.correctResponseText,
+      'correctResponseMediaUrl': instance.correctResponseMediaUrl,
+      'correctResponseMediaType': instance.correctResponseMediaType,
+      'incorrectResponseText': instance.incorrectResponseText,
+      'incorrectResponseMediaUrl': instance.incorrectResponseMediaUrl,
+      'incorrectResponseMediaType': instance.incorrectResponseMediaType,
       'branchRules': instance.branchRules,
     };
 

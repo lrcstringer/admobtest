@@ -8,6 +8,7 @@
 import * as admin from "firebase-admin";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { requireAdminPermission, logAdminAction } from "./adminAuth";
+import { checkAndCloseExpiredPoll } from "./helpers/pollHelpers";
 
 const db = admin.firestore();
 
@@ -27,16 +28,24 @@ export const createPoll = onCall(
     const {
       threadId,
       question,
-      options, // Array of { text: string } — IDs are auto-generated
+      options, // Array of { text: string, mediaUrl?: string, mediaType?: string }
       isAnonymous = false,
-      showResultsAfterVote = true,
       allowChangeVote = true,
+      // New poll enhancement fields
+      allowMultipleSelections = false,
+      maxSelections = null,
+      closesAt = null, // ISO 8601 UTC string
+      minResponsesForResults = null,
+      resultVisibility = "immediate", // 'immediate' | 'afterClose' | 'afterThreshold'
+      allowOtherOption = false,
       tokenReward = 10,
       durationSeconds = 15,
       targeting = null,
       tokenBudget = null,
       dailyLimitPerUser = null,
       opportunityImage = null,
+      // Legacy — ignored if resultVisibility is provided
+      showResultsAfterVote = true,
     } = data;
 
     // Validate required fields
@@ -55,6 +64,44 @@ export const createPoll = onCall(
       );
     }
 
+    // Validate resultVisibility
+    const validVisibilities = ["immediate", "afterClose", "afterThreshold"];
+    if (!validVisibilities.includes(resultVisibility)) {
+      throw new HttpsError(
+        "invalid-argument",
+        `resultVisibility must be one of: ${validVisibilities.join(", ")}`
+      );
+    }
+
+    // Validate afterThreshold requires minResponsesForResults
+    if (resultVisibility === "afterThreshold" && (!minResponsesForResults || minResponsesForResults < 1)) {
+      throw new HttpsError(
+        "invalid-argument",
+        "minResponsesForResults is required when resultVisibility is 'afterThreshold'"
+      );
+    }
+
+    // Validate multi-select constraints
+    if (allowMultipleSelections && maxSelections !== null && maxSelections !== undefined) {
+      if (maxSelections < 2 || maxSelections > options.length) {
+        throw new HttpsError(
+          "invalid-argument",
+          `maxSelections must be between 2 and ${options.length}`
+        );
+      }
+    }
+
+    // Validate closesAt is in the future
+    if (closesAt) {
+      const closesAtDate = new Date(closesAt);
+      if (isNaN(closesAtDate.getTime()) || closesAtDate.getTime() <= Date.now()) {
+        throw new HttpsError(
+          "invalid-argument",
+          "closesAt must be a valid future date in ISO 8601 format"
+        );
+      }
+    }
+
     // Verify thread exists
     const threadDoc = await db.collection("earnThreads").doc(threadId).get();
     if (!threadDoc.exists) {
@@ -65,11 +112,12 @@ export const createPoll = onCall(
     }
     const threadData = threadDoc.data()!;
 
-    // Generate option IDs
-    const pollOptions = (options as { text: string }[]).map(
+    // Generate option IDs (preserve media fields)
+    const pollOptions = (options as { text: string; mediaUrl?: string; mediaType?: string }[]).map(
       (opt, idx) => ({
         id: `opt_${idx}`,
         text: opt.text,
+        ...(opt.mediaUrl ? { mediaUrl: opt.mediaUrl, mediaType: opt.mediaType || "image" } : {}),
       })
     );
 
@@ -96,8 +144,14 @@ export const createPoll = onCall(
       options: pollOptions,
       status: "draft",
       isAnonymous,
-      showResultsAfterVote,
       allowChangeVote,
+      allowMultipleSelections,
+      maxSelections: maxSelections || null,
+      closesAt: closesAt ? new Date(closesAt) : null,
+      minResponsesForResults: minResponsesForResults || null,
+      resultVisibility,
+      allowOtherOption,
+      showResultsAfterVote, // Legacy field
       openedAt: null,
       closedAt: null,
       totalRespondents: 0,
@@ -118,7 +172,15 @@ export const createPoll = onCall(
       streakPoints: 1,
       mediaType: "text",
       mediaUrl: null,
-      questions: [], // Poll questions are in the polls collection
+      questions: [{
+        id: "poll_vote",
+        text: question,
+        orderIndex: 0,
+        questionType: allowMultipleSelections ? "multiSelect" : "singleSelect",
+        isRequired: true,
+        options: pollOptions.map((o: { id: string; text: string }) => o.text),
+        ...(allowMultipleSelections && maxSelections ? { maxSelections } : {}),
+      }],
       durationSeconds,
       expiresAt: null,
       isActive: false, // Activated when poll is opened
@@ -208,7 +270,7 @@ export const updatePoll = onCall(
         updateData.question = updates.question;
       }
       if (updates.options !== undefined) {
-        const opts = updates.options as { text: string }[];
+        const opts = updates.options as { text: string; mediaUrl?: string; mediaType?: string }[];
         if (opts.length < 2 || opts.length > 6) {
           throw new HttpsError(
             "invalid-argument",
@@ -218,6 +280,7 @@ export const updatePoll = onCall(
         const pollOptions = opts.map((opt, idx) => ({
           id: `opt_${idx}`,
           text: opt.text,
+          ...(opt.mediaUrl ? { mediaUrl: opt.mediaUrl, mediaType: opt.mediaType || "image" } : {}),
         }));
         updateData.options = pollOptions;
         // Reset counters
@@ -229,22 +292,63 @@ export const updatePoll = onCall(
       }
     }
 
-    // Config fields
+    // Config fields (editable in draft or open)
     if (updates.isAnonymous !== undefined)
       updateData.isAnonymous = updates.isAnonymous;
-    if (updates.showResultsAfterVote !== undefined)
-      updateData.showResultsAfterVote = updates.showResultsAfterVote;
     if (updates.allowChangeVote !== undefined)
       updateData.allowChangeVote = updates.allowChangeVote;
+    if (updates.showResultsAfterVote !== undefined)
+      updateData.showResultsAfterVote = updates.showResultsAfterVote;
+
+    // New config fields
+    if (updates.allowMultipleSelections !== undefined)
+      updateData.allowMultipleSelections = updates.allowMultipleSelections;
+    if (updates.maxSelections !== undefined)
+      updateData.maxSelections = updates.maxSelections;
+    if (updates.closesAt !== undefined)
+      updateData.closesAt = updates.closesAt ? new Date(updates.closesAt) : null;
+    if (updates.minResponsesForResults !== undefined)
+      updateData.minResponsesForResults = updates.minResponsesForResults;
+    if (updates.resultVisibility !== undefined) {
+      const validVis = ["immediate", "afterClose", "afterThreshold"];
+      if (!validVis.includes(updates.resultVisibility)) {
+        throw new HttpsError("invalid-argument", `resultVisibility must be one of: ${validVis.join(", ")}`);
+      }
+      updateData.resultVisibility = updates.resultVisibility;
+    }
+    if (updates.allowOtherOption !== undefined)
+      updateData.allowOtherOption = updates.allowOtherOption;
 
     await pollRef.update(updateData);
 
-    // Also update the linked opportunity title if question changed
-    if (updates.question !== undefined && poll.opportunityId) {
-      await db.collection("earnOpportunities").doc(poll.opportunityId).update({
-        title: updates.question,
+    // Sync denormalized data to linked opportunity
+    if (poll.opportunityId) {
+      const oppUpdate: Record<string, unknown> = {
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
+      if (updates.question !== undefined) {
+        oppUpdate.title = updates.question;
+      }
+      // Rebuild questions array if options, question, or multi-select changed
+      if (updates.options !== undefined || updates.question !== undefined ||
+          updates.allowMultipleSelections !== undefined || updates.maxSelections !== undefined) {
+        const finalQuestion = updates.question ?? poll.question;
+        const finalOptions = updateData.options ?? poll.options;
+        const finalMulti = updates.allowMultipleSelections ?? poll.allowMultipleSelections;
+        const finalMax = updates.maxSelections ?? poll.maxSelections;
+        oppUpdate.questions = [{
+          id: "poll_vote",
+          text: finalQuestion,
+          orderIndex: 0,
+          questionType: finalMulti ? "multiSelect" : "singleSelect",
+          isRequired: true,
+          options: (finalOptions as { id: string; text: string }[]).map((o) => o.text),
+          ...(finalMulti && finalMax ? { maxSelections: finalMax } : {}),
+        }];
+      }
+      if (Object.keys(oppUpdate).length > 1) {
+        await db.collection("earnOpportunities").doc(poll.opportunityId).update(oppUpdate);
+      }
     }
 
     logAdminAction(adminCtx.uid, "updatePoll", "success", { pollId, updatedFields: Object.keys(updates) }).catch(() => {});
@@ -386,6 +490,72 @@ export const closePoll = onCall(
 );
 
 /**
+ * Reopen a closed poll (transition closed → open).
+ * Reactivates the linked EarnOpportunity.
+ */
+export const reopenPoll = onCall(
+  { labels: { area: "polls" } },
+  async (request) => {
+    const data = request.data;
+    const adminCtx = await requireAdminPermission(request, "poll:open", "reopenPoll");
+
+    const { pollId } = data;
+    if (!pollId) {
+      throw new HttpsError(
+        "invalid-argument",
+        "pollId is required"
+      );
+    }
+
+    const pollRef = db.collection("polls").doc(pollId);
+    const pollDoc = await pollRef.get();
+    if (!pollDoc.exists) {
+      throw new HttpsError("not-found", "Poll not found");
+    }
+
+    const poll = pollDoc.data()!;
+    if (poll.status !== "closed") {
+      throw new HttpsError(
+        "failed-precondition",
+        `Cannot reopen poll in "${poll.status}" status. Must be "closed".`
+      );
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const batch = db.batch();
+
+    // Reopen the poll
+    batch.update(pollRef, {
+      status: "open",
+      closedAt: null,
+      updatedAt: now,
+    });
+
+    // Reactivate the linked opportunity
+    if (poll.opportunityId) {
+      const oppRef = db.collection("earnOpportunities").doc(poll.opportunityId);
+      batch.update(oppRef, {
+        isActive: true,
+        updatedAt: now,
+      });
+
+      // Increment thread's available opportunities count
+      const threadRef = db.collection("earnThreads").doc(poll.threadId);
+      batch.update(threadRef, {
+        availableOpportunities: admin.firestore.FieldValue.increment(1),
+        lastActivityAt: now,
+      });
+    }
+
+    await batch.commit();
+
+    logAdminAction(adminCtx.uid, "reopenPoll", "success", { pollId, opportunityId: poll.opportunityId }).catch(() => {});
+
+    return { success: true };
+  }
+);
+
+/**
  * Get poll admin details including all responses and segmented counts.
  */
 export const getPollAdminDetails = onCall(
@@ -409,6 +579,9 @@ export const getPollAdminDetails = onCall(
     }
 
     const poll = pollDoc.data()!;
+
+    // Inline-close if expired
+    await checkAndCloseExpiredPoll(pollRef, poll);
 
     // Get all responses
     const responsesSnapshot = await pollRef

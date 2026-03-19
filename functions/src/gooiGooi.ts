@@ -1562,57 +1562,63 @@ export const getMyGooiGroups = onCall(
 
     const userId = request.auth.uid;
 
-    const groupsSnap = await db
-      .collection(GooiCollections.GROUPS)
-      .where("memberUserIds", "array-contains", userId)
-      .where("isDeleted", "==", false)
-      .orderBy("createdAt", "desc")
-      .limit(50)
-      .get();
+    try {
+      const groupsSnap = await db
+        .collection(GooiCollections.GROUPS)
+        .where("memberUserIds", "array-contains", userId)
+        .where("isDeleted", "==", false)
+        .orderBy("createdAt", "desc")
+        .limit(50)
+        .get();
 
-    const groups = await Promise.all(
-      groupsSnap.docs.map(async (doc) => {
-        const data = doc.data();
+      const groups = await Promise.all(
+        groupsSnap.docs.map(async (doc) => {
+          const data = doc.data();
 
-        // Get current cycle info if active
-        let currentCycle = null;
-        if (data.status === "ACTIVE" && data.currentCycleNumber > 0) {
-          const cycleSnap = await db.collection(GooiCollections.GROUPS).doc(doc.id)
-            .collection(GooiCollections.CYCLES)
-            .where("cycleNumber", "==", data.currentCycleNumber)
-            .limit(1)
-            .get();
-          if (!cycleSnap.empty) {
-            currentCycle = cycleSnap.docs[0].data();
+          // Get current cycle info if active
+          let currentCycle = null;
+          if (data.status === "ACTIVE" && data.currentCycleNumber > 0) {
+            const cycleSnap = await db.collection(GooiCollections.GROUPS).doc(doc.id)
+              .collection(GooiCollections.CYCLES)
+              .where("cycleNumber", "==", data.currentCycleNumber)
+              .limit(1)
+              .get();
+            if (!cycleSnap.empty) {
+              currentCycle = cycleSnap.docs[0].data();
+            }
           }
-        }
 
-        return {
-          id: data.id,
-          name: data.name,
-          status: data.status,
-          memberCount: data.memberCount,
-          contributionAmount: data.contributionAmount,
-          cycleFrequency: data.cycleFrequency,
-          totalCycles: data.totalCycles,
-          currentCycleNumber: data.currentCycleNumber,
-          rosterMethod: data.rosterMethod,
-          initiatorUserId: data.initiatorUserId,
-          createdAt: data.createdAt,
-          activatedAt: data.activatedAt,
-          currentCycle: currentCycle ? {
-            cycleNumber: currentCycle.cycleNumber,
-            status: currentCycle.status,
-            recipientUserId: currentCycle.recipientUserId,
-            dueDate: currentCycle.dueDate,
-            totalCollected: currentCycle.totalCollected,
-            totalExpected: currentCycle.totalExpected,
-          } : null,
-        };
-      })
-    );
+          return {
+            id: data.id,
+            name: data.name,
+            status: data.status,
+            memberCount: data.memberCount,
+            contributionAmount: data.contributionAmount,
+            cycleFrequency: data.cycleFrequency,
+            totalCycles: data.totalCycles,
+            currentCycleNumber: data.currentCycleNumber,
+            rosterMethod: data.rosterMethod,
+            initiatorUserId: data.initiatorUserId,
+            createdAt: data.createdAt,
+            activatedAt: data.activatedAt,
+            currentCycle: currentCycle ? {
+              cycleNumber: currentCycle.cycleNumber,
+              status: currentCycle.status,
+              recipientUserId: currentCycle.recipientUserId,
+              dueDate: currentCycle.dueDate,
+              totalCollected: currentCycle.totalCollected,
+              totalExpected: currentCycle.totalExpected,
+            } : null,
+          };
+        })
+      );
 
-    return { success: true, groups };
+      return { success: true, groups };
+    } catch (err: unknown) {
+      if (err instanceof HttpsError) throw err;
+      logger.error("getMyGooiGroups failed", err);
+      throw new HttpsError("unavailable", "Unable to load your groups right now. Please try again.");
+    }
   }
 );
 

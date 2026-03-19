@@ -42,7 +42,7 @@ class BrandStorefrontHero extends StatelessWidget {
           width: double.infinity,
           child: CachedNetworkImage(
             imageUrl: heroImage,
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
             memCacheWidth: maxImageCacheWidth,
             placeholder: (_, _) => Container(color: AppColors.buyCard),
             errorWidget: (_, _, _) => _GradientHero(

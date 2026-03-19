@@ -522,15 +522,6 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       );
     }
 
-    if (isInProgress) {
-      return AppButton(
-        text: 'Resume',
-        onPressed: () => _resumeOpportunity(context, opportunity),
-        isFullWidth: false,
-        size: AppButtonSize.small,
-      );
-    }
-
     return Icon(
       Icons.chevron_right,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -580,8 +571,4 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     context.push('/earn/opportunity/${opportunity.id}');
   }
 
-  void _resumeOpportunity(BuildContext context, EarnOpportunity opportunity) {
-    // Resume existing engagement
-    context.push('/earn/opportunity/${opportunity.id}');
-  }
 }

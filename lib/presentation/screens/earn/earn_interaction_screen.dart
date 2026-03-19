@@ -66,6 +66,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   bool _showReview = false;
   int? _editingAnswerIndex; // non-null = editing a single answer
 
+  // Response Box interstitial state
+  bool _showResponseBox = false;
+  String? _responseBoxText;
+  String? _responseBoxMediaUrl;
+  String? _responseBoxMediaType;
+  String? _responseBoxTargetQuestionId; // where Continue goes
+
   // AdMob ad state (for adVideo unified screen)
   bool _isShowingAd = false;
   bool _isPreparingAd = false;
@@ -73,9 +80,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   // Poll vote state
   String? _pollSelectedOption;
+  final Set<String> _pollSelectedOptions = {};
   bool _pollSubmitting = false;
   bool _pollVoted = false;
   Map<String, dynamic>? _pollResults;
+  final _pollOtherTextController = TextEditingController();
 
   // Upload state
   File? _recordedVideo;
@@ -318,15 +327,66 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final questions = state.selectedOpportunity?.questions ?? [];
     final current = questions[_currentQuestionIndex];
 
-    // Check branch rules (single_select only)
+    // Check correctness-based branching first (takes priority)
     String? targetQuestionId;
-    if (selectedOption != null && current.branchRules.isNotEmpty) {
+    String? responseText;
+    String? responseMediaUrl;
+    String? responseMediaType;
+
+    // TODO: Remove debug prints after verifying Response Box works
+    debugPrint('[ResponseBox] selectedOption=$selectedOption '
+        'isAttentionCheck=${current.isAttentionCheck} '
+        'correctAnswer=${current.correctAnswer} '
+        'correctResponseText=${current.correctResponseText} '
+        'incorrectResponseText=${current.incorrectResponseText} '
+        'correctResponseMediaUrl=${current.correctResponseMediaUrl} '
+        'incorrectResponseMediaUrl=${current.incorrectResponseMediaUrl}');
+
+    if (selectedOption != null &&
+        current.isAttentionCheck &&
+        current.correctAnswer != null) {
+      final isCorrect = selectedOption == current.correctAnswer;
+      targetQuestionId = isCorrect
+          ? current.correctGoToQuestionId
+          : current.incorrectGoToQuestionId;
+      responseText = isCorrect
+          ? current.correctResponseText
+          : current.incorrectResponseText;
+      responseMediaUrl = isCorrect
+          ? current.correctResponseMediaUrl
+          : current.incorrectResponseMediaUrl;
+      responseMediaType = isCorrect
+          ? current.correctResponseMediaType
+          : current.incorrectResponseMediaType;
+    }
+
+    // Fall back to per-option branch rules (single_select only)
+    if (targetQuestionId == null &&
+        selectedOption != null &&
+        current.branchRules.isNotEmpty) {
       final rule = current.branchRules
           .where((r) => r.optionValue == selectedOption)
           .toList();
       if (rule.isNotEmpty) targetQuestionId = rule.first.goToQuestionId;
     }
 
+    // Show Response Box interstitial if configured
+    if (responseText != null || responseMediaUrl != null) {
+      setState(() {
+        _showResponseBox = true;
+        _responseBoxText = responseText;
+        _responseBoxMediaUrl = responseMediaUrl;
+        _responseBoxMediaType = responseMediaType;
+        _responseBoxTargetQuestionId = targetQuestionId;
+      });
+      return;
+    }
+
+    _advanceToQuestion(targetQuestionId, questions);
+  }
+
+  /// Shared advance logic: jump to target question or next in sequence.
+  void _advanceToQuestion(String? targetQuestionId, List<SurveyQuestion> questions) {
     if (targetQuestionId != null) {
       final targetIdx =
           questions.indexWhere((q) => q.id == targetQuestionId);
@@ -346,11 +406,27 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         _questionStartTime = DateTime.now();
       });
     } else {
-      // Show review screen before submitting
       setState(() {
         _showReview = true;
       });
     }
+  }
+
+  /// Called when user taps Continue on the Response Box interstitial.
+  void _onResponseBoxContinue() {
+    final state = context.read<EarnBloc>().state;
+    final questions = state.selectedOpportunity?.questions ?? [];
+    final targetId = _responseBoxTargetQuestionId;
+
+    setState(() {
+      _showResponseBox = false;
+      _responseBoxText = null;
+      _responseBoxMediaUrl = null;
+      _responseBoxMediaType = null;
+      _responseBoxTargetQuestionId = null;
+    });
+
+    _advanceToQuestion(targetId, questions);
   }
 
   Future<void> _submitEngagement() async {
@@ -439,6 +515,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         // Capture user ID for AdMob SSV
         if (state.currentEngagement != null && _userId == null) {
           _userId = state.currentEngagement!.userId;
+        }
+
+        // Eagerly preload poll data so options are instant when surveying starts
+        if (state.selectedOpportunity != null &&
+            state.selectedOpportunity!.isPollOpportunity &&
+            _pollResults == null &&
+            !_pollOptionsLoading) {
+          _loadPollOptions(state.selectedOpportunity!.pollId!);
         }
 
         // AdVideo: auto-start engagement + pre-load ad in parallel.
@@ -670,6 +754,19 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     ],
                   ),
                   SizedBox(height: AppSpacing.md),
+                  // Opportunity image
+                  if (opportunity.opportunityImage != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        opportunity.opportunityImage!,
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                  ],
                   if (opportunity.description != null) ...[
                     Text(
                       opportunity.description!,
@@ -686,10 +783,16 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         Icons.timer_outlined,
                         opportunity.formattedDuration,
                       ),
-                      _buildDetailChip(
-                        Icons.quiz_outlined,
-                        '${opportunity.questions.length} questions',
-                      ),
+                      if (opportunity.isPollOpportunity)
+                        _buildDetailChip(
+                          Icons.poll_outlined,
+                          'Poll',
+                        )
+                      else
+                        _buildDetailChip(
+                          Icons.quiz_outlined,
+                          '${opportunity.questions.length} questions',
+                        ),
                       _buildDetailChip(
                         Icons.category_outlined,
                         opportunity.earningTypeLabel,
@@ -1348,6 +1451,54 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     );
   }
 
+  Widget _buildResponseBox() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: AppSpacing.xl),
+          // Media (image — displayed at full width, natural aspect ratio)
+          if (_responseBoxMediaUrl != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                _responseBoxMediaUrl!,
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+                errorBuilder: (_, _, _) => const SizedBox(
+                  height: 120,
+                  child: Center(
+                      child: Icon(Icons.broken_image, size: 48)),
+                ),
+              ),
+            ),
+            SizedBox(height: AppSpacing.lg),
+          ],
+          // Text
+          if (_responseBoxText != null)
+            Text(
+              _responseBoxText!,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          SizedBox(height: AppSpacing.xl),
+          // Continue button
+          FilledButton(
+            onPressed: _onResponseBoxContinue,
+            style: FilledButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+            ),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSurveyState(EarnState state) {
     final opportunity = state.selectedOpportunity!;
     final questions = opportunity.questions;
@@ -1363,6 +1514,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     // Show review screen after all questions answered
     if (_showReview) {
       return _buildReviewState(state);
+    }
+
+    // Show Response Box interstitial if active
+    if (_showResponseBox) {
+      return _buildResponseBox();
     }
 
     final question = questions[_currentQuestionIndex];
@@ -2022,11 +2178,59 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildPollResults(opportunity);
     }
 
+    // Extract poll metadata — prefer denormalized opportunity.questions, fall back to CF data
+    final hasLocalQuestions = opportunity.questions.isNotEmpty;
+    final isMultiSelect = hasLocalQuestions
+        ? opportunity.questions.first.questionType == QuestionType.multiSelect
+        : _pollResults?['allowMultipleSelections'] == true;
+    final maxSelections = hasLocalQuestions
+        ? opportunity.questions.first.maxSelections
+        : (_pollResults?['maxSelections'] as num?)?.toInt();
+    final allowOther = _pollResults?['allowOtherOption'] == true;
+    final closesAt = _pollResults?['closesAt'] as String?;
+    final resultVisibility = _pollResults?['resultVisibility'] as String? ?? 'immediate';
+
+    // Check if user already voted (from getPollResults)
+    final alreadyVoted = _pollResults?['hasVoted'] == true;
+    if (alreadyVoted && !_pollVoted) {
+      // User has already voted — show results directly
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _pollVoted = true);
+      });
+    }
+
+    // Determine if vote button is enabled
+    bool hasSelection;
+    if (isMultiSelect) {
+      hasSelection = _pollSelectedOptions.isNotEmpty;
+    } else {
+      hasSelection = _pollSelectedOption != null;
+    }
+
+    // If "other" is selected, require text
+    final otherSelected = isMultiSelect
+        ? _pollSelectedOptions.contains('other')
+        : _pollSelectedOption == 'other';
+    final otherTextValid = !otherSelected || _pollOtherTextController.text.trim().isNotEmpty;
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Opportunity image
+          if (opportunity.opportunityImage != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                opportunity.opportunityImage!,
+                width: double.infinity,
+                fit: BoxFit.fitWidth,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+            SizedBox(height: AppSpacing.md),
+          ],
           // Poll question card
           Card(
             child: Padding(
@@ -2040,7 +2244,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                           size: 20, color: AppColors.primary),
                       SizedBox(width: AppSpacing.sm),
                       Text(
-                        'Poll',
+                        isMultiSelect ? 'Poll (select multiple)' : 'Poll',
                         style:
                             Theme.of(context).textTheme.labelSmall?.copyWith(
                                   color: AppColors.primary,
@@ -2053,79 +2257,86 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     opportunity.title,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  if (isMultiSelect && maxSelections != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Select up to $maxSelections options',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                  if (closesAt != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Closes: ${_formatPollDeadline(closesAt)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.warning,
+                          ),
+                    ),
+                  ],
+                  if (resultVisibility == 'afterClose') ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Results visible after poll closes',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                    ),
+                  ] else if (resultVisibility == 'afterThreshold') ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Results visible after enough responses',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
           SizedBox(height: AppSpacing.md),
 
-          // Poll options
-          ...List.generate(_getPollOptions(opportunity).length, (i) {
-            final opt = _getPollOptions(opportunity)[i];
-            final optId = 'opt_$i';
-            final selected = _pollSelectedOption == optId;
-            return Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.sm),
-              child: InkWell(
-                onTap: _pollSubmitting
-                    ? null
-                    : () => setState(() => _pollSelectedOption = optId),
-                borderRadius: BorderRadius.circular(12),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color:
-                          selected ? AppColors.primary : AppColors.divider,
-                      width: selected ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    color: selected
-                        ? AppColors.primary.withValues(alpha: 0.1)
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: selected
-                              ? AppColors.primary
-                              : Colors.transparent,
-                          border: Border.all(
-                            color: selected
-                                ? AppColors.primary
-                                : AppColors.divider,
-                            width: 2,
-                          ),
-                        ),
-                        child: selected
-                            ? const Icon(Icons.check,
-                                size: 16, color: Colors.white)
-                            : null,
-                      ),
-                      SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          opt,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          // Poll options — instant if denormalized on opportunity, spinner only for legacy polls
+          if (!hasLocalQuestions && _pollResults == null) ...[
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
               ),
-            );
-          }),
+            ),
+          ] else ...[
+            ..._buildPollOptionWidgets(isMultiSelect, maxSelections, opportunity: opportunity),
+          ],
+
+          // "Other" option
+          if (allowOther && (hasLocalQuestions || _pollResults != null)) ...[
+            _buildOtherOption(isMultiSelect),
+            if (otherSelected) ...[
+              SizedBox(height: AppSpacing.sm),
+              TextField(
+                controller: _pollOtherTextController,
+                decoration: InputDecoration(
+                  hintText: 'Please specify...',
+                  counterText: '${_pollOtherTextController.text.length}/200',
+                  isDense: true,
+                ),
+                maxLength: 200,
+                maxLines: 2,
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
+          ],
+
           SizedBox(height: AppSpacing.md),
 
           // Vote button
           AppButton(
             text: _pollSubmitting ? 'Submitting...' : 'Vote',
-            onPressed: _pollSelectedOption == null || _pollSubmitting
+            onPressed: !hasSelection || !otherTextValid || _pollSubmitting
                 ? null
                 : () => _submitPollVote(state),
           ),
@@ -2134,22 +2345,229 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     );
   }
 
-  /// Extract poll option texts from the opportunity title/questions or fetch from poll doc
-  List<String> _getPollOptions(EarnOpportunity opportunity) {
-    // Poll options are stored in the polls collection, but the opportunity
-    // questions array is empty for polls. We derive options from the
-    // opportunity's questions if available, otherwise from Firestore poll doc.
-    // For now, the options are fetched when we load poll results.
-    // During voting, we load them on first render.
+  /// Build poll option widgets supporting single and multi-select with optional media
+  List<Widget> _buildPollOptionWidgets(bool isMultiSelect, int? maxSelections, {EarnOpportunity? opportunity}) {
+    final optionTexts = _getPollOptions(opportunity: opportunity);
+    final optionMeta = _getPollOptionsMeta();
+
+    return List.generate(optionTexts.length, (i) {
+      final opt = optionTexts[i];
+      final optId = 'opt_$i';
+      final meta = i < optionMeta.length ? optionMeta[i] : null;
+      final mediaUrl = meta?['mediaUrl'] as String?;
+      final mediaType = meta?['mediaType'] as String?;
+
+      final selected = isMultiSelect
+          ? _pollSelectedOptions.contains(optId)
+          : _pollSelectedOption == optId;
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: AppSpacing.sm),
+        child: InkWell(
+          onTap: _pollSubmitting
+              ? null
+              : () {
+                  setState(() {
+                    if (isMultiSelect) {
+                      if (selected) {
+                        _pollSelectedOptions.remove(optId);
+                      } else {
+                        if (maxSelections != null && _pollSelectedOptions.length >= maxSelections) {
+                          return;
+                        }
+                        _pollSelectedOptions.add(optId);
+                      }
+                    } else {
+                      _pollSelectedOption = optId;
+                    }
+                  });
+                },
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: selected ? AppColors.primary : AppColors.divider,
+                width: selected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              color: selected ? AppColors.primary.withValues(alpha: 0.1) : null,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Media preview
+                if (mediaUrl != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: mediaType == 'video'
+                        ? Container(
+                            height: 120,
+                            width: double.infinity,
+                            color: Colors.black12,
+                            child: const Center(
+                              child: Icon(Icons.play_circle_outline, size: 48, color: AppColors.primary),
+                            ),
+                          )
+                        : Image.network(
+                            mediaUrl,
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          ),
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                ],
+                Row(
+                  children: [
+                    // Radio (single) or Checkbox (multi) indicator
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: isMultiSelect ? BoxShape.rectangle : BoxShape.circle,
+                        borderRadius: isMultiSelect ? BorderRadius.circular(4) : null,
+                        color: selected ? AppColors.primary : Colors.transparent,
+                        border: Border.all(
+                          color: selected ? AppColors.primary : AppColors.divider,
+                          width: 2,
+                        ),
+                      ),
+                      child: selected
+                          ? const Icon(Icons.check, size: 16, color: Colors.white)
+                          : null,
+                    ),
+                    SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        opt,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  /// Build the "Other" option tile
+  Widget _buildOtherOption(bool isMultiSelect) {
+    final selected = isMultiSelect
+        ? _pollSelectedOptions.contains('other')
+        : _pollSelectedOption == 'other';
+    return Padding(
+      padding: EdgeInsets.only(bottom: AppSpacing.sm),
+      child: InkWell(
+        onTap: _pollSubmitting
+            ? null
+            : () {
+                setState(() {
+                  if (isMultiSelect) {
+                    if (selected) {
+                      _pollSelectedOptions.remove('other');
+                    } else {
+                      _pollSelectedOptions.add('other');
+                    }
+                  } else {
+                    _pollSelectedOption = 'other';
+                  }
+                });
+              },
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.divider,
+              width: selected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            color: selected ? AppColors.primary.withValues(alpha: 0.1) : null,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: isMultiSelect ? BoxShape.rectangle : BoxShape.circle,
+                  borderRadius: isMultiSelect ? BorderRadius.circular(4) : null,
+                  color: selected ? AppColors.primary : Colors.transparent,
+                  border: Border.all(
+                    color: selected ? AppColors.primary : AppColors.divider,
+                    width: 2,
+                  ),
+                ),
+                child: selected
+                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                    : null,
+              ),
+              SizedBox(width: AppSpacing.sm),
+              Text(
+                'Other',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Format poll deadline for display
+  String _formatPollDeadline(String isoString) {
+    try {
+      final utc = DateTime.parse(isoString);
+      // Convert to SAST (UTC+2)
+      final sast = utc.add(const Duration(hours: 2));
+      final now = DateTime.now().toUtc().add(const Duration(hours: 2));
+      final diff = sast.difference(now);
+      if (diff.isNegative) return 'Expired';
+      if (diff.inDays > 0) return '${diff.inDays}d ${diff.inHours % 24}h remaining';
+      if (diff.inHours > 0) return '${diff.inHours}h ${diff.inMinutes % 60}m remaining';
+      return '${diff.inMinutes}m remaining';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Extract poll option texts — prefer denormalized opportunity.questions (instant),
+  /// fall back to getPollResults CF data for legacy polls.
+  List<String> _getPollOptions({EarnOpportunity? opportunity}) {
+    // 1. Primary: denormalized options on the opportunity (no network call)
+    if (opportunity != null && opportunity.questions.isNotEmpty) {
+      return opportunity.questions.first.options;
+    }
+    // 2. Secondary: from getPollResults CF data (already loaded)
     if (_pollResults != null) {
       final options = (_pollResults!['options'] as List?) ?? [];
       return options
           .map((o) => (o as Map)['text'] as String? ?? '')
           .toList();
     }
-    // Fallback: try to load from Firestore directly
-    _loadPollOptions(opportunity.pollId!);
+    // 3. Fallback: kick off CF load for legacy polls with empty questions
+    if (opportunity?.pollId != null) {
+      _loadPollOptions(opportunity!.pollId!);
+    }
     return [];
+  }
+
+  /// Extract full option metadata (id, text, mediaUrl, mediaType) from poll results
+  List<Map<String, dynamic>> _getPollOptionsMeta() {
+    if (_pollResults == null) return [];
+    final options = (_pollResults!['options'] as List?) ?? [];
+    return options
+        .map((o) => Map<String, dynamic>.from(o as Map))
+        .toList();
   }
 
   bool _pollOptionsLoading = false;
@@ -2179,7 +2597,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   Future<void> _submitPollVote(EarnState state) async {
     final pollId = state.selectedOpportunity!.pollId!;
-    final selectedOption = _pollSelectedOption!;
+    final isMultiSelect = _pollResults?['allowMultipleSelections'] == true;
 
     setState(() => _pollSubmitting = true);
 
@@ -2187,10 +2605,26 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       // 1. Submit vote to poll system
       final callable =
           FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('submitPollVote');
-      await callable.call(<String, dynamic>{
+
+      final voteData = <String, dynamic>{
         'pollId': pollId,
-        'selectedOption': selectedOption,
-      });
+      };
+
+      if (isMultiSelect) {
+        voteData['selectedOptions'] = _pollSelectedOptions.toList();
+      } else {
+        voteData['selectedOption'] = _pollSelectedOption!;
+      }
+
+      // Include otherText if "other" is selected
+      final otherSelected = isMultiSelect
+          ? _pollSelectedOptions.contains('other')
+          : _pollSelectedOption == 'other';
+      if (otherSelected && _pollOtherTextController.text.trim().isNotEmpty) {
+        voteData['otherText'] = _pollOtherTextController.text.trim();
+      }
+
+      await callable.call(voteData);
 
       // 2. Load results for animated display
       final resultsCallable =
@@ -2212,10 +2646,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       if (!mounted) return;
 
       // Record the poll vote as a survey response
+      final effectiveSelection = isMultiSelect
+          ? _pollSelectedOptions.toList().join(',')
+          : _pollSelectedOption!;
       _answers.add(SurveyResponse(
         questionId: 'poll_vote',
-        questionType: 'single_select',
-        selectedOption: selectedOption,
+        questionType: isMultiSelect ? 'multi_select' : 'single_select',
+        selectedOption: effectiveSelection,
         answeredAt: DateTime.now(),
       ));
       _responseTimesMs.add(3000);
@@ -2235,14 +2672,22 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   }
 
   Widget _buildPollResults(EarnOpportunity opportunity) {
-    final results =
-        Map<String, dynamic>.from(_pollResults!['results'] as Map? ?? {});
+    final resultsData = _pollResults!['results'];
+    final hasResults = resultsData != null;
+    final results = hasResults
+        ? Map<String, dynamic>.from(resultsData as Map)
+        : <String, dynamic>{};
     final options = (_pollResults!['options'] as List?) ?? [];
-    final totalRespondents = (results['totalRespondents'] as num?)?.toInt() ?? 0;
-    final optionCounts = Map<String, dynamic>.from(
-        results['optionCounts'] as Map? ?? {});
-    final percentages = Map<String, dynamic>.from(
-        results['percentages'] as Map? ?? {});
+    final totalRespondents = hasResults
+        ? (results['totalRespondents'] as num?)?.toInt() ?? 0
+        : 0;
+    final optionCounts = hasResults
+        ? Map<String, dynamic>.from(results['optionCounts'] as Map? ?? {})
+        : <String, dynamic>{};
+    final percentages = hasResults
+        ? Map<String, dynamic>.from(results['percentages'] as Map? ?? {})
+        : <String, dynamic>{};
+    final resultVisibility = _pollResults?['resultVisibility'] as String? ?? 'immediate';
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppSpacing.md),
@@ -2286,6 +2731,29 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ),
           SizedBox(height: AppSpacing.md),
 
+          // Results section — show bars or visibility message
+          if (!hasResults) ...[
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  children: [
+                    const Icon(Icons.visibility_off_outlined, size: 32, color: AppColors.textSecondary),
+                    SizedBox(height: AppSpacing.sm),
+                    Text(
+                      resultVisibility == 'afterClose'
+                          ? 'Results will be visible after the poll closes.'
+                          : 'Results will be visible after enough people have voted.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else ...[
           // Animated result bars
           ...options.map((opt) {
             final optMap = Map<String, dynamic>.from(opt as Map);
@@ -2295,7 +2763,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 (percentages[optId] as num?)?.toDouble() ?? 0.0;
             final count =
                 (optionCounts[optId] as num?)?.toInt() ?? 0;
-            final isMyVote = optId == _pollSelectedOption;
+            final isMyVote = optId == _pollSelectedOption || _pollSelectedOptions.contains(optId);
 
             return Padding(
               padding: EdgeInsets.only(bottom: AppSpacing.sm),
@@ -2380,6 +2848,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               ),
             );
           }),
+          ], // end else hasResults
         ],
       ),
     );

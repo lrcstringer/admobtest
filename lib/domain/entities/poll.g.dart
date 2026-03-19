@@ -6,11 +6,20 @@ part of 'poll.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_PollOption _$PollOptionFromJson(Map<String, dynamic> json) =>
-    _PollOption(id: json['id'] as String, text: json['text'] as String);
+_PollOption _$PollOptionFromJson(Map<String, dynamic> json) => _PollOption(
+  id: json['id'] as String,
+  text: json['text'] as String,
+  mediaUrl: json['mediaUrl'] as String?,
+  mediaType: json['mediaType'] as String?,
+);
 
 Map<String, dynamic> _$PollOptionToJson(_PollOption instance) =>
-    <String, dynamic>{'id': instance.id, 'text': instance.text};
+    <String, dynamic>{
+      'id': instance.id,
+      'text': instance.text,
+      'mediaUrl': instance.mediaUrl,
+      'mediaType': instance.mediaType,
+    };
 
 _Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
   id: json['id'] as String,
@@ -23,8 +32,20 @@ _Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
       .toList(),
   status: $enumDecode(_$PollStatusEnumMap, json['status']),
   isAnonymous: json['isAnonymous'] as bool? ?? false,
-  showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
   allowChangeVote: json['allowChangeVote'] as bool? ?? true,
+  allowMultipleSelections: json['allowMultipleSelections'] as bool? ?? false,
+  maxSelections: (json['maxSelections'] as num?)?.toInt(),
+  closesAt: json['closesAt'] == null
+      ? null
+      : DateTime.parse(json['closesAt'] as String),
+  minResponsesForResults: (json['minResponsesForResults'] as num?)?.toInt(),
+  resultVisibility:
+      $enumDecodeNullable(
+        _$ResultVisibilityEnumMap,
+        json['resultVisibility'],
+      ) ??
+      ResultVisibility.immediate,
+  allowOtherOption: json['allowOtherOption'] as bool? ?? false,
   openedAt: json['openedAt'] == null
       ? null
       : DateTime.parse(json['openedAt'] as String),
@@ -42,6 +63,7 @@ _Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
       ? null
       : DateTime.parse(json['updatedAt'] as String),
   createdBy: json['createdBy'] as String,
+  showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
@@ -53,8 +75,13 @@ Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
   'options': instance.options,
   'status': _$PollStatusEnumMap[instance.status]!,
   'isAnonymous': instance.isAnonymous,
-  'showResultsAfterVote': instance.showResultsAfterVote,
   'allowChangeVote': instance.allowChangeVote,
+  'allowMultipleSelections': instance.allowMultipleSelections,
+  'maxSelections': instance.maxSelections,
+  'closesAt': instance.closesAt?.toIso8601String(),
+  'minResponsesForResults': instance.minResponsesForResults,
+  'resultVisibility': _$ResultVisibilityEnumMap[instance.resultVisibility]!,
+  'allowOtherOption': instance.allowOtherOption,
   'openedAt': instance.openedAt?.toIso8601String(),
   'closedAt': instance.closedAt?.toIso8601String(),
   'totalRespondents': instance.totalRespondents,
@@ -62,6 +89,7 @@ Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
   'createdBy': instance.createdBy,
+  'showResultsAfterVote': instance.showResultsAfterVote,
 };
 
 const _$PollStatusEnumMap = {
@@ -71,11 +99,22 @@ const _$PollStatusEnumMap = {
   PollStatus.archived: 'archived',
 };
 
+const _$ResultVisibilityEnumMap = {
+  ResultVisibility.immediate: 'immediate',
+  ResultVisibility.afterClose: 'afterClose',
+  ResultVisibility.afterThreshold: 'afterThreshold',
+};
+
 _PollResponse _$PollResponseFromJson(Map<String, dynamic> json) =>
     _PollResponse(
       userId: json['userId'] as String,
       pollId: json['pollId'] as String,
       selectedOption: json['selectedOption'] as String,
+      selectedOptions:
+          (json['selectedOptions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       previousOption: json['previousOption'] as String?,
       voteCount: (json['voteCount'] as num?)?.toInt() ?? 1,
       respondedAt: DateTime.parse(json['respondedAt'] as String),
@@ -93,6 +132,7 @@ _PollResponse _$PollResponseFromJson(Map<String, dynamic> json) =>
       demographics: (json['demographics'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String?),
       ),
+      otherText: json['otherText'] as String?,
     );
 
 Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
@@ -100,6 +140,7 @@ Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
       'userId': instance.userId,
       'pollId': instance.pollId,
       'selectedOption': instance.selectedOption,
+      'selectedOptions': instance.selectedOptions,
       'previousOption': instance.previousOption,
       'voteCount': instance.voteCount,
       'respondedAt': instance.respondedAt.toIso8601String(),
@@ -111,6 +152,7 @@ Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
       'engagementId': instance.engagementId,
       'tokensAwarded': instance.tokensAwarded,
       'demographics': instance.demographics,
+      'otherText': instance.otherText,
     };
 
 _PollResults _$PollResultsFromJson(Map<String, dynamic> json) => _PollResults(

@@ -81,7 +81,9 @@ extension FailureX on Failure {
         sessionLocked: () =>
             'Your session is locked. Please unlock to continue.',
         serverError: (code, message) =>
-            message ?? 'Server error occurred. Please try again.',
+            (message != null && message != 'INTERNAL' && !message.startsWith('INTERNAL'))
+                ? message
+                : 'Something went wrong. Please try again.',
         unknown: (message) =>
             message ?? 'An unexpected error occurred. Please try again.',
         cacheError: (message) =>

@@ -11,12 +11,26 @@ enum PollStatus {
   archived,
 }
 
+/// Controls when poll results are visible to voters
+enum ResultVisibility {
+  /// Results shown immediately after voting
+  immediate,
+
+  /// Results only shown after poll is closed
+  afterClose,
+
+  /// Results shown after minimum response threshold is met
+  afterThreshold,
+}
+
 /// A single poll option
 @freezed
 abstract class PollOption with _$PollOption {
   const factory PollOption({
     required String id,
     required String text,
+    String? mediaUrl,
+    String? mediaType, // 'image' or 'video'
   }) = _PollOption;
 
   factory PollOption.fromJson(Map<String, dynamic> json) =>
@@ -35,8 +49,18 @@ abstract class Poll with _$Poll {
     required List<PollOption> options,
     required PollStatus status,
     @Default(false) bool isAnonymous,
-    @Default(true) bool showResultsAfterVote,
     @Default(true) bool allowChangeVote,
+    // Multi-select support
+    @Default(false) bool allowMultipleSelections,
+    int? maxSelections,
+    // Poll expiry/deadline (stored as UTC)
+    DateTime? closesAt,
+    // Minimum responses before results are visible (for afterThreshold)
+    int? minResponsesForResults,
+    // Result visibility control (replaces showResultsAfterVote)
+    @Default(ResultVisibility.immediate) ResultVisibility resultVisibility,
+    // "Other" free-text option
+    @Default(false) bool allowOtherOption,
     DateTime? openedAt,
     DateTime? closedAt,
     @Default(0) int totalRespondents,
@@ -44,6 +68,8 @@ abstract class Poll with _$Poll {
     required DateTime createdAt,
     DateTime? updatedAt,
     required String createdBy,
+    // Legacy field — kept for backward compat reads, not used for new logic
+    @Default(true) bool showResultsAfterVote,
   }) = _Poll;
 
   const Poll._();
@@ -66,7 +92,16 @@ abstract class Poll with _$Poll {
     if (status == PollStatus.closed || status == PollStatus.archived) {
       return true;
     }
-    return showResultsAfterVote && hasVoted;
+    if (!hasVoted) return false;
+    switch (resultVisibility) {
+      case ResultVisibility.immediate:
+        return true;
+      case ResultVisibility.afterClose:
+        return false; // Only visible after close (handled above)
+      case ResultVisibility.afterThreshold:
+        final threshold = minResponsesForResults ?? 0;
+        return totalRespondents >= threshold;
+    }
   }
 
   /// Get the leading option ID
@@ -85,6 +120,8 @@ abstract class PollResponse with _$PollResponse {
     required String userId,
     required String pollId,
     required String selectedOption,
+    // Multi-select: all selected option IDs
+    @Default([]) List<String> selectedOptions,
     String? previousOption,
     @Default(1) int voteCount,
     required DateTime respondedAt,
@@ -96,6 +133,8 @@ abstract class PollResponse with _$PollResponse {
     String? engagementId,
     @Default(false) bool tokensAwarded,
     Map<String, String?>? demographics,
+    // "Other" free-text response (max 200 chars)
+    String? otherText,
   }) = _PollResponse;
 
   const PollResponse._();

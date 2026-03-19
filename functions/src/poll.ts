@@ -12,6 +12,7 @@ import * as admin from "firebase-admin";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions/v2";
 import { requireAppCheck } from "./security";
+import { checkAndCloseExpiredPoll } from "./helpers/pollHelpers";
 
 const db = admin.firestore();
 
@@ -36,13 +37,15 @@ export const submitPollVote = onCall(
     }
 
     const userId = request.auth.uid;
-    const { pollId, selectedOption } = data;
+    const {
+      pollId,
+      selectedOption, // Single-select: string
+      selectedOptions, // Multi-select: string[]
+      otherText, // Free-text for "Other" option
+    } = data;
 
-    if (!pollId || !selectedOption) {
-      throw new HttpsError(
-        "invalid-argument",
-        "pollId and selectedOption are required"
-      );
+    if (!pollId) {
+      throw new HttpsError("invalid-argument", "pollId is required");
     }
 
     // Validate poll exists and is open
@@ -53,23 +56,66 @@ export const submitPollVote = onCall(
     }
 
     const poll = pollDoc.data()!;
-    if (poll.status !== "open") {
+
+    // Inline-close if expired
+    const wasClosed = await checkAndCloseExpiredPoll(pollRef, poll);
+    if (wasClosed || poll.status !== "open") {
       throw new HttpsError(
         "failed-precondition",
-        "Poll is not open for voting"
+        wasClosed ? "This poll has expired" : "Poll is not open for voting"
       );
     }
 
-    // Validate selectedOption is a valid option ID
     const validOptionIds = (poll.options as { id: string; text: string }[]).map(
       (o) => o.id
     );
-    if (!validOptionIds.includes(selectedOption)) {
-      throw new HttpsError(
-        "invalid-argument",
-        `Invalid option: ${selectedOption}`
-      );
+
+    // Determine effective selections based on multi-select mode
+    const isMultiSelect = poll.allowMultipleSelections === true;
+    let effectiveSelections: string[];
+
+    if (isMultiSelect) {
+      effectiveSelections = selectedOptions as string[] || [];
+      if (!effectiveSelections.length) {
+        throw new HttpsError("invalid-argument", "selectedOptions is required for multi-select polls");
+      }
+      // Validate maxSelections
+      if (poll.maxSelections && effectiveSelections.length > poll.maxSelections) {
+        throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
+      }
+    } else {
+      if (!selectedOption) {
+        throw new HttpsError("invalid-argument", "selectedOption is required");
+      }
+      effectiveSelections = [selectedOption];
     }
+
+    // Validate all selected options are valid IDs (allow 'other' if enabled)
+    const allowOther = poll.allowOtherOption === true;
+    for (const optId of effectiveSelections) {
+      if (optId === "other") {
+        if (!allowOther) {
+          throw new HttpsError("invalid-argument", "'Other' option is not enabled for this poll");
+        }
+        continue;
+      }
+      if (!validOptionIds.includes(optId)) {
+        throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
+      }
+    }
+
+    // Validate otherText
+    if (effectiveSelections.includes("other")) {
+      if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
+        throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+      }
+      if (otherText.length > 200) {
+        throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+      }
+    }
+
+    // For single-select backward compat, primary option is first selection
+    const primaryOption = effectiveSelections[0];
 
     // Check for existing response (idempotency check)
     const responseRef = pollRef.collection("responses").doc(userId);
@@ -78,15 +124,15 @@ export const submitPollVote = onCall(
     if (existingResponse.exists) {
       const existing = existingResponse.data()!;
       if (existing.status === "valid") {
-        if (existing.selectedOption === selectedOption) {
-          // Exact same vote — idempotent, return success without counter change
+        // Check if exact same selections — idempotent
+        const existingSelections: string[] = existing.selectedOptions || [existing.selectedOption];
+        const sameSelections = effectiveSelections.length === existingSelections.length &&
+          effectiveSelections.every((s) => existingSelections.includes(s));
+        if (sameSelections) {
           return { success: true, alreadyVoted: true, tokensEarned: 0 };
         }
-        // Different option — client must use changePollVote
-        throw new HttpsError(
-          "already-exists",
-          "ALREADY_VOTED_DIFFERENT"
-        );
+        // Different selections — client must use changePollVote
+        throw new HttpsError("already-exists", "ALREADY_VOTED_DIFFERENT");
       }
       // If status === "invalidated", allow re-vote as if new (fall through)
     }
@@ -128,19 +174,24 @@ export const submitPollVote = onCall(
         return;
       }
 
-      // Increment counters
-      tx.update(pollRef, {
+      // Increment counters — one respondent, but increment each selected option
+      const counterUpdates: Record<string, unknown> = {
         totalRespondents: admin.firestore.FieldValue.increment(1),
-        [`optionCounts.${selectedOption}`]:
-          admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
+      for (const optId of effectiveSelections) {
+        if (optId !== "other") {
+          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(1);
+        }
+      }
+      tx.update(pollRef, counterUpdates);
 
       // Create response document (keyed by userId)
       tx.set(responseRef, {
         userId,
         pollId,
-        selectedOption,
+        selectedOption: primaryOption,
+        selectedOptions: effectiveSelections,
         previousOption: null,
         voteCount: 1,
         respondedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -152,6 +203,7 @@ export const submitPollVote = onCall(
         engagementId: null,
         tokensAwarded: false,
         demographics,
+        otherText: effectiveSelections.includes("other") ? otherText?.trim() : null,
       });
     });
 
@@ -180,13 +232,15 @@ export const changePollVote = onCall(
     }
 
     const userId = request.auth.uid;
-    const { pollId, newOption } = data;
+    const {
+      pollId,
+      newOption, // Single-select: string
+      newOptions, // Multi-select: string[]
+      otherText,
+    } = data;
 
-    if (!pollId || !newOption) {
-      throw new HttpsError(
-        "invalid-argument",
-        "pollId and newOption are required"
-      );
+    if (!pollId) {
+      throw new HttpsError("invalid-argument", "pollId is required");
     }
 
     // Validate poll
@@ -198,27 +252,49 @@ export const changePollVote = onCall(
 
     const poll = pollDoc.data()!;
     if (poll.status !== "open") {
-      throw new HttpsError(
-        "failed-precondition",
-        "Poll is not open for voting"
-      );
+      throw new HttpsError("failed-precondition", "Poll is not open for voting");
     }
     if (!poll.allowChangeVote) {
-      throw new HttpsError(
-        "failed-precondition",
-        "Vote changes are not allowed for this poll"
-      );
+      throw new HttpsError("failed-precondition", "Vote changes are not allowed for this poll");
     }
 
-    // Validate new option
-    const validOptionIds = (poll.options as { id: string; text: string }[]).map(
-      (o) => o.id
-    );
-    if (!validOptionIds.includes(newOption)) {
-      throw new HttpsError(
-        "invalid-argument",
-        `Invalid option: ${newOption}`
-      );
+    const validOptionIds = (poll.options as { id: string; text: string }[]).map((o) => o.id);
+    const isMultiSelect = poll.allowMultipleSelections === true;
+    const allowOther = poll.allowOtherOption === true;
+
+    let effectiveNew: string[];
+    if (isMultiSelect) {
+      effectiveNew = newOptions as string[] || [];
+      if (!effectiveNew.length) {
+        throw new HttpsError("invalid-argument", "newOptions is required for multi-select polls");
+      }
+      if (poll.maxSelections && effectiveNew.length > poll.maxSelections) {
+        throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
+      }
+    } else {
+      if (!newOption) {
+        throw new HttpsError("invalid-argument", "newOption is required");
+      }
+      effectiveNew = [newOption];
+    }
+
+    for (const optId of effectiveNew) {
+      if (optId === "other") {
+        if (!allowOther) throw new HttpsError("invalid-argument", "'Other' option is not enabled");
+        continue;
+      }
+      if (!validOptionIds.includes(optId)) {
+        throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
+      }
+    }
+
+    if (effectiveNew.includes("other")) {
+      if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
+        throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+      }
+      if (otherText.length > 200) {
+        throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+      }
     }
 
     const responseRef = pollRef.collection("responses").doc(userId);
@@ -226,35 +302,49 @@ export const changePollVote = onCall(
     await db.runTransaction(async (tx) => {
       const responseDoc = await tx.get(responseRef);
       if (!responseDoc.exists || responseDoc.data()!.status !== "valid") {
-        throw new HttpsError(
-          "failed-precondition",
-          "No valid vote to change"
-        );
+        throw new HttpsError("failed-precondition", "No valid vote to change");
       }
 
       const response = responseDoc.data()!;
-      const oldOption = response.selectedOption;
+      const oldSelections: string[] = response.selectedOptions || [response.selectedOption];
 
-      if (oldOption === newOption) {
-        return; // No change needed — idempotent
-      }
+      // Check if selections are the same (idempotent)
+      const sameSelections = effectiveNew.length === oldSelections.length &&
+        effectiveNew.every((s) => oldSelections.includes(s));
+      if (sameSelections) return;
 
-      // Decrement old option, increment new option
+      // Decrement old options, increment new options
       // totalRespondents stays the same
-      tx.update(pollRef, {
-        [`optionCounts.${oldOption}`]:
-          admin.firestore.FieldValue.increment(-1),
-        [`optionCounts.${newOption}`]:
-          admin.firestore.FieldValue.increment(1),
+      const counterUpdates: Record<string, unknown> = {
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
+      for (const optId of oldSelections) {
+        if (optId !== "other") {
+          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
+        }
+      }
+      for (const optId of effectiveNew) {
+        if (optId !== "other") {
+          // If key already exists from decrement, net it out
+          const key = `optionCounts.${optId}`;
+          if (counterUpdates[key]) {
+            // Was decremented, now incrementing — cancel out (net 0)
+            delete counterUpdates[key];
+          } else {
+            counterUpdates[key] = admin.firestore.FieldValue.increment(1);
+          }
+        }
+      }
+      tx.update(pollRef, counterUpdates);
 
       // Update response
       tx.update(responseRef, {
-        selectedOption: newOption,
-        previousOption: oldOption,
+        selectedOption: effectiveNew[0],
+        selectedOptions: effectiveNew,
+        previousOption: oldSelections[0],
         voteCount: admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        otherText: effectiveNew.includes("other") ? otherText?.trim() : null,
       });
     });
 
@@ -299,6 +389,9 @@ export const getPollResults = onCall(
 
     const poll = pollDoc.data()!;
 
+    // Inline-close if expired (updates Firestore, but we continue to show results)
+    await checkAndCloseExpiredPoll(pollRef, poll);
+
     // Check if user has voted
     const responseDoc = await pollRef
       .collection("responses")
@@ -312,11 +405,28 @@ export const getPollResults = onCall(
     const isAdmin =
       request.auth.token.admin === true ||
       request.auth.token.superAdmin === true;
-    const canSeeResults =
-      isAdmin ||
+
+    const resultVisibility = poll.resultVisibility || "immediate";
+    let canSeeResults = isAdmin ||
       poll.status === "closed" ||
-      poll.status === "archived" ||
-      (poll.showResultsAfterVote && hasVoted);
+      poll.status === "archived";
+
+    if (!canSeeResults && hasVoted) {
+      switch (resultVisibility) {
+        case "immediate":
+          canSeeResults = true;
+          break;
+        case "afterClose":
+          canSeeResults = false; // Only after close (handled above)
+          break;
+        case "afterThreshold":
+          canSeeResults = (poll.totalRespondents || 0) >= (poll.minResponsesForResults || 0);
+          break;
+        default:
+          // Legacy fallback: use showResultsAfterVote boolean
+          canSeeResults = poll.showResultsAfterVote === true;
+      }
+    }
 
     const totalRespondents = poll.totalRespondents || 0;
     const optionCounts = (poll.optionCounts || {}) as Record<string, number>;
@@ -329,6 +439,14 @@ export const getPollResults = onCall(
       }
     }
 
+    // Get user's full response for multi-select
+    const userSelections: string[] = hasVoted
+      ? (responseDoc.data()!.selectedOptions || [responseDoc.data()!.selectedOption])
+      : [];
+    const userOtherText: string | null = hasVoted
+      ? (responseDoc.data()!.otherText || null)
+      : null;
+
     return {
       pollId,
       question: poll.question,
@@ -336,7 +454,15 @@ export const getPollResults = onCall(
       status: poll.status,
       hasVoted,
       userVote,
+      userSelections,
+      userOtherText,
       allowChangeVote: poll.allowChangeVote || false,
+      allowMultipleSelections: poll.allowMultipleSelections || false,
+      maxSelections: poll.maxSelections || null,
+      allowOtherOption: poll.allowOtherOption || false,
+      resultVisibility,
+      closesAt: poll.closesAt?.toDate?.()?.toISOString() || null,
+      minResponsesForResults: poll.minResponsesForResults || null,
       results: canSeeResults
         ? { totalRespondents, optionCounts, percentages }
         : null,
@@ -397,15 +523,18 @@ export const invalidatePollResponse = onCall(
         );
       }
 
-      const selectedOption = response.selectedOption;
-
-      // Decrement counters
-      tx.update(pollRef, {
+      // Decrement counters for all selected options
+      const selections: string[] = response.selectedOptions || [response.selectedOption];
+      const counterUpdates: Record<string, unknown> = {
         totalRespondents: admin.firestore.FieldValue.increment(-1),
-        [`optionCounts.${selectedOption}`]:
-          admin.firestore.FieldValue.increment(-1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+      };
+      for (const optId of selections) {
+        if (optId !== "other") {
+          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
+        }
+      }
+      tx.update(pollRef, counterUpdates);
 
       // Mark response as invalidated (keep for audit trail)
       tx.update(responseRef, {

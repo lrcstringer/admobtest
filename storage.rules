@@ -162,6 +162,13 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
 
+    // Survey response box media (admin managed)
+    match /survey_assets/response_media/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidImage();
+      allow delete: if isAdmin();
+    }
+
     // Brand storefront sub-folders (products, gallery, videos)
     match /brand_assets/{storefrontId}/{subfolder}/{fileName} {
       allow read: if isAuthenticated();

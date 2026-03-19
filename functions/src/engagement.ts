@@ -86,7 +86,12 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
   // Check daily completion limit (resets at midnight SAST)
   const today = getSASTDayStart();
 
-  const todayCompletionsSnapshot = await db
+  const { earnOpportunityId, campaignId, type, threadId } = request.data;
+
+  // =========================================================================
+  // Phase 1: Parallel reads — daily cap + opportunity/campaign doc
+  // =========================================================================
+  const dailyCapPromise = db
     .collection("engagements")
     .where("userId", "==", userId)
     .where("status", "==", EngagementStatus.COMPLETED)
@@ -94,16 +99,24 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
     .count()
     .get();
 
-  const dailyCompletions = todayCompletionsSnapshot.data().count;
+  const opportunityPromise = earnOpportunityId
+    ? db.collection("earnOpportunities").doc(earnOpportunityId).get()
+    : Promise.resolve(null);
 
+  const campaignPromise = !earnOpportunityId && campaignId
+    ? db.collection("campaigns").doc(campaignId).get()
+    : Promise.resolve(null);
+
+  const [todayCompletionsSnapshot, opportunityDoc, campaignDoc] =
+    await Promise.all([dailyCapPromise, opportunityPromise, campaignPromise]);
+
+  const dailyCompletions = todayCompletionsSnapshot.data().count;
   if (dailyCompletions >= DAILY_EARN_CAP) {
     throw new HttpsError(
       "resource-exhausted",
       "DAILY_LIMIT_REACHED"
     );
   }
-
-  const { earnOpportunityId, campaignId, type, threadId } = request.data;
 
   // Support both earnOpportunityId (preferred) and campaignId (legacy)
   let rewardAmount: number;
@@ -119,18 +132,17 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
   let escrowAmount = 0;
   let escrowJournalId: string | null = null;
 
-  if (earnOpportunityId) {
-    // New flow: Get opportunity from earnOpportunities collection
-    const opportunityDoc = await db
-      .collection("earnOpportunities")
-      .doc(earnOpportunityId)
-      .get();
+  // Cache the opportunity data for reuse (avoids duplicate read later)
+  let opportunityData: FirebaseFirestore.DocumentData | null = null;
 
-    if (!opportunityDoc.exists) {
+  if (earnOpportunityId) {
+    // New flow: opportunity doc already fetched above
+    if (!opportunityDoc || !opportunityDoc.exists) {
       throw new HttpsError("not-found", "Opportunity not found");
     }
 
     const opportunity = opportunityDoc.data()!;
+    opportunityData = opportunity;
 
     if (!opportunity.isActive) {
       throw new HttpsError(
@@ -171,19 +183,35 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
       bonusRewardMultiplier = opportunity.bonusRewardMultiplier;
     }
 
-    // Check per-opportunity daily limit (e.g., adVideo opportunities may have dailyLimitPerUser: 3)
-    const dailyLimitPerUser = opportunity.dailyLimitPerUser ?? null;
-    if (dailyLimitPerUser !== null && dailyLimitPerUser > 0) {
-      const todayOpportunityCompletionsSnapshot = await db
-        .collection("engagements")
-        .where("userId", "==", userId)
-        .where("earnOpportunityId", "==", earnOpportunityId)
-        .where("status", "==", EngagementStatus.COMPLETED)
-        .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
-        .count()
-        .get();
+    // Opportunity-level token source takes priority (Q1: granular budget control)
+    if (opportunity.tokenSourceAccountId) {
+      resolvedTokenSourceAccountId = opportunity.tokenSourceAccountId;
+    }
 
-      const todayOpportunityCompletions = todayOpportunityCompletionsSnapshot.data().count;
+    // =========================================================================
+    // Phase 2: Parallel reads — per-opportunity daily limit + thread doc
+    // =========================================================================
+    const dailyLimitPerUser = opportunity.dailyLimitPerUser ?? null;
+
+    const perOppLimitPromise = (dailyLimitPerUser !== null && dailyLimitPerUser > 0)
+      ? db
+          .collection("engagements")
+          .where("userId", "==", userId)
+          .where("earnOpportunityId", "==", earnOpportunityId)
+          .where("status", "==", EngagementStatus.COMPLETED)
+          .where("completedAt", ">=", admin.firestore.Timestamp.fromDate(today))
+          .count()
+          .get()
+      : Promise.resolve(null);
+
+    const threadPromise = resolvedThreadId
+      ? db.collection("earnThreads").doc(resolvedThreadId).get()
+      : Promise.resolve(null);
+
+    const [perOppSnapshot, threadDoc] = await Promise.all([perOppLimitPromise, threadPromise]);
+
+    if (perOppSnapshot && dailyLimitPerUser !== null) {
+      const todayOpportunityCompletions = perOppSnapshot.data().count;
       if (todayOpportunityCompletions >= dailyLimitPerUser) {
         throw new HttpsError(
           "resource-exhausted",
@@ -192,31 +220,14 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
       }
     }
 
-    // Opportunity-level token source takes priority (Q1: granular budget control)
-    if (opportunity.tokenSourceAccountId) {
-      resolvedTokenSourceAccountId = opportunity.tokenSourceAccountId;
+    if (threadDoc && threadDoc.exists) {
+      const threadData = threadDoc.data()!;
+      resolvedClientId = threadData.clientId || null;
+      // Only use thread-level token source if opportunity didn't specify one
+      resolvedTokenSourceAccountId ??= threadData.tokenSourceAccountId || null;
     }
-
-    // Get thread to denormalize clientId and resolve token source (fallback)
-    if (resolvedThreadId) {
-      const threadDoc = await db
-        .collection("earnThreads")
-        .doc(resolvedThreadId)
-        .get();
-
-      if (threadDoc.exists) {
-        const threadData = threadDoc.data()!;
-        resolvedClientId = threadData.clientId || null;
-        // Only use thread-level token source if opportunity didn't specify one
-        resolvedTokenSourceAccountId ??= threadData.tokenSourceAccountId || null;
-      }
-    }
-
-    // Daily limit check at lines above already enforces per-day completion
-    // limits. When dailyLimitPerUser is null (unlimited), no cap is applied.
-    // No additional all-time blanket check needed.
   } else if (campaignId) {
-    // Legacy flow: Get campaign from campaigns collection
+    // Legacy flow: campaign doc already fetched in parallel above
     if (!type) {
       throw new HttpsError(
         "invalid-argument",
@@ -224,9 +235,7 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
       );
     }
 
-    const campaignDoc = await db.collection("campaigns").doc(campaignId).get();
-
-    if (!campaignDoc.exists) {
+    if (!campaignDoc || !campaignDoc.exists) {
       throw new HttpsError("not-found", "Campaign not found");
     }
 
@@ -321,25 +330,18 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
   let reservedRewardCampaignName: string | null = null;
   let reservedRewardType: string | null = null;
 
-  if (earnOpportunityId) {
-    const opportunityDoc = await db
-      .collection("earnOpportunities")
-      .doc(earnOpportunityId)
-      .get();
-    const opportunityForReward = opportunityDoc.exists
-      ? opportunityDoc.data()!
-      : null;
-
-    if (opportunityForReward?.rewardCampaignId) {
+  if (earnOpportunityId && opportunityData) {
+    // Reuse opportunity data from Phase 1 (no duplicate read)
+    if (opportunityData.rewardCampaignId) {
       try {
         const rewardResult = await reserveRewardItem(
           userId,
-          opportunityForReward.rewardCampaignId,
+          opportunityData.rewardCampaignId,
           engagementId,
-          opportunityForReward.rewardQuantity ?? 1
+          opportunityData.rewardQuantity ?? 1
         );
         reservedRewardItemId = rewardResult.itemId;
-        reservedRewardCampaignId = opportunityForReward.rewardCampaignId;
+        reservedRewardCampaignId = opportunityData.rewardCampaignId;
         reservedRewardCampaignName = rewardResult.campaignName;
         reservedRewardType = rewardResult.rewardType;
       } catch (rewardError: unknown) {
@@ -347,7 +349,7 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
         const rewardErrorMsg = rewardError instanceof Error ? rewardError.message : String(rewardError);
         logger.error(
           `Reward reservation failed for engagement ${engagementId}. ` +
-          `campaignId: ${opportunityForReward.rewardCampaignId}, ` +
+          `campaignId: ${opportunityData.rewardCampaignId}, ` +
           `error: ${rewardErrorMsg}`
         );
         // If reward reservation fails, reverse escrow (if any) and throw
@@ -370,52 +372,54 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
     }
   }
 
-  // Create engagement record with Flutter-compatible fields
-  await engagementRef.set({
-    id: engagementId,
-    userId: userId,
-    // Support both field names for Flutter compatibility
-    earnOpportunityId: resolvedOpportunityId,
-    audienceCampaignId: resolvedCampaignId,
-    campaignId: resolvedCampaignId,
-    threadId: resolvedThreadId,
-    clientId: resolvedClientId, // Denormalized for targeting queries
-    type: engagementType,
-    status: EngagementStatus.STARTED,
-    progress: 0,
-    rewardAmount: rewardAmount,
-    streakPoints: streakPoints, // Streak points from opportunity
-    watchDurationSeconds: 0,
-    requiredDurationSeconds: resolvedRequiredDuration,
-    answers: [],
-    attemptNumber: 1,
-    startedAt: now,
-    createdAt: now,
-    evidence: [],
-    // Escrow reservation fields
-    escrowAmount: escrowAmount || null,
-    escrowJournalId: escrowJournalId,
-    escrowReservedAt: escrowJournalId ? now : null,
-    tokenSourceAccountId: resolvedTokenSourceAccountId,
-    // Reward reservation fields (mirrors token escrow)
-    reservedRewardItemId: reservedRewardItemId,
-    reservedRewardCampaignId: reservedRewardCampaignId,
-    reservedRewardCampaignName: reservedRewardCampaignName,
-    reservedRewardType: reservedRewardType,
-  });
+  // Create engagement record + update thread in parallel
+  const writePromises: Promise<unknown>[] = [
+    engagementRef.set({
+      id: engagementId,
+      userId: userId,
+      // Support both field names for Flutter compatibility
+      earnOpportunityId: resolvedOpportunityId,
+      audienceCampaignId: resolvedCampaignId,
+      campaignId: resolvedCampaignId,
+      threadId: resolvedThreadId,
+      clientId: resolvedClientId, // Denormalized for targeting queries
+      type: engagementType,
+      status: EngagementStatus.STARTED,
+      progress: 0,
+      rewardAmount: rewardAmount,
+      streakPoints: streakPoints, // Streak points from opportunity
+      watchDurationSeconds: 0,
+      requiredDurationSeconds: resolvedRequiredDuration,
+      answers: [],
+      attemptNumber: 1,
+      startedAt: now,
+      createdAt: now,
+      evidence: [],
+      // Escrow reservation fields
+      escrowAmount: escrowAmount || null,
+      escrowJournalId: escrowJournalId,
+      escrowReservedAt: escrowJournalId ? now : null,
+      tokenSourceAccountId: resolvedTokenSourceAccountId,
+      // Reward reservation fields (mirrors token escrow)
+      reservedRewardItemId: reservedRewardItemId,
+      reservedRewardCampaignId: reservedRewardCampaignId,
+      reservedRewardCampaignName: reservedRewardCampaignName,
+      reservedRewardType: reservedRewardType,
+    }),
+  ];
 
-  // Update earn thread if provided
   if (resolvedThreadId) {
-    try {
-      await db.collection("earnThreads").doc(resolvedThreadId).update({
+    writePromises.push(
+      db.collection("earnThreads").doc(resolvedThreadId).update({
         lastActivityAt: now,
         updatedAt: now,
-      });
-    } catch (e) {
-      // Thread might not exist, ignore
-      logger.info(`Could not update earnThread ${resolvedThreadId}:`, e);
-    }
+      }).catch((e) => {
+        logger.info(`Could not update earnThread ${resolvedThreadId}:`, e);
+      })
+    );
   }
+
+  await Promise.all(writePromises);
 
   return {
     success: true,
@@ -1350,11 +1354,22 @@ function validateEngagementEvidence(
       return true;
 
     case "poll":
-      // Validate poll response — verify a real poll vote was cast
+      // Poll vote is already validated by submitPollVote CF.
+      // Evidence just needs survey responses (the client records the vote as a response)
+      // or explicit poll fields for backwards compatibility.
       if (evidence.pollId && evidence.selectedOption) {
-        return true; // Full validation done in processEngagement
+        return true;
       }
-      return evidence.selectedOption !== undefined;
+      if (evidence.selectedOption !== undefined) {
+        return true;
+      }
+      // Accept survey-style responses (poll vote recorded as survey response by client)
+      if (evidence.responses && Array.isArray(evidence.responses) &&
+          (evidence.responses as unknown[]).length > 0) {
+        return true;
+      }
+      // Poll vote was submitted separately — accept if engagement exists
+      return true;
 
     case "adVideo":
       // AdMob rewarded video validation

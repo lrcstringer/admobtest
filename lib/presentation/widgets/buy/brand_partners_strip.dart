@@ -105,7 +105,7 @@ class _BrandLiveHeroCard extends StatelessWidget {
           children: [
             // Scaled-down real hero section
             FittedBox(
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               clipBehavior: Clip.hardEdge,
               child: SizedBox(
                 width: _virtualWidth,

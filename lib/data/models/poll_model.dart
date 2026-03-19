@@ -12,8 +12,13 @@ class PollModel {
   final List<PollOptionModel> options;
   final String status;
   final bool isAnonymous;
-  final bool showResultsAfterVote;
   final bool allowChangeVote;
+  final bool allowMultipleSelections;
+  final int? maxSelections;
+  final DateTime? closesAt;
+  final int? minResponsesForResults;
+  final String resultVisibility; // 'immediate', 'afterClose', 'afterThreshold'
+  final bool allowOtherOption;
   final DateTime? openedAt;
   final DateTime? closedAt;
   final int totalRespondents;
@@ -21,6 +26,7 @@ class PollModel {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String createdBy;
+  final bool showResultsAfterVote; // Legacy field
 
   PollModel({
     required this.id,
@@ -31,8 +37,13 @@ class PollModel {
     required this.options,
     required this.status,
     this.isAnonymous = false,
-    this.showResultsAfterVote = true,
     this.allowChangeVote = true,
+    this.allowMultipleSelections = false,
+    this.maxSelections,
+    this.closesAt,
+    this.minResponsesForResults,
+    this.resultVisibility = 'immediate',
+    this.allowOtherOption = false,
     this.openedAt,
     this.closedAt,
     this.totalRespondents = 0,
@@ -40,6 +51,7 @@ class PollModel {
     required this.createdAt,
     this.updatedAt,
     required this.createdBy,
+    this.showResultsAfterVote = true,
   });
 
   factory PollModel.fromJson(Map<String, dynamic> json) {
@@ -56,8 +68,14 @@ class PollModel {
           [],
       status: json['status'] as String? ?? 'draft',
       isAnonymous: json['isAnonymous'] as bool? ?? false,
-      showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
       allowChangeVote: json['allowChangeVote'] as bool? ?? true,
+      allowMultipleSelections:
+          json['allowMultipleSelections'] as bool? ?? false,
+      maxSelections: json['maxSelections'] as int?,
+      closesAt: _parseTimestamp(json['closesAt']),
+      minResponsesForResults: json['minResponsesForResults'] as int?,
+      resultVisibility: json['resultVisibility'] as String? ?? 'immediate',
+      allowOtherOption: json['allowOtherOption'] as bool? ?? false,
       openedAt: _parseTimestamp(json['openedAt']),
       closedAt: _parseTimestamp(json['closedAt']),
       totalRespondents: json['totalRespondents'] as int? ?? 0,
@@ -67,6 +85,7 @@ class PollModel {
       createdAt: _parseTimestamp(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseTimestamp(json['updatedAt']),
       createdBy: json['createdBy'] as String? ?? '',
+      showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
     );
   }
 
@@ -87,8 +106,13 @@ class PollModel {
       options: options.map((o) => o.toEntity()).toList(),
       status: _parsePollStatus(status),
       isAnonymous: isAnonymous,
-      showResultsAfterVote: showResultsAfterVote,
       allowChangeVote: allowChangeVote,
+      allowMultipleSelections: allowMultipleSelections,
+      maxSelections: maxSelections,
+      closesAt: closesAt,
+      minResponsesForResults: minResponsesForResults,
+      resultVisibility: _parseResultVisibility(resultVisibility),
+      allowOtherOption: allowOtherOption,
       openedAt: openedAt,
       closedAt: closedAt,
       totalRespondents: totalRespondents,
@@ -96,7 +120,19 @@ class PollModel {
       createdAt: createdAt,
       updatedAt: updatedAt,
       createdBy: createdBy,
+      showResultsAfterVote: showResultsAfterVote,
     );
+  }
+
+  static ResultVisibility _parseResultVisibility(String value) {
+    switch (value) {
+      case 'afterClose':
+        return ResultVisibility.afterClose;
+      case 'afterThreshold':
+        return ResultVisibility.afterThreshold;
+      default:
+        return ResultVisibility.immediate;
+    }
   }
 
   static PollStatus _parsePollStatus(String status) {
@@ -118,18 +154,32 @@ class PollModel {
 class PollOptionModel {
   final String id;
   final String text;
+  final String? mediaUrl;
+  final String? mediaType; // 'image' or 'video'
 
-  PollOptionModel({required this.id, required this.text});
+  PollOptionModel({
+    required this.id,
+    required this.text,
+    this.mediaUrl,
+    this.mediaType,
+  });
 
   factory PollOptionModel.fromJson(Map<String, dynamic> json) {
     return PollOptionModel(
       id: json['id'] as String,
       text: json['text'] as String,
+      mediaUrl: json['mediaUrl'] as String?,
+      mediaType: json['mediaType'] as String?,
     );
   }
 
   PollOption toEntity() {
-    return PollOption(id: id, text: text);
+    return PollOption(
+      id: id,
+      text: text,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+    );
   }
 }
 
@@ -138,6 +188,7 @@ class PollResponseModel {
   final String userId;
   final String pollId;
   final String selectedOption;
+  final List<String> selectedOptions;
   final String? previousOption;
   final int voteCount;
   final DateTime respondedAt;
@@ -149,11 +200,13 @@ class PollResponseModel {
   final String? engagementId;
   final bool tokensAwarded;
   final Map<String, String?>? demographics;
+  final String? otherText;
 
   PollResponseModel({
     required this.userId,
     required this.pollId,
     required this.selectedOption,
+    this.selectedOptions = const [],
     this.previousOption,
     this.voteCount = 1,
     required this.respondedAt,
@@ -165,6 +218,7 @@ class PollResponseModel {
     this.engagementId,
     this.tokensAwarded = false,
     this.demographics,
+    this.otherText,
   });
 
   factory PollResponseModel.fromJson(Map<String, dynamic> json) {
@@ -172,6 +226,10 @@ class PollResponseModel {
       userId: json['userId'] as String,
       pollId: json['pollId'] as String,
       selectedOption: json['selectedOption'] as String,
+      selectedOptions: (json['selectedOptions'] as List?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       previousOption: json['previousOption'] as String?,
       voteCount: json['voteCount'] as int? ?? 1,
       respondedAt: PollModel._parseTimestamp(json['respondedAt']) ??
@@ -185,6 +243,7 @@ class PollResponseModel {
       tokensAwarded: json['tokensAwarded'] as bool? ?? false,
       demographics: (json['demographics'] as Map?)?.map(
           (k, v) => MapEntry(k as String, v as String?)),
+      otherText: json['otherText'] as String?,
     );
   }
 
@@ -193,6 +252,7 @@ class PollResponseModel {
       userId: userId,
       pollId: pollId,
       selectedOption: selectedOption,
+      selectedOptions: selectedOptions,
       previousOption: previousOption,
       voteCount: voteCount,
       respondedAt: respondedAt,
@@ -204,6 +264,7 @@ class PollResponseModel {
       engagementId: engagementId,
       tokensAwarded: tokensAwarded,
       demographics: demographics,
+      otherText: otherText,
     );
   }
 }

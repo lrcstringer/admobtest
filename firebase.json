@@ -22,6 +22,16 @@
       "target": "admin",
       "public": "build/admin",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "flutter_service_worker.js",
+          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+        },
+        {
+          "source": "flutter_bootstrap.js",
+          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+        }
+      ],
       "rewrites": [
         {
           "source": "**",
@@ -33,6 +43,16 @@
       "target": "client",
       "public": "build/client",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "flutter_service_worker.js",
+          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+        },
+        {
+          "source": "flutter_bootstrap.js",
+          "headers": [{"key": "Cache-Control", "value": "no-cache"}]
+        }
+      ],
       "rewrites": [
         {
           "source": "**",

@@ -1101,6 +1101,15 @@
       "collectionGroup": "gooiGroups",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "memberUserIds", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "isDeleted", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "gooiGroups",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "initiatorUserId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }

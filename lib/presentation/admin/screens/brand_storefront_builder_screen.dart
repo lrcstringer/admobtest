@@ -1026,7 +1026,7 @@ class _BrandStorefrontBuilderScreenState
                           imageUrl: _heroImageUrl,
                           width: constraints.maxWidth,
                           height: 160,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           alignment: Alignment(
                             _heroFocalPointX * 2 - 1,
                             _heroFocalPointY * 2 - 1,
