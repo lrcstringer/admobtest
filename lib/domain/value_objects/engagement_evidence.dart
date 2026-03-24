@@ -30,6 +30,10 @@ abstract class EngagementEvidence with _$EngagementEvidence {
     /// Play Integrity token (Android) or Device Check token (iOS)
     String? integrityToken,
 
+    /// Nonce used to generate [integrityToken] — set when the token was
+    /// pre-generated during the survey phase to eliminate submit-time latency.
+    String? integrityNonce,
+
     /// Watch duration in milliseconds
     required int watchDurationMs,
 

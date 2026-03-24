@@ -4,16 +4,16 @@ import '../entities/poll.dart';
 
 /// Poll repository interface
 abstract class PollRepository {
-  /// Submit a vote on a poll
+  /// Submit a vote on a poll (polymorphic: data shape depends on questionType)
   Future<Either<Failure, PollResponse>> submitVote({
     required String pollId,
-    required String selectedOption,
+    required Map<String, dynamic> voteData,
   });
 
-  /// Change an existing vote
+  /// Change an existing vote (polymorphic: data shape depends on questionType)
   Future<Either<Failure, PollResponse>> changeVote({
     required String pollId,
-    required String newOption,
+    required Map<String, dynamic> voteData,
   });
 
   /// Get poll results (counts + percentages)

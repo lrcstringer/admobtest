@@ -11,6 +11,21 @@ enum PollStatus {
   archived,
 }
 
+/// Poll question type — determines UI, validation, and aggregation strategy
+enum PollQuestionType {
+  /// Classic pick-one or pick-many from a list of options
+  multipleChoice,
+
+  /// Drag-to-reorder all options (rank from best to worst, etc.)
+  ranking,
+
+  /// Free-text response (no predefined options)
+  text,
+
+  /// Rate one or more items on a numeric scale (1-10, Likert, etc.)
+  scale,
+}
+
 /// Controls when poll results are visible to voters
 enum ResultVisibility {
   /// Results shown immediately after voting
@@ -48,9 +63,11 @@ abstract class Poll with _$Poll {
     required String question,
     required List<PollOption> options,
     required PollStatus status,
+    // Question type — determines UI, validation, and aggregation
+    @Default(PollQuestionType.multipleChoice) PollQuestionType questionType,
     @Default(false) bool isAnonymous,
     @Default(true) bool allowChangeVote,
-    // Multi-select support
+    // Multi-select support (multipleChoice only)
     @Default(false) bool allowMultipleSelections,
     int? maxSelections,
     // Poll expiry/deadline (stored as UTC)
@@ -68,6 +85,19 @@ abstract class Poll with _$Poll {
     required DateTime createdAt,
     DateTime? updatedAt,
     required String createdBy,
+    // --- Scale question config ---
+    @Default(1) int scaleMin,
+    @Default(10) int scaleMax,
+    String? scaleMinLabel, // e.g. "Extremely unlikely"
+    String? scaleMaxLabel, // e.g. "Extremely likely"
+    @Default([]) List<String> scaleIntermediateLabels, // optional labels for each position
+    // --- Text question config ---
+    @Default(1) int textMinLength,
+    @Default(500) int textMaxLength,
+    // --- Type-specific aggregation ---
+    @Default({}) Map<String, double> averageRanks, // ranking: optionId → avg rank
+    @Default({}) Map<String, double> averageRatings, // scale: optionId → avg rating
+    @Default({}) Map<String, Map<String, int>> ratingDistribution, // scale: optionId → {ratingValue → count}
     // Legacy field — kept for backward compat reads, not used for new logic
     @Default(true) bool showResultsAfterVote,
   }) = _Poll;
@@ -135,6 +165,12 @@ abstract class PollResponse with _$PollResponse {
     Map<String, String?>? demographics,
     // "Other" free-text response (max 200 chars)
     String? otherText,
+    // --- Ranking response ---
+    @Default([]) List<String> rankedOptions, // ordered option IDs (first = rank 1)
+    // --- Text response ---
+    String? textResponse,
+    // --- Scale response ---
+    @Default({}) Map<String, int> scaleRatings, // optionId → rating value
   }) = _PollResponse;
 
   const PollResponse._();

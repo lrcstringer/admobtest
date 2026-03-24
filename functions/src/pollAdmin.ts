@@ -29,15 +29,26 @@ export const createPoll = onCall(
       threadId,
       question,
       options, // Array of { text: string, mediaUrl?: string, mediaType?: string }
+      // Question type: 'multipleChoice' (default), 'ranking', 'text', 'scale'
+      questionType = "multipleChoice",
       isAnonymous = false,
       allowChangeVote = true,
-      // New poll enhancement fields
+      // Multiple-choice specific
       allowMultipleSelections = false,
       maxSelections = null,
       closesAt = null, // ISO 8601 UTC string
       minResponsesForResults = null,
       resultVisibility = "immediate", // 'immediate' | 'afterClose' | 'afterThreshold'
       allowOtherOption = false,
+      // Scale question config
+      scaleMin = 1,
+      scaleMax = 10,
+      scaleMinLabel = null,
+      scaleMaxLabel = null,
+      scaleIntermediateLabels = [],
+      // Text question config
+      textMinLength = 1,
+      textMaxLength = 500,
       tokenReward = 10,
       durationSeconds = 15,
       targeting = null,
@@ -49,19 +60,47 @@ export const createPoll = onCall(
     } = data;
 
     // Validate required fields
-    if (!threadId || !question || !options) {
+    if (!threadId || !question) {
       throw new HttpsError(
         "invalid-argument",
-        "threadId, question, and options are required"
+        "threadId and question are required"
       );
     }
 
-    // Validate options
-    if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
+    // Validate questionType
+    const validQuestionTypes = ["multipleChoice", "ranking", "text", "scale"];
+    if (!validQuestionTypes.includes(questionType)) {
       throw new HttpsError(
         "invalid-argument",
-        "Must provide 2-6 options"
+        `questionType must be one of: ${validQuestionTypes.join(", ")}`
       );
+    }
+
+    // Validate options based on question type
+    // Text questions don't need options; others do
+    if (questionType === "text") {
+      // Text questions: no options needed, validate text config
+      if (textMinLength < 0 || textMaxLength < 1 || textMinLength > textMaxLength) {
+        throw new HttpsError("invalid-argument", "Invalid text length constraints");
+      }
+      if (textMaxLength > 2000) {
+        throw new HttpsError("invalid-argument", "textMaxLength cannot exceed 2000");
+      }
+    } else {
+      // All other types require options
+      if (!options || !Array.isArray(options) || options.length < 2 || options.length > 20) {
+        throw new HttpsError(
+          "invalid-argument",
+          "Must provide 2-20 options for this question type"
+        );
+      }
+    }
+
+    // Validate scale config
+    if (questionType === "scale") {
+      if (scaleMin < 1 || scaleMax < 2 || scaleMin >= scaleMax || scaleMax > 10) {
+        throw new HttpsError("invalid-argument", "Scale must have min >= 1, max <= 10, and min < max");
+      }
     }
 
     // Validate resultVisibility
@@ -112,19 +151,32 @@ export const createPoll = onCall(
     }
     const threadData = threadDoc.data()!;
 
-    // Generate option IDs (preserve media fields)
-    const pollOptions = (options as { text: string; mediaUrl?: string; mediaType?: string }[]).map(
-      (opt, idx) => ({
-        id: `opt_${idx}`,
-        text: opt.text,
-        ...(opt.mediaUrl ? { mediaUrl: opt.mediaUrl, mediaType: opt.mediaType || "image" } : {}),
-      })
-    );
+    // Generate option IDs (preserve media fields) — skip for text questions
+    const pollOptions = questionType === "text"
+      ? []
+      : (options as { text: string; mediaUrl?: string; mediaType?: string }[]).map(
+          (opt, idx) => ({
+            id: `opt_${idx}`,
+            text: opt.text,
+            ...(opt.mediaUrl ? { mediaUrl: opt.mediaUrl, mediaType: opt.mediaType || "image" } : {}),
+          })
+        );
 
-    // Initialize option counts
+    // Initialize option counts (multipleChoice only) and type-specific aggregation
     const optionCounts: Record<string, number> = {};
+    const averageRanks: Record<string, number> = {};
+    const averageRatings: Record<string, number> = {};
+    const ratingDistribution: Record<string, Record<string, number>> = {};
+
     for (const opt of pollOptions) {
-      optionCounts[opt.id] = 0;
+      if (questionType === "multipleChoice") {
+        optionCounts[opt.id] = 0;
+      } else if (questionType === "ranking") {
+        averageRanks[opt.id] = 0;
+      } else if (questionType === "scale") {
+        averageRatings[opt.id] = 0;
+        ratingDistribution[opt.id] = {};
+      }
     }
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -142,6 +194,7 @@ export const createPoll = onCall(
       clientId: threadData.clientId,
       question,
       options: pollOptions,
+      questionType,
       status: "draft",
       isAnonymous,
       allowChangeVote,
@@ -150,16 +203,43 @@ export const createPoll = onCall(
       closesAt: closesAt ? new Date(closesAt) : null,
       minResponsesForResults: minResponsesForResults || null,
       resultVisibility,
-      allowOtherOption,
+      allowOtherOption: questionType === "multipleChoice" ? allowOtherOption : false,
       showResultsAfterVote, // Legacy field
       openedAt: null,
       closedAt: null,
       totalRespondents: 0,
       optionCounts,
+      // Scale config
+      ...(questionType === "scale" ? {
+        scaleMin,
+        scaleMax,
+        scaleMinLabel: scaleMinLabel || null,
+        scaleMaxLabel: scaleMaxLabel || null,
+        scaleIntermediateLabels: scaleIntermediateLabels || [],
+      } : {}),
+      // Text config
+      ...(questionType === "text" ? {
+        textMinLength,
+        textMaxLength,
+      } : {}),
+      // Type-specific aggregation
+      averageRanks,
+      averageRatings,
+      ratingDistribution,
       createdAt: now,
       updatedAt: now,
       createdBy: request.auth!.uid,
     });
+
+    // Map poll questionType to opportunity questionType for denormalization
+    const oppQuestionType = (() => {
+      switch (questionType) {
+        case "ranking": return "ranking";
+        case "text": return "textInput";
+        case "scale": return "scale";
+        default: return allowMultipleSelections ? "multiSelect" : "singleSelect";
+      }
+    })();
 
     // Create linked EarnOpportunity (inactive until poll is opened)
     batch.set(oppRef, {
@@ -176,10 +256,12 @@ export const createPoll = onCall(
         id: "poll_vote",
         text: question,
         orderIndex: 0,
-        questionType: allowMultipleSelections ? "multiSelect" : "singleSelect",
+        questionType: oppQuestionType,
         isRequired: true,
         options: pollOptions.map((o: { id: string; text: string }) => o.text),
         ...(allowMultipleSelections && maxSelections ? { maxSelections } : {}),
+        ...(questionType === "scale" ? { scaleMin, scaleMax, scaleMinLabel, scaleMaxLabel } : {}),
+        ...(questionType === "text" ? { textMinLength, textMaxLength } : {}),
       }],
       durationSeconds,
       expiresAt: null,
@@ -318,6 +400,17 @@ export const updatePoll = onCall(
     }
     if (updates.allowOtherOption !== undefined)
       updateData.allowOtherOption = updates.allowOtherOption;
+
+    // Scale config (editable in draft or open)
+    if (updates.scaleMin !== undefined) updateData.scaleMin = updates.scaleMin;
+    if (updates.scaleMax !== undefined) updateData.scaleMax = updates.scaleMax;
+    if (updates.scaleMinLabel !== undefined) updateData.scaleMinLabel = updates.scaleMinLabel;
+    if (updates.scaleMaxLabel !== undefined) updateData.scaleMaxLabel = updates.scaleMaxLabel;
+    if (updates.scaleIntermediateLabels !== undefined) updateData.scaleIntermediateLabels = updates.scaleIntermediateLabels;
+
+    // Text config (editable in draft or open)
+    if (updates.textMinLength !== undefined) updateData.textMinLength = updates.textMinLength;
+    if (updates.textMaxLength !== undefined) updateData.textMaxLength = updates.textMaxLength;
 
     await pollRef.update(updateData);
 
@@ -642,11 +735,75 @@ export const getPollAdminDetails = onCall(
     }
 
     const totalRespondents = poll.totalRespondents || 0;
-    const optionCounts = (poll.optionCounts || {}) as Record<string, number>;
-    const percentages: Record<string, number> = {};
-    if (totalRespondents > 0) {
-      for (const [optId, count] of Object.entries(optionCounts)) {
-        percentages[optId] = Math.round((count / totalRespondents) * 100);
+    const questionType = poll.questionType || "multipleChoice";
+
+    // Build type-specific results
+    let resultsPayload: Record<string, unknown> = { totalRespondents };
+
+    switch (questionType) {
+      case "multipleChoice": {
+        const optionCounts = (poll.optionCounts || {}) as Record<string, number>;
+        const percentages: Record<string, number> = {};
+        if (totalRespondents > 0) {
+          for (const [optId, count] of Object.entries(optionCounts)) {
+            percentages[optId] = Math.round((count / totalRespondents) * 100);
+          }
+        }
+        resultsPayload = { ...resultsPayload, optionCounts, percentages };
+        break;
+      }
+
+      case "ranking": {
+        // Compute average ranks from responses
+        const rankSums: Record<string, number> = {};
+        let validCount = 0;
+        for (const r of responses) {
+          if (r.status !== "valid") continue;
+          const ranked = r.rankedOptions as string[] | undefined;
+          if (ranked && ranked.length > 0) {
+            validCount++;
+            ranked.forEach((optId: string, idx: number) => {
+              rankSums[optId] = (rankSums[optId] || 0) + (idx + 1);
+            });
+          }
+        }
+        const averageRanks: Record<string, number> = {};
+        for (const [optId, sum] of Object.entries(rankSums)) {
+          averageRanks[optId] = validCount > 0 ? Math.round((sum / validCount) * 100) / 100 : 0;
+        }
+        resultsPayload = { ...resultsPayload, averageRanks };
+        break;
+      }
+
+      case "text": {
+        // Collect all text responses for admin review
+        const textResponses: { userId: string; text: string; respondedAt: string | null }[] = [];
+        for (const r of responses) {
+          if (r.status !== "valid" || !r.textResponse) continue;
+          textResponses.push({
+            userId: r.userId as string,
+            text: r.textResponse as string,
+            respondedAt: r.respondedAt as string | null,
+          });
+        }
+        resultsPayload = { ...resultsPayload, textResponses };
+        break;
+      }
+
+      case "scale": {
+        const dist = (poll.ratingDistribution || {}) as Record<string, Record<string, number>>;
+        const averageRatings: Record<string, number> = {};
+        for (const [optId, counts] of Object.entries(dist)) {
+          let totalScore = 0;
+          let totalCount = 0;
+          for (const [rating, count] of Object.entries(counts)) {
+            totalScore += parseInt(rating) * count;
+            totalCount += count;
+          }
+          averageRatings[optId] = totalCount > 0 ? Math.round((totalScore / totalCount) * 100) / 100 : 0;
+        }
+        resultsPayload = { ...resultsPayload, averageRatings, ratingDistribution: dist };
+        break;
       }
     }
 
@@ -658,11 +815,7 @@ export const getPollAdminDetails = onCall(
         openedAt: poll.openedAt?.toDate?.()?.toISOString() || null,
         closedAt: poll.closedAt?.toDate?.()?.toISOString() || null,
       },
-      results: {
-        totalRespondents,
-        optionCounts,
-        percentages,
-      },
+      results: resultsPayload,
       responses,
       segmentedCounts,
     };

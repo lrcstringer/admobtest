@@ -31,9 +31,13 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
   ) async {
     emit(state.copyWith(status: EarnInboxStatus.loading, errorMessage: null));
 
-    final result = await _earnRepository.getEligibleInbox();
+    // Fire both CF calls in parallel — they have no dependency on each other.
+    final inboxFuture = _earnRepository.getEligibleInbox();
+    final notifFuture = _earnRepository.getEarnNotifications();
+    final inboxResult = await inboxFuture;
+    final notifResult = await notifFuture;
 
-    result.fold(
+    inboxResult.fold(
       (failure) => emit(state.copyWith(
         status: EarnInboxStatus.error,
         errorMessage: switch (failure) {
@@ -41,26 +45,33 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
           _ => 'Failed to load inbox',
         },
       )),
-      (inbox) => emit(state.copyWith(
-        status: EarnInboxStatus.loaded,
-        clients: inbox.clients,
-        dailyCompletions: inbox.dailyCompletions,
-        dailyEarnCap: inbox.dailyEarnCap,
-        dailyLimitReached: inbox.dailyLimitReached,
-      )),
+      (inbox) {
+        final notifications = notifResult.getOrElse(() => state.notifications);
+        final unreadCount = notifications.where((n) => n.isUnread).length;
+        emit(state.copyWith(
+          status: EarnInboxStatus.loaded,
+          clients: inbox.clients,
+          dailyCompletions: inbox.dailyCompletions,
+          dailyEarnCap: inbox.dailyEarnCap,
+          dailyLimitReached: inbox.dailyLimitReached,
+          notifications: notifications,
+          unreadNotificationCount: unreadCount,
+        ));
+      },
     );
-
-    // Also load notifications
-    add(const EarnInboxEvent.loadNotifications());
   }
 
   Future<void> _onRefreshInbox(
     _RefreshInbox event,
     Emitter<EarnInboxState> emit,
   ) async {
-    final result = await _earnRepository.getEligibleInbox(forceRefresh: true);
+    // Fire both CF calls in parallel — they have no dependency on each other.
+    final inboxFuture = _earnRepository.getEligibleInbox(forceRefresh: true);
+    final notifFuture = _earnRepository.getEarnNotifications();
+    final inboxResult = await inboxFuture;
+    final notifResult = await notifFuture;
 
-    result.fold(
+    inboxResult.fold(
       (failure) => emit(state.copyWith(
         errorMessage: switch (failure) {
           ServerFailure(:final message) =>
@@ -68,17 +79,21 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
           _ => 'Failed to refresh inbox',
         },
       )),
-      (inbox) => emit(state.copyWith(
-        status: EarnInboxStatus.loaded,
-        clients: inbox.clients,
-        dailyCompletions: inbox.dailyCompletions,
-        dailyEarnCap: inbox.dailyEarnCap,
-        dailyLimitReached: inbox.dailyLimitReached,
-        errorMessage: null,
-      )),
+      (inbox) {
+        final notifications = notifResult.getOrElse(() => state.notifications);
+        final unreadCount = notifications.where((n) => n.isUnread).length;
+        emit(state.copyWith(
+          status: EarnInboxStatus.loaded,
+          clients: inbox.clients,
+          dailyCompletions: inbox.dailyCompletions,
+          dailyEarnCap: inbox.dailyEarnCap,
+          dailyLimitReached: inbox.dailyLimitReached,
+          notifications: notifications,
+          unreadNotificationCount: unreadCount,
+          errorMessage: null,
+        ));
+      },
     );
-
-    add(const EarnInboxEvent.loadNotifications());
   }
 
   void _onToggleClient(

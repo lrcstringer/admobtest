@@ -302,7 +302,9 @@ mixin _$EngagementEvidence {
 
 /// Device fingerprint hash
  String get deviceFingerprint;/// Play Integrity token (Android) or Device Check token (iOS)
- String? get integrityToken;/// Watch duration in milliseconds
+ String? get integrityToken;/// Nonce used to generate [integrityToken] — set when the token was
+/// pre-generated during the survey phase to eliminate submit-time latency.
+ String? get integrityNonce;/// Watch duration in milliseconds
  int get watchDurationMs;/// Video seeked (indicates skipping)
  bool get videoSeeked;/// Screen was visible during watch
  bool get screenVisible;/// App was in foreground
@@ -327,16 +329,16 @@ $EngagementEvidenceCopyWith<EngagementEvidence> get copyWith => _$EngagementEvid
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EngagementEvidence&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.integrityToken, integrityToken) || other.integrityToken == integrityToken)&&(identical(other.watchDurationMs, watchDurationMs) || other.watchDurationMs == watchDurationMs)&&(identical(other.videoSeeked, videoSeeked) || other.videoSeeked == videoSeeked)&&(identical(other.screenVisible, screenVisible) || other.screenVisible == screenVisible)&&(identical(other.appInForeground, appInForeground) || other.appInForeground == appInForeground)&&const DeepCollectionEquality().equals(other.surveyResponseTimesMs, surveyResponseTimesMs)&&(identical(other.videoStartedAt, videoStartedAt) || other.videoStartedAt == videoStartedAt)&&(identical(other.surveySubmittedAt, surveySubmittedAt) || other.surveySubmittedAt == surveySubmittedAt)&&(identical(other.clientAttentionScore, clientAttentionScore) || other.clientAttentionScore == clientAttentionScore)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adFullyWatched, adFullyWatched) || other.adFullyWatched == adFullyWatched)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&const DeepCollectionEquality().equals(other.uploadedFiles, uploadedFiles)&&(identical(other.uploadTextResponse, uploadTextResponse) || other.uploadTextResponse == uploadTextResponse)&&(identical(other.uploadStartedAt, uploadStartedAt) || other.uploadStartedAt == uploadStartedAt)&&(identical(other.uploadCompletedAt, uploadCompletedAt) || other.uploadCompletedAt == uploadCompletedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EngagementEvidence&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.integrityToken, integrityToken) || other.integrityToken == integrityToken)&&(identical(other.integrityNonce, integrityNonce) || other.integrityNonce == integrityNonce)&&(identical(other.watchDurationMs, watchDurationMs) || other.watchDurationMs == watchDurationMs)&&(identical(other.videoSeeked, videoSeeked) || other.videoSeeked == videoSeeked)&&(identical(other.screenVisible, screenVisible) || other.screenVisible == screenVisible)&&(identical(other.appInForeground, appInForeground) || other.appInForeground == appInForeground)&&const DeepCollectionEquality().equals(other.surveyResponseTimesMs, surveyResponseTimesMs)&&(identical(other.videoStartedAt, videoStartedAt) || other.videoStartedAt == videoStartedAt)&&(identical(other.surveySubmittedAt, surveySubmittedAt) || other.surveySubmittedAt == surveySubmittedAt)&&(identical(other.clientAttentionScore, clientAttentionScore) || other.clientAttentionScore == clientAttentionScore)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adFullyWatched, adFullyWatched) || other.adFullyWatched == adFullyWatched)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&const DeepCollectionEquality().equals(other.uploadedFiles, uploadedFiles)&&(identical(other.uploadTextResponse, uploadTextResponse) || other.uploadTextResponse == uploadTextResponse)&&(identical(other.uploadStartedAt, uploadStartedAt) || other.uploadStartedAt == uploadStartedAt)&&(identical(other.uploadCompletedAt, uploadCompletedAt) || other.uploadCompletedAt == uploadCompletedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deviceFingerprint,integrityToken,watchDurationMs,videoSeeked,screenVisible,appInForeground,const DeepCollectionEquality().hash(surveyResponseTimesMs),videoStartedAt,surveySubmittedAt,clientAttentionScore,adTransactionId,adFullyWatched,adResponseId,const DeepCollectionEquality().hash(uploadedFiles),uploadTextResponse,uploadStartedAt,uploadCompletedAt);
+int get hashCode => Object.hash(runtimeType,deviceFingerprint,integrityToken,integrityNonce,watchDurationMs,videoSeeked,screenVisible,appInForeground,const DeepCollectionEquality().hash(surveyResponseTimesMs),videoStartedAt,surveySubmittedAt,clientAttentionScore,adTransactionId,adFullyWatched,adResponseId,const DeepCollectionEquality().hash(uploadedFiles),uploadTextResponse,uploadStartedAt,uploadCompletedAt);
 
 @override
 String toString() {
-  return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
+  return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, integrityNonce: $integrityNonce, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
 }
 
 
@@ -347,7 +349,7 @@ abstract mixin class $EngagementEvidenceCopyWith<$Res>  {
   factory $EngagementEvidenceCopyWith(EngagementEvidence value, $Res Function(EngagementEvidence) _then) = _$EngagementEvidenceCopyWithImpl;
 @useResult
 $Res call({
- String deviceFingerprint, String? integrityToken, int watchDurationMs, bool videoSeeked, bool screenVisible, bool appInForeground, List<int> surveyResponseTimesMs, DateTime videoStartedAt, DateTime surveySubmittedAt, double? clientAttentionScore, String? adTransactionId, bool? adFullyWatched, String? adResponseId, List<UploadedFileEvidence>? uploadedFiles, String? uploadTextResponse, DateTime? uploadStartedAt, DateTime? uploadCompletedAt
+ String deviceFingerprint, String? integrityToken, String? integrityNonce, int watchDurationMs, bool videoSeeked, bool screenVisible, bool appInForeground, List<int> surveyResponseTimesMs, DateTime videoStartedAt, DateTime surveySubmittedAt, double? clientAttentionScore, String? adTransactionId, bool? adFullyWatched, String? adResponseId, List<UploadedFileEvidence>? uploadedFiles, String? uploadTextResponse, DateTime? uploadStartedAt, DateTime? uploadCompletedAt
 });
 
 
@@ -364,10 +366,11 @@ class _$EngagementEvidenceCopyWithImpl<$Res>
 
 /// Create a copy of EngagementEvidence
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? deviceFingerprint = null,Object? integrityToken = freezed,Object? watchDurationMs = null,Object? videoSeeked = null,Object? screenVisible = null,Object? appInForeground = null,Object? surveyResponseTimesMs = null,Object? videoStartedAt = null,Object? surveySubmittedAt = null,Object? clientAttentionScore = freezed,Object? adTransactionId = freezed,Object? adFullyWatched = freezed,Object? adResponseId = freezed,Object? uploadedFiles = freezed,Object? uploadTextResponse = freezed,Object? uploadStartedAt = freezed,Object? uploadCompletedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? deviceFingerprint = null,Object? integrityToken = freezed,Object? integrityNonce = freezed,Object? watchDurationMs = null,Object? videoSeeked = null,Object? screenVisible = null,Object? appInForeground = null,Object? surveyResponseTimesMs = null,Object? videoStartedAt = null,Object? surveySubmittedAt = null,Object? clientAttentionScore = freezed,Object? adTransactionId = freezed,Object? adFullyWatched = freezed,Object? adResponseId = freezed,Object? uploadedFiles = freezed,Object? uploadTextResponse = freezed,Object? uploadStartedAt = freezed,Object? uploadCompletedAt = freezed,}) {
   return _then(_self.copyWith(
 deviceFingerprint: null == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
 as String,integrityToken: freezed == integrityToken ? _self.integrityToken : integrityToken // ignore: cast_nullable_to_non_nullable
+as String?,integrityNonce: freezed == integrityNonce ? _self.integrityNonce : integrityNonce // ignore: cast_nullable_to_non_nullable
 as String?,watchDurationMs: null == watchDurationMs ? _self.watchDurationMs : watchDurationMs // ignore: cast_nullable_to_non_nullable
 as int,videoSeeked: null == videoSeeked ? _self.videoSeeked : videoSeeked // ignore: cast_nullable_to_non_nullable
 as bool,screenVisible: null == screenVisible ? _self.screenVisible : screenVisible // ignore: cast_nullable_to_non_nullable
@@ -468,10 +471,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String deviceFingerprint,  String? integrityToken,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String deviceFingerprint,  String? integrityToken,  String? integrityNonce,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EngagementEvidence() when $default != null:
-return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
+return $default(_that.deviceFingerprint,_that.integrityToken,_that.integrityNonce,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
   return orElse();
 
 }
@@ -489,10 +492,10 @@ return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDuration
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String deviceFingerprint,  String? integrityToken,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String deviceFingerprint,  String? integrityToken,  String? integrityNonce,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)  $default,) {final _that = this;
 switch (_that) {
 case _EngagementEvidence():
-return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
+return $default(_that.deviceFingerprint,_that.integrityToken,_that.integrityNonce,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -509,10 +512,10 @@ return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDuration
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String deviceFingerprint,  String? integrityToken,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String deviceFingerprint,  String? integrityToken,  String? integrityNonce,  int watchDurationMs,  bool videoSeeked,  bool screenVisible,  bool appInForeground,  List<int> surveyResponseTimesMs,  DateTime videoStartedAt,  DateTime surveySubmittedAt,  double? clientAttentionScore,  String? adTransactionId,  bool? adFullyWatched,  String? adResponseId,  List<UploadedFileEvidence>? uploadedFiles,  String? uploadTextResponse,  DateTime? uploadStartedAt,  DateTime? uploadCompletedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _EngagementEvidence() when $default != null:
-return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
+return $default(_that.deviceFingerprint,_that.integrityToken,_that.integrityNonce,_that.watchDurationMs,_that.videoSeeked,_that.screenVisible,_that.appInForeground,_that.surveyResponseTimesMs,_that.videoStartedAt,_that.surveySubmittedAt,_that.clientAttentionScore,_that.adTransactionId,_that.adFullyWatched,_that.adResponseId,_that.uploadedFiles,_that.uploadTextResponse,_that.uploadStartedAt,_that.uploadCompletedAt);case _:
   return null;
 
 }
@@ -524,13 +527,16 @@ return $default(_that.deviceFingerprint,_that.integrityToken,_that.watchDuration
 @JsonSerializable()
 
 class _EngagementEvidence extends EngagementEvidence {
-  const _EngagementEvidence({required this.deviceFingerprint, this.integrityToken, required this.watchDurationMs, required this.videoSeeked, required this.screenVisible, required this.appInForeground, required final  List<int> surveyResponseTimesMs, required this.videoStartedAt, required this.surveySubmittedAt, this.clientAttentionScore, this.adTransactionId, this.adFullyWatched, this.adResponseId, final  List<UploadedFileEvidence>? uploadedFiles, this.uploadTextResponse, this.uploadStartedAt, this.uploadCompletedAt}): _surveyResponseTimesMs = surveyResponseTimesMs,_uploadedFiles = uploadedFiles,super._();
+  const _EngagementEvidence({required this.deviceFingerprint, this.integrityToken, this.integrityNonce, required this.watchDurationMs, required this.videoSeeked, required this.screenVisible, required this.appInForeground, required final  List<int> surveyResponseTimesMs, required this.videoStartedAt, required this.surveySubmittedAt, this.clientAttentionScore, this.adTransactionId, this.adFullyWatched, this.adResponseId, final  List<UploadedFileEvidence>? uploadedFiles, this.uploadTextResponse, this.uploadStartedAt, this.uploadCompletedAt}): _surveyResponseTimesMs = surveyResponseTimesMs,_uploadedFiles = uploadedFiles,super._();
   factory _EngagementEvidence.fromJson(Map<String, dynamic> json) => _$EngagementEvidenceFromJson(json);
 
 /// Device fingerprint hash
 @override final  String deviceFingerprint;
 /// Play Integrity token (Android) or Device Check token (iOS)
 @override final  String? integrityToken;
+/// Nonce used to generate [integrityToken] — set when the token was
+/// pre-generated during the survey phase to eliminate submit-time latency.
+@override final  String? integrityNonce;
 /// Watch duration in milliseconds
 @override final  int watchDurationMs;
 /// Video seeked (indicates skipping)
@@ -588,16 +594,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EngagementEvidence&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.integrityToken, integrityToken) || other.integrityToken == integrityToken)&&(identical(other.watchDurationMs, watchDurationMs) || other.watchDurationMs == watchDurationMs)&&(identical(other.videoSeeked, videoSeeked) || other.videoSeeked == videoSeeked)&&(identical(other.screenVisible, screenVisible) || other.screenVisible == screenVisible)&&(identical(other.appInForeground, appInForeground) || other.appInForeground == appInForeground)&&const DeepCollectionEquality().equals(other._surveyResponseTimesMs, _surveyResponseTimesMs)&&(identical(other.videoStartedAt, videoStartedAt) || other.videoStartedAt == videoStartedAt)&&(identical(other.surveySubmittedAt, surveySubmittedAt) || other.surveySubmittedAt == surveySubmittedAt)&&(identical(other.clientAttentionScore, clientAttentionScore) || other.clientAttentionScore == clientAttentionScore)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adFullyWatched, adFullyWatched) || other.adFullyWatched == adFullyWatched)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&const DeepCollectionEquality().equals(other._uploadedFiles, _uploadedFiles)&&(identical(other.uploadTextResponse, uploadTextResponse) || other.uploadTextResponse == uploadTextResponse)&&(identical(other.uploadStartedAt, uploadStartedAt) || other.uploadStartedAt == uploadStartedAt)&&(identical(other.uploadCompletedAt, uploadCompletedAt) || other.uploadCompletedAt == uploadCompletedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EngagementEvidence&&(identical(other.deviceFingerprint, deviceFingerprint) || other.deviceFingerprint == deviceFingerprint)&&(identical(other.integrityToken, integrityToken) || other.integrityToken == integrityToken)&&(identical(other.integrityNonce, integrityNonce) || other.integrityNonce == integrityNonce)&&(identical(other.watchDurationMs, watchDurationMs) || other.watchDurationMs == watchDurationMs)&&(identical(other.videoSeeked, videoSeeked) || other.videoSeeked == videoSeeked)&&(identical(other.screenVisible, screenVisible) || other.screenVisible == screenVisible)&&(identical(other.appInForeground, appInForeground) || other.appInForeground == appInForeground)&&const DeepCollectionEquality().equals(other._surveyResponseTimesMs, _surveyResponseTimesMs)&&(identical(other.videoStartedAt, videoStartedAt) || other.videoStartedAt == videoStartedAt)&&(identical(other.surveySubmittedAt, surveySubmittedAt) || other.surveySubmittedAt == surveySubmittedAt)&&(identical(other.clientAttentionScore, clientAttentionScore) || other.clientAttentionScore == clientAttentionScore)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adFullyWatched, adFullyWatched) || other.adFullyWatched == adFullyWatched)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&const DeepCollectionEquality().equals(other._uploadedFiles, _uploadedFiles)&&(identical(other.uploadTextResponse, uploadTextResponse) || other.uploadTextResponse == uploadTextResponse)&&(identical(other.uploadStartedAt, uploadStartedAt) || other.uploadStartedAt == uploadStartedAt)&&(identical(other.uploadCompletedAt, uploadCompletedAt) || other.uploadCompletedAt == uploadCompletedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,deviceFingerprint,integrityToken,watchDurationMs,videoSeeked,screenVisible,appInForeground,const DeepCollectionEquality().hash(_surveyResponseTimesMs),videoStartedAt,surveySubmittedAt,clientAttentionScore,adTransactionId,adFullyWatched,adResponseId,const DeepCollectionEquality().hash(_uploadedFiles),uploadTextResponse,uploadStartedAt,uploadCompletedAt);
+int get hashCode => Object.hash(runtimeType,deviceFingerprint,integrityToken,integrityNonce,watchDurationMs,videoSeeked,screenVisible,appInForeground,const DeepCollectionEquality().hash(_surveyResponseTimesMs),videoStartedAt,surveySubmittedAt,clientAttentionScore,adTransactionId,adFullyWatched,adResponseId,const DeepCollectionEquality().hash(_uploadedFiles),uploadTextResponse,uploadStartedAt,uploadCompletedAt);
 
 @override
 String toString() {
-  return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
+  return 'EngagementEvidence(deviceFingerprint: $deviceFingerprint, integrityToken: $integrityToken, integrityNonce: $integrityNonce, watchDurationMs: $watchDurationMs, videoSeeked: $videoSeeked, screenVisible: $screenVisible, appInForeground: $appInForeground, surveyResponseTimesMs: $surveyResponseTimesMs, videoStartedAt: $videoStartedAt, surveySubmittedAt: $surveySubmittedAt, clientAttentionScore: $clientAttentionScore, adTransactionId: $adTransactionId, adFullyWatched: $adFullyWatched, adResponseId: $adResponseId, uploadedFiles: $uploadedFiles, uploadTextResponse: $uploadTextResponse, uploadStartedAt: $uploadStartedAt, uploadCompletedAt: $uploadCompletedAt)';
 }
 
 
@@ -608,7 +614,7 @@ abstract mixin class _$EngagementEvidenceCopyWith<$Res> implements $EngagementEv
   factory _$EngagementEvidenceCopyWith(_EngagementEvidence value, $Res Function(_EngagementEvidence) _then) = __$EngagementEvidenceCopyWithImpl;
 @override @useResult
 $Res call({
- String deviceFingerprint, String? integrityToken, int watchDurationMs, bool videoSeeked, bool screenVisible, bool appInForeground, List<int> surveyResponseTimesMs, DateTime videoStartedAt, DateTime surveySubmittedAt, double? clientAttentionScore, String? adTransactionId, bool? adFullyWatched, String? adResponseId, List<UploadedFileEvidence>? uploadedFiles, String? uploadTextResponse, DateTime? uploadStartedAt, DateTime? uploadCompletedAt
+ String deviceFingerprint, String? integrityToken, String? integrityNonce, int watchDurationMs, bool videoSeeked, bool screenVisible, bool appInForeground, List<int> surveyResponseTimesMs, DateTime videoStartedAt, DateTime surveySubmittedAt, double? clientAttentionScore, String? adTransactionId, bool? adFullyWatched, String? adResponseId, List<UploadedFileEvidence>? uploadedFiles, String? uploadTextResponse, DateTime? uploadStartedAt, DateTime? uploadCompletedAt
 });
 
 
@@ -625,10 +631,11 @@ class __$EngagementEvidenceCopyWithImpl<$Res>
 
 /// Create a copy of EngagementEvidence
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? deviceFingerprint = null,Object? integrityToken = freezed,Object? watchDurationMs = null,Object? videoSeeked = null,Object? screenVisible = null,Object? appInForeground = null,Object? surveyResponseTimesMs = null,Object? videoStartedAt = null,Object? surveySubmittedAt = null,Object? clientAttentionScore = freezed,Object? adTransactionId = freezed,Object? adFullyWatched = freezed,Object? adResponseId = freezed,Object? uploadedFiles = freezed,Object? uploadTextResponse = freezed,Object? uploadStartedAt = freezed,Object? uploadCompletedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? deviceFingerprint = null,Object? integrityToken = freezed,Object? integrityNonce = freezed,Object? watchDurationMs = null,Object? videoSeeked = null,Object? screenVisible = null,Object? appInForeground = null,Object? surveyResponseTimesMs = null,Object? videoStartedAt = null,Object? surveySubmittedAt = null,Object? clientAttentionScore = freezed,Object? adTransactionId = freezed,Object? adFullyWatched = freezed,Object? adResponseId = freezed,Object? uploadedFiles = freezed,Object? uploadTextResponse = freezed,Object? uploadStartedAt = freezed,Object? uploadCompletedAt = freezed,}) {
   return _then(_EngagementEvidence(
 deviceFingerprint: null == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
 as String,integrityToken: freezed == integrityToken ? _self.integrityToken : integrityToken // ignore: cast_nullable_to_non_nullable
+as String?,integrityNonce: freezed == integrityNonce ? _self.integrityNonce : integrityNonce // ignore: cast_nullable_to_non_nullable
 as String?,watchDurationMs: null == watchDurationMs ? _self.watchDurationMs : watchDurationMs // ignore: cast_nullable_to_non_nullable
 as int,videoSeeked: null == videoSeeked ? _self.videoSeeked : videoSeeked // ignore: cast_nullable_to_non_nullable
 as bool,screenVisible: null == screenVisible ? _self.screenVisible : screenVisible // ignore: cast_nullable_to_non_nullable

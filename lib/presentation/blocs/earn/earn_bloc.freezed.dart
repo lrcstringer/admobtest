@@ -55,14 +55,15 @@ extension EarnEventPatterns on EarnEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadThreads value)?  loadThreads,TResult Function( _SelectThread value)?  selectThread,TResult Function( _LoadOpportunities value)?  loadOpportunities,TResult Function( _SelectOpportunity value)?  selectOpportunity,TResult Function( _StartEngagement value)?  startEngagement,TResult Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult Function( _SubmitSurvey value)?  submitSurvey,TResult Function( _AbandonEngagement value)?  abandonEngagement,TResult Function( _LoadHistory value)?  loadHistory,TResult Function( _LoadMoreHistory value)?  loadMoreHistory,TResult Function( _Refresh value)?  refresh,TResult Function( _ClearError value)?  clearError,TResult Function( _ResetEngagement value)?  resetEngagement,TResult Function( _LoadAdVideo value)?  loadAdVideo,TResult Function( _AdVideoCompleted value)?  adVideoCompleted,TResult Function( _AdVideoFailed value)?  adVideoFailed,TResult Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult Function( _SubmitUpload value)?  submitUpload,TResult Function( _UploadProgressChanged value)?  uploadProgressChanged,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _LoadThreads value)?  loadThreads,TResult Function( _SelectThread value)?  selectThread,TResult Function( _LoadOpportunities value)?  loadOpportunities,TResult Function( _SelectOpportunity value)?  selectOpportunity,TResult Function( _SetSelectedOpportunity value)?  setSelectedOpportunity,TResult Function( _StartEngagement value)?  startEngagement,TResult Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult Function( _SubmitSurvey value)?  submitSurvey,TResult Function( _AbandonEngagement value)?  abandonEngagement,TResult Function( _LoadHistory value)?  loadHistory,TResult Function( _LoadMoreHistory value)?  loadMoreHistory,TResult Function( _Refresh value)?  refresh,TResult Function( _ClearError value)?  clearError,TResult Function( _ResetEngagement value)?  resetEngagement,TResult Function( _LoadAdVideo value)?  loadAdVideo,TResult Function( _AdVideoCompleted value)?  adVideoCompleted,TResult Function( _AdVideoFailed value)?  adVideoFailed,TResult Function( _AdShowFailed value)?  adShowFailed,TResult Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult Function( _AdLoadComplete value)?  adLoadComplete,TResult Function( _SubmitUpload value)?  submitUpload,TResult Function( _UploadProgressChanged value)?  uploadProgressChanged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _LoadThreads() when loadThreads != null:
 return loadThreads(_that);case _SelectThread() when selectThread != null:
 return selectThread(_that);case _LoadOpportunities() when loadOpportunities != null:
 return loadOpportunities(_that);case _SelectOpportunity() when selectOpportunity != null:
-return selectOpportunity(_that);case _StartEngagement() when startEngagement != null:
+return selectOpportunity(_that);case _SetSelectedOpportunity() when setSelectedOpportunity != null:
+return setSelectedOpportunity(_that);case _StartEngagement() when startEngagement != null:
 return startEngagement(_that);case _UpdateWatchProgress() when updateWatchProgress != null:
 return updateWatchProgress(_that);case _SubmitSurvey() when submitSurvey != null:
 return submitSurvey(_that);case _AbandonEngagement() when abandonEngagement != null:
@@ -74,10 +75,12 @@ return clearError(_that);case _ResetEngagement() when resetEngagement != null:
 return resetEngagement(_that);case _LoadAdVideo() when loadAdVideo != null:
 return loadAdVideo(_that);case _AdVideoCompleted() when adVideoCompleted != null:
 return adVideoCompleted(_that);case _AdVideoFailed() when adVideoFailed != null:
-return adVideoFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adVideoFailed(_that);case _AdShowFailed() when adShowFailed != null:
+return adShowFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
 return adReadyStateChanged(_that);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
 return adLoadingStateChanged(_that);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
-return adLoadAttemptChanged(_that);case _SubmitUpload() when submitUpload != null:
+return adLoadAttemptChanged(_that);case _AdLoadComplete() when adLoadComplete != null:
+return adLoadComplete(_that);case _SubmitUpload() when submitUpload != null:
 return submitUpload(_that);case _UploadProgressChanged() when uploadProgressChanged != null:
 return uploadProgressChanged(_that);case _:
   return orElse();
@@ -97,14 +100,15 @@ return uploadProgressChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadThreads value)  loadThreads,required TResult Function( _SelectThread value)  selectThread,required TResult Function( _LoadOpportunities value)  loadOpportunities,required TResult Function( _SelectOpportunity value)  selectOpportunity,required TResult Function( _StartEngagement value)  startEngagement,required TResult Function( _UpdateWatchProgress value)  updateWatchProgress,required TResult Function( _SubmitSurvey value)  submitSurvey,required TResult Function( _AbandonEngagement value)  abandonEngagement,required TResult Function( _LoadHistory value)  loadHistory,required TResult Function( _LoadMoreHistory value)  loadMoreHistory,required TResult Function( _Refresh value)  refresh,required TResult Function( _ClearError value)  clearError,required TResult Function( _ResetEngagement value)  resetEngagement,required TResult Function( _LoadAdVideo value)  loadAdVideo,required TResult Function( _AdVideoCompleted value)  adVideoCompleted,required TResult Function( _AdVideoFailed value)  adVideoFailed,required TResult Function( _AdReadyStateChanged value)  adReadyStateChanged,required TResult Function( _AdLoadingStateChanged value)  adLoadingStateChanged,required TResult Function( _AdLoadAttemptChanged value)  adLoadAttemptChanged,required TResult Function( _SubmitUpload value)  submitUpload,required TResult Function( _UploadProgressChanged value)  uploadProgressChanged,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _LoadThreads value)  loadThreads,required TResult Function( _SelectThread value)  selectThread,required TResult Function( _LoadOpportunities value)  loadOpportunities,required TResult Function( _SelectOpportunity value)  selectOpportunity,required TResult Function( _SetSelectedOpportunity value)  setSelectedOpportunity,required TResult Function( _StartEngagement value)  startEngagement,required TResult Function( _UpdateWatchProgress value)  updateWatchProgress,required TResult Function( _SubmitSurvey value)  submitSurvey,required TResult Function( _AbandonEngagement value)  abandonEngagement,required TResult Function( _LoadHistory value)  loadHistory,required TResult Function( _LoadMoreHistory value)  loadMoreHistory,required TResult Function( _Refresh value)  refresh,required TResult Function( _ClearError value)  clearError,required TResult Function( _ResetEngagement value)  resetEngagement,required TResult Function( _LoadAdVideo value)  loadAdVideo,required TResult Function( _AdVideoCompleted value)  adVideoCompleted,required TResult Function( _AdVideoFailed value)  adVideoFailed,required TResult Function( _AdShowFailed value)  adShowFailed,required TResult Function( _AdReadyStateChanged value)  adReadyStateChanged,required TResult Function( _AdLoadingStateChanged value)  adLoadingStateChanged,required TResult Function( _AdLoadAttemptChanged value)  adLoadAttemptChanged,required TResult Function( _AdLoadComplete value)  adLoadComplete,required TResult Function( _SubmitUpload value)  submitUpload,required TResult Function( _UploadProgressChanged value)  uploadProgressChanged,}){
 final _that = this;
 switch (_that) {
 case _LoadThreads():
 return loadThreads(_that);case _SelectThread():
 return selectThread(_that);case _LoadOpportunities():
 return loadOpportunities(_that);case _SelectOpportunity():
-return selectOpportunity(_that);case _StartEngagement():
+return selectOpportunity(_that);case _SetSelectedOpportunity():
+return setSelectedOpportunity(_that);case _StartEngagement():
 return startEngagement(_that);case _UpdateWatchProgress():
 return updateWatchProgress(_that);case _SubmitSurvey():
 return submitSurvey(_that);case _AbandonEngagement():
@@ -116,10 +120,12 @@ return clearError(_that);case _ResetEngagement():
 return resetEngagement(_that);case _LoadAdVideo():
 return loadAdVideo(_that);case _AdVideoCompleted():
 return adVideoCompleted(_that);case _AdVideoFailed():
-return adVideoFailed(_that);case _AdReadyStateChanged():
+return adVideoFailed(_that);case _AdShowFailed():
+return adShowFailed(_that);case _AdReadyStateChanged():
 return adReadyStateChanged(_that);case _AdLoadingStateChanged():
 return adLoadingStateChanged(_that);case _AdLoadAttemptChanged():
-return adLoadAttemptChanged(_that);case _SubmitUpload():
+return adLoadAttemptChanged(_that);case _AdLoadComplete():
+return adLoadComplete(_that);case _SubmitUpload():
 return submitUpload(_that);case _UploadProgressChanged():
 return uploadProgressChanged(_that);case _:
   throw StateError('Unexpected subclass');
@@ -138,14 +144,15 @@ return uploadProgressChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadThreads value)?  loadThreads,TResult? Function( _SelectThread value)?  selectThread,TResult? Function( _LoadOpportunities value)?  loadOpportunities,TResult? Function( _SelectOpportunity value)?  selectOpportunity,TResult? Function( _StartEngagement value)?  startEngagement,TResult? Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult? Function( _SubmitSurvey value)?  submitSurvey,TResult? Function( _AbandonEngagement value)?  abandonEngagement,TResult? Function( _LoadHistory value)?  loadHistory,TResult? Function( _LoadMoreHistory value)?  loadMoreHistory,TResult? Function( _Refresh value)?  refresh,TResult? Function( _ClearError value)?  clearError,TResult? Function( _ResetEngagement value)?  resetEngagement,TResult? Function( _LoadAdVideo value)?  loadAdVideo,TResult? Function( _AdVideoCompleted value)?  adVideoCompleted,TResult? Function( _AdVideoFailed value)?  adVideoFailed,TResult? Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult? Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult? Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult? Function( _SubmitUpload value)?  submitUpload,TResult? Function( _UploadProgressChanged value)?  uploadProgressChanged,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _LoadThreads value)?  loadThreads,TResult? Function( _SelectThread value)?  selectThread,TResult? Function( _LoadOpportunities value)?  loadOpportunities,TResult? Function( _SelectOpportunity value)?  selectOpportunity,TResult? Function( _SetSelectedOpportunity value)?  setSelectedOpportunity,TResult? Function( _StartEngagement value)?  startEngagement,TResult? Function( _UpdateWatchProgress value)?  updateWatchProgress,TResult? Function( _SubmitSurvey value)?  submitSurvey,TResult? Function( _AbandonEngagement value)?  abandonEngagement,TResult? Function( _LoadHistory value)?  loadHistory,TResult? Function( _LoadMoreHistory value)?  loadMoreHistory,TResult? Function( _Refresh value)?  refresh,TResult? Function( _ClearError value)?  clearError,TResult? Function( _ResetEngagement value)?  resetEngagement,TResult? Function( _LoadAdVideo value)?  loadAdVideo,TResult? Function( _AdVideoCompleted value)?  adVideoCompleted,TResult? Function( _AdVideoFailed value)?  adVideoFailed,TResult? Function( _AdShowFailed value)?  adShowFailed,TResult? Function( _AdReadyStateChanged value)?  adReadyStateChanged,TResult? Function( _AdLoadingStateChanged value)?  adLoadingStateChanged,TResult? Function( _AdLoadAttemptChanged value)?  adLoadAttemptChanged,TResult? Function( _AdLoadComplete value)?  adLoadComplete,TResult? Function( _SubmitUpload value)?  submitUpload,TResult? Function( _UploadProgressChanged value)?  uploadProgressChanged,}){
 final _that = this;
 switch (_that) {
 case _LoadThreads() when loadThreads != null:
 return loadThreads(_that);case _SelectThread() when selectThread != null:
 return selectThread(_that);case _LoadOpportunities() when loadOpportunities != null:
 return loadOpportunities(_that);case _SelectOpportunity() when selectOpportunity != null:
-return selectOpportunity(_that);case _StartEngagement() when startEngagement != null:
+return selectOpportunity(_that);case _SetSelectedOpportunity() when setSelectedOpportunity != null:
+return setSelectedOpportunity(_that);case _StartEngagement() when startEngagement != null:
 return startEngagement(_that);case _UpdateWatchProgress() when updateWatchProgress != null:
 return updateWatchProgress(_that);case _SubmitSurvey() when submitSurvey != null:
 return submitSurvey(_that);case _AbandonEngagement() when abandonEngagement != null:
@@ -157,10 +164,12 @@ return clearError(_that);case _ResetEngagement() when resetEngagement != null:
 return resetEngagement(_that);case _LoadAdVideo() when loadAdVideo != null:
 return loadAdVideo(_that);case _AdVideoCompleted() when adVideoCompleted != null:
 return adVideoCompleted(_that);case _AdVideoFailed() when adVideoFailed != null:
-return adVideoFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adVideoFailed(_that);case _AdShowFailed() when adShowFailed != null:
+return adShowFailed(_that);case _AdReadyStateChanged() when adReadyStateChanged != null:
 return adReadyStateChanged(_that);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
 return adLoadingStateChanged(_that);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
-return adLoadAttemptChanged(_that);case _SubmitUpload() when submitUpload != null:
+return adLoadAttemptChanged(_that);case _AdLoadComplete() when adLoadComplete != null:
+return adLoadComplete(_that);case _SubmitUpload() when submitUpload != null:
 return submitUpload(_that);case _UploadProgressChanged() when uploadProgressChanged != null:
 return uploadProgressChanged(_that);case _:
   return null;
@@ -179,13 +188,14 @@ return uploadProgressChanged(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadThreads,TResult Function( String threadId)?  selectThread,TResult Function( String threadId)?  loadOpportunities,TResult Function( String opportunityId)?  selectOpportunity,TResult Function( String opportunityId)?  startEngagement,TResult Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult Function( String engagementId)?  abandonEngagement,TResult Function( int? limit)?  loadHistory,TResult Function()?  loadMoreHistory,TResult Function()?  refresh,TResult Function()?  clearError,TResult Function()?  resetEngagement,TResult Function()?  loadAdVideo,TResult Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult Function( String reason)?  adVideoFailed,TResult Function( bool isReady)?  adReadyStateChanged,TResult Function( bool isLoading)?  adLoadingStateChanged,TResult Function( int attempt)?  adLoadAttemptChanged,TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadThreads,TResult Function( String threadId)?  selectThread,TResult Function( String threadId)?  loadOpportunities,TResult Function( String opportunityId)?  selectOpportunity,TResult Function( EarnOpportunity opportunity)?  setSelectedOpportunity,TResult Function( String opportunityId)?  startEngagement,TResult Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult Function( String engagementId)?  abandonEngagement,TResult Function( int? limit)?  loadHistory,TResult Function()?  loadMoreHistory,TResult Function()?  refresh,TResult Function()?  clearError,TResult Function()?  resetEngagement,TResult Function()?  loadAdVideo,TResult Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult Function( String reason)?  adVideoFailed,TResult Function()?  adShowFailed,TResult Function( bool isReady)?  adReadyStateChanged,TResult Function( bool isLoading)?  adLoadingStateChanged,TResult Function( int attempt)?  adLoadAttemptChanged,TResult Function( bool success)?  adLoadComplete,TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LoadThreads() when loadThreads != null:
 return loadThreads();case _SelectThread() when selectThread != null:
 return selectThread(_that.threadId);case _LoadOpportunities() when loadOpportunities != null:
 return loadOpportunities(_that.threadId);case _SelectOpportunity() when selectOpportunity != null:
-return selectOpportunity(_that.opportunityId);case _StartEngagement() when startEngagement != null:
+return selectOpportunity(_that.opportunityId);case _SetSelectedOpportunity() when setSelectedOpportunity != null:
+return setSelectedOpportunity(_that.opportunity);case _StartEngagement() when startEngagement != null:
 return startEngagement(_that.opportunityId);case _UpdateWatchProgress() when updateWatchProgress != null:
 return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey() when submitSurvey != null:
 return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement() when abandonEngagement != null:
@@ -197,10 +207,12 @@ return clearError();case _ResetEngagement() when resetEngagement != null:
 return resetEngagement();case _LoadAdVideo() when loadAdVideo != null:
 return loadAdVideo();case _AdVideoCompleted() when adVideoCompleted != null:
 return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed() when adVideoFailed != null:
-return adVideoFailed(_that.reason);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adVideoFailed(_that.reason);case _AdShowFailed() when adShowFailed != null:
+return adShowFailed();case _AdReadyStateChanged() when adReadyStateChanged != null:
 return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
 return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
-return adLoadAttemptChanged(_that.attempt);case _SubmitUpload() when submitUpload != null:
+return adLoadAttemptChanged(_that.attempt);case _AdLoadComplete() when adLoadComplete != null:
+return adLoadComplete(_that.success);case _SubmitUpload() when submitUpload != null:
 return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged() when uploadProgressChanged != null:
 return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
   return orElse();
@@ -220,13 +232,14 @@ return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBy
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadThreads,required TResult Function( String threadId)  selectThread,required TResult Function( String threadId)  loadOpportunities,required TResult Function( String opportunityId)  selectOpportunity,required TResult Function( String opportunityId)  startEngagement,required TResult Function( String engagementId,  int watchDurationSeconds)  updateWatchProgress,required TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)  submitSurvey,required TResult Function( String engagementId)  abandonEngagement,required TResult Function( int? limit)  loadHistory,required TResult Function()  loadMoreHistory,required TResult Function()  refresh,required TResult Function()  clearError,required TResult Function()  resetEngagement,required TResult Function()  loadAdVideo,required TResult Function( String transactionId,  int rewardAmount,  String? responseId)  adVideoCompleted,required TResult Function( String reason)  adVideoFailed,required TResult Function( bool isReady)  adReadyStateChanged,required TResult Function( bool isLoading)  adLoadingStateChanged,required TResult Function( int attempt)  adLoadAttemptChanged,required TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)  submitUpload,required TResult Function( double progress,  int bytesTransferred,  int totalBytes)  uploadProgressChanged,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadThreads,required TResult Function( String threadId)  selectThread,required TResult Function( String threadId)  loadOpportunities,required TResult Function( String opportunityId)  selectOpportunity,required TResult Function( EarnOpportunity opportunity)  setSelectedOpportunity,required TResult Function( String opportunityId)  startEngagement,required TResult Function( String engagementId,  int watchDurationSeconds)  updateWatchProgress,required TResult Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)  submitSurvey,required TResult Function( String engagementId)  abandonEngagement,required TResult Function( int? limit)  loadHistory,required TResult Function()  loadMoreHistory,required TResult Function()  refresh,required TResult Function()  clearError,required TResult Function()  resetEngagement,required TResult Function()  loadAdVideo,required TResult Function( String transactionId,  int rewardAmount,  String? responseId)  adVideoCompleted,required TResult Function( String reason)  adVideoFailed,required TResult Function()  adShowFailed,required TResult Function( bool isReady)  adReadyStateChanged,required TResult Function( bool isLoading)  adLoadingStateChanged,required TResult Function( int attempt)  adLoadAttemptChanged,required TResult Function( bool success)  adLoadComplete,required TResult Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)  submitUpload,required TResult Function( double progress,  int bytesTransferred,  int totalBytes)  uploadProgressChanged,}) {final _that = this;
 switch (_that) {
 case _LoadThreads():
 return loadThreads();case _SelectThread():
 return selectThread(_that.threadId);case _LoadOpportunities():
 return loadOpportunities(_that.threadId);case _SelectOpportunity():
-return selectOpportunity(_that.opportunityId);case _StartEngagement():
+return selectOpportunity(_that.opportunityId);case _SetSelectedOpportunity():
+return setSelectedOpportunity(_that.opportunity);case _StartEngagement():
 return startEngagement(_that.opportunityId);case _UpdateWatchProgress():
 return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey():
 return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement():
@@ -238,10 +251,12 @@ return clearError();case _ResetEngagement():
 return resetEngagement();case _LoadAdVideo():
 return loadAdVideo();case _AdVideoCompleted():
 return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed():
-return adVideoFailed(_that.reason);case _AdReadyStateChanged():
+return adVideoFailed(_that.reason);case _AdShowFailed():
+return adShowFailed();case _AdReadyStateChanged():
 return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged():
 return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged():
-return adLoadAttemptChanged(_that.attempt);case _SubmitUpload():
+return adLoadAttemptChanged(_that.attempt);case _AdLoadComplete():
+return adLoadComplete(_that.success);case _SubmitUpload():
 return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged():
 return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
   throw StateError('Unexpected subclass');
@@ -260,13 +275,14 @@ return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBy
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadThreads,TResult? Function( String threadId)?  selectThread,TResult? Function( String threadId)?  loadOpportunities,TResult? Function( String opportunityId)?  selectOpportunity,TResult? Function( String opportunityId)?  startEngagement,TResult? Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult? Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult? Function( String engagementId)?  abandonEngagement,TResult? Function( int? limit)?  loadHistory,TResult? Function()?  loadMoreHistory,TResult? Function()?  refresh,TResult? Function()?  clearError,TResult? Function()?  resetEngagement,TResult? Function()?  loadAdVideo,TResult? Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult? Function( String reason)?  adVideoFailed,TResult? Function( bool isReady)?  adReadyStateChanged,TResult? Function( bool isLoading)?  adLoadingStateChanged,TResult? Function( int attempt)?  adLoadAttemptChanged,TResult? Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult? Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadThreads,TResult? Function( String threadId)?  selectThread,TResult? Function( String threadId)?  loadOpportunities,TResult? Function( String opportunityId)?  selectOpportunity,TResult? Function( EarnOpportunity opportunity)?  setSelectedOpportunity,TResult? Function( String opportunityId)?  startEngagement,TResult? Function( String engagementId,  int watchDurationSeconds)?  updateWatchProgress,TResult? Function( String engagementId,  List<EngagementAnswer> answers,  EngagementEvidence evidence)?  submitSurvey,TResult? Function( String engagementId)?  abandonEngagement,TResult? Function( int? limit)?  loadHistory,TResult? Function()?  loadMoreHistory,TResult? Function()?  refresh,TResult? Function()?  clearError,TResult? Function()?  resetEngagement,TResult? Function()?  loadAdVideo,TResult? Function( String transactionId,  int rewardAmount,  String? responseId)?  adVideoCompleted,TResult? Function( String reason)?  adVideoFailed,TResult? Function()?  adShowFailed,TResult? Function( bool isReady)?  adReadyStateChanged,TResult? Function( bool isLoading)?  adLoadingStateChanged,TResult? Function( int attempt)?  adLoadAttemptChanged,TResult? Function( bool success)?  adLoadComplete,TResult? Function( String engagementId,  List<UploadedFileEvidence> uploadedFiles,  String? textResponse,  EngagementEvidence evidence)?  submitUpload,TResult? Function( double progress,  int bytesTransferred,  int totalBytes)?  uploadProgressChanged,}) {final _that = this;
 switch (_that) {
 case _LoadThreads() when loadThreads != null:
 return loadThreads();case _SelectThread() when selectThread != null:
 return selectThread(_that.threadId);case _LoadOpportunities() when loadOpportunities != null:
 return loadOpportunities(_that.threadId);case _SelectOpportunity() when selectOpportunity != null:
-return selectOpportunity(_that.opportunityId);case _StartEngagement() when startEngagement != null:
+return selectOpportunity(_that.opportunityId);case _SetSelectedOpportunity() when setSelectedOpportunity != null:
+return setSelectedOpportunity(_that.opportunity);case _StartEngagement() when startEngagement != null:
 return startEngagement(_that.opportunityId);case _UpdateWatchProgress() when updateWatchProgress != null:
 return updateWatchProgress(_that.engagementId,_that.watchDurationSeconds);case _SubmitSurvey() when submitSurvey != null:
 return submitSurvey(_that.engagementId,_that.answers,_that.evidence);case _AbandonEngagement() when abandonEngagement != null:
@@ -278,10 +294,12 @@ return clearError();case _ResetEngagement() when resetEngagement != null:
 return resetEngagement();case _LoadAdVideo() when loadAdVideo != null:
 return loadAdVideo();case _AdVideoCompleted() when adVideoCompleted != null:
 return adVideoCompleted(_that.transactionId,_that.rewardAmount,_that.responseId);case _AdVideoFailed() when adVideoFailed != null:
-return adVideoFailed(_that.reason);case _AdReadyStateChanged() when adReadyStateChanged != null:
+return adVideoFailed(_that.reason);case _AdShowFailed() when adShowFailed != null:
+return adShowFailed();case _AdReadyStateChanged() when adReadyStateChanged != null:
 return adReadyStateChanged(_that.isReady);case _AdLoadingStateChanged() when adLoadingStateChanged != null:
 return adLoadingStateChanged(_that.isLoading);case _AdLoadAttemptChanged() when adLoadAttemptChanged != null:
-return adLoadAttemptChanged(_that.attempt);case _SubmitUpload() when submitUpload != null:
+return adLoadAttemptChanged(_that.attempt);case _AdLoadComplete() when adLoadComplete != null:
+return adLoadComplete(_that.success);case _SubmitUpload() when submitUpload != null:
 return submitUpload(_that.engagementId,_that.uploadedFiles,_that.textResponse,_that.evidence);case _UploadProgressChanged() when uploadProgressChanged != null:
 return uploadProgressChanged(_that.progress,_that.bytesTransferred,_that.totalBytes);case _:
   return null;
@@ -519,6 +537,81 @@ as String,
 }
 
 
+}
+
+/// @nodoc
+
+
+class _SetSelectedOpportunity implements EarnEvent {
+  const _SetSelectedOpportunity(this.opportunity);
+  
+
+ final  EarnOpportunity opportunity;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SetSelectedOpportunityCopyWith<_SetSelectedOpportunity> get copyWith => __$SetSelectedOpportunityCopyWithImpl<_SetSelectedOpportunity>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetSelectedOpportunity&&(identical(other.opportunity, opportunity) || other.opportunity == opportunity));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,opportunity);
+
+@override
+String toString() {
+  return 'EarnEvent.setSelectedOpportunity(opportunity: $opportunity)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$SetSelectedOpportunityCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$SetSelectedOpportunityCopyWith(_SetSelectedOpportunity value, $Res Function(_SetSelectedOpportunity) _then) = __$SetSelectedOpportunityCopyWithImpl;
+@useResult
+$Res call({
+ EarnOpportunity opportunity
+});
+
+
+$EarnOpportunityCopyWith<$Res> get opportunity;
+
+}
+/// @nodoc
+class __$SetSelectedOpportunityCopyWithImpl<$Res>
+    implements _$SetSelectedOpportunityCopyWith<$Res> {
+  __$SetSelectedOpportunityCopyWithImpl(this._self, this._then);
+
+  final _SetSelectedOpportunity _self;
+  final $Res Function(_SetSelectedOpportunity) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? opportunity = null,}) {
+  return _then(_SetSelectedOpportunity(
+null == opportunity ? _self.opportunity : opportunity // ignore: cast_nullable_to_non_nullable
+as EarnOpportunity,
+  ));
+}
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$EarnOpportunityCopyWith<$Res> get opportunity {
+  
+  return $EarnOpportunityCopyWith<$Res>(_self.opportunity, (value) {
+    return _then(_self.copyWith(opportunity: value));
+  });
+}
 }
 
 /// @nodoc
@@ -1171,6 +1264,38 @@ as String,
 /// @nodoc
 
 
+class _AdShowFailed implements EarnEvent {
+  const _AdShowFailed();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdShowFailed);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'EarnEvent.adShowFailed()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
 class _AdReadyStateChanged implements EarnEvent {
   const _AdReadyStateChanged({required this.isReady});
   
@@ -1369,6 +1494,72 @@ as int,
 /// @nodoc
 
 
+class _AdLoadComplete implements EarnEvent {
+  const _AdLoadComplete({required this.success});
+  
+
+ final  bool success;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdLoadCompleteCopyWith<_AdLoadComplete> get copyWith => __$AdLoadCompleteCopyWithImpl<_AdLoadComplete>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdLoadComplete&&(identical(other.success, success) || other.success == success));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,success);
+
+@override
+String toString() {
+  return 'EarnEvent.adLoadComplete(success: $success)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdLoadCompleteCopyWith<$Res> implements $EarnEventCopyWith<$Res> {
+  factory _$AdLoadCompleteCopyWith(_AdLoadComplete value, $Res Function(_AdLoadComplete) _then) = __$AdLoadCompleteCopyWithImpl;
+@useResult
+$Res call({
+ bool success
+});
+
+
+
+
+}
+/// @nodoc
+class __$AdLoadCompleteCopyWithImpl<$Res>
+    implements _$AdLoadCompleteCopyWith<$Res> {
+  __$AdLoadCompleteCopyWithImpl(this._self, this._then);
+
+  final _AdLoadComplete _self;
+  final $Res Function(_AdLoadComplete) _then;
+
+/// Create a copy of EarnEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? success = null,}) {
+  return _then(_AdLoadComplete(
+success: null == success ? _self.success : success // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class _SubmitUpload implements EarnEvent {
   const _SubmitUpload({required this.engagementId, required final  List<UploadedFileEvidence> uploadedFiles, this.textResponse, required this.evidence}): _uploadedFiles = uploadedFiles;
   
@@ -1531,7 +1722,9 @@ mixin _$EarnState {
  bool get isAdLoading; bool get isAdReady; String? get adTransactionId;/// AdMob response ID — uniquely identifies the ad impression for debugging
  String? get adResponseId;/// Current load attempt (1-based) shown during loading; 0 when idle
  int get adLoadAttempt;/// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
- int get adRetryRound;// Upload progress
+ int get adRetryRound;/// Consecutive show failures — ad SDK said loaded but play failed.
+/// Reset to 0 on successful completion or engagement reset.
+ int get adShowFailureCount;// Upload progress
  double? get uploadProgress; int? get uploadBytesTransferred; int? get uploadTotalBytes;/// Whether the completed engagement is pending admin review
  bool get isPendingReview;// Reward allocation state (set after engagement completion)
  String? get rewardItemId; String? get rewardCampaignName; String? get rewardType;
@@ -1545,16 +1738,16 @@ $EarnStateCopyWith<EarnState> get copyWith => _$EarnStateCopyWithImpl<EarnState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.threads, threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other.opportunities, opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other.history, history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.threads, threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other.opportunities, opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other.history, history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.adShowFailureCount, adShowFailureCount) || other.adShowFailureCount == adShowFailureCount)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,adShowFailureCount,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
 
 @override
 String toString() {
-  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, adShowFailureCount: $adShowFailureCount, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
 }
 
 
@@ -1565,7 +1758,7 @@ abstract mixin class $EarnStateCopyWith<$Res>  {
   factory $EarnStateCopyWith(EarnState value, $Res Function(EarnState) _then) = _$EarnStateCopyWithImpl;
 @useResult
 $Res call({
- EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
+ EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, int adShowFailureCount, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
 });
 
 
@@ -1582,7 +1775,7 @@ class _$EarnStateCopyWithImpl<$Res>
 
 /// Create a copy of EarnState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? adShowFailureCount = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EarnStatus,threads: null == threads ? _self.threads : threads // ignore: cast_nullable_to_non_nullable
@@ -1607,6 +1800,7 @@ as bool,adTransactionId: freezed == adTransactionId ? _self.adTransactionId : ad
 as String?,adResponseId: freezed == adResponseId ? _self.adResponseId : adResponseId // ignore: cast_nullable_to_non_nullable
 as String?,adLoadAttempt: null == adLoadAttempt ? _self.adLoadAttempt : adLoadAttempt // ignore: cast_nullable_to_non_nullable
 as int,adRetryRound: null == adRetryRound ? _self.adRetryRound : adRetryRound // ignore: cast_nullable_to_non_nullable
+as int,adShowFailureCount: null == adShowFailureCount ? _self.adShowFailureCount : adShowFailureCount // ignore: cast_nullable_to_non_nullable
 as int,uploadProgress: freezed == uploadProgress ? _self.uploadProgress : uploadProgress // ignore: cast_nullable_to_non_nullable
 as double?,uploadBytesTransferred: freezed == uploadBytesTransferred ? _self.uploadBytesTransferred : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
 as int?,uploadTotalBytes: freezed == uploadTotalBytes ? _self.uploadTotalBytes : uploadTotalBytes // ignore: cast_nullable_to_non_nullable
@@ -1735,10 +1929,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  int adShowFailureCount,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EarnState() when $default != null:
-return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.adShowFailureCount,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
   return orElse();
 
 }
@@ -1756,10 +1950,10 @@ return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunit
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  int adShowFailureCount,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)  $default,) {final _that = this;
 switch (_that) {
 case _EarnState():
-return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.adShowFailureCount,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1776,10 +1970,10 @@ return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunit
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( EarnStatus status,  List<EarnThread> threads,  EarnThread? selectedThread,  EarnStatus opportunitiesStatus,  List<EarnOpportunity> opportunities,  EarnOpportunity? selectedOpportunity,  Engagement? currentEngagement,  EngagementPhase engagementPhase,  List<Engagement> history,  bool isLoadingHistory,  bool hasMoreHistory,  DateTime? lastHistoryTimestamp,  String? errorMessage,  int totalAvailableOpportunities,  int dailyCompletions,  int dailyEarnCap,  bool dailyLimitReached,  bool isAdLoading,  bool isAdReady,  String? adTransactionId,  String? adResponseId,  int adLoadAttempt,  int adRetryRound,  int adShowFailureCount,  double? uploadProgress,  int? uploadBytesTransferred,  int? uploadTotalBytes,  bool isPendingReview,  String? rewardItemId,  String? rewardCampaignName,  String? rewardType)?  $default,) {final _that = this;
 switch (_that) {
 case _EarnState() when $default != null:
-return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
+return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunitiesStatus,_that.opportunities,_that.selectedOpportunity,_that.currentEngagement,_that.engagementPhase,_that.history,_that.isLoadingHistory,_that.hasMoreHistory,_that.lastHistoryTimestamp,_that.errorMessage,_that.totalAvailableOpportunities,_that.dailyCompletions,_that.dailyEarnCap,_that.dailyLimitReached,_that.isAdLoading,_that.isAdReady,_that.adTransactionId,_that.adResponseId,_that.adLoadAttempt,_that.adRetryRound,_that.adShowFailureCount,_that.uploadProgress,_that.uploadBytesTransferred,_that.uploadTotalBytes,_that.isPendingReview,_that.rewardItemId,_that.rewardCampaignName,_that.rewardType);case _:
   return null;
 
 }
@@ -1791,7 +1985,7 @@ return $default(_that.status,_that.threads,_that.selectedThread,_that.opportunit
 
 
 class _EarnState extends EarnState {
-  const _EarnState({this.status = EarnStatus.initial, final  List<EarnThread> threads = const [], this.selectedThread, this.opportunitiesStatus = EarnStatus.initial, final  List<EarnOpportunity> opportunities = const [], this.selectedOpportunity, this.currentEngagement, this.engagementPhase = EngagementPhase.idle, final  List<Engagement> history = const [], this.isLoadingHistory = false, this.hasMoreHistory = false, this.lastHistoryTimestamp, this.errorMessage, this.totalAvailableOpportunities = 0, this.dailyCompletions = 0, this.dailyEarnCap = 30, this.dailyLimitReached = false, this.isAdLoading = false, this.isAdReady = false, this.adTransactionId, this.adResponseId, this.adLoadAttempt = 0, this.adRetryRound = 0, this.uploadProgress, this.uploadBytesTransferred, this.uploadTotalBytes, this.isPendingReview = false, this.rewardItemId, this.rewardCampaignName, this.rewardType}): _threads = threads,_opportunities = opportunities,_history = history,super._();
+  const _EarnState({this.status = EarnStatus.initial, final  List<EarnThread> threads = const [], this.selectedThread, this.opportunitiesStatus = EarnStatus.initial, final  List<EarnOpportunity> opportunities = const [], this.selectedOpportunity, this.currentEngagement, this.engagementPhase = EngagementPhase.idle, final  List<Engagement> history = const [], this.isLoadingHistory = false, this.hasMoreHistory = false, this.lastHistoryTimestamp, this.errorMessage, this.totalAvailableOpportunities = 0, this.dailyCompletions = 0, this.dailyEarnCap = 30, this.dailyLimitReached = false, this.isAdLoading = false, this.isAdReady = false, this.adTransactionId, this.adResponseId, this.adLoadAttempt = 0, this.adRetryRound = 0, this.adShowFailureCount = 0, this.uploadProgress, this.uploadBytesTransferred, this.uploadTotalBytes, this.isPendingReview = false, this.rewardItemId, this.rewardCampaignName, this.rewardType}): _threads = threads,_opportunities = opportunities,_history = history,super._();
   
 
 @override@JsonKey() final  EarnStatus status;
@@ -1840,6 +2034,9 @@ class _EarnState extends EarnState {
 @override@JsonKey() final  int adLoadAttempt;
 /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
 @override@JsonKey() final  int adRetryRound;
+/// Consecutive show failures — ad SDK said loaded but play failed.
+/// Reset to 0 on successful completion or engagement reset.
+@override@JsonKey() final  int adShowFailureCount;
 // Upload progress
 @override final  double? uploadProgress;
 @override final  int? uploadBytesTransferred;
@@ -1861,16 +2058,16 @@ _$EarnStateCopyWith<_EarnState> get copyWith => __$EarnStateCopyWithImpl<_EarnSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._threads, _threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other._opportunities, _opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other._history, _history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EarnState&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other._threads, _threads)&&(identical(other.selectedThread, selectedThread) || other.selectedThread == selectedThread)&&(identical(other.opportunitiesStatus, opportunitiesStatus) || other.opportunitiesStatus == opportunitiesStatus)&&const DeepCollectionEquality().equals(other._opportunities, _opportunities)&&(identical(other.selectedOpportunity, selectedOpportunity) || other.selectedOpportunity == selectedOpportunity)&&(identical(other.currentEngagement, currentEngagement) || other.currentEngagement == currentEngagement)&&(identical(other.engagementPhase, engagementPhase) || other.engagementPhase == engagementPhase)&&const DeepCollectionEquality().equals(other._history, _history)&&(identical(other.isLoadingHistory, isLoadingHistory) || other.isLoadingHistory == isLoadingHistory)&&(identical(other.hasMoreHistory, hasMoreHistory) || other.hasMoreHistory == hasMoreHistory)&&(identical(other.lastHistoryTimestamp, lastHistoryTimestamp) || other.lastHistoryTimestamp == lastHistoryTimestamp)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.totalAvailableOpportunities, totalAvailableOpportunities) || other.totalAvailableOpportunities == totalAvailableOpportunities)&&(identical(other.dailyCompletions, dailyCompletions) || other.dailyCompletions == dailyCompletions)&&(identical(other.dailyEarnCap, dailyEarnCap) || other.dailyEarnCap == dailyEarnCap)&&(identical(other.dailyLimitReached, dailyLimitReached) || other.dailyLimitReached == dailyLimitReached)&&(identical(other.isAdLoading, isAdLoading) || other.isAdLoading == isAdLoading)&&(identical(other.isAdReady, isAdReady) || other.isAdReady == isAdReady)&&(identical(other.adTransactionId, adTransactionId) || other.adTransactionId == adTransactionId)&&(identical(other.adResponseId, adResponseId) || other.adResponseId == adResponseId)&&(identical(other.adLoadAttempt, adLoadAttempt) || other.adLoadAttempt == adLoadAttempt)&&(identical(other.adRetryRound, adRetryRound) || other.adRetryRound == adRetryRound)&&(identical(other.adShowFailureCount, adShowFailureCount) || other.adShowFailureCount == adShowFailureCount)&&(identical(other.uploadProgress, uploadProgress) || other.uploadProgress == uploadProgress)&&(identical(other.uploadBytesTransferred, uploadBytesTransferred) || other.uploadBytesTransferred == uploadBytesTransferred)&&(identical(other.uploadTotalBytes, uploadTotalBytes) || other.uploadTotalBytes == uploadTotalBytes)&&(identical(other.isPendingReview, isPendingReview) || other.isPendingReview == isPendingReview)&&(identical(other.rewardItemId, rewardItemId) || other.rewardItemId == rewardItemId)&&(identical(other.rewardCampaignName, rewardCampaignName) || other.rewardCampaignName == rewardCampaignName)&&(identical(other.rewardType, rewardType) || other.rewardType == rewardType));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(_threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(_opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(_history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
+int get hashCode => Object.hashAll([runtimeType,status,const DeepCollectionEquality().hash(_threads),selectedThread,opportunitiesStatus,const DeepCollectionEquality().hash(_opportunities),selectedOpportunity,currentEngagement,engagementPhase,const DeepCollectionEquality().hash(_history),isLoadingHistory,hasMoreHistory,lastHistoryTimestamp,errorMessage,totalAvailableOpportunities,dailyCompletions,dailyEarnCap,dailyLimitReached,isAdLoading,isAdReady,adTransactionId,adResponseId,adLoadAttempt,adRetryRound,adShowFailureCount,uploadProgress,uploadBytesTransferred,uploadTotalBytes,isPendingReview,rewardItemId,rewardCampaignName,rewardType]);
 
 @override
 String toString() {
-  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
+  return 'EarnState(status: $status, threads: $threads, selectedThread: $selectedThread, opportunitiesStatus: $opportunitiesStatus, opportunities: $opportunities, selectedOpportunity: $selectedOpportunity, currentEngagement: $currentEngagement, engagementPhase: $engagementPhase, history: $history, isLoadingHistory: $isLoadingHistory, hasMoreHistory: $hasMoreHistory, lastHistoryTimestamp: $lastHistoryTimestamp, errorMessage: $errorMessage, totalAvailableOpportunities: $totalAvailableOpportunities, dailyCompletions: $dailyCompletions, dailyEarnCap: $dailyEarnCap, dailyLimitReached: $dailyLimitReached, isAdLoading: $isAdLoading, isAdReady: $isAdReady, adTransactionId: $adTransactionId, adResponseId: $adResponseId, adLoadAttempt: $adLoadAttempt, adRetryRound: $adRetryRound, adShowFailureCount: $adShowFailureCount, uploadProgress: $uploadProgress, uploadBytesTransferred: $uploadBytesTransferred, uploadTotalBytes: $uploadTotalBytes, isPendingReview: $isPendingReview, rewardItemId: $rewardItemId, rewardCampaignName: $rewardCampaignName, rewardType: $rewardType)';
 }
 
 
@@ -1881,7 +2078,7 @@ abstract mixin class _$EarnStateCopyWith<$Res> implements $EarnStateCopyWith<$Re
   factory _$EarnStateCopyWith(_EarnState value, $Res Function(_EarnState) _then) = __$EarnStateCopyWithImpl;
 @override @useResult
 $Res call({
- EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
+ EarnStatus status, List<EarnThread> threads, EarnThread? selectedThread, EarnStatus opportunitiesStatus, List<EarnOpportunity> opportunities, EarnOpportunity? selectedOpportunity, Engagement? currentEngagement, EngagementPhase engagementPhase, List<Engagement> history, bool isLoadingHistory, bool hasMoreHistory, DateTime? lastHistoryTimestamp, String? errorMessage, int totalAvailableOpportunities, int dailyCompletions, int dailyEarnCap, bool dailyLimitReached, bool isAdLoading, bool isAdReady, String? adTransactionId, String? adResponseId, int adLoadAttempt, int adRetryRound, int adShowFailureCount, double? uploadProgress, int? uploadBytesTransferred, int? uploadTotalBytes, bool isPendingReview, String? rewardItemId, String? rewardCampaignName, String? rewardType
 });
 
 
@@ -1898,7 +2095,7 @@ class __$EarnStateCopyWithImpl<$Res>
 
 /// Create a copy of EarnState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? threads = null,Object? selectedThread = freezed,Object? opportunitiesStatus = null,Object? opportunities = null,Object? selectedOpportunity = freezed,Object? currentEngagement = freezed,Object? engagementPhase = null,Object? history = null,Object? isLoadingHistory = null,Object? hasMoreHistory = null,Object? lastHistoryTimestamp = freezed,Object? errorMessage = freezed,Object? totalAvailableOpportunities = null,Object? dailyCompletions = null,Object? dailyEarnCap = null,Object? dailyLimitReached = null,Object? isAdLoading = null,Object? isAdReady = null,Object? adTransactionId = freezed,Object? adResponseId = freezed,Object? adLoadAttempt = null,Object? adRetryRound = null,Object? adShowFailureCount = null,Object? uploadProgress = freezed,Object? uploadBytesTransferred = freezed,Object? uploadTotalBytes = freezed,Object? isPendingReview = null,Object? rewardItemId = freezed,Object? rewardCampaignName = freezed,Object? rewardType = freezed,}) {
   return _then(_EarnState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as EarnStatus,threads: null == threads ? _self._threads : threads // ignore: cast_nullable_to_non_nullable
@@ -1923,6 +2120,7 @@ as bool,adTransactionId: freezed == adTransactionId ? _self.adTransactionId : ad
 as String?,adResponseId: freezed == adResponseId ? _self.adResponseId : adResponseId // ignore: cast_nullable_to_non_nullable
 as String?,adLoadAttempt: null == adLoadAttempt ? _self.adLoadAttempt : adLoadAttempt // ignore: cast_nullable_to_non_nullable
 as int,adRetryRound: null == adRetryRound ? _self.adRetryRound : adRetryRound // ignore: cast_nullable_to_non_nullable
+as int,adShowFailureCount: null == adShowFailureCount ? _self.adShowFailureCount : adShowFailureCount // ignore: cast_nullable_to_non_nullable
 as int,uploadProgress: freezed == uploadProgress ? _self.uploadProgress : uploadProgress // ignore: cast_nullable_to_non_nullable
 as double?,uploadBytesTransferred: freezed == uploadBytesTransferred ? _self.uploadBytesTransferred : uploadBytesTransferred // ignore: cast_nullable_to_non_nullable
 as int?,uploadTotalBytes: freezed == uploadTotalBytes ? _self.uploadTotalBytes : uploadTotalBytes // ignore: cast_nullable_to_non_nullable

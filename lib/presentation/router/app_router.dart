@@ -141,7 +141,6 @@ import '../screens/onboarding/onboarding_name_screen.dart';
 // import '../screens/onboarding/onboarding_settings_screen.dart';
 // import '../screens/onboarding/permissions_screen.dart';
 import '../screens/onboarding/profile_picture_screen.dart';
-import '../screens/onboarding/onboarding_success_screen.dart';
 import '../screens/onboarding/pin_setup_screen.dart';
 import '../screens/onboarding/profile_setup_screen.dart';
 // Note: TermsScreen import removed - terms acceptance now on age consent screen
@@ -343,11 +342,6 @@ class AppRouter {
       //   name: 'onboardingSettings',
       //   builder: (context, state) => const OnboardingSettingsScreen(),
       // ),
-      GoRoute(
-        path: '/onboarding/success',
-        name: 'onboardingSuccess',
-        builder: (context, state) => const OnboardingSuccessScreen(),
-      ),
       GoRoute(
         path: '/onboarding/profile',
         name: 'profileSetup',
@@ -1541,11 +1535,9 @@ class AppRouter {
       // If authenticated and on auth/onboarding pages, go to the last active
       // tab (or home by default). This restores the correct tab after Android
       // process death instead of always landing on Home.
-      // Exceptions: step-up OTP and onboarding success (shown before redirect)
-      final isOnOnboardingSuccess = currentPath == '/onboarding/success';
+      // Exception: step-up OTP (shown before redirect)
       if (isAuthenticated &&
           !isOnStepUpOtp &&
-          !isOnOnboardingSuccess &&
           (isOnAuth || isOnOnboarding || isOnSplash)) {
         final savedTab = getIt<SharedPreferences>()
             .getInt(MainShell.lastTabKey);

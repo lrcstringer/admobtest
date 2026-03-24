@@ -287,12 +287,22 @@ as String?,
 /// @nodoc
 mixin _$Poll {
 
- String get id; String get opportunityId; String get threadId; String get clientId; String get question; List<PollOption> get options; PollStatus get status; bool get isAnonymous; bool get allowChangeVote;// Multi-select support
+ String get id; String get opportunityId; String get threadId; String get clientId; String get question; List<PollOption> get options; PollStatus get status;// Question type — determines UI, validation, and aggregation
+ PollQuestionType get questionType; bool get isAnonymous; bool get allowChangeVote;// Multi-select support (multipleChoice only)
  bool get allowMultipleSelections; int? get maxSelections;// Poll expiry/deadline (stored as UTC)
  DateTime? get closesAt;// Minimum responses before results are visible (for afterThreshold)
  int? get minResponsesForResults;// Result visibility control (replaces showResultsAfterVote)
  ResultVisibility get resultVisibility;// "Other" free-text option
- bool get allowOtherOption; DateTime? get openedAt; DateTime? get closedAt; int get totalRespondents; Map<String, int> get optionCounts; DateTime get createdAt; DateTime? get updatedAt; String get createdBy;// Legacy field — kept for backward compat reads, not used for new logic
+ bool get allowOtherOption; DateTime? get openedAt; DateTime? get closedAt; int get totalRespondents; Map<String, int> get optionCounts; DateTime get createdAt; DateTime? get updatedAt; String get createdBy;// --- Scale question config ---
+ int get scaleMin; int get scaleMax; String? get scaleMinLabel;// e.g. "Extremely unlikely"
+ String? get scaleMaxLabel;// e.g. "Extremely likely"
+ List<String> get scaleIntermediateLabels;// optional labels for each position
+// --- Text question config ---
+ int get textMinLength; int get textMaxLength;// --- Type-specific aggregation ---
+ Map<String, double> get averageRanks;// ranking: optionId → avg rank
+ Map<String, double> get averageRatings;// scale: optionId → avg rating
+ Map<String, Map<String, int>> get ratingDistribution;// scale: optionId → {ratingValue → count}
+// Legacy field — kept for backward compat reads, not used for new logic
  bool get showResultsAfterVote;
 /// Create a copy of Poll
 /// with the given fields replaced by the non-null parameter values.
@@ -306,16 +316,16 @@ $PollCopyWith<Poll> get copyWith => _$PollCopyWithImpl<Poll>(this as Poll, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Poll&&(identical(other.id, id) || other.id == id)&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other.options, options)&&(identical(other.status, status) || other.status == status)&&(identical(other.isAnonymous, isAnonymous) || other.isAnonymous == isAnonymous)&&(identical(other.allowChangeVote, allowChangeVote) || other.allowChangeVote == allowChangeVote)&&(identical(other.allowMultipleSelections, allowMultipleSelections) || other.allowMultipleSelections == allowMultipleSelections)&&(identical(other.maxSelections, maxSelections) || other.maxSelections == maxSelections)&&(identical(other.closesAt, closesAt) || other.closesAt == closesAt)&&(identical(other.minResponsesForResults, minResponsesForResults) || other.minResponsesForResults == minResponsesForResults)&&(identical(other.resultVisibility, resultVisibility) || other.resultVisibility == resultVisibility)&&(identical(other.allowOtherOption, allowOtherOption) || other.allowOtherOption == allowOtherOption)&&(identical(other.openedAt, openedAt) || other.openedAt == openedAt)&&(identical(other.closedAt, closedAt) || other.closedAt == closedAt)&&(identical(other.totalRespondents, totalRespondents) || other.totalRespondents == totalRespondents)&&const DeepCollectionEquality().equals(other.optionCounts, optionCounts)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.showResultsAfterVote, showResultsAfterVote) || other.showResultsAfterVote == showResultsAfterVote));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Poll&&(identical(other.id, id) || other.id == id)&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other.options, options)&&(identical(other.status, status) || other.status == status)&&(identical(other.questionType, questionType) || other.questionType == questionType)&&(identical(other.isAnonymous, isAnonymous) || other.isAnonymous == isAnonymous)&&(identical(other.allowChangeVote, allowChangeVote) || other.allowChangeVote == allowChangeVote)&&(identical(other.allowMultipleSelections, allowMultipleSelections) || other.allowMultipleSelections == allowMultipleSelections)&&(identical(other.maxSelections, maxSelections) || other.maxSelections == maxSelections)&&(identical(other.closesAt, closesAt) || other.closesAt == closesAt)&&(identical(other.minResponsesForResults, minResponsesForResults) || other.minResponsesForResults == minResponsesForResults)&&(identical(other.resultVisibility, resultVisibility) || other.resultVisibility == resultVisibility)&&(identical(other.allowOtherOption, allowOtherOption) || other.allowOtherOption == allowOtherOption)&&(identical(other.openedAt, openedAt) || other.openedAt == openedAt)&&(identical(other.closedAt, closedAt) || other.closedAt == closedAt)&&(identical(other.totalRespondents, totalRespondents) || other.totalRespondents == totalRespondents)&&const DeepCollectionEquality().equals(other.optionCounts, optionCounts)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.scaleMin, scaleMin) || other.scaleMin == scaleMin)&&(identical(other.scaleMax, scaleMax) || other.scaleMax == scaleMax)&&(identical(other.scaleMinLabel, scaleMinLabel) || other.scaleMinLabel == scaleMinLabel)&&(identical(other.scaleMaxLabel, scaleMaxLabel) || other.scaleMaxLabel == scaleMaxLabel)&&const DeepCollectionEquality().equals(other.scaleIntermediateLabels, scaleIntermediateLabels)&&(identical(other.textMinLength, textMinLength) || other.textMinLength == textMinLength)&&(identical(other.textMaxLength, textMaxLength) || other.textMaxLength == textMaxLength)&&const DeepCollectionEquality().equals(other.averageRanks, averageRanks)&&const DeepCollectionEquality().equals(other.averageRatings, averageRatings)&&const DeepCollectionEquality().equals(other.ratingDistribution, ratingDistribution)&&(identical(other.showResultsAfterVote, showResultsAfterVote) || other.showResultsAfterVote == showResultsAfterVote));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,opportunityId,threadId,clientId,question,const DeepCollectionEquality().hash(options),status,isAnonymous,allowChangeVote,allowMultipleSelections,maxSelections,closesAt,minResponsesForResults,resultVisibility,allowOtherOption,openedAt,closedAt,totalRespondents,const DeepCollectionEquality().hash(optionCounts),createdAt,updatedAt,createdBy,showResultsAfterVote]);
+int get hashCode => Object.hashAll([runtimeType,id,opportunityId,threadId,clientId,question,const DeepCollectionEquality().hash(options),status,questionType,isAnonymous,allowChangeVote,allowMultipleSelections,maxSelections,closesAt,minResponsesForResults,resultVisibility,allowOtherOption,openedAt,closedAt,totalRespondents,const DeepCollectionEquality().hash(optionCounts),createdAt,updatedAt,createdBy,scaleMin,scaleMax,scaleMinLabel,scaleMaxLabel,const DeepCollectionEquality().hash(scaleIntermediateLabels),textMinLength,textMaxLength,const DeepCollectionEquality().hash(averageRanks),const DeepCollectionEquality().hash(averageRatings),const DeepCollectionEquality().hash(ratingDistribution),showResultsAfterVote]);
 
 @override
 String toString() {
-  return 'Poll(id: $id, opportunityId: $opportunityId, threadId: $threadId, clientId: $clientId, question: $question, options: $options, status: $status, isAnonymous: $isAnonymous, allowChangeVote: $allowChangeVote, allowMultipleSelections: $allowMultipleSelections, maxSelections: $maxSelections, closesAt: $closesAt, minResponsesForResults: $minResponsesForResults, resultVisibility: $resultVisibility, allowOtherOption: $allowOtherOption, openedAt: $openedAt, closedAt: $closedAt, totalRespondents: $totalRespondents, optionCounts: $optionCounts, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, showResultsAfterVote: $showResultsAfterVote)';
+  return 'Poll(id: $id, opportunityId: $opportunityId, threadId: $threadId, clientId: $clientId, question: $question, options: $options, status: $status, questionType: $questionType, isAnonymous: $isAnonymous, allowChangeVote: $allowChangeVote, allowMultipleSelections: $allowMultipleSelections, maxSelections: $maxSelections, closesAt: $closesAt, minResponsesForResults: $minResponsesForResults, resultVisibility: $resultVisibility, allowOtherOption: $allowOtherOption, openedAt: $openedAt, closedAt: $closedAt, totalRespondents: $totalRespondents, optionCounts: $optionCounts, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, scaleMin: $scaleMin, scaleMax: $scaleMax, scaleMinLabel: $scaleMinLabel, scaleMaxLabel: $scaleMaxLabel, scaleIntermediateLabels: $scaleIntermediateLabels, textMinLength: $textMinLength, textMaxLength: $textMaxLength, averageRanks: $averageRanks, averageRatings: $averageRatings, ratingDistribution: $ratingDistribution, showResultsAfterVote: $showResultsAfterVote)';
 }
 
 
@@ -326,7 +336,7 @@ abstract mixin class $PollCopyWith<$Res>  {
   factory $PollCopyWith(Poll value, $Res Function(Poll) _then) = _$PollCopyWithImpl;
 @useResult
 $Res call({
- String id, String opportunityId, String threadId, String clientId, String question, List<PollOption> options, PollStatus status, bool isAnonymous, bool allowChangeVote, bool allowMultipleSelections, int? maxSelections, DateTime? closesAt, int? minResponsesForResults, ResultVisibility resultVisibility, bool allowOtherOption, DateTime? openedAt, DateTime? closedAt, int totalRespondents, Map<String, int> optionCounts, DateTime createdAt, DateTime? updatedAt, String createdBy, bool showResultsAfterVote
+ String id, String opportunityId, String threadId, String clientId, String question, List<PollOption> options, PollStatus status, PollQuestionType questionType, bool isAnonymous, bool allowChangeVote, bool allowMultipleSelections, int? maxSelections, DateTime? closesAt, int? minResponsesForResults, ResultVisibility resultVisibility, bool allowOtherOption, DateTime? openedAt, DateTime? closedAt, int totalRespondents, Map<String, int> optionCounts, DateTime createdAt, DateTime? updatedAt, String createdBy, int scaleMin, int scaleMax, String? scaleMinLabel, String? scaleMaxLabel, List<String> scaleIntermediateLabels, int textMinLength, int textMaxLength, Map<String, double> averageRanks, Map<String, double> averageRatings, Map<String, Map<String, int>> ratingDistribution, bool showResultsAfterVote
 });
 
 
@@ -343,7 +353,7 @@ class _$PollCopyWithImpl<$Res>
 
 /// Create a copy of Poll
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? opportunityId = null,Object? threadId = null,Object? clientId = null,Object? question = null,Object? options = null,Object? status = null,Object? isAnonymous = null,Object? allowChangeVote = null,Object? allowMultipleSelections = null,Object? maxSelections = freezed,Object? closesAt = freezed,Object? minResponsesForResults = freezed,Object? resultVisibility = null,Object? allowOtherOption = null,Object? openedAt = freezed,Object? closedAt = freezed,Object? totalRespondents = null,Object? optionCounts = null,Object? createdAt = null,Object? updatedAt = freezed,Object? createdBy = null,Object? showResultsAfterVote = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? opportunityId = null,Object? threadId = null,Object? clientId = null,Object? question = null,Object? options = null,Object? status = null,Object? questionType = null,Object? isAnonymous = null,Object? allowChangeVote = null,Object? allowMultipleSelections = null,Object? maxSelections = freezed,Object? closesAt = freezed,Object? minResponsesForResults = freezed,Object? resultVisibility = null,Object? allowOtherOption = null,Object? openedAt = freezed,Object? closedAt = freezed,Object? totalRespondents = null,Object? optionCounts = null,Object? createdAt = null,Object? updatedAt = freezed,Object? createdBy = null,Object? scaleMin = null,Object? scaleMax = null,Object? scaleMinLabel = freezed,Object? scaleMaxLabel = freezed,Object? scaleIntermediateLabels = null,Object? textMinLength = null,Object? textMaxLength = null,Object? averageRanks = null,Object? averageRatings = null,Object? ratingDistribution = null,Object? showResultsAfterVote = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,opportunityId: null == opportunityId ? _self.opportunityId : opportunityId // ignore: cast_nullable_to_non_nullable
@@ -352,7 +362,8 @@ as String,clientId: null == clientId ? _self.clientId : clientId // ignore: cast
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,options: null == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
 as List<PollOption>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as PollStatus,isAnonymous: null == isAnonymous ? _self.isAnonymous : isAnonymous // ignore: cast_nullable_to_non_nullable
+as PollStatus,questionType: null == questionType ? _self.questionType : questionType // ignore: cast_nullable_to_non_nullable
+as PollQuestionType,isAnonymous: null == isAnonymous ? _self.isAnonymous : isAnonymous // ignore: cast_nullable_to_non_nullable
 as bool,allowChangeVote: null == allowChangeVote ? _self.allowChangeVote : allowChangeVote // ignore: cast_nullable_to_non_nullable
 as bool,allowMultipleSelections: null == allowMultipleSelections ? _self.allowMultipleSelections : allowMultipleSelections // ignore: cast_nullable_to_non_nullable
 as bool,maxSelections: freezed == maxSelections ? _self.maxSelections : maxSelections // ignore: cast_nullable_to_non_nullable
@@ -367,7 +378,17 @@ as int,optionCounts: null == optionCounts ? _self.optionCounts : optionCounts //
 as Map<String, int>,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as String,showResultsAfterVote: null == showResultsAfterVote ? _self.showResultsAfterVote : showResultsAfterVote // ignore: cast_nullable_to_non_nullable
+as String,scaleMin: null == scaleMin ? _self.scaleMin : scaleMin // ignore: cast_nullable_to_non_nullable
+as int,scaleMax: null == scaleMax ? _self.scaleMax : scaleMax // ignore: cast_nullable_to_non_nullable
+as int,scaleMinLabel: freezed == scaleMinLabel ? _self.scaleMinLabel : scaleMinLabel // ignore: cast_nullable_to_non_nullable
+as String?,scaleMaxLabel: freezed == scaleMaxLabel ? _self.scaleMaxLabel : scaleMaxLabel // ignore: cast_nullable_to_non_nullable
+as String?,scaleIntermediateLabels: null == scaleIntermediateLabels ? _self.scaleIntermediateLabels : scaleIntermediateLabels // ignore: cast_nullable_to_non_nullable
+as List<String>,textMinLength: null == textMinLength ? _self.textMinLength : textMinLength // ignore: cast_nullable_to_non_nullable
+as int,textMaxLength: null == textMaxLength ? _self.textMaxLength : textMaxLength // ignore: cast_nullable_to_non_nullable
+as int,averageRanks: null == averageRanks ? _self.averageRanks : averageRanks // ignore: cast_nullable_to_non_nullable
+as Map<String, double>,averageRatings: null == averageRatings ? _self.averageRatings : averageRatings // ignore: cast_nullable_to_non_nullable
+as Map<String, double>,ratingDistribution: null == ratingDistribution ? _self.ratingDistribution : ratingDistribution // ignore: cast_nullable_to_non_nullable
+as Map<String, Map<String, int>>,showResultsAfterVote: null == showResultsAfterVote ? _self.showResultsAfterVote : showResultsAfterVote // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -453,10 +474,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  bool showResultsAfterVote)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  PollQuestionType questionType,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  int scaleMin,  int scaleMax,  String? scaleMinLabel,  String? scaleMaxLabel,  List<String> scaleIntermediateLabels,  int textMinLength,  int textMaxLength,  Map<String, double> averageRanks,  Map<String, double> averageRatings,  Map<String, Map<String, int>> ratingDistribution,  bool showResultsAfterVote)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Poll() when $default != null:
-return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.showResultsAfterVote);case _:
+return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.questionType,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.scaleMin,_that.scaleMax,_that.scaleMinLabel,_that.scaleMaxLabel,_that.scaleIntermediateLabels,_that.textMinLength,_that.textMaxLength,_that.averageRanks,_that.averageRatings,_that.ratingDistribution,_that.showResultsAfterVote);case _:
   return orElse();
 
 }
@@ -474,10 +495,10 @@ return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  bool showResultsAfterVote)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  PollQuestionType questionType,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  int scaleMin,  int scaleMax,  String? scaleMinLabel,  String? scaleMaxLabel,  List<String> scaleIntermediateLabels,  int textMinLength,  int textMaxLength,  Map<String, double> averageRanks,  Map<String, double> averageRatings,  Map<String, Map<String, int>> ratingDistribution,  bool showResultsAfterVote)  $default,) {final _that = this;
 switch (_that) {
 case _Poll():
-return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.showResultsAfterVote);case _:
+return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.questionType,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.scaleMin,_that.scaleMax,_that.scaleMinLabel,_that.scaleMaxLabel,_that.scaleIntermediateLabels,_that.textMinLength,_that.textMaxLength,_that.averageRanks,_that.averageRatings,_that.ratingDistribution,_that.showResultsAfterVote);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -494,10 +515,10 @@ return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  bool showResultsAfterVote)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String opportunityId,  String threadId,  String clientId,  String question,  List<PollOption> options,  PollStatus status,  PollQuestionType questionType,  bool isAnonymous,  bool allowChangeVote,  bool allowMultipleSelections,  int? maxSelections,  DateTime? closesAt,  int? minResponsesForResults,  ResultVisibility resultVisibility,  bool allowOtherOption,  DateTime? openedAt,  DateTime? closedAt,  int totalRespondents,  Map<String, int> optionCounts,  DateTime createdAt,  DateTime? updatedAt,  String createdBy,  int scaleMin,  int scaleMax,  String? scaleMinLabel,  String? scaleMaxLabel,  List<String> scaleIntermediateLabels,  int textMinLength,  int textMaxLength,  Map<String, double> averageRanks,  Map<String, double> averageRatings,  Map<String, Map<String, int>> ratingDistribution,  bool showResultsAfterVote)?  $default,) {final _that = this;
 switch (_that) {
 case _Poll() when $default != null:
-return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.showResultsAfterVote);case _:
+return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that.question,_that.options,_that.status,_that.questionType,_that.isAnonymous,_that.allowChangeVote,_that.allowMultipleSelections,_that.maxSelections,_that.closesAt,_that.minResponsesForResults,_that.resultVisibility,_that.allowOtherOption,_that.openedAt,_that.closedAt,_that.totalRespondents,_that.optionCounts,_that.createdAt,_that.updatedAt,_that.createdBy,_that.scaleMin,_that.scaleMax,_that.scaleMinLabel,_that.scaleMaxLabel,_that.scaleIntermediateLabels,_that.textMinLength,_that.textMaxLength,_that.averageRanks,_that.averageRatings,_that.ratingDistribution,_that.showResultsAfterVote);case _:
   return null;
 
 }
@@ -509,7 +530,7 @@ return $default(_that.id,_that.opportunityId,_that.threadId,_that.clientId,_that
 @JsonSerializable()
 
 class _Poll extends Poll {
-  const _Poll({required this.id, required this.opportunityId, required this.threadId, required this.clientId, required this.question, required final  List<PollOption> options, required this.status, this.isAnonymous = false, this.allowChangeVote = true, this.allowMultipleSelections = false, this.maxSelections, this.closesAt, this.minResponsesForResults, this.resultVisibility = ResultVisibility.immediate, this.allowOtherOption = false, this.openedAt, this.closedAt, this.totalRespondents = 0, final  Map<String, int> optionCounts = const {}, required this.createdAt, this.updatedAt, required this.createdBy, this.showResultsAfterVote = true}): _options = options,_optionCounts = optionCounts,super._();
+  const _Poll({required this.id, required this.opportunityId, required this.threadId, required this.clientId, required this.question, required final  List<PollOption> options, required this.status, this.questionType = PollQuestionType.multipleChoice, this.isAnonymous = false, this.allowChangeVote = true, this.allowMultipleSelections = false, this.maxSelections, this.closesAt, this.minResponsesForResults, this.resultVisibility = ResultVisibility.immediate, this.allowOtherOption = false, this.openedAt, this.closedAt, this.totalRespondents = 0, final  Map<String, int> optionCounts = const {}, required this.createdAt, this.updatedAt, required this.createdBy, this.scaleMin = 1, this.scaleMax = 10, this.scaleMinLabel, this.scaleMaxLabel, final  List<String> scaleIntermediateLabels = const [], this.textMinLength = 1, this.textMaxLength = 500, final  Map<String, double> averageRanks = const {}, final  Map<String, double> averageRatings = const {}, final  Map<String, Map<String, int>> ratingDistribution = const {}, this.showResultsAfterVote = true}): _options = options,_optionCounts = optionCounts,_scaleIntermediateLabels = scaleIntermediateLabels,_averageRanks = averageRanks,_averageRatings = averageRatings,_ratingDistribution = ratingDistribution,super._();
   factory _Poll.fromJson(Map<String, dynamic> json) => _$PollFromJson(json);
 
 @override final  String id;
@@ -525,9 +546,11 @@ class _Poll extends Poll {
 }
 
 @override final  PollStatus status;
+// Question type — determines UI, validation, and aggregation
+@override@JsonKey() final  PollQuestionType questionType;
 @override@JsonKey() final  bool isAnonymous;
 @override@JsonKey() final  bool allowChangeVote;
-// Multi-select support
+// Multi-select support (multipleChoice only)
 @override@JsonKey() final  bool allowMultipleSelections;
 @override final  int? maxSelections;
 // Poll expiry/deadline (stored as UTC)
@@ -551,6 +574,53 @@ class _Poll extends Poll {
 @override final  DateTime createdAt;
 @override final  DateTime? updatedAt;
 @override final  String createdBy;
+// --- Scale question config ---
+@override@JsonKey() final  int scaleMin;
+@override@JsonKey() final  int scaleMax;
+@override final  String? scaleMinLabel;
+// e.g. "Extremely unlikely"
+@override final  String? scaleMaxLabel;
+// e.g. "Extremely likely"
+ final  List<String> _scaleIntermediateLabels;
+// e.g. "Extremely likely"
+@override@JsonKey() List<String> get scaleIntermediateLabels {
+  if (_scaleIntermediateLabels is EqualUnmodifiableListView) return _scaleIntermediateLabels;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_scaleIntermediateLabels);
+}
+
+// optional labels for each position
+// --- Text question config ---
+@override@JsonKey() final  int textMinLength;
+@override@JsonKey() final  int textMaxLength;
+// --- Type-specific aggregation ---
+ final  Map<String, double> _averageRanks;
+// --- Type-specific aggregation ---
+@override@JsonKey() Map<String, double> get averageRanks {
+  if (_averageRanks is EqualUnmodifiableMapView) return _averageRanks;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_averageRanks);
+}
+
+// ranking: optionId → avg rank
+ final  Map<String, double> _averageRatings;
+// ranking: optionId → avg rank
+@override@JsonKey() Map<String, double> get averageRatings {
+  if (_averageRatings is EqualUnmodifiableMapView) return _averageRatings;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_averageRatings);
+}
+
+// scale: optionId → avg rating
+ final  Map<String, Map<String, int>> _ratingDistribution;
+// scale: optionId → avg rating
+@override@JsonKey() Map<String, Map<String, int>> get ratingDistribution {
+  if (_ratingDistribution is EqualUnmodifiableMapView) return _ratingDistribution;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_ratingDistribution);
+}
+
+// scale: optionId → {ratingValue → count}
 // Legacy field — kept for backward compat reads, not used for new logic
 @override@JsonKey() final  bool showResultsAfterVote;
 
@@ -567,16 +637,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Poll&&(identical(other.id, id) || other.id == id)&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other._options, _options)&&(identical(other.status, status) || other.status == status)&&(identical(other.isAnonymous, isAnonymous) || other.isAnonymous == isAnonymous)&&(identical(other.allowChangeVote, allowChangeVote) || other.allowChangeVote == allowChangeVote)&&(identical(other.allowMultipleSelections, allowMultipleSelections) || other.allowMultipleSelections == allowMultipleSelections)&&(identical(other.maxSelections, maxSelections) || other.maxSelections == maxSelections)&&(identical(other.closesAt, closesAt) || other.closesAt == closesAt)&&(identical(other.minResponsesForResults, minResponsesForResults) || other.minResponsesForResults == minResponsesForResults)&&(identical(other.resultVisibility, resultVisibility) || other.resultVisibility == resultVisibility)&&(identical(other.allowOtherOption, allowOtherOption) || other.allowOtherOption == allowOtherOption)&&(identical(other.openedAt, openedAt) || other.openedAt == openedAt)&&(identical(other.closedAt, closedAt) || other.closedAt == closedAt)&&(identical(other.totalRespondents, totalRespondents) || other.totalRespondents == totalRespondents)&&const DeepCollectionEquality().equals(other._optionCounts, _optionCounts)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.showResultsAfterVote, showResultsAfterVote) || other.showResultsAfterVote == showResultsAfterVote));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Poll&&(identical(other.id, id) || other.id == id)&&(identical(other.opportunityId, opportunityId) || other.opportunityId == opportunityId)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.clientId, clientId) || other.clientId == clientId)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other._options, _options)&&(identical(other.status, status) || other.status == status)&&(identical(other.questionType, questionType) || other.questionType == questionType)&&(identical(other.isAnonymous, isAnonymous) || other.isAnonymous == isAnonymous)&&(identical(other.allowChangeVote, allowChangeVote) || other.allowChangeVote == allowChangeVote)&&(identical(other.allowMultipleSelections, allowMultipleSelections) || other.allowMultipleSelections == allowMultipleSelections)&&(identical(other.maxSelections, maxSelections) || other.maxSelections == maxSelections)&&(identical(other.closesAt, closesAt) || other.closesAt == closesAt)&&(identical(other.minResponsesForResults, minResponsesForResults) || other.minResponsesForResults == minResponsesForResults)&&(identical(other.resultVisibility, resultVisibility) || other.resultVisibility == resultVisibility)&&(identical(other.allowOtherOption, allowOtherOption) || other.allowOtherOption == allowOtherOption)&&(identical(other.openedAt, openedAt) || other.openedAt == openedAt)&&(identical(other.closedAt, closedAt) || other.closedAt == closedAt)&&(identical(other.totalRespondents, totalRespondents) || other.totalRespondents == totalRespondents)&&const DeepCollectionEquality().equals(other._optionCounts, _optionCounts)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.createdBy, createdBy) || other.createdBy == createdBy)&&(identical(other.scaleMin, scaleMin) || other.scaleMin == scaleMin)&&(identical(other.scaleMax, scaleMax) || other.scaleMax == scaleMax)&&(identical(other.scaleMinLabel, scaleMinLabel) || other.scaleMinLabel == scaleMinLabel)&&(identical(other.scaleMaxLabel, scaleMaxLabel) || other.scaleMaxLabel == scaleMaxLabel)&&const DeepCollectionEquality().equals(other._scaleIntermediateLabels, _scaleIntermediateLabels)&&(identical(other.textMinLength, textMinLength) || other.textMinLength == textMinLength)&&(identical(other.textMaxLength, textMaxLength) || other.textMaxLength == textMaxLength)&&const DeepCollectionEquality().equals(other._averageRanks, _averageRanks)&&const DeepCollectionEquality().equals(other._averageRatings, _averageRatings)&&const DeepCollectionEquality().equals(other._ratingDistribution, _ratingDistribution)&&(identical(other.showResultsAfterVote, showResultsAfterVote) || other.showResultsAfterVote == showResultsAfterVote));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,opportunityId,threadId,clientId,question,const DeepCollectionEquality().hash(_options),status,isAnonymous,allowChangeVote,allowMultipleSelections,maxSelections,closesAt,minResponsesForResults,resultVisibility,allowOtherOption,openedAt,closedAt,totalRespondents,const DeepCollectionEquality().hash(_optionCounts),createdAt,updatedAt,createdBy,showResultsAfterVote]);
+int get hashCode => Object.hashAll([runtimeType,id,opportunityId,threadId,clientId,question,const DeepCollectionEquality().hash(_options),status,questionType,isAnonymous,allowChangeVote,allowMultipleSelections,maxSelections,closesAt,minResponsesForResults,resultVisibility,allowOtherOption,openedAt,closedAt,totalRespondents,const DeepCollectionEquality().hash(_optionCounts),createdAt,updatedAt,createdBy,scaleMin,scaleMax,scaleMinLabel,scaleMaxLabel,const DeepCollectionEquality().hash(_scaleIntermediateLabels),textMinLength,textMaxLength,const DeepCollectionEquality().hash(_averageRanks),const DeepCollectionEquality().hash(_averageRatings),const DeepCollectionEquality().hash(_ratingDistribution),showResultsAfterVote]);
 
 @override
 String toString() {
-  return 'Poll(id: $id, opportunityId: $opportunityId, threadId: $threadId, clientId: $clientId, question: $question, options: $options, status: $status, isAnonymous: $isAnonymous, allowChangeVote: $allowChangeVote, allowMultipleSelections: $allowMultipleSelections, maxSelections: $maxSelections, closesAt: $closesAt, minResponsesForResults: $minResponsesForResults, resultVisibility: $resultVisibility, allowOtherOption: $allowOtherOption, openedAt: $openedAt, closedAt: $closedAt, totalRespondents: $totalRespondents, optionCounts: $optionCounts, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, showResultsAfterVote: $showResultsAfterVote)';
+  return 'Poll(id: $id, opportunityId: $opportunityId, threadId: $threadId, clientId: $clientId, question: $question, options: $options, status: $status, questionType: $questionType, isAnonymous: $isAnonymous, allowChangeVote: $allowChangeVote, allowMultipleSelections: $allowMultipleSelections, maxSelections: $maxSelections, closesAt: $closesAt, minResponsesForResults: $minResponsesForResults, resultVisibility: $resultVisibility, allowOtherOption: $allowOtherOption, openedAt: $openedAt, closedAt: $closedAt, totalRespondents: $totalRespondents, optionCounts: $optionCounts, createdAt: $createdAt, updatedAt: $updatedAt, createdBy: $createdBy, scaleMin: $scaleMin, scaleMax: $scaleMax, scaleMinLabel: $scaleMinLabel, scaleMaxLabel: $scaleMaxLabel, scaleIntermediateLabels: $scaleIntermediateLabels, textMinLength: $textMinLength, textMaxLength: $textMaxLength, averageRanks: $averageRanks, averageRatings: $averageRatings, ratingDistribution: $ratingDistribution, showResultsAfterVote: $showResultsAfterVote)';
 }
 
 
@@ -587,7 +657,7 @@ abstract mixin class _$PollCopyWith<$Res> implements $PollCopyWith<$Res> {
   factory _$PollCopyWith(_Poll value, $Res Function(_Poll) _then) = __$PollCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String opportunityId, String threadId, String clientId, String question, List<PollOption> options, PollStatus status, bool isAnonymous, bool allowChangeVote, bool allowMultipleSelections, int? maxSelections, DateTime? closesAt, int? minResponsesForResults, ResultVisibility resultVisibility, bool allowOtherOption, DateTime? openedAt, DateTime? closedAt, int totalRespondents, Map<String, int> optionCounts, DateTime createdAt, DateTime? updatedAt, String createdBy, bool showResultsAfterVote
+ String id, String opportunityId, String threadId, String clientId, String question, List<PollOption> options, PollStatus status, PollQuestionType questionType, bool isAnonymous, bool allowChangeVote, bool allowMultipleSelections, int? maxSelections, DateTime? closesAt, int? minResponsesForResults, ResultVisibility resultVisibility, bool allowOtherOption, DateTime? openedAt, DateTime? closedAt, int totalRespondents, Map<String, int> optionCounts, DateTime createdAt, DateTime? updatedAt, String createdBy, int scaleMin, int scaleMax, String? scaleMinLabel, String? scaleMaxLabel, List<String> scaleIntermediateLabels, int textMinLength, int textMaxLength, Map<String, double> averageRanks, Map<String, double> averageRatings, Map<String, Map<String, int>> ratingDistribution, bool showResultsAfterVote
 });
 
 
@@ -604,7 +674,7 @@ class __$PollCopyWithImpl<$Res>
 
 /// Create a copy of Poll
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? opportunityId = null,Object? threadId = null,Object? clientId = null,Object? question = null,Object? options = null,Object? status = null,Object? isAnonymous = null,Object? allowChangeVote = null,Object? allowMultipleSelections = null,Object? maxSelections = freezed,Object? closesAt = freezed,Object? minResponsesForResults = freezed,Object? resultVisibility = null,Object? allowOtherOption = null,Object? openedAt = freezed,Object? closedAt = freezed,Object? totalRespondents = null,Object? optionCounts = null,Object? createdAt = null,Object? updatedAt = freezed,Object? createdBy = null,Object? showResultsAfterVote = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? opportunityId = null,Object? threadId = null,Object? clientId = null,Object? question = null,Object? options = null,Object? status = null,Object? questionType = null,Object? isAnonymous = null,Object? allowChangeVote = null,Object? allowMultipleSelections = null,Object? maxSelections = freezed,Object? closesAt = freezed,Object? minResponsesForResults = freezed,Object? resultVisibility = null,Object? allowOtherOption = null,Object? openedAt = freezed,Object? closedAt = freezed,Object? totalRespondents = null,Object? optionCounts = null,Object? createdAt = null,Object? updatedAt = freezed,Object? createdBy = null,Object? scaleMin = null,Object? scaleMax = null,Object? scaleMinLabel = freezed,Object? scaleMaxLabel = freezed,Object? scaleIntermediateLabels = null,Object? textMinLength = null,Object? textMaxLength = null,Object? averageRanks = null,Object? averageRatings = null,Object? ratingDistribution = null,Object? showResultsAfterVote = null,}) {
   return _then(_Poll(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,opportunityId: null == opportunityId ? _self.opportunityId : opportunityId // ignore: cast_nullable_to_non_nullable
@@ -613,7 +683,8 @@ as String,clientId: null == clientId ? _self.clientId : clientId // ignore: cast
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,options: null == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
 as List<PollOption>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as PollStatus,isAnonymous: null == isAnonymous ? _self.isAnonymous : isAnonymous // ignore: cast_nullable_to_non_nullable
+as PollStatus,questionType: null == questionType ? _self.questionType : questionType // ignore: cast_nullable_to_non_nullable
+as PollQuestionType,isAnonymous: null == isAnonymous ? _self.isAnonymous : isAnonymous // ignore: cast_nullable_to_non_nullable
 as bool,allowChangeVote: null == allowChangeVote ? _self.allowChangeVote : allowChangeVote // ignore: cast_nullable_to_non_nullable
 as bool,allowMultipleSelections: null == allowMultipleSelections ? _self.allowMultipleSelections : allowMultipleSelections // ignore: cast_nullable_to_non_nullable
 as bool,maxSelections: freezed == maxSelections ? _self.maxSelections : maxSelections // ignore: cast_nullable_to_non_nullable
@@ -628,7 +699,17 @@ as int,optionCounts: null == optionCounts ? _self._optionCounts : optionCounts /
 as Map<String, int>,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdBy: null == createdBy ? _self.createdBy : createdBy // ignore: cast_nullable_to_non_nullable
-as String,showResultsAfterVote: null == showResultsAfterVote ? _self.showResultsAfterVote : showResultsAfterVote // ignore: cast_nullable_to_non_nullable
+as String,scaleMin: null == scaleMin ? _self.scaleMin : scaleMin // ignore: cast_nullable_to_non_nullable
+as int,scaleMax: null == scaleMax ? _self.scaleMax : scaleMax // ignore: cast_nullable_to_non_nullable
+as int,scaleMinLabel: freezed == scaleMinLabel ? _self.scaleMinLabel : scaleMinLabel // ignore: cast_nullable_to_non_nullable
+as String?,scaleMaxLabel: freezed == scaleMaxLabel ? _self.scaleMaxLabel : scaleMaxLabel // ignore: cast_nullable_to_non_nullable
+as String?,scaleIntermediateLabels: null == scaleIntermediateLabels ? _self._scaleIntermediateLabels : scaleIntermediateLabels // ignore: cast_nullable_to_non_nullable
+as List<String>,textMinLength: null == textMinLength ? _self.textMinLength : textMinLength // ignore: cast_nullable_to_non_nullable
+as int,textMaxLength: null == textMaxLength ? _self.textMaxLength : textMaxLength // ignore: cast_nullable_to_non_nullable
+as int,averageRanks: null == averageRanks ? _self._averageRanks : averageRanks // ignore: cast_nullable_to_non_nullable
+as Map<String, double>,averageRatings: null == averageRatings ? _self._averageRatings : averageRatings // ignore: cast_nullable_to_non_nullable
+as Map<String, double>,ratingDistribution: null == ratingDistribution ? _self._ratingDistribution : ratingDistribution // ignore: cast_nullable_to_non_nullable
+as Map<String, Map<String, int>>,showResultsAfterVote: null == showResultsAfterVote ? _self.showResultsAfterVote : showResultsAfterVote // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -642,7 +723,11 @@ mixin _$PollResponse {
 
  String get userId; String get pollId; String get selectedOption;// Multi-select: all selected option IDs
  List<String> get selectedOptions; String? get previousOption; int get voteCount; DateTime get respondedAt; DateTime? get updatedAt; String get status; DateTime? get invalidatedAt; String? get invalidatedBy; String? get invalidationReason; String? get engagementId; bool get tokensAwarded; Map<String, String?>? get demographics;// "Other" free-text response (max 200 chars)
- String? get otherText;
+ String? get otherText;// --- Ranking response ---
+ List<String> get rankedOptions;// ordered option IDs (first = rank 1)
+// --- Text response ---
+ String? get textResponse;// --- Scale response ---
+ Map<String, int> get scaleRatings;
 /// Create a copy of PollResponse
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -655,16 +740,16 @@ $PollResponseCopyWith<PollResponse> get copyWith => _$PollResponseCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PollResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.pollId, pollId) || other.pollId == pollId)&&(identical(other.selectedOption, selectedOption) || other.selectedOption == selectedOption)&&const DeepCollectionEquality().equals(other.selectedOptions, selectedOptions)&&(identical(other.previousOption, previousOption) || other.previousOption == previousOption)&&(identical(other.voteCount, voteCount) || other.voteCount == voteCount)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.invalidatedAt, invalidatedAt) || other.invalidatedAt == invalidatedAt)&&(identical(other.invalidatedBy, invalidatedBy) || other.invalidatedBy == invalidatedBy)&&(identical(other.invalidationReason, invalidationReason) || other.invalidationReason == invalidationReason)&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&(identical(other.tokensAwarded, tokensAwarded) || other.tokensAwarded == tokensAwarded)&&const DeepCollectionEquality().equals(other.demographics, demographics)&&(identical(other.otherText, otherText) || other.otherText == otherText));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PollResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.pollId, pollId) || other.pollId == pollId)&&(identical(other.selectedOption, selectedOption) || other.selectedOption == selectedOption)&&const DeepCollectionEquality().equals(other.selectedOptions, selectedOptions)&&(identical(other.previousOption, previousOption) || other.previousOption == previousOption)&&(identical(other.voteCount, voteCount) || other.voteCount == voteCount)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.invalidatedAt, invalidatedAt) || other.invalidatedAt == invalidatedAt)&&(identical(other.invalidatedBy, invalidatedBy) || other.invalidatedBy == invalidatedBy)&&(identical(other.invalidationReason, invalidationReason) || other.invalidationReason == invalidationReason)&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&(identical(other.tokensAwarded, tokensAwarded) || other.tokensAwarded == tokensAwarded)&&const DeepCollectionEquality().equals(other.demographics, demographics)&&(identical(other.otherText, otherText) || other.otherText == otherText)&&const DeepCollectionEquality().equals(other.rankedOptions, rankedOptions)&&(identical(other.textResponse, textResponse) || other.textResponse == textResponse)&&const DeepCollectionEquality().equals(other.scaleRatings, scaleRatings));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,pollId,selectedOption,const DeepCollectionEquality().hash(selectedOptions),previousOption,voteCount,respondedAt,updatedAt,status,invalidatedAt,invalidatedBy,invalidationReason,engagementId,tokensAwarded,const DeepCollectionEquality().hash(demographics),otherText);
+int get hashCode => Object.hashAll([runtimeType,userId,pollId,selectedOption,const DeepCollectionEquality().hash(selectedOptions),previousOption,voteCount,respondedAt,updatedAt,status,invalidatedAt,invalidatedBy,invalidationReason,engagementId,tokensAwarded,const DeepCollectionEquality().hash(demographics),otherText,const DeepCollectionEquality().hash(rankedOptions),textResponse,const DeepCollectionEquality().hash(scaleRatings)]);
 
 @override
 String toString() {
-  return 'PollResponse(userId: $userId, pollId: $pollId, selectedOption: $selectedOption, selectedOptions: $selectedOptions, previousOption: $previousOption, voteCount: $voteCount, respondedAt: $respondedAt, updatedAt: $updatedAt, status: $status, invalidatedAt: $invalidatedAt, invalidatedBy: $invalidatedBy, invalidationReason: $invalidationReason, engagementId: $engagementId, tokensAwarded: $tokensAwarded, demographics: $demographics, otherText: $otherText)';
+  return 'PollResponse(userId: $userId, pollId: $pollId, selectedOption: $selectedOption, selectedOptions: $selectedOptions, previousOption: $previousOption, voteCount: $voteCount, respondedAt: $respondedAt, updatedAt: $updatedAt, status: $status, invalidatedAt: $invalidatedAt, invalidatedBy: $invalidatedBy, invalidationReason: $invalidationReason, engagementId: $engagementId, tokensAwarded: $tokensAwarded, demographics: $demographics, otherText: $otherText, rankedOptions: $rankedOptions, textResponse: $textResponse, scaleRatings: $scaleRatings)';
 }
 
 
@@ -675,7 +760,7 @@ abstract mixin class $PollResponseCopyWith<$Res>  {
   factory $PollResponseCopyWith(PollResponse value, $Res Function(PollResponse) _then) = _$PollResponseCopyWithImpl;
 @useResult
 $Res call({
- String userId, String pollId, String selectedOption, List<String> selectedOptions, String? previousOption, int voteCount, DateTime respondedAt, DateTime? updatedAt, String status, DateTime? invalidatedAt, String? invalidatedBy, String? invalidationReason, String? engagementId, bool tokensAwarded, Map<String, String?>? demographics, String? otherText
+ String userId, String pollId, String selectedOption, List<String> selectedOptions, String? previousOption, int voteCount, DateTime respondedAt, DateTime? updatedAt, String status, DateTime? invalidatedAt, String? invalidatedBy, String? invalidationReason, String? engagementId, bool tokensAwarded, Map<String, String?>? demographics, String? otherText, List<String> rankedOptions, String? textResponse, Map<String, int> scaleRatings
 });
 
 
@@ -692,7 +777,7 @@ class _$PollResponseCopyWithImpl<$Res>
 
 /// Create a copy of PollResponse
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? pollId = null,Object? selectedOption = null,Object? selectedOptions = null,Object? previousOption = freezed,Object? voteCount = null,Object? respondedAt = null,Object? updatedAt = freezed,Object? status = null,Object? invalidatedAt = freezed,Object? invalidatedBy = freezed,Object? invalidationReason = freezed,Object? engagementId = freezed,Object? tokensAwarded = null,Object? demographics = freezed,Object? otherText = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? pollId = null,Object? selectedOption = null,Object? selectedOptions = null,Object? previousOption = freezed,Object? voteCount = null,Object? respondedAt = null,Object? updatedAt = freezed,Object? status = null,Object? invalidatedAt = freezed,Object? invalidatedBy = freezed,Object? invalidationReason = freezed,Object? engagementId = freezed,Object? tokensAwarded = null,Object? demographics = freezed,Object? otherText = freezed,Object? rankedOptions = null,Object? textResponse = freezed,Object? scaleRatings = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,pollId: null == pollId ? _self.pollId : pollId // ignore: cast_nullable_to_non_nullable
@@ -710,7 +795,10 @@ as String?,engagementId: freezed == engagementId ? _self.engagementId : engageme
 as String?,tokensAwarded: null == tokensAwarded ? _self.tokensAwarded : tokensAwarded // ignore: cast_nullable_to_non_nullable
 as bool,demographics: freezed == demographics ? _self.demographics : demographics // ignore: cast_nullable_to_non_nullable
 as Map<String, String?>?,otherText: freezed == otherText ? _self.otherText : otherText // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,rankedOptions: null == rankedOptions ? _self.rankedOptions : rankedOptions // ignore: cast_nullable_to_non_nullable
+as List<String>,textResponse: freezed == textResponse ? _self.textResponse : textResponse // ignore: cast_nullable_to_non_nullable
+as String?,scaleRatings: null == scaleRatings ? _self.scaleRatings : scaleRatings // ignore: cast_nullable_to_non_nullable
+as Map<String, int>,
   ));
 }
 
@@ -795,10 +883,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText,  List<String> rankedOptions,  String? textResponse,  Map<String, int> scaleRatings)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PollResponse() when $default != null:
-return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText);case _:
+return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText,_that.rankedOptions,_that.textResponse,_that.scaleRatings);case _:
   return orElse();
 
 }
@@ -816,10 +904,10 @@ return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOpt
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText,  List<String> rankedOptions,  String? textResponse,  Map<String, int> scaleRatings)  $default,) {final _that = this;
 switch (_that) {
 case _PollResponse():
-return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText);case _:
+return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText,_that.rankedOptions,_that.textResponse,_that.scaleRatings);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -836,10 +924,10 @@ return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOpt
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String pollId,  String selectedOption,  List<String> selectedOptions,  String? previousOption,  int voteCount,  DateTime respondedAt,  DateTime? updatedAt,  String status,  DateTime? invalidatedAt,  String? invalidatedBy,  String? invalidationReason,  String? engagementId,  bool tokensAwarded,  Map<String, String?>? demographics,  String? otherText,  List<String> rankedOptions,  String? textResponse,  Map<String, int> scaleRatings)?  $default,) {final _that = this;
 switch (_that) {
 case _PollResponse() when $default != null:
-return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText);case _:
+return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOptions,_that.previousOption,_that.voteCount,_that.respondedAt,_that.updatedAt,_that.status,_that.invalidatedAt,_that.invalidatedBy,_that.invalidationReason,_that.engagementId,_that.tokensAwarded,_that.demographics,_that.otherText,_that.rankedOptions,_that.textResponse,_that.scaleRatings);case _:
   return null;
 
 }
@@ -851,7 +939,7 @@ return $default(_that.userId,_that.pollId,_that.selectedOption,_that.selectedOpt
 @JsonSerializable()
 
 class _PollResponse extends PollResponse {
-  const _PollResponse({required this.userId, required this.pollId, required this.selectedOption, final  List<String> selectedOptions = const [], this.previousOption, this.voteCount = 1, required this.respondedAt, this.updatedAt, this.status = 'valid', this.invalidatedAt, this.invalidatedBy, this.invalidationReason, this.engagementId, this.tokensAwarded = false, final  Map<String, String?>? demographics, this.otherText}): _selectedOptions = selectedOptions,_demographics = demographics,super._();
+  const _PollResponse({required this.userId, required this.pollId, required this.selectedOption, final  List<String> selectedOptions = const [], this.previousOption, this.voteCount = 1, required this.respondedAt, this.updatedAt, this.status = 'valid', this.invalidatedAt, this.invalidatedBy, this.invalidationReason, this.engagementId, this.tokensAwarded = false, final  Map<String, String?>? demographics, this.otherText, final  List<String> rankedOptions = const [], this.textResponse, final  Map<String, int> scaleRatings = const {}}): _selectedOptions = selectedOptions,_demographics = demographics,_rankedOptions = rankedOptions,_scaleRatings = scaleRatings,super._();
   factory _PollResponse.fromJson(Map<String, dynamic> json) => _$PollResponseFromJson(json);
 
 @override final  String userId;
@@ -887,6 +975,27 @@ class _PollResponse extends PollResponse {
 
 // "Other" free-text response (max 200 chars)
 @override final  String? otherText;
+// --- Ranking response ---
+ final  List<String> _rankedOptions;
+// --- Ranking response ---
+@override@JsonKey() List<String> get rankedOptions {
+  if (_rankedOptions is EqualUnmodifiableListView) return _rankedOptions;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_rankedOptions);
+}
+
+// ordered option IDs (first = rank 1)
+// --- Text response ---
+@override final  String? textResponse;
+// --- Scale response ---
+ final  Map<String, int> _scaleRatings;
+// --- Scale response ---
+@override@JsonKey() Map<String, int> get scaleRatings {
+  if (_scaleRatings is EqualUnmodifiableMapView) return _scaleRatings;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_scaleRatings);
+}
+
 
 /// Create a copy of PollResponse
 /// with the given fields replaced by the non-null parameter values.
@@ -901,16 +1010,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PollResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.pollId, pollId) || other.pollId == pollId)&&(identical(other.selectedOption, selectedOption) || other.selectedOption == selectedOption)&&const DeepCollectionEquality().equals(other._selectedOptions, _selectedOptions)&&(identical(other.previousOption, previousOption) || other.previousOption == previousOption)&&(identical(other.voteCount, voteCount) || other.voteCount == voteCount)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.invalidatedAt, invalidatedAt) || other.invalidatedAt == invalidatedAt)&&(identical(other.invalidatedBy, invalidatedBy) || other.invalidatedBy == invalidatedBy)&&(identical(other.invalidationReason, invalidationReason) || other.invalidationReason == invalidationReason)&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&(identical(other.tokensAwarded, tokensAwarded) || other.tokensAwarded == tokensAwarded)&&const DeepCollectionEquality().equals(other._demographics, _demographics)&&(identical(other.otherText, otherText) || other.otherText == otherText));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PollResponse&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.pollId, pollId) || other.pollId == pollId)&&(identical(other.selectedOption, selectedOption) || other.selectedOption == selectedOption)&&const DeepCollectionEquality().equals(other._selectedOptions, _selectedOptions)&&(identical(other.previousOption, previousOption) || other.previousOption == previousOption)&&(identical(other.voteCount, voteCount) || other.voteCount == voteCount)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status)&&(identical(other.invalidatedAt, invalidatedAt) || other.invalidatedAt == invalidatedAt)&&(identical(other.invalidatedBy, invalidatedBy) || other.invalidatedBy == invalidatedBy)&&(identical(other.invalidationReason, invalidationReason) || other.invalidationReason == invalidationReason)&&(identical(other.engagementId, engagementId) || other.engagementId == engagementId)&&(identical(other.tokensAwarded, tokensAwarded) || other.tokensAwarded == tokensAwarded)&&const DeepCollectionEquality().equals(other._demographics, _demographics)&&(identical(other.otherText, otherText) || other.otherText == otherText)&&const DeepCollectionEquality().equals(other._rankedOptions, _rankedOptions)&&(identical(other.textResponse, textResponse) || other.textResponse == textResponse)&&const DeepCollectionEquality().equals(other._scaleRatings, _scaleRatings));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,pollId,selectedOption,const DeepCollectionEquality().hash(_selectedOptions),previousOption,voteCount,respondedAt,updatedAt,status,invalidatedAt,invalidatedBy,invalidationReason,engagementId,tokensAwarded,const DeepCollectionEquality().hash(_demographics),otherText);
+int get hashCode => Object.hashAll([runtimeType,userId,pollId,selectedOption,const DeepCollectionEquality().hash(_selectedOptions),previousOption,voteCount,respondedAt,updatedAt,status,invalidatedAt,invalidatedBy,invalidationReason,engagementId,tokensAwarded,const DeepCollectionEquality().hash(_demographics),otherText,const DeepCollectionEquality().hash(_rankedOptions),textResponse,const DeepCollectionEquality().hash(_scaleRatings)]);
 
 @override
 String toString() {
-  return 'PollResponse(userId: $userId, pollId: $pollId, selectedOption: $selectedOption, selectedOptions: $selectedOptions, previousOption: $previousOption, voteCount: $voteCount, respondedAt: $respondedAt, updatedAt: $updatedAt, status: $status, invalidatedAt: $invalidatedAt, invalidatedBy: $invalidatedBy, invalidationReason: $invalidationReason, engagementId: $engagementId, tokensAwarded: $tokensAwarded, demographics: $demographics, otherText: $otherText)';
+  return 'PollResponse(userId: $userId, pollId: $pollId, selectedOption: $selectedOption, selectedOptions: $selectedOptions, previousOption: $previousOption, voteCount: $voteCount, respondedAt: $respondedAt, updatedAt: $updatedAt, status: $status, invalidatedAt: $invalidatedAt, invalidatedBy: $invalidatedBy, invalidationReason: $invalidationReason, engagementId: $engagementId, tokensAwarded: $tokensAwarded, demographics: $demographics, otherText: $otherText, rankedOptions: $rankedOptions, textResponse: $textResponse, scaleRatings: $scaleRatings)';
 }
 
 
@@ -921,7 +1030,7 @@ abstract mixin class _$PollResponseCopyWith<$Res> implements $PollResponseCopyWi
   factory _$PollResponseCopyWith(_PollResponse value, $Res Function(_PollResponse) _then) = __$PollResponseCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String pollId, String selectedOption, List<String> selectedOptions, String? previousOption, int voteCount, DateTime respondedAt, DateTime? updatedAt, String status, DateTime? invalidatedAt, String? invalidatedBy, String? invalidationReason, String? engagementId, bool tokensAwarded, Map<String, String?>? demographics, String? otherText
+ String userId, String pollId, String selectedOption, List<String> selectedOptions, String? previousOption, int voteCount, DateTime respondedAt, DateTime? updatedAt, String status, DateTime? invalidatedAt, String? invalidatedBy, String? invalidationReason, String? engagementId, bool tokensAwarded, Map<String, String?>? demographics, String? otherText, List<String> rankedOptions, String? textResponse, Map<String, int> scaleRatings
 });
 
 
@@ -938,7 +1047,7 @@ class __$PollResponseCopyWithImpl<$Res>
 
 /// Create a copy of PollResponse
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? pollId = null,Object? selectedOption = null,Object? selectedOptions = null,Object? previousOption = freezed,Object? voteCount = null,Object? respondedAt = null,Object? updatedAt = freezed,Object? status = null,Object? invalidatedAt = freezed,Object? invalidatedBy = freezed,Object? invalidationReason = freezed,Object? engagementId = freezed,Object? tokensAwarded = null,Object? demographics = freezed,Object? otherText = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? pollId = null,Object? selectedOption = null,Object? selectedOptions = null,Object? previousOption = freezed,Object? voteCount = null,Object? respondedAt = null,Object? updatedAt = freezed,Object? status = null,Object? invalidatedAt = freezed,Object? invalidatedBy = freezed,Object? invalidationReason = freezed,Object? engagementId = freezed,Object? tokensAwarded = null,Object? demographics = freezed,Object? otherText = freezed,Object? rankedOptions = null,Object? textResponse = freezed,Object? scaleRatings = null,}) {
   return _then(_PollResponse(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,pollId: null == pollId ? _self.pollId : pollId // ignore: cast_nullable_to_non_nullable
@@ -956,7 +1065,10 @@ as String?,engagementId: freezed == engagementId ? _self.engagementId : engageme
 as String?,tokensAwarded: null == tokensAwarded ? _self.tokensAwarded : tokensAwarded // ignore: cast_nullable_to_non_nullable
 as bool,demographics: freezed == demographics ? _self._demographics : demographics // ignore: cast_nullable_to_non_nullable
 as Map<String, String?>?,otherText: freezed == otherText ? _self.otherText : otherText // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,rankedOptions: null == rankedOptions ? _self._rankedOptions : rankedOptions // ignore: cast_nullable_to_non_nullable
+as List<String>,textResponse: freezed == textResponse ? _self.textResponse : textResponse // ignore: cast_nullable_to_non_nullable
+as String?,scaleRatings: null == scaleRatings ? _self._scaleRatings : scaleRatings // ignore: cast_nullable_to_non_nullable
+as Map<String, int>,
   ));
 }
 

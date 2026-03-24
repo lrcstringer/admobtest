@@ -534,15 +534,26 @@ export const processEngagement = onCall(
     }
 
     // =========================================================================
-    // Fetch opportunity once (used for admin review check + bonus logic)
+    // Kick off opportunity + thread fetches in parallel — both IDs are known
+    // from the engagement doc, so neither depends on the other.
+    // =========================================================================
+    const opportunityFetch: Promise<FirebaseFirestore.DocumentSnapshot | null> =
+      engagement.earnOpportunityId
+        ? db.collection("earnOpportunities").doc(engagement.earnOpportunityId).get()
+        : Promise.resolve(null);
+
+    const threadFetch: Promise<FirebaseFirestore.DocumentSnapshot | null> =
+      engagement.threadId
+        ? db.collection("earnThreads").doc(engagement.threadId).get()
+        : Promise.resolve(null);
+
+    // =========================================================================
+    // Await opportunity (needed for admin review check + bonus logic)
     // =========================================================================
     let opportunityData: FirebaseFirestore.DocumentData | null = null;
-    if (engagement.earnOpportunityId) {
-      const opportunityDoc = await db
-        .collection("earnOpportunities")
-        .doc(engagement.earnOpportunityId)
-        .get();
-      if (opportunityDoc.exists) {
+    {
+      const opportunityDoc = await opportunityFetch;
+      if (opportunityDoc?.exists) {
         opportunityData = opportunityDoc.data()!;
       }
     }
@@ -667,12 +678,9 @@ export const processEngagement = onCall(
     }
 
     if (engagement.threadId) {
-      const threadDoc = await db
-        .collection("earnThreads")
-        .doc(engagement.threadId)
-        .get();
+      const threadDoc = await threadFetch;
 
-      if (threadDoc.exists) {
+      if (threadDoc?.exists) {
         const threadData = threadDoc.data()!;
 
         if (threadData.isDeleted === true) {
@@ -1366,6 +1374,16 @@ function validateEngagementEvidence(
       // Accept survey-style responses (poll vote recorded as survey response by client)
       if (evidence.responses && Array.isArray(evidence.responses) &&
           (evidence.responses as unknown[]).length > 0) {
+        return true;
+      }
+      // Accept new question type evidence: ranking, text, scale
+      if (evidence.rankedOptions && Array.isArray(evidence.rankedOptions)) {
+        return true;
+      }
+      if (evidence.textResponse && typeof evidence.textResponse === "string") {
+        return true;
+      }
+      if (evidence.scaleRatings && typeof evidence.scaleRatings === "object") {
         return true;
       }
       // Poll vote was submitted separately — accept if engagement exists

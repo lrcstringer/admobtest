@@ -23,9 +23,20 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   @override
   void initState() {
     super.initState();
-    // Always reload so counters and statuses are fresh after completing
-    // an opportunity and navigating back.
-    context.read<EarnBloc>().add(EarnEvent.selectThread(widget.threadId));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final bloc = context.read<EarnBloc>();
+      final s = bloc.state;
+      // Skip if the pre-dispatch from the list screen already started loading
+      // for this thread — avoids a duplicate Firestore call on first entry.
+      // Falls through on deep-link (different thread) or re-entry after
+      // completing an opportunity (status will be loaded, not loading).
+      if (s.selectedThread?.id == widget.threadId &&
+          s.opportunitiesStatus == EarnStatus.loading) {
+        return;
+      }
+      bloc.add(EarnEvent.selectThread(widget.threadId));
+    });
   }
 
   @override
@@ -562,12 +573,17 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   }
 
   void _startOpportunity(BuildContext context, EarnOpportunity opportunity) {
-    // Pre-load ad for adVideo opportunities so it's ready when watch screen renders
+    final bloc = context.read<EarnBloc>();
+    // Set directly from the in-hand object — zero Firestore round-trip.
+    bloc.add(EarnEvent.setSelectedOpportunity(opportunity));
     if (opportunity.earningType == EarningType.adVideo) {
-      context.read<EarnBloc>().add(const EarnEvent.loadAdVideo());
+      // Kick off ad loading and the engagement CF in parallel, at tap time,
+      // so both are in-flight during the navigation animation (~300 ms).
+      // loadAdVideo is now fire-and-forget in the BLoC, so startEngagement
+      // is not blocked by the ad load.
+      bloc.add(const EarnEvent.loadAdVideo());
+      bloc.add(EarnEvent.startEngagement(opportunityId: opportunity.id));
     }
-
-    // Navigate to interaction screen — engagement starts when user taps "Start Earning"
     context.push('/earn/opportunity/${opportunity.id}');
   }
 

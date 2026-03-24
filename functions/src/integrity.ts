@@ -12,6 +12,10 @@ const getGoogle = () => require("googleapis").google;
 // Expected package name for the app
 const PACKAGE_NAME = "com.example.imalichat";
 
+// Module-level cached GoogleAuth client — creating a new instance on every call
+// adds 200–400 ms of overhead. GoogleAuth handles token refresh internally.
+let _cachedAuth: unknown | null = null;
+
 /**
  * Integrity tier levels for policy enforcement.
  *
@@ -48,9 +52,12 @@ export async function decodeIntegrityToken(
   expectedNonce: string
 ): Promise<Record<string, unknown>> {
   const g = getGoogle();
-  const auth = new g.auth.GoogleAuth({
-    scopes: ["https://www.googleapis.com/auth/playintegrity"],
-  });
+  if (!_cachedAuth) {
+    _cachedAuth = new g.auth.GoogleAuth({
+      scopes: ["https://www.googleapis.com/auth/playintegrity"],
+    });
+  }
+  const auth = _cachedAuth;
 
   const playintegrity = g.playintegrity({
     version: "v1",

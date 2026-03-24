@@ -70,7 +70,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   bool _showResponseBox = false;
   String? _responseBoxText;
   String? _responseBoxMediaUrl;
-  String? _responseBoxMediaType;
+
   String? _responseBoxTargetQuestionId; // where Continue goes
 
   // AdMob ad state (for adVideo unified screen)
@@ -85,6 +85,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   bool _pollVoted = false;
   Map<String, dynamic>? _pollResults;
   final _pollOtherTextController = TextEditingController();
+  // Ranking question state
+  List<String> _pollRankedOptionIds = [];
+  List<String> _pollRankedOptionTexts = [];
+  // Text question state
+  final _pollTextController = TextEditingController();
+  // Scale question state
+  final Map<String, int> _pollScaleRatings = {};
 
   // Upload state
   File? _recordedVideo;
@@ -113,6 +120,11 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   late final PlayIntegrityService _integrityService;
   late final UploadService _uploadService;
 
+  // Pre-generated Play Integrity nonce+token — started when surveying begins
+  // so the 3–10s native fetch overlaps with the user answering questions.
+  String? _preNonce;
+  Future<String?>? _preIntegrityFuture;
+
   // User ID for AdMob SSV
   String? _userId;
 
@@ -123,10 +135,23 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     _integrityService = getIt<PlayIntegrityService>();
     _uploadService = getIt<UploadService>();
 
-    // Select the opportunity and start engagement
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bloc = context.read<EarnBloc>();
-      bloc.add(EarnEvent.selectOpportunity(widget.opportunityId));
+      final s = bloc.state;
+      if (s.selectedOpportunity?.id == widget.opportunityId &&
+          s.engagementPhase == EngagementPhase.idle &&
+          s.currentEngagement == null) {
+        // selectOpportunity was pre-dispatched at navigation time and already
+        // resolved — skip the Firestore round-trip and start immediately.
+        bloc.add(EarnEvent.startEngagement(opportunityId: widget.opportunityId));
+        if (!s.isAdReady && !s.isAdLoading && s.adRetryRound == 0) {
+          bloc.add(const EarnEvent.loadAdVideo());
+        }
+      } else {
+        // Not yet in state (deep-link, or Firestore still in-flight).
+        // Dispatch selectOpportunity — idempotent if already in-flight.
+        bloc.add(EarnEvent.selectOpportunity(widget.opportunityId));
+      }
     });
   }
 
@@ -137,6 +162,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     _videoController?.dispose();
     _uploadTextController.dispose();
     _uploadVideoPreviewController?.dispose();
+    _pollTextController.dispose();
     _cameraController?.dispose();
     _recordingTimer?.cancel();
     // Clean up compressed temp file
@@ -301,6 +327,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     // Start survey phase
     _questionStartTime = DateTime.now();
+
+    // Pre-generate nonce + integrity token now so the 3–10s native Play
+    // Integrity call runs while the user answers questions instead of blocking
+    // at submit time.
+    _preNonce = _integrityService.generateNonce();
+    _preIntegrityFuture = _integrityService.getIntegrityToken(nonce: _preNonce);
   }
 
   void _recordAndAdvance(SurveyResponse response, {String? selectedOption}) {
@@ -331,7 +363,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     String? targetQuestionId;
     String? responseText;
     String? responseMediaUrl;
-    String? responseMediaType;
+
 
     // TODO: Remove debug prints after verifying Response Box works
     debugPrint('[ResponseBox] selectedOption=$selectedOption '
@@ -355,9 +387,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       responseMediaUrl = isCorrect
           ? current.correctResponseMediaUrl
           : current.incorrectResponseMediaUrl;
-      responseMediaType = isCorrect
-          ? current.correctResponseMediaType
-          : current.incorrectResponseMediaType;
     }
 
     // Fall back to per-option branch rules (single_select only)
@@ -376,7 +405,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         _showResponseBox = true;
         _responseBoxText = responseText;
         _responseBoxMediaUrl = responseMediaUrl;
-        _responseBoxMediaType = responseMediaType;
         _responseBoxTargetQuestionId = targetQuestionId;
       });
       return;
@@ -422,7 +450,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       _showResponseBox = false;
       _responseBoxText = null;
       _responseBoxMediaUrl = null;
-      _responseBoxMediaType = null;
       _responseBoxTargetQuestionId = null;
     });
 
@@ -436,8 +463,18 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     // Collect device fingerprint
     final fingerprint = await DeviceFingerprint.generate();
 
-    // Try to get integrity token (Android only)
-    final integrityToken = await _integrityService.getIntegrityToken();
+    // Use the pre-generated token (started in _onWatchComplete) if available;
+    // otherwise fall back to a fresh fetch (e.g. deep-link direct to survey).
+    final String? integrityNonce;
+    final String? integrityToken;
+    if (_preIntegrityFuture != null && _preNonce != null) {
+      integrityNonce = _preNonce;
+      integrityToken = await _preIntegrityFuture;
+    } else {
+      integrityNonce = _integrityService.generateNonce();
+      integrityToken =
+          await _integrityService.getIntegrityToken(nonce: integrityNonce);
+    }
 
     // Calculate attention score
     final attentionScore = _calculateAttentionScore();
@@ -450,6 +487,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final evidence = EngagementEvidence(
       deviceFingerprint: fingerprint.hash,
       integrityToken: integrityToken,
+      integrityNonce: integrityNonce,
       watchDurationMs: isAdMobOpportunity ? 30000 : _watchDurationMs,
       videoSeeked: _videoSeeked,
       screenVisible: _screenVisible,
@@ -762,7 +800,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                         opportunity.opportunityImage!,
                         width: double.infinity,
                         fit: BoxFit.fitWidth,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        errorBuilder: (_, e, s) => const SizedBox.shrink(),
                       ),
                     ),
                     SizedBox(height: AppSpacing.md),
@@ -946,12 +984,31 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       ));
       _questionStartTime = DateTime.now();
     } else {
-      // Ad either wasn't completed (user closed early) or all internal
-      // retries in AdMobService were exhausted. Either way, reload the ad
-      // silently — this increments adRetryRound which, after enough rounds,
-      // shows the friendly inline "Ads aren't available right now" message.
-      // We NEVER dispatch adVideoFailed here so the user never sees the
-      // full-screen "Something went wrong" error state for ad issues.
+      final wasUserClose = result.errorMessage == 'Ad was not completed';
+
+      if (!wasUserClose) {
+        // Count this as a consecutive show failure so the UI can surface
+        // "Ads aren't available" once the threshold is hit.
+        bloc.add(const EarnEvent.adShowFailed());
+
+        // Show a brief, actionable message based on the AdMob error code.
+        final message = switch (result.errorCode) {
+          3 => 'Connection issue — check your internet and try again',
+          2 => 'No ads available right now — try again in a moment',
+          _ => 'Ad couldn\'t play — reloading…',
+        };
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+
+      // Reload the ad in the background (increments adRetryRound on load
+      // failure; no-op if show failure threshold already reached).
       bloc.add(const EarnEvent.loadAdVideo());
     }
   }
@@ -962,7 +1019,9 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         (state.engagementPhase == EngagementPhase.watching ||
             state.engagementPhase == EngagementPhase.watchingAd);
     final isAdReady = state.isAdReady;
-    final bothReady = isEngagementReady && isAdReady;
+    final showFailureThresholdReached = state.adShowFailureCount >=
+        AdMobConstants.maxConsecutiveShowFailures;
+    final bothReady = isEngagementReady && isAdReady && !showFailureThresholdReached;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppSpacing.md),
@@ -1058,7 +1117,42 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   ],
                 ),
               )
-            // Ad failed — check if retries exhausted
+            // Show failures threshold hit — ad loads OK but won't play
+            else if (showFailureThresholdReached)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.videocam_off_rounded,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Ads aren\'t playing right now',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'This can happen when ad inventory is low.\nPlease try again later.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    SizedBox(height: AppSpacing.lg),
+                    AppButton(
+                      text: 'Go Back',
+                      onPressed: () => context.pop(),
+                      variant: AppButtonVariant.outline,
+                      isFullWidth: false,
+                    ),
+                  ],
+                ),
+              )
+            // Load failures — check if retry rounds exhausted
             else if (state.adRetryRound > AdMobConstants.maxManualRetryRounds)
               // All retry rounds exhausted — graceful unavailable message
               Center(
@@ -2178,40 +2272,48 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildPollResults(opportunity);
     }
 
-    // Extract poll metadata — prefer denormalized opportunity.questions, fall back to CF data
-    final hasLocalQuestions = opportunity.questions.isNotEmpty;
-    final isMultiSelect = hasLocalQuestions
-        ? opportunity.questions.first.questionType == QuestionType.multiSelect
-        : _pollResults?['allowMultipleSelections'] == true;
-    final maxSelections = hasLocalQuestions
-        ? opportunity.questions.first.maxSelections
-        : (_pollResults?['maxSelections'] as num?)?.toInt();
-    final allowOther = _pollResults?['allowOtherOption'] == true;
+    // Determine question type from CF data or default to multipleChoice
+    final questionType = _pollResults?['questionType'] as String? ?? 'multipleChoice';
+
+    // Extract common poll metadata
     final closesAt = _pollResults?['closesAt'] as String?;
     final resultVisibility = _pollResults?['resultVisibility'] as String? ?? 'immediate';
 
     // Check if user already voted (from getPollResults)
     final alreadyVoted = _pollResults?['hasVoted'] == true;
     if (alreadyVoted && !_pollVoted) {
-      // User has already voted — show results directly
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) setState(() => _pollVoted = true);
       });
     }
 
-    // Determine if vote button is enabled
-    bool hasSelection;
-    if (isMultiSelect) {
-      hasSelection = _pollSelectedOptions.isNotEmpty;
-    } else {
-      hasSelection = _pollSelectedOption != null;
-    }
+    // Type label and icon for the header card
+    final typeLabel = switch (questionType) {
+      'ranking' => 'Ranking',
+      'text' => 'Open Text',
+      'scale' => 'Rating Scale',
+      _ => _pollResults?['allowMultipleSelections'] == true ? 'Poll (select multiple)' : 'Poll',
+    };
+    final typeIcon = switch (questionType) {
+      'ranking' => Icons.swap_vert,
+      'text' => Icons.text_fields,
+      'scale' => Icons.tune,
+      _ => Icons.poll_outlined,
+    };
 
-    // If "other" is selected, require text
-    final otherSelected = isMultiSelect
-        ? _pollSelectedOptions.contains('other')
-        : _pollSelectedOption == 'other';
-    final otherTextValid = !otherSelected || _pollOtherTextController.text.trim().isNotEmpty;
+    // Determine if the submit button is enabled (type-specific)
+    final hasValidResponse = switch (questionType) {
+      'ranking' => _pollRankedOptionIds.isNotEmpty,
+      'text' => _pollTextController.text.trim().length >= (_pollResults?['textMinLength'] as int? ?? 1),
+      'scale' => _pollScaleRatings.length == ((_pollResults?['options'] as List?)?.length ?? 0) && _pollScaleRatings.isNotEmpty,
+      _ => () {
+        final isMultiSelect = _pollResults?['allowMultipleSelections'] == true;
+        final hasSelection = isMultiSelect ? _pollSelectedOptions.isNotEmpty : _pollSelectedOption != null;
+        final otherSelected = isMultiSelect ? _pollSelectedOptions.contains('other') : _pollSelectedOption == 'other';
+        final otherTextValid = !otherSelected || _pollOtherTextController.text.trim().isNotEmpty;
+        return hasSelection && otherTextValid;
+      }(),
+    };
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppSpacing.md),
@@ -2226,12 +2328,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 opportunity.opportunityImage!,
                 width: double.infinity,
                 fit: BoxFit.fitWidth,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                errorBuilder: (_, e, s) => const SizedBox.shrink(),
               ),
             ),
             SizedBox(height: AppSpacing.md),
           ],
-          // Poll question card
+          // Poll question header card
           Card(
             child: Padding(
               padding: EdgeInsets.all(AppSpacing.md),
@@ -2240,15 +2342,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.poll_outlined,
-                          size: 20, color: AppColors.primary),
+                      Icon(typeIcon, size: 20, color: AppColors.primary),
                       SizedBox(width: AppSpacing.sm),
                       Text(
-                        isMultiSelect ? 'Poll (select multiple)' : 'Poll',
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: AppColors.primary,
-                                ),
+                        typeLabel,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.primary,
+                            ),
                       ),
                     ],
                   ),
@@ -2257,10 +2357,28 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                     opportunity.title,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  if (isMultiSelect && maxSelections != null) ...[
+                  if (questionType == 'multipleChoice') ...[
+                    if (_pollResults?['allowMultipleSelections'] == true && _pollResults?['maxSelections'] != null) ...[
+                      SizedBox(height: 4),
+                      Text(
+                        'Select up to ${_pollResults!['maxSelections']} options',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  ] else if (questionType == 'ranking') ...[
                     SizedBox(height: 4),
                     Text(
-                      'Select up to $maxSelections options',
+                      'Drag to reorder from best to worst',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ] else if (questionType == 'scale') ...[
+                    SizedBox(height: 4),
+                    Text(
+                      'Rate each item on a ${_pollResults?['scaleMin'] ?? 1}-${_pollResults?['scaleMax'] ?? 10} scale',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
@@ -2300,8 +2418,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ),
           SizedBox(height: AppSpacing.md),
 
-          // Poll options — instant if denormalized on opportunity, spinner only for legacy polls
-          if (!hasLocalQuestions && _pollResults == null) ...[
+          // Type-specific poll body
+          if (_pollResults == null) ...[
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
@@ -2309,39 +2427,257 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               ),
             ),
           ] else ...[
-            ..._buildPollOptionWidgets(isMultiSelect, maxSelections, opportunity: opportunity),
-          ],
-
-          // "Other" option
-          if (allowOther && (hasLocalQuestions || _pollResults != null)) ...[
-            _buildOtherOption(isMultiSelect),
-            if (otherSelected) ...[
-              SizedBox(height: AppSpacing.sm),
-              TextField(
-                controller: _pollOtherTextController,
-                decoration: InputDecoration(
-                  hintText: 'Please specify...',
-                  counterText: '${_pollOtherTextController.text.length}/200',
-                  isDense: true,
-                ),
-                maxLength: 200,
-                maxLines: 2,
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
+            ...switch (questionType) {
+              'ranking' => [_buildRankingPollBody()],
+              'text' => [_buildTextPollBody()],
+              'scale' => [_buildScalePollBody()],
+              _ => _buildMultipleChoicePollBody(opportunity),
+            },
           ],
 
           SizedBox(height: AppSpacing.md),
 
-          // Vote button
+          // Submit button
           AppButton(
-            text: _pollSubmitting ? 'Submitting...' : 'Vote',
-            onPressed: !hasSelection || !otherTextValid || _pollSubmitting
+            text: _pollSubmitting ? 'Submitting...' : 'Submit',
+            onPressed: !hasValidResponse || _pollSubmitting
                 ? null
                 : () => _submitPollVote(state),
           ),
         ],
       ),
+    );
+  }
+
+  /// Build the multiple-choice poll body (existing behavior)
+  List<Widget> _buildMultipleChoicePollBody(EarnOpportunity opportunity) {
+    final hasLocalQuestions = opportunity.questions.isNotEmpty;
+    final isMultiSelect = hasLocalQuestions
+        ? opportunity.questions.first.questionType == QuestionType.multiSelect
+        : _pollResults?['allowMultipleSelections'] == true;
+    final maxSelections = hasLocalQuestions
+        ? opportunity.questions.first.maxSelections
+        : (_pollResults?['maxSelections'] as num?)?.toInt();
+    final allowOther = _pollResults?['allowOtherOption'] == true;
+
+    return [
+      ..._buildPollOptionWidgets(isMultiSelect, maxSelections, opportunity: opportunity),
+      // "Other" option
+      if (allowOther) ...[
+        _buildOtherOption(isMultiSelect),
+        if (isMultiSelect ? _pollSelectedOptions.contains('other') : _pollSelectedOption == 'other') ...[
+          SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _pollOtherTextController,
+            decoration: InputDecoration(
+              hintText: 'Please specify...',
+              counterText: '${_pollOtherTextController.text.length}/200',
+              isDense: true,
+            ),
+            maxLength: 200,
+            maxLines: 2,
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+      ],
+    ];
+  }
+
+  /// Build the ranking poll body — drag-to-reorder list
+  Widget _buildRankingPollBody() {
+    final options = (_pollResults!['options'] as List?) ?? [];
+
+    // Initialize ranked options on first build
+    if (_pollRankedOptionIds.isEmpty && options.isNotEmpty) {
+      _pollRankedOptionIds = options.map((o) => (o as Map)['id'] as String).toList();
+      _pollRankedOptionTexts = options.map((o) => (o as Map)['text'] as String).toList();
+    }
+
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _pollRankedOptionIds.length,
+      onReorder: (oldIndex, newIndex) {
+        setState(() {
+          if (newIndex > oldIndex) newIndex--;
+          final id = _pollRankedOptionIds.removeAt(oldIndex);
+          _pollRankedOptionIds.insert(newIndex, id);
+          final text = _pollRankedOptionTexts.removeAt(oldIndex);
+          _pollRankedOptionTexts.insert(newIndex, text);
+        });
+      },
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) => Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(12),
+            child: child,
+          ),
+          child: child,
+        );
+      },
+      itemBuilder: (context, index) {
+        final text = _pollRankedOptionTexts[index];
+        return Container(
+          key: ValueKey(_pollRankedOptionIds[index]),
+          margin: EdgeInsets.only(bottom: AppSpacing.sm),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.divider),
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).cardColor,
+          ),
+          child: Row(
+            children: [
+              // Rank number badge
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '${index + 1}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                  ),
+                ),
+              ),
+              SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+              ),
+              Icon(Icons.drag_handle, color: AppColors.textSecondary),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Build the text poll body — free-text input
+  Widget _buildTextPollBody() {
+    final maxLen = _pollResults?['textMaxLength'] as int? ?? 500;
+    final minLen = _pollResults?['textMinLength'] as int? ?? 1;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: _pollTextController,
+          decoration: InputDecoration(
+            hintText: 'Type your response here...',
+            counterText: '${_pollTextController.text.length}/$maxLen',
+            helperText: minLen > 1 ? 'Minimum $minLen characters' : null,
+            border: const OutlineInputBorder(),
+          ),
+          maxLength: maxLen,
+          maxLines: 6,
+          minLines: 3,
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
+    );
+  }
+
+  /// Build the scale/rating poll body — rate each item on a numeric scale
+  Widget _buildScalePollBody() {
+    final options = (_pollResults!['options'] as List?) ?? [];
+    final scaleMin = _pollResults?['scaleMin'] as int? ?? 1;
+    final scaleMax = _pollResults?['scaleMax'] as int? ?? 10;
+    final scaleMinLabel = _pollResults?['scaleMinLabel'] as String?;
+    final scaleMaxLabel = _pollResults?['scaleMaxLabel'] as String?;
+    final scaleRange = scaleMax - scaleMin + 1;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Scale legend
+        if (scaleMinLabel != null || scaleMaxLabel != null) ...[
+          Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.sm),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (scaleMinLabel != null)
+                  Text(
+                    '$scaleMin = $scaleMinLabel',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
+                if (scaleMaxLabel != null)
+                  Text(
+                    '$scaleMax = $scaleMaxLabel',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+        // One row per option/item to rate
+        ...options.map((opt) {
+          final optMap = Map<String, dynamic>.from(opt as Map);
+          final optId = optMap['id'] as String;
+          final optText = optMap['text'] as String;
+          final currentRating = _pollScaleRatings[optId];
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(optText, style: Theme.of(context).textTheme.bodyMedium),
+                SizedBox(height: AppSpacing.xs),
+                // Scale buttons row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(scaleRange, (i) {
+                    final value = scaleMin + i;
+                    final isSelected = currentRating == value;
+                    return GestureDetector(
+                      onTap: _pollSubmitting
+                          ? null
+                          : () => setState(() => _pollScaleRatings[optId] = value),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: scaleRange <= 5 ? 48 : (scaleRange <= 7 ? 40 : 32),
+                        height: scaleRange <= 5 ? 48 : (scaleRange <= 7 ? 40 : 32),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected ? AppColors.primary : Colors.transparent,
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : AppColors.divider,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$value',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: isSelected ? FontWeight.bold : null,
+                                  color: isSelected ? Colors.white : null,
+                                ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -2415,7 +2751,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                             height: 120,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                            errorBuilder: (_, e, s) => const SizedBox.shrink(),
                           ),
                   ),
                   SizedBox(height: AppSpacing.sm),
@@ -2597,12 +2933,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   Future<void> _submitPollVote(EarnState state) async {
     final pollId = state.selectedOpportunity!.pollId!;
+    final questionType = _pollResults?['questionType'] as String? ?? 'multipleChoice';
     final isMultiSelect = _pollResults?['allowMultipleSelections'] == true;
 
     setState(() => _pollSubmitting = true);
 
     try {
-      // 1. Submit vote to poll system
+      // 1. Build type-specific vote data
       final callable =
           FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('submitPollVote');
 
@@ -2610,18 +2947,28 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         'pollId': pollId,
       };
 
-      if (isMultiSelect) {
-        voteData['selectedOptions'] = _pollSelectedOptions.toList();
-      } else {
-        voteData['selectedOption'] = _pollSelectedOption!;
-      }
-
-      // Include otherText if "other" is selected
-      final otherSelected = isMultiSelect
-          ? _pollSelectedOptions.contains('other')
-          : _pollSelectedOption == 'other';
-      if (otherSelected && _pollOtherTextController.text.trim().isNotEmpty) {
-        voteData['otherText'] = _pollOtherTextController.text.trim();
+      switch (questionType) {
+        case 'ranking':
+          voteData['rankedOptions'] = _pollRankedOptionIds;
+          break;
+        case 'text':
+          voteData['textResponse'] = _pollTextController.text.trim();
+          break;
+        case 'scale':
+          voteData['scaleRatings'] = _pollScaleRatings;
+          break;
+        default: // multipleChoice
+          if (isMultiSelect) {
+            voteData['selectedOptions'] = _pollSelectedOptions.toList();
+          } else {
+            voteData['selectedOption'] = _pollSelectedOption!;
+          }
+          final otherSelected = isMultiSelect
+              ? _pollSelectedOptions.contains('other')
+              : _pollSelectedOption == 'other';
+          if (otherSelected && _pollOtherTextController.text.trim().isNotEmpty) {
+            voteData['otherText'] = _pollOtherTextController.text.trim();
+          }
       }
 
       await callable.call(voteData);
@@ -2645,16 +2992,43 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       await Future.delayed(const Duration(seconds: 3));
       if (!mounted) return;
 
-      // Record the poll vote as a survey response
-      final effectiveSelection = isMultiSelect
-          ? _pollSelectedOptions.toList().join(',')
-          : _pollSelectedOption!;
-      _answers.add(SurveyResponse(
-        questionId: 'poll_vote',
-        questionType: isMultiSelect ? 'multi_select' : 'single_select',
-        selectedOption: effectiveSelection,
-        answeredAt: DateTime.now(),
-      ));
+      // Record the poll vote as a survey response (type-specific)
+      switch (questionType) {
+        case 'ranking':
+          _answers.add(SurveyResponse(
+            questionId: 'poll_vote',
+            questionType: 'ranking',
+            selectedOption: _pollRankedOptionIds.join(','),
+            answeredAt: DateTime.now(),
+          ));
+          break;
+        case 'text':
+          _answers.add(SurveyResponse(
+            questionId: 'poll_vote',
+            questionType: 'text_input',
+            textResponses: [_pollTextController.text.trim()],
+            answeredAt: DateTime.now(),
+          ));
+          break;
+        case 'scale':
+          _answers.add(SurveyResponse(
+            questionId: 'poll_vote',
+            questionType: 'scale',
+            selectedOption: _pollScaleRatings.entries.map((e) => '${e.key}:${e.value}').join(','),
+            answeredAt: DateTime.now(),
+          ));
+          break;
+        default: // multipleChoice
+          final effectiveSelection = isMultiSelect
+              ? _pollSelectedOptions.toList().join(',')
+              : _pollSelectedOption!;
+          _answers.add(SurveyResponse(
+            questionId: 'poll_vote',
+            questionType: isMultiSelect ? 'multi_select' : 'single_select',
+            selectedOption: effectiveSelection,
+            answeredAt: DateTime.now(),
+          ));
+      }
       _responseTimesMs.add(3000);
 
       _submitEngagement();
@@ -2681,13 +3055,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final totalRespondents = hasResults
         ? (results['totalRespondents'] as num?)?.toInt() ?? 0
         : 0;
-    final optionCounts = hasResults
-        ? Map<String, dynamic>.from(results['optionCounts'] as Map? ?? {})
-        : <String, dynamic>{};
-    final percentages = hasResults
-        ? Map<String, dynamic>.from(results['percentages'] as Map? ?? {})
-        : <String, dynamic>{};
     final resultVisibility = _pollResults?['resultVisibility'] as String? ?? 'immediate';
+    final questionType = _pollResults?['questionType'] as String? ?? 'multipleChoice';
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(AppSpacing.md),
@@ -2705,7 +3074,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                   SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Vote submitted! Earning tokens...',
+                      'Response submitted! Earning tokens...',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             color: AppColors.primary,
                           ),
@@ -2724,14 +3093,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ),
           SizedBox(height: AppSpacing.sm),
           Text(
-            '$totalRespondents vote${totalRespondents == 1 ? '' : 's'}',
+            '$totalRespondents response${totalRespondents == 1 ? '' : 's'}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
           SizedBox(height: AppSpacing.md),
 
-          // Results section — show bars or visibility message
+          // Results section — type-specific or visibility message
           if (!hasResults) ...[
             Card(
               child: Padding(
@@ -2754,104 +3123,315 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               ),
             ),
           ] else ...[
-          // Animated result bars
-          ...options.map((opt) {
-            final optMap = Map<String, dynamic>.from(opt as Map);
-            final optId = optMap['id'] as String;
-            final optText = optMap['text'] as String;
-            final pct =
-                (percentages[optId] as num?)?.toDouble() ?? 0.0;
-            final count =
-                (optionCounts[optId] as num?)?.toInt() ?? 0;
-            final isMyVote = optId == _pollSelectedOption || _pollSelectedOptions.contains(optId);
-
-            return Padding(
-              padding: EdgeInsets.only(bottom: AppSpacing.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          optText,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                fontWeight:
-                                    isMyVote ? FontWeight.bold : null,
-                              ),
-                        ),
-                      ),
-                      Text(
-                        '${pct.toStringAsFixed(0)}%',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isMyVote
-                                  ? AppColors.primary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      SizedBox(width: AppSpacing.xs),
-                      Text(
-                        '($count)',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 4),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: AppColors.divider,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: pct / 100),
-                        duration: const Duration(milliseconds: 800),
-                        curve: Curves.easeOut,
-                        builder: (context, value, _) {
-                          return FractionallySizedBox(
-                            widthFactor: value.clamp(0.0, 1.0),
-                            child: Container(
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: isMyVote
-                                    ? AppColors.primary
-                                    : AppColors.primary.withValues(alpha: 0.4),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      if (isMyVote)
-                        Positioned(
-                          left: 8,
-                          top: 4,
-                          child: Icon(Icons.check,
-                              size: 18, color: Colors.white),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
+            // Type-specific results display
+            ...switch (questionType) {
+              'ranking' => _buildRankingResults(options, results),
+              'text' => _buildTextResults(),
+              'scale' => _buildScaleResults(options, results),
+              _ => _buildMultipleChoiceResults(options, results),
+            },
           ], // end else hasResults
         ],
       ),
     );
+  }
+
+  /// Multiple-choice results: animated bar charts
+  List<Widget> _buildMultipleChoiceResults(List options, Map<String, dynamic> results) {
+    final optionCounts = Map<String, dynamic>.from(results['optionCounts'] as Map? ?? {});
+    final percentages = Map<String, dynamic>.from(results['percentages'] as Map? ?? {});
+
+    return options.map((opt) {
+      final optMap = Map<String, dynamic>.from(opt as Map);
+      final optId = optMap['id'] as String;
+      final optText = optMap['text'] as String;
+      final pct = (percentages[optId] as num?)?.toDouble() ?? 0.0;
+      final count = (optionCounts[optId] as num?)?.toInt() ?? 0;
+      final isMyVote = optId == _pollSelectedOption || _pollSelectedOptions.contains(optId);
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    optText,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: isMyVote ? FontWeight.bold : null,
+                        ),
+                  ),
+                ),
+                Text(
+                  '${pct.toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isMyVote ? AppColors.primary : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                SizedBox(width: AppSpacing.xs),
+                Text(
+                  '($count)',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+            SizedBox(height: 4),
+            Stack(
+              children: [
+                Container(
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: pct / 100),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOut,
+                  builder: (context, value, _) {
+                    return FractionallySizedBox(
+                      widthFactor: value.clamp(0.0, 1.0),
+                      child: Container(
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: isMyVote ? AppColors.primary : AppColors.primary.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (isMyVote)
+                  Positioned(
+                    left: 8,
+                    top: 4,
+                    child: Icon(Icons.check, size: 18, color: Colors.white),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  /// Ranking results: show average rank per option, sorted best to worst
+  List<Widget> _buildRankingResults(List options, Map<String, dynamic> results) {
+    final averageRanks = Map<String, dynamic>.from(results['averageRanks'] as Map? ?? {});
+
+    // Build list of (optId, text, avgRank) sorted by avgRank ascending (best first)
+    final ranked = options.map((opt) {
+      final optMap = Map<String, dynamic>.from(opt as Map);
+      final optId = optMap['id'] as String;
+      return (
+        id: optId,
+        text: optMap['text'] as String,
+        avgRank: (averageRanks[optId] as num?)?.toDouble() ?? 0.0,
+      );
+    }).toList()
+      ..sort((a, b) => a.avgRank.compareTo(b.avgRank));
+
+    final maxRank = options.length.toDouble();
+
+    return ranked.asMap().entries.map((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      final isMyTop = _pollRankedOptionIds.isNotEmpty && _pollRankedOptionIds.first == item.id;
+      // Invert: rank 1 = full bar, rank N = small bar
+      final barFraction = maxRank > 1 ? (maxRank - item.avgRank + 1) / maxRank : 1.0;
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Medal icon for top 3
+                if (index < 3)
+                  Padding(
+                    padding: EdgeInsets.only(right: AppSpacing.xs),
+                    child: Icon(
+                      Icons.emoji_events,
+                      size: 18,
+                      color: index == 0 ? const Color(0xFFFFD700) : index == 1 ? const Color(0xFFC0C0C0) : const Color(0xFFCD7F32),
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    item.text,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: isMyTop ? FontWeight.bold : null,
+                        ),
+                  ),
+                ),
+                Text(
+                  'Avg: ${item.avgRank.toStringAsFixed(1)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+            SizedBox(height: 4),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: barFraction),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (context, value, _) {
+                return FractionallySizedBox(
+                  widthFactor: value.clamp(0.0, 1.0),
+                  child: Container(
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: isMyTop ? AppColors.primary : AppColors.primary.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  /// Text results: just show a "thank you" message (individual texts are private)
+  List<Widget> _buildTextResults() {
+    return [
+      Card(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            children: [
+              const Icon(Icons.text_snippet_outlined, size: 32, color: AppColors.primary),
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                'Your response has been recorded. Thank you for your feedback!',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  /// Scale results: show average ratings per item with bars
+  List<Widget> _buildScaleResults(List options, Map<String, dynamic> results) {
+    final averageRatings = Map<String, dynamic>.from(results['averageRatings'] as Map? ?? {});
+    final scaleMin = _pollResults?['scaleMin'] as int? ?? 1;
+    final scaleMax = _pollResults?['scaleMax'] as int? ?? 10;
+    final scaleMinLabel = _pollResults?['scaleMinLabel'] as String?;
+    final scaleMaxLabel = _pollResults?['scaleMaxLabel'] as String?;
+    final range = (scaleMax - scaleMin).toDouble();
+
+    return [
+      // Scale legend
+      if (scaleMinLabel != null || scaleMaxLabel != null) ...[
+        Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (scaleMinLabel != null)
+                Text('$scaleMin = $scaleMinLabel',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        )),
+              if (scaleMaxLabel != null)
+                Text('$scaleMax = $scaleMaxLabel',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        )),
+            ],
+          ),
+        ),
+      ],
+      // Per-item average rating bars
+      ...options.map((opt) {
+        final optMap = Map<String, dynamic>.from(opt as Map);
+        final optId = optMap['id'] as String;
+        final optText = optMap['text'] as String;
+        final avgRating = (averageRatings[optId] as num?)?.toDouble() ?? 0.0;
+        final barFraction = range > 0 ? (avgRating - scaleMin) / range : 0.0;
+        final myRating = _pollScaleRatings[optId];
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(optText, style: Theme.of(context).textTheme.bodyMedium),
+                  ),
+                  Text(
+                    avgRating.toStringAsFixed(1),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                  ),
+                  if (myRating != null) ...[
+                    SizedBox(width: AppSpacing.xs),
+                    Text(
+                      '(you: $myRating)',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ],
+              ),
+              SizedBox(height: 4),
+              Stack(
+                children: [
+                  Container(
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppColors.divider,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: barFraction),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOut,
+                    builder: (context, value, _) {
+                      return FractionallySizedBox(
+                        widthFactor: value.clamp(0.0, 1.0),
+                        child: Container(
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      }),
+    ];
   }
 
   Widget _buildSubmittingState() {

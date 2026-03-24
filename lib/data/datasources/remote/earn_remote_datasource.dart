@@ -372,11 +372,15 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
           answers.map((a) => EngagementAnswerModel.fromEntity(a)).toList();
       final evidenceModel = EngagementEvidenceModel.fromEntity(evidence);
 
-      // Start Firestore read and Play Integrity token fetch in parallel
-      final nonce = _playIntegrity.generateNonce();
+      // Use the pre-generated nonce+token from the screen if available (started
+      // during surveying to eliminate the 3–10s native fetch at submit time).
+      // Fall back to a fresh fetch when not pre-generated (e.g. adVideo, upload).
+      final nonce = evidence.integrityNonce ?? _playIntegrity.generateNonce();
       final docFuture = _engagementsCollection.doc(engagementId).get();
       final integrityFuture =
-          _playIntegrity.getIntegrityToken(nonce: nonce);
+          (evidence.integrityToken != null && evidence.integrityNonce != null)
+              ? Future.value(evidence.integrityToken)
+              : _playIntegrity.getIntegrityToken(nonce: nonce);
 
       // Await both concurrently
       final doc = await docFuture;

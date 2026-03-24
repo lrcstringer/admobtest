@@ -57,6 +57,11 @@ abstract class AdMobConstants {
   /// Max manual retry rounds the user gets before "unavailable" (no more retry)
   static const int maxManualRetryRounds = 1;
 
+  /// Max consecutive show failures before treating ads as unavailable.
+  /// Show failures are distinct from load failures — the SDK reports "loaded"
+  /// but the ad won't play (e.g. no fill, expired creative, internal error).
+  static const int maxConsecutiveShowFailures = 2;
+
   // System Thread Configuration
   static const String systemThreadClientId = 'imalichat';
   static const String systemThreadClientName = 'IMaliChat';

@@ -135,8 +135,8 @@ export async function requirePlayIntegrity(
     const verdict = await decodeIntegrityToken(integrityToken, integrityNonce);
     const evaluation = evaluateVerdict(verdict, tier);
 
-    // Log the integrity check result
-    await db.collection("integrityChecks").add({
+    // Log the integrity check result — fire-and-forget (not on critical path).
+    db.collection("integrityChecks").add({
       userId,
       functionName,
       tier,
@@ -147,7 +147,9 @@ export async function requirePlayIntegrity(
       reason: evaluation.reason,
       allowed: enforce ? evaluation.allowed : true,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    }).catch((err: unknown) =>
+      logger.warn("[PlayIntegrity] Failed to log integrity check", err)
+    );
 
     if (evaluation.warn) {
       logger.warn(

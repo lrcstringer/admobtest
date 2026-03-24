@@ -31,6 +31,9 @@ _Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
       .map((e) => PollOption.fromJson(e as Map<String, dynamic>))
       .toList(),
   status: $enumDecode(_$PollStatusEnumMap, json['status']),
+  questionType:
+      $enumDecodeNullable(_$PollQuestionTypeEnumMap, json['questionType']) ??
+      PollQuestionType.multipleChoice,
   isAnonymous: json['isAnonymous'] as bool? ?? false,
   allowChangeVote: json['allowChangeVote'] as bool? ?? true,
   allowMultipleSelections: json['allowMultipleSelections'] as bool? ?? false,
@@ -63,6 +66,32 @@ _Poll _$PollFromJson(Map<String, dynamic> json) => _Poll(
       ? null
       : DateTime.parse(json['updatedAt'] as String),
   createdBy: json['createdBy'] as String,
+  scaleMin: (json['scaleMin'] as num?)?.toInt() ?? 1,
+  scaleMax: (json['scaleMax'] as num?)?.toInt() ?? 10,
+  scaleMinLabel: json['scaleMinLabel'] as String?,
+  scaleMaxLabel: json['scaleMaxLabel'] as String?,
+  scaleIntermediateLabels:
+      (json['scaleIntermediateLabels'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  textMinLength: (json['textMinLength'] as num?)?.toInt() ?? 1,
+  textMaxLength: (json['textMaxLength'] as num?)?.toInt() ?? 500,
+  averageRanks:
+      (json['averageRanks'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, (e as num).toDouble()),
+      ) ??
+      const {},
+  averageRatings:
+      (json['averageRatings'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, (e as num).toDouble()),
+      ) ??
+      const {},
+  ratingDistribution:
+      (json['ratingDistribution'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, Map<String, int>.from(e as Map)),
+      ) ??
+      const {},
   showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
 );
 
@@ -74,6 +103,7 @@ Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
   'question': instance.question,
   'options': instance.options,
   'status': _$PollStatusEnumMap[instance.status]!,
+  'questionType': _$PollQuestionTypeEnumMap[instance.questionType]!,
   'isAnonymous': instance.isAnonymous,
   'allowChangeVote': instance.allowChangeVote,
   'allowMultipleSelections': instance.allowMultipleSelections,
@@ -89,6 +119,16 @@ Map<String, dynamic> _$PollToJson(_Poll instance) => <String, dynamic>{
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
   'createdBy': instance.createdBy,
+  'scaleMin': instance.scaleMin,
+  'scaleMax': instance.scaleMax,
+  'scaleMinLabel': instance.scaleMinLabel,
+  'scaleMaxLabel': instance.scaleMaxLabel,
+  'scaleIntermediateLabels': instance.scaleIntermediateLabels,
+  'textMinLength': instance.textMinLength,
+  'textMaxLength': instance.textMaxLength,
+  'averageRanks': instance.averageRanks,
+  'averageRatings': instance.averageRatings,
+  'ratingDistribution': instance.ratingDistribution,
   'showResultsAfterVote': instance.showResultsAfterVote,
 };
 
@@ -97,6 +137,13 @@ const _$PollStatusEnumMap = {
   PollStatus.open: 'open',
   PollStatus.closed: 'closed',
   PollStatus.archived: 'archived',
+};
+
+const _$PollQuestionTypeEnumMap = {
+  PollQuestionType.multipleChoice: 'multipleChoice',
+  PollQuestionType.ranking: 'ranking',
+  PollQuestionType.text: 'text',
+  PollQuestionType.scale: 'scale',
 };
 
 const _$ResultVisibilityEnumMap = {
@@ -133,6 +180,17 @@ _PollResponse _$PollResponseFromJson(Map<String, dynamic> json) =>
         (k, e) => MapEntry(k, e as String?),
       ),
       otherText: json['otherText'] as String?,
+      rankedOptions:
+          (json['rankedOptions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      textResponse: json['textResponse'] as String?,
+      scaleRatings:
+          (json['scaleRatings'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, (e as num).toInt()),
+          ) ??
+          const {},
     );
 
 Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
@@ -153,6 +211,9 @@ Map<String, dynamic> _$PollResponseToJson(_PollResponse instance) =>
       'tokensAwarded': instance.tokensAwarded,
       'demographics': instance.demographics,
       'otherText': instance.otherText,
+      'rankedOptions': instance.rankedOptions,
+      'textResponse': instance.textResponse,
+      'scaleRatings': instance.scaleRatings,
     };
 
 _PollResults _$PollResultsFromJson(Map<String, dynamic> json) => _PollResults(

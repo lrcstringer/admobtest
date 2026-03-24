@@ -13,9 +13,16 @@ abstract class EarnEvent with _$EarnEvent {
     required String threadId,
   }) = _LoadOpportunities;
 
-  /// Select an opportunity to start engagement
+  /// Select an opportunity to start engagement (fetches from Firestore by ID).
+  /// Use [setSelectedOpportunity] instead when the full object is already in hand.
   const factory EarnEvent.selectOpportunity(String opportunityId) =
       _SelectOpportunity;
+
+  /// Set the selected opportunity directly from an in-hand object — zero Firestore
+  /// round-trip. Use this when navigating from a screen that already holds the
+  /// full [EarnOpportunity] (e.g. the thread screen's opportunity list).
+  const factory EarnEvent.setSelectedOpportunity(EarnOpportunity opportunity) =
+      _SetSelectedOpportunity;
 
   /// Start engagement with an opportunity
   const factory EarnEvent.startEngagement({required String opportunityId}) =
@@ -69,6 +76,10 @@ abstract class EarnEvent with _$EarnEvent {
   const factory EarnEvent.adVideoFailed({required String reason}) =
       _AdVideoFailed;
 
+  /// Called when the ad show call fails (load reported ready but play failed).
+  /// Tracked separately from load failures to detect persistent show issues.
+  const factory EarnEvent.adShowFailed() = _AdShowFailed;
+
   /// Internal: AdMob ready state changed via ValueNotifier
   const factory EarnEvent.adReadyStateChanged({required bool isReady}) =
       _AdReadyStateChanged;
@@ -80,6 +91,11 @@ abstract class EarnEvent with _$EarnEvent {
   /// Internal: AdMob load attempt number changed (1-based during loading, 0 when idle)
   const factory EarnEvent.adLoadAttemptChanged({required int attempt}) =
       _AdLoadAttemptChanged;
+
+  /// Internal: fired when loadAdWithRetry() resolves (success or exhausted).
+  /// Used to track adRetryRound without blocking the event queue on the await.
+  const factory EarnEvent.adLoadComplete({required bool success}) =
+      _AdLoadComplete;
 
   // Upload Events
 

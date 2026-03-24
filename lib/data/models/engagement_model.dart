@@ -123,6 +123,7 @@ abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
   const factory EngagementEvidenceModel({
     required String deviceFingerprint,
     String? integrityToken,
+    String? integrityNonce,
     required int watchDurationMs,
     required bool videoSeeked,
     required bool screenVisible,
@@ -151,6 +152,7 @@ abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
     return EngagementEvidenceModel(
       deviceFingerprint: json['deviceFingerprint'] as String,
       integrityToken: json['integrityToken'] as String?,
+      integrityNonce: json['integrityNonce'] as String?,
       watchDurationMs: json['watchDurationMs'] as int,
       videoSeeked: json['videoSeeked'] as bool,
       screenVisible: json['screenVisible'] as bool,
@@ -190,6 +192,7 @@ abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
     return EngagementEvidence(
       deviceFingerprint: deviceFingerprint,
       integrityToken: integrityToken,
+      integrityNonce: integrityNonce,
       watchDurationMs: watchDurationMs,
       videoSeeked: videoSeeked,
       screenVisible: screenVisible,
@@ -222,6 +225,7 @@ abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
     return EngagementEvidenceModel(
       deviceFingerprint: entity.deviceFingerprint,
       integrityToken: entity.integrityToken,
+      integrityNonce: entity.integrityNonce,
       watchDurationMs: entity.watchDurationMs,
       videoSeeked: entity.videoSeeked,
       screenVisible: entity.screenVisible,
@@ -254,6 +258,7 @@ abstract class EngagementEvidenceModel with _$EngagementEvidenceModel {
     return {
       'deviceFingerprint': deviceFingerprint,
       if (integrityToken != null) 'integrityToken': integrityToken,
+      if (integrityNonce != null) 'integrityNonce': integrityNonce,
       'watchDurationMs': watchDurationMs,
       'videoSeeked': videoSeeked,
       'screenVisible': screenVisible,

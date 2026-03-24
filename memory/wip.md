@@ -1,34 +1,44 @@
-# WIP: Fix E2EE OTK Race Condition — "Session expired" on Fresh Install
+# WIP: Poll Question Types Expansion (Types 1-4)
 
 ## Status: IMPLEMENTED (not committed)
 
-### Problem
-On fresh install, incoming messages show "Session expired — message unavailable" for ~15 minutes before working. Root cause: rapid Firestore snapshot events exhaust the 3-attempt decrypt failure limit in seconds, permanently marking messages as unrecoverable before the E2EE session has a chance to establish.
+### What was built
+4 question types for the Poll earning type (type 1 already existed):
 
-### What was fixed
+1. **Multiple-Choice** — Already implemented (singleSelect/multiSelect) — no changes needed
+2. **Ranking** — Drag-to-reorder all options with `ReorderableListView`, rank number badges, medal icons in results, average rank computed from all responses
+3. **Text** — Free-text response with configurable min/max length, `TextField` with counter, "response recorded" results display (individual texts are private)
+4. **Scale/Rating** — Rate each item on a numeric scale (configurable min/max 1-10), tappable circle buttons per scale position, label endpoints (e.g. "Extremely unlikely" / "Extremely likely"), animated bar chart results with average ratings
 
-1. **Time-gated failure counting** (`message_decryption_service.dart`)
-   - Added `_failureTimestamps` map + `_failureGateInterval = 30s`
-   - `recordFailure()` now skips counting if <30s since last failure for same message
-   - Prevents rapid snapshots from exhausting `maxDecryptAttempts` in seconds
-   - Increased `maxDecryptAttempts` from 3 → 5
-   - Timestamps cleaned up in `resetFailures()`, `resetSessionForPeer()`, `_evictFailuresIfNeeded()`
-
-2. **DB permanent sentinel recovery** (`app_database.dart`)
-   - New `clearPermanentSentinel(conversationId, senderId)` method
-   - Changes `[Session expired — message cannot be recovered]` → `[Cannot decrypt]` with `isDecrypted: false`
-   - Allows retry on next Firestore snapshot
-
-3. **Session-establishment retry with DB cleanup** (`message_sync_service.dart`)
-   - When `sendersWithGoodSession` is populated, now calls `clearPermanentSentinel()` BEFORE resetting in-memory counters
-   - Previously, the DB sentinel persisted even after session was established, blocking all future retries
+### Key design decisions
+- `PollQuestionType` enum added: `multipleChoice`, `ranking`, `text`, `scale`
+- PollResponse is polymorphic: `rankedOptions`, `textResponse`, `scaleRatings` fields alongside existing `selectedOption`/`selectedOptions`
+- Aggregation: multipleChoice uses `optionCounts`, ranking computes `averageRanks` from responses on read, scale uses `ratingDistribution` with atomic increments, text just counts respondents
+- Fully backward compatible: `questionType` defaults to `multipleChoice`, existing polls unaffected
+- Options not required for text questions (validation relaxed from 2-6 to 2-20 for non-text)
 
 ### Files modified
-- `lib/core/services/message_decryption_service.dart`
-- `lib/core/services/message_sync_service.dart`
-- `lib/data/datasources/local/app_database.dart`
+
+**Flutter domain/data:**
+- `lib/domain/entities/poll.dart` — `PollQuestionType` enum, new fields on Poll (scale/text config, aggregation), new fields on PollResponse
+- `lib/data/models/poll_model.dart` — Mirror entity changes, `_parseRatingDistribution`, `_parsePollQuestionType`
+- `lib/domain/repositories/poll_repository.dart` — `submitVote`/`changeVote` now accept `Map<String, dynamic> voteData`
+- `lib/data/repositories/poll_repository_impl.dart` — Pass polymorphic data
+- `lib/data/datasources/remote/poll_remote_datasource.dart` — Accept polymorphic vote data with spread operator
+
+**Cloud Functions:**
+- `functions/src/poll.ts` — `submitPollVote`/`changePollVote` dispatch on `questionType` for validation/aggregation/idempotency. `getPollResults` returns type-specific results. `invalidatePollResponse` handles type-specific counter reversal.
+- `functions/src/pollAdmin.ts` — `createPoll` accepts `questionType`, scale config, text config. `updatePoll` handles new config fields. `getPollAdminDetails` returns type-specific analytics (text responses, average ranks/ratings, rating distribution).
+- `functions/src/engagement.ts` — Poll evidence validation accepts new response types
+
+**Flutter UI:**
+- `lib/presentation/screens/earn/earn_interaction_screen.dart` — Type dispatch in `_buildPollVoteState`, new state vars (`_pollRankedOptionIds/Texts`, `_pollTextController`, `_pollScaleRatings`), new builders (`_buildRankingPollBody`, `_buildTextPollBody`, `_buildScalePollBody`), type-specific results (`_buildRankingResults`, `_buildTextResults`, `_buildScaleResults`), type-specific submission in `_submitPollVote`
+
+**Admin portal:**
+- `lib/presentation/admin/screens/earn_management_screen.dart` — Question type dropdown, conditional options/scale/text config sections, multi-select & "other" toggles hidden for non-MC types, `_handleCreatePoll()` sends `questionType` + type-specific config, validation per type, controller disposal
 
 ### Not yet done
 - No commit (user hasn't asked)
 - No git push
-- Version bumped to 1.1.0+11 (separate change)
+- No Firebase deploy
+- Admin poll *edit* form not yet updated with question type selector (only create form done)

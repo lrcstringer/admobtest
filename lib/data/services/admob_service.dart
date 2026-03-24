@@ -18,6 +18,10 @@ class AdRewardResult {
   /// AdMob response ID — uniquely identifies the ad impression (useful for debugging with Google)
   final String? responseId;
 
+  /// AdMob error code from onAdFailedToShowFullScreenContent (null on success or user close)
+  /// 0=unknown, 1=invalid request, 2=no fill, 3=network error, 4=internal error
+  final int? errorCode;
+
   const AdRewardResult({
     required this.success,
     this.transactionId,
@@ -25,6 +29,7 @@ class AdRewardResult {
     this.rewardType,
     this.errorMessage,
     this.responseId,
+    this.errorCode,
   });
 
   factory AdRewardResult.success({
@@ -42,10 +47,11 @@ class AdRewardResult {
     );
   }
 
-  factory AdRewardResult.failure(String errorMessage) {
+  factory AdRewardResult.failure(String errorMessage, {int? errorCode}) {
     return AdRewardResult(
       success: false,
       errorMessage: errorMessage,
+      errorCode: errorCode,
     );
   }
 }
@@ -125,6 +131,8 @@ class AdMobService {
               // Stale callback — ignore (don't reset isAdReady)
               return;
             }
+            debugPrint(
+                '[AdMob] LOAD FAILED — code: ${error.code}, domain: ${error.domain}, message: ${error.message}');
             _isLoading = false;
             isLoading.value = false;
             // Only reset isAdReady if no ad is actually loaded
@@ -283,14 +291,18 @@ class AdMobService {
         loadAdWithRetry();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint(
+            '[AdMob] SHOW FAILED — code: ${error.code}, domain: ${error.domain}, message: ${error.message}');
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
         isAdReady.value = false;
 
         if (!completer.isCompleted) {
-          completer.complete(
-              AdRewardResult.failure('Ad failed to show: ${error.message}'));
+          completer.complete(AdRewardResult.failure(
+            'Ad failed to show: [${error.code}] ${error.message}',
+            errorCode: error.code,
+          ));
         }
 
         // Try to load next ad (will be used by retry loop or future calls)

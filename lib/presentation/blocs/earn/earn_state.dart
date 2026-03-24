@@ -51,6 +51,9 @@ abstract class EarnState with _$EarnState {
     @Default(0) int adLoadAttempt,
     /// How many full retry rounds have been exhausted (0 = first attempt, 1 = user retried once)
     @Default(0) int adRetryRound,
+    /// Consecutive show failures — ad SDK said loaded but play failed.
+    /// Reset to 0 on successful completion or engagement reset.
+    @Default(0) int adShowFailureCount,
     // Upload progress
     double? uploadProgress,
     int? uploadBytesTransferred,

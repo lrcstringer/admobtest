@@ -11,6 +11,7 @@ class PollModel {
   final String question;
   final List<PollOptionModel> options;
   final String status;
+  final String questionType; // 'multipleChoice', 'ranking', 'text', 'scale'
   final bool isAnonymous;
   final bool allowChangeVote;
   final bool allowMultipleSelections;
@@ -23,6 +24,19 @@ class PollModel {
   final DateTime? closedAt;
   final int totalRespondents;
   final Map<String, int> optionCounts;
+  // Scale question config
+  final int scaleMin;
+  final int scaleMax;
+  final String? scaleMinLabel;
+  final String? scaleMaxLabel;
+  final List<String> scaleIntermediateLabels;
+  // Text question config
+  final int textMinLength;
+  final int textMaxLength;
+  // Type-specific aggregation
+  final Map<String, double> averageRanks;
+  final Map<String, double> averageRatings;
+  final Map<String, Map<String, int>> ratingDistribution;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String createdBy;
@@ -36,6 +50,7 @@ class PollModel {
     required this.question,
     required this.options,
     required this.status,
+    this.questionType = 'multipleChoice',
     this.isAnonymous = false,
     this.allowChangeVote = true,
     this.allowMultipleSelections = false,
@@ -48,6 +63,16 @@ class PollModel {
     this.closedAt,
     this.totalRespondents = 0,
     this.optionCounts = const {},
+    this.scaleMin = 1,
+    this.scaleMax = 10,
+    this.scaleMinLabel,
+    this.scaleMaxLabel,
+    this.scaleIntermediateLabels = const [],
+    this.textMinLength = 1,
+    this.textMaxLength = 500,
+    this.averageRanks = const {},
+    this.averageRatings = const {},
+    this.ratingDistribution = const {},
     required this.createdAt,
     this.updatedAt,
     required this.createdBy,
@@ -67,6 +92,7 @@ class PollModel {
               .toList() ??
           [],
       status: json['status'] as String? ?? 'draft',
+      questionType: json['questionType'] as String? ?? 'multipleChoice',
       isAnonymous: json['isAnonymous'] as bool? ?? false,
       allowChangeVote: json['allowChangeVote'] as bool? ?? true,
       allowMultipleSelections:
@@ -82,11 +108,51 @@ class PollModel {
       optionCounts: (json['optionCounts'] as Map?)?.map(
               (k, v) => MapEntry(k as String, (v as num).toInt())) ??
           {},
+      scaleMin: json['scaleMin'] as int? ?? 1,
+      scaleMax: json['scaleMax'] as int? ?? 10,
+      scaleMinLabel: json['scaleMinLabel'] as String?,
+      scaleMaxLabel: json['scaleMaxLabel'] as String?,
+      scaleIntermediateLabels: (json['scaleIntermediateLabels'] as List?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      textMinLength: json['textMinLength'] as int? ?? 1,
+      textMaxLength: json['textMaxLength'] as int? ?? 500,
+      averageRanks: (json['averageRanks'] as Map?)?.map(
+              (k, v) => MapEntry(k as String, (v as num).toDouble())) ??
+          {},
+      averageRatings: (json['averageRatings'] as Map?)?.map(
+              (k, v) => MapEntry(k as String, (v as num).toDouble())) ??
+          {},
+      ratingDistribution: _parseRatingDistribution(json['ratingDistribution']),
       createdAt: _parseTimestamp(json['createdAt']) ?? DateTime.now(),
       updatedAt: _parseTimestamp(json['updatedAt']),
       createdBy: json['createdBy'] as String? ?? '',
       showResultsAfterVote: json['showResultsAfterVote'] as bool? ?? true,
     );
+  }
+
+  static Map<String, Map<String, int>> _parseRatingDistribution(dynamic value) {
+    if (value == null || value is! Map) return {};
+    return value.map((optId, dist) {
+      final inner = (dist as Map?)?.map(
+              (k, v) => MapEntry(k.toString(), (v as num).toInt())) ??
+          <String, int>{};
+      return MapEntry(optId as String, inner);
+    });
+  }
+
+  static PollQuestionType _parsePollQuestionType(String value) {
+    switch (value) {
+      case 'ranking':
+        return PollQuestionType.ranking;
+      case 'text':
+        return PollQuestionType.text;
+      case 'scale':
+        return PollQuestionType.scale;
+      default:
+        return PollQuestionType.multipleChoice;
+    }
   }
 
   static DateTime? _parseTimestamp(dynamic value) {
@@ -105,6 +171,7 @@ class PollModel {
       question: question,
       options: options.map((o) => o.toEntity()).toList(),
       status: _parsePollStatus(status),
+      questionType: _parsePollQuestionType(questionType),
       isAnonymous: isAnonymous,
       allowChangeVote: allowChangeVote,
       allowMultipleSelections: allowMultipleSelections,
@@ -117,6 +184,16 @@ class PollModel {
       closedAt: closedAt,
       totalRespondents: totalRespondents,
       optionCounts: optionCounts,
+      scaleMin: scaleMin,
+      scaleMax: scaleMax,
+      scaleMinLabel: scaleMinLabel,
+      scaleMaxLabel: scaleMaxLabel,
+      scaleIntermediateLabels: scaleIntermediateLabels,
+      textMinLength: textMinLength,
+      textMaxLength: textMaxLength,
+      averageRanks: averageRanks,
+      averageRatings: averageRatings,
+      ratingDistribution: ratingDistribution,
       createdAt: createdAt,
       updatedAt: updatedAt,
       createdBy: createdBy,
@@ -201,6 +278,12 @@ class PollResponseModel {
   final bool tokensAwarded;
   final Map<String, String?>? demographics;
   final String? otherText;
+  // Ranking response
+  final List<String> rankedOptions;
+  // Text response
+  final String? textResponse;
+  // Scale response
+  final Map<String, int> scaleRatings;
 
   PollResponseModel({
     required this.userId,
@@ -219,6 +302,9 @@ class PollResponseModel {
     this.tokensAwarded = false,
     this.demographics,
     this.otherText,
+    this.rankedOptions = const [],
+    this.textResponse,
+    this.scaleRatings = const {},
   });
 
   factory PollResponseModel.fromJson(Map<String, dynamic> json) {
@@ -244,6 +330,14 @@ class PollResponseModel {
       demographics: (json['demographics'] as Map?)?.map(
           (k, v) => MapEntry(k as String, v as String?)),
       otherText: json['otherText'] as String?,
+      rankedOptions: (json['rankedOptions'] as List?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      textResponse: json['textResponse'] as String?,
+      scaleRatings: (json['scaleRatings'] as Map?)?.map(
+              (k, v) => MapEntry(k as String, (v as num).toInt())) ??
+          {},
     );
   }
 
@@ -265,6 +359,9 @@ class PollResponseModel {
       tokensAwarded: tokensAwarded,
       demographics: demographics,
       otherText: otherText,
+      rankedOptions: rankedOptions,
+      textResponse: textResponse,
+      scaleRatings: scaleRatings,
     );
   }
 }

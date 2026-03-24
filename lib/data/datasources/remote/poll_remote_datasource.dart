@@ -8,26 +8,26 @@ class PollRemoteDataSource {
 
   PollRemoteDataSource(this._functions);
 
-  /// Submit a vote
+  /// Submit a vote (polymorphic data based on questionType)
   Future<Map<String, dynamic>> submitVote({
     required String pollId,
-    required String selectedOption,
+    required Map<String, dynamic> voteData,
   }) async {
     final result = await _functions.httpsCallable('submitPollVote').call({
       'pollId': pollId,
-      'selectedOption': selectedOption,
+      ...voteData,
     });
     return Map<String, dynamic>.from(result.data as Map);
   }
 
-  /// Change an existing vote
+  /// Change an existing vote (polymorphic data based on questionType)
   Future<Map<String, dynamic>> changeVote({
     required String pollId,
-    required String newOption,
+    required Map<String, dynamic> voteData,
   }) async {
     final result = await _functions.httpsCallable('changePollVote').call({
       'pollId': pollId,
-      'newOption': newOption,
+      ...voteData,
     });
     return Map<String, dynamic>.from(result.data as Map);
   }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -26,6 +28,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_SelectThread>(_onSelectThread);
     on<_LoadOpportunities>(_onLoadOpportunities);
     on<_SelectOpportunity>(_onSelectOpportunity);
+    on<_SetSelectedOpportunity>(_onSetSelectedOpportunity);
     on<_StartEngagement>(_onStartEngagement);
     on<_UpdateWatchProgress>(_onUpdateWatchProgress);
     on<_SubmitSurvey>(_onSubmitSurvey);
@@ -39,9 +42,11 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     on<_LoadAdVideo>(_onLoadAdVideo);
     on<_AdVideoCompleted>(_onAdVideoCompleted);
     on<_AdVideoFailed>(_onAdVideoFailed);
+    on<_AdShowFailed>(_onAdShowFailed);
     on<_AdReadyStateChanged>(_onAdReadyStateChanged);
     on<_AdLoadingStateChanged>(_onAdLoadingStateChanged);
     on<_AdLoadAttemptChanged>(_onAdLoadAttemptChanged);
+    on<_AdLoadComplete>(_onAdLoadComplete);
     on<_SubmitUpload>(_onSubmitUpload);
     on<_UploadProgressChanged>(_onUploadProgressChanged);
 
@@ -167,10 +172,32 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     );
   }
 
+  void _onSetSelectedOpportunity(
+    _SetSelectedOpportunity event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(
+      selectedOpportunity: event.opportunity,
+      currentEngagement: null,
+      engagementPhase: EngagementPhase.idle,
+      errorMessage: null,
+      adTransactionId: null,
+      adResponseId: null,
+      rewardItemId: null,
+      rewardCampaignName: null,
+      rewardType: null,
+    ));
+  }
+
   Future<void> _onSelectOpportunity(
     _SelectOpportunity event,
     Emitter<EarnState> emit,
   ) async {
+    // Idempotent: skip the Firestore fetch if we already have this opportunity.
+    // Prevents a duplicate round-trip when selectOpportunity is dispatched at
+    // navigation time and again as a fallback in initState.
+    if (state.selectedOpportunity?.id == event.opportunityId) return;
+
     final result = await _earnRepository.getOpportunityById(event.opportunityId);
 
     result.fold(
@@ -182,6 +209,14 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       (opportunity) {
         emit(state.copyWith(
           selectedOpportunity: opportunity,
+          currentEngagement: null,
+          engagementPhase: EngagementPhase.idle,
+          errorMessage: null,
+          adTransactionId: null,
+          adResponseId: null,
+          rewardItemId: null,
+          rewardCampaignName: null,
+          rewardType: null,
         ));
       },
     );
@@ -451,6 +486,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       rewardItemId: null,
       rewardCampaignName: null,
       rewardType: null,
+      adShowFailureCount: 0,
     ));
   }
 
@@ -468,22 +504,26 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
 
     emit(state.copyWith(isAdLoading: true, adLoadAttempt: 1));
 
-    final success = await _adMobService.loadAdWithRetry();
+    // Fire and forget — do NOT await. The BLoC event queue would be blocked
+    // for the full ad load duration (2–5 s) if we awaited here, preventing
+    // startEngagement from running in parallel.
+    //
+    // isAdLoading / isAdReady / adLoadAttempt are kept in sync by the
+    // ValueNotifier listeners registered in the constructor. adLoadComplete
+    // handles the retry-round increment when all retries are exhausted.
+    unawaited(_adMobService.loadAdWithRetry().then((success) {
+      if (!isClosed) add(EarnEvent.adLoadComplete(success: success));
+    }));
+  }
 
-    if (success) {
-      emit(state.copyWith(
-        isAdLoading: false,
-        isAdReady: true,
-        adLoadAttempt: 0,
-      ));
-    } else {
-      // All automatic retries exhausted — bump retry round
-      emit(state.copyWith(
-        isAdLoading: false,
-        isAdReady: false,
-        adLoadAttempt: 0,
-        adRetryRound: state.adRetryRound + 1,
-      ));
+  void _onAdLoadComplete(
+    _AdLoadComplete event,
+    Emitter<EarnState> emit,
+  ) {
+    if (!event.success) {
+      // All automatic retries exhausted — bump retry round so the UI can
+      // show the "unavailable" state and gate further manual retries.
+      emit(state.copyWith(adRetryRound: state.adRetryRound + 1));
     }
   }
 
@@ -503,6 +543,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       adTransactionId: event.transactionId,
       adResponseId: event.responseId,
       engagementPhase: EngagementPhase.surveying,
+      adShowFailureCount: 0,
     ));
   }
 
@@ -514,6 +555,15 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       engagementPhase: EngagementPhase.failed,
       errorMessage: event.reason,
       adTransactionId: null,
+    ));
+  }
+
+  void _onAdShowFailed(
+    _AdShowFailed event,
+    Emitter<EarnState> emit,
+  ) {
+    emit(state.copyWith(
+      adShowFailureCount: state.adShowFailureCount + 1,
     ));
   }
 

@@ -29,7 +29,13 @@ class _EarnScreenState extends State<EarnScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<EarnInboxBloc>().add(const EarnInboxEvent.loadInbox());
+    // Only dispatch if the auth-time prefetch hasn't started yet.
+    // app.dart fires loadInbox on auth, so by the time the user reaches
+    // this screen the bloc is already loading or loaded.
+    final bloc = context.read<EarnInboxBloc>();
+    if (bloc.state.status == EarnInboxStatus.initial) {
+      bloc.add(const EarnInboxEvent.loadInbox());
+    }
   }
 
   @override
@@ -478,7 +484,7 @@ class _EarnScreenState extends State<EarnScreen> {
           children: [
             Flexible(
               child: Text(
-                'Chat with brands, complete tasks, earn tokens.',
+                'Complete tasks to earn tokens.',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -862,11 +868,10 @@ class _EarnScreenState extends State<EarnScreen> {
               : () {
                   if (thread.isSingleOpportunity) {
                     // Single opportunity — skip intermediate screen.
-                    // Engagement starts when user taps "Start Earning" on
-                    // the interaction screen.
-                    context
-                        .read<EarnBloc>()
-                        .add(EarnEvent.selectThread(thread.id));
+                    // Pre-fetch during navigation animation; skip selectThread
+                    // since loadOpportunities is not needed for single-opp flow.
+                    context.read<EarnBloc>().add(EarnEvent.selectOpportunity(
+                        thread.singleOpportunityId!));
                     context.push(
                         '/earn/opportunity/${thread.singleOpportunityId}');
                   } else {

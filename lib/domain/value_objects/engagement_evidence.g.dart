@@ -34,6 +34,7 @@ _EngagementEvidence _$EngagementEvidenceFromJson(Map<String, dynamic> json) =>
     _EngagementEvidence(
       deviceFingerprint: json['deviceFingerprint'] as String,
       integrityToken: json['integrityToken'] as String?,
+      integrityNonce: json['integrityNonce'] as String?,
       watchDurationMs: (json['watchDurationMs'] as num).toInt(),
       videoSeeked: json['videoSeeked'] as bool,
       screenVisible: json['screenVisible'] as bool,
@@ -63,6 +64,7 @@ Map<String, dynamic> _$EngagementEvidenceToJson(_EngagementEvidence instance) =>
     <String, dynamic>{
       'deviceFingerprint': instance.deviceFingerprint,
       'integrityToken': instance.integrityToken,
+      'integrityNonce': instance.integrityNonce,
       'watchDurationMs': instance.watchDurationMs,
       'videoSeeked': instance.videoSeeked,
       'screenVisible': instance.screenVisible,

@@ -66,56 +66,116 @@ export const submitPollVote = onCall(
       );
     }
 
+    const questionType = poll.questionType || "multipleChoice";
     const validOptionIds = (poll.options as { id: string; text: string }[]).map(
       (o) => o.id
     );
 
-    // Determine effective selections based on multi-select mode
-    const isMultiSelect = poll.allowMultipleSelections === true;
-    let effectiveSelections: string[];
+    // ===== Type-specific validation =====
+    let effectiveSelections: string[] = [];
+    let rankedOptions: string[] = [];
+    let textResponse: string | null = null;
+    let scaleRatings: Record<string, number> = {};
 
-    if (isMultiSelect) {
-      effectiveSelections = selectedOptions as string[] || [];
-      if (!effectiveSelections.length) {
-        throw new HttpsError("invalid-argument", "selectedOptions is required for multi-select polls");
-      }
-      // Validate maxSelections
-      if (poll.maxSelections && effectiveSelections.length > poll.maxSelections) {
-        throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
-      }
-    } else {
-      if (!selectedOption) {
-        throw new HttpsError("invalid-argument", "selectedOption is required");
-      }
-      effectiveSelections = [selectedOption];
-    }
-
-    // Validate all selected options are valid IDs (allow 'other' if enabled)
-    const allowOther = poll.allowOtherOption === true;
-    for (const optId of effectiveSelections) {
-      if (optId === "other") {
-        if (!allowOther) {
-          throw new HttpsError("invalid-argument", "'Other' option is not enabled for this poll");
+    switch (questionType) {
+      case "multipleChoice": {
+        const isMultiSelect = poll.allowMultipleSelections === true;
+        if (isMultiSelect) {
+          effectiveSelections = selectedOptions as string[] || [];
+          if (!effectiveSelections.length) {
+            throw new HttpsError("invalid-argument", "selectedOptions is required for multi-select polls");
+          }
+          if (poll.maxSelections && effectiveSelections.length > poll.maxSelections) {
+            throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
+          }
+        } else {
+          if (!selectedOption) {
+            throw new HttpsError("invalid-argument", "selectedOption is required");
+          }
+          effectiveSelections = [selectedOption];
         }
-        continue;
-      }
-      if (!validOptionIds.includes(optId)) {
-        throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
-      }
-    }
 
-    // Validate otherText
-    if (effectiveSelections.includes("other")) {
-      if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
-        throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+        // Validate option IDs (allow 'other' if enabled)
+        const allowOther = poll.allowOtherOption === true;
+        for (const optId of effectiveSelections) {
+          if (optId === "other") {
+            if (!allowOther) throw new HttpsError("invalid-argument", "'Other' option is not enabled for this poll");
+            continue;
+          }
+          if (!validOptionIds.includes(optId)) throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
+        }
+
+        // Validate otherText
+        if (effectiveSelections.includes("other")) {
+          if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
+            throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+          }
+          if (otherText.length > 200) throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+        }
+        break;
       }
-      if (otherText.length > 200) {
-        throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+
+      case "ranking": {
+        rankedOptions = data.rankedOptions as string[] || [];
+        if (!rankedOptions.length || rankedOptions.length !== validOptionIds.length) {
+          throw new HttpsError("invalid-argument", `Must rank all ${validOptionIds.length} options`);
+        }
+        // Every option must appear exactly once
+        const sortedRanked = [...rankedOptions].sort();
+        const sortedValid = [...validOptionIds].sort();
+        if (sortedRanked.join(",") !== sortedValid.join(",")) {
+          throw new HttpsError("invalid-argument", "Ranked options must contain exactly the poll's options");
+        }
+        break;
       }
+
+      case "text": {
+        textResponse = data.textResponse as string | null;
+        if (!textResponse || typeof textResponse !== "string" || textResponse.trim().length === 0) {
+          throw new HttpsError("invalid-argument", "textResponse is required");
+        }
+        const minLen = poll.textMinLength || 1;
+        const maxLen = poll.textMaxLength || 500;
+        if (textResponse.trim().length < minLen) {
+          throw new HttpsError("invalid-argument", `Response must be at least ${minLen} characters`);
+        }
+        if (textResponse.trim().length > maxLen) {
+          throw new HttpsError("invalid-argument", `Response must be ${maxLen} characters or less`);
+        }
+        textResponse = textResponse.trim();
+        break;
+      }
+
+      case "scale": {
+        scaleRatings = data.scaleRatings as Record<string, number> || {};
+        const sMin = poll.scaleMin || 1;
+        const sMax = poll.scaleMax || 10;
+
+        // Must rate every option
+        for (const optId of validOptionIds) {
+          if (scaleRatings[optId] === undefined || scaleRatings[optId] === null) {
+            throw new HttpsError("invalid-argument", `Rating required for option ${optId}`);
+          }
+          const val = scaleRatings[optId];
+          if (typeof val !== "number" || !Number.isInteger(val) || val < sMin || val > sMax) {
+            throw new HttpsError("invalid-argument", `Rating for ${optId} must be an integer between ${sMin} and ${sMax}`);
+          }
+        }
+        // No extra keys
+        for (const key of Object.keys(scaleRatings)) {
+          if (!validOptionIds.includes(key)) {
+            throw new HttpsError("invalid-argument", `Unknown option: ${key}`);
+          }
+        }
+        break;
+      }
+
+      default:
+        throw new HttpsError("invalid-argument", `Unsupported questionType: ${questionType}`);
     }
 
     // For single-select backward compat, primary option is first selection
-    const primaryOption = effectiveSelections[0];
+    const primaryOption = effectiveSelections.length > 0 ? effectiveSelections[0] : "";
 
     // Check for existing response (idempotency check)
     const responseRef = pollRef.collection("responses").doc(userId);
@@ -124,14 +184,34 @@ export const submitPollVote = onCall(
     if (existingResponse.exists) {
       const existing = existingResponse.data()!;
       if (existing.status === "valid") {
-        // Check if exact same selections — idempotent
-        const existingSelections: string[] = existing.selectedOptions || [existing.selectedOption];
-        const sameSelections = effectiveSelections.length === existingSelections.length &&
-          effectiveSelections.every((s) => existingSelections.includes(s));
-        if (sameSelections) {
+        // Idempotency check based on question type
+        let isSame = false;
+        switch (questionType) {
+          case "multipleChoice": {
+            const existingSel: string[] = existing.selectedOptions || [existing.selectedOption];
+            isSame = effectiveSelections.length === existingSel.length &&
+              effectiveSelections.every((s) => existingSel.includes(s));
+            break;
+          }
+          case "ranking": {
+            const existingRanked: string[] = existing.rankedOptions || [];
+            isSame = rankedOptions.length === existingRanked.length &&
+              rankedOptions.every((s, i) => existingRanked[i] === s);
+            break;
+          }
+          case "text":
+            isSame = existing.textResponse === textResponse;
+            break;
+          case "scale": {
+            const existingRatings: Record<string, number> = existing.scaleRatings || {};
+            isSame = Object.keys(scaleRatings).length === Object.keys(existingRatings).length &&
+              Object.entries(scaleRatings).every(([k, v]) => existingRatings[k] === v);
+            break;
+          }
+        }
+        if (isSame) {
           return { success: true, alreadyVoted: true, tokensEarned: 0 };
         }
-        // Different selections — client must use changePollVote
         throw new HttpsError("already-exists", "ALREADY_VOTED_DIFFERENT");
       }
       // If status === "invalidated", allow re-vote as if new (fall through)
@@ -155,41 +235,56 @@ export const submitPollVote = onCall(
 
     // Atomic transaction: increment counters + create response
     await db.runTransaction(async (tx) => {
-      // Re-read poll inside transaction for consistency
       const pollInTx = await tx.get(pollRef);
       if (!pollInTx.exists || pollInTx.data()!.status !== "open") {
-        throw new HttpsError(
-          "failed-precondition",
-          "Poll is no longer open"
-        );
+        throw new HttpsError("failed-precondition", "Poll is no longer open");
       }
 
-      // Re-check response inside transaction
       const responseInTx = await tx.get(responseRef);
-      if (
-        responseInTx.exists &&
-        responseInTx.data()!.status === "valid"
-      ) {
-        // Race condition: another request already voted
-        return;
+      if (responseInTx.exists && responseInTx.data()!.status === "valid") {
+        return; // Race condition: another request already voted
       }
 
-      // Increment counters — one respondent, but increment each selected option
+      // Build counter updates based on question type
       const counterUpdates: Record<string, unknown> = {
         totalRespondents: admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
-      for (const optId of effectiveSelections) {
-        if (optId !== "other") {
-          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(1);
-        }
+
+      switch (questionType) {
+        case "multipleChoice":
+          for (const optId of effectiveSelections) {
+            if (optId !== "other") {
+              counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(1);
+            }
+          }
+          break;
+
+        case "ranking":
+          // Update running average ranks: new_avg = ((old_avg * (n-1)) + rank) / n
+          // We'll compute this from response data in getPollResults/getPollAdminDetails instead
+          // Just increment respondent count here (averageRanks recomputed on read)
+          break;
+
+        case "text":
+          // No counters to update for text — just respondent count
+          break;
+
+        case "scale":
+          // Update rating distribution atomically
+          for (const [optId, rating] of Object.entries(scaleRatings)) {
+            counterUpdates[`ratingDistribution.${optId}.${rating}`] = admin.firestore.FieldValue.increment(1);
+          }
+          break;
       }
+
       tx.update(pollRef, counterUpdates);
 
-      // Create response document (keyed by userId)
+      // Create response document with type-specific fields
       tx.set(responseRef, {
         userId,
         pollId,
+        // multipleChoice fields (backward compat)
         selectedOption: primaryOption,
         selectedOptions: effectiveSelections,
         previousOption: null,
@@ -204,6 +299,12 @@ export const submitPollVote = onCall(
         tokensAwarded: false,
         demographics,
         otherText: effectiveSelections.includes("other") ? otherText?.trim() : null,
+        // Ranking fields
+        rankedOptions: rankedOptions.length > 0 ? rankedOptions : null,
+        // Text fields
+        textResponse: textResponse || null,
+        // Scale fields
+        scaleRatings: Object.keys(scaleRatings).length > 0 ? scaleRatings : null,
       });
     });
 
@@ -258,43 +359,89 @@ export const changePollVote = onCall(
       throw new HttpsError("failed-precondition", "Vote changes are not allowed for this poll");
     }
 
+    const questionType = poll.questionType || "multipleChoice";
     const validOptionIds = (poll.options as { id: string; text: string }[]).map((o) => o.id);
-    const isMultiSelect = poll.allowMultipleSelections === true;
-    const allowOther = poll.allowOtherOption === true;
 
-    let effectiveNew: string[];
-    if (isMultiSelect) {
-      effectiveNew = newOptions as string[] || [];
-      if (!effectiveNew.length) {
-        throw new HttpsError("invalid-argument", "newOptions is required for multi-select polls");
-      }
-      if (poll.maxSelections && effectiveNew.length > poll.maxSelections) {
-        throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
-      }
-    } else {
-      if (!newOption) {
-        throw new HttpsError("invalid-argument", "newOption is required");
-      }
-      effectiveNew = [newOption];
-    }
+    // ===== Type-specific validation for new vote =====
+    let effectiveNew: string[] = [];
+    let newRankedOptions: string[] = [];
+    let newTextResponse: string | null = null;
+    let newScaleRatings: Record<string, number> = {};
 
-    for (const optId of effectiveNew) {
-      if (optId === "other") {
-        if (!allowOther) throw new HttpsError("invalid-argument", "'Other' option is not enabled");
-        continue;
+    switch (questionType) {
+      case "multipleChoice": {
+        const isMultiSelect = poll.allowMultipleSelections === true;
+        const allowOther = poll.allowOtherOption === true;
+        if (isMultiSelect) {
+          effectiveNew = newOptions as string[] || [];
+          if (!effectiveNew.length) throw new HttpsError("invalid-argument", "newOptions is required for multi-select polls");
+          if (poll.maxSelections && effectiveNew.length > poll.maxSelections) {
+            throw new HttpsError("invalid-argument", `Cannot select more than ${poll.maxSelections} options`);
+          }
+        } else {
+          if (!newOption) throw new HttpsError("invalid-argument", "newOption is required");
+          effectiveNew = [newOption];
+        }
+        for (const optId of effectiveNew) {
+          if (optId === "other") {
+            if (!allowOther) throw new HttpsError("invalid-argument", "'Other' option is not enabled");
+            continue;
+          }
+          if (!validOptionIds.includes(optId)) throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
+        }
+        if (effectiveNew.includes("other")) {
+          if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
+            throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+          }
+          if (otherText.length > 200) throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+        }
+        break;
       }
-      if (!validOptionIds.includes(optId)) {
-        throw new HttpsError("invalid-argument", `Invalid option: ${optId}`);
-      }
-    }
 
-    if (effectiveNew.includes("other")) {
-      if (!otherText || typeof otherText !== "string" || otherText.trim().length === 0) {
-        throw new HttpsError("invalid-argument", "otherText is required when 'Other' is selected");
+      case "ranking": {
+        newRankedOptions = data.rankedOptions as string[] || [];
+        if (!newRankedOptions.length || newRankedOptions.length !== validOptionIds.length) {
+          throw new HttpsError("invalid-argument", `Must rank all ${validOptionIds.length} options`);
+        }
+        const sortedNew = [...newRankedOptions].sort();
+        const sortedValid = [...validOptionIds].sort();
+        if (sortedNew.join(",") !== sortedValid.join(",")) {
+          throw new HttpsError("invalid-argument", "Ranked options must contain exactly the poll's options");
+        }
+        break;
       }
-      if (otherText.length > 200) {
-        throw new HttpsError("invalid-argument", "otherText must be 200 characters or less");
+
+      case "text": {
+        newTextResponse = data.textResponse as string | null;
+        if (!newTextResponse || typeof newTextResponse !== "string" || newTextResponse.trim().length === 0) {
+          throw new HttpsError("invalid-argument", "textResponse is required");
+        }
+        const minLen = poll.textMinLength || 1;
+        const maxLen = poll.textMaxLength || 500;
+        if (newTextResponse.trim().length < minLen) throw new HttpsError("invalid-argument", `Response must be at least ${minLen} characters`);
+        if (newTextResponse.trim().length > maxLen) throw new HttpsError("invalid-argument", `Response must be ${maxLen} characters or less`);
+        newTextResponse = newTextResponse.trim();
+        break;
       }
+
+      case "scale": {
+        newScaleRatings = data.scaleRatings as Record<string, number> || {};
+        const sMin = poll.scaleMin || 1;
+        const sMax = poll.scaleMax || 10;
+        for (const optId of validOptionIds) {
+          if (newScaleRatings[optId] === undefined || newScaleRatings[optId] === null) {
+            throw new HttpsError("invalid-argument", `Rating required for option ${optId}`);
+          }
+          const val = newScaleRatings[optId];
+          if (typeof val !== "number" || !Number.isInteger(val) || val < sMin || val > sMax) {
+            throw new HttpsError("invalid-argument", `Rating for ${optId} must be an integer between ${sMin} and ${sMax}`);
+          }
+        }
+        break;
+      }
+
+      default:
+        throw new HttpsError("invalid-argument", `Unsupported questionType: ${questionType}`);
     }
 
     const responseRef = pollRef.collection("responses").doc(userId);
@@ -306,46 +453,104 @@ export const changePollVote = onCall(
       }
 
       const response = responseDoc.data()!;
-      const oldSelections: string[] = response.selectedOptions || [response.selectedOption];
 
-      // Check if selections are the same (idempotent)
-      const sameSelections = effectiveNew.length === oldSelections.length &&
-        effectiveNew.every((s) => oldSelections.includes(s));
-      if (sameSelections) return;
+      // Idempotency check
+      let isSame = false;
+      switch (questionType) {
+        case "multipleChoice": {
+          const oldSel: string[] = response.selectedOptions || [response.selectedOption];
+          isSame = effectiveNew.length === oldSel.length && effectiveNew.every((s) => oldSel.includes(s));
+          break;
+        }
+        case "ranking": {
+          const oldRanked: string[] = response.rankedOptions || [];
+          isSame = newRankedOptions.every((s, i) => oldRanked[i] === s);
+          break;
+        }
+        case "text":
+          isSame = response.textResponse === newTextResponse;
+          break;
+        case "scale": {
+          const oldRatings: Record<string, number> = response.scaleRatings || {};
+          isSame = Object.entries(newScaleRatings).every(([k, v]) => oldRatings[k] === v);
+          break;
+        }
+      }
+      if (isSame) return;
 
-      // Decrement old options, increment new options
-      // totalRespondents stays the same
+      // Build counter updates — totalRespondents stays the same
       const counterUpdates: Record<string, unknown> = {
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
-      for (const optId of oldSelections) {
-        if (optId !== "other") {
-          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
-        }
-      }
-      for (const optId of effectiveNew) {
-        if (optId !== "other") {
-          // If key already exists from decrement, net it out
-          const key = `optionCounts.${optId}`;
-          if (counterUpdates[key]) {
-            // Was decremented, now incrementing — cancel out (net 0)
-            delete counterUpdates[key];
-          } else {
-            counterUpdates[key] = admin.firestore.FieldValue.increment(1);
+
+      switch (questionType) {
+        case "multipleChoice": {
+          const oldSelections: string[] = response.selectedOptions || [response.selectedOption];
+          for (const optId of oldSelections) {
+            if (optId !== "other") counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
           }
+          for (const optId of effectiveNew) {
+            if (optId !== "other") {
+              const key = `optionCounts.${optId}`;
+              if (counterUpdates[key]) { delete counterUpdates[key]; }
+              else { counterUpdates[key] = admin.firestore.FieldValue.increment(1); }
+            }
+          }
+          break;
+        }
+
+        case "ranking":
+          // Rankings recomputed on read from all responses — no counters to update
+          break;
+
+        case "text":
+          // No counters for text
+          break;
+
+        case "scale": {
+          // Decrement old ratings, increment new ratings in distribution
+          const oldRatings: Record<string, number> = response.scaleRatings || {};
+          for (const [optId, oldVal] of Object.entries(oldRatings)) {
+            counterUpdates[`ratingDistribution.${optId}.${oldVal}`] = admin.firestore.FieldValue.increment(-1);
+          }
+          for (const [optId, newVal] of Object.entries(newScaleRatings)) {
+            const key = `ratingDistribution.${optId}.${newVal}`;
+            if (counterUpdates[key]) { delete counterUpdates[key]; }
+            else { counterUpdates[key] = admin.firestore.FieldValue.increment(1); }
+          }
+          break;
         }
       }
+
       tx.update(pollRef, counterUpdates);
 
-      // Update response
-      tx.update(responseRef, {
-        selectedOption: effectiveNew[0],
-        selectedOptions: effectiveNew,
-        previousOption: oldSelections[0],
+      // Update response with type-specific fields
+      const responseUpdate: Record<string, unknown> = {
         voteCount: admin.firestore.FieldValue.increment(1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        otherText: effectiveNew.includes("other") ? otherText?.trim() : null,
-      });
+      };
+
+      switch (questionType) {
+        case "multipleChoice": {
+          const oldSelections: string[] = response.selectedOptions || [response.selectedOption];
+          responseUpdate.selectedOption = effectiveNew[0];
+          responseUpdate.selectedOptions = effectiveNew;
+          responseUpdate.previousOption = oldSelections[0];
+          responseUpdate.otherText = effectiveNew.includes("other") ? otherText?.trim() : null;
+          break;
+        }
+        case "ranking":
+          responseUpdate.rankedOptions = newRankedOptions;
+          break;
+        case "text":
+          responseUpdate.textResponse = newTextResponse;
+          break;
+        case "scale":
+          responseUpdate.scaleRatings = newScaleRatings;
+          break;
+      }
+
+      tx.update(responseRef, responseUpdate);
     });
 
     return { success: true, tokensEarned: 0 };
@@ -439,23 +644,105 @@ export const getPollResults = onCall(
       }
     }
 
-    // Get user's full response for multi-select
+    const questionType = poll.questionType || "multipleChoice";
+
+    // Get user's full response (type-specific)
+    const responseData = hasVoted ? responseDoc.data()! : null;
     const userSelections: string[] = hasVoted
-      ? (responseDoc.data()!.selectedOptions || [responseDoc.data()!.selectedOption])
+      ? (responseData!.selectedOptions || [responseData!.selectedOption])
       : [];
     const userOtherText: string | null = hasVoted
-      ? (responseDoc.data()!.otherText || null)
+      ? (responseData!.otherText || null)
       : null;
+    const userRankedOptions: string[] = hasVoted
+      ? (responseData!.rankedOptions || [])
+      : [];
+    const userTextResponse: string | null = hasVoted
+      ? (responseData!.textResponse || null)
+      : null;
+    const userScaleRatings: Record<string, number> = hasVoted
+      ? (responseData!.scaleRatings || {})
+      : {};
+
+    // Build type-specific results
+    let results: Record<string, unknown> | null = null;
+    if (canSeeResults) {
+      switch (questionType) {
+        case "multipleChoice":
+          results = { totalRespondents, optionCounts, percentages };
+          break;
+
+        case "ranking": {
+          // Compute average ranks from all valid responses
+          const rankResponses = await pollRef.collection("responses")
+            .where("status", "==", "valid")
+            .get();
+          const rankSums: Record<string, number> = {};
+          for (const optId of Object.keys(poll.averageRanks || {})) {
+            rankSums[optId] = 0;
+          }
+          let validCount = 0;
+          for (const doc of rankResponses.docs) {
+            const ranked: string[] = doc.data().rankedOptions || [];
+            if (ranked.length > 0) {
+              validCount++;
+              ranked.forEach((optId, idx) => {
+                rankSums[optId] = (rankSums[optId] || 0) + (idx + 1); // 1-based rank
+              });
+            }
+          }
+          const averageRanks: Record<string, number> = {};
+          for (const [optId, sum] of Object.entries(rankSums)) {
+            averageRanks[optId] = validCount > 0 ? Math.round((sum / validCount) * 100) / 100 : 0;
+          }
+          results = { totalRespondents, averageRanks };
+          break;
+        }
+
+        case "text":
+          // For text, just return respondent count — individual responses are private
+          results = { totalRespondents };
+          break;
+
+        case "scale": {
+          // Compute average ratings from ratingDistribution (no extra reads needed)
+          const dist = (poll.ratingDistribution || {}) as Record<string, Record<string, number>>;
+          const averageRatings: Record<string, number> = {};
+          for (const [optId, counts] of Object.entries(dist)) {
+            let totalScore = 0;
+            let totalCount = 0;
+            for (const [rating, count] of Object.entries(counts)) {
+              totalScore += parseInt(rating) * count;
+              totalCount += count;
+            }
+            averageRatings[optId] = totalCount > 0 ? Math.round((totalScore / totalCount) * 100) / 100 : 0;
+          }
+          results = {
+            totalRespondents,
+            averageRatings,
+            ratingDistribution: dist,
+          };
+          break;
+        }
+
+        default:
+          results = { totalRespondents, optionCounts, percentages };
+      }
+    }
 
     return {
       pollId,
       question: poll.question,
       options: poll.options,
+      questionType,
       status: poll.status,
       hasVoted,
       userVote,
       userSelections,
       userOtherText,
+      userRankedOptions,
+      userTextResponse,
+      userScaleRatings,
       allowChangeVote: poll.allowChangeVote || false,
       allowMultipleSelections: poll.allowMultipleSelections || false,
       maxSelections: poll.maxSelections || null,
@@ -463,9 +750,20 @@ export const getPollResults = onCall(
       resultVisibility,
       closesAt: poll.closesAt?.toDate?.()?.toISOString() || null,
       minResponsesForResults: poll.minResponsesForResults || null,
-      results: canSeeResults
-        ? { totalRespondents, optionCounts, percentages }
-        : null,
+      // Scale config (needed by client for rendering)
+      ...(questionType === "scale" ? {
+        scaleMin: poll.scaleMin || 1,
+        scaleMax: poll.scaleMax || 10,
+        scaleMinLabel: poll.scaleMinLabel || null,
+        scaleMaxLabel: poll.scaleMaxLabel || null,
+        scaleIntermediateLabels: poll.scaleIntermediateLabels || [],
+      } : {}),
+      // Text config
+      ...(questionType === "text" ? {
+        textMinLength: poll.textMinLength || 1,
+        textMaxLength: poll.textMaxLength || 500,
+      } : {}),
+      results,
     };
   }
 );
@@ -523,17 +821,43 @@ export const invalidatePollResponse = onCall(
         );
       }
 
-      // Decrement counters for all selected options
-      const selections: string[] = response.selectedOptions || [response.selectedOption];
+      // Determine question type from poll doc
+      const pollInTx = await tx.get(pollRef);
+      const pollDataInTx = pollInTx.data()!;
+      const qType = pollDataInTx.questionType || "multipleChoice";
+
+      // Decrement counters based on question type
       const counterUpdates: Record<string, unknown> = {
         totalRespondents: admin.firestore.FieldValue.increment(-1),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
-      for (const optId of selections) {
-        if (optId !== "other") {
-          counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
+
+      switch (qType) {
+        case "multipleChoice": {
+          const selections: string[] = response.selectedOptions || [response.selectedOption];
+          for (const optId of selections) {
+            if (optId !== "other") {
+              counterUpdates[`optionCounts.${optId}`] = admin.firestore.FieldValue.increment(-1);
+            }
+          }
+          break;
+        }
+        case "ranking":
+          // Rankings recomputed on read — just decrement respondent count
+          break;
+        case "text":
+          // Just decrement respondent count
+          break;
+        case "scale": {
+          // Decrement rating distribution
+          const ratings: Record<string, number> = response.scaleRatings || {};
+          for (const [optId, rating] of Object.entries(ratings)) {
+            counterUpdates[`ratingDistribution.${optId}.${rating}`] = admin.firestore.FieldValue.increment(-1);
+          }
+          break;
         }
       }
+
       tx.update(pollRef, counterUpdates);
 
       // Mark response as invalidated (keep for audit trail)

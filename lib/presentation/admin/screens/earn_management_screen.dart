@@ -3627,6 +3627,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   bool _isImageUploading = false;
 
   // Poll-specific fields (used when earningType == 'poll')
+  String _pollQuestionType = 'multipleChoice'; // 'multipleChoice', 'ranking', 'text', 'scale'
   final List<TextEditingController> _pollOptionControllers = [
     TextEditingController(),
     TextEditingController(),
@@ -3641,6 +3642,14 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   final _pollMinResponsesController = TextEditingController();
   String _pollResultVisibility = 'immediate'; // 'immediate', 'afterClose', 'afterThreshold'
   bool _pollAllowOtherOption = false;
+  // Scale question config
+  final _pollScaleMinController = TextEditingController(text: '1');
+  final _pollScaleMaxController = TextEditingController(text: '10');
+  final _pollScaleMinLabelController = TextEditingController();
+  final _pollScaleMaxLabelController = TextEditingController();
+  // Text question config
+  final _pollTextMinLenController = TextEditingController(text: '1');
+  final _pollTextMaxLenController = TextEditingController(text: '500');
 
   // Reward campaign linkage
   String? _rewardCampaignId;
@@ -3833,6 +3842,12 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     _uploadPromptController.dispose();
     _uploadTextMinCharsController.dispose();
     _uploadTextMaxCharsController.dispose();
+    _pollScaleMinController.dispose();
+    _pollScaleMaxController.dispose();
+    _pollScaleMinLabelController.dispose();
+    _pollScaleMaxLabelController.dispose();
+    _pollTextMinLenController.dispose();
+    _pollTextMaxLenController.dispose();
     for (final c in _pollOptionControllers) {
       c.dispose();
     }
@@ -4060,12 +4075,12 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
   }
 
   Future<void> _handleCreatePoll() async {
-    // Validate poll options
+    // Validate poll options (text questions don't need options)
     final pollOptions = _pollOptionControllers
         .map((c) => c.text.trim())
         .where((t) => t.isNotEmpty)
         .toList();
-    if (pollOptions.length < 2) {
+    if (_pollQuestionType != 'text' && pollOptions.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('At least 2 poll options are required'),
@@ -4074,6 +4089,38 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
       );
       setState(() => _isLoading = false);
       return;
+    }
+
+    // Validate scale config
+    if (_pollQuestionType == 'scale') {
+      final sMin = int.tryParse(_pollScaleMinController.text.trim());
+      final sMax = int.tryParse(_pollScaleMaxController.text.trim());
+      if (sMin == null || sMax == null || sMin >= sMax || sMin < 1 || sMax > 10) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Scale min must be < max, both between 1 and 10'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
+    }
+
+    // Validate text config
+    if (_pollQuestionType == 'text') {
+      final tMin = int.tryParse(_pollTextMinLenController.text.trim()) ?? 1;
+      final tMax = int.tryParse(_pollTextMaxLenController.text.trim()) ?? 500;
+      if (tMin < 1 || tMax < tMin || tMax > 5000) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Text min must be ≥ 1 and max must be ≥ min (up to 5000)'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
     }
 
     // Validate afterThreshold requires minResponses
@@ -4121,17 +4168,32 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
     final result = await callable.call(<String, dynamic>{
       'threadId': widget.threadId,
       'question': _titleController.text.trim(),
-      'options': optionsList,
+      'questionType': _pollQuestionType,
+      if (_pollQuestionType != 'text') 'options': optionsList,
       'isAnonymous': _pollIsAnonymous,
       'allowChangeVote': _pollAllowChange,
-      'allowMultipleSelections': _pollAllowMultiSelect,
-      if (_pollAllowMultiSelect && _pollMaxSelectionsController.text.trim().isNotEmpty)
-        'maxSelections': int.tryParse(_pollMaxSelectionsController.text.trim()),
+      if (_pollQuestionType == 'multipleChoice') ...{
+        'allowMultipleSelections': _pollAllowMultiSelect,
+        if (_pollAllowMultiSelect && _pollMaxSelectionsController.text.trim().isNotEmpty)
+          'maxSelections': int.tryParse(_pollMaxSelectionsController.text.trim()),
+        'allowOtherOption': _pollAllowOtherOption,
+      },
+      if (_pollQuestionType == 'scale') ...{
+        'scaleMin': int.tryParse(_pollScaleMinController.text.trim()) ?? 1,
+        'scaleMax': int.tryParse(_pollScaleMaxController.text.trim()) ?? 10,
+        if (_pollScaleMinLabelController.text.trim().isNotEmpty)
+          'scaleMinLabel': _pollScaleMinLabelController.text.trim(),
+        if (_pollScaleMaxLabelController.text.trim().isNotEmpty)
+          'scaleMaxLabel': _pollScaleMaxLabelController.text.trim(),
+      },
+      if (_pollQuestionType == 'text') ...{
+        'textMinLength': int.tryParse(_pollTextMinLenController.text.trim()) ?? 1,
+        'textMaxLength': int.tryParse(_pollTextMaxLenController.text.trim()) ?? 500,
+      },
       if (closesAtUtc != null) 'closesAt': closesAtUtc,
       if (_pollResultVisibility == 'afterThreshold')
         'minResponsesForResults': int.tryParse(_pollMinResponsesController.text.trim()),
       'resultVisibility': _pollResultVisibility,
-      'allowOtherOption': _pollAllowOtherOption,
       'tokenReward': int.tryParse(_tokenRewardController.text) ?? 10,
       'durationSeconds': int.tryParse(_durationController.text) ?? 15,
       if (_targeting != null) 'targeting': _targeting,
@@ -5092,6 +5154,53 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                 const SizedBox(height: 24),
                 // Poll-specific section or Questions section
                 if (_earningType == 'poll') ...[
+                  // Question type selector
+                  const Text(
+                    'Question Type',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _pollQuestionType,
+                    decoration: const InputDecoration(
+                      labelText: 'Question type',
+                      isDense: true,
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'multipleChoice',
+                        child: Text('Multiple Choice', style: TextStyle(fontSize: 13)),
+                      ),
+                      DropdownMenuItem(
+                        value: 'ranking',
+                        child: Text('Ranking (drag to reorder)', style: TextStyle(fontSize: 13)),
+                      ),
+                      DropdownMenuItem(
+                        value: 'text',
+                        child: Text('Open Text (free response)', style: TextStyle(fontSize: 13)),
+                      ),
+                      DropdownMenuItem(
+                        value: 'scale',
+                        child: Text('Rating Scale (1-10, Likert, etc.)', style: TextStyle(fontSize: 13)),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() {
+                      _pollQuestionType = v ?? 'multipleChoice';
+                      // Reset type-specific flags when switching
+                      if (_pollQuestionType != 'multipleChoice') {
+                        _pollAllowMultiSelect = false;
+                        _pollAllowOtherOption = false;
+                      }
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Poll Options (not shown for text questions)
+                  if (_pollQuestionType != 'text') ...[
                   const Text(
                     'Poll Options',
                     style: TextStyle(
@@ -5102,7 +5211,11 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Add 2-6 answer options for the poll question above.',
+                    _pollQuestionType == 'ranking'
+                        ? 'Add the options users will rank from best to worst.'
+                        : _pollQuestionType == 'scale'
+                            ? 'Add the items users will rate on a scale.'
+                            : 'Add 2-6 answer options for the poll question above.',
                     style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
@@ -5192,15 +5305,121 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                       ),
                     );
                   }),
-                  if (_pollOptionControllers.length < 6)
+                  if (_pollOptionControllers.length < 20)
                     TextButton.icon(
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text('Add option'),
                       onPressed: () => setState(() =>
                           _pollOptionControllers.add(TextEditingController())),
                     ),
+                  ], // end if (_pollQuestionType != 'text')
+
+                  // Scale configuration (only for scale type)
+                  if (_pollQuestionType == 'scale') ...[
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Scale Configuration',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _pollScaleMinController,
+                            decoration: const InputDecoration(
+                              labelText: 'Min value',
+                              hintText: '1',
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _pollScaleMaxController,
+                            decoration: const InputDecoration(
+                              labelText: 'Max value',
+                              hintText: '10',
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _pollScaleMinLabelController,
+                      decoration: const InputDecoration(
+                        labelText: 'Min label (optional)',
+                        hintText: 'e.g., Extremely unlikely',
+                        isDense: true,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _pollScaleMaxLabelController,
+                      decoration: const InputDecoration(
+                        labelText: 'Max label (optional)',
+                        hintText: 'e.g., Extremely likely',
+                        isDense: true,
+                      ),
+                    ),
+                  ],
+
+                  // Text configuration (only for text type)
+                  if (_pollQuestionType == 'text') ...[
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Text Response Configuration',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Users will type a free-text answer. No options needed.',
+                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _pollTextMinLenController,
+                            decoration: const InputDecoration(
+                              labelText: 'Min characters',
+                              hintText: '1',
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _pollTextMaxLenController,
+                            decoration: const InputDecoration(
+                              labelText: 'Max characters',
+                              hintText: '500',
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
                   const SizedBox(height: 12),
-                  const SizedBox(height: 8),
                   // Poll configuration section
                   const Text(
                     'Poll Configuration',
@@ -5227,39 +5446,42 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                   ),
-                  SwitchListTile(
-                    value: _pollAllowMultiSelect,
-                    onChanged: (v) => setState(() => _pollAllowMultiSelect = v),
-                    title: const Text('Allow multiple selections',
-                        style: TextStyle(fontSize: 13)),
-                    subtitle: const Text('Users can pick more than one option',
-                        style: TextStyle(fontSize: 11)),
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                  ),
-                  if (_pollAllowMultiSelect)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16, bottom: 8),
-                      child: TextField(
-                        controller: _pollMaxSelectionsController,
-                        decoration: const InputDecoration(
-                          labelText: 'Max selections (optional)',
-                          hintText: 'Leave empty for unlimited',
-                          isDense: true,
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
+                  // Multi-select & "Other" only for multipleChoice
+                  if (_pollQuestionType == 'multipleChoice') ...[
+                    SwitchListTile(
+                      value: _pollAllowMultiSelect,
+                      onChanged: (v) => setState(() => _pollAllowMultiSelect = v),
+                      title: const Text('Allow multiple selections',
+                          style: TextStyle(fontSize: 13)),
+                      subtitle: const Text('Users can pick more than one option',
+                          style: TextStyle(fontSize: 11)),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
                     ),
-                  SwitchListTile(
-                    value: _pollAllowOtherOption,
-                    onChanged: (v) => setState(() => _pollAllowOtherOption = v),
-                    title: const Text('Allow "Other" free-text option',
-                        style: TextStyle(fontSize: 13)),
-                    subtitle: const Text('Adds an "Other" option with a 200-char text field',
-                        style: TextStyle(fontSize: 11)),
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                  ),
+                    if (_pollAllowMultiSelect)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, bottom: 8),
+                        child: TextField(
+                          controller: _pollMaxSelectionsController,
+                          decoration: const InputDecoration(
+                            labelText: 'Max selections (optional)',
+                            hintText: 'Leave empty for unlimited',
+                            isDense: true,
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    SwitchListTile(
+                      value: _pollAllowOtherOption,
+                      onChanged: (v) => setState(() => _pollAllowOtherOption = v),
+                      title: const Text('Allow "Other" free-text option',
+                          style: TextStyle(fontSize: 13)),
+                      subtitle: const Text('Adds an "Other" option with a 200-char text field',
+                          style: TextStyle(fontSize: 11)),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   // Result visibility dropdown
                   DropdownButtonFormField<String>(

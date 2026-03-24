@@ -19,12 +19,12 @@ class PollRepositoryImpl implements PollRepository {
   @override
   Future<Either<Failure, PollResponse>> submitVote({
     required String pollId,
-    required String selectedOption,
+    required Map<String, dynamic> voteData,
   }) async {
     try {
       final result = await _remoteDataSource.submitVote(
         pollId: pollId,
-        selectedOption: selectedOption,
+        voteData: voteData,
       );
       final response =
           PollResponseModel.fromJson(Map<String, dynamic>.from(result['response'] as Map? ?? {}));
@@ -39,12 +39,12 @@ class PollRepositoryImpl implements PollRepository {
   @override
   Future<Either<Failure, PollResponse>> changeVote({
     required String pollId,
-    required String newOption,
+    required Map<String, dynamic> voteData,
   }) async {
     try {
       final result = await _remoteDataSource.changeVote(
         pollId: pollId,
-        newOption: newOption,
+        voteData: voteData,
       );
       final response =
           PollResponseModel.fromJson(Map<String, dynamic>.from(result['response'] as Map? ?? {}));

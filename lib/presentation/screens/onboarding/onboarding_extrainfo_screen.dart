@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/error/failures.dart';
+import '../../../core/services/deep_link_service.dart';
 import '../../../domain/repositories/user_repository.dart';
 import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/referral/referral_bloc.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/onboarding/onboarding_progress_indicator.dart';
@@ -81,6 +82,14 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
     }
   }
 
+  void _completeOnboarding() {
+    final pendingCode = getIt<DeepLinkService>().consumeReferralCode();
+    if (pendingCode != null) {
+      context.read<ReferralBloc>().add(ReferralEvent.applyCode(pendingCode));
+    }
+    context.read<AuthBloc>().add(const AuthEvent.completeOnboarding());
+  }
+
   Future<void> _onContinue() async {
     final authState = context.read<AuthBloc>().state;
     if (authState.user == null) return;
@@ -92,8 +101,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
         _cityController.text.trim().isNotEmpty;
 
     if (!hasData) {
-      // Nothing to save — go straight to success
-      context.go('/onboarding/success');
+      _completeOnboarding();
       return;
     }
 
@@ -124,7 +132,7 @@ class _OnboardingExtraInfoScreenState extends State<OnboardingExtraInfoScreen> {
         );
       },
       (_) {
-        context.go('/onboarding/success');
+        _completeOnboarding();
       },
     );
   }
