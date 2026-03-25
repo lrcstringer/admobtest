@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:local_auth/local_auth.dart';

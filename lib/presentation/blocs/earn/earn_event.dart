@@ -8,6 +8,22 @@ abstract class EarnEvent with _$EarnEvent {
   /// Select a thread to view opportunities
   const factory EarnEvent.selectThread(String threadId) = _SelectThread;
 
+  /// Select a thread using data already in hand from the inbox — pre-populates
+  /// the thread header synchronously so the screen renders without a CF round-trip.
+  const factory EarnEvent.selectThreadFromInbox({
+    required String threadId,
+    required String title,
+    String? description,
+    required String clientId,
+    required String clientName,
+    String? clientAvatarImage,
+    String? clientAvatarColor,
+    String? threadImage,
+    required bool isPinned,
+    required bool isFeatured,
+    required int availableOpportunities,
+  }) = _SelectThreadFromInbox;
+
   /// Load eligible opportunities for selected thread (via Cloud Function)
   const factory EarnEvent.loadOpportunities({
     required String threadId,

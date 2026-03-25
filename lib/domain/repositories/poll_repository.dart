@@ -19,6 +19,11 @@ abstract class PollRepository {
   /// Get poll results (counts + percentages)
   Future<Either<Failure, PollResults>> getPollResults(String pollId);
 
+  /// Get the full raw poll data map returned by the CF (includes questionType,
+  /// options, resultVisibility, hasVoted, etc.). Used by the interaction screen
+  /// where the typed PollResults entity is too narrow.
+  Future<Either<Failure, Map<String, dynamic>>> getRawPollData(String pollId);
+
   /// Get poll by ID
   Future<Either<Failure, Poll>> getPollById(String pollId);
 

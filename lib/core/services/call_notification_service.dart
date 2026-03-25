@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -167,24 +168,52 @@ class CallNotificationService {
         );
 
       case callkit.Event.actionCallDecline:
-        // User declined — notify the bloc to send declined reason
-        _callBloc?.add(CallEvent.incomingCall(
-          callId: callId,
-          callerName: callerName,
-          callerAvatarUrl: callerAvatarUrl,
-          callType: callType,
-          conversationId: conversationId,
-          callerId: callerId,
-        ));
-        _callBloc?.add(const CallEvent.rejectCall());
+        // Guard: skip if BLoC is mid-call on a DIFFERENT callId (protect active call).
+        final bloc = _callBloc;
+        if (bloc == null) break;
+        if (bloc.state.callId != null && bloc.state.callId != callId) break;
+        // Set up incoming state first if BLoC doesn't know about this call yet
+        // (cold-start race or BLoC already reset to idle).
+        if (bloc.state.callId != callId) {
+          bloc.add(CallEvent.incomingCall(
+            callId: callId,
+            callerName: callerName,
+            callerAvatarUrl: callerAvatarUrl,
+            callType: callType,
+            conversationId: conversationId,
+            callerId: callerId,
+          ));
+        }
+        bloc.add(const CallEvent.rejectCall());
 
       case callkit.Event.actionCallTimeout:
-        // Ring timeout — notify BLoC to end the call as missed
-        _callBloc?.add(const CallEvent.endCall());
+        // Ring timeout — notify BLoC to end the call as missed.
+        // Guard: skip if BLoC is mid-call on a DIFFERENT callId.
+        final timeoutBloc = _callBloc;
+        if (timeoutBloc == null) break;
+        if (timeoutBloc.state.callId != null &&
+            timeoutBloc.state.callId != callId) { break; }
+        if (timeoutBloc.state.callId != callId && callId.isNotEmpty) {
+          timeoutBloc.add(CallEvent.incomingCall(
+            callId: callId,
+            callerName: callerName,
+            callerAvatarUrl: callerAvatarUrl,
+            callType: callType,
+            conversationId: conversationId,
+            callerId: callerId,
+          ));
+        }
+        timeoutBloc.add(const CallEvent.endCall());
 
       case callkit.Event.actionCallEnded:
-        // CallKit ended the call (e.g., via system UI)
-        _callBloc?.add(const CallEvent.endCall());
+        // CallKit ended the call (e.g., via system UI).
+        // Guard: skip if BLoC is mid-call on a DIFFERENT callId.
+        final endedBloc = _callBloc;
+        if (endedBloc == null) break;
+        if (callId.isNotEmpty &&
+            endedBloc.state.callId != null &&
+            endedBloc.state.callId != callId) { break; }
+        endedBloc.add(const CallEvent.endCall());
 
       default:
         break;

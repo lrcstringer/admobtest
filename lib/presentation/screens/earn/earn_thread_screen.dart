@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/earn_opportunity.dart';
 import '../../blocs/earn/earn_bloc.dart';
@@ -27,12 +28,13 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
       if (!mounted) return;
       final bloc = context.read<EarnBloc>();
       final s = bloc.state;
-      // Skip if the pre-dispatch from the list screen already started loading
-      // for this thread — avoids a duplicate Firestore call on first entry.
-      // Falls through on deep-link (different thread) or re-entry after
-      // completing an opportunity (status will be loaded, not loading).
+      // Skip if the pre-dispatch from the list screen already loaded (or is
+      // loading) for this exact thread — avoids a duplicate CF call.
+      // Falls through on deep-link (different thread ID) or first open with
+      // empty BLoC state.
       if (s.selectedThread?.id == widget.threadId &&
-          s.opportunitiesStatus == EarnStatus.loading) {
+          (s.opportunitiesStatus == EarnStatus.loading ||
+           s.opportunitiesStatus == EarnStatus.loaded)) {
         return;
       }
       bloc.add(EarnEvent.selectThread(widget.threadId));
@@ -65,11 +67,12 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
   }
 
   Widget _buildBody(BuildContext context, EarnState state) {
-    if (state.opportunitiesStatus == EarnStatus.loading) {
-      return Padding(
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
-        child: const Center(child: CircularProgressIndicator()),
-      );
+    // Show skeleton while loading OR if state still belongs to a different
+    // thread (rapid navigation — the BLoC event queue hasn't caught up yet).
+    if (state.opportunitiesStatus == EarnStatus.loading ||
+        (state.opportunitiesThreadId != null &&
+         state.opportunitiesThreadId != widget.threadId)) {
+      return _buildSkeleton(context, state);
     }
 
     if (state.opportunitiesStatus == EarnStatus.error) {
@@ -536,6 +539,128 @@ class _EarnThreadScreenState extends State<EarnThreadScreen> {
     return Icon(
       Icons.chevron_right,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+  }
+
+  // =========================================================================
+  // Skeleton Loading
+  // =========================================================================
+
+  Widget _buildSkeleton(BuildContext context, EarnState state) {
+    final top = MediaQuery.of(context).padding.top + kToolbarHeight;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0);
+    final highlightColor = isDark ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5);
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md + top, AppSpacing.md, AppSpacing.md),
+        children: [
+          // Thread header skeleton — shows real data if selectedThread is set
+          if (state.selectedThread == null) _buildSkeletonThreadHeader(context),
+          if (state.selectedThread != null) ...[
+            // Real header is already visible (via Fix 2), only cards skeleton
+            const SizedBox(height: 24),
+          ],
+          // 3 opportunity card skeletons
+          for (int i = 0; i < 3; i++) ...[
+            _buildSkeletonOpportunityCard(context),
+            const SizedBox(height: 12),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonThreadHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _skeletonBox(width: 56, height: 56, radius: 28),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _skeletonBox(width: 140, height: 16),
+                  const SizedBox(height: 6),
+                  _skeletonBox(width: 200, height: 12),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _skeletonBox(width: double.infinity, height: 46, radius: 10)),
+              const SizedBox(width: 8),
+              Expanded(child: _skeletonBox(width: double.infinity, height: 46, radius: 10)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonOpportunityCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: AppSpacing.borderRadiusLg,
+      ),
+      child: Column(
+        children: [
+          Container(height: 4, decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(12)))),
+          Padding(
+            padding: AppSpacing.cardPadding,
+            child: Row(
+              children: [
+                _skeletonBox(width: 48, height: 48, radius: 10),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _skeletonBox(width: 130, height: 14),
+                          _skeletonBox(width: 70, height: 22, radius: 6),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _skeletonBox(width: 60, height: 11),
+                          const SizedBox(width: 12),
+                          _skeletonBox(width: 50, height: 11),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _skeletonBox({required double width, required double height, double radius = 6}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
     );
   }
 

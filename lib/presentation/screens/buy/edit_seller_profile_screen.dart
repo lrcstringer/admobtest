@@ -349,8 +349,9 @@ class _EditSellerProfileScreenState extends State<EditSellerProfileScreen> {
         );
   }
 
-  void _confirmDeregistration(BuildContext context) {
-    showDialog<bool>(
+  Future<void> _confirmDeregistration(BuildContext context) async {
+    final bloc = context.read<MarketplaceBloc>();
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.buyCard,
@@ -382,12 +383,9 @@ class _EditSellerProfileScreenState extends State<EditSellerProfileScreen> {
           ),
         ],
       ),
-    ).then((confirmed) {
-      if (confirmed == true && mounted) {
-        context.read<MarketplaceBloc>().add(
-              const MarketplaceEvent.deregisterSeller(),
-            );
-      }
-    });
+    );
+    if (confirmed != true) return;
+    if (!mounted) return;
+    bloc.add(const MarketplaceEvent.deregisterSeller());
   }
 }

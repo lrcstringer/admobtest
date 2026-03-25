@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'package:flutter/foundation.dart';
 import 'package:freerasp/freerasp.dart';
 import 'package:injectable/injectable.dart';

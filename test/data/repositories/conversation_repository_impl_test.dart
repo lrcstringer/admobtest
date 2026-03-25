@@ -100,6 +100,7 @@ LocalFullConversation _createLocalFullConversation({
     mutedJson: '{}',
     chatClearedAtJson: '{}',
     acceptedJson: '{}',
+    chatTheme: 'defaultDoodle',
     createdAt: DateTime(2024, 6, 1),
     updatedAt: null,
   );

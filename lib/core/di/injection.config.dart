@@ -673,6 +673,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.PlayIntegrityService>(),
       ),
     );
+    gh.lazySingleton<_i805.EarnRepository>(
+      () => _i965.EarnRepositoryImpl(
+        gh<_i520.EarnRemoteDataSource>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
     gh.lazySingleton<_i925.SimChangeDetector>(
       () => _i925.SimChangeDetector(
         gh<_i892.KeystoreService>(),
@@ -691,9 +697,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i142.ChatBloc>(
       () => _i142.ChatBloc(gh<_i1072.ChatRepository>()),
-    );
-    gh.lazySingleton<_i805.EarnRepository>(
-      () => _i965.EarnRepositoryImpl(gh<_i520.EarnRemoteDataSource>()),
     );
     gh.factory<_i66.GiftBloc>(() => _i66.GiftBloc(gh<_i533.GiftRepository>()));
     gh.lazySingleton<_i271.UserRepository>(

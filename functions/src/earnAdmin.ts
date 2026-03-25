@@ -1053,13 +1053,28 @@ export const getEligibleOpportunities = onCall(
     await requireAppCheck(request, "getEligibleOpportunities");
 
     const userId = request.auth.uid;
-    const { threadId } = request.data;
+    const { threadId, forceRefresh } = request.data;
 
     if (!threadId) {
       throw new HttpsError(
         "invalid-argument",
         "threadId is required"
       );
+    }
+
+    // ========================================================================
+    // Server-side cache (5-minute TTL, keyed per user+thread)
+    // ========================================================================
+    const cacheRef = db.collection("earnOppsCache").doc(`${userId}_${threadId}`);
+    if (!forceRefresh) {
+      const cacheDoc = await cacheRef.get();
+      if (cacheDoc.exists) {
+        const { cachedAt, payload } = cacheDoc.data()!;
+        const ageMs = Date.now() - cachedAt.toMillis();
+        if (ageMs < 5 * 60 * 1000) {
+          return payload;
+        }
+      }
     }
 
     // ========================================================================
@@ -1375,10 +1390,15 @@ export const getEligibleOpportunities = onCall(
       return (b.tokenReward || 0) - (a.tokenReward || 0);
     });
 
-    return {
-      success: true,
-      opportunities: eligibleOpportunities,
-    };
+    const result = { success: true, opportunities: eligibleOpportunities };
+
+    // Fire-and-forget cache write — never blocks the response
+    cacheRef.set({
+      cachedAt: admin.firestore.Timestamp.now(),
+      payload: result,
+    }).catch((e: unknown) => logger.warn("earnOppsCache write failed", e));
+
+    return result;
   }
 );
 
@@ -2128,18 +2148,38 @@ export const getEligibleInbox = onCall(
   async (request) => {
     await requireAppCheck(request, "getEligibleInbox");
 
-    const userCtx = await buildUserTargetingContext(request);
-    const { profile: userProfile } = userCtx;
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "User must be authenticated");
+    }
+    const userId = request.auth.uid;
+    const forceRefresh = (request.data as Record<string, unknown>)?.forceRefresh === true;
 
     // ========================================================================
-    // 1. Get all active threads, apply targeting
+    // Fix 3: Server-side per-user cache (5-minute TTL)
+    // ========================================================================
+    const cacheRef = db.collection("earnInboxCache").doc(userId);
+    if (!forceRefresh) {
+      const cacheDoc = await cacheRef.get();
+      if (cacheDoc.exists) {
+        const cached = cacheDoc.data()!;
+        const cachedAtMs = cached.cachedAt?.toMillis?.() ?? 0;
+        const ageMs = Date.now() - cachedAtMs;
+        if (ageMs < 5 * 60 * 1000) {
+          return cached.payload as Record<string, unknown>;
+        }
+      }
+    }
+
+    // ========================================================================
+    // Fix 4: Parallelize user targeting context + threads scan
     // ========================================================================
     const now = admin.firestore.Timestamp.now();
 
-    const threadsSnapshot = await db
-      .collection("earnThreads")
-      .where("isActive", "==", true)
-      .get();
+    const [userCtx, threadsSnapshot] = await Promise.all([
+      buildUserTargetingContext(request),
+      db.collection("earnThreads").where("isActive", "==", true).get(),
+    ]);
+    const { profile: userProfile } = userCtx;
 
     // Eligible threads grouped by clientId
     const threadsByClient = new Map<
@@ -2251,8 +2291,6 @@ export const getEligibleInbox = onCall(
         );
       }
     }
-
-    const userId = request.auth!.uid;
 
     // Start of today (midnight UTC)
     const todayForInbox = new Date();
@@ -2407,7 +2445,7 @@ export const getEligibleInbox = onCall(
       return (a.clientName as string).localeCompare(b.clientName as string);
     });
 
-    return {
+    const payload = {
       success: true,
       clients: clientResults,
       dailyLimit: {
@@ -2416,5 +2454,15 @@ export const getEligibleInbox = onCall(
         limitReached: userCtx.dailyLimitReached,
       },
     };
+
+    // Fire-and-forget cache write — does not block the response
+    cacheRef.set({
+      cachedAt: admin.firestore.Timestamp.now(),
+      payload,
+    }).catch((err: unknown) =>
+      logger.warn("[getEligibleInbox] Failed to write inbox cache", err)
+    );
+
+    return payload;
   }
 );

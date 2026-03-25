@@ -1402,10 +1402,16 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     CallType callType,
   ) {
     try {
+      final callBloc = context.read<CallBloc>();
+
+      // Guard: ignore taps while a call is already in progress (double-tap protection)
+      if (callBloc.state.status != CallStatus.idle &&
+          callBloc.state.status != CallStatus.failed) {
+        return;
+      }
+
       final recipientId = conv.otherParticipantId(currentUserId);
       final recipientInfo = conv.getOtherParticipant(currentUserId);
-
-      final callBloc = context.read<CallBloc>();
       final router = GoRouter.of(context);
       final conversationId = widget.conversationId;
 

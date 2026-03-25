@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 // ===========================================================================
 // CHROME OPTION B: "Elevated Glass" — Chrome is distinct but lighter
 // ===========================================================================

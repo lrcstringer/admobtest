@@ -23,7 +23,8 @@ class ActiveCallOverlay extends StatelessWidget {
         // Only show when there's an active/reconnecting call
         final isInCall = state.status == CallStatus.active ||
             state.status == CallStatus.reconnecting ||
-            state.status == CallStatus.connecting;
+            state.status == CallStatus.connecting ||
+            state.status == CallStatus.ringing;
         if (!isInCall || state.callId == null) {
           return const SizedBox.shrink();
         }

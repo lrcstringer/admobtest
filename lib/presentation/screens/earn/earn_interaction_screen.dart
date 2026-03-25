@@ -6,17 +6,18 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/constants/admob_constants.dart';
 import '../../../core/di/injection.dart';
+import '../../../core/error/failures.dart';
 import '../../../core/security/device_fingerprint.dart';
 import '../../../core/security/play_integrity_service.dart';
 import '../../../data/services/upload_service.dart';
 import '../../../domain/entities/earn_opportunity.dart';
 import '../../../domain/entities/engagement.dart';
+import '../../../domain/repositories/poll_repository.dart';
 import '../../../domain/value_objects/engagement_evidence.dart';
 import '../../blocs/earn/earn_bloc.dart';
 import '../../theme/app_colors.dart';
@@ -64,6 +65,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   final List<int> _responseTimesMs = [];
   DateTime? _questionStartTime;
   bool _showReview = false;
+  bool _autoSubmitScheduled = false;
   int? _editingAnswerIndex; // non-null = editing a single answer
 
   // Response Box interstitial state
@@ -83,6 +85,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   final Set<String> _pollSelectedOptions = {};
   bool _pollSubmitting = false;
   bool _pollVoted = false;
+  bool _pollResultsShowing = false;
   Map<String, dynamic>? _pollResults;
   final _pollOtherTextController = TextEditingController();
   // Ranking question state
@@ -97,6 +100,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   File? _recordedVideo;
   File? _compressedVideo;
   File? _selectedImage;
+  // Cached file sizes — set once when the file is captured/selected to avoid
+  // repeated async file.length() calls inside FutureBuilder on every rebuild.
+  int _recordedVideoSizeBytes = 0;
+  int _selectedImageSizeBytes = 0;
   final TextEditingController _uploadTextController = TextEditingController();
   bool _isCompressing = false;
   bool _isUploading = false;
@@ -106,6 +113,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   DateTime? _uploadStartedAt;
   bool _isOnWifi = false;
   VideoPlayerController? _uploadVideoPreviewController;
+  VideoPlayerController? _contextVideoController;
+  bool _contextVideoInitialized = false;
   // Camera state for inline video/photo viewfinders
   CameraController? _cameraController;
   bool _isRecording = false;
@@ -119,6 +128,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   // Services
   late final PlayIntegrityService _integrityService;
   late final UploadService _uploadService;
+  late final PollRepository _pollRepository;
 
   // Pre-generated Play Integrity nonce+token — started when surveying begins
   // so the 3–10s native fetch overlaps with the user answering questions.
@@ -134,6 +144,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     WidgetsBinding.instance.addObserver(this);
     _integrityService = getIt<PlayIntegrityService>();
     _uploadService = getIt<UploadService>();
+    _pollRepository = getIt<PollRepository>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bloc = context.read<EarnBloc>();
@@ -160,6 +171,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     WidgetsBinding.instance.removeObserver(this);
     _progressTimer?.cancel();
     _videoController?.dispose();
+    _contextVideoController?.dispose();
     _uploadTextController.dispose();
     _uploadVideoPreviewController?.dispose();
     _pollTextController.dispose();
@@ -167,6 +179,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     _recordingTimer?.cancel();
     // Clean up compressed temp file
     _uploadService.cleanupTempFile(_compressedVideo);
+    for (final c in _textInputControllers) { c.dispose(); }
     // Reset BLoC engagement state so stale errors don't bleed into the next opportunity
     context.read<EarnBloc>().add(const EarnEvent.clearError());
     context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
@@ -364,15 +377,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     String? responseText;
     String? responseMediaUrl;
 
-
-    // TODO: Remove debug prints after verifying Response Box works
-    debugPrint('[ResponseBox] selectedOption=$selectedOption '
-        'isAttentionCheck=${current.isAttentionCheck} '
-        'correctAnswer=${current.correctAnswer} '
-        'correctResponseText=${current.correctResponseText} '
-        'incorrectResponseText=${current.incorrectResponseText} '
-        'correctResponseMediaUrl=${current.correctResponseMediaUrl} '
-        'incorrectResponseMediaUrl=${current.incorrectResponseMediaUrl}');
 
     if (selectedOption != null &&
         current.isAttentionCheck &&
@@ -607,17 +611,26 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _onWatchComplete();
         }
 
-        // Upload phase: check WiFi and record start time
+        // Upload phase: check WiFi, record start time, and pre-fetch Play
+        // Integrity token. Starting the native token request here (3-10 s)
+        // means it overlaps with the user recording/capturing media instead of
+        // blocking at submit time.
         if (state.engagementPhase == EngagementPhase.uploading &&
             _uploadStartedAt == null) {
           _uploadStartedAt = DateTime.now();
           _checkWifi();
+          _preNonce ??= _integrityService.generateNonce();
+          _preIntegrityFuture ??=
+              _integrityService.getIntegrityToken(nonce: _preNonce);
         }
 
         // Optimistic navigation: go to confirm screen as soon as submission
         // starts. The confirm screen handles the loading → success transition.
-        if (state.engagementPhase == EngagementPhase.submitting ||
-            state.engagementPhase == EngagementPhase.completed) {
+        // For polls: suppress navigation while results are displayed; the
+        // _submitPollVote method navigates manually after the delay elapses.
+        if ((state.engagementPhase == EngagementPhase.submitting ||
+                state.engagementPhase == EngagementPhase.completed) &&
+            !_pollResultsShowing) {
           context.go('/earn/opportunity/${widget.opportunityId}/confirm');
         }
 
@@ -1598,10 +1611,13 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final questions = opportunity.questions;
 
     if (questions.isEmpty) {
-      // No questions - auto submit
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _submitEngagement();
-      });
+      // No questions — auto submit once (guard prevents scheduling on every rebuild)
+      if (!_autoSubmitScheduled) {
+        _autoSubmitScheduled = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _submitEngagement();
+        });
+      }
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -2911,24 +2927,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   Future<void> _loadPollOptions(String pollId) async {
     if (_pollOptionsLoading || _pollResults != null) return;
     _pollOptionsLoading = true;
-    try {
-      final callable =
-          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getPollResults');
-      final result = await callable.call(<String, dynamic>{
-        'pollId': pollId,
-      });
-      if (mounted) {
-        final data = Map<String, dynamic>.from(result.data as Map);
-        setState(() {
-          _pollResults = data;
-          _pollOptionsLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _pollOptionsLoading = false);
-      }
-    }
+    final result = await _pollRepository.getRawPollData(pollId);
+    if (!mounted) return;
+    result.fold(
+      (failure) => setState(() => _pollOptionsLoading = false),
+      (data) => setState(() {
+        _pollResults = data;
+        _pollOptionsLoading = false;
+      }),
+    );
   }
 
   Future<void> _submitPollVote(EarnState state) async {
@@ -2940,12 +2947,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
     try {
       // 1. Build type-specific vote data
-      final callable =
-          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('submitPollVote');
-
-      final voteData = <String, dynamic>{
-        'pollId': pollId,
-      };
+      final voteData = <String, dynamic>{};
 
       switch (questionType) {
         case 'ranking':
@@ -2971,28 +2973,20 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           }
       }
 
-      await callable.call(voteData);
+      // 2. Submit the vote first — results must be fetched after it commits
+      final submitResult = await _pollRepository.submitVote(
+        pollId: pollId,
+        voteData: voteData,
+      );
+      submitResult.fold(
+        (failure) => throw Exception(failure.displayMessage),
+        (_) {},
+      );
 
-      // 2. Load results for animated display
-      final resultsCallable =
-          FirebaseFunctions.instanceFor(region: 'africa-south1').httpsCallable('getPollResults');
-      final resultsResult = await resultsCallable.call(<String, dynamic>{
-        'pollId': pollId,
-      });
+      // 3. Now start fetching results concurrently with engagement submission
+      final resultsFuture = _pollRepository.getRawPollData(pollId);
 
-      if (!mounted) return;
-
-      setState(() {
-        _pollVoted = true;
-        _pollSubmitting = false;
-        _pollResults = Map<String, dynamic>.from(resultsResult.data as Map);
-      });
-
-      // 3. After a brief delay to show results, submit engagement for tokens
-      await Future.delayed(const Duration(seconds: 3));
-      if (!mounted) return;
-
-      // Record the poll vote as a survey response (type-specific)
+      // 4. Build the survey answer record immediately after vote is confirmed
       switch (questionType) {
         case 'ranking':
           _answers.add(SurveyResponse(
@@ -3031,10 +3025,54 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       }
       _responseTimesMs.add(3000);
 
+      // 5. Fire engagement submission immediately — token claim is not gated on
+      // the user staying to watch the results display.
+      setState(() => _pollResultsShowing = true);
       _submitEngagement();
+
+      // 6. Await results and show them; suppress BLoC navigation until delay elapses
+      final resultsResult = await resultsFuture;
+
+      if (!mounted) return;
+
+      resultsResult.fold(
+        (_) => setState(() {
+          _pollVoted = true;
+          _pollSubmitting = false;
+        }),
+        (data) => setState(() {
+          _pollVoted = true;
+          _pollSubmitting = false;
+          _pollResults = data;
+        }),
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+
+      if (!mounted) return;
+
+      setState(() => _pollResultsShowing = false);
+
+      // Navigate now if BLoC already resolved while we were showing results.
+      final phase = context.read<EarnBloc>().state.engagementPhase;
+      if (phase == EngagementPhase.completed ||
+          phase == EngagementPhase.submitting) {
+        context.go('/earn/opportunity/${widget.opportunityId}/confirm');
+      } else if (phase == EngagementPhase.failed) {
+        // Engagement submission failed after a successful poll vote.
+        // Re-enable the submit button so the user can retry without losing
+        // their vote selection. The BLoC listener already showed the snackbar.
+        setState(() {
+          _pollVoted = false;
+          _pollSubmitting = false;
+        });
+      }
     } catch (e) {
       if (mounted) {
-        setState(() => _pollSubmitting = false);
+        setState(() {
+          _pollSubmitting = false;
+          _pollResultsShowing = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to submit vote: $e'),
@@ -3793,10 +3831,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
             if (isVideo)
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: Center(
-                  child: Icon(Icons.play_circle_outline,
-                      size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
+                child: _buildContextVideoPlayer(url),
               )
             else
               ConstrainedBox(
@@ -3816,6 +3851,39 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildContextVideoPlayer(String url) {
+    // Lazy-init: first time this widget is built for this url.
+    _contextVideoController ??= VideoPlayerController.networkUrl(Uri.parse(url))
+        ..initialize().then((_) {
+          if (mounted) setState(() => _contextVideoInitialized = true);
+        }).catchError((_) {
+          // Leave _contextVideoInitialized false — shows placeholder instead.
+        });
+
+    if (!_contextVideoInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final controller = _contextVideoController!;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          controller.value.isPlaying ? controller.pause() : controller.play();
+        });
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          VideoPlayer(controller),
+          if (!controller.value.isPlaying)
+            Icon(Icons.play_circle_outline,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+        ],
       ),
     );
   }
@@ -3933,10 +4001,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
                 ),
         ),
         SizedBox(height: AppSpacing.sm),
-        if (_compressedVideo != null)
-          _buildFileSizeInfo(_compressedVideo!)
-        else
-          _buildFileSizeInfo(_recordedVideo!),
+        _buildFileSizeInfo(_recordedVideoSizeBytes),
         SizedBox(height: AppSpacing.sm),
         Row(
           children: [
@@ -4316,8 +4381,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
       _disposeCamera();
 
+      final fileSize = await file.length();
       if (mounted) {
-        setState(() => _selectedImage = file);
+        setState(() {
+          _selectedImage = file;
+          _selectedImageSizeBytes = fileSize;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -4396,8 +4465,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       await _cameraController?.dispose();
       _cameraController = null;
 
+      final fileSize = await file.length();
       setState(() {
         _recordedVideo = file;
+        _recordedVideoSizeBytes = fileSize;
         _cameraOwner = _CameraOwner.none;
       });
 
@@ -4433,8 +4504,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     try {
       final compressed = await _uploadService.compressVideo(file);
       if (mounted) {
+        final compressedSize = await compressed.length();
         setState(() {
           _compressedVideo = compressed;
+          // Update cached size to the smaller compressed file — this is what
+          // will actually be uploaded and shown in the summary.
+          _recordedVideoSizeBytes = compressedSize;
           _isCompressing = false;
         });
         // Update preview to compressed version
@@ -4443,7 +4518,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     } catch (e) {
       if (mounted) {
         setState(() => _isCompressing = false);
-        // Compression failed — use original file
+        // Compression failed — keep original file and its cached size
       }
     }
   }
@@ -4463,6 +4538,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     setState(() {
       _recordedVideo = null;
       _compressedVideo = null;
+      _recordedVideoSizeBytes = 0;
     });
   }
 
@@ -4575,7 +4651,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ),
         ),
         SizedBox(height: AppSpacing.sm),
-        _buildFileSizeInfo(_selectedImage!),
+        _buildFileSizeInfo(_selectedImageSizeBytes),
         SizedBox(height: AppSpacing.sm),
         Row(
           children: [
@@ -4618,8 +4694,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         return;
       }
 
+      final fileSize = await file.length();
       if (mounted) {
-        setState(() => _selectedImage = file);
+        setState(() {
+          _selectedImage = file;
+          _selectedImageSizeBytes = fileSize;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -4631,7 +4711,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   }
 
   void _clearSelectedImage() {
-    setState(() => _selectedImage = null);
+    setState(() {
+      _selectedImage = null;
+      _selectedImageSizeBytes = 0;
+    });
   }
 
   // ── Text Response Section ──
@@ -4882,43 +4965,24 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     );
   }
 
-  Widget _buildFileSizeInfo(File file) {
-    return FutureBuilder<int>(
-      future: file.length(),
-      builder: (context, snapshot) {
-        final size = snapshot.data ?? 0;
-        return Row(
-          children: [
-            Icon(Icons.storage_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            SizedBox(width: AppSpacing.xs),
-            Text(
-              UploadService.formatBytes(size),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
-        );
-      },
+  Widget _buildFileSizeInfo(int sizeBytes) {
+    return Row(
+      children: [
+        Icon(Icons.storage_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        SizedBox(width: AppSpacing.xs),
+        Text(
+          UploadService.formatBytes(sizeBytes),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+      ],
     );
   }
 
   int _estimateTotalUploadBytes() {
-    int total = 0;
-    // Use compressed video if available, otherwise original
-    final videoFile = _compressedVideo ?? _recordedVideo;
-    if (videoFile != null) {
-      // Use synchronous stat for estimate (non-blocking on cached files)
-      try {
-        total += videoFile.lengthSync();
-      } catch (_) {}
-    }
-    if (_selectedImage != null) {
-      try {
-        total += _selectedImage!.lengthSync();
-      } catch (_) {}
-    }
-    return total;
+    // Use cached sizes set at capture/compress time — no sync I/O on rebuild.
+    return _recordedVideoSizeBytes + _selectedImageSizeBytes;
   }
 
   bool _canSubmitUpload(EarnOpportunity opportunity) {
@@ -4934,11 +4998,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       if (text.length < opportunity.uploadTextMinChars) return false;
     }
 
-    // Must have at least one upload
+    // Must have at least one upload. Text only counts when the text section is
+    // enabled AND meets the minimum length (avoids counting an empty field
+    // whose minChars == 0 as satisfying the "at least one" requirement).
     final hasVideo = _recordedVideo != null;
     final hasImage = _selectedImage != null;
-    final hasText = _uploadTextController.text.trim().length >=
-        opportunity.uploadTextMinChars;
+    final hasText = opportunity.uploadTextEnabled &&
+        _uploadTextController.text.trim().length >=
+            opportunity.uploadTextMinChars;
 
     return hasVideo || hasImage || hasText;
   }
@@ -4950,95 +5017,120 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     if (state.currentEngagement == null) return;
 
     final engagement = state.currentEngagement!;
-
     setState(() => _isUploading = true);
 
     try {
-      final List<UploadedFileEvidence> uploadedFiles = [];
+      // Start fingerprint generation immediately — runs in parallel with uploads.
+      final fingerprintFuture = DeviceFingerprint.generate();
 
-      // Upload video if present
-      final videoFile = _compressedVideo ?? _recordedVideo;
-      if (videoFile != null) {
-        final fileName =
-            'video_${DateTime.now().millisecondsSinceEpoch}.mp4';
-        final storagePath = _uploadService.buildStoragePath(
-          engagementId: engagement.id,
-          type: 'video',
-          fileName: fileName,
-        );
+      // Per-file progress accumulators for combined progress display.
+      var videoTransferred = 0;
+      var videoTotal = 0;
+      var imageTransferred = 0;
+      var imageTotal = 0;
 
-        final url = await _uploadService.uploadFile(
-          file: videoFile,
-          storagePath: storagePath,
-          contentType: 'video/mp4',
-          onProgress: (transferred, total) {
-            if (mounted) {
-              setState(() {
-                _uploadBytesTransferred = transferred;
-                _uploadTotalBytes = total;
-                _uploadProgress = total > 0 ? transferred / total : 0;
-              });
-            }
-          },
-        );
-
-        final fileSize = await videoFile.length();
-        uploadedFiles.add(UploadedFileEvidence(
-          url: url,
-          type: 'video',
-          sizeBytes: fileSize,
-          mimeType: 'video/mp4',
-          durationSeconds: _recordingSeconds > 0 ? _recordingSeconds : null,
-        ));
+      void refreshProgress() {
+        if (!mounted) return;
+        final t = videoTransferred + imageTransferred;
+        final total = videoTotal + imageTotal;
+        setState(() {
+          _uploadBytesTransferred = t;
+          _uploadTotalBytes = total;
+          _uploadProgress = total > 0 ? t / total : 0;
+        });
       }
 
-      // Upload image if present
+      final videoFile = _compressedVideo ?? _recordedVideo;
+
+      // Build upload futures — both start immediately for parallel execution.
+      Future<UploadedFileEvidence?> videoFuture = Future.value(null);
+      if (videoFile != null) {
+        videoFuture = () async {
+          final storagePath = _uploadService.buildStoragePath(
+            engagementId: engagement.id,
+            type: 'video',
+            fileName: 'video_${DateTime.now().millisecondsSinceEpoch}.mp4',
+          );
+          final url = await _uploadService.uploadFile(
+            file: videoFile,
+            storagePath: storagePath,
+            contentType: 'video/mp4',
+            onProgress: (transferred, total) {
+              videoTransferred = transferred;
+              videoTotal = total;
+              refreshProgress();
+            },
+          );
+          final fileSize = await videoFile.length();
+          return UploadedFileEvidence(
+            url: url,
+            type: 'video',
+            sizeBytes: fileSize,
+            mimeType: 'video/mp4',
+            durationSeconds: _recordingSeconds > 0 ? _recordingSeconds : null,
+          );
+        }();
+      }
+
+      Future<UploadedFileEvidence?> imageFuture = Future.value(null);
       if (_selectedImage != null) {
-        final fileName =
-            'image_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final storagePath = _uploadService.buildStoragePath(
-          engagementId: engagement.id,
-          type: 'image',
-          fileName: fileName,
-        );
+        final imageSnapshot = _selectedImage!; // capture before async gap
+        imageFuture = () async {
+          final storagePath = _uploadService.buildStoragePath(
+            engagementId: engagement.id,
+            type: 'image',
+            fileName: 'image_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+          final url = await _uploadService.uploadFile(
+            file: imageSnapshot,
+            storagePath: storagePath,
+            contentType: 'image/jpeg',
+            onProgress: (transferred, total) {
+              imageTransferred = transferred;
+              imageTotal = total;
+              refreshProgress();
+            },
+          );
+          final fileSize = await imageSnapshot.length();
+          return UploadedFileEvidence(
+            url: url,
+            type: 'image',
+            sizeBytes: fileSize,
+            mimeType: 'image/jpeg',
+          );
+        }();
+      }
 
-        final url = await _uploadService.uploadFile(
-          file: _selectedImage!,
-          storagePath: storagePath,
-          contentType: 'image/jpeg',
-          onProgress: (transferred, total) {
-            if (mounted) {
-              setState(() {
-                _uploadBytesTransferred = transferred;
-                _uploadTotalBytes = total;
-                _uploadProgress = total > 0 ? transferred / total : 0;
-              });
-            }
-          },
-        );
+      // Await uploads in parallel (fingerprint also in-flight concurrently).
+      final uploadResults = await Future.wait([videoFuture, imageFuture]);
+      final fingerprint = await fingerprintFuture;
 
-        final fileSize = await _selectedImage!.length();
-        uploadedFiles.add(UploadedFileEvidence(
-          url: url,
-          type: 'image',
-          sizeBytes: fileSize,
-          mimeType: 'image/jpeg',
-        ));
+      if (!mounted) return;
+
+      // Use pre-fetched integrity token (started when upload phase began) if
+      // available; fall back to a fresh fetch on deep-link entry.
+      final String? integrityNonce;
+      final String? integrityToken;
+      if (_preIntegrityFuture != null && _preNonce != null) {
+        integrityNonce = _preNonce;
+        integrityToken = await _preIntegrityFuture;
+      } else {
+        integrityNonce = _integrityService.generateNonce();
+        integrityToken =
+            await _integrityService.getIntegrityToken(nonce: integrityNonce);
       }
 
       if (!mounted) return;
 
-      // Collect device fingerprint & integrity token
-      final fingerprint = await DeviceFingerprint.generate();
-      final integrityToken = await _integrityService.getIntegrityToken();
+      final uploadedFiles =
+          uploadResults.whereType<UploadedFileEvidence>().toList();
+      final textResponse = _uploadTextController.text.trim();
       final attentionScore = _calculateAttentionScore();
 
-      final textResponse = _uploadTextController.text.trim();
-
-      // Build evidence
       final evidence = EngagementEvidence(
         deviceFingerprint: fingerprint.hash,
         integrityToken: integrityToken,
+        integrityNonce: integrityNonce,
         watchDurationMs: 0,
         videoSeeked: false,
         screenVisible: _screenVisible,
@@ -5048,20 +5140,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         surveySubmittedAt: DateTime.now(),
         clientAttentionScore: attentionScore,
         uploadedFiles: uploadedFiles,
-        uploadTextResponse:
-            textResponse.isNotEmpty ? textResponse : null,
+        uploadTextResponse: textResponse.isNotEmpty ? textResponse : null,
         uploadStartedAt: _uploadStartedAt,
         uploadCompletedAt: DateTime.now(),
       );
 
-      if (!mounted) return;
-
-      // Submit through BLoC
       context.read<EarnBloc>().add(EarnEvent.submitUpload(
             engagementId: engagement.id,
             uploadedFiles: uploadedFiles,
-            textResponse:
-                textResponse.isNotEmpty ? textResponse : null,
+            textResponse: textResponse.isNotEmpty ? textResponse : null,
             evidence: evidence,
           ));
     } catch (e) {

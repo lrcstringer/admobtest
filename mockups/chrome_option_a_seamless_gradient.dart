@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 // ===========================================================================
 // CHROME OPTION A: "Seamless Gradient" — Chrome dissolves into content
 // ===========================================================================

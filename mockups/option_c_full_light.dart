@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 // ===========================================================================
 // OPTION C: "Full Light + Dark Mode Toggle" — Platform-native approach
 // ===========================================================================

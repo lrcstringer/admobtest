@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -130,8 +131,8 @@ class CallSignalingService {
       final data = event.snapshot.value as Map<dynamic, dynamic>;
       return RTCIceCandidate(
         data['candidate'] as String,
-        data['sdpMid'] as String,
-        data['sdpMLineIndex'] as int,
+        data['sdpMid'] as String?,
+        (data['sdpMLineIndex'] as num?)?.toInt() ?? 0,
       );
     });
   }
@@ -172,6 +173,12 @@ class CallSignalingService {
     try {
       await _callDoc(callId).update({field: FieldValue.serverTimestamp()});
     } catch (e) {
+      // debugPrint is globally suppressed in main.dart — use assert for debug-only logging.
+      assert(() {
+        // ignore: avoid_print
+        print('[CallSignaling] sendHeartbeat failed ($field): $e');
+        return true;
+      }());
     }
   }
 

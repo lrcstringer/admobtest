@@ -26,6 +26,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
   EarnBloc(this._earnRepository, this._adMobService) : super(const EarnState()) {
     on<_LoadThreads>(_onLoadThreads);
     on<_SelectThread>(_onSelectThread);
+    on<_SelectThreadFromInbox>(_onSelectThreadFromInbox);
     on<_LoadOpportunities>(_onLoadOpportunities);
     on<_SelectOpportunity>(_onSelectOpportunity);
     on<_SetSelectedOpportunity>(_onSetSelectedOpportunity);
@@ -127,46 +128,120 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SelectThread event,
     Emitter<EarnState> emit,
   ) async {
-    // Find the thread in state (may be null if navigating from inbox)
+    // Find the thread in state (null on deep-link or if not yet loaded).
+    // firstWhere with wrong orElse would silently return threads[0] for
+    // unrecognised IDs — use firstOrNull instead.
     final thread = state.threads.isEmpty
         ? null
-        : state.threads.firstWhere(
-            (t) => t.id == event.threadId,
-            orElse: () => state.threads.first,
-          );
+        : state.threads.where((t) => t.id == event.threadId).firstOrNull;
 
     emit(state.copyWith(
       selectedThread: thread,
       selectedOpportunity: null,
       opportunities: [],
       opportunitiesStatus: EarnStatus.loading,
+      opportunitiesThreadId: null, // clear so _buildBody guard fires correctly
     ));
 
     // Load opportunities for the selected thread regardless of threads list
     add(EarnEvent.loadOpportunities(threadId: event.threadId));
   }
 
+  Future<void> _onSelectThreadFromInbox(
+    _SelectThreadFromInbox event,
+    Emitter<EarnState> emit,
+  ) async {
+    // If opportunities for this thread are already loaded, just set the
+    // selectedThread stub and skip the CF round-trip entirely.
+    if (state.opportunitiesThreadId == event.threadId &&
+        state.opportunitiesStatus == EarnStatus.loaded &&
+        state.opportunities.isNotEmpty) {
+      final stub = _threadStubFromEvent(event);
+      emit(state.copyWith(selectedThread: stub));
+      return;
+    }
+
+    // Synchronously pre-populate the thread header so the screen renders
+    // immediately without waiting for the CF response.
+    final stub = _threadStubFromEvent(event);
+    emit(state.copyWith(
+      selectedThread: stub,
+      selectedOpportunity: null,
+      opportunities: [],
+      opportunitiesStatus: EarnStatus.loading,
+    ));
+
+    add(EarnEvent.loadOpportunities(threadId: event.threadId));
+  }
+
+  /// Builds a minimal [EarnThread] from inline inbox data — no Firestore call.
+  EarnThread _threadStubFromEvent(_SelectThreadFromInbox event) {
+    return EarnThread(
+      id: event.threadId,
+      clientId: event.clientId,
+      clientName: event.clientName,
+      clientAvatarImage: event.clientAvatarImage,
+      clientAvatarColor: event.clientAvatarColor,
+      threadImage: event.threadImage,
+      title: event.title,
+      description: event.description,
+      isPinned: event.isPinned,
+      isFeatured: event.isFeatured,
+      isActive: true,
+      availableOpportunities: event.availableOpportunities,
+      completedOpportunities: 0,
+      createdAt: DateTime.now(),
+    );
+  }
+
   Future<void> _onLoadOpportunities(
     _LoadOpportunities event,
     Emitter<EarnState> emit,
   ) async {
-    emit(state.copyWith(opportunitiesStatus: EarnStatus.loading));
+    // Phase 1: serve stale cache immediately so the screen renders without
+    // waiting for the CF. Skip loading indicator if we have cached data.
+    final cached =
+        await _earnRepository.getCachedOpportunities(event.threadId);
+    if (cached != null && cached.isNotEmpty) {
+      emit(state.copyWith(
+        opportunities: cached,
+        opportunitiesStatus: EarnStatus.loaded,
+        opportunitiesThreadId: event.threadId,
+      ));
+    } else {
+      emit(state.copyWith(opportunitiesStatus: EarnStatus.loading));
+    }
 
+    // Phase 2: always fetch fresh data in the background.
+    // Pass forceRefresh=true when cache existed so the server skips its own
+    // TTL check and returns up-to-date engagement status.
     final result = await _earnRepository.getEligibleOpportunities(
       threadId: event.threadId,
+      forceRefresh: cached != null,
     );
 
     result.fold(
       (failure) {
-        emit(state.copyWith(
-          opportunitiesStatus: EarnStatus.error,
-          errorMessage: failure.displayMessage,
-        ));
+        // If we already rendered stale data, fail silently.
+        if (cached == null) {
+          emit(state.copyWith(
+            opportunitiesStatus: EarnStatus.error,
+            errorMessage: failure.displayMessage,
+          ));
+        }
       },
       (opportunities) {
+        // Guard: if the user navigated to a different thread while this CF was
+        // in-flight, the selectThread/selectThreadFromInbox handler has already
+        // cleared opportunitiesThreadId (set to null) or set it to the new
+        // thread. Drop this stale result to avoid flashing A's data under B.
+        final currentId = state.opportunitiesThreadId;
+        if (currentId != null && currentId != event.threadId) return;
+
         emit(state.copyWith(
           opportunities: opportunities,
           opportunitiesStatus: EarnStatus.loaded,
+          opportunitiesThreadId: event.threadId,
         ));
       },
     );
@@ -226,6 +301,14 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _StartEngagement event,
     Emitter<EarnState> emit,
   ) async {
+    // Guard: don't start if already in-flight or an engagement exists.
+    // Prevents a queued duplicate event from firing a second CF call after
+    // the first has already progressed past idle.
+    if (state.engagementPhase == EngagementPhase.starting ||
+        state.currentEngagement != null) {
+      return;
+    }
+
     // Guard: don't start if already completed
     final opp = state.selectedOpportunity;
     if (opp != null && opp.id == event.opportunityId && opp.isCompletedByUser) {
@@ -287,8 +370,17 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _UpdateWatchProgress event,
     Emitter<EarnState> emit,
   ) async {
-    // Progress is tracked locally — no Firestore write needed.
-    // The completeEngagement Cloud Function persists the final state.
+    // Progress is tracked locally — no repository call is made here.
+    //
+    // Design rationale: writing watch duration to Firestore every second would
+    // generate ~3,600 writes/hour per active user. Instead, the current value
+    // is held in BLoC state and submitted once as part of the evidence object
+    // when processEngagement is called. The server validates the submitted
+    // duration against elapsed wall-clock time (server-side M2 monotonicity
+    // check in the updateEngagementProgress CF).
+    //
+    // EarnRepository.updateEngagementProgress exists for external / direct
+    // callers and is not used by this BLoC flow.
     final current = state.currentEngagement;
     if (current == null || current.id != event.engagementId) return;
 
@@ -310,6 +402,13 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SubmitSurvey event,
     Emitter<EarnState> emit,
   ) async {
+    // Guard: a queued duplicate event (double-press) must not re-submit after
+    // the first call has already moved the phase to submitting or beyond.
+    if (state.engagementPhase == EngagementPhase.submitting ||
+        state.engagementPhase == EngagementPhase.completed) {
+      return;
+    }
+
     emit(state.copyWith(engagementPhase: EngagementPhase.submitting));
 
     final result = await _earnRepository.submitSurvey(
@@ -326,12 +425,22 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (engagement) {
+        // Mark the opportunity as completed in the local list so the thread
+        // screen immediately renders it as done without a full refresh.
+        final updatedOpportunities = state.opportunities.map((o) {
+          if (o.id == engagement.earnOpportunityId) {
+            return o.copyWith(userEngagementStatus: 'completed');
+          }
+          return o;
+        }).toList();
+
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
           rewardItemId: engagement.rewardItemId,
           rewardCampaignName: engagement.rewardCampaignName,
           rewardType: engagement.rewardType,
+          opportunities: updatedOpportunities,
         ));
       },
     );
@@ -511,8 +620,12 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     // isAdLoading / isAdReady / adLoadAttempt are kept in sync by the
     // ValueNotifier listeners registered in the constructor. adLoadComplete
     // handles the retry-round increment when all retries are exhausted.
+    // catchError ensures unexpected throws from the AdMob SDK don't produce
+    // unhandled Future exceptions that leave isAdLoading stuck at true.
     unawaited(_adMobService.loadAdWithRetry().then((success) {
       if (!isClosed) add(EarnEvent.adLoadComplete(success: success));
+    }).catchError((_) {
+      if (!isClosed) add(const EarnEvent.adLoadComplete(success: false));
     }));
   }
 
@@ -596,6 +709,11 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SubmitUpload event,
     Emitter<EarnState> emit,
   ) async {
+    if (state.engagementPhase == EngagementPhase.submitting ||
+        state.engagementPhase == EngagementPhase.completed) {
+      return;
+    }
+
     emit(state.copyWith(engagementPhase: EngagementPhase.submitting));
 
     final result = await _earnRepository.submitSurvey(
@@ -616,6 +734,15 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         final isPending =
             engagement.status == EngagementStatus.pendingReview;
 
+        // Mark the opportunity as completed in the local list so the thread
+        // screen immediately renders it as done without a full refresh.
+        final updatedOpportunities = state.opportunities.map((o) {
+          if (o.id == engagement.earnOpportunityId) {
+            return o.copyWith(userEngagementStatus: 'completed');
+          }
+          return o;
+        }).toList();
+
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
@@ -626,6 +753,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
           rewardItemId: engagement.rewardItemId,
           rewardCampaignName: engagement.rewardCampaignName,
           rewardType: engagement.rewardType,
+          opportunities: updatedOpportunities,
         ));
       },
     );

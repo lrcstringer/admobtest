@@ -78,6 +78,19 @@ class PollRepositoryImpl implements PollRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> getRawPollData(
+      String pollId) async {
+    try {
+      final result = await _remoteDataSource.getPollResults(pollId);
+      return Right(result);
+    } on FirebaseFunctionsException catch (e) {
+      return Left(ServerFailure(message: e.message ?? 'Failed to get poll data'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, Poll>> getPollById(String pollId) async {
     try {
       final doc = await _firestore.collection('polls').doc(pollId).get();

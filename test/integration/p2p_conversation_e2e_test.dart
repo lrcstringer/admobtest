@@ -327,6 +327,7 @@ LocalFullConversation _createLocalConversation({String id = _conversationId}) {
     mutedJson: '{}',
     chatClearedAtJson: '{}',
     acceptedJson: '{}',
+    chatTheme: 'defaultDoodle',
     createdAt: DateTime(2024, 6, 1),
     updatedAt: null,
   );

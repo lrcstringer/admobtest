@@ -25,6 +25,7 @@ _Engagement _$EngagementFromJson(Map<String, dynamic> json) => _Engagement(
       ? null
       : EngagementEvidence.fromJson(json['evidence'] as Map<String, dynamic>),
   tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
+  totalTokensGenerated: (json['totalTokensGenerated'] as num?)?.toDouble(),
   failureReason: json['failureReason'] as String?,
   attemptNumber: (json['attemptNumber'] as num).toInt(),
   createdAt: DateTime.parse(json['createdAt'] as String),
@@ -59,6 +60,7 @@ Map<String, dynamic> _$EngagementToJson(_Engagement instance) =>
       'answers': instance.answers,
       'evidence': instance.evidence,
       'tokensEarned': instance.tokensEarned,
+      'totalTokensGenerated': instance.totalTokensGenerated,
       'failureReason': instance.failureReason,
       'attemptNumber': instance.attemptNumber,
       'createdAt': instance.createdAt.toIso8601String(),

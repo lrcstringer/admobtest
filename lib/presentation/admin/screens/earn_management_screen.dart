@@ -5165,7 +5165,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _pollQuestionType,
+                    initialValue: _pollQuestionType,
                     decoration: const InputDecoration(
                       labelText: 'Question type',
                       isDense: true,
@@ -5485,7 +5485,7 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                   const SizedBox(height: 12),
                   // Result visibility dropdown
                   DropdownButtonFormField<String>(
-                    value: _pollResultVisibility,
+                    initialValue: _pollResultVisibility,
                     decoration: const InputDecoration(
                       labelText: 'Result visibility',
                       isDense: true,
@@ -5546,8 +5546,10 @@ class _CreateOpportunityDialogState extends State<_CreateOpportunityDialog> {
                               firstDate: DateTime.now(),
                               lastDate: DateTime.now().add(const Duration(days: 365)),
                             );
-                            if (date == null || !mounted) return;
+                            if (date == null) return;
+                            if (!mounted) return;
                             final time = await showTimePicker(
+                              // ignore: use_build_context_synchronously
                               context: context,
                               initialTime: TimeOfDay.fromDateTime(
                                 _pollClosesAt ?? DateTime.now().add(const Duration(hours: 1)),
@@ -7137,25 +7139,25 @@ class _EditOpportunityDialogState extends State<_EditOpportunityDialog> {
                                         lastDate: now.add(
                                             const Duration(days: 365)),
                                       );
-                                      if (picked != null && mounted) {
-                                        final time =
-                                            await showTimePicker(
-                                          context: context,
-                                          initialTime:
-                                              TimeOfDay.fromDateTime(
-                                                  _pollClosesAt ?? now),
-                                        );
-                                        if (time != null && mounted) {
-                                          setState(() {
-                                            _pollClosesAt = DateTime(
-                                              picked.year,
-                                              picked.month,
-                                              picked.day,
-                                              time.hour,
-                                              time.minute,
-                                            );
-                                          });
-                                        }
+                                      if (picked == null || !mounted) return;
+                                      final time =
+                                          await showTimePicker(
+                                        // ignore: use_build_context_synchronously
+                                        context: context,
+                                        initialTime:
+                                            TimeOfDay.fromDateTime(
+                                                _pollClosesAt ?? now),
+                                      );
+                                      if (time != null && mounted) {
+                                        setState(() {
+                                          _pollClosesAt = DateTime(
+                                            picked.year,
+                                            picked.month,
+                                            picked.day,
+                                            time.hour,
+                                            time.minute,
+                                          );
+                                        });
                                       }
                                     },
                                     child: InputDecorator(
@@ -8306,6 +8308,7 @@ class _QuestionEditorDialogState extends State<_QuestionEditorDialog> {
         break;
     }
 
+    if (!mounted) return;
     Navigator.of(context).pop(result);
   }
 

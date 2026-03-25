@@ -49,7 +49,12 @@ abstract class EarnRepository {
   /// Get eligible opportunities for a thread (server-side targeting)
   Future<Either<Failure, List<EarnOpportunity>>> getEligibleOpportunities({
     required String threadId,
+    bool forceRefresh = false,
   });
+
+  /// Read the last successful opportunities result from persistent cache.
+  /// Returns null if no cache exists for this thread. Never throws.
+  Future<List<EarnOpportunity>?> getCachedOpportunities(String threadId);
 
   /// Get opportunity by ID
   Future<Either<Failure, EarnOpportunity>> getOpportunityById(
@@ -100,6 +105,10 @@ abstract class EarnRepository {
 
   /// Get eligible inbox grouped by client (server-side targeting)
   Future<Either<Failure, EligibleInboxResult>> getEligibleInbox({bool forceRefresh = false});
+
+  /// Read the last successful inbox result from persistent (SharedPreferences)
+  /// cache. Returns null if no cache exists. Never throws.
+  Future<EligibleInboxResult?> getCachedInboxResult();
 
   /// Get user's earn notifications
   Future<Either<Failure, List<EarnNotification>>> getEarnNotifications();

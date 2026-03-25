@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 /// Device Fingerprint Service
 /// Tracks device information for fraud detection and security purposes.
 /// All signals are collected within-app only (no cross-app tracking).

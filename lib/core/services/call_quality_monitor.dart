@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'dart:async';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';

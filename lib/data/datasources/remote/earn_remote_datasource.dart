@@ -68,6 +68,7 @@ abstract class EarnRemoteDataSource {
   /// Get eligible opportunities via Cloud Function (server-side targeting)
   Future<List<EarnOpportunityModel>> getEligibleOpportunities({
     required String threadId,
+    bool forceRefresh = false,
   });
 
   /// Get opportunity by ID
@@ -107,8 +108,9 @@ abstract class EarnRemoteDataSource {
   /// Get available opportunities count for user
   Future<int> getAvailableOpportunitiesCount();
 
-  /// Get eligible inbox grouped by client (server-side targeting)
-  Future<EligibleInboxResponse> getEligibleInbox();
+  /// Get eligible inbox grouped by client (server-side targeting).
+  /// Pass [forceRefresh] to bypass the server-side cache.
+  Future<EligibleInboxResponse> getEligibleInbox({bool forceRefresh = false});
 
   /// Get user's earn notifications
   Future<EarnNotificationsResponse> getEarnNotifications();
@@ -205,6 +207,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
   @override
   Future<List<EarnOpportunityModel>> getEligibleOpportunities({
     required String threadId,
+    bool forceRefresh = false,
   }) async {
     final userId = currentUserId;
     if (userId == null) {
@@ -215,6 +218,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
       final callable = _functions.httpsCallable('getEligibleOpportunities');
       final result = await callable.call<Map<String, dynamic>>({
         'threadId': threadId,
+        if (forceRefresh) 'forceRefresh': true,
       });
 
       final data = result.data;
@@ -269,8 +273,16 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
             message: data['error'] as String? ?? 'Failed to start engagement');
       }
 
-      // Cloud Function returns { success, engagementId, rewardAmount }
-      // Fetch the full engagement document by ID
+      // If the CF returned embedded engagement data use it directly — no
+      // extra Firestore read needed (eliminates ~150ms serial latency).
+      final embeddedEngagement = data['engagement'] as Map?;
+      if (embeddedEngagement != null) {
+        return EngagementModel.fromJson(
+            Map<String, dynamic>.from(embeddedEngagement));
+      }
+
+      // Fallback for idempotency path or legacy CF versions that don't embed
+      // engagement data: read the full doc by ID.
       final engagementId = data['engagementId'] as String;
       final engagementDoc =
           await _engagementsCollection.doc(engagementId).get();
@@ -293,6 +305,12 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
     }
   }
 
+  // NOTE: This method is NOT called by the main EarnBloc flow.
+  // EarnBloc._onUpdateWatchProgress tracks progress locally (no Firestore write
+  // per second) and submits the final duration as part of the evidence object
+  // when processEngagement is called. This method is kept for external callers
+  // and direct API use; the client-side monotonicity validation here mirrors
+  // the server-side validation in the updateEngagementProgress Cloud Function.
   @override
   Future<EngagementModel> updateEngagementProgress({
     required String engagementId,
@@ -333,7 +351,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         clampedDuration = clampedDuration.clamp(0, maxElapsed);
       }
 
-      final requiredDuration = data['requiredDurationSeconds'] as int;
+      final requiredDuration = (data['requiredDurationSeconds'] as num?)?.toInt() ?? 0;
       final newStatus =
           clampedDuration >= requiredDuration ? 'surveying' : 'watching';
 
@@ -426,6 +444,12 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
         'updatedAt': now.toIso8601String(),
         // Include token data from CF response (pre-call doc doesn't have it)
         'tokensEarned': (resultData['tokensEarned'] as num?)?.toDouble() ?? 0.0,
+        // M2 fix: capture the actual gross total so the confirm screen can
+        // show the correct breakdown when a bonus multiplier was applied.
+        // processEngagement returns 'totalGenerated' = actual rewardAmount
+        // after bonus (the figure that was split 90/5/5).
+        'totalTokensGenerated':
+            (resultData['totalGenerated'] as num?)?.toDouble(),
         'streakDayAtCompletion': resultData['streakDay'] as int?,
         'multiplierApplied':
             (resultData['multiplierApplied'] as num?)?.toDouble(),
@@ -531,22 +555,20 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
     }
 
     try {
-      final doc = await _engagementsCollection.doc(engagementId).get();
-      if (!doc.exists) {
-        throw const ServerException(message: 'Engagement not found');
-      }
-
-      final data = doc.data()!;
-      if (data['userId'] != userId) {
-        throw const ServerException(message: 'Not authorized');
-      }
-
-      await _engagementsCollection.doc(engagementId).update({
-        'status': 'abandoned',
-        'updatedAt': FieldValue.serverTimestamp(),
+      // Call the CF so it can reverse the escrow reservation and release
+      // any reward item reservation — a direct Firestore write skips both.
+      final callable = _functions.httpsCallable('abandonEngagement');
+      await callable.call<Map<String, dynamic>>({
+        'engagementId': engagementId,
       });
+    } on FirebaseFunctionsException catch (e) {
+      // 'failed-precondition' means the engagement was already in a terminal
+      // state (completed/abandoned/rejected). Treat that as a no-op so that
+      // back-navigation after a completed engagement never surfaces an error.
+      if (e.code == 'failed-precondition') return;
+      throw ServerException(message: e.message ?? 'Failed to abandon engagement');
     } catch (e) {
-      if (e is ServerException || e is AuthException) rethrow;
+      if (e is AuthException) rethrow;
       throw ServerException(message: e.toString());
     }
   }
@@ -569,7 +591,7 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
   }
 
   @override
-  Future<EligibleInboxResponse> getEligibleInbox() async {
+  Future<EligibleInboxResponse> getEligibleInbox({bool forceRefresh = false}) async {
     final userId = currentUserId;
     if (userId == null) {
       throw const AuthException(message: 'User not authenticated');
@@ -577,7 +599,9 @@ class EarnRemoteDataSourceImpl implements EarnRemoteDataSource {
 
     try {
       final callable = _functions.httpsCallable('getEligibleInbox');
-      final result = await callable.call<Map<String, dynamic>>({});
+      final result = await callable.call<Map<String, dynamic>>(
+        forceRefresh ? {'forceRefresh': true} : {},
+      );
 
       final data = result.data;
       final clientsList = (data['clients'] as List?) ?? [];

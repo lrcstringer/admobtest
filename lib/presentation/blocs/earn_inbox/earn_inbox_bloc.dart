@@ -29,22 +29,45 @@ class EarnInboxBloc extends Bloc<EarnInboxEvent, EarnInboxState> {
     _LoadInbox event,
     Emitter<EarnInboxState> emit,
   ) async {
-    emit(state.copyWith(status: EarnInboxStatus.loading, errorMessage: null));
+    // Phase 1 — stale-while-revalidate: populate from persistent cache
+    // immediately so the screen renders without a spinner on returning visits.
+    final cached = await _earnRepository.getCachedInboxResult();
+    if (cached != null && state.clients.isEmpty) {
+      emit(state.copyWith(
+        status: EarnInboxStatus.loaded,
+        clients: cached.clients,
+        dailyCompletions: cached.dailyCompletions,
+        dailyEarnCap: cached.dailyEarnCap,
+        dailyLimitReached: cached.dailyLimitReached,
+        errorMessage: null,
+      ));
+    } else if (cached == null) {
+      // No cache at all — show loading skeleton on first-ever launch.
+      emit(state.copyWith(status: EarnInboxStatus.loading, errorMessage: null));
+    }
+    // If cached != null but clients already populated, skip emit — already shown.
 
-    // Fire both CF calls in parallel — they have no dependency on each other.
-    final inboxFuture = _earnRepository.getEligibleInbox();
+    // Phase 2 — always refresh from network (bypasses server cache when we
+    // already have stale data so the user sees accurate state quickly).
+    final inboxFuture = _earnRepository.getEligibleInbox(forceRefresh: cached != null);
     final notifFuture = _earnRepository.getEarnNotifications();
     final inboxResult = await inboxFuture;
     final notifResult = await notifFuture;
 
     inboxResult.fold(
-      (failure) => emit(state.copyWith(
-        status: EarnInboxStatus.error,
-        errorMessage: switch (failure) {
-          ServerFailure(:final message) => message ?? 'Failed to load inbox',
-          _ => 'Failed to load inbox',
-        },
-      )),
+      (failure) {
+        if (cached == null) {
+          // No stale data to fall back on — surface the error.
+          emit(state.copyWith(
+            status: EarnInboxStatus.error,
+            errorMessage: switch (failure) {
+              ServerFailure(:final message) => message ?? 'Failed to load inbox',
+              _ => 'Failed to load inbox',
+            },
+          ));
+        }
+        // If stale cache was shown, fail silently — user sees previous data.
+      },
       (inbox) {
         final notifications = notifResult.getOrElse(() => state.notifications);
         final unreadCount = notifications.where((n) => n.isUnread).length;

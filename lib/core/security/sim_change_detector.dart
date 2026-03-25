@@ -1,3 +1,4 @@
+// ignore_for_file: empty_catches
 import 'dart:convert';
 
 import 'package:cloud_functions/cloud_functions.dart';

@@ -157,13 +157,23 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         final engagement = earnState.currentEngagement;
         final opportunity = earnState.selectedOpportunity;
         final isPendingReview = earnState.isPendingReview;
-        // Always use gross total (opportunity reward) so the number never jumps
-        final grossTokens = opportunity?.tokenReward ?? 0;
+        // After completion use the actual bonus-adjusted gross from the engagement;
+        // during submission / pending-review fall back to the opportunity's base reward.
+        final isCompleted = engagement?.isComplete == true;
+        final grossTokens = isCompleted
+            ? (engagement!.totalTokensGenerated ??
+                (opportunity?.tokenReward.toDouble() ?? 0.0))
+            : (opportunity?.tokenReward.toDouble() ?? 0.0);
 
-        // Calculate exact 90/5/5 breakdown — NO rounding
+        // Calculate exact 90/5/5 breakdown using the actual gross
         final dailyPotTokens = grossTokens * 0.05;
         final weeklyPotTokens = grossTokens * 0.05;
-        final userTokens = grossTokens - dailyPotTokens - weeklyPotTokens;
+        final userTokens = isCompleted && engagement?.tokensEarned != null
+            ? engagement!.tokensEarned!
+            : grossTokens * 0.9;
+        final grossTokensDisplay = grossTokens == grossTokens.roundToDouble()
+            ? grossTokens.toInt().toString()
+            : grossTokens.toStringAsFixed(1);
 
         return PopScope(
           canPop: false,
@@ -286,7 +296,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                       16),
                                             ),
                                             child: Text(
-                                              '+$grossTokens tokens pending',
+                                              '+$grossTokensDisplay tokens pending',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium
@@ -359,7 +369,7 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
                                                     const SizedBox(
                                                         width: 4),
                                                     Text(
-                                                      '+$grossTokens',
+                                                      '+$grossTokensDisplay',
                                                       style: Theme.of(
                                                               context)
                                                           .textTheme

@@ -58,6 +58,10 @@ const EngagementStatus = {
   REWARDED: "rewarded",
   REJECTED: "rejected",
   PENDING_REVIEW: "pending_review",
+  // In-flight processing sentinel — set atomically before the ledger call to
+  // prevent concurrent processEngagement calls from both reaching the ledger
+  // and causing a double-payment. Never visible to the Flutter client.
+  REWARDING: "rewarding",
   // Legacy status for backward compatibility
   IN_PROGRESS: "in_progress",
 } as const;
@@ -89,7 +93,81 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
   const { earnOpportunityId, campaignId, type, threadId } = request.data;
 
   // =========================================================================
+  // Idempotency guard: return existing active engagement for this user +
+  // opportunity so a network-retry never creates a second escrow reservation.
+  // =========================================================================
+  if (earnOpportunityId) {
+    const existingSnapshot = await db
+      .collection("engagements")
+      .where("userId", "==", userId)
+      .where("earnOpportunityId", "==", earnOpportunityId)
+      .where("status", "in", [
+        EngagementStatus.STARTED,
+        EngagementStatus.WATCHING,
+        EngagementStatus.SURVEYING,
+        EngagementStatus.IN_PROGRESS,
+        // M1 fix: include REWARDING so a client retry during processEngagement's
+        // in-flight window doesn't bypass the guard and create a duplicate
+        // engagement + escrow reservation.
+        EngagementStatus.REWARDING,
+      ])
+      .limit(1)
+      .get();
+
+    if (!existingSnapshot.empty) {
+      const existing = existingSnapshot.docs[0];
+      const existingData = existing.data();
+      // Convert Firestore Timestamps to ISO strings for the embedded object
+      // (same serialization used on the happy path at engagement creation time).
+      const startedAtIso =
+        existingData.startedAt?.toDate?.()?.toISOString?.() ?? new Date().toISOString();
+      const createdAtIso =
+        existingData.createdAt?.toDate?.()?.toISOString?.() ?? startedAtIso;
+      return {
+        success: true,
+        idempotent: true,
+        engagementId: existing.id,
+        rewardAmount: existingData.rewardAmount,
+        escrowReserved: !!existingData.escrowJournalId,
+        rewardReserved: !!existingData.reservedRewardItemId,
+        reservedRewardCampaignName: existingData.reservedRewardCampaignName || null,
+        reservedRewardType: existingData.reservedRewardType || null,
+        // Embed full engagement data so the Flutter client can build the model
+        // without a second Firestore read (same pattern as the happy path).
+        engagement: {
+          id: existing.id,
+          userId: existingData.userId,
+          earnOpportunityId: existingData.earnOpportunityId,
+          audienceCampaignId: existingData.audienceCampaignId,
+          threadId: existingData.threadId,
+          clientId: existingData.clientId,
+          status: existingData.status,
+          watchDurationSeconds: existingData.watchDurationSeconds || 0,
+          requiredDurationSeconds: existingData.requiredDurationSeconds || 0,
+          answers: existingData.answers || [],
+          attemptNumber: existingData.attemptNumber || 1,
+          startedAt: startedAtIso,
+          createdAt: createdAtIso,
+        },
+      };
+    }
+  }
+
+  // =========================================================================
   // Phase 1: Parallel reads — daily cap + opportunity/campaign doc
+  //
+  // NOTE (soft-limit TOCTOU): The daily cap and per-opportunity daily limit
+  // are checked via count queries that are not wrapped in a Firestore
+  // transaction. Under high concurrency (this CF runs at concurrency=10),
+  // two simultaneous startEngagement calls for the same user can both observe
+  // count < cap and both proceed to create engagement documents, allowing a
+  // user to slightly exceed the cap (by at most concurrent-instance-count−1).
+  //
+  // This is an intentional soft limit: the cap is an anti-abuse floor, not a
+  // hard financial control. Correcting it would require an atomic per-user
+  // daily-counter document (with a transaction on every start), which adds
+  // significant latency for the common case. The current approach is correct
+  // for the vast majority of usage patterns.
   // =========================================================================
   const dailyCapPromise = db
     .collection("engagements")
@@ -405,6 +483,13 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
       reservedRewardCampaignId: reservedRewardCampaignId,
       reservedRewardCampaignName: reservedRewardCampaignName,
       reservedRewardType: reservedRewardType,
+      // Denormalized opportunity fields — processEngagement reads these directly
+      // so it never needs to re-fetch the opportunity doc.
+      requiresAdminReview: opportunityData?.requiresAdminReview || false,
+      bonusReward: opportunityData?.bonusReward || false,
+      bonusIntervalType: opportunityData?.bonusIntervalType || null,
+      bonusIntervalX: opportunityData?.bonusIntervalX || null,
+      bonusRewardMultiplier: opportunityData?.bonusRewardMultiplier || null,
     }),
   ];
 
@@ -421,6 +506,9 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
 
   await Promise.all(writePromises);
 
+  // Include the full engagement data in the response so the Flutter client can
+  // construct the model directly without an extra Firestore read.
+  const nowIso = new Date().toISOString();
   return {
     success: true,
     engagementId: engagementId,
@@ -429,6 +517,21 @@ export const startEngagement = onCall({ timeoutSeconds: 60, memory: "256MiB", co
     rewardReserved: !!reservedRewardItemId,
     reservedRewardCampaignName: reservedRewardCampaignName,
     reservedRewardType: reservedRewardType,
+    engagement: {
+      id: engagementId,
+      userId: userId,
+      earnOpportunityId: resolvedOpportunityId,
+      audienceCampaignId: resolvedCampaignId,
+      threadId: resolvedThreadId,
+      clientId: resolvedClientId,
+      status: EngagementStatus.STARTED,
+      watchDurationSeconds: 0,
+      requiredDurationSeconds: resolvedRequiredDuration,
+      answers: [],
+      attemptNumber: 1,
+      startedAt: nowIso,
+      createdAt: nowIso,
+    },
   };
 });
 
@@ -479,12 +582,32 @@ export const processEngagement = onCall(
     const completedStatuses = [
       EngagementStatus.COMPLETED,
       EngagementStatus.REWARDED,
+      // PENDING_REVIEW is a terminal submission state: the evidence has been
+      // recorded and the engagement is awaiting admin action. Re-processing it
+      // would overwrite the original evidence, so treat it as idempotent.
+      EngagementStatus.PENDING_REVIEW,
     ];
     if (completedStatuses.includes(engagement.status)) {
-      throw new HttpsError(
-        "already-exists",
-        "Engagement already completed"
-      );
+      // Idempotent: engagement already completed or submitted for review (e.g.
+      // client retrying after a network timeout). Return stored data so the
+      // caller can display the confirm screen without double-awarding tokens.
+      return {
+        success: true,
+        idempotent: true,
+        engagementId,
+        status: engagement.status,
+        // H1 fix: use tokensEarned (user's 90% share, written by main txn).
+        // rewardAmount is the gross pre-split total; tokenReward was never written.
+        tokensEarned: engagement.tokensEarned ?? engagement.rewardAmount ?? 0,
+        streakDay: engagement.streakDayAtCompletion ?? 0,
+        multiplierApplied: engagement.multiplierApplied ?? 1,
+        bonusApplied: engagement.bonusApplied ?? false,
+        bonusMultiplier: engagement.bonusApplied ? (engagement.multiplierApplied ?? null) : null,
+        rewardItemId: engagement.rewardItemId ?? null,
+        // H2 fix: use reserved* prefixed fields — the plain names are never written.
+        rewardCampaignName: engagement.reservedRewardCampaignName ?? null,
+        rewardType: engagement.reservedRewardType ?? null,
+      };
     }
 
     const failedStatuses = [
@@ -503,25 +626,25 @@ export const processEngagement = onCall(
     const isValid = validateEngagementEvidence(engagement.type, evidence);
 
     if (!isValid) {
-      // Release reward reservation on failure
-      if (engagement.reservedRewardItemId) {
-        await releaseRewardReservation(
-          engagement.reservedRewardItemId,
-          engagementId
-        ).catch((e) =>
-          logger.error("Failed to release reward reservation on evidence failure:", e)
-        );
-      }
-      // Reverse escrow if tokens were reserved — return them to the source immediately
-      if (engagement.escrowJournalId) {
-        await reverseJournal(
-          engagement.escrowJournalId,
-          "Evidence validation failed",
-          "system"
-        ).catch((e) =>
-          logger.error("Failed to reverse escrow on evidence failure:", e)
-        );
-      }
+      // Parallelize reward-reservation release and escrow reversal — both are
+      // independent and can fail independently without blocking each other.
+      await Promise.all([
+        engagement.reservedRewardItemId
+          ? releaseRewardReservation(engagement.reservedRewardItemId, engagementId)
+              .catch((e: unknown) =>
+                logger.error("Failed to release reward reservation on evidence failure:", e)
+              )
+          : Promise.resolve(),
+        engagement.escrowJournalId
+          ? reverseJournal(
+              engagement.escrowJournalId,
+              "Evidence validation failed",
+              "system"
+            ).catch((e: unknown) =>
+              logger.error("Failed to reverse escrow on evidence failure:", e)
+            )
+          : Promise.resolve(),
+      ]);
       await engagementDoc.ref.update({
         status: EngagementStatus.FAILED,
         failedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -534,32 +657,11 @@ export const processEngagement = onCall(
     }
 
     // =========================================================================
-    // Kick off opportunity + thread fetches in parallel — both IDs are known
-    // from the engagement doc, so neither depends on the other.
+    // Admin Review Check — uses field denormalized onto the engagement doc
+    // at startEngagement time, so no opportunity re-fetch is needed.
     // =========================================================================
-    const opportunityFetch: Promise<FirebaseFirestore.DocumentSnapshot | null> =
-      engagement.earnOpportunityId
-        ? db.collection("earnOpportunities").doc(engagement.earnOpportunityId).get()
-        : Promise.resolve(null);
-
-    const threadFetch: Promise<FirebaseFirestore.DocumentSnapshot | null> =
-      engagement.threadId
-        ? db.collection("earnThreads").doc(engagement.threadId).get()
-        : Promise.resolve(null);
-
-    // =========================================================================
-    // Await opportunity (needed for admin review check + bonus logic)
-    // =========================================================================
-    let opportunityData: FirebaseFirestore.DocumentData | null = null;
-    {
-      const opportunityDoc = await opportunityFetch;
-      if (opportunityDoc?.exists) {
-        opportunityData = opportunityDoc.data()!;
-      }
-    }
-
     // Admin Review Check (Upload opportunities with requiresAdminReview)
-    if (engagement.type === "upload" && opportunityData?.requiresAdminReview) {
+    if (engagement.type === "upload" && engagement.requiresAdminReview) {
       await engagementDoc.ref.update({
         status: EngagementStatus.PENDING_REVIEW,
         evidence: evidence,
@@ -573,81 +675,162 @@ export const processEngagement = onCall(
       };
     }
 
+    // =========================================================================
+    // RC1 Fix: Atomic claim — prevents concurrent processEngagement calls from
+    // both reaching the ledger and producing a double-payment.
+    //
+    // Pattern: optimistic CAS on status field.
+    //   • Only the call that atomically transitions status to REWARDING proceeds.
+    //   • Any concurrent call arriving while processing is in-flight (REWARDING)
+    //     receives an "aborted" error (client's submitting-phase guard prevents
+    //     this in practice; direct CF callers are also safe).
+    //   • If the engagement was completed in the window between the fast-path
+    //     check above and this transaction, the idempotent data is returned here.
+    //
+    // Variable captures for the transaction (reset on every retry):
+    let claimConflict = false;
+    let claimIdempotentResponse: Record<string, unknown> | null = null;
+
+    await db.runTransaction(async (claimTx) => {
+      claimConflict = false;
+      claimIdempotentResponse = null;
+
+      const freshDoc = await claimTx.get(engagementDoc.ref);
+      if (!freshDoc.exists) throw new HttpsError("not-found", "Engagement not found");
+
+      const freshStatus = freshDoc.data()!.status as string;
+      const fd = freshDoc.data()!;
+
+      if ((completedStatuses as ReadonlyArray<string>).includes(freshStatus)) {
+        // Completed in the window between the initial read and this transaction.
+        // Build the idempotent response from the fresh doc.
+        claimConflict = true;
+        claimIdempotentResponse = {
+          success: true,
+          idempotent: true,
+          engagementId,
+          status: freshStatus,
+          tokensEarned: fd.tokensEarned ?? fd.rewardAmount ?? 0,
+          streakDay: fd.streakDayAtCompletion ?? 0,
+          multiplierApplied: fd.multiplierApplied ?? 1,
+          bonusApplied: fd.bonusApplied ?? false,
+          bonusMultiplier: fd.bonusApplied ? (fd.multiplierApplied ?? null) : null,
+          rewardItemId: fd.rewardItemId ?? null,
+          rewardCampaignName: fd.reservedRewardCampaignName ?? null,
+          rewardType: fd.reservedRewardType ?? null,
+        };
+        return; // don't write — just capture the response
+      }
+
+      if ((failedStatuses as ReadonlyArray<string>).includes(freshStatus)) {
+        throw new HttpsError("failed-precondition", "Engagement has failed or was abandoned");
+      }
+
+      if (freshStatus === EngagementStatus.REWARDING) {
+        // Another CF instance claimed this engagement and is processing it.
+        // Normally reject — the client's submitting-phase guard prevents this.
+        //
+        // H1 fix: If the sentinel is stale (> 5 min old), the original CF
+        // almost certainly crashed (timeout, OOM, cold-start abort) after
+        // setting REWARDING but before completing the main write.  Without
+        // recovery, the engagement stays stuck and the user can never earn
+        // from it again.  Allow a re-claim so the caller can retry safely.
+        const rewardingAt = fd.rewardingAt as FirebaseFirestore.Timestamp | null;
+        const staleMs = rewardingAt ? Date.now() - rewardingAt.toMillis() : Infinity;
+        const STALE_REWARDING_MS = 5 * 60 * 1000; // 5 minutes
+        if (staleMs < STALE_REWARDING_MS) {
+          throw new HttpsError(
+            "aborted",
+            "Engagement processing is already in progress — retry shortly"
+          );
+        }
+        logger.warn(
+          `processEngagement: stale REWARDING sentinel on ${engagementId} ` +
+          `(${Math.round(staleMs / 1000)}s old). Previous CF likely crashed. Re-claiming.`,
+          { engagementId }
+        );
+        // Fall through — claimTx.update below re-stamps the sentinel.
+      }
+
+      // Claim it: set status to REWARDING so no concurrent call can also proceed.
+      claimTx.update(engagementDoc.ref, {
+        status: EngagementStatus.REWARDING,
+        rewardingAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+    if (claimConflict && claimIdempotentResponse !== null) {
+      return claimIdempotentResponse;
+    }
+    // =========================================================================
+
     let rewardAmount = engagement.rewardAmount;
     let bonusApplied = false;
     let bonusMultiplier = 1.0;
 
     // =========================================================================
-    // Bonus Reward Logic (reuses opportunityData from above)
+    // Bonus Reward Logic — uses fields denormalized onto the engagement doc
+    // at startEngagement time (bonusReward, bonusIntervalType, etc.)
+    // Kick off thread fetch in parallel with bonus user-doc reads below.
     // =========================================================================
-    if (engagement.earnOpportunityId && opportunityData) {
+    const threadFetch: Promise<FirebaseFirestore.DocumentSnapshot | null> =
+      engagement.threadId
+        ? db.collection("earnThreads").doc(engagement.threadId).get()
+        : Promise.resolve(null);
+
+    if (engagement.earnOpportunityId && engagement.bonusReward) {
       try {
-        {
-          const opportunity = opportunityData;
+        const bonusIntervalType = engagement.bonusIntervalType;
+        const bonusIntervalX = engagement.bonusIntervalX;
+        bonusMultiplier = engagement.bonusRewardMultiplier || 1.0;
 
-          if (opportunity.bonusReward) {
-            const bonusIntervalType = opportunity.bonusIntervalType;
-            const bonusIntervalX = opportunity.bonusIntervalX;
-            bonusMultiplier = opportunity.bonusRewardMultiplier || 1.0;
-
-            if (bonusIntervalType === "every_x" && bonusIntervalX) {
-              // ── "Every X Completions" Mode ──
-              // Get user's completion count for this opportunity
-              const userDoc = await db.collection("users").doc(userId).get();
-              const userData = userDoc.exists ? userDoc.data()! : {};
-              const opportunityCompletions = userData.opportunityCompletions || {};
-              const currentCount = (opportunityCompletions[engagement.earnOpportunityId] || 0) + 1;
-
-              // Check if this is an Xth completion
-              if (shouldAwardEveryXBonus(currentCount, bonusIntervalX)) {
-                bonusApplied = true;
-                rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
-              }
-
-              // Update the completion count
-              await db
-                .collection("users")
-                .doc(userId)
-                .set(
-                  {
-                    opportunityCompletions: {
-                      [engagement.earnOpportunityId]: currentCount,
-                    },
-                  },
-                  { merge: true }
-                );
-            } else if (bonusIntervalType === "random") {
-              // ── "Random" Mode (Adaptive Algorithm) ──
-              // Get user's bonus engine state
-              const userDoc = await db.collection("users").doc(userId).get();
-              const userData = userDoc.exists ? userDoc.data()! : {};
-              const currentBonusState = stateFromFirestore(
-                userData.bonusEngineState,
-                DEFAULT_BONUS_CONFIG
-              );
-
-              // Determine if bonus should be awarded
-              const decision = shouldAwardBonus(
-                currentBonusState,
-                DEFAULT_BONUS_CONFIG
-              );
-
-              if (decision.awarded) {
-                bonusApplied = true;
-                rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
-              }
-
-              // Persist updated state
-              await db
-                .collection("users")
-                .doc(userId)
-                .set(
-                  {
-                    bonusEngineState: stateToFirestore(decision.newState),
-                  },
-                  { merge: true }
-                );
+        if (bonusIntervalType === "every_x" && bonusIntervalX) {
+          // ── "Every X Completions" Mode ──
+          // Wrap in a transaction so concurrent completions for the same user
+          // both read fresh counts and cannot both satisfy the X-interval check
+          // at the same time, which would cause a double bonus payout.
+          const userRef = db.collection("users").doc(userId);
+          await db.runTransaction(async (tx) => {
+            bonusApplied = false; // reset on each transaction retry
+            const userDocTx = await tx.get(userRef);
+            const userData = userDocTx.exists ? userDocTx.data()! : {};
+            const opportunityCompletions = userData.opportunityCompletions || {};
+            const currentCount = (opportunityCompletions[engagement.earnOpportunityId] || 0) + 1;
+            if (shouldAwardEveryXBonus(currentCount, bonusIntervalX)) {
+              bonusApplied = true;
             }
+            tx.set(
+              userRef,
+              { opportunityCompletions: { [engagement.earnOpportunityId]: currentCount } },
+              { merge: true }
+            );
+          });
+          if (bonusApplied) {
+            rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
+          }
+        } else if (bonusIntervalType === "random") {
+          // ── "Random" Mode (Adaptive Algorithm) ──
+          // Wrap in a transaction so concurrent completions read the same
+          // bonusEngineState and advance it exactly once, preventing two
+          // independent decisions based on the same stale state.
+          const userRef = db.collection("users").doc(userId);
+          await db.runTransaction(async (tx) => {
+            bonusApplied = false; // reset on each transaction retry
+            const userDocTx = await tx.get(userRef);
+            const userData = userDocTx.exists ? userDocTx.data()! : {};
+            const currentBonusState = stateFromFirestore(userData.bonusEngineState, DEFAULT_BONUS_CONFIG);
+            const decision = shouldAwardBonus(currentBonusState, DEFAULT_BONUS_CONFIG);
+            if (decision.awarded) {
+              bonusApplied = true;
+            }
+            tx.set(
+              userRef,
+              { bonusEngineState: stateToFirestore(decision.newState) },
+              { merge: true }
+            );
+          });
+          if (bonusApplied) {
+            rewardAmount = Math.floor(rewardAmount * bonusMultiplier);
           }
         }
       } catch (bonusError) {
@@ -666,16 +849,13 @@ export const processEngagement = onCall(
 
     // ===========================================================================
     // Client-funded token flow: fetch thread and validate budget
+    // tokenSourceAccountId is already resolved at startEngagement time and
+    // denormalized onto the engagement doc — no opportunity re-fetch needed.
     // ===========================================================================
     let clientId: string | null = engagement.clientId || null;
-    let tokenSourceAccountId: string | null = null;
+    let tokenSourceAccountId: string | null = engagementTokenSourceAccountId;
     let tokenDestAccountTypeId: string | null = null;
     let clientName: string | null = null;
-
-    // Opportunity-level token source takes priority over thread-level (Q1)
-    if (opportunityData?.tokenSourceAccountId) {
-      tokenSourceAccountId = opportunityData.tokenSourceAccountId;
-    }
 
     if (engagement.threadId) {
       const threadDoc = await threadFetch;
@@ -816,6 +996,24 @@ export const processEngagement = onCall(
 
     // Update engagement and related records in transaction (CRITICAL — must complete)
     await db.runTransaction(async (transaction) => {
+      // Defense-in-depth: re-read status inside the transaction to ensure our
+      // REWARDING claim was not lost (e.g., CF cold-start mid-flight).
+      // Firestore only applies optimistic-concurrency protection to documents
+      // that are READ inside the transaction — this read makes the update safe.
+      const claimedDoc = await transaction.get(engagementDoc.ref);
+      const claimedStatus = claimedDoc.data()?.status;
+      if (claimedStatus !== EngagementStatus.REWARDING) {
+        logger.warn(
+          `processEngagement: expected status 'rewarding', found '${claimedStatus}'. ` +
+          `Aborting main transaction to prevent double-write.`,
+          { engagementId }
+        );
+        throw new HttpsError(
+          "aborted",
+          "Engagement claim was lost — retry"
+        );
+      }
+
       // Update engagement with Flutter-compatible fields
       transaction.update(engagementDoc.ref, {
         status: EngagementStatus.COMPLETED,
@@ -830,6 +1028,10 @@ export const processEngagement = onCall(
         // Bonus reward tracking
         bonusApplied: bonusApplied,
         bonusMultiplier: bonusApplied ? bonusMultiplier : null,
+        // Sub-account used for token destination — written here (inside the
+        // transaction) so it is always persisted; doStreakAudit is fire-and-
+        // forget and its failure would otherwise leave this field unset.
+        subAccountId: subAccountId || null,
         // Escrow completion tracking
         ...(hasEscrow ? {
           escrowReleasedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -987,50 +1189,76 @@ export const processEngagement = onCall(
         });
       }
       if (engagement.threadId) {
-        const previousCompleted = await db
-          .collection("engagements")
-          .where("userId", "==", userId)
-          .where("threadId", "==", engagement.threadId)
-          .where("status", "==", EngagementStatus.COMPLETED)
-          .limit(2)
-          .get();
-        if (previousCompleted.size === 1) {
-          await db.collection("earnThreads").doc(engagement.threadId).update({
-            completedUniqueUsers: admin.firestore.FieldValue.increment(1),
-          });
-        }
+        // Atomic first-completion detection: a marker document acts as a
+        // distributed lock. If it already exists, this user has completed this
+        // thread before and we skip the increment. The transaction guarantees
+        // exactly-once semantics even under concurrent completions.
+        const markerRef = db
+          .collection("earnThreadCompletions")
+          .doc(`${userId}_${engagement.threadId}`);
+        await db.runTransaction(async (tx) => {
+          const markerDoc = await tx.get(markerRef);
+          if (!markerDoc.exists) {
+            tx.set(markerRef, {
+              userId,
+              threadId: engagement.threadId,
+              firstCompletedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            tx.update(
+              db.collection("earnThreads").doc(engagement.threadId!),
+              { completedUniqueUsers: admin.firestore.FieldValue.increment(1) }
+            );
+          }
+        });
       }
     };
 
     // Helper: opportunity budget tracking
+    // Uses a transaction so budgetExhausted is set exactly once even under
+    // concurrent completions — reads tokenSpent, increments atomically, and
+    // sets the flag only when the committed new total crosses the threshold.
     const doOpportunityBudgetTracking = async () => {
       if (!engagement.earnOpportunityId) return;
       const oppRef = db.collection("earnOpportunities").doc(engagement.earnOpportunityId);
-      const oppDoc = await oppRef.get();
-      if (!oppDoc.exists) return;
-      const oppData = oppDoc.data()!;
-      const tokenBudget = oppData.tokenBudget;
-      if (tokenBudget == null || tokenBudget <= 0) return;
-      const newSpent = (oppData.tokenSpent || 0) + rewardAmount;
-      const updates: Record<string, unknown> = {
-        tokenSpent: admin.firestore.FieldValue.increment(rewardAmount),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
-      if (newSpent >= tokenBudget) {
-        updates.budgetExhausted = true;
-        await db.collection("adminNotifications").add({
-          type: "opportunity_budget_depleted",
-          opportunityId: engagement.earnOpportunityId,
-          threadId: engagement.threadId,
-          clientId: clientId,
-          tokenBudget,
-          tokenSpent: newSpent,
-          message: `Opportunity "${oppData.title}" budget exhausted (${newSpent}/${tokenBudget} tokens)`,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          read: false,
-        });
+
+      let notifyPayload: Record<string, unknown> | null = null;
+
+      await db.runTransaction(async (tx) => {
+        notifyPayload = null; // reset on each retry
+        const oppDoc = await tx.get(oppRef);
+        if (!oppDoc.exists) return;
+        const oppData = oppDoc.data()!;
+        const tokenBudget = oppData.tokenBudget;
+        if (tokenBudget == null || tokenBudget <= 0) return;
+        // Idempotent: already exhausted — nothing to do
+        if (oppData.budgetExhausted === true) return;
+
+        const newSpent = (oppData.tokenSpent || 0) + rewardAmount;
+        const updates: Record<string, unknown> = {
+          tokenSpent: admin.firestore.FieldValue.increment(rewardAmount),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        if (newSpent >= tokenBudget) {
+          updates.budgetExhausted = true;
+          notifyPayload = {
+            type: "opportunity_budget_depleted",
+            opportunityId: engagement.earnOpportunityId,
+            threadId: engagement.threadId,
+            clientId: clientId,
+            tokenBudget,
+            tokenSpent: newSpent,
+            message: `Opportunity "${oppData.title}" budget exhausted (${newSpent}/${tokenBudget} tokens)`,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            read: false,
+          };
+        }
+        tx.update(oppRef, updates);
+      });
+
+      // Fire notification outside the transaction — non-critical side-effect
+      if (notifyPayload !== null) {
+        await db.collection("adminNotifications").add(notifyPayload);
       }
-      await oppRef.update(updates);
     };
 
     // Run all parallel batch 1 operations concurrently
@@ -1069,10 +1297,10 @@ export const processEngagement = onCall(
     };
 
     const doStreakAudit = async () => {
+      // subAccountId is now written in the main transaction above.
       await engagementDoc.ref.update({
         streakDayAtCompletion: streakInfo.currentStreak,
         multiplierApplied: streakInfo.multiplier,
-        subAccountId: subAccountId,
       });
     };
 
@@ -1159,11 +1387,23 @@ export const updateEngagementProgress = onCall(
     };
 
     if (progress !== undefined) {
-      updateData.progress = progress;
+      updateData.progress = Math.max(0, Math.min(100, Number(progress) || 0));
     }
 
     if (watchDurationSeconds !== undefined) {
-      updateData.watchDurationSeconds = watchDurationSeconds;
+      // Server-side validation: clamp to monotonically increasing and cap at
+      // max elapsed time since engagement start (+ 10 s buffer for clock skew).
+      // The client already enforces both constraints, but the CF is reachable
+      // directly so we apply them here as a defence-in-depth measure.
+      const prevDuration = (engagement.watchDurationSeconds as number) || 0;
+      const startedAt = engagement.startedAt as FirebaseFirestore.Timestamp | null;
+      const startMs = startedAt?.toMillis?.() ?? Date.now();
+      const maxElapsedSeconds = Math.ceil((Date.now() - startMs) / 1000) + 10;
+      const clamped = Math.max(
+        prevDuration,
+        Math.min(watchDurationSeconds as number, maxElapsedSeconds)
+      );
+      updateData.watchDurationSeconds = clamped;
     }
 
     if (status && activeStatuses.includes(status)) {

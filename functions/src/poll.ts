@@ -260,11 +260,26 @@ export const submitPollVote = onCall(
           }
           break;
 
-        case "ranking":
-          // Update running average ranks: new_avg = ((old_avg * (n-1)) + rank) / n
-          // We'll compute this from response data in getPollResults/getPollAdminDetails instead
-          // Just increment respondent count here (averageRanks recomputed on read)
+        case "ranking": {
+          // Maintain a running average rank for each option so getPollResults
+          // can return materialized averages without reading all response docs.
+          // Formula: new_avg = ((old_avg * (n-1)) + rank) / n  (1-based rank)
+          // n is the NEW totalRespondents (after increment above).
+          // We rely on the poll doc read at the top of the transaction for
+          // the current averageRanks map; initialise missing entries to 0.
+          const currentAverageRanks =
+            (pollInTx.data()!.averageRanks || {}) as Record<string, number>;
+          const currentTotal = (pollInTx.data()!.totalRespondents || 0); // before increment
+          const newTotal = currentTotal + 1;
+          for (let i = 0; i < rankedOptions.length; i++) {
+            const optId = rankedOptions[i];
+            const rank = i + 1; // 1-based
+            const oldAvg = currentAverageRanks[optId] || 0;
+            const newAvg = ((oldAvg * currentTotal) + rank) / newTotal;
+            counterUpdates[`averageRanks.${optId}`] = Math.round(newAvg * 100) / 100;
+          }
           break;
+        }
 
         case "text":
           // No counters to update for text — just respondent count
@@ -499,9 +514,31 @@ export const changePollVote = onCall(
           break;
         }
 
-        case "ranking":
-          // Rankings recomputed on read from all responses — no counters to update
+        case "ranking": {
+          // Update running average ranks for the changed order.
+          // totalRespondents is unchanged (same user, different order).
+          // Remove old contribution and add new contribution for each option.
+          const oldRanked: string[] = response.rankedOptions || [];
+          const pollDataCv = (await tx.get(pollRef)).data()!;
+          const currentTotal = pollDataCv.totalRespondents || 0;
+          const currentAvgRanks =
+            (pollDataCv.averageRanks || {}) as Record<string, number>;
+          if (currentTotal > 0) {
+            for (let i = 0; i < newRankedOptions.length; i++) {
+              const optId = newRankedOptions[i];
+              const newRank = i + 1;
+              const oldRankIdx = oldRanked.indexOf(optId);
+              const oldRank = oldRankIdx >= 0 ? oldRankIdx + 1 : newRank;
+              const oldAvg = currentAvgRanks[optId] || 0;
+              // Subtract old rank contribution, add new rank contribution
+              const newAvg =
+                ((oldAvg * currentTotal) - oldRank + newRank) / currentTotal;
+              counterUpdates[`averageRanks.${optId}`] =
+                Math.round(newAvg * 100) / 100;
+            }
+          }
           break;
+        }
 
         case "text":
           // No counters for text
@@ -673,28 +710,10 @@ export const getPollResults = onCall(
           break;
 
         case "ranking": {
-          // Compute average ranks from all valid responses
-          const rankResponses = await pollRef.collection("responses")
-            .where("status", "==", "valid")
-            .get();
-          const rankSums: Record<string, number> = {};
-          for (const optId of Object.keys(poll.averageRanks || {})) {
-            rankSums[optId] = 0;
-          }
-          let validCount = 0;
-          for (const doc of rankResponses.docs) {
-            const ranked: string[] = doc.data().rankedOptions || [];
-            if (ranked.length > 0) {
-              validCount++;
-              ranked.forEach((optId, idx) => {
-                rankSums[optId] = (rankSums[optId] || 0) + (idx + 1); // 1-based rank
-              });
-            }
-          }
-          const averageRanks: Record<string, number> = {};
-          for (const [optId, sum] of Object.entries(rankSums)) {
-            averageRanks[optId] = validCount > 0 ? Math.round((sum / validCount) * 100) / 100 : 0;
-          }
+          // Use the materialised averageRanks maintained by submitPollVote /
+          // changePollVote — no O(N) collection read required.
+          const averageRanks =
+            (poll.averageRanks || {}) as Record<string, number>;
           results = { totalRespondents, averageRanks };
           break;
         }
@@ -842,9 +861,32 @@ export const invalidatePollResponse = onCall(
           }
           break;
         }
-        case "ranking":
-          // Rankings recomputed on read — just decrement respondent count
+        case "ranking": {
+          // Remove this response's contribution from the running averages.
+          const ranked: string[] = response.rankedOptions || [];
+          const pollDataInv = pollDataInTx;
+          const invTotal = (pollDataInv.totalRespondents || 1); // before decrement
+          const newInvTotal = invTotal - 1;
+          const invAvgRanks =
+            (pollDataInv.averageRanks || {}) as Record<string, number>;
+          if (ranked.length > 0 && newInvTotal > 0) {
+            for (let i = 0; i < ranked.length; i++) {
+              const optId = ranked[i];
+              const rank = i + 1;
+              const oldAvg = invAvgRanks[optId] || 0;
+              const newAvg =
+                ((oldAvg * invTotal) - rank) / newInvTotal;
+              counterUpdates[`averageRanks.${optId}`] =
+                Math.round(newAvg * 100) / 100;
+            }
+          } else if (newInvTotal === 0) {
+            // Last respondent removed — zero out all averages
+            for (const optId of Object.keys(invAvgRanks)) {
+              counterUpdates[`averageRanks.${optId}`] = 0;
+            }
+          }
           break;
+        }
         case "text":
           // Just decrement respondent count
           break;

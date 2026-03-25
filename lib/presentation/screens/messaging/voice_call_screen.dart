@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +27,8 @@ class VoiceCallScreen extends StatefulWidget {
 
 class _VoiceCallScreenState extends State<VoiceCallScreen> {
   bool _videoUpgradeDialogShown = false;
+  bool _videoUpgradeNavigated = false;
+  Timer? _failedPopTimer;
 
   @override
   void initState() {
@@ -34,6 +38,7 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
 
   @override
   void dispose() {
+    _failedPopTimer?.cancel();
     WakelockPlus.disable();
     super.dispose();
   }
@@ -42,12 +47,18 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<CallBloc, CallState>(
       listener: (context, state) {
-        // Navigate away when call is idle (ended/declined/cancelled)
-        if (state.status == CallStatus.idle ||
-            state.status == CallStatus.failed) {
-          if (context.canPop()) {
-            context.pop();
-          }
+        // Navigate away when call ends normally
+        if (state.status == CallStatus.idle) {
+          _failedPopTimer?.cancel();
+          if (context.canPop()) context.pop();
+        }
+
+        // On failure, show the error for 2 seconds before dismissing
+        if (state.status == CallStatus.failed) {
+          _failedPopTimer?.cancel();
+          _failedPopTimer = Timer(const Duration(seconds: 2), () {
+            if (context.mounted && context.canPop()) context.pop();
+          });
         }
 
         // Handle video upgrade dialog (guard against repeated shows)
@@ -61,9 +72,13 @@ class _VoiceCallScreenState extends State<VoiceCallScreen> {
 
         // Navigate to VideoCallScreen when upgraded to video.
         // Replace this route so pressing back doesn't return to voice screen.
+        // Guard with _videoUpgradeNavigated to prevent duplicate pushReplacement
+        // if BLoC emits consecutive states with callType == video.
         if (state.callType == CallType.video &&
             state.callId != null &&
-            state.conversationId != null) {
+            state.conversationId != null &&
+            !_videoUpgradeNavigated) {
+          _videoUpgradeNavigated = true;
           context.pushReplacement(
             '/chat/conversation/${state.conversationId}/call/${state.callId}',
             extra: {'isVideo': true},

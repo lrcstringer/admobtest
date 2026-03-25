@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -298,6 +300,7 @@ abstract class EngagementModel with _$EngagementModel {
     required List<SurveyResponseModel> answers,
     EngagementEvidenceModel? evidence,
     double? tokensEarned,
+    double? totalTokensGenerated,
     String? failureReason,
     required int attemptNumber,
     required DateTime createdAt,
@@ -341,8 +344,8 @@ abstract class EngagementModel with _$EngagementModel {
           : completedAt is Timestamp
               ? completedAt.toDate()
               : DateTime.parse(completedAt as String),
-      watchDurationSeconds: json['watchDurationSeconds'] as int? ?? 0,
-      requiredDurationSeconds: json['requiredDurationSeconds'] as int,
+      watchDurationSeconds: (json['watchDurationSeconds'] as num?)?.toInt() ?? 0,
+      requiredDurationSeconds: (json['requiredDurationSeconds'] as num?)?.toInt() ?? 0,
       answers: (json['answers'] as List?)
               ?.map((e) =>
                   SurveyResponseModel.fromJson(e as Map<String, dynamic>))
@@ -352,6 +355,7 @@ abstract class EngagementModel with _$EngagementModel {
           ? EngagementEvidenceModel.fromJson(evidence)
           : null,
       tokensEarned: (json['tokensEarned'] as num?)?.toDouble(),
+      totalTokensGenerated: (json['totalTokensGenerated'] as num?)?.toDouble(),
       failureReason: json['failureReason'] as String?,
       attemptNumber: json['attemptNumber'] as int? ?? 1,
       createdAt: createdAt is Timestamp
@@ -399,6 +403,7 @@ abstract class EngagementModel with _$EngagementModel {
       answers: answers.map((a) => a.toEntity()).toList(),
       evidence: evidence?.toEntity(),
       tokensEarned: tokensEarned,
+      totalTokensGenerated: totalTokensGenerated,
       failureReason: failureReason,
       attemptNumber: attemptNumber,
       createdAt: createdAt,
@@ -437,6 +442,7 @@ abstract class EngagementModel with _$EngagementModel {
           ? EngagementEvidenceModel.fromEntity(entity.evidence!)
           : null,
       tokensEarned: entity.tokensEarned,
+      totalTokensGenerated: entity.totalTokensGenerated,
       failureReason: entity.failureReason,
       attemptNumber: entity.attemptNumber,
       createdAt: entity.createdAt,
@@ -471,6 +477,7 @@ abstract class EngagementModel with _$EngagementModel {
       'answers': answers.map((a) => a.toFirestoreJson()).toList(),
       if (evidence != null) 'evidence': evidence!.toFirestoreJson(),
       if (tokensEarned != null) 'tokensEarned': tokensEarned,
+      if (totalTokensGenerated != null) 'totalTokensGenerated': totalTokensGenerated,
       if (failureReason != null) 'failureReason': failureReason,
       'attemptNumber': attemptNumber,
       'createdAt': Timestamp.fromDate(createdAt),
@@ -514,6 +521,11 @@ abstract class EngagementModel with _$EngagementModel {
       case 'pending_review':
         return EngagementStatus.pendingReview;
       default:
+        dev.log(
+          'Unknown engagement status "$status" — defaulting to started',
+          name: 'EngagementModel',
+          level: 900, // WARNING level
+        );
         return EngagementStatus.started;
     }
   }

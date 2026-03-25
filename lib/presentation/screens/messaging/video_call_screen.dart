@@ -28,6 +28,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _renderersReady = false;
   bool _controlsVisible = true;
   Timer? _hideControlsTimer;
+  Timer? _failedPopTimer;
   StreamSubscription? _localStreamSub;
   StreamSubscription? _remoteStreamSub;
   WebRtcService? _lastConnectedService;
@@ -98,6 +99,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   @override
   void dispose() {
     WakelockPlus.disable();
+    _failedPopTimer?.cancel();
     _hideControlsTimer?.cancel();
     _localStreamSub?.cancel();
     _remoteStreamSub?.cancel();
@@ -119,9 +121,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           _connectToStreams();
         }
 
-        if (state.status == CallStatus.idle ||
-            state.status == CallStatus.failed) {
+        if (state.status == CallStatus.idle) {
+          _failedPopTimer?.cancel();
           if (context.canPop()) context.pop();
+        }
+
+        if (state.status == CallStatus.failed) {
+          _failedPopTimer?.cancel();
+          _failedPopTimer = Timer(const Duration(seconds: 2), () {
+            if (context.mounted && context.canPop()) context.pop();
+          });
         }
       },
       builder: (context, state) {

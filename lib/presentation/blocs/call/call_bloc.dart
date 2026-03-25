@@ -52,6 +52,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   Timer? _callTimer;
   Timer? _heartbeatTimer;
   Timer? _ringTimer;
+  Timer? _connectingTimer;
   int _iceRestartAttempts = 0;
   static const _maxIceRestarts = 5;
   DateTime? _callSetupStartedAt;
@@ -223,7 +224,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
       // Wire up video upgrade renegotiation callback
       _webRtcService!.onNeedRenegotiation = () {
-        _negotiationHandler?.negotiate();
+        _negotiationHandler?.negotiate().catchError((_) {});
       };
 
       // Explicitly create and send the initial SDP offer.
@@ -439,6 +440,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       // Set up Perfect Negotiation for future renegotiation (video upgrade,
       // ICE restart). If the offer wasn't available yet, the watch stream
       // will route it through this handler when it arrives.
+      //
+      // initialRemoteDescriptionSet: true because setRemoteDescription was
+      // already called above — any caller ICE candidates arriving via
+      // _iceCandidateSub will be applied directly without queuing.
       _negotiationHandler = PerfectNegotiationHandler(
         pc: _webRtcService!.peerConnection!,
         polite: true,
@@ -446,11 +451,12 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           await _signalingService.sendDescription(callId, desc,
               isCaller: false);
         },
+        initialRemoteDescriptionSet: true,
       );
 
       // Wire up video upgrade renegotiation callback
       _webRtcService!.onNeedRenegotiation = () {
-        _negotiationHandler?.negotiate();
+        _negotiationHandler?.negotiate().catchError((_) {});
       };
 
       // Watch for remote SDP description changes via RTDB.
@@ -489,11 +495,20 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         (enabled) => add(CallEvent.remoteVideoStateChanged(enabled: enabled)),
       );
 
+      // Start connecting timeout — ends call if ICE never reaches 'connected'.
+      _startConnectingTimer();
+
     } catch (e) {
       _analyticsService.logCallFailed(
         callId: callId,
         error: e.toString(),
       );
+
+      // Dismiss the CallKit system-level call so it doesn't leave a phantom
+      // "active call" notification after setup fails.
+      try {
+        await FlutterCallkitIncoming.endCall(callId);
+      } catch (_) {}
 
       // Clean up any partially-initialised resources (WebRTC, subscriptions,
       // camera/mic) so they don't leak after the screen pops.
@@ -521,9 +536,15 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     Emitter<CallState> emit,
   ) async {
     if (state.callId == null) return;
+    final callId = state.callId!;
+    // Dismiss the native CallKit / full-screen notification UI immediately,
+    // before the async CF call, so the callee sees instant dismissal.
+    try {
+      await FlutterCallkitIncoming.endCall(callId);
+    } catch (_) {}
     try {
       await _callRepository
-          .endCall(state.callId!, reason: 'declined')
+          .endCall(callId, reason: 'declined')
           .timeout(const Duration(seconds: 5));
     } catch (_) {}
     await _cleanup();
@@ -544,6 +565,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       reason = 'cancelled';
     } else if (state.status == CallStatus.ringing && !state.isCaller) {
       reason = 'missed';
+    } else if (state.status == CallStatus.connecting) {
+      reason = 'error'; // ICE never connected — maps to 'failed' status in CF
     } else {
       reason = 'normal';
     }
@@ -562,7 +585,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           .timeout(const Duration(seconds: 5));
     } catch (_) {}
     await _cleanup();
-    emit(const CallState());
+    // Show error state for timeout/error so the screen stays visible briefly
+    // with a message, rather than silently dismissing. Screens pop after 2s.
+    if (reason == 'error') {
+      emit(const CallState().copyWith(
+        status: CallStatus.failed,
+        errorMessage: 'Call failed — could not connect',
+      ));
+    } else {
+      emit(const CallState());
+    }
   }
 
   // ── Media Controls ──
@@ -695,6 +727,18 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       return;
     }
 
+    // Callee has answered — cancel the caller's ring timer so it doesn't fire
+    // and end the call while ICE is still connecting. The caller transitions to
+    // 'connecting' here; ICE state will move it to 'active' once established.
+    if (session.status == CallStatus.active &&
+        state.status == CallStatus.ringing &&
+        state.isCaller) {
+      _ringTimer?.cancel();
+      _ringTimer = null;
+      emit(state.copyWith(status: CallStatus.connecting));
+      _startConnectingTimer();
+    }
+
     // SDP offer/answer handling has moved to RTDB (watchOffer / watchAnswer)
     // for ~10-50ms latency vs Firestore's 100-300ms. This handler now only
     // processes call lifecycle (status) and video upgrade events.
@@ -755,9 +799,11 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         // Reset ICE restart counter on successful connection
         _iceRestartAttempts = 0;
 
-        // Cancel ring timer — call is connected
+        // Cancel ring/connecting timers — call is connected
         _ringTimer?.cancel();
         _ringTimer = null;
+        _connectingTimer?.cancel();
+        _connectingTimer = null;
 
         if (state.status != CallStatus.active) {
           emit(state.copyWith(status: CallStatus.active));
@@ -838,7 +884,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         }
 
       case RTCIceConnectionState.RTCIceConnectionStateFailed:
-        // ICE failed — end call
+        _connectingTimer?.cancel();
+        _connectingTimer = null;
         if (state.callId != null) {
           try {
             await _callRepository.endCall(
@@ -934,6 +981,17 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     }
   }
 
+  // ── Connecting Timeout ──
+
+  void _startConnectingTimer() {
+    _connectingTimer?.cancel();
+    _connectingTimer = Timer(const Duration(seconds: 30), () {
+      if (state.status == CallStatus.connecting) {
+        add(const CallEvent.endCall());
+      }
+    });
+  }
+
   // ── Cleanup ──
 
   Future<void> _cleanup() async {
@@ -944,6 +1002,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
     _ringTimer?.cancel();
     _ringTimer = null;
+    _connectingTimer?.cancel();
+    _connectingTimer = null;
     _callTimer?.cancel();
     _callTimer = null;
     _heartbeatTimer?.cancel();

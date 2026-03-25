@@ -245,7 +245,11 @@ class _IMaliChatAppState extends State<IMaliChatApp>
 
     switch (result) {
       case SessionLockResult.noLockNeeded:
-        break;
+        // Pre-warm earn inbox in background so it's ready before the user
+        // taps the Earn tab after returning to the app.
+        if (_authBloc.state.status == AuthStatus.authenticated) {
+          _earnInboxBloc.add(const EarnInboxEvent.refreshInbox());
+        }
       case SessionLockResult.sessionLockRequired:
         _authBloc.add(const AuthEvent.lockSession());
       case SessionLockResult.fullReauthRequired:

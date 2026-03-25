@@ -442,7 +442,9 @@ export const endCall = onCall(
               ? `Cancelled ${callLabel.toLowerCase()}`
               : status === "busy"
                 ? `${callLabel} — busy`
-                : `${callLabel}${durationText ? ", " + durationText : ""}`;
+                : status === "failed"
+                  ? `${callLabel} — connection failed`
+                  : `${callLabel}${durationText ? ", " + durationText : ""}`;
 
       const msgRef = db
         .collection("conversations")

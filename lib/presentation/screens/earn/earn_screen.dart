@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../domain/entities/earn_notification.dart';
 import '../../../domain/entities/inbox_client.dart';
@@ -129,16 +130,14 @@ class _EarnScreenState extends State<EarnScreen> {
             if (state.status == EarnInboxStatus.loading &&
                 state.clients.isEmpty) {
               return TabBackground(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: AppColors.themed(context).tabGradient,
-                  ),
-                  overlayAsset: AppColors.themed(context).waveOverlay,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + kToolbarHeight),
-                    child: const Center(child: CircularProgressIndicator()),
-                  ));
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: AppColors.themed(context).tabGradient,
+                ),
+                overlayAsset: AppColors.themed(context).waveOverlay,
+                child: _buildSkeleton(context),
+              );
             }
 
             return RefreshIndicator(
@@ -535,9 +534,21 @@ class _EarnScreenState extends State<EarnScreen> {
         children: [
           // Client header (always visible)
           InkWell(
-            onTap: () => context
-                .read<EarnInboxBloc>()
-                .add(EarnInboxEvent.toggleClient(clientId: client.clientId)),
+            onTap: () {
+              context.read<EarnInboxBloc>().add(
+                  EarnInboxEvent.toggleClient(clientId: client.clientId));
+              // Pre-fetch opportunities for the first multi-opp thread when
+              // expanding so the thread screen is instant when the user taps.
+              if (!isExpanded) {
+                final firstMulti = client.threads
+                    .where((t) => !t.isSingleOpportunity)
+                    .firstOrNull;
+                if (firstMulti != null) {
+                  context.read<EarnBloc>().add(
+                      EarnEvent.loadOpportunities(threadId: firstMulti.id));
+                }
+              }
+            },
             borderRadius: isExpanded
                 ? const BorderRadius.vertical(
                     top: Radius.circular(AppSpacing.radiusMd))
@@ -772,8 +783,8 @@ class _EarnScreenState extends State<EarnScreen> {
                     ),
                   ]
                 : filteredThreads
-                    .map((thread) => _buildThreadCard(context, thread,
-                        clientId: client.clientId, isDisabled: isDisabled))
+                    .map((thread) => _buildThreadCard(context, thread, client,
+                        isDisabled: isDisabled))
                     .toList(),
           ),
         ),
@@ -853,8 +864,8 @@ class _EarnScreenState extends State<EarnScreen> {
 
   Widget _buildThreadCard(
     BuildContext context,
-    InboxThread thread, {
-    required String clientId,
+    InboxThread thread,
+    InboxClient client, {
     bool isDisabled = false,
   }) {
     final allDone = thread.allCompleted;
@@ -875,10 +886,24 @@ class _EarnScreenState extends State<EarnScreen> {
                     context.push(
                         '/earn/opportunity/${thread.singleOpportunityId}');
                   } else {
-                    // Multiple opportunities — show thread detail
-                    context
-                        .read<EarnBloc>()
-                        .add(EarnEvent.selectThread(thread.id));
+                    // Multiple opportunities — show thread detail.
+                    // Pre-populate header synchronously from inbox data so the
+                    // screen renders instantly without waiting for the CF.
+                    context.read<EarnBloc>().add(
+                      EarnEvent.selectThreadFromInbox(
+                        threadId: thread.id,
+                        title: thread.title,
+                        description: thread.description,
+                        clientId: client.clientId,
+                        clientName: client.clientName,
+                        clientAvatarImage: client.clientAvatarImage,
+                        clientAvatarColor: client.clientAvatarColor,
+                        threadImage: thread.threadImage,
+                        isPinned: thread.isPinned,
+                        isFeatured: thread.isFeatured,
+                        availableOpportunities: thread.availableOpportunities,
+                      ),
+                    );
                     context.push('/earn/thread/${thread.id}');
                   }
                 },
@@ -1141,6 +1166,123 @@ class _EarnScreenState extends State<EarnScreen> {
   // =========================================================================
   // Empty State
   // =========================================================================
+
+  // =========================================================================
+  // Skeleton Loading
+  // =========================================================================
+
+  Widget _buildSkeleton(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top + kToolbarHeight;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0);
+    final highlightColor = isDark ? const Color(0xFF3A3A3A) : const Color(0xFFF5F5F5);
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md + top,
+          AppSpacing.md,
+          AppSpacing.md,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title row placeholder
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _skeletonBox(width: 190, height: 15),
+                _skeletonBox(width: 90, height: 12),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // 3 client card skeletons
+            for (int i = 0; i < 3; i++) ...[
+              _buildSkeletonClientCard(context),
+              const SizedBox(height: 10),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonClientCard(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.surface;
+    return Container(
+      decoration: BoxDecoration(
+        color: surface,
+        borderRadius: AppSpacing.borderRadiusMd,
+      ),
+      child: Column(
+        children: [
+          // Client header row
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                _skeletonBox(width: 40, height: 40, radius: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _skeletonBox(width: 130, height: 14),
+                      const SizedBox(height: 6),
+                      _skeletonBox(width: 80, height: 11),
+                    ],
+                  ),
+                ),
+                _skeletonBox(width: 50, height: 12),
+              ],
+            ),
+          ),
+          // Divider placeholder
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.1)),
+          // Two thread row placeholders
+          for (int j = 0; j < 2; j++)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Row(
+                children: [
+                  _skeletonBox(width: 36, height: 36, radius: 8),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _skeletonBox(width: double.infinity, height: 13),
+                        const SizedBox(height: 5),
+                        _skeletonBox(width: 100, height: 10),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _skeletonBox({
+    required double width,
+    required double height,
+    double radius = 6,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(

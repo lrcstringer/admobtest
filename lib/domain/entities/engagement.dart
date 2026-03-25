@@ -21,6 +21,8 @@ abstract class Engagement with _$Engagement {
     required List<SurveyResponse> answers,
     EngagementEvidence? evidence,
     double? tokensEarned,
+    /// Gross tokens generated before the 90/5/5 split (bonus-adjusted)
+    double? totalTokensGenerated,
     String? failureReason,
     required int attemptNumber,
     required DateTime createdAt,

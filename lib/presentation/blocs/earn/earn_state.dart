@@ -27,6 +27,9 @@ abstract class EarnState with _$EarnState {
     @Default([]) List<EarnThread> threads,
     EarnThread? selectedThread,
     @Default(EarnStatus.initial) EarnStatus opportunitiesStatus,
+    /// Tracks which threadId the current [opportunities] list belongs to.
+    /// Used to detect pre-fetched opportunities and skip redundant CF calls.
+    String? opportunitiesThreadId,
     @Default([]) List<EarnOpportunity> opportunities,
     EarnOpportunity? selectedOpportunity,
     Engagement? currentEngagement,

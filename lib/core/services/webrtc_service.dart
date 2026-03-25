@@ -170,10 +170,10 @@ class WebRtcService {
                 'facingMode': 'user',
               }
             : false,
-      });
+      }).timeout(const Duration(seconds: 15));
     } catch (e) {
       await dispose();
-      rethrow; // Permission denied or hardware failure
+      rethrow; // Permission denied, hardware failure, or background timeout
     }
     _localStreamController.add(_localStream);
 
