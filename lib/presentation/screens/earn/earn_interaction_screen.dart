@@ -180,9 +180,18 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     // Clean up compressed temp file
     _uploadService.cleanupTempFile(_compressedVideo);
     for (final c in _textInputControllers) { c.dispose(); }
-    // Reset BLoC engagement state so stale errors don't bleed into the next opportunity
+    // Reset BLoC engagement state so stale errors don't bleed into the next opportunity.
+    // Guard: if we navigated to the confirm screen (optimistic/submitting/completed) the
+    // confirm screen owns the reset in _goToEarn/_goToWallet. Dispatching resetEngagement
+    // here would queue behind the still-in-flight _SubmitSurvey handler and then blank
+    // the confirm screen after the CF returns (BLoC processes events sequentially).
     context.read<EarnBloc>().add(const EarnEvent.clearError());
-    context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+    final disposalPhase = context.read<EarnBloc>().state.engagementPhase;
+    if (disposalPhase != EngagementPhase.optimistic &&
+        disposalPhase != EngagementPhase.submitting &&
+        disposalPhase != EngagementPhase.completed) {
+      context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+    }
     super.dispose();
   }
 
@@ -464,57 +473,71 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     final state = context.read<EarnBloc>().state;
     if (state.currentEngagement == null) return;
 
-    // Collect device fingerprint
-    final fingerprint = await DeviceFingerprint.generate();
+    try {
+      // Collect device fingerprint
+      final fingerprint = await DeviceFingerprint.generate();
 
-    // Use the pre-generated token (started in _onWatchComplete) if available;
-    // otherwise fall back to a fresh fetch (e.g. deep-link direct to survey).
-    final String? integrityNonce;
-    final String? integrityToken;
-    if (_preIntegrityFuture != null && _preNonce != null) {
-      integrityNonce = _preNonce;
-      integrityToken = await _preIntegrityFuture;
-    } else {
-      integrityNonce = _integrityService.generateNonce();
-      integrityToken =
-          await _integrityService.getIntegrityToken(nonce: integrityNonce);
+      // Use the pre-generated token (started in _onWatchComplete) if available;
+      // otherwise fall back to a fresh fetch (e.g. deep-link direct to survey).
+      final String? integrityNonce;
+      final String? integrityToken;
+      if (_preIntegrityFuture != null && _preNonce != null) {
+        integrityNonce = _preNonce;
+        integrityToken = await _preIntegrityFuture;
+      } else {
+        integrityNonce = _integrityService.generateNonce();
+        integrityToken =
+            await _integrityService.getIntegrityToken(nonce: integrityNonce);
+      }
+
+      // Calculate attention score
+      final attentionScore = _calculateAttentionScore();
+
+      // Check if this is an AdMob opportunity
+      final isAdMobOpportunity =
+          state.selectedOpportunity?.earningType == EarningType.adVideo;
+
+      // Build evidence
+      final evidence = EngagementEvidence(
+        deviceFingerprint: fingerprint.hash,
+        integrityToken: integrityToken,
+        integrityNonce: integrityNonce,
+        watchDurationMs: isAdMobOpportunity ? 30000 : _watchDurationMs,
+        videoSeeked: _videoSeeked,
+        screenVisible: _screenVisible,
+        appInForeground: _appInForeground,
+        surveyResponseTimesMs: _responseTimesMs,
+        videoStartedAt: _videoStartedAt ?? DateTime.now(),
+        surveySubmittedAt: DateTime.now(),
+        clientAttentionScore: attentionScore,
+        // Include AdMob verification data if available
+        adTransactionId: state.adTransactionId,
+        adFullyWatched: isAdMobOpportunity && state.adTransactionId != null,
+        adResponseId: state.adResponseId,
+      );
+
+      // Submit (check mounted after async gap)
+      if (!mounted) return;
+      context.read<EarnBloc>().add(
+            EarnEvent.submitSurvey(
+              engagementId: state.currentEngagement!.id,
+              answers: _answers,
+              evidence: evidence,
+            ),
+          );
+    } catch (e) {
+      // DeviceFingerprint or Play Integrity threw (plugin crash, permissions denied).
+      // Show an actionable error so the user can retry via the Submit button.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to prepare submission — please try again. ($e)'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      // Reset the auto-submit guard so the review/submit button becomes usable again.
+      setState(() => _autoSubmitScheduled = false);
     }
-
-    // Calculate attention score
-    final attentionScore = _calculateAttentionScore();
-
-    // Check if this is an AdMob opportunity
-    final isAdMobOpportunity =
-        state.selectedOpportunity?.earningType == EarningType.adVideo;
-
-    // Build evidence
-    final evidence = EngagementEvidence(
-      deviceFingerprint: fingerprint.hash,
-      integrityToken: integrityToken,
-      integrityNonce: integrityNonce,
-      watchDurationMs: isAdMobOpportunity ? 30000 : _watchDurationMs,
-      videoSeeked: _videoSeeked,
-      screenVisible: _screenVisible,
-      appInForeground: _appInForeground,
-      surveyResponseTimesMs: _responseTimesMs,
-      videoStartedAt: _videoStartedAt ?? DateTime.now(),
-      surveySubmittedAt: DateTime.now(),
-      clientAttentionScore: attentionScore,
-      // Include AdMob verification data if available
-      adTransactionId: state.adTransactionId,
-      adFullyWatched: isAdMobOpportunity && state.adTransactionId != null,
-      adResponseId: state.adResponseId,
-    );
-
-    // Submit (check mounted after async gap)
-    if (!mounted) return;
-    context.read<EarnBloc>().add(
-          EarnEvent.submitSurvey(
-            engagementId: state.currentEngagement!.id,
-            answers: _answers,
-            evidence: evidence,
-          ),
-        );
   }
 
   double _calculateAttentionScore() {
@@ -542,7 +565,15 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   void _abandonEngagement() {
     final state = context.read<EarnBloc>().state;
-    if (state.currentEngagement != null) {
+    // Don't abandon if submission is already in-flight or completed — the engagement
+    // has been claimed on the server (status = REWARDING/COMPLETED) and the CF would
+    // reject the abandon. This guards against the poll-results window where
+    // _submitEngagement() has fired but _pollResultsShowing suppresses navigation.
+    final phase = state.engagementPhase;
+    if (state.currentEngagement != null &&
+        phase != EngagementPhase.optimistic &&
+        phase != EngagementPhase.submitting &&
+        phase != EngagementPhase.completed) {
       context
           .read<EarnBloc>()
           .add(EarnEvent.abandonEngagement(state.currentEngagement!.id));

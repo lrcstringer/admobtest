@@ -1179,17 +1179,19 @@ export const processEngagement = onCall(
       }
     };
 
-    // Run all parallel batch 1 operations concurrently
-    const [streakInfo] = await Promise.all([
-      updateEngagementStats(userId, userShare, engagementStreakPoints)
-        .catch((e) => { logger.error("Streak stats error:", e); return defaultStreak; }),
-      doBudgetMonitoring()
-        .catch((e) => logger.error("Budget monitoring error:", e)),
-      doTargetingTracking()
-        .catch((e) => logger.error("Targeting tracking error:", e)),
-      doOpportunityBudgetTracking()
-        .catch((e) => logger.error("Opportunity budget tracking error:", e)),
-    ]);
+    // Fire side effects in background — they don't contribute to the CF return value
+    // and are non-critical for the user. Removing them from the await path saves the
+    // time of the slowest side effect (~200ms on warm) from blocking the response.
+    doBudgetMonitoring()
+      .catch((e) => logger.error("Budget monitoring error:", e));
+    doTargetingTracking()
+      .catch((e) => logger.error("Targeting tracking error:", e));
+    doOpportunityBudgetTracking()
+      .catch((e) => logger.error("Opportunity budget tracking error:", e));
+
+    // Only await streak stats — needed for the return value and doStreakAudit below.
+    const streakInfo = await updateEngagementStats(userId, userShare, engagementStreakPoints)
+      .catch((e: unknown) => { logger.error("Streak stats error:", e); return defaultStreak; });
 
     // =========================================================================
     // PARALLEL BATCH 2: leaderboard + streak audit (depend on streakInfo)

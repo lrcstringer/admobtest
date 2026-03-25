@@ -77,31 +77,53 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         if (mounted) _fadeController.forward();
       });
 
-      // If already completed on first frame (fast CF), trigger success effects
+      // Bug 5: guard against direct navigation with empty state (e.g. deep-link).
       final earnState = context.read<EarnBloc>().state;
-      if (earnState.engagementPhase == EngagementPhase.completed) {
-        _onSubmissionCompleted(earnState.isPendingReview);
+      final phase = earnState.engagementPhase;
+      if (phase == EngagementPhase.idle) {
+        context.go('/earn');
+        return;
+      }
+
+      // If already in a terminal state on the first frame (fast CF / hot reload),
+      // trigger the appropriate handlers immediately.
+      if (phase == EngagementPhase.optimistic ||
+          phase == EngagementPhase.completed) {
+        _onWalletRefresh(earnState.isPendingReview);
+      }
+      if (phase == EngagementPhase.completed) {
+        _onCompletionEffects(earnState);
       }
     });
   }
 
-  bool _completionHandled = false;
+  // Wallet refresh fires on the first of optimistic or completed — whichever
+  // arrives first. This gives the wallet the earliest possible signal to update.
+  bool _walletRefreshHandled = false;
 
-  void _onSubmissionCompleted(bool isPendingReview) {
-    if (_completionHandled || isPendingReview) return;
-    _completionHandled = true;
-
+  void _onWalletRefresh(bool isPendingReview) {
+    if (_walletRefreshHandled || isPendingReview) return;
+    _walletRefreshHandled = true;
     context.read<WalletBloc>().add(const WalletEvent.refreshLedger());
+  }
 
-    // #15 — Refresh reward items so wallet shows newly allocated reward
-    if (context.read<EarnBloc>().state.rewardItemId != null) {
+  // Visual effects (confetti, streak, reward card) fire on completed only —
+  // this is when streakDayAtCompletion and rewardItemId are populated by the CF.
+  bool _effectsHandled = false;
+
+  void _onCompletionEffects(EarnState earnState) {
+    if (_effectsHandled || earnState.isPendingReview) return;
+    _effectsHandled = true;
+
+    // Refresh reward items so wallet shows newly allocated reward
+    if (earnState.rewardItemId != null) {
       context.read<RewardBloc>().add(const RewardEvent.refreshItems());
     }
 
-    final earnState = context.read<EarnBloc>().state;
     final engagement = earnState.currentEngagement;
     final walletState = context.read<WalletBloc>().state;
-    final isFirstCompletion = (walletState.engagementStats?.totalEngagementsCompleted ?? 0) <= 1;
+    final isFirstCompletion =
+        (walletState.engagementStats?.totalEngagementsCompleted ?? 0) <= 1;
     final streakDay = engagement?.streakDayAtCompletion;
     final isStreakMilestone =
         streakDay == 3 || streakDay == 7 || streakDay == 14;
@@ -133,13 +155,15 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
   Widget build(BuildContext context) {
     return BlocConsumer<EarnBloc, EarnState>(
       listener: (context, earnState) {
-        // Trigger confetti + wallet refresh as soon as we know success.
-        // - optimistic: fired immediately when CF is in-flight (non-upload)
-        // - completed:  fired when CF responds (updates bonus amounts if needed)
-        // _completionHandled guard prevents double-firing.
+        // Wallet refresh: fire on the first of optimistic or completed.
         if (earnState.engagementPhase == EngagementPhase.optimistic ||
             earnState.engagementPhase == EngagementPhase.completed) {
-          _onSubmissionCompleted(earnState.isPendingReview);
+          _onWalletRefresh(earnState.isPendingReview);
+        }
+        // Visual effects (confetti, streak card, reward refresh): fire on completed
+        // only, when streakDayAtCompletion and rewardItemId are populated by the CF.
+        if (earnState.engagementPhase == EngagementPhase.completed) {
+          _onCompletionEffects(earnState);
         }
 
         // Handle submission failure — show error and navigate back
