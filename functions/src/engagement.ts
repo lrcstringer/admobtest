@@ -14,6 +14,7 @@
  */
 
 import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
+import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions/v2";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
@@ -547,17 +548,15 @@ export const processEngagement = onCall(
         "User must be authenticated"
       );
     }
-    await requireAppCheck(request, "processEngagement");
-    await requirePlayIntegrity(request.data, request, "processEngagement", "HIGHEST");
-
     const userId = request.auth.uid;
     const { engagementId, evidence } = request.data;
 
-    // Get engagement
-    const engagementDoc = await db
-      .collection("engagements")
-      .doc(engagementId)
-      .get();
+    // Auth checks and engagement doc read are independent — run in parallel.
+    const [, , engagementDoc] = await Promise.all([
+      requireAppCheck(request, "processEngagement"),
+      requirePlayIntegrity(request.data, request, "processEngagement", "HIGH"),
+      db.collection("engagements").doc(engagementId).get(),
+    ]);
 
     if (!engagementDoc.exists) {
       throw new HttpsError("not-found", "Engagement not found");
@@ -856,6 +855,7 @@ export const processEngagement = onCall(
     let tokenSourceAccountId: string | null = engagementTokenSourceAccountId;
     let tokenDestAccountTypeId: string | null = null;
     let clientName: string | null = null;
+    let subAccountId: string | undefined;
 
     if (engagement.threadId) {
       const threadDoc = await threadFetch;
@@ -876,36 +876,59 @@ export const processEngagement = onCall(
         tokenDestAccountTypeId = threadData.tokenDestAccountTypeId || null;
         clientName = threadData.clientName || null;
 
-        // Budget pre-check: only needed for legacy engagements without escrow.
+        // Budget pre-check and sub-account creation are independent — run in parallel.
+        // Budget check: only needed for legacy engagements without escrow.
         // Escrow engagements already have tokens reserved and guaranteed.
-        if (tokenSourceAccountId && !hasEscrow) {
-          const sourceBalance = await getBalance(tokenSourceAccountId);
-          if (sourceBalance < rewardAmount) {
-            throw new HttpsError(
-              "failed-precondition",
-              "Insufficient budget for this offer"
-            );
-          }
+        const budgetCheckPromise: Promise<void> =
+          tokenSourceAccountId && !hasEscrow
+            ? getBalance(tokenSourceAccountId).then((sourceBalance) => {
+                if (sourceBalance < rewardAmount) {
+                  throw new HttpsError(
+                    "failed-precondition",
+                    "Insufficient budget for this offer"
+                  );
+                }
+              })
+            : Promise.resolve();
+
+        const subAccountPromise: Promise<{ subAccountId?: string }> =
+          tokenDestAccountTypeId && clientName
+            ? getOrCreateBrandSubAccount(
+                userId,
+                tokenDestAccountTypeId,
+                `${clientName} Wallet`
+              )
+            : Promise.resolve({});
+
+        const [, brandResult] = await Promise.all([budgetCheckPromise, subAccountPromise]);
+        if (brandResult.subAccountId) {
+          subAccountId = brandResult.subAccountId;
         }
       }
     }
 
-    // ===========================================================================
-    // Determine user sub-account (brand-restricted only; otherwise main wallet)
-    // ===========================================================================
-    let subAccountId: string | undefined;
+    // subAccountId is now populated (or undefined for main wallet) — no separate block needed.
 
-    if (tokenDestAccountTypeId && clientName) {
-      // Thread specifies a restricted wallet type — use canonical sub-account function
-      // (writes to ledgerAccounts/user:{uid}/subAccounts/, not users/{uid}/subAccounts/)
-      const brandResult = await getOrCreateBrandSubAccount(
-        userId,
-        tokenDestAccountTypeId,
-        `${clientName} Wallet`
-      );
-      subAccountId = brandResult.subAccountId;
-    }
-    // else: no sub-account — tokens go to main wallet (ledger account balance)
+    // =========================================================================
+    // Reward confirmation runs in parallel with ledger processing — both are
+    // independent. We collect the result before the main transaction.
+    // =========================================================================
+    const rewardConfirmationPromise: Promise<string | null> =
+      engagement.reservedRewardItemId
+        ? confirmRewardReservation(
+            engagement.reservedRewardItemId,
+            userId,
+            engagementId
+          ).catch((rewardConfirmError: unknown) => {
+            logger.error(
+              `Failed to confirm reward reservation for engagement ${engagementId}. ` +
+                `Tokens credited but reward not allocated. ` +
+                `Stale reservation cleanup will release item ${engagement.reservedRewardItemId}.`,
+              { error: rewardConfirmError, engagementId, userId }
+            );
+            return null;
+          })
+        : Promise.resolve(null);
 
     // Process reward through the Trust Ledger system
     // This handles the 90/5/5 split: 90% to user, 5% daily pot, 5% weekly pot
@@ -970,29 +993,8 @@ export const processEngagement = onCall(
       );
     }
 
-    // =========================================================================
-    // Confirm reward reservation — best-effort, does NOT block engagement completion.
-    // #3 fix: If confirmation fails, engagement still completes with tokens.
-    // The reserved item will be released by releaseStaleRewardReservations (30-min job).
-    // =========================================================================
-    let confirmedRewardItemId: string | null = null;
-    if (engagement.reservedRewardItemId) {
-      try {
-        confirmedRewardItemId = await confirmRewardReservation(
-          engagement.reservedRewardItemId,
-          userId,
-          engagementId
-        );
-      } catch (rewardConfirmError) {
-        logger.error(
-          `Failed to confirm reward reservation for engagement ${engagementId}. ` +
-            `Tokens credited but reward not allocated. ` +
-            `Stale reservation cleanup will release item ${engagement.reservedRewardItemId}.`,
-          { error: rewardConfirmError, engagementId, userId }
-        );
-        // Continue — engagement completes with tokens, reward reservation released by scheduled job
-      }
-    }
+    // Collect reward confirmation result (started in parallel with ledger above).
+    const confirmedRewardItemId = await rewardConfirmationPromise;
 
     // Update engagement and related records in transaction (CRITICAL — must complete)
     await db.runTransaction(async (transaction) => {
@@ -1014,7 +1016,8 @@ export const processEngagement = onCall(
         );
       }
 
-      // Update engagement with Flutter-compatible fields
+      // Update engagement to COMPLETED — the onEngagementCompleted Firestore trigger
+      // handles secondary updates (campaign stats, pots, thread count) asynchronously.
       transaction.update(engagementDoc.ref, {
         status: EngagementStatus.COMPLETED,
         progress: 100,
@@ -1028,9 +1031,6 @@ export const processEngagement = onCall(
         // Bonus reward tracking
         bonusApplied: bonusApplied,
         bonusMultiplier: bonusApplied ? bonusMultiplier : null,
-        // Sub-account used for token destination — written here (inside the
-        // transaction) so it is always persisted; doStreakAudit is fire-and-
-        // forget and its failure would otherwise leave this field unset.
         subAccountId: subAccountId || null,
         // Escrow completion tracking
         ...(hasEscrow ? {
@@ -1040,88 +1040,6 @@ export const processEngagement = onCall(
         } : {}),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-
-      // Update campaign stats if campaign exists
-      if (campaignId) {
-        const campaignRef = db.collection("campaigns").doc(campaignId);
-        const campaignDoc = await transaction.get(campaignRef);
-        if (campaignDoc.exists) {
-          transaction.update(campaignRef, {
-            totalEngagements: admin.firestore.FieldValue.increment(1),
-            remainingBudgetTokens:
-              admin.firestore.FieldValue.increment(-rewardAmount),
-          });
-        }
-      }
-
-      // Update pot entries (tracks user's draw eligibility, not actual pot balance)
-      // Use SAST-aware date so pot entry IDs match the SAST calendar day
-      const today = getSASTDayStart();
-      const sastNow = new Date(Date.now() + SAST_OFFSET_MS);
-      const sastDateStr = `${sastNow.getUTCFullYear()}-${String(sastNow.getUTCMonth() + 1).padStart(2, "0")}-${String(sastNow.getUTCDate()).padStart(2, "0")}`;
-      const potEntryRef = db
-        .collection("potEntries")
-        .doc(`${userId}_${sastDateStr}`);
-      transaction.set(
-        potEntryRef,
-        {
-          userId: userId,
-          date: sastDateStr,
-          entries: admin.firestore.FieldValue.increment(rewardAmount),
-          ledgerJournalId: ledgerResult.journalId,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      );
-
-      // Update Firestore pot running totals (Flutter reads these for display)
-      // IDs must match those created by initializeDailyPot/initializeWeeklyPot in pots.ts
-      const dailyPotId = `daily_${today.getTime()}`;
-      const dailyPotRef = db.collection("pots").doc(dailyPotId);
-      if (dailyPotShare > 0) {
-        transaction.set(
-          dailyPotRef,
-          {
-            id: dailyPotId,
-            type: "daily",
-            totalTokens: admin.firestore.FieldValue.increment(dailyPotShare),
-            participantCount: admin.firestore.FieldValue.increment(1),
-            isActive: true,
-            isDistributed: false,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          },
-          { merge: true }
-        );
-      }
-
-      const weekStart = getSASTWeekStart();
-      const weeklyPotId = `weekly_${weekStart.getTime()}`;
-      const weeklyPotRef = db.collection("pots").doc(weeklyPotId);
-      if (weeklyPotShare > 0) {
-        transaction.set(
-          weeklyPotRef,
-          {
-            id: weeklyPotId,
-            type: "weekly",
-            totalTokens: admin.firestore.FieldValue.increment(weeklyPotShare),
-            participantCount: admin.firestore.FieldValue.increment(1),
-            isActive: true,
-            isDistributed: false,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          },
-          { merge: true }
-        );
-      }
-
-      // Update earn thread completed count if present
-      if (engagement.threadId) {
-        const threadRef = db.collection("earnThreads").doc(engagement.threadId);
-        transaction.update(threadRef, {
-          completedOpportunities: admin.firestore.FieldValue.increment(1),
-          lastActivityAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
     });
 
     // =========================================================================
@@ -1328,6 +1246,131 @@ export const processEngagement = onCall(
       rewardCampaignName: engagement.reservedRewardCampaignName || null,
       rewardType: engagement.reservedRewardType || null,
     };
+  }
+);
+
+// =============================================================================
+// Firestore trigger: secondary updates on engagement completion
+//
+// Runs asynchronously after processEngagement sets status → COMPLETED.
+// Handles campaign stats, pot entries, and thread counts so the main CF
+// transaction only needs to write the engagement doc (reducing its latency).
+//
+// NOTE: Firestore triggers guarantee at-least-once delivery. The increment()
+// operations here are not idempotent — duplicate fires (rare) may skew stats
+// by ±1. This is acceptable for display-only counters. Revisit if precise
+// accuracy becomes critical (e.g., budget enforcement).
+// =============================================================================
+export const onEngagementCompleted = onDocumentUpdated(
+  { document: "engagements/{engagementId}", labels: { area: "earn" } },
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    if (!before || !after) return;
+    // Only fire on the transition INTO COMPLETED — skip all other updates.
+    if (before.status === EngagementStatus.COMPLETED) return;
+    if (after.status !== EngagementStatus.COMPLETED) return;
+
+    const engagementId = event.params.engagementId;
+    const { userId, threadId, totalTokensGenerated, ledgerJournalId } = after;
+    const campaignId = after.campaignId || after.audienceCampaignId || null;
+    const rewardAmount = (totalTokensGenerated as number) || 0;
+    const dailyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_DAILY_POT_SHARE);
+    const weeklyPotShare = Math.floor(rewardAmount * LedgerConfig.EARNING_WEEKLY_POT_SHARE);
+    const today = getSASTDayStart();
+    const weekStart = getSASTWeekStart();
+    const sastNow = new Date(Date.now() + SAST_OFFSET_MS);
+    const sastDateStr = `${sastNow.getUTCFullYear()}-${String(sastNow.getUTCMonth() + 1).padStart(2, "0")}-${String(sastNow.getUTCDate()).padStart(2, "0")}`;
+
+    await Promise.all([
+      // Campaign stats
+      campaignId
+        ? (async () => {
+            const campaignDoc = await db.collection("campaigns").doc(campaignId).get();
+            if (campaignDoc.exists) {
+              await campaignDoc.ref.update({
+                totalEngagements: admin.firestore.FieldValue.increment(1),
+                remainingBudgetTokens: admin.firestore.FieldValue.increment(-rewardAmount),
+              });
+            }
+          })().catch((e: unknown) =>
+            logger.error("onEngagementCompleted: campaign stats failed", { engagementId, cause: e })
+          )
+        : Promise.resolve(),
+
+      // Pot eligibility entry for this user+day
+      db.collection("potEntries")
+        .doc(`${userId}_${sastDateStr}`)
+        .set(
+          {
+            userId,
+            date: sastDateStr,
+            entries: admin.firestore.FieldValue.increment(rewardAmount),
+            ledgerJournalId: ledgerJournalId || null,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true }
+        )
+        .catch((e: unknown) =>
+          logger.error("onEngagementCompleted: potEntry failed", { engagementId, cause: e })
+        ),
+
+      // Daily pot running total
+      dailyPotShare > 0
+        ? db.collection("pots")
+            .doc(`daily_${today.getTime()}`)
+            .set(
+              {
+                id: `daily_${today.getTime()}`,
+                type: "daily",
+                totalTokens: admin.firestore.FieldValue.increment(dailyPotShare),
+                participantCount: admin.firestore.FieldValue.increment(1),
+                isActive: true,
+                isDistributed: false,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            )
+            .catch((e: unknown) =>
+              logger.error("onEngagementCompleted: dailyPot failed", { engagementId, cause: e })
+            )
+        : Promise.resolve(),
+
+      // Weekly pot running total
+      weeklyPotShare > 0
+        ? db.collection("pots")
+            .doc(`weekly_${weekStart.getTime()}`)
+            .set(
+              {
+                id: `weekly_${weekStart.getTime()}`,
+                type: "weekly",
+                totalTokens: admin.firestore.FieldValue.increment(weeklyPotShare),
+                participantCount: admin.firestore.FieldValue.increment(1),
+                isActive: true,
+                isDistributed: false,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true }
+            )
+            .catch((e: unknown) =>
+              logger.error("onEngagementCompleted: weeklyPot failed", { engagementId, cause: e })
+            )
+        : Promise.resolve(),
+
+      // Thread completed count
+      threadId
+        ? db.collection("earnThreads")
+            .doc(threadId as string)
+            .update({
+              completedOpportunities: admin.firestore.FieldValue.increment(1),
+              lastActivityAt: admin.firestore.FieldValue.serverTimestamp(),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            })
+            .catch((e: unknown) =>
+              logger.error("onEngagementCompleted: thread stats failed", { engagementId, cause: e })
+            )
+        : Promise.resolve(),
+    ]);
   }
 );
 

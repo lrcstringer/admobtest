@@ -187,11 +187,11 @@ export async function processEarningWithSplit(
   accountTypeId?: string | null,
   metadata?: Record<string, unknown>,
 ): Promise<PostJournalResult> {
-  // Ensure system accounts exist (pots, etc.) — runs once per cold start
-  await ensureSystemAccounts();
-
-  // Ensure user account exists (legacy ledgerAccounts)
-  await getOrCreateUserAccount(userId);
+  // Ensure system accounts + user account exist — independent reads, run in parallel.
+  await Promise.all([
+    ensureSystemAccounts(),
+    getOrCreateUserAccount(userId),
+  ]);
 
   // Sub-account is optional: if provided (brand sub-account), credit it.
   // If not provided, tokens go to main wallet (journal only, no sub-account op).
@@ -1226,8 +1226,11 @@ export async function processEscrowCompletion(
   accountTypeId?: string | null,
   metadata?: Record<string, unknown>,
 ): Promise<PostJournalResult> {
-  await ensureSystemAccounts();
-  await getOrCreateUserAccount(userId);
+  // Ensure system accounts + user account exist — independent reads, run in parallel.
+  await Promise.all([
+    ensureSystemAccounts(),
+    getOrCreateUserAccount(userId),
+  ]);
 
   // Sub-account is optional: if provided (brand), credit it. Otherwise main wallet.
   const finalSubAccountId = userSubAccountId || undefined;

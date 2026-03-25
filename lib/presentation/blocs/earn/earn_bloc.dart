@@ -402,14 +402,23 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _SubmitSurvey event,
     Emitter<EarnState> emit,
   ) async {
-    // Guard: a queued duplicate event (double-press) must not re-submit after
-    // the first call has already moved the phase to submitting or beyond.
+    // Guard: duplicate event (double-press) must not re-submit once in-flight.
     if (state.engagementPhase == EngagementPhase.submitting ||
+        state.engagementPhase == EngagementPhase.optimistic ||
         state.engagementPhase == EngagementPhase.completed) {
       return;
     }
 
-    emit(state.copyWith(engagementPhase: EngagementPhase.submitting));
+    // Upload engagements have an unknown outcome (pending review / rejected)
+    // so they wait for the CF. All other types are deterministically successful
+    // once submitted — show the success screen immediately (optimistic UI).
+    final isUpload =
+        state.selectedOpportunity?.earningType == EarningType.upload;
+
+    emit(state.copyWith(
+      engagementPhase:
+          isUpload ? EngagementPhase.submitting : EngagementPhase.optimistic,
+    ));
 
     final result = await _earnRepository.submitSurvey(
       engagementId: event.engagementId,
@@ -437,6 +446,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         emit(state.copyWith(
           currentEngagement: engagement,
           engagementPhase: EngagementPhase.completed,
+          isPendingReview: engagement.status == EngagementStatus.pendingReview,
           rewardItemId: engagement.rewardItemId,
           rewardCampaignName: engagement.rewardCampaignName,
           rewardType: engagement.rewardType,

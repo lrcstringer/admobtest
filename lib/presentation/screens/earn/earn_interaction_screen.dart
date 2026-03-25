@@ -629,6 +629,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
         // For polls: suppress navigation while results are displayed; the
         // _submitPollVote method navigates manually after the delay elapses.
         if ((state.engagementPhase == EngagementPhase.submitting ||
+                state.engagementPhase == EngagementPhase.optimistic ||
                 state.engagementPhase == EngagementPhase.completed) &&
             !_pollResultsShowing) {
           context.go('/earn/opportunity/${widget.opportunityId}/confirm');
@@ -3056,6 +3057,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       // Navigate now if BLoC already resolved while we were showing results.
       final phase = context.read<EarnBloc>().state.engagementPhase;
       if (phase == EngagementPhase.completed ||
+          phase == EngagementPhase.optimistic ||
           phase == EngagementPhase.submitting) {
         context.go('/earn/opportunity/${widget.opportunityId}/confirm');
       } else if (phase == EngagementPhase.failed) {

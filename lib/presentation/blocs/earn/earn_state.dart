@@ -15,6 +15,10 @@ enum EngagementPhase {
   uploading, // Upload engagement — recording/capturing/typing
   surveying,
   submitting,
+  /// CF call in-flight but success screen is shown immediately with base amounts.
+  /// Transitions to [completed] (with actual bonus amounts) when CF responds,
+  /// or to [failed] if the CF returns an error.
+  optimistic,
   completed,
   failed,
   abandoned,

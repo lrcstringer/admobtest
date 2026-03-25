@@ -133,8 +133,12 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
   Widget build(BuildContext context) {
     return BlocConsumer<EarnBloc, EarnState>(
       listener: (context, earnState) {
-        // Trigger confetti + wallet refresh when submission completes
-        if (earnState.engagementPhase == EngagementPhase.completed) {
+        // Trigger confetti + wallet refresh as soon as we know success.
+        // - optimistic: fired immediately when CF is in-flight (non-upload)
+        // - completed:  fired when CF responds (updates bonus amounts if needed)
+        // _completionHandled guard prevents double-firing.
+        if (earnState.engagementPhase == EngagementPhase.optimistic ||
+            earnState.engagementPhase == EngagementPhase.completed) {
           _onSubmissionCompleted(earnState.isPendingReview);
         }
 
@@ -152,6 +156,8 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
         }
       },
       builder: (context, earnState) {
+        // submitting = upload engagements waiting for CF (outcome unknown).
+        // optimistic/completed = show success content immediately.
         final isSubmitting =
             earnState.engagementPhase == EngagementPhase.submitting;
         final engagement = earnState.currentEngagement;
