@@ -64,6 +64,7 @@ const _$DiscoverabilityEnumMap = {
 };
 
 const _$PhoneNumberVisibilityEnumMap = {
+  PhoneNumberVisibility.everyone: 'everyone',
   PhoneNumberVisibility.contactsOnly: 'contactsOnly',
   PhoneNumberVisibility.nobody: 'nobody',
 };

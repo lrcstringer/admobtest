@@ -1315,7 +1315,7 @@ export const syncUserProfileToConversations = onDocumentUpdated(
 // ============================================================================
 
 const ALLOWED_DISCOVERABILITY = ["everyone", "contactsOnly", "nobody"];
-const ALLOWED_PHONE_VISIBILITY = ["contactsOnly", "nobody"];
+const ALLOWED_PHONE_VISIBILITY = ["everyone", "contactsOnly", "nobody"];
 const ALLOWED_PHOTO_VISIBILITY = ["everyone", "contactsOnly"];
 const ALLOWED_LAST_SEEN = ["everyone", "contactsOnly", "nobody"];
 const ALLOWED_GROUP_ADD = ["everyone", "contactsOnly"];

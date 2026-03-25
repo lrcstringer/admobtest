@@ -50,6 +50,7 @@ class PrivacySettingsScreen extends StatelessWidget {
                 subtitle: 'Who can see your phone number',
                 value: privacy.phoneNumberVisibility,
                 items: const {
+                  PhoneNumberVisibility.everyone: 'Everyone',
                   PhoneNumberVisibility.contactsOnly: 'Contacts only',
                   PhoneNumberVisibility.nobody: 'Nobody',
                 },

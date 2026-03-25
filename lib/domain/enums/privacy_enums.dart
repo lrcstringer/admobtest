@@ -7,6 +7,7 @@ enum Discoverability {
 
 /// Who can see this user's phone number
 enum PhoneNumberVisibility {
+  everyone,
   contactsOnly,
   nobody,
 }
