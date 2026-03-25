@@ -11,6 +11,7 @@ abstract class UserSearchResult with _$UserSearchResult {
     String? username,
     String? avatarUrl,
     String? avatarColor,
+    String? phoneNumber,
   }) = _UserSearchResult;
 
   factory UserSearchResult.fromJson(Map<String, dynamic> json) =>

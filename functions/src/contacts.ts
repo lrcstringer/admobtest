@@ -117,6 +117,10 @@ export const searchUsers = onCall({ labels: { area: "social" } }, async (request
       username: d.username || null,
       avatarUrl: d.avatarUrl || null,
       avatarColor: d.avatarColor || null,
+      phoneNumber:
+        d.privacy?.phoneNumberVisibility === "everyone"
+          ? (d.phoneNumber || null)
+          : null,
     });
 
     if (users.length >= limit) break;

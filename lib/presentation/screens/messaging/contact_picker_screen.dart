@@ -253,7 +253,15 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                                   .bodySmall
                                   ?.copyWith(color: AppColors.textSecondary),
                             )
-                          : null,
+                          : user.phoneNumber != null
+                              ? Text(
+                                  user.phoneNumber!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(color: AppColors.textSecondary),
+                                )
+                              : null,
                       trailing: widget.multiSelect &&
                               _selected.any((c) => c['id'] == user.userId)
                           ? const Icon(Icons.check_circle,

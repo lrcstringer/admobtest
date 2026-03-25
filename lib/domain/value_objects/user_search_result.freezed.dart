@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserSearchResult {
 
- String get userId; String get displayName; String? get username; String? get avatarUrl; String? get avatarColor;
+ String get userId; String get displayName; String? get username; String? get avatarUrl; String? get avatarColor; String? get phoneNumber;
 /// Create a copy of UserSearchResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $UserSearchResultCopyWith<UserSearchResult> get copyWith => _$UserSearchResultCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserSearchResult&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.username, username) || other.username == username)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserSearchResult&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.username, username) || other.username == username)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,displayName,username,avatarUrl,avatarColor);
+int get hashCode => Object.hash(runtimeType,userId,displayName,username,avatarUrl,avatarColor,phoneNumber);
 
 @override
 String toString() {
-  return 'UserSearchResult(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor)';
+  return 'UserSearchResult(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, phoneNumber: $phoneNumber)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $UserSearchResultCopyWith<$Res>  {
   factory $UserSearchResultCopyWith(UserSearchResult value, $Res Function(UserSearchResult) _then) = _$UserSearchResultCopyWithImpl;
 @useResult
 $Res call({
- String userId, String displayName, String? username, String? avatarUrl, String? avatarColor
+ String userId, String displayName, String? username, String? avatarUrl, String? avatarColor, String? phoneNumber
 });
 
 
@@ -65,13 +65,14 @@ class _$UserSearchResultCopyWithImpl<$Res>
 
 /// Create a copy of UserSearchResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? displayName = null,Object? username = freezed,Object? avatarUrl = freezed,Object? avatarColor = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? displayName = null,Object? username = freezed,Object? avatarUrl = freezed,Object? avatarColor = freezed,Object? phoneNumber = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,username: freezed == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,avatarColor: freezed == avatarColor ? _self.avatarColor : avatarColor // ignore: cast_nullable_to_non_nullable
+as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor,  String? phoneNumber)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserSearchResult() when $default != null:
-return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor);case _:
+return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor,_that.phoneNumber);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor,  String? phoneNumber)  $default,) {final _that = this;
 switch (_that) {
 case _UserSearchResult():
-return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor);case _:
+return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor,_that.phoneNumber);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  String displayName,  String? username,  String? avatarUrl,  String? avatarColor,  String? phoneNumber)?  $default,) {final _that = this;
 switch (_that) {
 case _UserSearchResult() when $default != null:
-return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor);case _:
+return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_that.avatarColor,_that.phoneNumber);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.userId,_that.displayName,_that.username,_that.avatarUrl,_t
 @JsonSerializable()
 
 class _UserSearchResult implements UserSearchResult {
-  const _UserSearchResult({required this.userId, required this.displayName, this.username, this.avatarUrl, this.avatarColor});
+  const _UserSearchResult({required this.userId, required this.displayName, this.username, this.avatarUrl, this.avatarColor, this.phoneNumber});
   factory _UserSearchResult.fromJson(Map<String, dynamic> json) => _$UserSearchResultFromJson(json);
 
 @override final  String userId;
@@ -221,6 +222,7 @@ class _UserSearchResult implements UserSearchResult {
 @override final  String? username;
 @override final  String? avatarUrl;
 @override final  String? avatarColor;
+@override final  String? phoneNumber;
 
 /// Create a copy of UserSearchResult
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserSearchResult&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.username, username) || other.username == username)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserSearchResult&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.username, username) || other.username == username)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl)&&(identical(other.avatarColor, avatarColor) || other.avatarColor == avatarColor)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,displayName,username,avatarUrl,avatarColor);
+int get hashCode => Object.hash(runtimeType,userId,displayName,username,avatarUrl,avatarColor,phoneNumber);
 
 @override
 String toString() {
-  return 'UserSearchResult(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor)';
+  return 'UserSearchResult(userId: $userId, displayName: $displayName, username: $username, avatarUrl: $avatarUrl, avatarColor: $avatarColor, phoneNumber: $phoneNumber)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$UserSearchResultCopyWith<$Res> implements $UserSearchResu
   factory _$UserSearchResultCopyWith(_UserSearchResult value, $Res Function(_UserSearchResult) _then) = __$UserSearchResultCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, String displayName, String? username, String? avatarUrl, String? avatarColor
+ String userId, String displayName, String? username, String? avatarUrl, String? avatarColor, String? phoneNumber
 });
 
 
@@ -272,13 +274,14 @@ class __$UserSearchResultCopyWithImpl<$Res>
 
 /// Create a copy of UserSearchResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? displayName = null,Object? username = freezed,Object? avatarUrl = freezed,Object? avatarColor = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? displayName = null,Object? username = freezed,Object? avatarUrl = freezed,Object? avatarColor = freezed,Object? phoneNumber = freezed,}) {
   return _then(_UserSearchResult(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,username: freezed == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
 as String?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
 as String?,avatarColor: freezed == avatarColor ? _self.avatarColor : avatarColor // ignore: cast_nullable_to_non_nullable
+as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

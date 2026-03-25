@@ -13,6 +13,7 @@ _UserSearchResult _$UserSearchResultFromJson(Map<String, dynamic> json) =>
       username: json['username'] as String?,
       avatarUrl: json['avatarUrl'] as String?,
       avatarColor: json['avatarColor'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
     );
 
 Map<String, dynamic> _$UserSearchResultToJson(_UserSearchResult instance) =>
@@ -22,4 +23,5 @@ Map<String, dynamic> _$UserSearchResultToJson(_UserSearchResult instance) =>
       'username': instance.username,
       'avatarUrl': instance.avatarUrl,
       'avatarColor': instance.avatarColor,
+      'phoneNumber': instance.phoneNumber,
     };
