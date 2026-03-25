@@ -89,6 +89,9 @@ export const searchUsers = onCall({ labels: { area: "social" } }, async (request
 
     const d = doc.data();
 
+    // Skip deleted or inactive accounts
+    if (d.isDeleted === true || d.isActive === false) continue;
+
     // Skip users the caller has blocked
     if (callerBlockedIds.includes(doc.id)) continue;
 

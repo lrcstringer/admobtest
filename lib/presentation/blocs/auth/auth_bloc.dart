@@ -74,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     // Listen to auth state changes
     _authStateSubscription = _authRepository.authStateChanges.listen(
-      (user) {
+      (user) async {
         if (user != null) {
           if (user.needsOnboarding) {
             // ignore: invalid_use_of_visible_for_testing_member
@@ -91,11 +91,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false,
             ));
             // Clear message cache if a different user logged in (prevents
-            // data leakage). Same user gets instant conversation list from
-            // the preserved local DB cache.
-            getIt<AppDatabase>()
-                .clearMessageCacheIfUserChanged(user.id)
-                .catchError((_) => false);
+            // data leakage and stale-conversation permission-denied errors).
+            // MUST complete before starting sync — if sync reads old
+            // conversations from local DB before they're cleared, Firestore
+            // rules deny access because the new UID is not in participantIds.
+            try {
+              await getIt<AppDatabase>().clearMessageCacheIfUserChanged(user.id);
+            } catch (_) {}
             // Start conversation/community list sync immediately so the
             // Chat and Communities tabs show data before E2EE keys are ready.
             _messageSyncService.startConversationListSync();

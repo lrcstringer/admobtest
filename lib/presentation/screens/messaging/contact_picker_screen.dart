@@ -175,12 +175,23 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             child: BlocListener<ConversationBloc, ConversationState>(
               listenWhen: (prev, curr) =>
                   _awaitingConversation &&
-                  prev.selectedConversation != curr.selectedConversation &&
-                  curr.selectedConversation != null,
+                  prev.status == ConversationStatus.loading &&
+                  (curr.status == ConversationStatus.loaded ||
+                      curr.status == ConversationStatus.error),
               listener: (context, state) {
                 _awaitingConversation = false;
-                // Navigate to the new/existing conversation
-                final conv = state.selectedConversation!;
+                if (state.status == ConversationStatus.error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          state.errorMessage ?? 'Failed to start conversation'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+                final conv = state.selectedConversation;
+                if (conv == null) return;
                 context.go('/chat/conversation/${conv.id}');
               },
               child: BlocBuilder<UserSearchBloc, UserSearchState>(

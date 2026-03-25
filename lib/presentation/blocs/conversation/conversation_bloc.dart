@@ -406,6 +406,18 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       }
     }
 
+    // Guard: if the other participant has been removed (e.g. they deleted
+    // their account), participantIds only contains the current user and
+    // recipientId will be null. Surface a clear message instead of the
+    // internal "Could not determine recipient" error.
+    if (recipientId == null || recipientId.isEmpty) {
+      emit(state.copyWith(
+        errorMessage:
+            'This user has deleted their account and cannot receive messages.',
+      ));
+      return;
+    }
+
     // The queue inserts an optimistic message into local DB → the watch
     // stream delivers it to _onMessagesUpdated automatically.
     final result = await _conversationRepository.sendTextMessage(
