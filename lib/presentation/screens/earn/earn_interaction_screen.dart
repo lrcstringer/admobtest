@@ -784,21 +784,6 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
       return _buildErrorState(state);
     }
 
-    // Slim preparation indicator while startEngagement CF runs in background
-    if (state.isCreatingEngagement) {
-      return Stack(
-        children: [
-          _buildContentBody(state),
-          const Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: LinearProgressIndicator(),
-          ),
-        ],
-      );
-    }
-
     return _buildContentBody(state);
   }
 
