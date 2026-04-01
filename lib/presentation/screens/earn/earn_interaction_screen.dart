@@ -713,6 +713,22 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           return;
         }
 
+        // User has already claimed the maximum rewards for this campaign
+        if (state.engagementPhase == EngagementPhase.failed &&
+            state.errorMessage != null &&
+            state.errorMessage!.toLowerCase().contains('has already claimed')) {
+          context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                  "You've already claimed the maximum rewards from this campaign"),
+              backgroundColor: AppColors.textSecondary,
+            ),
+          );
+          context.pop();
+          return;
+        }
+
         // Show error snackbar for other failures
         if (state.engagementPhase == EngagementPhase.failed &&
             state.errorMessage != null) {
