@@ -65,6 +65,10 @@ abstract class EarnState with _$EarnState {
     double? uploadProgress,
     int? uploadBytesTransferred,
     int? uploadTotalBytes,
+    /// True while the startEngagement CF is in-flight after an optimistic
+    /// phase transition. Content is shown immediately; submission is held
+    /// until this is false and [currentEngagement] is populated.
+    @Default(false) bool isCreatingEngagement,
     /// Whether the completed engagement is pending admin review
     @Default(false) bool isPendingReview,
     // Reward allocation state (set after engagement completion)
@@ -75,9 +79,9 @@ abstract class EarnState with _$EarnState {
 
   const EarnState._();
 
-  /// Check if currently in an active engagement
+  /// Check if currently in an active engagement (includes optimistic window)
   bool get hasActiveEngagement =>
-      currentEngagement != null &&
+      (currentEngagement != null || isCreatingEngagement) &&
       (engagementPhase == EngagementPhase.watching ||
           engagementPhase == EngagementPhase.watchingAd ||
           engagementPhase == EngagementPhase.uploading ||

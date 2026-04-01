@@ -14,6 +14,9 @@ abstract class RewardState with _$RewardState {
     RewardItem? selectedItem,
     @Default(RewardLoadStatus.initial) RewardLoadStatus status,
     @Default(RewardLoadStatus.initial) RewardLoadStatus detailStatus,
+    /// Tracks only the decrypted code fetch — separate from detailStatus so
+    /// the screen can render immediately from cached data while the code loads.
+    @Default(RewardLoadStatus.initial) RewardLoadStatus codeStatus,
     @Default(RewardLoadStatus.initial) RewardLoadStatus redeemStatus,
     String? errorMessage,
     String? successMessage,

@@ -72,11 +72,13 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
           }
         },
         builder: (context, state) {
-          if (state.detailStatus == RewardLoadStatus.loading) {
+          if (state.detailStatus == RewardLoadStatus.loading &&
+              state.selectedItem == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state.detailStatus == RewardLoadStatus.error) {
+          if (state.detailStatus == RewardLoadStatus.error &&
+              state.selectedItem == null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -119,9 +121,15 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
                 _buildCampaignInfo(context, item),
                 AppSpacing.verticalLg,
 
-                // Code display (conditional on type)
-                if (item.hasCode && item.codeValue != null)
-                  _buildCodeDisplay(context, item),
+                // Code display — show spinner while decrypted code is loading
+                if (item.hasCode) ...[
+                  if (state.codeStatus == RewardLoadStatus.loading)
+                    _buildCodeLoadingPlaceholder(context)
+                  else if (state.codeStatus == RewardLoadStatus.error)
+                    _buildCodeErrorPlaceholder(context, state.errorMessage)
+                  else if (item.codeValue != null)
+                    _buildCodeDisplay(context, item),
+                ],
 
                 // Redemption instructions
                 if (item.redemptionInstructions != null) ...[
@@ -247,6 +255,60 @@ class _RewardItemDetailScreenState extends State<RewardItemDetailScreen> {
       // Not JSON — treat as plain code
     }
     return null;
+  }
+
+  Widget _buildCodeLoadingPlaceholder(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+      ),
+      child: const Column(
+        children: [
+          SizedBox(height: 8),
+          CircularProgressIndicator(),
+          SizedBox(height: 12),
+          Text('Loading your code...'),
+          SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCodeErrorPlaceholder(BuildContext context, String? message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.06),
+        borderRadius: AppSpacing.borderRadiusLg,
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.error_outline, color: AppColors.error, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            message ?? 'Failed to load code',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: AppColors.error),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: () => context
+                .read<RewardBloc>()
+                .add(RewardEvent.loadItemDetail(widget.rewardId)),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCodeDisplay(BuildContext context, RewardItem item) {

@@ -166,15 +166,31 @@ class _EarnWalletConfirmScreenState extends State<EarnWalletConfirmScreen>
           _onCompletionEffects(earnState);
         }
 
-        // Handle submission failure — show error and navigate back
+        // Handle submission failure
         if (earnState.engagementPhase == EngagementPhase.failed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  earnState.errorMessage ?? 'Submission failed. Please retry.'),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          final msg = earnState.errorMessage ?? '';
+
+          // Campaign ended or not yet started after completion — tokens still
+          // credited, only the bonus reward item was not allocated.
+          if (msg.toLowerCase().contains('has ended') ||
+              msg.toLowerCase().contains('has not started')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Your tokens have been credited. The bonus reward for this opportunity is no longer available.'),
+                backgroundColor: AppColors.info,
+                duration: Duration(seconds: 5),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    msg.isNotEmpty ? msg : 'Submission failed. Please retry.'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
           context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
           context.go('/earn');
         }

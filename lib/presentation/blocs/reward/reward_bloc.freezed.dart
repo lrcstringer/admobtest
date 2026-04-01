@@ -466,7 +466,9 @@ String toString() {
 /// @nodoc
 mixin _$RewardState {
 
- List<RewardItem> get items; RewardItem? get selectedItem; RewardLoadStatus get status; RewardLoadStatus get detailStatus; RewardLoadStatus get redeemStatus; String? get errorMessage; String? get successMessage;
+ List<RewardItem> get items; RewardItem? get selectedItem; RewardLoadStatus get status; RewardLoadStatus get detailStatus;/// Tracks only the decrypted code fetch — separate from detailStatus so
+/// the screen can render immediately from cached data while the code loads.
+ RewardLoadStatus get codeStatus; RewardLoadStatus get redeemStatus; String? get errorMessage; String? get successMessage;
 /// Create a copy of RewardState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -477,16 +479,16 @@ $RewardStateCopyWith<RewardState> get copyWith => _$RewardStateCopyWithImpl<Rewa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardState&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.selectedItem, selectedItem) || other.selectedItem == selectedItem)&&(identical(other.status, status) || other.status == status)&&(identical(other.detailStatus, detailStatus) || other.detailStatus == detailStatus)&&(identical(other.redeemStatus, redeemStatus) || other.redeemStatus == redeemStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RewardState&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.selectedItem, selectedItem) || other.selectedItem == selectedItem)&&(identical(other.status, status) || other.status == status)&&(identical(other.detailStatus, detailStatus) || other.detailStatus == detailStatus)&&(identical(other.codeStatus, codeStatus) || other.codeStatus == codeStatus)&&(identical(other.redeemStatus, redeemStatus) || other.redeemStatus == redeemStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),selectedItem,status,detailStatus,redeemStatus,errorMessage,successMessage);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),selectedItem,status,detailStatus,codeStatus,redeemStatus,errorMessage,successMessage);
 
 @override
 String toString() {
-  return 'RewardState(items: $items, selectedItem: $selectedItem, status: $status, detailStatus: $detailStatus, redeemStatus: $redeemStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'RewardState(items: $items, selectedItem: $selectedItem, status: $status, detailStatus: $detailStatus, codeStatus: $codeStatus, redeemStatus: $redeemStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -497,7 +499,7 @@ abstract mixin class $RewardStateCopyWith<$Res>  {
   factory $RewardStateCopyWith(RewardState value, $Res Function(RewardState) _then) = _$RewardStateCopyWithImpl;
 @useResult
 $Res call({
- List<RewardItem> items, RewardItem? selectedItem, RewardLoadStatus status, RewardLoadStatus detailStatus, RewardLoadStatus redeemStatus, String? errorMessage, String? successMessage
+ List<RewardItem> items, RewardItem? selectedItem, RewardLoadStatus status, RewardLoadStatus detailStatus, RewardLoadStatus codeStatus, RewardLoadStatus redeemStatus, String? errorMessage, String? successMessage
 });
 
 
@@ -514,12 +516,13 @@ class _$RewardStateCopyWithImpl<$Res>
 
 /// Create a copy of RewardState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? selectedItem = freezed,Object? status = null,Object? detailStatus = null,Object? redeemStatus = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? selectedItem = freezed,Object? status = null,Object? detailStatus = null,Object? codeStatus = null,Object? redeemStatus = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_self.copyWith(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<RewardItem>,selectedItem: freezed == selectedItem ? _self.selectedItem : selectedItem // ignore: cast_nullable_to_non_nullable
 as RewardItem?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,detailStatus: null == detailStatus ? _self.detailStatus : detailStatus // ignore: cast_nullable_to_non_nullable
+as RewardLoadStatus,codeStatus: null == codeStatus ? _self.codeStatus : codeStatus // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,redeemStatus: null == redeemStatus ? _self.redeemStatus : redeemStatus // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable
@@ -620,10 +623,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus codeStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RewardState() when $default != null:
-return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.codeStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
   return orElse();
 
 }
@@ -641,10 +644,10 @@ return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus codeStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)  $default,) {final _that = this;
 switch (_that) {
 case _RewardState():
-return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.codeStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -661,10 +664,10 @@ return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<RewardItem> items,  RewardItem? selectedItem,  RewardLoadStatus status,  RewardLoadStatus detailStatus,  RewardLoadStatus codeStatus,  RewardLoadStatus redeemStatus,  String? errorMessage,  String? successMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _RewardState() when $default != null:
-return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
+return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_that.codeStatus,_that.redeemStatus,_that.errorMessage,_that.successMessage);case _:
   return null;
 
 }
@@ -676,7 +679,7 @@ return $default(_that.items,_that.selectedItem,_that.status,_that.detailStatus,_
 
 
 class _RewardState extends RewardState {
-  const _RewardState({final  List<RewardItem> items = const [], this.selectedItem, this.status = RewardLoadStatus.initial, this.detailStatus = RewardLoadStatus.initial, this.redeemStatus = RewardLoadStatus.initial, this.errorMessage, this.successMessage}): _items = items,super._();
+  const _RewardState({final  List<RewardItem> items = const [], this.selectedItem, this.status = RewardLoadStatus.initial, this.detailStatus = RewardLoadStatus.initial, this.codeStatus = RewardLoadStatus.initial, this.redeemStatus = RewardLoadStatus.initial, this.errorMessage, this.successMessage}): _items = items,super._();
   
 
  final  List<RewardItem> _items;
@@ -689,6 +692,9 @@ class _RewardState extends RewardState {
 @override final  RewardItem? selectedItem;
 @override@JsonKey() final  RewardLoadStatus status;
 @override@JsonKey() final  RewardLoadStatus detailStatus;
+/// Tracks only the decrypted code fetch — separate from detailStatus so
+/// the screen can render immediately from cached data while the code loads.
+@override@JsonKey() final  RewardLoadStatus codeStatus;
 @override@JsonKey() final  RewardLoadStatus redeemStatus;
 @override final  String? errorMessage;
 @override final  String? successMessage;
@@ -703,16 +709,16 @@ _$RewardStateCopyWith<_RewardState> get copyWith => __$RewardStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardState&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.selectedItem, selectedItem) || other.selectedItem == selectedItem)&&(identical(other.status, status) || other.status == status)&&(identical(other.detailStatus, detailStatus) || other.detailStatus == detailStatus)&&(identical(other.redeemStatus, redeemStatus) || other.redeemStatus == redeemStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RewardState&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.selectedItem, selectedItem) || other.selectedItem == selectedItem)&&(identical(other.status, status) || other.status == status)&&(identical(other.detailStatus, detailStatus) || other.detailStatus == detailStatus)&&(identical(other.codeStatus, codeStatus) || other.codeStatus == codeStatus)&&(identical(other.redeemStatus, redeemStatus) || other.redeemStatus == redeemStatus)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.successMessage, successMessage) || other.successMessage == successMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),selectedItem,status,detailStatus,redeemStatus,errorMessage,successMessage);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),selectedItem,status,detailStatus,codeStatus,redeemStatus,errorMessage,successMessage);
 
 @override
 String toString() {
-  return 'RewardState(items: $items, selectedItem: $selectedItem, status: $status, detailStatus: $detailStatus, redeemStatus: $redeemStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
+  return 'RewardState(items: $items, selectedItem: $selectedItem, status: $status, detailStatus: $detailStatus, codeStatus: $codeStatus, redeemStatus: $redeemStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
 }
 
 
@@ -723,7 +729,7 @@ abstract mixin class _$RewardStateCopyWith<$Res> implements $RewardStateCopyWith
   factory _$RewardStateCopyWith(_RewardState value, $Res Function(_RewardState) _then) = __$RewardStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<RewardItem> items, RewardItem? selectedItem, RewardLoadStatus status, RewardLoadStatus detailStatus, RewardLoadStatus redeemStatus, String? errorMessage, String? successMessage
+ List<RewardItem> items, RewardItem? selectedItem, RewardLoadStatus status, RewardLoadStatus detailStatus, RewardLoadStatus codeStatus, RewardLoadStatus redeemStatus, String? errorMessage, String? successMessage
 });
 
 
@@ -740,12 +746,13 @@ class __$RewardStateCopyWithImpl<$Res>
 
 /// Create a copy of RewardState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? selectedItem = freezed,Object? status = null,Object? detailStatus = null,Object? redeemStatus = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? selectedItem = freezed,Object? status = null,Object? detailStatus = null,Object? codeStatus = null,Object? redeemStatus = null,Object? errorMessage = freezed,Object? successMessage = freezed,}) {
   return _then(_RewardState(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<RewardItem>,selectedItem: freezed == selectedItem ? _self.selectedItem : selectedItem // ignore: cast_nullable_to_non_nullable
 as RewardItem?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,detailStatus: null == detailStatus ? _self.detailStatus : detailStatus // ignore: cast_nullable_to_non_nullable
+as RewardLoadStatus,codeStatus: null == codeStatus ? _self.codeStatus : codeStatus // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,redeemStatus: null == redeemStatus ? _self.redeemStatus : redeemStatus // ignore: cast_nullable_to_non_nullable
 as RewardLoadStatus,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,successMessage: freezed == successMessage ? _self.successMessage : successMessage // ignore: cast_nullable_to_non_nullable

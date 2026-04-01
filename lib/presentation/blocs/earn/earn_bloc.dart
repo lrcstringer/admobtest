@@ -302,10 +302,7 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     Emitter<EarnState> emit,
   ) async {
     // Guard: don't start if already in-flight or an engagement exists.
-    // Prevents a queued duplicate event from firing a second CF call after
-    // the first has already progressed past idle.
-    if (state.engagementPhase == EngagementPhase.starting ||
-        state.currentEngagement != null) {
+    if (state.isCreatingEngagement || state.currentEngagement != null) {
       return;
     }
 
@@ -319,7 +316,37 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       return;
     }
 
-    emit(state.copyWith(engagementPhase: EngagementPhase.starting));
+    // Determine target phase from already-loaded opportunity data.
+    // Prefer the opportunities list (fresh from current thread) over
+    // selectedOpportunity which may be stale from a previous interaction.
+    final earningType =
+        state.opportunities
+            .where((o) => o.id == event.opportunityId)
+            .map((o) => o.earningType)
+            .firstOrNull ??
+        (state.selectedOpportunity?.id == event.opportunityId
+            ? state.selectedOpportunity?.earningType
+            : null);
+
+    final EngagementPhase immediatePhase;
+    switch (earningType) {
+      case EarningType.adVideo:
+        immediatePhase = EngagementPhase.watchingAd;
+      case EarningType.upload:
+        immediatePhase = EngagementPhase.uploading;
+      case EarningType.survey:
+      case EarningType.poll:
+        immediatePhase = EngagementPhase.surveying;
+      default:
+        immediatePhase = EngagementPhase.watching;
+    }
+
+    // Transition to content immediately — no waiting for the CF.
+    // The CF runs in background; submission is held until it completes.
+    emit(state.copyWith(
+      engagementPhase: immediatePhase,
+      isCreatingEngagement: true,
+    ));
 
     final result = await _earnRepository.startEngagement(
       opportunityId: event.opportunityId,
@@ -329,38 +356,14 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
       (failure) {
         emit(state.copyWith(
           engagementPhase: EngagementPhase.failed,
+          isCreatingEngagement: false,
           errorMessage: failure.displayMessage,
         ));
       },
       (engagement) {
-        // Determine phase based on earning type.
-        // Prefer the opportunities list (fresh from current thread) over
-        // selectedOpportunity which may be stale from a previous interaction.
-        final earningType =
-            state.opportunities
-                .where((o) => o.id == event.opportunityId)
-                .map((o) => o.earningType)
-                .firstOrNull ??
-            (state.selectedOpportunity?.id == event.opportunityId
-                ? state.selectedOpportunity?.earningType
-                : null);
-
-        final EngagementPhase phase;
-        switch (earningType) {
-          case EarningType.adVideo:
-            phase = EngagementPhase.watchingAd;
-          case EarningType.upload:
-            phase = EngagementPhase.uploading;
-          case EarningType.survey:
-          case EarningType.poll:
-            phase = EngagementPhase.surveying;
-          default:
-            phase = EngagementPhase.watching;
-        }
-
         emit(state.copyWith(
           currentEngagement: engagement,
-          engagementPhase: phase,
+          isCreatingEngagement: false,
         ));
       },
     );

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -48,17 +49,31 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
     _LoadItemDetail event,
     Emitter<RewardState> emit,
   ) async {
-    emit(state.copyWith(detailStatus: RewardLoadStatus.loading));
+    // Immediately show cached item (without code) so the screen opens instantly.
+    final cached = state.items.firstWhereOrNull((i) => i.id == event.itemId);
+    if (cached != null) {
+      emit(state.copyWith(
+        selectedItem: cached,
+        detailStatus: RewardLoadStatus.loaded,
+        codeStatus: RewardLoadStatus.loading,
+      ));
+    } else {
+      emit(state.copyWith(detailStatus: RewardLoadStatus.loading));
+    }
 
     final result = await _rewardRepository.getRewardItemDetail(event.itemId);
 
     result.fold(
       (failure) => emit(state.copyWith(
-        detailStatus: RewardLoadStatus.error,
+        detailStatus: cached != null
+            ? RewardLoadStatus.loaded
+            : RewardLoadStatus.error,
+        codeStatus: RewardLoadStatus.error,
         errorMessage: failure.displayMessage,
       )),
       (item) => emit(state.copyWith(
         detailStatus: RewardLoadStatus.loaded,
+        codeStatus: RewardLoadStatus.loaded,
         selectedItem: item,
       )),
     );
@@ -134,6 +149,7 @@ class RewardBloc extends Bloc<RewardEvent, RewardState> {
     emit(state.copyWith(
       selectedItem: null,
       detailStatus: RewardLoadStatus.initial,
+      codeStatus: RewardLoadStatus.initial,
     ));
   }
 

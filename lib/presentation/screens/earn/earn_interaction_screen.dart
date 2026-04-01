@@ -138,6 +138,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
   // User ID for AdMob SSV
   String? _userId;
 
+  // Set to true if submit was attempted before currentEngagement was ready.
+  // The BlocListener retries _submitEngagement() when isCreatingEngagement → false.
+  bool _pendingSubmit = false;
+
   @override
   void initState() {
     super.initState();
@@ -471,7 +475,10 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
   Future<void> _submitEngagement() async {
     final state = context.read<EarnBloc>().state;
-    if (state.currentEngagement == null) return;
+    if (state.currentEngagement == null) {
+      if (state.isCreatingEngagement) _pendingSubmit = true;
+      return;
+    }
 
     try {
       // Collect device fingerprint
@@ -590,6 +597,14 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           _userId = state.currentEngagement!.userId;
         }
 
+        // Retry any submit that was attempted while engagement was being created.
+        if (!state.isCreatingEngagement && _pendingSubmit) {
+          _pendingSubmit = false;
+          if (state.currentEngagement != null) {
+            _submitEngagement();
+          }
+        }
+
         // Eagerly preload poll data so options are instant when surveying starts
         if (state.selectedOpportunity != null &&
             state.selectedOpportunity!.isPollOpportunity &&
@@ -681,6 +696,23 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           return;
         }
 
+        // Opportunity/campaign no longer available — pop back with friendly message
+        if (state.engagementPhase == EngagementPhase.failed &&
+            state.errorMessage != null &&
+            (state.errorMessage!.toLowerCase().contains('has expired') ||
+                state.errorMessage!.toLowerCase().contains('has ended') ||
+                state.errorMessage!.toLowerCase().contains('has not started'))) {
+          context.read<EarnBloc>().add(const EarnEvent.resetEngagement());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('This opportunity is no longer available'),
+              backgroundColor: AppColors.textSecondary,
+            ),
+          );
+          context.pop();
+          return;
+        }
+
         // Show error snackbar for other failures
         if (state.engagementPhase == EngagementPhase.failed &&
             state.errorMessage != null) {
@@ -751,6 +783,26 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
     if (state.engagementPhase == EngagementPhase.failed) {
       return _buildErrorState(state);
     }
+
+    // Slim preparation indicator while startEngagement CF runs in background
+    if (state.isCreatingEngagement) {
+      return Stack(
+        children: [
+          _buildContentBody(state),
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(),
+          ),
+        ],
+      );
+    }
+
+    return _buildContentBody(state);
+  }
+
+  Widget _buildContentBody(EarnState state) {
 
     // AdVideo: unified screen for idle/starting/watching/watchingAd phases
     if (state.isAdMobOpportunity &&
@@ -978,7 +1030,8 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
 
           // Start button
           AppButton(
-            text: isStarting ? 'Starting...' : 'Start Earning',
+            text: 'Start Earning',
+            loadingText: 'Starting...',
             onPressed: isStarting ? null : _startEngagement,
             isLoading: isStarting,
             icon: Icons.play_arrow,
@@ -1844,10 +1897,12 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           }),
           SizedBox(height: AppSpacing.lg),
 
-          // Submit button
+          // Submit button — held until engagement is created server-side
           AppButton(
             text: 'Submit Responses',
-            onPressed: _submitEngagement,
+            loadingText: 'Preparing...',
+            onPressed: state.isCreatingEngagement ? null : _submitEngagement,
+            isLoading: state.isCreatingEngagement,
             icon: Icons.send,
           ),
           SizedBox(height: AppSpacing.md),
