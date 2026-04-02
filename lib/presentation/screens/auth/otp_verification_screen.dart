@@ -299,9 +299,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen>
 
                                     return Container(
                                       margin: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      width: 60,
-                                      height: 60,
+                                          horizontal: 6),
+                                      width: 56,
+                                      height: 56,
                                       decoration: BoxDecoration(
                                         color: Theme.of(context).colorScheme.surface,
                                         borderRadius:
