@@ -5,7 +5,6 @@ import flutter_callkit_incoming
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
-  private let keystoreChannel = KeystoreChannel()
   private var secureField: UITextField?
 
   override func application(
@@ -15,7 +14,6 @@ import flutter_callkit_incoming
     GeneratedPluginRegistrant.register(with: self)
 
     if let controller = window?.rootViewController as? FlutterViewController {
-      keystoreChannel.register(with: controller.binaryMessenger)
 
       // Screenshot prevention method channel
       let screenshotChannel = FlutterMethodChannel(
