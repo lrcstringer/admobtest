@@ -39,6 +39,16 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# iOS
+ios/Pods/
+**/xcuserdata/
+
+# macOS
+macos/Pods/
+
+# Installers
+*.dmg
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile

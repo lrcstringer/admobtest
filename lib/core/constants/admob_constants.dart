@@ -4,7 +4,7 @@ import 'dart:io';
 abstract class AdMobConstants {
   // App IDs
   static const String androidAppId = 'ca-app-pub-9331591670168644~8585460504';
-  static const String iosAppId = 'ca-app-pub-9331591670168644~8585460504';
+  static const String iosAppId = 'ca-app-pub-9331591670168644~5554223975';
 
   // Publisher ID
   static const String publisherId = 'pub-9331591670168644';
@@ -13,7 +13,7 @@ abstract class AdMobConstants {
   static const String rewardedAdUnitIdAndroid =
       'ca-app-pub-9331591670168644/3138828175';
   static const String rewardedAdUnitIdIos =
-      'ca-app-pub-9331591670168644/3138828175';
+      'ca-app-pub-9331591670168644/6264670416';
 
   // Ad Unit IDs - Test (for development)
   static const String testRewardedAdUnitIdAndroid =
