@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import '../../../core/services/call_notification_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/common/imali_app_bar.dart';
@@ -13,7 +16,7 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState
-    extends State<NotificationSettingsScreen> {
+    extends State<NotificationSettingsScreen> with WidgetsBindingObserver {
   bool _pushEnabled = true;
   bool _emailEnabled = false;
   bool _transactionAlerts = true;
@@ -21,6 +24,34 @@ class _NotificationSettingsScreenState
   bool _potUpdates = true;
   bool _referralAlerts = true;
   bool _promotions = false;
+
+  // null = loading, true/false = result
+  bool? _canUseFullScreenIntent;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkFullScreenIntent();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Re-check when returning from system settings.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkFullScreenIntent();
+  }
+
+  Future<void> _checkFullScreenIntent() async {
+    if (!Platform.isAndroid) return;
+    final granted = await CallNotificationService.canUseFullScreenIntent();
+    if (mounted) setState(() => _canUseFullScreenIntent = granted);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +115,14 @@ class _NotificationSettingsScreenState
             value: _promotions,
             onChanged: (value) => setState(() => _promotions = value),
           ),
+          const Divider(height: 1),
+
+          // Calls — Android 14+ only
+          if (Platform.isAndroid && _canUseFullScreenIntent != null) ...[
+            _buildSectionHeader(context, 'Calls'),
+            _buildFullScreenIntentTile(context),
+            const Divider(height: 1),
+          ],
 
           AppSpacing.verticalXl,
 
@@ -101,6 +140,40 @@ class _NotificationSettingsScreenState
           AppSpacing.verticalXl,
         ],
       ),
+    );
+  }
+
+  Widget _buildFullScreenIntentTile(BuildContext context) {
+    final granted = _canUseFullScreenIntent ?? true;
+    return ListTile(
+      leading: Icon(
+        granted ? Icons.call : Icons.call_outlined,
+        color: granted ? AppColors.success : AppColors.warning,
+      ),
+      title: const Text('Lock screen call notifications'),
+      subtitle: Text(
+        granted
+            ? 'Incoming calls appear on your lock screen'
+            : 'Tap to allow incoming calls on your lock screen',
+        style: TextStyle(
+          color: granted ? AppColors.textSecondary : AppColors.warning,
+          fontSize: 13,
+        ),
+      ),
+      trailing: granted
+          ? Icon(Icons.check_circle, color: AppColors.success, size: 20)
+          : TextButton(
+              onPressed: CallNotificationService.openFullScreenIntentSettings,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.warning,
+                minimumSize: Size.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              ),
+              child: const Text('Allow'),
+            ),
+      onTap: granted
+          ? null
+          : CallNotificationService.openFullScreenIntentSettings,
     );
   }
 

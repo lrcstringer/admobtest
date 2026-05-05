@@ -9,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterFragmentActivity() {
     private lateinit var keystoreChannel: KeystoreChannel
     private lateinit var playIntegrityChannel: PlayIntegrityChannel
+    private lateinit var fullScreenIntentChannel: FullScreenIntentChannel
     private val SCREENSHOT_CHANNEL = "com.imalichat.app/screenshot"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,8 @@ class MainActivity : FlutterFragmentActivity() {
         keystoreChannel.register(flutterEngine)
         playIntegrityChannel = PlayIntegrityChannel(applicationContext)
         playIntegrityChannel.register(flutterEngine)
+        fullScreenIntentChannel = FullScreenIntentChannel(applicationContext)
+        fullScreenIntentChannel.register(flutterEngine)
 
         // Screenshot prevention method channel
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SCREENSHOT_CHANNEL)
@@ -49,6 +52,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         keystoreChannel.unregister()
         playIntegrityChannel.unregister()
+        fullScreenIntentChannel.unregister()
         super.cleanUpFlutterEngine(flutterEngine)
     }
 }

@@ -1,8 +1,10 @@
 // ignore_for_file: empty_catches
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart'
     as callkit;
@@ -27,6 +29,28 @@ import '../../presentation/blocs/call/call_bloc.dart';
 /// initialised.
 @lazySingleton
 class CallNotificationService {
+  static const _fsiChannel = MethodChannel('com.imalichat.app/full_screen_intent');
+
+  /// Returns true if the app is allowed to use full-screen intents.
+  /// Always true on Android < 14; requires explicit user grant on Android 14+.
+  static Future<bool> canUseFullScreenIntent() async {
+    if (!Platform.isAndroid) return true;
+    try {
+      return await _fsiChannel.invokeMethod<bool>('canUseFullScreenIntent') ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Opens the system settings page where the user can grant
+  /// USE_FULL_SCREEN_INTENT for this app (Android 14+ only).
+  static Future<void> openFullScreenIntentSettings() async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _fsiChannel.invokeMethod<void>('openFullScreenIntentSettings');
+    } catch (_) {}
+  }
+
   GoRouter? _router;
   CallBloc? _callBloc;
   StreamSubscription<callkit.CallEvent?>? _callKitSub;
@@ -66,6 +90,12 @@ class CallNotificationService {
     required String conversationId,
     required String callerId,
   }) async {
+    // On Android 14+, USE_FULL_SCREEN_INTENT requires explicit user grant.
+    // If not granted, flutter_callkit_incoming degrades to a heads-up
+    // notification — the call still rings, just without the lock-screen UI.
+    // The user can grant it later via Settings > Special app access.
+    await canUseFullScreenIntent(); // triggers the runtime check; result logged by Kotlin
+
     final hasVideo = callType == 'video';
 
     final params = callkit.CallKitParams(

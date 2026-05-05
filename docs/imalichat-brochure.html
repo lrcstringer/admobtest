@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iMaliChat — Product Brochure</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --bg:        #0B1929;
+      --bg2:       #0F2744;
+      --card:      #132D4A;
+      --card2:     #1A3A5C;
+      --primary:   #FF338A;
+      --primary2:  #FF6AAB;
+      --secondary: #FFC107;
+      --success:   #10B981;
+      --info:      #3B82F6;
+      --purple:    #A855F7;
+      --text:      #FFFFFF;
+      --muted:     #9CA3AF;
+      --border:    rgba(255,255,255,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: var(--text);
+    }
+
+    /* ─── PAGE SHELL ─── */
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 16mm;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── DECORATIVE BLOBS ─── */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════
+       PAGE 1
+    ═══════════════════════════════ */
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(145deg, #0B1929 0%, #112240 60%, #1a0d30 100%);
+      padding: 14mm 14mm 10mm;
+      position: relative;
+    }
+    .hero .blob-pink  { width: 260px; height: 260px; background: var(--primary); top: -80px; right: -60px; }
+    .hero .blob-blue  { width: 200px; height: 200px; background: var(--info);    bottom: -60px; left: 20px; }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10mm;
+    }
+    .logo-mark {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--primary), #cc2a6e);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: #fff;
+      box-shadow: 0 4px 18px rgba(255,51,138,0.45);
+      flex-shrink: 0;
+    }
+    .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--primary); }
+    .tagline-badge {
+      margin-left: auto;
+      background: rgba(255,51,138,0.15);
+      border: 1px solid rgba(255,51,138,0.35);
+      color: var(--primary2);
+      font-size: 10px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+
+    .hero-headline {
+      font-size: 32px; font-weight: 800; line-height: 1.18;
+      letter-spacing: -0.8px; margin-bottom: 5mm;
+    }
+    .hero-headline .accent { color: var(--primary); }
+    .hero-headline .gold   { color: var(--secondary); }
+
+    .hero-sub {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      line-height: 1.7; max-width: 148mm;
+    }
+
+    .hero-stats {
+      display: flex; gap: 6mm; margin-top: 8mm;
+    }
+    .stat-pill {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4mm 5mm;
+      text-align: center;
+      flex: 1;
+    }
+    .stat-pill .num { font-size: 20px; font-weight: 800; color: var(--secondary); }
+    .stat-pill .lbl { font-size: 9.5px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* Value props */
+    .value-section {
+      padding: 8mm 14mm;
+      background: var(--bg2);
+    }
+    .section-eyebrow {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.8px;
+      text-transform: uppercase; color: var(--primary);
+      margin-bottom: 3mm;
+    }
+    .section-title {
+      font-size: 17px; font-weight: 700; margin-bottom: 6mm;
+      letter-spacing: -0.3px;
+    }
+
+    .pillars {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4mm;
+    }
+    .pillar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 5mm;
+      position: relative;
+      overflow: hidden;
+    }
+    .pillar::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent-color, var(--primary));
+    }
+    .pillar-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--icon-bg, rgba(255,51,138,0.12));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 3mm;
+    }
+    .pillar h3 { font-size: 12px; font-weight: 700; margin-bottom: 2mm; }
+    .pillar p  { font-size: 10.5px; color: var(--muted); line-height: 1.6; }
+
+    /* Token economy */
+    .token-section {
+      padding: 8mm 14mm;
+    }
+    .token-flow {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6mm;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .flow-node {
+      flex: 1;
+      text-align: center;
+    }
+    .flow-node .icon {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      margin: 0 auto 2mm;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .flow-node .label { font-size: 10px; font-weight: 600; }
+    .flow-node .sub   { font-size: 9px; color: var(--muted); margin-top: 1mm; }
+    .flow-arrow {
+      font-size: 18px; color: var(--muted);
+      padding: 0 2mm;
+      flex-shrink: 0;
+    }
+    .flow-rate {
+      text-align: center;
+      margin-top: 4mm;
+      font-size: 11px; color: var(--muted);
+    }
+    .flow-rate strong { color: var(--secondary); }
+
+    /* Page 1 footer */
+    .page-footer {
+      margin-top: auto;
+      padding: 4mm 14mm;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px; color: var(--muted);
+    }
+    .page-num { font-weight: 600; color: var(--primary); }
+
+    /* ═══════════════════════════════
+       PAGE 2
+    ═══════════════════════════════ */
+
+    .page2-header {
+      background: linear-gradient(90deg, var(--card) 0%, var(--bg2) 100%);
+      padding: 8mm 14mm 6mm;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .page2-header .logo-row { margin-bottom: 0; }
+
+    .features-grid {
+      padding: 8mm 14mm;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 5mm 5mm 4mm;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card .corner-glow {
+      position: absolute; top: -20px; right: -20px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      opacity: 0.12;
+      filter: blur(24px);
+    }
+    .feature-card .fc-icon {
+      font-size: 22px; margin-bottom: 2mm;
+    }
+    .feature-card h3 {
+      font-size: 12.5px; font-weight: 700; margin-bottom: 2mm;
+    }
+    .feature-card .fc-chips {
+      display: flex; flex-wrap: wrap; gap: 2mm; margin-bottom: 3mm;
+    }
+    .chip {
+      font-size: 8.5px; font-weight: 600;
+      padding: 2px 7px; border-radius: 20px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .feature-card p {
+      font-size: 10px; color: var(--muted); line-height: 1.65;
+    }
+
+    /* Security strip */
+    .security-strip {
+      margin: 0 14mm;
+      background: linear-gradient(135deg, #0d1f36, #1a0d30);
+      border: 1px solid rgba(168,85,247,0.25);
+      border-radius: 14px;
+      padding: 5mm 6mm;
+      display: flex;
+      align-items: center;
+      gap: 4mm;
+    }
+    .security-strip .shield {
+      font-size: 28px; flex-shrink: 0;
+    }
+    .security-strip h3 { font-size: 12px; font-weight: 700; margin-bottom: 2mm; color: #c084fc; }
+    .security-strip p  { font-size: 10px; color: var(--muted); line-height: 1.6; }
+    .sec-badges {
+      display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 3mm;
+    }
+    .sec-badge {
+      font-size: 8.5px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      background: rgba(168,85,247,0.12);
+      border: 1px solid rgba(168,85,247,0.3);
+      color: #c084fc;
+    }
+
+    /* CTA section */
+    .cta-section {
+      margin: 5mm 14mm 0;
+      background: linear-gradient(135deg, rgba(255,51,138,0.12), rgba(255,193,7,0.08));
+      border: 1px solid rgba(255,51,138,0.25);
+      border-radius: 14px;
+      padding: 5mm 6mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4mm;
+    }
+    .cta-left h3 { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 2mm; }
+    .cta-left p  { font-size: 10px; color: var(--muted); }
+    .cta-left p a { color: var(--primary2); text-decoration: none; }
+    .cta-badges { display: flex; flex-direction: column; gap: 2mm; flex-shrink: 0; }
+    .store-badge {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3mm 5mm;
+      text-align: center;
+      font-size: 9px; font-weight: 600; color: var(--text);
+      white-space: nowrap;
+    }
+    .store-badge .store-name { font-size: 11px; font-weight: 700; }
+
+    /* ─── PRINT ─── */
+    @media print {
+      body { background: white; }
+      .page { margin: 0; width: 100%; page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+    }
+
+    @media screen {
+      body { padding: 10mm 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PAGE 1
+══════════════════════════════════════ -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="blob blob-pink"></div>
+    <div class="blob blob-blue"></div>
+
+    <div class="logo-row">
+      <div class="logo-mark">i</div>
+      <div class="logo-text">i<span>Mali</span>Chat</div>
+      <div class="tagline-badge">South Africa's Attention Economy</div>
+    </div>
+
+    <div class="hero-headline">
+      Get paid for your<br>
+      <span class="accent">attention.</span>
+      Chat with<br>
+      <span class="gold">purpose.</span>
+    </div>
+    <p class="hero-sub">
+      iMaliChat is South Africa's first reward-first super-app — where brands compete for your attention and pay you in real tokens every time you engage. Chat securely, earn continuously, shop locally, and grow your savings, all in one platform.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <div class="num">100</div>
+        <div class="lbl">tokens = R1 ZAR</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">E2EE</div>
+        <div class="lbl">Encrypted messages</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">5-in-1</div>
+        <div class="lbl">App experience</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">Free</div>
+        <div class="lbl">To download &amp; use</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALUE PILLARS -->
+  <div class="value-section">
+    <div class="section-eyebrow">What makes us different</div>
+    <div class="section-title">Five powerful features. One app.</div>
+
+    <div class="pillars">
+
+      <div class="pillar" style="--accent-color: #FF338A; --icon-bg: rgba(255,51,138,0.12);">
+        <div class="pillar-icon">🎯</div>
+        <h3>Earn</h3>
+        <p>Complete brand tasks — watch ads, take surveys, share content — and earn tokens directly into your wallet. No gimmicks. Real value for real attention.</p>
+      </div>
+
+      <div class="pillar" style="--accent-color: #3B82F6; --icon-bg: rgba(59,130,246,0.12);">
+        <div class="pillar-icon">💬</div>
+        <h3>Chat</h3>
+        <p>End-to-end encrypted messaging, voice notes, media sharing, and crystal-clear WebRTC voice &amp; video calls. Your conversations stay yours.</p>
+      </div>
+
+      <div class="pillar" style="--accent-color: #10B981; --icon-bg: rgba(16,185,129,0.12);">
+        <div class="pillar-icon">🛒</div>
+        <h3>Buy</h3>
+        <p>Discover local service providers and brand storefronts. Browse categories, place orders, and pay with tokens or group buying power.</p>
+      </div>
+
+      <div class="pillar" style="--accent-color: #FFC107; --icon-bg: rgba(255,193,7,0.12);">
+        <div class="pillar-icon">💰</div>
+        <h3>Wallet &amp; Save</h3>
+        <p>A full token wallet with real-time balance, transaction history, and built-in stokvel savings groups — including rotating pots and group goals.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOKEN ECONOMY -->
+  <div class="token-section">
+    <div class="section-eyebrow">How the economy works</div>
+    <div class="section-title">Brands pay. You earn. Simple.</div>
+
+    <div class="token-flow">
+      <div class="flow-node">
+        <div class="icon" style="background: rgba(255,193,7,0.12);">🏢</div>
+        <div class="label">Brand Partner</div>
+        <div class="sub">Funds campaign budget</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="icon" style="background: rgba(255,51,138,0.12);">🎯</div>
+        <div class="label">Earn Task</div>
+        <div class="sub">Ad · Survey · Upload</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="icon" style="background: rgba(16,185,129,0.12);">👤</div>
+        <div class="label">You (90%)</div>
+        <div class="sub">Tokens to wallet</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="icon" style="background: rgba(59,130,246,0.12);">🏆</div>
+        <div class="label">Daily &amp; Weekly Pot</div>
+        <div class="sub">10% shared pool prizes</div>
+      </div>
+    </div>
+    <p class="flow-rate">
+      Token rate: <strong>100 tokens = R1.00 ZAR</strong> &nbsp;·&nbsp; Redeem for airtime, data, or cash
+    </p>
+  </div>
+
+  <div class="page-footer">
+    <span>iMaliChat &nbsp;·&nbsp; Earn. Chat. Buy. Save. &nbsp;·&nbsp; imalichat.app</span>
+    <span class="page-num">1 / 2</span>
+  </div>
+
+</div><!-- /page 1 -->
+
+
+<!-- ══════════════════════════════════════
+     PAGE 2
+══════════════════════════════════════ -->
+<div class="page">
+
+  <div class="page2-header">
+    <div class="logo-row">
+      <div class="logo-mark">i</div>
+      <div class="logo-text">i<span>Mali</span>Chat</div>
+    </div>
+    <span style="font-size:11px; color: var(--muted);">Feature Overview</span>
+  </div>
+
+  <!-- FEATURE DEEP-DIVES -->
+  <div class="features-grid">
+
+    <!-- EARN -->
+    <div class="feature-card">
+      <div class="corner-glow" style="background: var(--primary);"></div>
+      <div class="fc-icon">🎯</div>
+      <h3>Earn — Brand Engagement</h3>
+      <div class="fc-chips">
+        <span class="chip">Rewarded Ads</span>
+        <span class="chip">Surveys</span>
+        <span class="chip">Upload Tasks</span>
+        <span class="chip">Audience Targeting</span>
+      </div>
+      <p>
+        Brands create campaigns (Earn Threads) with individual tasks (Earn Opportunities). Users are matched by demographics, language, location, and interests — so you only see tasks that are relevant to you. Every completed task credits tokens instantly. A daily and weekly shared pot gives everyone a chance at bonus winnings.
+      </p>
+    </div>
+
+    <!-- CHAT -->
+    <div class="feature-card">
+      <div class="corner-glow" style="background: var(--info);"></div>
+      <div class="fc-icon">💬</div>
+      <h3>Chat — Secure Messaging</h3>
+      <div class="fc-chips">
+        <span class="chip">Signal Protocol E2EE</span>
+        <span class="chip">Voice Notes</span>
+        <span class="chip">Video Calls</span>
+        <span class="chip">Communities</span>
+      </div>
+      <p>
+        All messages are encrypted using the Signal Protocol (X3DH + Double Ratchet) — even we cannot read them. Send photos, videos, voice notes, and files. Make free voice and video calls over WebRTC. Create community group chats for stokvels, neighbourhoods, or teams.
+      </p>
+    </div>
+
+    <!-- BUY -->
+    <div class="feature-card">
+      <div class="corner-glow" style="background: var(--success);"></div>
+      <div class="fc-icon">🛒</div>
+      <h3>Buy — Local Marketplace</h3>
+      <div class="fc-chips">
+        <span class="chip">Brand Storefronts</span>
+        <span class="chip">Service Listings</span>
+        <span class="chip">Group Buys</span>
+        <span class="chip">VAS</span>
+      </div>
+      <p>
+        Browse verified brand storefronts and independent service providers across 15+ categories — from home repairs to personal care to professional services. Pool buying power with others through Group Buys. Purchase airtime, data, and vouchers as Value-Added Services, all within the app.
+      </p>
+    </div>
+
+    <!-- WALLET & SAVE -->
+    <div class="feature-card">
+      <div class="corner-glow" style="background: var(--secondary);"></div>
+      <div class="fc-icon">💰</div>
+      <h3>Wallet &amp; Stokvel Savings</h3>
+      <div class="fc-chips">
+        <span class="chip">Token Wallet</span>
+        <span class="chip">iStokvel</span>
+        <span class="chip">Gooi-Gooi</span>
+        <span class="chip">Group Goals</span>
+      </div>
+      <p>
+        Your token wallet tracks every earning, spend, and transfer with a full double-entry ledger. Start or join a stokvel with configurable contribution cycles, rotating pot payouts (Gooi-Gooi), or shared savings goals. Redeem tokens for airtime, mobile data, or cash via trusted third-party partners.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- SECURITY STRIP -->
+  <div class="security-strip">
+    <div class="shield">🛡️</div>
+    <div>
+      <h3>Enterprise-Grade Security — Built in from Day One</h3>
+      <p>
+        iMaliChat was architected with security as a first principle, not an afterthought. Every layer of the app is hardened against fraud, impersonation, and data leakage.
+      </p>
+      <div class="sec-badges">
+        <span class="sec-badge">Hardware-backed device binding</span>
+        <span class="sec-badge">Biometric session lock</span>
+        <span class="sec-badge">Runtime RASP (freeRASP)</span>
+        <span class="sec-badge">E2EE Signal Protocol</span>
+        <span class="sec-badge">ECDSA keypairs</span>
+        <span class="sec-badge">Firebase App Check</span>
+        <span class="sec-badge">Double-entry ledger</span>
+        <span class="sec-badge">POPIA compliant</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-left">
+      <h3>Start earning today — it's free.</h3>
+      <p>
+        Download iMaliChat on the Google Play Store.<br>
+        Learn more at <a href="https://imalichat.app">imalichat.app</a> &nbsp;·&nbsp; Support: <a href="mailto:support@imalichat.app">support@imalichat.app</a>
+      </p>
+    </div>
+    <div class="cta-badges">
+      <div class="store-badge">
+        <div style="font-size:9px; color: var(--muted);">Available on</div>
+        <div class="store-name">▶ Google Play</div>
+      </div>
+      <div class="store-badge">
+        <div style="font-size:9px; color: var(--muted);">Coming soon</div>
+        <div class="store-name"> App Store</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>© 2026 iMaliChat &nbsp;·&nbsp; All rights reserved &nbsp;·&nbsp; imalichat.app</span>
+    <span class="page-num">2 / 2</span>
+  </div>
+
+</div><!-- /page 2 -->
+
+</body>
+</html>

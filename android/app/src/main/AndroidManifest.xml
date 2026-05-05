@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
@@ -11,7 +12,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <!-- Removed: USE_FULL_SCREEN_INTENT is restricted to alarm/call apps on Android 14+.
+         tools:node="remove" strips it from the merged manifest including any plugin contributions. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" tools:node="remove"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -81,7 +84,7 @@
         <!-- Google AdMob App ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9331591670168644~8585460504"/>
+            android:value="ca-app-pub-9331591670168644~6272229066"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

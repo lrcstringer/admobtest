@@ -3,7 +3,7 @@ import 'dart:io';
 /// AdMob configuration constants for iMaliChat
 abstract class AdMobConstants {
   // App IDs
-  static const String androidAppId = 'ca-app-pub-9331591670168644~8585460504';
+  static const String androidAppId = 'ca-app-pub-9331591670168644~6272229066';
   static const String iosAppId = 'ca-app-pub-9331591670168644~5554223975';
 
   // Publisher ID
@@ -11,7 +11,7 @@ abstract class AdMobConstants {
 
   // Ad Unit IDs - Production
   static const String rewardedAdUnitIdAndroid =
-      'ca-app-pub-9331591670168644/3138828175';
+      'ca-app-pub-9331591670168644/4836070498';
   static const String rewardedAdUnitIdIos =
       'ca-app-pub-9331591670168644/6264670416';
 

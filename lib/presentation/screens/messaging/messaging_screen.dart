@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/services/call_notification_service.dart';
 
 import '../../../domain/entities/community.dart';
 import '../../../domain/entities/community_member.dart';
@@ -132,6 +135,52 @@ class _MessagingScreenState extends State<MessagingScreen>
             .add(const CommunityEvent.loadPendingInvitations());
       }
     });
+
+    // One-time prompt to grant USE_FULL_SCREEN_INTENT on Android 14+
+    if (Platform.isAndroid) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _maybeShowFullScreenIntentPrompt();
+      });
+    }
+  }
+
+  static const _fsiPromptKey = 'fsi_prompt_shown';
+
+  Future<void> _maybeShowFullScreenIntentPrompt() async {
+    if (!mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_fsiPromptKey) == true) return;
+    final granted = await CallNotificationService.canUseFullScreenIntent();
+    if (granted || !mounted) return;
+
+    await prefs.setBool(_fsiPromptKey, true);
+    if (!mounted) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Enable lock screen calls'),
+        content: const Text(
+          'To show incoming calls on your lock screen, iMaliChat needs the '
+          '"Use full-screen intents" permission.\n\n'
+          'Without it, calls will still ring but won\'t appear when your '
+          'screen is locked.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Not now'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              CallNotificationService.openFullScreenIntentSettings();
+            },
+            child: const Text('Allow'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
