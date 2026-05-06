@@ -134,8 +134,8 @@ class AdMobService {
               // Stale callback — ignore (don't reset isAdReady)
               return;
             }
-            debugPrint(
-                '[AdMob] LOAD FAILED — code: ${error.code}, domain: ${error.domain}, message: ${error.message}');
+            // ignore: avoid_print
+            print('[AdMob] LOAD FAILED — code: ${error.code}, domain: ${error.domain}, message: ${error.message}');
             _isLoading = false;
             isLoading.value = false;
             // Only reset isAdReady if no ad is actually loaded
