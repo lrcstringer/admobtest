@@ -75,9 +75,9 @@ class AdMobService {
   /// Current retry attempt number (1-based, 0 when not loading)
   final ValueNotifier<int> currentAttempt = ValueNotifier(0);
 
-  /// Creates AdMobService. Uses test ads until production fill is confirmed.
+  /// Creates AdMobService. Uses production ad units.
   @factoryMethod
-  AdMobService(this._sessionLockService) : _useTestAds = true;
+  AdMobService(this._sessionLockService) : _useTestAds = false;
 
   /// Constructor for testing - allows overriding test ads setting
   @visibleForTesting
