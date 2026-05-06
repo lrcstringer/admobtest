@@ -128,6 +128,15 @@ Future<void> main() async {
 
   // Initialize Google Mobile Ads SDK (don't block app launch)
   MobileAds.instance.initialize();
+  // Register physical test devices so the SDK serves test ads consistently.
+  // Device IDs discovered from logcat: "Use RequestConfiguration.Builder().setTestDeviceIds(...)"
+  MobileAds.instance.updateRequestConfiguration(
+    RequestConfiguration(
+      testDeviceIds: kDebugMode
+          ? ['2B6258B8A1D890915A434F766CBFB02B']
+          : [],
+    ),
+  );
 
   // App Check disabled — Play Integrity requires the app to be listed on Play Store.
   // SafetyNet has been deprecated and removed by Google.

@@ -75,9 +75,9 @@ class AdMobService {
   /// Current retry attempt number (1-based, 0 when not loading)
   final ValueNotifier<int> currentAttempt = ValueNotifier(0);
 
-  /// Creates AdMobService. Uses test ads in debug mode by default.
+  /// Creates AdMobService. Uses test ads until production fill is confirmed.
   @factoryMethod
-  AdMobService(this._sessionLockService) : _useTestAds = false;
+  AdMobService(this._sessionLockService) : _useTestAds = true;
 
   /// Constructor for testing - allows overriding test ads setting
   @visibleForTesting
@@ -106,6 +106,8 @@ class AdMobService {
     final gen = ++_loadGeneration;
     final completer = Completer<bool>();
 
+    debugPrint('[AdMob] loadAd — unit: $_adUnitId (attempt ${_loadRetryCount + 1})');
+
     try {
       await RewardedAd.load(
         adUnitId: _adUnitId,
@@ -117,6 +119,7 @@ class AdMobService {
               ad.dispose();
               return;
             }
+            debugPrint('[AdMob] AD LOADED — responseId: ${ad.responseInfo?.responseId}');
             _rewardedAd = ad;
             _isLoading = false;
             _loadRetryCount = 0;
@@ -150,6 +153,7 @@ class AdMobService {
       return await completer.future.timeout(
         AdMobConstants.adLoadTimeout,
         onTimeout: () {
+          debugPrint('[AdMob] LOAD TIMEOUT after ${AdMobConstants.adLoadTimeout.inSeconds}s');
           _isLoading = false;
           isLoading.value = false;
           // Don't reset isAdReady — the callback may still fire and succeed

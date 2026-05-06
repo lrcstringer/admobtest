@@ -1884,10 +1884,16 @@ export const admobSSVCallback = onRequest({ timeoutSeconds: 10, cors: false, con
       key_id: keyId,
     } = req.query as Record<string, string>;
 
-    // Validate required parameters
+    // No parameters = AdMob URL validation ping — respond 200 immediately.
+    if (!transactionId && !customData && !signature) {
+      res.status(200).send("OK");
+      return;
+    }
+
+    // Real callback with partial parameters — log and reject gracefully.
     if (!transactionId || !customData) {
-      logger.error("AdMob SSV: Missing required parameters");
-      res.status(400).send("Missing required parameters");
+      logger.error("AdMob SSV: Missing required parameters", { transactionId, customData });
+      res.status(200).send("OK - Missing parameters logged");
       return;
     }
 

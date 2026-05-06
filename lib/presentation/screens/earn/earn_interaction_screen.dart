@@ -1186,6 +1186,7 @@ class _EarnInteractionScreenState extends State<EarnInteractionScreen>
           ] else if (!bothReady && !_isShowingAd) ...[
             // Engagement creating or ad actively loading — show spinner + attempt
             if (state.isAdLoading ||
+                state.isCreatingEngagement ||
                 state.engagementPhase == EngagementPhase.starting ||
                 state.engagementPhase == EngagementPhase.idle)
               Center(

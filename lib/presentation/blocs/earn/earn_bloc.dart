@@ -282,6 +282,16 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
         ));
       },
       (opportunity) {
+        // Guard: if startEngagement already advanced the phase during the
+        // Firestore await (common when two concurrent selectOpportunity calls
+        // fire before either resolves — the idempotency check misses both),
+        // preserve the in-progress engagement state and only refresh the
+        // opportunity data.
+        if (state.engagementPhase != EngagementPhase.idle ||
+            state.isCreatingEngagement) {
+          emit(state.copyWith(selectedOpportunity: opportunity));
+          return;
+        }
         emit(state.copyWith(
           selectedOpportunity: opportunity,
           currentEngagement: null,
@@ -647,9 +657,15 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     Emitter<EarnState> emit,
   ) {
     if (!event.success) {
-      // All automatic retries exhausted — bump retry round so the UI can
-      // show the "unavailable" state and gate further manual retries.
-      emit(state.copyWith(adRetryRound: state.adRetryRound + 1));
+      // All automatic retries exhausted — clear loading flag and bump retry
+      // round so the UI can show the "unavailable" state and gate further
+      // manual retries.
+      emit(state.copyWith(
+        isAdLoading: false,
+        adRetryRound: state.adRetryRound + 1,
+      ));
+    } else {
+      emit(state.copyWith(isAdLoading: false));
     }
   }
 
@@ -704,7 +720,12 @@ class EarnBloc extends Bloc<EarnEvent, EarnState> {
     _AdLoadingStateChanged event,
     Emitter<EarnState> emit,
   ) {
-    emit(state.copyWith(isAdLoading: event.isLoading));
+    // isAdLoading is owned by _onLoadAdVideo (sets true) and _onAdLoadComplete
+    // (clears). Routing the SDK's per-attempt loading flag here caused a race:
+    // the brief false→true transition between retries triggered spurious
+    // loadAdVideo dispatches from the BlocListener that burned through all retry
+    // rounds instantly. The ValueNotifier listener is kept so adLoadAttempt
+    // still drives the attempt counter in the UI via _onAdLoadAttemptChanged.
   }
 
   void _onAdLoadAttemptChanged(
