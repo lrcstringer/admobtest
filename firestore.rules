@@ -674,6 +674,12 @@ service cloud.firestore {
       }
     }
 
+    // AdMob impression log — written by the client after each ad play or failure
+    match /adImpressions/{docId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if false;
+    }
+
     // AdMob SSV callbacks collection
     // Stores verification records from AdMob server-side callbacks
     // All writes are from Cloud Functions only (the SSV endpoint)

@@ -1,1 +1,0 @@
-enum GroupBuyFulfilmentType { digital, physical }

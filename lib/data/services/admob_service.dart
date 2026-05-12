@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:injectable/injectable.dart';
@@ -65,6 +66,11 @@ class AdMobService {
   int _loadGeneration = 0; // Incremented per load attempt to discard stale callbacks
   final bool _useTestAds;
   final SessionLockService _sessionLockService;
+  final FirebaseFirestore _firestore;
+
+  // Captured from ResponseInfo after each successful load
+  String? _adSourceName;
+  int? _adSourceLatencyMillis;
 
   /// Callback for when ad loading state changes
   final ValueNotifier<bool> isAdReady = ValueNotifier(false);
@@ -77,12 +83,15 @@ class AdMobService {
 
   /// Creates AdMobService. Uses production ad units.
   @factoryMethod
-  AdMobService(this._sessionLockService) : _useTestAds = false;
+  AdMobService(this._sessionLockService, this._firestore) : _useTestAds = false;
 
   /// Constructor for testing - allows overriding test ads setting
   @visibleForTesting
-  AdMobService.withTestAds(this._sessionLockService, {bool useTestAds = true})
-      : _useTestAds = useTestAds;
+  AdMobService.withTestAds(
+    this._sessionLockService,
+    this._firestore, {
+    bool useTestAds = true,
+  }) : _useTestAds = useTestAds;
 
   String get _adUnitId => _useTestAds
       ? AdMobConstants.testRewardedAdUnitId
@@ -125,6 +134,12 @@ class AdMobService {
             _loadRetryCount = 0;
             isLoading.value = false;
             isAdReady.value = true;
+
+            // Capture adapter metadata for the impression record
+            final adapter = ad.responseInfo?.loadedAdapterResponseInfo;
+            _adSourceName = adapter?.adSourceName;
+            _adSourceLatencyMillis = adapter?.latencyMillis;
+
             if (!completer.isCompleted) {
               completer.complete(true);
             }
@@ -142,6 +157,9 @@ class AdMobService {
             if (_rewardedAd == null) {
               isAdReady.value = false;
             }
+
+            _logLoadFailure(error);
+
             if (!completer.isCompleted) {
               completer.complete(false);
             }
@@ -156,6 +174,7 @@ class AdMobService {
           debugPrint('[AdMob] LOAD TIMEOUT after ${AdMobConstants.adLoadTimeout.inSeconds}s');
           _isLoading = false;
           isLoading.value = false;
+          _logLoadTimeout();
           // Don't reset isAdReady — the callback may still fire and succeed
           return false;
         },
@@ -262,6 +281,10 @@ class AdMobService {
     // Capture response ID before showing (available after load)
     final responseId = _rewardedAd!.responseInfo?.responseId;
 
+    // Snapshot adapter metadata — cleared when ad is disposed
+    final adSourceName = _adSourceName;
+    final adSourceLatencyMillis = _adSourceLatencyMillis;
+
     final completer = Completer<AdRewardResult>();
     String? transactionId;
     bool adCompleted = false;
@@ -276,10 +299,23 @@ class AdMobService {
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
+        _adSourceName = null;
+        _adSourceLatencyMillis = null;
         isAdReady.value = false;
 
         if (!completer.isCompleted) {
           if (adCompleted && transactionId != null) {
+            _logImpression(
+              status: 'completed',
+              userId: userId,
+              customData: customData,
+              rewardAmount: AdMobConstants.adVideoTokenReward,
+              rewardType: 'tokens',
+              adSourceName: adSourceName,
+              latencyMillis: adSourceLatencyMillis,
+              responseId: responseId,
+              transactionId: transactionId,
+            );
             completer.complete(AdRewardResult.success(
               transactionId: transactionId!,
               rewardAmount: AdMobConstants.adVideoTokenReward,
@@ -287,6 +323,14 @@ class AdMobService {
               responseId: responseId,
             ));
           } else {
+            _logImpression(
+              status: 'abandoned',
+              userId: userId,
+              customData: customData,
+              adSourceName: adSourceName,
+              latencyMillis: adSourceLatencyMillis,
+              responseId: responseId,
+            );
             completer.complete(AdRewardResult.failure('Ad was not completed'));
           }
         }
@@ -300,7 +344,11 @@ class AdMobService {
         _sessionLockService.unsuppressLock();
         ad.dispose();
         _rewardedAd = null;
+        _adSourceName = null;
+        _adSourceLatencyMillis = null;
         isAdReady.value = false;
+
+        _logShowFailure(error, responseId: responseId);
 
         if (!completer.isCompleted) {
           completer.complete(AdRewardResult.failure(
@@ -351,6 +399,8 @@ class AdMobService {
         _sessionLockService.unsuppressLock();
         _rewardedAd?.dispose();
         _rewardedAd = null;
+        _adSourceName = null;
+        _adSourceLatencyMillis = null;
         isAdReady.value = false;
         loadAdWithRetry();
         return AdRewardResult.failure('Ad show timed out');
@@ -370,6 +420,68 @@ class AdMobService {
       if (state == null || state == AppLifecycleState.resumed) return;
       await Future.delayed(pollInterval);
     }
+  }
+
+  void _logImpression({
+    required String status,
+    required String userId,
+    required String customData,
+    int? rewardAmount,
+    String? rewardType,
+    String? adSourceName,
+    int? latencyMillis,
+    String? responseId,
+    String? transactionId,
+  }) {
+    _firestore.collection('adImpressions').add({
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': status,
+      'userId': userId,
+      'customData': customData,
+      'rewardAmount': rewardAmount,
+      'rewardType': rewardType,
+      'adSourceName': adSourceName,
+      'latencyMillis': latencyMillis,
+      'responseId': responseId,
+      'transactionId': transactionId,
+    }).then<void>((_) {}).catchError((Object e) {
+      debugPrint('[AdMob] Firestore impression log failed: $e');
+    });
+  }
+
+  void _logLoadTimeout() {
+    _firestore.collection('adImpressions').add({
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'loadTimeout',
+      'timeoutSeconds': AdMobConstants.adLoadTimeout.inSeconds,
+    }).then<void>((_) {}).catchError((Object e) {
+      debugPrint('[AdMob] Firestore timeout log failed: $e');
+    });
+  }
+
+  void _logLoadFailure(LoadAdError error) {
+    _firestore.collection('adImpressions').add({
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'loadFailed',
+      'errorCode': error.code,
+      'errorMessage': error.message,
+      'errorDomain': error.domain,
+    }).then<void>((_) {}).catchError((Object e) {
+      debugPrint('[AdMob] Firestore load failure log failed: $e');
+    });
+  }
+
+  void _logShowFailure(AdError error, {String? responseId}) {
+    _firestore.collection('adImpressions').add({
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'showFailed',
+      'responseId': responseId,
+      'errorCode': error.code,
+      'errorMessage': error.message,
+      'errorDomain': error.domain,
+    }).then<void>((_) {}).catchError((Object e) {
+      debugPrint('[AdMob] Firestore show failure log failed: $e');
+    });
   }
 
   /// Check if an ad is ready to show

@@ -11,7 +11,7 @@ abstract class AdMobConstants {
 
   // Ad Unit IDs - Production
   static const String rewardedAdUnitIdAndroid =
-      'ca-app-pub-9331591670168644/4836070498';
+      'ca-app-pub-9331591670168644/3138828175';
   static const String rewardedAdUnitIdIos =
       'ca-app-pub-9331591670168644/6264670416';
 

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Response Box Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: linear-gradient(to bottom, #2d3a7a, #1e2555);
+    border-radius: 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 3px solid #444;
+    position: relative;
+  }
+  .status-bar {
+    height: 50px;
+    padding: 12px 24px 0;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .app-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+  .app-bar .back { color: white; font-size: 24px; cursor: pointer; }
+  .app-bar .title {
+    flex: 1;
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .app-bar .spacer { width: 24px; }
+
+  /* This is the key part — scrollable content area */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 16px;
+  }
+
+  /* IMAGE: width 100%, height auto = full image, correct proportions */
+  .content img {
+    width: 100%;
+    height: auto;          /* THIS is the critical rule */
+    border-radius: 12px;
+    display: block;
+  }
+
+  .response-text {
+    color: white;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-top: 20px;
+  }
+  .response-text strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .continue-btn {
+    display: block;
+    width: 100%;
+    margin-top: 28px;
+    padding: 18px;
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 32px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .bottom-nav {
+    height: 64px;
+    background: #111333;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .bottom-nav .tab {
+    color: #888;
+    font-size: 11px;
+    text-align: center;
+  }
+  .bottom-nav .tab.active { color: #f5a623; }
+  .bottom-nav .tab .icon { font-size: 22px; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>15:45</span>
+    <span>🔋 94</span>
+  </div>
+
+  <div class="app-bar">
+    <span class="back">←</span>
+    <span class="title">Brain Flex</span>
+    <span class="spacer"></span>
+  </div>
+
+  <!-- Scrollable content — the image is taller than the viewport, so you scroll -->
+  <div class="content">
+    <img src="https://upload.wikimedia.org/wikipedia/en/b/bd/H2G2_UK_front_cover.jpg"
+         alt="Hitchhiker's Guide book cover">
+
+    <div class="response-text">
+      <strong>Correct!</strong>
+      You clearly are well-read and have a sense of humour.<br>
+      Now, just remind me, what exactly was the question?
+    </div>
+
+    <button class="continue-btn">Continue</button>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="tab"><div class="icon">🏠</div>Home</div>
+    <div class="tab active"><div class="icon">🏆</div>Earn</div>
+    <div class="tab"><div class="icon">💬</div>Chat</div>
+    <div class="tab"><div class="icon">🛒</div>Buy</div>
+    <div class="tab"><div class="icon">👛</div>Wallet</div>
+  </div>
+</div>
+
+</body>
+</html>

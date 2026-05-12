@@ -1,1 +1,0 @@
-enum GroupBuyType { digital, physical }
