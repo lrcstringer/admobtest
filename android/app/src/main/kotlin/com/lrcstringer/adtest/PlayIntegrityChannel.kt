@@ -1,4 +1,4 @@
-package com.imalichat.app
+package com.lrcstringer.adtest
 
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.IntegrityTokenRequest

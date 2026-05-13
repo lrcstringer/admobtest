@@ -1,4 +1,4 @@
-package com.imalichat.app
+package com.lrcstringer.adtest
 
 import android.app.NotificationManager
 import android.content.Context
@@ -53,6 +53,6 @@ class FullScreenIntentChannel(private val context: Context) {
     }
 
     companion object {
-        const val CHANNEL_NAME = "com.imalichat.app/full_screen_intent"
+        const val CHANNEL_NAME = "com.lrcstringer.adtest/full_screen_intent"
     }
 }

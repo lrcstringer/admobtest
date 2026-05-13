@@ -1,4 +1,4 @@
-package com.imalichat.app
+package com.lrcstringer.adtest
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec

@@ -1,4 +1,4 @@
-package com.imalichat.app
+package com.lrcstringer.adtest
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -10,7 +10,7 @@ class MainActivity : FlutterFragmentActivity() {
     private lateinit var keystoreChannel: KeystoreChannel
     private lateinit var playIntegrityChannel: PlayIntegrityChannel
     private lateinit var fullScreenIntentChannel: FullScreenIntentChannel
-    private val SCREENSHOT_CHANNEL = "com.imalichat.app/screenshot"
+    private val SCREENSHOT_CHANNEL = "com.lrcstringer.adtest/screenshot"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
